@@ -1,1 +1,3 @@
-# trainlog-app
+# trainlog_app
+
+A new Flutter project.
