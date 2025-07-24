@@ -9,8 +9,34 @@ import 'pages/tickets_page.dart';
 import 'pages/friends_page.dart';
 import 'pages/settings_page.dart';
 
+enum AppPageId {
+  map,
+  trips,
+  ranking,
+  statistics,
+  coverage,
+  tags,
+  tickets,
+  friends,
+  settings,
+}
+
 void main() {
   runApp(const MyApp());
+}
+
+class AppPage {
+  final AppPageId id;
+  final Widget view;
+  final String title;
+  final IconData? icon; // null for drawer-only pages
+
+  const AppPage({
+    required this.id,
+    required this.view,
+    required this.title,
+    this.icon,
+  });
 }
 
 class MyApp extends StatefulWidget {
@@ -21,40 +47,54 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  late final PageController _pageController;
   int _selectedIndex = 0;
   int _previousBottomIndex = 0;
 
-  final List<Widget> _pages = [
-    const MapPage(),        // 0
-    const TripsPage(),      // 1
-    const RankingPage(),    // 2
-    const StatisticsPage(), // 3
-    const CoveragePage(),   // 4
-    const TagsPage(),       // 5
-    const TicketsPage(),    // 6
-    const FriendsPage(),    // 7
-    const SettingsPage(),   // 8
+  final List<AppPage> _pages = const [
+    AppPage(id: AppPageId.map, view: MapPage(), title: 'Map', icon: Icons.map),
+    AppPage(id: AppPageId.trips, view: TripsPage(), title: 'Trips', icon: Icons.card_travel),
+    AppPage(id: AppPageId.ranking, view: RankingPage(), title: 'Ranking', icon: Icons.leaderboard),
+    AppPage(id: AppPageId.statistics, view: StatisticsPage(), title: 'Statistics', icon: Icons.show_chart),
+    AppPage(id: AppPageId.coverage, view: CoveragePage(), title: 'Coverage', icon: Icons.percent),
+    AppPage(id: AppPageId.tags, view: TagsPage(), title: 'Tags', icon: Icons.label),
+    AppPage(id: AppPageId.tickets, view: TicketsPage(), title: 'Tickets', icon: Icons.confirmation_number),
+    AppPage(id: AppPageId.friends, view: FriendsPage(), title: 'Friends', icon: Icons.people),
+    AppPage(id: AppPageId.settings, view: SettingsPage(), title: 'Settings', icon: Icons.settings),
   ];
 
   bool get isDrawerPage => _selectedIndex >= 4;
 
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(initialPage: _selectedIndex);
+  }
+
   void _onItemTapped(int index) {
-    setState(() {
-      if (index < 4) {
-        _previousBottomIndex = index;
-      }
-      _selectedIndex = index;
-    });
+    if (index < 4) {
+      _previousBottomIndex = index;
+    }
+    setState(() => _selectedIndex = index);
+    _pageController.jumpToPage(index);
   }
 
   void _goBackToBottomNavPage() {
-    setState(() {
-      _selectedIndex = _previousBottomIndex;
-    });
+    _onItemTapped(_previousBottomIndex);
   }
 
   @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  int _indexOf(AppPageId id) => _pages.indexWhere((page) => page.id == id);
+
+  @override
   Widget build(BuildContext context) {
+    final currentPage = _pages[_selectedIndex];
+
     return MaterialApp(
       theme: ThemeData(
         useMaterial3: true,
@@ -64,7 +104,7 @@ class _MyAppState extends State<MyApp> {
         builder: (context) => Scaffold(
           appBar: isDrawerPage
               ? AppBar(
-                  title: const Text('My App'),
+                  title: Text(currentPage.title),
                   leading: IconButton(
                     icon: const Icon(Icons.arrow_back),
                     onPressed: _goBackToBottomNavPage,
@@ -74,62 +114,40 @@ class _MyAppState extends State<MyApp> {
           drawer: isDrawerPage
               ? null
               : Drawer(
-                  child: ListView(
-                    padding: EdgeInsets.zero,
+                  child: Column(
                     children: [
-                      DrawerHeader(
+                      const DrawerHeader(
                         decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.primary,
+                          color: Colors.blue,
                         ),
-                        child: Text('Menu'),
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text('Menu', style: TextStyle(color: Colors.white)),
+                        ),
                       ),
-                      ListTile(
-                        leading: const Icon(Icons.percent),
-                        title: const Text('Coverage'),
-                        onTap: () {
-                          Navigator.pop(context);
-                          _onItemTapped(4);
-                        },
-                      ),
-                      ListTile(
-                        leading: const Icon(Icons.label_outline),
-                        title: const Text('Tags'),
-                        onTap: () {
-                          Navigator.pop(context);
-                          _onItemTapped(5);
-                        },
-                      ),
-                      ListTile(
-                        leading: const Icon(Icons.confirmation_num_outlined),
-                        title: const Text('Tickets'),
-                        onTap: () {
-                          Navigator.pop(context);
-                          _onItemTapped(6);
-                        },
-                      ),
-                      ListTile(
-                        leading: const Icon(Icons.group_outlined),
-                        title: const Text('Friends'),
-                        onTap: () {
-                          Navigator.pop(context);
-                          _onItemTapped(7);
-                        },
+                      Expanded(
+                        child: ListView(
+                          padding: EdgeInsets.zero,
+                          children: [
+                            _buildDrawerItem(context, _indexOf(AppPageId.coverage)),
+                            _buildDrawerItem(context, _indexOf(AppPageId.tags)),
+                            _buildDrawerItem(context, _indexOf(AppPageId.tickets)),
+                            _buildDrawerItem(context, _indexOf(AppPageId.friends)),
+                          ],
+                        ),
                       ),
                       const Divider(),
-                      ListTile(
-                        leading: const Icon(Icons.settings),
-                        title: const Text('Settings'),
-                        onTap: () {
-                          Navigator.pop(context);
-                          _onItemTapped(8);
-                        },
-                      ),
+                      _buildDrawerItem(context, _indexOf(AppPageId.settings)),
                     ],
                   ),
                 ),
           body: Stack(
             children: [
-              _pages[_selectedIndex],
+              PageView(
+                controller: _pageController,
+                physics: const NeverScrollableScrollPhysics(),
+                children: _pages.map((p) => p.view).toList(),
+              ),
               if (!isDrawerPage)
                 Positioned(
                   top: 16,
@@ -141,9 +159,9 @@ class _MyAppState extends State<MyApp> {
                         shape: BoxShape.circle,
                         border: Border.all(
                           color: Theme.of(context).colorScheme.primary,
-                          width: 3,
+                          width: 2,
                         ),
-                        boxShadow: [
+                        boxShadow: const [
                           BoxShadow(
                             color: Colors.black12,
                             blurRadius: 4,
@@ -154,8 +172,8 @@ class _MyAppState extends State<MyApp> {
                       child: IconButton(
                         icon: const Icon(Icons.menu),
                         color: Colors.black,
-                        onPressed: () => Scaffold.of(innerContext).openDrawer(),
                         tooltip: 'Open menu',
+                        onPressed: () => Scaffold.of(innerContext).openDrawer(),
                       ),
                     ),
                   ),
@@ -167,31 +185,29 @@ class _MyAppState extends State<MyApp> {
               : NavigationBar(
                   onDestinationSelected: _onItemTapped,
                   selectedIndex: _selectedIndex,
-                  destinations: const <Widget>[
-                    NavigationDestination(
-                      icon: Icon(Icons.map_outlined),
-                      selectedIcon: Icon(Icons.map),
-                      label: 'Map',
-                    ),
-                    NavigationDestination(
-                      icon: Icon(Icons.commute_outlined),
-                      selectedIcon: Icon(Icons.commute),
-                      label: 'Trips',
-                    ),
-                    NavigationDestination(
-                      icon: Icon(Icons.emoji_events_outlined),
-                      selectedIcon: Icon(Icons.emoji_events),
-                      label: 'Ranking',
-                    ),
-                    NavigationDestination(
-                      icon: Icon(Icons.bar_chart_outlined),
-                      selectedIcon: Icon(Icons.bar_chart),
-                      label: 'Statistics',
-                    ),
+                  destinations: [
+                    for (int i = 0; i < 4; i++)
+                      NavigationDestination(
+                        icon: Icon(_pages[i].icon),
+                        selectedIcon: Icon(_pages[i].icon),
+                        label: _pages[i].title,
+                      ),
                   ],
                 ),
         ),
       ),
+    );
+  }
+
+  Widget _buildDrawerItem(BuildContext context, int index) {
+    final page = _pages[index];
+    return ListTile(
+      leading: Icon(page.icon),
+      title: Text(page.title),
+      onTap: () {
+        Navigator.pop(context);
+        _onItemTapped(index);
+      },
     );
   }
 }
