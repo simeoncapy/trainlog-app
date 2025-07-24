@@ -12,12 +12,29 @@ class SettingsPage extends StatelessWidget {
         return ListView(
           children: [
             ListTile(
-              title: const Text('Dark Mode'),
-              trailing: Switch(
-                value: settings.themeMode == ThemeMode.dark,
-                onChanged: (value) {
-                  settings.setTheme(value ? ThemeMode.dark : ThemeMode.light);
+              leading: const Icon(Icons.dark_mode),
+              title: const Text('Theme Mode'),
+              trailing: DropdownButton<ThemeMode>(
+                value: settings.themeMode,
+                onChanged: (ThemeMode? newValue) {
+                  if (newValue != null) {
+                    settings.setTheme(newValue);
+                  }
                 },
+                items: const [
+                  DropdownMenuItem(
+                    value: ThemeMode.light,
+                    child: Text('Light'),
+                  ),
+                  DropdownMenuItem(
+                    value: ThemeMode.dark,
+                    child: Text('Dark'),
+                  ),
+                  DropdownMenuItem(
+                    value: ThemeMode.system,
+                    child: Text('System'),
+                  ),
+                ],
               ),
             ),
           ],
