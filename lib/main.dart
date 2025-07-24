@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'pages/map_page.dart';
 import 'pages/trips_page.dart';
 import 'pages/ranking_page.dart';
@@ -8,6 +9,7 @@ import 'pages/tags_page.dart';
 import 'pages/tickets_page.dart';
 import 'pages/friends_page.dart';
 import 'pages/settings_page.dart';
+import 'providers/settings_provider.dart';
 
 enum AppPageId {
   map,
@@ -22,7 +24,12 @@ enum AppPageId {
 }
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => SettingsProvider(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class AppPage {
@@ -95,14 +102,21 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     final currentPage = _pages[_selectedIndex];
 
-    return MaterialApp(
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-      ),
-      home: Builder(
-        builder: (context) => Scaffold(
-          appBar: isDrawerPage
+    return Consumer<SettingsProvider>(
+      builder: (context, settings, child) {
+        return MaterialApp(
+          theme: ThemeData(
+            useMaterial3: true,
+            colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue, brightness: Brightness.light),
+          ),
+          darkTheme: ThemeData(
+            useMaterial3: true,
+            colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue, brightness: Brightness.dark),
+          ),
+          themeMode: settings.themeMode,
+          home: Builder(
+            builder: (context) => Scaffold(
+              appBar: isDrawerPage
               ? AppBar(
                   title: Text(currentPage.title),
                   leading: IconButton(
