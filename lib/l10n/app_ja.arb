@@ -1,8 +1,21 @@
 {
   "@@locale": "ja",
+  "appTitle": "トレーンログ",
   "language": "日本語",
-  "themeMode": "テーマモード",
-  "dark": "ダーク",
-  "light": "ライト",
-  "system": "システム"
+
+  "settingsLanguage": "言語",
+  "settingsThemeMode": "テーマモード",
+  "settingsDark": "ダーク",
+  "settingsLight": "ライト",
+  "settingsSystem": "システム",
+
+  "menuMapTitle": "地図",
+  "menuTripsTitle": "旅行",
+  "menuRankingTitle": "ランキング",
+  "menuStatisticsTitle": "統計",
+  "menuCoverageTitle": "走破率",
+  "menuTagsTitle": "タグ",
+  "menuTicketsTitle": "乗車券",
+  "menuFriendsTitle": "フレンド",
+  "menuSettingsTitle": "設定"
 }

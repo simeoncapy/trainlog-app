@@ -7,6 +7,7 @@ import 'package:intl/intl.dart' as intl;
 
 import 'app_localizations_en.dart';
 import 'app_localizations_fr.dart';
+import 'app_localizations_ja.dart';
 
 // ignore_for_file: type=lint
 
@@ -96,6 +97,7 @@ abstract class AppLocalizations {
   static const List<Locale> supportedLocales = <Locale>[
     Locale('en'),
     Locale('fr'),
+    Locale('ja'),
   ];
 
   /// No description provided for @appTitle.
@@ -103,6 +105,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Trainlog'**
   String get appTitle;
+
+  /// No description provided for @language.
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get language;
+
+  /// No description provided for @settingsLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get settingsLanguage;
+
+  /// No description provided for @settingsThemeMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme Mode'**
+  String get settingsThemeMode;
+
+  /// No description provided for @settingsDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get settingsDark;
+
+  /// No description provided for @settingsLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get settingsLight;
+
+  /// No description provided for @settingsSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get settingsSystem;
 
   /// No description provided for @menuMapTitle.
   ///
@@ -127,6 +165,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Statistics'**
   String get menuStatisticsTitle;
+
+  /// No description provided for @menuCoverageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Coverage'**
+  String get menuCoverageTitle;
+
+  /// No description provided for @menuTagsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tags'**
+  String get menuTagsTitle;
+
+  /// No description provided for @menuTicketsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tickets'**
+  String get menuTicketsTitle;
+
+  /// No description provided for @menuFriendsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Friends'**
+  String get menuFriendsTitle;
+
+  /// No description provided for @menuSettingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get menuSettingsTitle;
 }
 
 class _AppLocalizationsDelegate
@@ -140,7 +208,7 @@ class _AppLocalizationsDelegate
 
   @override
   bool isSupported(Locale locale) =>
-      <String>['en', 'fr'].contains(locale.languageCode);
+      <String>['en', 'fr', 'ja'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
@@ -153,6 +221,8 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
       return AppLocalizationsEn();
     case 'fr':
       return AppLocalizationsFr();
+    case 'ja':
+      return AppLocalizationsJa();
   }
 
   throw FlutterError(

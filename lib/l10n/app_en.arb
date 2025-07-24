@@ -1,8 +1,21 @@
 {
   "@@locale": "en",
   "appTitle": "Trainlog",
+  "language": "English",
+  
+  "settingsLanguage": "Language",
+  "settingsThemeMode": "Theme Mode",
+  "settingsDark": "Dark",
+  "settingsLight": "Light",
+  "settingsSystem": "System",
+  
   "menuMapTitle": "Map",
   "menuTripsTitle": "Trips",
   "menuRankingTitle": "Ranking",
-  "menuStatisticsTitle": "Statistics"
+  "menuStatisticsTitle": "Statistics",
+  "menuCoverageTitle": "Coverage",
+  "menuTagsTitle": "Tags",    
+  "menuTicketsTitle": "Tickets", 
+  "menuFriendsTitle": "Friends", 
+  "menuSettingsTitle": "Settings"
 }

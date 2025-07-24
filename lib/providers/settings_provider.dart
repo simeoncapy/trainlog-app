@@ -45,6 +45,8 @@ class SettingsProvider with ChangeNotifier {
     final languageCode = prefs.getString('language_code');
     if (languageCode != null) {
       _locale = Locale(languageCode);
+    } else {
+      _locale = const Locale('en', 'GB'); // Default locale
     }
     notifyListeners();
   }

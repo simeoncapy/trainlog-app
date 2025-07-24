@@ -37,7 +37,7 @@ class AppPage {
   final AppPageId id;
   final Widget view;
   final String title;
-  final IconData? icon; // null for drawer-only pages
+  final IconData? icon;
 
   const AppPage({
     required this.id,
@@ -59,7 +59,7 @@ class _MyAppState extends State<MyApp> {
   int _selectedIndex = 0;
   int _previousBottomIndex = 0;
 
-  late List<AppPage> _pages;
+  List<AppPage> _pages = [];
 
   bool get isDrawerPage => _selectedIndex >= 4;
 
@@ -67,24 +67,6 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     _pageController = PageController(initialPage: _selectedIndex);
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final appLocalizations = AppLocalizations.of(context)!;
-
-    _pages = [
-      AppPage(id: AppPageId.map,        view: MapPage(),        title: appLocalizations.menuMapTitle,         icon: Icons.map),
-      AppPage(id: AppPageId.trips,      view: TripsPage(),      title: appLocalizations.menuTripsTitle,       icon: Icons.card_travel),
-      AppPage(id: AppPageId.ranking,    view: RankingPage(),    title: appLocalizations.menuRankingTitle,     icon: Icons.leaderboard),
-      AppPage(id: AppPageId.statistics, view: StatisticsPage(), title: appLocalizations.menuStatisticsTitle,  icon: Icons.show_chart),
-      AppPage(id: AppPageId.coverage,   view: CoveragePage(),   title: 'Coverage',                            icon: Icons.percent),
-      AppPage(id: AppPageId.tags,       view: TagsPage(),       title: 'Tags',                                icon: Icons.label),
-      AppPage(id: AppPageId.tickets,    view: TicketsPage(),    title: 'Tickets',                             icon: Icons.confirmation_number),
-      AppPage(id: AppPageId.friends,    view: FriendsPage(),    title: 'Friends',                             icon: Icons.people),
-      AppPage(id: AppPageId.settings,   view: SettingsPage(),   title: 'Settings',                            icon: Icons.settings),
-    ];
   }
 
   void _onItemTapped(int index) {
@@ -109,8 +91,6 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    final currentPage = _pages[_selectedIndex];
-
     return Consumer<SettingsProvider>(
       builder: (context, settings, child) {
         return MaterialApp(
@@ -127,100 +107,116 @@ class _MyAppState extends State<MyApp> {
           ),
           themeMode: settings.themeMode,
           home: Builder(
-            builder: (context) => Scaffold(
-              appBar: isDrawerPage
-                  ? AppBar(
-                      title: Text(currentPage.title),
-                      leading: IconButton(
-                        icon: const Icon(Icons.arrow_back),
-                        onPressed: _goBackToBottomNavPage,
+            builder: (context) {
+              final appLocalizations = AppLocalizations.of(context)!;
+
+              _pages = [
+                AppPage(id: AppPageId.map,        view: MapPage(),        title: appLocalizations.menuMapTitle,         icon: Icons.map),
+                AppPage(id: AppPageId.trips,      view: TripsPage(),      title: appLocalizations.menuTripsTitle,       icon: Icons.card_travel),
+                AppPage(id: AppPageId.ranking,    view: RankingPage(),    title: appLocalizations.menuRankingTitle,     icon: Icons.leaderboard),
+                AppPage(id: AppPageId.statistics, view: StatisticsPage(), title: appLocalizations.menuStatisticsTitle,  icon: Icons.show_chart),
+                AppPage(id: AppPageId.coverage,   view: CoveragePage(),   title: appLocalizations.menuCoverageTitle,    icon: Icons.percent),
+                AppPage(id: AppPageId.tags,       view: TagsPage(),       title: appLocalizations.menuTagsTitle,        icon: Icons.label),
+                AppPage(id: AppPageId.tickets,    view: TicketsPage(),    title: appLocalizations.menuTicketsTitle,     icon: Icons.confirmation_number),
+                AppPage(id: AppPageId.friends,    view: FriendsPage(),    title: appLocalizations.menuFriendsTitle,     icon: Icons.people),
+                AppPage(id: AppPageId.settings,   view: SettingsPage(),   title: appLocalizations.menuSettingsTitle,    icon: Icons.settings),
+              ];
+
+              final currentPage = _pages[_selectedIndex];
+
+              return Scaffold(
+                appBar: isDrawerPage
+                    ? AppBar(
+                        title: Text(currentPage.title),
+                        leading: IconButton(
+                          icon: const Icon(Icons.arrow_back),
+                          onPressed: _goBackToBottomNavPage,
+                        ),
+                      )
+                    : null,
+                drawer: isDrawerPage
+                    ? null
+                    : Drawer(
+                        child: Column(
+                          children: [
+                            const DrawerHeader(
+                              decoration: BoxDecoration(color: Colors.blue),
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text('Menu', style: TextStyle(color: Colors.white)),
+                              ),
+                            ),
+                            Expanded(
+                              child: ListView(
+                                padding: EdgeInsets.zero,
+                                children: [
+                                  _buildDrawerItem(context, _indexOf(AppPageId.coverage)),
+                                  _buildDrawerItem(context, _indexOf(AppPageId.tags)),
+                                  _buildDrawerItem(context, _indexOf(AppPageId.tickets)),
+                                  _buildDrawerItem(context, _indexOf(AppPageId.friends)),
+                                ],
+                              ),
+                            ),
+                            const Divider(),
+                            _buildDrawerItem(context, _indexOf(AppPageId.settings)),
+                          ],
+                        ),
                       ),
-                    )
-                  : null,
-              drawer: isDrawerPage
-                  ? null
-                  : Drawer(
-                      child: Column(
-                        children: [
-                          const DrawerHeader(
+                body: Stack(
+                  children: [
+                    PageView(
+                      controller: _pageController,
+                      physics: const NeverScrollableScrollPhysics(),
+                      children: _pages.map((p) => p.view).toList(),
+                    ),
+                    if (!isDrawerPage)
+                      Positioned(
+                        top: 16,
+                        left: 16,
+                        child: Builder(
+                          builder: (innerContext) => Container(
                             decoration: BoxDecoration(
-                              color: Colors.blue,
-                            ),
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text('Menu', style: TextStyle(color: Colors.white)),
-                            ),
-                          ),
-                          Expanded(
-                            child: ListView(
-                              padding: EdgeInsets.zero,
-                              children: [
-                                _buildDrawerItem(context, _indexOf(AppPageId.coverage)),
-                                _buildDrawerItem(context, _indexOf(AppPageId.tags)),
-                                _buildDrawerItem(context, _indexOf(AppPageId.tickets)),
-                                _buildDrawerItem(context, _indexOf(AppPageId.friends)),
+                              color: Theme.of(context).colorScheme.surfaceBright,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: Theme.of(context).colorScheme.primary,
+                                width: 2,
+                              ),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Colors.black12,
+                                  blurRadius: 4,
+                                  offset: Offset(2, 2),
+                                ),
                               ],
                             ),
-                          ),
-                          const Divider(),
-                          _buildDrawerItem(context, _indexOf(AppPageId.settings)),
-                        ],
-                      ),
-                    ),
-              body: Stack(
-                children: [
-                  PageView(
-                    controller: _pageController,
-                    physics: const NeverScrollableScrollPhysics(),
-                    children: _pages.map((p) => p.view).toList(),
-                  ),
-                  if (!isDrawerPage)
-                    Positioned(
-                      top: 16,
-                      left: 16,
-                      child: Builder(
-                        builder: (innerContext) => Container(
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.surfaceBright,
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: Theme.of(context).colorScheme.primary,
-                              width: 2,
+                            child: IconButton(
+                              icon: const Icon(Icons.menu),
+                              color: Theme.of(context).colorScheme.onSurface,
+                              tooltip: 'Open menu',
+                              onPressed: () => Scaffold.of(innerContext).openDrawer(),
                             ),
-                            boxShadow: const [
-                              BoxShadow(
-                                color: Colors.black12,
-                                blurRadius: 4,
-                                offset: Offset(2, 2),
-                              ),
-                            ],
-                          ),
-                          child: IconButton(
-                            icon: const Icon(Icons.menu),
-                            color: Theme.of(context).colorScheme.onSurface,
-                            tooltip: 'Open menu',
-                            onPressed: () => Scaffold.of(innerContext).openDrawer(),
                           ),
                         ),
                       ),
-                    ),
-                ],
-              ),
-              bottomNavigationBar: isDrawerPage
-                  ? null
-                  : NavigationBar(
-                      onDestinationSelected: _onItemTapped,
-                      selectedIndex: _selectedIndex,
-                      destinations: [
-                        for (int i = 0; i < 4; i++)
-                          NavigationDestination(
-                            icon: Icon(_pages[i].icon),
-                            selectedIcon: Icon(_pages[i].icon),
-                            label: _pages[i].title,
-                          ),
-                      ],
-                    ),
-            ),
+                  ],
+                ),
+                bottomNavigationBar: isDrawerPage
+                    ? null
+                    : NavigationBar(
+                        onDestinationSelected: _onItemTapped,
+                        selectedIndex: _selectedIndex,
+                        destinations: [
+                          for (int i = 0; i < 4; i++)
+                            NavigationDestination(
+                              icon: Icon(_pages[i].icon),
+                              selectedIcon: Icon(_pages[i].icon),
+                              label: _pages[i].title,
+                            ),
+                        ],
+                      ),
+              );
+            },
           ),
         );
       },

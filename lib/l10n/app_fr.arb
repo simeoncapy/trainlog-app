@@ -1,8 +1,21 @@
 {
   "@@locale": "fr",
-  "appTitle": "Trainlog",
+  "appTitle": "Trainlog",  
+  "language": "English",
+
+  "settingsLanguage": "Langue",
+  "settingsThemeMode": "Thème",
+  "settingsDark": "Sombre",
+  "settingsLight": "Clair",
+  "settingsSystem": "Système",
+
   "menuMapTitle": "Carte",
   "menuTripsTitle": "Trajets",
   "menuRankingTitle": "Classement",
-  "menuStatisticsTitle": "Statistiques"
+  "menuStatisticsTitle": "Statistiques",
+  "menuCoverageTitle": "Couverture",
+  "menuTagsTitle": "Tags",    
+  "menuTicketsTitle": "Tickets", 
+  "menuFriendsTitle": "Amis", 
+  "menuSettingsTitle": "Paramètres"
 }

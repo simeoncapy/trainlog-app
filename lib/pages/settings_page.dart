@@ -26,7 +26,7 @@ class SettingsPage extends StatelessWidget {
           children: [
             ListTile(
               leading: const Icon(Icons.dark_mode),
-              title: Text(AppLocalizations.of(context)!.themeMode),
+              title: Text(AppLocalizations.of(context)!.settingsThemeMode),
               trailing: DropdownButton<ThemeMode>(
                 value: settings.themeMode,
                 onChanged: (ThemeMode? newValue) {
@@ -37,22 +37,22 @@ class SettingsPage extends StatelessWidget {
                 items: [
                   DropdownMenuItem(
                     value: ThemeMode.light,
-                    child: Text(AppLocalizations.of(context)!.light),
+                    child: Text(AppLocalizations.of(context)!.settingsLight),
                   ),
                   DropdownMenuItem(
                     value: ThemeMode.dark,
-                    child: Text(AppLocalizations.of(context)!.dark),
+                    child: Text(AppLocalizations.of(context)!.settingsDark),
                   ),
                   DropdownMenuItem(
                     value: ThemeMode.system,
-                    child: Text(AppLocalizations.of(context)!.system),
+                    child: Text(AppLocalizations.of(context)!.settingsSystem),
                   ),
                 ],
               ),
             ),
             ListTile(
               leading: const Icon(Icons.language),
-              title: Text(AppLocalizations.of(context)!.language),
+              title: Text(AppLocalizations.of(context)!.settingsLanguage),
               trailing: DropdownButton<String>(
                 value: settings.locale.languageCode,
                 onChanged: (String? newValue) {

@@ -12,6 +12,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appTitle => 'Trainlog';
 
   @override
+  String get language => 'English';
+
+  @override
+  String get settingsLanguage => 'Language';
+
+  @override
+  String get settingsThemeMode => 'Theme Mode';
+
+  @override
+  String get settingsDark => 'Dark';
+
+  @override
+  String get settingsLight => 'Light';
+
+  @override
+  String get settingsSystem => 'System';
+
+  @override
   String get menuMapTitle => 'Map';
 
   @override
@@ -22,4 +40,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get menuStatisticsTitle => 'Statistics';
+
+  @override
+  String get menuCoverageTitle => 'Coverage';
+
+  @override
+  String get menuTagsTitle => 'Tags';
+
+  @override
+  String get menuTicketsTitle => 'Tickets';
+
+  @override
+  String get menuFriendsTitle => 'Friends';
+
+  @override
+  String get menuSettingsTitle => 'Settings';
 }
