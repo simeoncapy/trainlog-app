@@ -20,13 +20,15 @@ class SettingsPage extends StatelessWidget {
       Language('Français', 'fr'),
       Language('日本語', 'ja'),
     ];
+    final appLocalization = AppLocalizations.of(context)!;
     return Consumer<SettingsProvider>(
       builder: (context, settings, child) {
         return ListView(
           children: [
+            _SettingsCategory(title: appLocalization.settingsAppCategory),
             ListTile(
               leading: const Icon(Icons.dark_mode),
-              title: Text(AppLocalizations.of(context)!.settingsThemeMode),
+              title: Text(appLocalization.settingsThemeMode),
               trailing: DropdownButton<ThemeMode>(
                 value: settings.themeMode,
                 onChanged: (ThemeMode? newValue) {
@@ -37,22 +39,22 @@ class SettingsPage extends StatelessWidget {
                 items: [
                   DropdownMenuItem(
                     value: ThemeMode.light,
-                    child: Text(AppLocalizations.of(context)!.settingsLight),
+                    child: Text(appLocalization.settingsLight),
                   ),
                   DropdownMenuItem(
                     value: ThemeMode.dark,
-                    child: Text(AppLocalizations.of(context)!.settingsDark),
+                    child: Text(appLocalization.settingsDark),
                   ),
                   DropdownMenuItem(
                     value: ThemeMode.system,
-                    child: Text(AppLocalizations.of(context)!.settingsSystem),
+                    child: Text(appLocalization.settingsSystem),
                   ),
                 ],
               ),
             ),
             ListTile(
               leading: const Icon(Icons.language),
-              title: Text(AppLocalizations.of(context)!.settingsLanguage),
+              title: Text(appLocalization.settingsLanguage),
               trailing: DropdownButton<String>(
                 value: settings.locale.languageCode,
                 onChanged: (String? newValue) {
@@ -70,9 +72,29 @@ class SettingsPage extends StatelessWidget {
                     .toList(),
               ),
             ),
+            _SettingsCategory(title: appLocalization.settingsAccountCategory),
           ],
         );
       },
+    );
+  }
+}
+
+class _SettingsCategory extends StatelessWidget {
+  final String title;
+  const _SettingsCategory({required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
+      child: Text(
+        title,
+        style: Theme.of(context).textTheme.titleSmall!.copyWith(
+              color: Theme.of(context).colorScheme.primary,
+              fontWeight: FontWeight.bold,
+            ),
+      ),
     );
   }
 }

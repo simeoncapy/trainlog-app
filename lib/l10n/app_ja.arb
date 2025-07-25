@@ -3,6 +3,8 @@
   "appTitle": "トレーンログ",
   "language": "日本語",
 
+  "settingsAppCategory": "アプリ設定",
+  "settingsAccountCategory": "アカウント設定",
   "settingsLanguage": "言語",
   "settingsThemeMode": "テーマモード",
   "settingsDark": "ダーク",

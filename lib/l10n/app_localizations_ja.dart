@@ -15,6 +15,12 @@ class AppLocalizationsJa extends AppLocalizations {
   String get language => '日本語';
 
   @override
+  String get settingsAppCategory => 'アプリ設定';
+
+  @override
+  String get settingsAccountCategory => 'アカウント設定';
+
+  @override
   String get settingsLanguage => '言語';
 
   @override

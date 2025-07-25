@@ -112,6 +112,18 @@ abstract class AppLocalizations {
   /// **'English'**
   String get language;
 
+  /// No description provided for @settingsAppCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'App Settings'**
+  String get settingsAppCategory;
+
+  /// No description provided for @settingsAccountCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Account Settings'**
+  String get settingsAccountCategory;
+
   /// No description provided for @settingsLanguage.
   ///
   /// In en, this message translates to:

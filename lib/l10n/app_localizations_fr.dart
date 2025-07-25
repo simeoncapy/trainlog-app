@@ -15,6 +15,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get language => 'English';
 
   @override
+  String get settingsAppCategory => 'Paramètres de l\'application';
+
+  @override
+  String get settingsAccountCategory => 'Paramètres du compte';
+
+  @override
   String get settingsLanguage => 'Langue';
 
   @override

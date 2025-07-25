@@ -3,6 +3,8 @@
   "appTitle": "Trainlog",
   "language": "English",
   
+  "settingsAppCategory": "App Settings",
+  "settingsAccountCategory": "Account Settings",
   "settingsLanguage": "Language",
   "settingsThemeMode": "Theme Mode",
   "settingsDark": "Dark",
