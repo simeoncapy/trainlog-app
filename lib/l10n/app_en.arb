@@ -17,5 +17,6 @@
   "menuTagsTitle": "Tags",    
   "menuTicketsTitle": "Tickets", 
   "menuFriendsTitle": "Friends", 
-  "menuSettingsTitle": "Settings"
+  "menuSettingsTitle": "Settings",
+  "menuAboutTitle": "About"
 }

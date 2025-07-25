@@ -195,6 +195,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Settings'**
   String get menuSettingsTitle;
+
+  /// No description provided for @menuAboutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get menuAboutTitle;
 }
 
 class _AppLocalizationsDelegate

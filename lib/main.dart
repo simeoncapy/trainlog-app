@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:trainlog_app/pages/about_page.dart';
 import 'pages/map_page.dart';
 import 'pages/trips_page.dart';
 import 'pages/ranking_page.dart';
@@ -22,6 +23,7 @@ enum AppPageId {
   tickets,
   friends,
   settings,
+  about,
 }
 
 void main() {
@@ -120,6 +122,7 @@ class _MyAppState extends State<MyApp> {
                 AppPage(id: AppPageId.tickets,    view: TicketsPage(),    title: appLocalizations.menuTicketsTitle,     icon: Icons.confirmation_number),
                 AppPage(id: AppPageId.friends,    view: FriendsPage(),    title: appLocalizations.menuFriendsTitle,     icon: Icons.people),
                 AppPage(id: AppPageId.settings,   view: SettingsPage(),   title: appLocalizations.menuSettingsTitle,    icon: Icons.settings),
+                AppPage(id: AppPageId.about,      view: AboutPage(),      title: appLocalizations.menuAboutTitle,       icon: Icons.info),
               ];
 
               final currentPage = _pages[_selectedIndex];
@@ -158,6 +161,7 @@ class _MyAppState extends State<MyApp> {
                               ),
                             ),
                             const Divider(),
+                            _buildDrawerItem(context, _indexOf(AppPageId.about)),
                             _buildDrawerItem(context, _indexOf(AppPageId.settings)),
                           ],
                         ),

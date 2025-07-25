@@ -55,4 +55,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get menuSettingsTitle => 'Settings';
+
+  @override
+  String get menuAboutTitle => 'About';
 }
