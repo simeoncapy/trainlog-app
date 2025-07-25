@@ -112,9 +112,9 @@ class _MyAppState extends State<MyApp> {
 
               _pages = [
                 AppPage(id: AppPageId.map,        view: MapPage(),        title: appLocalizations.menuMapTitle,         icon: Icons.map),
-                AppPage(id: AppPageId.trips,      view: TripsPage(),      title: appLocalizations.menuTripsTitle,       icon: Icons.card_travel),
-                AppPage(id: AppPageId.ranking,    view: RankingPage(),    title: appLocalizations.menuRankingTitle,     icon: Icons.leaderboard),
-                AppPage(id: AppPageId.statistics, view: StatisticsPage(), title: appLocalizations.menuStatisticsTitle,  icon: Icons.show_chart),
+                AppPage(id: AppPageId.trips,      view: TripsPage(),      title: appLocalizations.menuTripsTitle,       icon: Icons.commute),
+                AppPage(id: AppPageId.ranking,    view: RankingPage(),    title: appLocalizations.menuRankingTitle,     icon: Icons.emoji_events),
+                AppPage(id: AppPageId.statistics, view: StatisticsPage(), title: appLocalizations.menuStatisticsTitle,  icon: Icons.bar_chart),
                 AppPage(id: AppPageId.coverage,   view: CoveragePage(),   title: appLocalizations.menuCoverageTitle,    icon: Icons.percent),
                 AppPage(id: AppPageId.tags,       view: TagsPage(),       title: appLocalizations.menuTagsTitle,        icon: Icons.label),
                 AppPage(id: AppPageId.tickets,    view: TicketsPage(),    title: appLocalizations.menuTicketsTitle,     icon: Icons.confirmation_number),
