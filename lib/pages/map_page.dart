@@ -5,21 +5,35 @@ import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import 'package:google_polyline_algorithm/google_polyline_algorithm.dart';
 import 'package:trainlog_app/data/models/trips.dart';
+import 'package:trainlog_app/pages/fab_interface.dart';
 import 'package:trainlog_app/utils/polyline_utils.dart';
 import '../providers/trips_provider.dart';
 
-class MapPage extends StatefulWidget {
+class MapPage extends StatefulWidget  implements FabPage {
   const MapPage({super.key});
 
   @override
   State<MapPage> createState() => _MapPageState();
+  
+  @override
+  FloatingActionButton? buildFloatingActionButton(BuildContext context) {
+    return FloatingActionButton(
+      onPressed: () {
+        // Action (e.g. open a filter)
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Map FAB pressed')),
+        );
+      },
+      child: const Icon(Icons.filter_alt),
+    );
+  }
 }
 
 class _MapPageState extends State<MapPage> {
   final MapController _mapController = MapController();
   LatLng _center = LatLng(35.681236, 139.767125);
   double _zoom = 13.0;
-  List<Polyline> _polylines = [];
+  List<PolylineEntry> _polylines = [];
   bool _loading = true;
 
   @override
@@ -97,7 +111,10 @@ class _MapPageState extends State<MapPage> {
                 urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
                 userAgentPackageName: 'fr.scapy.app',
               ),
-              PolylineLayer(polylines: _polylines),
+              PolylineLayer(polylines: _polylines
+                .where((e) => e.type == VehicleType.train && e.startDate?.year == 2025)
+                .map((e) => e.polyline)
+                .toList(),),
               MarkerLayer(markers: [
                 Marker(
                   width: 80,
@@ -110,3 +127,4 @@ class _MapPageState extends State<MapPage> {
           );
   }
 }
+

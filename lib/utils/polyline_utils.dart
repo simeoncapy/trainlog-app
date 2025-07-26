@@ -11,26 +11,43 @@ List<LatLng> decodePath(String path) {
       .toList();
 }
 
-List<Polyline> decodePolylinesBatch(Map<String, dynamic> args) {
+List<PolylineEntry> decodePolylinesBatch(Map<String, dynamic> args) {
   final List<Map<String, dynamic>> entries = List<Map<String, dynamic>>.from(args['entries']);
-  final Map<VehicleType, Color> colorPalette = Map<VehicleType, Color>.from(args['colors']);      
+  final Map<VehicleType, Color> colorPalette = Map<VehicleType, Color>.from(args['colors']);
 
   return entries.map((e) {
     try {
       final path = (e['path'] as String).trim();
       final type = e['type'] as VehicleType;
+
+      // Extract year from start_datetime
+      final startDateStr = e['start_datetime']?.toString();
+      final startDate = startDateStr != null ? DateTime.tryParse(startDateStr) : DateTime(0);
+      final isFuture = startDate!.isAfter(DateTime.now());
+
       List<LatLng> points = decodePolyline(path)
           .map((p) => LatLng(p[0].toDouble(), p[1].toDouble()))
           .toList();
-      if (type == VehicleType.plane) print("${e['uid']}: ${points.length}");
+
       if (type == VehicleType.plane && points.length == 2) {
         points = generateGeodesicPoints(points[0], points[1], 40);
       }
-      return Polyline(points: points, color: colorPalette[type] ?? Colors.black, strokeWidth: 4.0);
+
+      return PolylineEntry(
+        polyline: Polyline(
+          points: points,
+          color: colorPalette[type] ?? Colors.black,
+          pattern: isFuture? StrokePattern.dashed(segments: [20, 20]) : StrokePattern.solid(),
+          strokeWidth: 4.0,
+        ),
+        type: type,
+        startDate: startDate,
+        isFuture: isFuture
+      );
     } catch (_) {
-      return null; // skip
+      return null;
     }
-  }).whereType<Polyline>().toList();
+  }).whereType<PolylineEntry>().toList();
 }
 
 List<LatLng> generateGeodesicPoints(LatLng start, LatLng end, int numPoints) {
@@ -66,4 +83,18 @@ List<LatLng> generateGeodesicPoints(LatLng start, LatLng end, int numPoints) {
   }
 
   return result;
+}
+
+class PolylineEntry {
+  final Polyline polyline;
+  final VehicleType type;
+  final DateTime? startDate;
+  final bool isFuture;
+
+  PolylineEntry({
+    required this.polyline,
+    required this.type,
+    required this.startDate,
+    this.isFuture = false,
+  });
 }

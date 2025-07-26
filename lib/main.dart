@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/pages/about_page.dart';
+import 'package:trainlog_app/pages/fab_interface.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
 import 'package:trainlog_app/widgets/trips_loader.dart';
 import 'pages/map_page.dart';
@@ -46,12 +47,14 @@ class AppPage {
   final Widget view;
   final String title;
   final IconData? icon;
+  final FloatingActionButton? Function(BuildContext context)? fabBuilder;
 
   const AppPage({
     required this.id,
     required this.view,
     required this.title,
     this.icon,
+    this.fabBuilder,
   });
 }
 
@@ -140,6 +143,9 @@ class _MyAppState extends State<MyApp> {
     ];
 
     final currentPage = _pages[_selectedIndex];
+    final fab = currentPage.view is FabPage
+      ? (currentPage.view as FabPage).buildFloatingActionButton(context)
+      : null;
 
     return Scaffold(
         appBar: isDrawerPage
@@ -151,6 +157,7 @@ class _MyAppState extends State<MyApp> {
                 ),
               )
             : null,
+        floatingActionButton: fab,
         drawer: isDrawerPage
             ? null
             : Drawer(
