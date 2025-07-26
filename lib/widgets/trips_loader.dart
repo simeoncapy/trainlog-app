@@ -19,7 +19,6 @@ class TripsLoader extends StatefulWidget {
 
 class _TripsLoaderState extends State<TripsLoader> {
   bool _loading = true;
-  bool _error = false;
 
   @override
   void initState() {
@@ -34,7 +33,6 @@ class _TripsLoaderState extends State<TripsLoader> {
       await Provider.of<TripsProvider>(context, listen: false)
           .loadTrips(csvPath: widget.csvPath);
     } catch (e) {
-      _error = true;
       Fluttertoast.showToast(
         msg: '⚠️ Failed to load trips.',
         toastLength: Toast.LENGTH_LONG,

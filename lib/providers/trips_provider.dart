@@ -15,18 +15,20 @@ class TripsProvider extends ChangeNotifier {
 
     if (csvPath == "")
     {
-      _repository = await TripsRepository.loadFromDb();
+      _repository = await TripsRepository.loadFromDatabase();
     }
     else
     {
       try {
-        _repository = await TripsRepository.loadFromCsvOrDb(csvPath: csvPath);
+        _repository = await TripsRepository.loadFromCsv(csvPath);
       } catch (e, stack) {
         debugPrintStack(stackTrace: stack);
       }
     }
 
     print("✅ Finished loading trips.");
+    final count = await _repository!.count();
+    print("${count} rows");
     _loading = false;
     notifyListeners();
   }
