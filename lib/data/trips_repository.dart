@@ -13,7 +13,7 @@ class TripsRepository {
 
   TripsRepository(this._db);
 
-  static Future<TripsRepository> loadFromCsv(String csvPath) async {
+  static Future<TripsRepository> loadFromCsv(String csvPath, {bool replace = false}) async {
     if (!File(csvPath).existsSync()) {
       throw FileSystemException('CSV file not found', csvPath);
     }
@@ -22,6 +22,11 @@ class TripsRepository {
     final trips = await parseCsv(content);
     final db = await DatabaseManager.database;
     final repo = TripsRepository(db);
+
+    if (replace) {
+      await repo.clearAllTrips();
+    }
+
     await repo.insertTrips(trips);
     return repo;
   }
@@ -57,10 +62,25 @@ class TripsRepository {
   Future<List<Map<String, dynamic>>> getPathExtendedData() async {
     final maps = await _db.query(
       TripsTable.tableName,
-      columns: ['path', 'origin_station', 'destination_station', 'start_datetime', 'end_datetime'],
+      columns: [
+        'uid',
+        'path',
+        'type',
+        'origin_station',
+        'destination_station',
+        'start_datetime',
+        'end_datetime',
+      ],
       where: 'path IS NOT NULL AND path != ""',
     );
-    return maps;
+
+    return maps.map((e) {
+      final typeEnum = VehicleType.fromString(e['type']?.toString());
+      return {
+        ...e,
+        'type': typeEnum,
+      };
+    }).toList();
   }
 
   Future<void> insertTrip(Trips trip) async {
@@ -92,7 +112,7 @@ class TripsRepository {
     final rows = const CsvToListConverter(eol: '\n', shouldParseNumbers: false).convert(csvContent);
     print('📊 Parsed ${rows.length} rows');
 
-    final header = rows.first.map((e) => e.toString()).toList();
+    final header = rows.first.map((e) => e.toString().trim()).toList();
     final dataRows = rows.skip(1);
 
     final trips = <Trips>[];
@@ -102,7 +122,7 @@ class TripsRepository {
       final map = <String, String>{};
 
       for (int i = 0; i < header.length && i < row.length; i++) {
-        map[header[i]] = row[i]?.toString() ?? '';
+        map[header[i]] = row[i]?.toString().trim() ?? '';
       }
 
       try {

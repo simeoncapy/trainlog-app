@@ -1,8 +1,11 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import 'package:google_polyline_algorithm/google_polyline_algorithm.dart';
+import 'package:trainlog_app/data/models/trips.dart';
+import 'package:trainlog_app/utils/polyline_utils.dart';
 import '../providers/trips_provider.dart';
 
 class MapPage extends StatefulWidget {
@@ -29,28 +32,51 @@ class _MapPageState extends State<MapPage> {
     final repo = context.read<TripsProvider>().repository;
     if (repo != null) {
       final pathData = await repo.getPathExtendedData();
-      print("${pathData.length} lines");
-      final limited = pathData.take(10).where((e) => (e['path'] ?? '').toString().isNotEmpty);
 
-      final polylines = limited.map((e) {
-        final path = e['path'] as String;
-        final points = decodePolyline(path)
-            .map((p) => LatLng(p[0].toDouble(), p[1].toDouble()))
-            .toList();
-        return Polyline(points: points, color: Colors.blue, strokeWidth: 4.0);
-      }).toList();
+      final Map<VehicleType, Color> colours = {
+        VehicleType.train: Colors.blue,
+        VehicleType.plane: Colors.green,
+        VehicleType.tram: Colors.lightBlue,
+        VehicleType.metro: Colors.deepOrange,
+        VehicleType.bus: Colors.deepPurple,
+        VehicleType.car: Colors.purple,
+        VehicleType.ferry: Colors.teal,
+        VehicleType.unknown: Colors.grey,
+      };
 
-      setState(() {
-        _polylines = polylines;
-        _loading = false;
-      });
+      //final List<Polyline> polylines = [];
+      final args = {
+        'entries': pathData,
+        'colors': colours,
+      };
+      final polylines = await compute(decodePolylinesBatch, args);
+
+      if (mounted) {
+        setState(() {
+          _polylines = polylines;
+          _loading = false;
+        });
+      }
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
     return _loading
-        ? const Center(child: CircularProgressIndicator())
+        ? Center(
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              const CircularProgressIndicator(),
+              const SizedBox(height: 16),
+              Text(
+                'Trips\' path loading, please wait', //: ${(_progress * 100).toStringAsFixed(0)}%',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+        )
         : FlutterMap(
             mapController: _mapController,
             options: MapOptions(
@@ -76,7 +102,7 @@ class _MapPageState extends State<MapPage> {
                 Marker(
                   width: 80,
                   height: 80,
-                  point: _center,
+                  point: LatLng(35.681236, 139.767125),
                   child: const Icon(Icons.location_pin, color: Colors.red),
                 ),
               ]),

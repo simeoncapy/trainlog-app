@@ -15,7 +15,7 @@ class Trips {
   final String lineName;
   final DateTime created;
   final DateTime lastModified;
-  final String type;
+  final VehicleType type;
   final String? materialType;
   final String? seat;
   final String? reg;
@@ -73,7 +73,7 @@ class Trips {
       lineName: json['line_name']?.toString() ?? '',
       created: DateTime.parse(json['created']),
       lastModified: DateTime.parse(json['last_modified']),
-      type: json['type']?.toString() ?? '',
+      type: VehicleType.fromString(json['type']),
       materialType: json['material_type']?.toString() ?? '',
       seat: json['seat']?.toString() ?? '',
       reg: json['reg']?.toString() ?? '',
@@ -104,7 +104,7 @@ class Trips {
       'line_name': lineName,
       'created': created.toIso8601String(),
       'last_modified': lastModified.toIso8601String(),
-      'type': type,
+      'type': type.toShortString(),
       'material_type': materialType,
       'seat': seat,
       'reg': reg,
@@ -134,5 +134,60 @@ class Trips {
       throw FormatException('Cannot parse empty value as double');
     }
     return double.parse(str);
+  }
+}
+
+
+enum VehicleType {
+  train,
+  plane,
+  tram,
+  metro,
+  bus,
+  car,
+  ferry,
+  unknown;
+
+  static VehicleType fromString(String? str) {
+    switch (str?.toLowerCase()) {
+      case 'train':
+        return VehicleType.train;
+      case 'air':
+      case 'plane':
+        return VehicleType.plane;
+      case 'tram':
+        return VehicleType.tram;
+      case 'metro':
+        return VehicleType.metro;
+      case 'bus':
+        return VehicleType.bus;
+      case 'car':
+        return VehicleType.car;
+      case 'ferry':
+        return VehicleType.ferry;
+      default:
+        return VehicleType.unknown;
+    }
+  }
+
+  String toShortString() {
+    switch (this) {
+      case VehicleType.train:
+        return 'train';
+      case VehicleType.plane:
+        return 'air';
+      case VehicleType.tram:
+        return 'tram';
+      case VehicleType.metro:
+        return 'metro';
+      case VehicleType.bus:
+        return 'bus';
+      case VehicleType.car:
+        return 'car';
+      case VehicleType.ferry:
+        return 'ferry';
+      case VehicleType.unknown:
+        return 'unknown';
+    }
   }
 }

@@ -24,6 +24,7 @@ dependencies:
   path: ^1.8.3
   sqflite_common_ffi: ^2.3.6
   google_polyline_algorithm: ^3.1.0
+  geodesy: ^0.10.2
 
 dev_dependencies:
   flutter_test:
