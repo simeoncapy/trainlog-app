@@ -16,6 +16,14 @@ dependencies:
   shared_preferences: ^2.0.15
   currency_picker: ^2.0.21
   flutter_map: ^8.2.1
+  csv: ^5.0.2
+  http: ^1.4.0
+  fluttertoast: ^8.2.4
+  sqflite: ^2.3.0
+  path_provider: ^2.1.2
+  path: ^1.8.3
+  sqflite_common_ffi: ^2.3.6
+  google_polyline_algorithm: ^3.1.0
 
 dev_dependencies:
   flutter_test:
