@@ -20,5 +20,13 @@
   "menuTicketsTitle": "Tickets", 
   "menuFriendsTitle": "Friends", 
   "menuSettingsTitle": "Settings",
-  "menuAboutTitle": "About"
+  "menuAboutTitle": "About",
+
+  "typeTrain": "Train",
+  "typeTram": "Tramway",
+  "typeMetro": "Metro",
+  "typeBus": "Bus",
+  "typeCar": "Car",
+  "typePlane": "Plane",
+  "typeFerry": "Ferry"
 }

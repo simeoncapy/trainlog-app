@@ -1,3 +1,6 @@
+import 'package:flutter/material.dart';
+import 'package:trainlog_app/l10n/app_localizations.dart';
+
 class Trips {
   final String uid;
   final String username;
@@ -188,6 +191,52 @@ enum VehicleType {
         return 'ferry';
       case VehicleType.unknown:
         return 'unknown';
+    }
+  }
+
+  String label(BuildContext context)
+  {
+    final appLocalizations = AppLocalizations.of(context)!;
+    
+    switch (this) {
+      case VehicleType.train:
+        return appLocalizations.typeTrain;
+      case VehicleType.plane:
+        return appLocalizations.typePlane;
+      case VehicleType.tram:
+        return appLocalizations.typeTram;
+      case VehicleType.metro:
+        return appLocalizations.typeMetro;
+      case VehicleType.bus:
+        return appLocalizations.typeBus;
+      case VehicleType.car:
+        return appLocalizations.typeCar;
+      case VehicleType.ferry:
+        return appLocalizations.typeFerry;
+      case VehicleType.unknown:
+        return 'unknown';
+    }
+  }
+
+  Icon icon()
+  {
+    switch (this) {
+      case VehicleType.train:
+        return Icon(Icons.train);
+      case VehicleType.plane:
+        return Icon(Icons.flight);
+      case VehicleType.tram:
+        return Icon(Icons.tram);
+      case VehicleType.metro:
+        return Icon(Icons.subway);
+      case VehicleType.bus:
+        return Icon(Icons.directions_bus);
+      case VehicleType.car:
+        return Icon(Icons.directions_car);
+      case VehicleType.ferry:
+        return Icon(Icons.directions_ferry);
+      case VehicleType.unknown:
+        return Icon(Icons.question_mark);
     }
   }
 }

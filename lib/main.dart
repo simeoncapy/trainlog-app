@@ -73,6 +73,7 @@ class _MyAppState extends State<MyApp> {
   List<AppPage> _pages = [];
 
   bool get isDrawerPage => _selectedIndex >= 4;
+  final ValueNotifier<FloatingActionButton?> _fabNotifier = ValueNotifier(null);
 
   @override
   void initState() {
@@ -130,7 +131,7 @@ class _MyAppState extends State<MyApp> {
     final appLocalizations = AppLocalizations.of(context)!;
 
     _pages = [
-      AppPage(id: AppPageId.map,        view: MapPage(),        title: appLocalizations.menuMapTitle,         icon: Icons.map),
+      AppPage(id: AppPageId.map,        view: MapPage(onFabReady: (fab) => _fabNotifier.value = fab),        title: appLocalizations.menuMapTitle,         icon: Icons.map),
       AppPage(id: AppPageId.trips,      view: TripsPage(),      title: appLocalizations.menuTripsTitle,       icon: Icons.commute),
       AppPage(id: AppPageId.ranking,    view: RankingPage(),    title: appLocalizations.menuRankingTitle,     icon: Icons.emoji_events),
       AppPage(id: AppPageId.statistics, view: StatisticsPage(), title: appLocalizations.menuStatisticsTitle,  icon: Icons.bar_chart),
@@ -143,9 +144,6 @@ class _MyAppState extends State<MyApp> {
     ];
 
     final currentPage = _pages[_selectedIndex];
-    final fab = currentPage.view is FabPage
-      ? (currentPage.view as FabPage).buildFloatingActionButton(context)
-      : null;
 
     return Scaffold(
         appBar: isDrawerPage
@@ -157,7 +155,10 @@ class _MyAppState extends State<MyApp> {
                 ),
               )
             : null,
-        floatingActionButton: fab,
+        floatingActionButton: ValueListenableBuilder<FloatingActionButton?>(
+          valueListenable: _fabNotifier,
+          builder: (_, fab, __) => fab ?? const SizedBox.shrink(),
+        ),
         drawer: isDrawerPage
             ? null
             : Drawer(

@@ -9,24 +9,13 @@ import 'package:trainlog_app/pages/fab_interface.dart';
 import 'package:trainlog_app/utils/polyline_utils.dart';
 import '../providers/trips_provider.dart';
 
-class MapPage extends StatefulWidget  implements FabPage {
-  const MapPage({super.key});
+class MapPage extends StatefulWidget {
+  final void Function(FloatingActionButton fab) onFabReady;
+
+  const MapPage({super.key, required this.onFabReady});
 
   @override
   State<MapPage> createState() => _MapPageState();
-  
-  @override
-  FloatingActionButton? buildFloatingActionButton(BuildContext context) {
-    return FloatingActionButton(
-      onPressed: () {
-        // Action (e.g. open a filter)
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Map FAB pressed')),
-        );
-      },
-      child: const Icon(Icons.filter_alt),
-    );
-  }
 }
 
 class _MapPageState extends State<MapPage> {
@@ -36,10 +25,31 @@ class _MapPageState extends State<MapPage> {
   List<PolylineEntry> _polylines = [];
   bool _loading = true;
 
+  Set<int> _selectedYears = {};
+  Set<VehicleType> _selectedTypes = {};
+  bool _showFilterModal = false;
+
+  List<int> get availableYears => _polylines
+      .map((e) => e.startDate?.year)
+      .whereType<int>()
+      .toSet()
+      .toList()
+    ..sort((a, b) => b.compareTo(a));
+
+  List<VehicleType> get availableTypes => _polylines
+      .map((e) => e.type)
+      .toSet()
+      .toList();
+
   @override
   void initState() {
     super.initState();
     _loadPolylines();
+
+    // Trigger FAB rebuild after first frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) setState(() {}); // This is safe and will force the FAB to be reevaluated
+    });
   }
 
   Future<void> _loadPolylines() async {
@@ -70,6 +80,7 @@ class _MapPageState extends State<MapPage> {
           _polylines = polylines;
           _loading = false;
         });
+        widget.onFabReady(buildFloatingActionButton(context)!);
       }
     }
   }
@@ -112,7 +123,9 @@ class _MapPageState extends State<MapPage> {
                 userAgentPackageName: 'fr.scapy.app',
               ),
               PolylineLayer(polylines: _polylines
-                .where((e) => e.type == VehicleType.train && e.startDate?.year == 2025)
+                .where((e) =>
+                  (_selectedYears.isEmpty || _selectedYears.contains(e.startDate?.year)) &&
+                  (_selectedTypes.isEmpty || _selectedTypes.contains(e.type)))
                 .map((e) => e.polyline)
                 .toList(),),
               MarkerLayer(markers: [
@@ -125,6 +138,65 @@ class _MapPageState extends State<MapPage> {
               ]),
             ],
           );
+  }
+
+  FloatingActionButton? buildFloatingActionButton(BuildContext context) {
+    return FloatingActionButton(
+      onPressed: () {
+        showModalBottomSheet(
+          context: context,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          builder: (_) => _buildFilterSheet(),
+        );
+      },
+      child: Icon(Icons.filter_alt),
+    );
+  }
+
+  Widget _buildFilterSheet() {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text("Années", style: Theme.of(context).textTheme.titleLarge),
+          Wrap(
+            spacing: 8,
+            children: availableYears.map((year) {
+              final selected = _selectedYears.contains(year);
+              return FilterChip(
+                label: Text(year.toString()),
+                selected: selected,
+                onSelected: (_) {
+                  setState(() {
+                    selected ? _selectedYears.remove(year) : _selectedYears.add(year);
+                  });
+                },
+              );
+            }).toList(),
+          ),
+          const SizedBox(height: 16),
+          Text("Types de véhicule", style: Theme.of(context).textTheme.titleLarge),
+          Wrap(
+            spacing: 8,
+            children: availableTypes.map((type) {
+              final selected = _selectedTypes.contains(type);
+              return FilterChip(
+                label: Text(type.label(context)),
+                avatar: type.icon(),
+                selected: selected,
+                onSelected: (_) {
+                  setState(() {
+                    selected ? _selectedTypes.remove(type) : _selectedTypes.add(type);
+                  });
+                },
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    );
   }
 }
 

@@ -20,5 +20,13 @@
   "menuTicketsTitle": "乗車券",
   "menuFriendsTitle": "フレンド",
   "menuSettingsTitle": "設定",
-  "menuAboutTitle": "ついて"
+  "menuAboutTitle": "ついて",
+
+  "typeTrain": "電車",
+  "typeTram": "路面電車",
+  "typeMetro": "地下鉄",
+  "typeBus": "バス",
+  "typeCar": "車",
+  "typePlane": "飛行機",
+  "typeFerry": "フェリー"
 }

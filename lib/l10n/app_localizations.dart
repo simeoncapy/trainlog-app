@@ -213,6 +213,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'About'**
   String get menuAboutTitle;
+
+  /// No description provided for @typeTrain.
+  ///
+  /// In en, this message translates to:
+  /// **'Train'**
+  String get typeTrain;
+
+  /// No description provided for @typeTram.
+  ///
+  /// In en, this message translates to:
+  /// **'Tramway'**
+  String get typeTram;
+
+  /// No description provided for @typeMetro.
+  ///
+  /// In en, this message translates to:
+  /// **'Metro'**
+  String get typeMetro;
+
+  /// No description provided for @typeBus.
+  ///
+  /// In en, this message translates to:
+  /// **'Bus'**
+  String get typeBus;
+
+  /// No description provided for @typeCar.
+  ///
+  /// In en, this message translates to:
+  /// **'Car'**
+  String get typeCar;
+
+  /// No description provided for @typePlane.
+  ///
+  /// In en, this message translates to:
+  /// **'Plane'**
+  String get typePlane;
+
+  /// No description provided for @typeFerry.
+  ///
+  /// In en, this message translates to:
+  /// **'Ferry'**
+  String get typeFerry;
 }
 
 class _AppLocalizationsDelegate

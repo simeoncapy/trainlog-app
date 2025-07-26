@@ -64,4 +64,25 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get menuAboutTitle => 'ついて';
+
+  @override
+  String get typeTrain => '電車';
+
+  @override
+  String get typeTram => '路面電車';
+
+  @override
+  String get typeMetro => '地下鉄';
+
+  @override
+  String get typeBus => 'バス';
+
+  @override
+  String get typeCar => '車';
+
+  @override
+  String get typePlane => '飛行機';
+
+  @override
+  String get typeFerry => 'フェリー';
 }

@@ -64,4 +64,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get menuAboutTitle => 'About';
+
+  @override
+  String get typeTrain => 'Train';
+
+  @override
+  String get typeTram => 'Tramway';
+
+  @override
+  String get typeMetro => 'Metro';
+
+  @override
+  String get typeBus => 'Bus';
+
+  @override
+  String get typeCar => 'Car';
+
+  @override
+  String get typePlane => 'Plane';
+
+  @override
+  String get typeFerry => 'Ferry';
 }
