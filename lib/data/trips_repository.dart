@@ -1,10 +1,8 @@
-import 'dart:ffi';
 import 'dart:io';
 import 'package:csv/csv.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/data/database_manager.dart';
-import 'package:google_polyline_algorithm/google_polyline_algorithm.dart';
 
 // TripsTable defined lower
 

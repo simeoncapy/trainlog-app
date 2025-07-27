@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/utils/polyline_utils.dart';
+import 'package:trainlog_app/widgets/dropdown_radio_list.dart';
 import '../providers/trips_provider.dart';
 
 class MapPage extends StatefulWidget {
@@ -38,6 +39,7 @@ class _MapPageState extends State<MapPage> {
   Set<int> _selectedYears = {};
   Set<VehicleType> _selectedTypes = {};
   bool _showFilterModal = false;
+  int _selectedYearFilterOption = 0;
 
   List<int> get availableYears => _polylines
       .map((e) => e.startDate?.year)
@@ -58,7 +60,7 @@ class _MapPageState extends State<MapPage> {
 
     // Trigger FAB rebuild after first frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) setState(() {}); // This is safe and will force the FAB to be reevaluated
+      if (mounted) setState(() {});
     });
   }
 
@@ -67,9 +69,6 @@ class _MapPageState extends State<MapPage> {
     if (repo != null) {
       final pathData = await repo.getPathExtendedData();
 
-      
-
-      //final List<Polyline> polylines = [];
       final args = {
         'entries': pathData,
         'colors': _colours,
@@ -100,7 +99,7 @@ Widget build(BuildContext context) {
               const CircularProgressIndicator(),
               const SizedBox(height: 16),
               Text(
-                'Trips\' path loading, please wait',
+                appLocalizations.tripPathLoading,
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
             ],
@@ -117,8 +116,8 @@ Widget build(BuildContext context) {
                 onPositionChanged: (position, hasGesture) {
                   if (hasGesture) {
                     setState(() {
-                      _center = position.center!;
-                      _zoom = position.zoom!;
+                      _center = position.center;
+                      _zoom = position.zoom;
                     });
                   }
                 },
@@ -195,22 +194,40 @@ Widget build(BuildContext context) {
         );
 }
 
-  Wrap _yearFilterBuilder() {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: availableYears.map((year) {
-        final selected = _selectedYears.contains(year);
-        return FilterChip(
-          label: Text(year.toString()),
-          selected: selected,
-          onSelected: (_) {
-            setState(() {
-              selected ? _selectedYears.remove(year) : _selectedYears.add(year);
-            });
-          },
-        );
-      }).toList(),
+  DropdownRadioList _yearFilterBuilder() {
+    return DropdownRadioList(
+      items: [
+        MultiLevelItem(title: AppLocalizations.of(context)!.yearAllList, subItems: []),
+        MultiLevelItem(title: AppLocalizations.of(context)!.yearPastList, subItems: []),
+        MultiLevelItem(title: AppLocalizations.of(context)!.yearFutureList, subItems: []),
+        MultiLevelItem(title: AppLocalizations.of(context)!.yearYearList, subItems: availableYears.map((e) => e.toString()).toList()),
+      ],
+      selectedTopIndex: _selectedYearFilterOption,
+      selectedSubStates: {3: availableYears.map((year) => _selectedYears.contains(year)).toList()},
+      onChanged: (top, sub) {
+        setState(() {
+          switch (top)
+          {
+            case 0: // all
+              _selectedYears = availableYears.toSet();
+              break;
+            case 1: // past
+              // TODO
+              break;
+            case 2: // future
+              // TODO
+              break;
+            case 3: // years
+              _selectedYears = sub.asMap().entries
+                .where((e) => e.value)
+                .map((e) => availableYears[e.key])
+                .toSet();
+              break;
+          }
+          _selectedYearFilterOption = top;
+        });
+
+      },
     );
   }
 

@@ -66,7 +66,22 @@ class AppLocalizationsJa extends AppLocalizations {
   String get menuAboutTitle => 'ついて';
 
   @override
+  String get tripPathLoading => '旅行のパスを読み込んでいます。お待ちください';
+
+  @override
   String get yearTitle => '年';
+
+  @override
+  String get yearAllList => '全て';
+
+  @override
+  String get yearPastList => '過去';
+
+  @override
+  String get yearFutureList => '未来';
+
+  @override
+  String get yearYearList => '年...';
 
   @override
   String get typeTitle => '乗り物のタイプ';

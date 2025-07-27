@@ -66,7 +66,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get menuAboutTitle => 'About';
 
   @override
+  String get tripPathLoading => 'Trips\' path loading, please wait';
+
+  @override
   String get yearTitle => 'Years';
+
+  @override
+  String get yearAllList => 'All';
+
+  @override
+  String get yearPastList => 'Past';
+
+  @override
+  String get yearFutureList => 'Future';
+
+  @override
+  String get yearYearList => 'Years...';
 
   @override
   String get typeTitle => 'Vehicle Types';

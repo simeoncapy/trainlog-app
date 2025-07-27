@@ -66,7 +66,23 @@ class AppLocalizationsFr extends AppLocalizations {
   String get menuAboutTitle => 'À propos';
 
   @override
+  String get tripPathLoading =>
+      'Chemin des trajets en cours de chargement, veuillez patienter';
+
+  @override
   String get yearTitle => 'Années';
+
+  @override
+  String get yearAllList => 'Tout';
+
+  @override
+  String get yearPastList => 'Passé';
+
+  @override
+  String get yearFutureList => 'Futur';
+
+  @override
+  String get yearYearList => 'Années...';
 
   @override
   String get typeTitle => 'Types de véhicule';

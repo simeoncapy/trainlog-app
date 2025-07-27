@@ -22,7 +22,12 @@
   "menuSettingsTitle": "Paramètres",
   "menuAboutTitle": "À propos",
 
+  "tripPathLoading": "Chemin des trajets en cours de chargement, veuillez patienter",
   "yearTitle": "Années",
+  "yearAllList": "Tout",
+  "yearPastList": "Passé",
+  "yearFutureList": "Futur",
+  "yearYearList": "Années...",
   "typeTitle": "Types de véhicule",
   "typeTrain": "Train",
   "typeTram": "Tramway",

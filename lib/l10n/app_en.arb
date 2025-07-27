@@ -22,7 +22,12 @@
   "menuSettingsTitle": "Settings",
   "menuAboutTitle": "About",
 
+  "tripPathLoading": "Trips' path loading, please wait",
   "yearTitle": "Years",
+  "yearAllList": "All",
+  "yearPastList": "Past",
+  "yearFutureList": "Future",
+  "yearYearList": "Years...",
   "typeTitle": "Vehicle Types",
   "typeTrain": "Train",
   "typeTram": "Tramway",

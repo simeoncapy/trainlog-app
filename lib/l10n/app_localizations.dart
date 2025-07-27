@@ -214,11 +214,41 @@ abstract class AppLocalizations {
   /// **'About'**
   String get menuAboutTitle;
 
+  /// No description provided for @tripPathLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Trips\' path loading, please wait'**
+  String get tripPathLoading;
+
   /// No description provided for @yearTitle.
   ///
   /// In en, this message translates to:
   /// **'Years'**
   String get yearTitle;
+
+  /// No description provided for @yearAllList.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get yearAllList;
+
+  /// No description provided for @yearPastList.
+  ///
+  /// In en, this message translates to:
+  /// **'Past'**
+  String get yearPastList;
+
+  /// No description provided for @yearFutureList.
+  ///
+  /// In en, this message translates to:
+  /// **'Future'**
+  String get yearFutureList;
+
+  /// No description provided for @yearYearList.
+  ///
+  /// In en, this message translates to:
+  /// **'Years...'**
+  String get yearYearList;
 
   /// No description provided for @typeTitle.
   ///
