@@ -93,6 +93,7 @@ class _DropdownRadioListState extends State<DropdownRadioList> {
                     onChanged: (value) {
                       setState(() {
                         selectedTopLevelIndex = value;
+                        if (value != 3) isExpanded = false;
                       });
                       widget.onChanged(index, subSelections[index]);
                     },
@@ -101,6 +102,7 @@ class _DropdownRadioListState extends State<DropdownRadioList> {
                   onTap: () {
                     setState(() {
                       selectedTopLevelIndex = index;
+                      if (index != 3) isExpanded = false; // Collapsing for other than "years..."
                     });
                     widget.onChanged(index, subSelections[index]);
                   },
