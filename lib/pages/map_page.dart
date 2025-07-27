@@ -8,7 +8,7 @@ import 'package:trainlog_app/utils/polyline_utils.dart';
 import '../providers/trips_provider.dart';
 
 class MapPage extends StatefulWidget {
-  final void Function(FloatingActionButton fab) onFabReady;
+  final void Function(FloatingActionButton? fab) onFabReady;
 
   const MapPage({super.key, required this.onFabReady});
 
@@ -85,115 +85,149 @@ class _MapPageState extends State<MapPage> {
 
 
   @override
-  Widget build(BuildContext context) {
-    return _loading
-        ? Center(
+Widget build(BuildContext context) {
+  return _loading
+      ? Center(
           child: Stack(
             alignment: Alignment.center,
             children: [
               const CircularProgressIndicator(),
               const SizedBox(height: 16),
               Text(
-                'Trips\' path loading, please wait', //: ${(_progress * 100).toStringAsFixed(0)}%',
+                'Trips\' path loading, please wait',
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
             ],
           ),
         )
-        : FlutterMap(
-            mapController: _mapController,
-            options: MapOptions(
-              initialCenter: _center,
-              initialZoom: _zoom,
-              keepAlive: true,
-              onPositionChanged: (position, hasGesture) {
-                if (hasGesture) {
-                  setState(() {
-                    _center = position.center!;
-                    _zoom = position.zoom!;
-                  });
-                }
-              },
-            ),
-            children: [
-              TileLayer(
-                urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-                userAgentPackageName: 'fr.scapy.app',
+      : Stack(
+          children: [
+            FlutterMap(
+              mapController: _mapController,
+              options: MapOptions(
+                initialCenter: _center,
+                initialZoom: _zoom,
+                keepAlive: true,
+                onPositionChanged: (position, hasGesture) {
+                  if (hasGesture) {
+                    setState(() {
+                      _center = position.center!;
+                      _zoom = position.zoom!;
+                    });
+                  }
+                },
               ),
-              PolylineLayer(polylines: _polylines
-                .where((e) =>
-                  (_selectedYears.isEmpty || _selectedYears.contains(e.startDate?.year)) &&
-                  (_selectedTypes.isEmpty || _selectedTypes.contains(e.type)))
-                .map((e) => e.polyline)
-                .toList(),),
-              MarkerLayer(markers: [
-                Marker(
-                  width: 80,
-                  height: 80,
-                  point: LatLng(35.681236, 139.767125),
-                  child: const Icon(Icons.location_pin, color: Colors.red),
+              children: [
+                TileLayer(
+                  urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                  userAgentPackageName: 'fr.scapy.app',
                 ),
-              ]),
-            ],
-          );
-  }
+                PolylineLayer(
+                  polylines: _polylines
+                      .where((e) =>
+                          (_selectedYears.isEmpty ||
+                              _selectedYears.contains(e.startDate?.year)) &&
+                          (_selectedTypes.isEmpty ||
+                              _selectedTypes.contains(e.type)))
+                      .map((e) => e.polyline)
+                      .toList(),
+                ),
+                MarkerLayer(
+                  markers: [
+                    Marker(
+                      width: 80,
+                      height: 80,
+                      point: LatLng(35.681236, 139.767125),
+                      child: const Icon(Icons.location_pin, color: Colors.red),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            if (_showFilterModal)
+              Positioned(
+                bottom: 16,
+                left: 16,
+                right: 16,
+                child: Material(
+                  elevation: 4,
+                  borderRadius: BorderRadius.circular(16),
+                  color: Theme.of(context).cardColor,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("Années", style: Theme.of(context).textTheme.titleLarge),
+                        Wrap(
+                          spacing: 8,
+                          children: availableYears.map((year) {
+                            final selected = _selectedYears.contains(year);
+                            return FilterChip(
+                              label: Text(year.toString()),
+                              selected: selected,
+                              onSelected: (_) {
+                                setState(() {
+                                  selected ? _selectedYears.remove(year) : _selectedYears.add(year);
+                                });
+                              },
+                            );
+                          }).toList(),
+                        ),
+                        const SizedBox(height: 16),
+                        Text("Types de véhicule", style: Theme.of(context).textTheme.titleLarge),
+                        Wrap(
+                          spacing: 8,
+                          children: availableTypes.map((type) {
+                            final selected = _selectedTypes.contains(type);
+                            return FilterChip(
+                              label: Text(type.label(context)),
+                              avatar: type.icon(),
+                              selected: selected,
+                              onSelected: (_) {
+                                setState(() {
+                                  selected ? _selectedTypes.remove(type) : _selectedTypes.add(type);
+                                });
+                              },
+                            );
+                          }).toList(),
+                        ),
+                        const SizedBox(height: 16),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              setState(() {
+                                _showFilterModal = false;
+                                widget.onFabReady(buildFloatingActionButton(context)!);
+                              });
+                            },
+                            icon: Icon(Icons.check),
+                            label: Text('OK'),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        );
+}
+
 
   FloatingActionButton? buildFloatingActionButton(BuildContext context) {
+    if (_showFilterModal) return null;
+
     return FloatingActionButton(
       onPressed: () {
-        showModalBottomSheet(
-          context: context,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          builder: (_) => _buildFilterSheet(),
-        );
+        setState(() {
+          _showFilterModal = true;
+          widget.onFabReady(null); // Hide FAB
+        });
       },
       child: Icon(Icons.filter_alt),
-    );
-  }
-
-  Widget _buildFilterSheet() {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text("Années", style: Theme.of(context).textTheme.titleLarge),
-          Wrap(
-            spacing: 8,
-            children: availableYears.map((year) {
-              final selected = _selectedYears.contains(year);
-              return FilterChip(
-                label: Text(year.toString()),
-                selected: selected,
-                onSelected: (_) {
-                  setState(() {
-                    selected ? _selectedYears.remove(year) : _selectedYears.add(year);
-                  });
-                },
-              );
-            }).toList(),
-          ),
-          const SizedBox(height: 16),
-          Text("Types de véhicule", style: Theme.of(context).textTheme.titleLarge),
-          Wrap(
-            spacing: 8,
-            children: availableTypes.map((type) {
-              final selected = _selectedTypes.contains(type);
-              return FilterChip(
-                label: Text(type.label(context)),
-                avatar: type.icon(),
-                selected: selected,
-                onSelected: (_) {
-                  setState(() {
-                    selected ? _selectedTypes.remove(type) : _selectedTypes.add(type);
-                  });
-                },
-              );
-            }).toList(),
-          ),
-        ],
-      ),
     );
   }
 }
