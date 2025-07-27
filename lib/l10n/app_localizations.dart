@@ -214,6 +214,18 @@ abstract class AppLocalizations {
   /// **'About'**
   String get menuAboutTitle;
 
+  /// No description provided for @yearTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Years'**
+  String get yearTitle;
+
+  /// No description provided for @typeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Vehicle Types'**
+  String get typeTitle;
+
   /// No description provided for @typeTrain.
   ///
   /// In en, this message translates to:

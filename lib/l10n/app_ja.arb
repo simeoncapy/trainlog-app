@@ -22,6 +22,8 @@
   "menuSettingsTitle": "設定",
   "menuAboutTitle": "ついて",
 
+  "yearTitle": "年",
+  "typeTitle": "乗り物のタイプ",
   "typeTrain": "電車",
   "typeTram": "路面電車",
   "typeMetro": "地下鉄",

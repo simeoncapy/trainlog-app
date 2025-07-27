@@ -22,6 +22,8 @@
   "menuSettingsTitle": "Paramètres",
   "menuAboutTitle": "À propos",
 
+  "yearTitle": "Années",
+  "typeTitle": "Types de véhicule",
   "typeTrain": "Train",
   "typeTram": "Tramway",
   "typeMetro": "Métro",

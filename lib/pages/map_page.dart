@@ -4,6 +4,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/data/models/trips.dart';
+import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/utils/polyline_utils.dart';
 import '../providers/trips_provider.dart';
 
@@ -22,6 +23,17 @@ class _MapPageState extends State<MapPage> {
   double _zoom = 13.0;
   List<PolylineEntry> _polylines = [];
   bool _loading = true;
+
+  final Map<VehicleType, Color> _colours = {
+        VehicleType.train: Colors.blue,
+        VehicleType.plane: Colors.green,
+        VehicleType.tram: Colors.lightBlue,
+        VehicleType.metro: Colors.deepOrange,
+        VehicleType.bus: Colors.deepPurple,
+        VehicleType.car: Colors.purple,
+        VehicleType.ferry: Colors.teal,
+        VehicleType.unknown: Colors.grey,
+      };
 
   Set<int> _selectedYears = {};
   Set<VehicleType> _selectedTypes = {};
@@ -55,21 +67,12 @@ class _MapPageState extends State<MapPage> {
     if (repo != null) {
       final pathData = await repo.getPathExtendedData();
 
-      final Map<VehicleType, Color> colours = {
-        VehicleType.train: Colors.blue,
-        VehicleType.plane: Colors.green,
-        VehicleType.tram: Colors.lightBlue,
-        VehicleType.metro: Colors.deepOrange,
-        VehicleType.bus: Colors.deepPurple,
-        VehicleType.car: Colors.purple,
-        VehicleType.ferry: Colors.teal,
-        VehicleType.unknown: Colors.grey,
-      };
+      
 
       //final List<Polyline> polylines = [];
       final args = {
         'entries': pathData,
-        'colors': colours,
+        'colors': _colours,
       };
       final polylines = await compute(decodePolylinesBatch, args);
 
@@ -77,6 +80,8 @@ class _MapPageState extends State<MapPage> {
         setState(() {
           _polylines = polylines;
           _loading = false;
+          _selectedYears = availableYears.toSet();
+          _selectedTypes = availableTypes.toSet();
         });
         widget.onFabReady(buildFloatingActionButton(context)!);
       }
@@ -86,6 +91,7 @@ class _MapPageState extends State<MapPage> {
 
   @override
 Widget build(BuildContext context) {
+  final appLocalizations = AppLocalizations.of(context)!;
   return _loading
       ? Center(
           child: Stack(
@@ -159,40 +165,13 @@ Widget build(BuildContext context) {
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text("Années", style: Theme.of(context).textTheme.titleLarge),
-                        Wrap(
-                          spacing: 8,
-                          children: availableYears.map((year) {
-                            final selected = _selectedYears.contains(year);
-                            return FilterChip(
-                              label: Text(year.toString()),
-                              selected: selected,
-                              onSelected: (_) {
-                                setState(() {
-                                  selected ? _selectedYears.remove(year) : _selectedYears.add(year);
-                                });
-                              },
-                            );
-                          }).toList(),
-                        ),
+                        Text(appLocalizations.yearTitle, style: Theme.of(context).textTheme.titleLarge),
+                        const SizedBox(height: 8),
+                        _yearFilterBuilder(),
                         const SizedBox(height: 16),
-                        Text("Types de véhicule", style: Theme.of(context).textTheme.titleLarge),
-                        Wrap(
-                          spacing: 8,
-                          children: availableTypes.map((type) {
-                            final selected = _selectedTypes.contains(type);
-                            return FilterChip(
-                              label: Text(type.label(context)),
-                              avatar: type.icon(),
-                              selected: selected,
-                              onSelected: (_) {
-                                setState(() {
-                                  selected ? _selectedTypes.remove(type) : _selectedTypes.add(type);
-                                });
-                              },
-                            );
-                          }).toList(),
-                        ),
+                        Text(appLocalizations.typeTitle, style: Theme.of(context).textTheme.titleLarge),
+                        const SizedBox(height: 8),
+                        _typeFilterBuilder(context),
                         const SizedBox(height: 16),
                         Align(
                           alignment: Alignment.centerRight,
@@ -203,8 +182,8 @@ Widget build(BuildContext context) {
                                 widget.onFabReady(buildFloatingActionButton(context)!);
                               });
                             },
-                            icon: Icon(Icons.check),
-                            label: Text('OK'),
+                            icon: Icon(Icons.close),
+                            label: Text(MaterialLocalizations.of(context).closeButtonLabel),
                           ),
                         )
                       ],
@@ -215,6 +194,56 @@ Widget build(BuildContext context) {
           ],
         );
 }
+
+  Wrap _yearFilterBuilder() {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: availableYears.map((year) {
+        final selected = _selectedYears.contains(year);
+        return FilterChip(
+          label: Text(year.toString()),
+          selected: selected,
+          onSelected: (_) {
+            setState(() {
+              selected ? _selectedYears.remove(year) : _selectedYears.add(year);
+            });
+          },
+        );
+      }).toList(),
+    );
+  }
+
+  Wrap _typeFilterBuilder(BuildContext context) {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: availableTypes.map((type) {
+        final selected = _selectedTypes.contains(type);
+        final backgroundColor = _colours[type];
+        final brightness = backgroundColor != null
+            ? ThemeData.estimateBrightnessForColor(backgroundColor)
+            : Brightness.light; // Default fallback
+
+        final textColor = brightness == Brightness.dark ? Colors.white : Colors.black;
+        return FilterChip(
+          label: Text(
+            type.label(context),
+            style: TextStyle(color: selected? textColor : Theme.of(context).chipTheme.labelStyle?.color),
+          ),
+          avatar: type.icon(),
+          selectedColor: backgroundColor,// != null ? WidgetStateProperty.all(backgroundColor) : null,
+          selected: selected,
+          showCheckmark: false,
+          onSelected: (_) {
+            setState(() {
+              selected ? _selectedTypes.remove(type) : _selectedTypes.add(type);
+            });
+          },
+        );
+      }).toList(),
+    );
+  }
 
 
   FloatingActionButton? buildFloatingActionButton(BuildContext context) {

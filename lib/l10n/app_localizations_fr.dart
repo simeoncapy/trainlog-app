@@ -66,6 +66,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get menuAboutTitle => 'À propos';
 
   @override
+  String get yearTitle => 'Années';
+
+  @override
+  String get typeTitle => 'Types de véhicule';
+
+  @override
   String get typeTrain => 'Train';
 
   @override

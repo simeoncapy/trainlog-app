@@ -66,6 +66,12 @@ class AppLocalizationsJa extends AppLocalizations {
   String get menuAboutTitle => 'ついて';
 
   @override
+  String get yearTitle => '年';
+
+  @override
+  String get typeTitle => '乗り物のタイプ';
+
+  @override
   String get typeTrain => '電車';
 
   @override
