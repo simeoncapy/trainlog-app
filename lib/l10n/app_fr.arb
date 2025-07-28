@@ -2,6 +2,7 @@
   "@@locale": "fr",
   "appTitle": "Trainlog",  
   "language": "English",
+  "mainMenuButtonTooltip": "Ouvrir le menu",
 
   "settingsAppCategory": "Paramètres de l'application",
   "settingsMapCategory": "Paramètres de la carte",

@@ -15,6 +15,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get language => 'English';
 
   @override
+  String get mainMenuButtonTooltip => 'Open menu';
+
+  @override
   String get settingsAppCategory => 'App Settings';
 
   @override

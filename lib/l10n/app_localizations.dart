@@ -112,6 +112,12 @@ abstract class AppLocalizations {
   /// **'English'**
   String get language;
 
+  /// No description provided for @mainMenuButtonTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Open menu'**
+  String get mainMenuButtonTooltip;
+
   /// No description provided for @settingsAppCategory.
   ///
   /// In en, this message translates to:

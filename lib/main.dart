@@ -300,7 +300,7 @@ class _MyAppState extends State<MyApp> {
                   child: IconButton(
                     icon: const Icon(Icons.menu),
                     color: Theme.of(context).colorScheme.onSurface,
-                    tooltip: 'Open menu',
+                    tooltip: AppLocalizations.of(context)!.mainMenuButtonTooltip,
                     onPressed: () => Scaffold.of(innerContext).openDrawer(),
                   ),
                 ),
