@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:trainlog_app/utils/map_color_palette.dart';
 
 enum PathDisplayOrder {
   creationDate,
@@ -11,15 +12,18 @@ class SettingsProvider with ChangeNotifier {
   ThemeMode _themeMode = ThemeMode.system;
   Locale _locale = const Locale('en');
   PathDisplayOrder _pathDisplayOrder = PathDisplayOrder.creationDate;
+  MapColorPalette _mapColorPalette = MapColorPalette.trainlogWeb;
 
   ThemeMode get themeMode => _themeMode;
   Locale get locale => _locale;
   PathDisplayOrder get pathDisplayOrder => _pathDisplayOrder;
+  MapColorPalette get mapColorPalette => _mapColorPalette;
 
   SettingsProvider() {
     _loadTheme();
     _loadLocale();
     _loadPathDisplayOrder();
+    _loadMapColorPalette();
   }
 
   void _loadTheme() async {
@@ -49,6 +53,8 @@ class SettingsProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  // ------------------------------------------------------------------------------
+
   void _loadLocale() async {
     final prefs = await SharedPreferences.getInstance();
     final languageCode = prefs.getString('language_code');
@@ -67,6 +73,8 @@ class SettingsProvider with ChangeNotifier {
     await prefs.setString('language_code', locale.languageCode);
     notifyListeners();
   }
+
+  // ------------------------------------------------------------------------------
 
   void _loadPathDisplayOrder() async {
     final prefs = await SharedPreferences.getInstance();
@@ -87,6 +95,30 @@ class SettingsProvider with ChangeNotifier {
     _pathDisplayOrder = pathOrder;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('path_display_order', pathOrder.name);
+    notifyListeners();
+  }
+
+  // ------------------------------------------------------------------------------
+
+  void _loadMapColorPalette() async {
+    final prefs = await SharedPreferences.getInstance();
+    final palette = prefs.getString('map_color_palette');
+    if (palette != null) {
+      _mapColorPalette = MapColorPalette.values.firstWhere(
+        (e) => e.name == palette,
+        orElse: () => MapColorPalette.trainlogWeb,
+      );
+    } else {
+      _mapColorPalette = MapColorPalette.trainlogWeb;
+    }
+    notifyListeners();
+  }
+
+  void setMapColorPalette(MapColorPalette palette) async {
+    if (_mapColorPalette == palette) return;
+    _mapColorPalette = palette;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('map_color_palette', palette.name);
     notifyListeners();
   }
 }

@@ -15,6 +15,12 @@
   "settingMapPathDisplayOrderByCreation": "Par date de création",
   "settingMapPathDisplayOrderByTrip": "Par date du trajet",
   "settingMapPathDisplayOrderByTripAndPlane": "Par date du trajet (avec les vols au-dessus)",
+  "settingsMapColorPalette": "Palette de couleurs des trajets",
+  "settingsMapColorPaletteTrainlogWeb": "Trainlog Web",
+  "settingsMapColorPaletteTrainlogVariation": "Trainlog (variation)",
+  "settingsMapColorPaletteTrainlogRed": "Rouge",
+  "settingsMapColorPaletteTrainlogGreen": "Vert",
+  "settingsMapColorPaletteTrainlogBlue": "Bleu",
 
   "menuMapTitle": "Carte",
   "menuTripsTitle": "Trajets",

@@ -15,7 +15,12 @@
   "settingMapPathDisplayOrderByCreation": "By creation date",
   "settingMapPathDisplayOrderByTrip": "By trip date",
   "settingMapPathDisplayOrderByTripAndPlane": "By trip date (with flights above)",
-
+  "settingsMapColorPalette": "Colour palette for trips",
+  "settingsMapColorPaletteTrainlogWeb": "Trainlog Web",
+  "settingsMapColorPaletteTrainlogVariation": "Trainlog Variation",
+  "settingsMapColorPaletteTrainlogRed": "Red",
+  "settingsMapColorPaletteTrainlogGreen": "Green",
+  "settingsMapColorPaletteTrainlogBlue": "Blue",
   
   "menuMapTitle": "Map",
   "menuTripsTitle": "Trips",

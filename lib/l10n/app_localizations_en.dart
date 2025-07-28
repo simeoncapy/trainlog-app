@@ -52,6 +52,24 @@ class AppLocalizationsEn extends AppLocalizations {
       'By trip date (with flights above)';
 
   @override
+  String get settingsMapColorPalette => 'Colour palette for trips';
+
+  @override
+  String get settingsMapColorPaletteTrainlogWeb => 'Trainlog Web';
+
+  @override
+  String get settingsMapColorPaletteTrainlogVariation => 'Trainlog Variation';
+
+  @override
+  String get settingsMapColorPaletteTrainlogRed => 'Red';
+
+  @override
+  String get settingsMapColorPaletteTrainlogGreen => 'Green';
+
+  @override
+  String get settingsMapColorPaletteTrainlogBlue => 'Blue';
+
+  @override
   String get menuMapTitle => 'Map';
 
   @override

@@ -51,6 +51,24 @@ class AppLocalizationsJa extends AppLocalizations {
   String get settingMapPathDisplayOrderByTripAndPlane => '旅行日順（上空のフライトを優先）';
 
   @override
+  String get settingsMapColorPalette => '旅行のカラーパレット';
+
+  @override
+  String get settingsMapColorPaletteTrainlogWeb => 'Trainlog Web';
+
+  @override
+  String get settingsMapColorPaletteTrainlogVariation => 'Trainlog バリエーション';
+
+  @override
+  String get settingsMapColorPaletteTrainlogRed => '赤';
+
+  @override
+  String get settingsMapColorPaletteTrainlogGreen => '緑';
+
+  @override
+  String get settingsMapColorPaletteTrainlogBlue => '青';
+
+  @override
   String get menuMapTitle => '地図';
 
   @override

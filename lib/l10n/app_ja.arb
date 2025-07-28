@@ -15,7 +15,12 @@
   "settingMapPathDisplayOrderByCreation": "作成日順",
   "settingMapPathDisplayOrderByTrip": "旅行日順",
   "settingMapPathDisplayOrderByTripAndPlane": "旅行日順（上空のフライトを優先）",
-
+  "settingsMapColorPalette": "旅行のカラーパレット",
+  "settingsMapColorPaletteTrainlogWeb": "Trainlog Web",
+  "settingsMapColorPaletteTrainlogVariation": "Trainlog バリエーション",
+  "settingsMapColorPaletteTrainlogRed": "赤",
+  "settingsMapColorPaletteTrainlogGreen": "緑",
+  "settingsMapColorPaletteTrainlogBlue": "青",
 
   "menuMapTitle": "地図",
   "menuTripsTitle": "旅行",

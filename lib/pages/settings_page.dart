@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:trainlog_app/utils/map_color_palette.dart';
 import '../l10n/app_localizations.dart';
 import '../providers/settings_provider.dart';
 
@@ -107,7 +108,40 @@ class SettingsPage extends StatelessWidget {
                   ),
                 ],
               ),
-              // Remove trailing to avoid layout clash
+            ),
+            ListTile(
+              leading: const Icon(Icons.palette),
+              title: Text(appLocalization.settingsMapColorPalette),
+              trailing: DropdownButton<MapColorPalette>(
+                value: settings.mapColorPalette,
+                onChanged: (MapColorPalette? newValue) {
+                  if (newValue != null) {
+                    settings.setMapColorPalette(newValue);
+                  }
+                },
+                items: [
+                  DropdownMenuItem(
+                    value: MapColorPalette.trainlogWeb,
+                    child: Text(appLocalization.settingsMapColorPaletteTrainlogWeb),
+                  ),
+                  DropdownMenuItem(
+                    value: MapColorPalette.trainlogVariation,
+                    child: Text(appLocalization.settingsMapColorPaletteTrainlogVariation),
+                  ),
+                  DropdownMenuItem(
+                    value: MapColorPalette.red,
+                    child: Text(appLocalization.settingsMapColorPaletteTrainlogRed),
+                  ),
+                  DropdownMenuItem(
+                    value: MapColorPalette.green,
+                    child: Text(appLocalization.settingsMapColorPaletteTrainlogGreen),
+                  ),
+                  DropdownMenuItem(
+                    value: MapColorPalette.blue,
+                    child: Text(appLocalization.settingsMapColorPaletteTrainlogBlue),
+                  ),
+                ],
+              ),
             ),
             _SettingsCategory(title: appLocalization.settingsAccountCategory),
           ],

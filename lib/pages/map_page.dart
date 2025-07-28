@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
+import 'package:trainlog_app/utils/map_color_palette.dart';
 import 'package:trainlog_app/utils/polyline_utils.dart';
 import 'package:trainlog_app/widgets/dropdown_radio_list.dart';
 import '../providers/trips_provider.dart';
@@ -25,17 +26,18 @@ class _MapPageState extends State<MapPage> {
   double _zoom = 13.0;
   List<PolylineEntry> _polylines = [];
   bool _loading = true;
+  late Map<VehicleType, Color> _colours;
 
-  final Map<VehicleType, Color> _colours = {
-        VehicleType.train: Colors.blue,
-        VehicleType.plane: Colors.green,
-        VehicleType.tram: Colors.lightBlue,
-        VehicleType.metro: Colors.deepOrange,
-        VehicleType.bus: Colors.deepPurple,
-        VehicleType.car: Colors.purple,
-        VehicleType.ferry: Colors.teal,
-        VehicleType.unknown: Colors.grey,
-      };
+  // final Map<VehicleType, Color> _colours = {
+  //       VehicleType.train: Colors.blue,
+  //       VehicleType.plane: Colors.green,
+  //       VehicleType.tram: Colors.lightBlue,
+  //       VehicleType.metro: Colors.deepOrange,
+  //       VehicleType.bus: Colors.deepPurple,
+  //       VehicleType.car: Colors.purple,
+  //       VehicleType.ferry: Colors.teal,
+  //       VehicleType.unknown: Colors.grey,
+  //     };
 
   Set<int> _selectedYears = {};
   Set<VehicleType> _selectedTypes = {};
@@ -70,6 +72,8 @@ class _MapPageState extends State<MapPage> {
     final settings = context.read<SettingsProvider>();
     if (repo != null) {
       final pathData = await repo.getPathExtendedData(settings.pathDisplayOrder);
+
+      _colours = MapColorPaletteHelper.getPalette(settings.mapColorPalette);
 
       final args = {
         'entries': pathData,
@@ -117,12 +121,43 @@ class _MapPageState extends State<MapPage> {
     }
   }
 
+  void _changePolylineColor(Map<VehicleType, Color> newPalette)
+  {
+    setState(() {
+      _polylines = _polylines.map((entry) {
+        final newColor = newPalette[entry.type] ?? Colors.grey;
+
+        return PolylineEntry(
+          type: entry.type,
+          startDate: entry.startDate,
+          creationDate: entry.creationDate,
+          isFuture: entry.isFuture,
+          polyline: Polyline(
+            points: entry.polyline.points,
+            color: newColor,
+            pattern: entry.isFuture
+                ? StrokePattern.dashed(segments: [20, 20])
+                : StrokePattern.solid(),
+            strokeWidth: 4.0,
+          ),
+        );
+      }).toList();
+    });
+  }
+
 
   @override
 Widget build(BuildContext context) {
   final appLocalizations = AppLocalizations.of(context)!;
   final settings = context.watch<SettingsProvider>();
   final displayOrder = settings.pathDisplayOrder;
+  final newPalette = MapColorPaletteHelper.getPalette(settings.mapColorPalette);
+
+  if(newPalette != _colours)
+  {
+    _colours = newPalette;
+    _changePolylineColor(newPalette);
+  }
 
   // Filtered list first
   final filteredPolylines = _polylines.where((e) =>
@@ -281,7 +316,14 @@ Widget build(BuildContext context) {
             type.label(context),
             style: TextStyle(color: selected? textColor : Theme.of(context).chipTheme.labelStyle?.color),
           ),
-          avatar: type.icon(),
+          avatar: IconTheme(
+            data: IconThemeData(
+              color: selected
+                  ? textColor
+                  : Theme.of(context).chipTheme.labelStyle?.color,
+            ),
+            child: type.icon(),
+          ),
           selectedColor: backgroundColor,// != null ? WidgetStateProperty.all(backgroundColor) : null,
           selected: selected,
           showCheckmark: false,

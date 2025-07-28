@@ -184,6 +184,42 @@ abstract class AppLocalizations {
   /// **'By trip date (with flights above)'**
   String get settingMapPathDisplayOrderByTripAndPlane;
 
+  /// No description provided for @settingsMapColorPalette.
+  ///
+  /// In en, this message translates to:
+  /// **'Colour palette for trips'**
+  String get settingsMapColorPalette;
+
+  /// No description provided for @settingsMapColorPaletteTrainlogWeb.
+  ///
+  /// In en, this message translates to:
+  /// **'Trainlog Web'**
+  String get settingsMapColorPaletteTrainlogWeb;
+
+  /// No description provided for @settingsMapColorPaletteTrainlogVariation.
+  ///
+  /// In en, this message translates to:
+  /// **'Trainlog Variation'**
+  String get settingsMapColorPaletteTrainlogVariation;
+
+  /// No description provided for @settingsMapColorPaletteTrainlogRed.
+  ///
+  /// In en, this message translates to:
+  /// **'Red'**
+  String get settingsMapColorPaletteTrainlogRed;
+
+  /// No description provided for @settingsMapColorPaletteTrainlogGreen.
+  ///
+  /// In en, this message translates to:
+  /// **'Green'**
+  String get settingsMapColorPaletteTrainlogGreen;
+
+  /// No description provided for @settingsMapColorPaletteTrainlogBlue.
+  ///
+  /// In en, this message translates to:
+  /// **'Blue'**
+  String get settingsMapColorPaletteTrainlogBlue;
+
   /// No description provided for @menuMapTitle.
   ///
   /// In en, this message translates to:
