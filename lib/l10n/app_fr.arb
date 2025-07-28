@@ -4,12 +4,17 @@
   "language": "English",
 
   "settingsAppCategory": "Paramètres de l'application",
+  "settingsMapCategory": "Paramètres de la carte",
   "settingsAccountCategory": "Paramètres du compte",
   "settingsLanguage": "Langue",
   "settingsThemeMode": "Thème",
   "settingsDark": "Sombre",
   "settingsLight": "Clair",
   "settingsSystem": "Système",
+  "settingsMapPathDisplayOrder": "Ordre des trajets sur la carte",
+  "settingMapPathDisplayOrderByCreation": "Par date de création",
+  "settingMapPathDisplayOrderByTrip": "Par date du trajet",
+  "settingMapPathDisplayOrderByTripAndPlane": "Par date du trajet (avec les vols au-dessus)",
 
   "menuMapTitle": "Carte",
   "menuTripsTitle": "Trajets",

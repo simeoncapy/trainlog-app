@@ -72,6 +72,43 @@ class SettingsPage extends StatelessWidget {
                     .toList(),
               ),
             ),
+            _SettingsCategory(title: appLocalization.settingsMapCategory),
+            ListTile(
+              leading: const Icon(Icons.layers),
+              title: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    appLocalization.settingsMapPathDisplayOrder,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                  DropdownButton<PathDisplayOrder>(
+                    isExpanded: true,
+                    value: settings.pathDisplayOrder,
+                    onChanged: (PathDisplayOrder? newValue) {
+                      if (newValue != null) {
+                        settings.setPathDisplayOrder(newValue);
+                      }
+                    },
+                    items: [
+                      DropdownMenuItem(
+                        value: PathDisplayOrder.creationDate,
+                        child: Text(appLocalization.settingMapPathDisplayOrderByCreation),
+                      ),
+                      DropdownMenuItem(
+                        value: PathDisplayOrder.tripDate,
+                        child: Text(appLocalization.settingMapPathDisplayOrderByTrip),
+                      ),
+                      DropdownMenuItem(
+                        value: PathDisplayOrder.tripDatePlaneOver,
+                        child: Text(appLocalization.settingMapPathDisplayOrderByTripAndPlane),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              // Remove trailing to avoid layout clash
+            ),
             _SettingsCategory(title: appLocalization.settingsAccountCategory),
           ],
         );

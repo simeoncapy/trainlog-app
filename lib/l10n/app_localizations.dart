@@ -118,6 +118,12 @@ abstract class AppLocalizations {
   /// **'App Settings'**
   String get settingsAppCategory;
 
+  /// No description provided for @settingsMapCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Map Settings'**
+  String get settingsMapCategory;
+
   /// No description provided for @settingsAccountCategory.
   ///
   /// In en, this message translates to:
@@ -153,6 +159,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'System'**
   String get settingsSystem;
+
+  /// No description provided for @settingsMapPathDisplayOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Order of trip paths on the map'**
+  String get settingsMapPathDisplayOrder;
+
+  /// No description provided for @settingMapPathDisplayOrderByCreation.
+  ///
+  /// In en, this message translates to:
+  /// **'By creation date'**
+  String get settingMapPathDisplayOrderByCreation;
+
+  /// No description provided for @settingMapPathDisplayOrderByTrip.
+  ///
+  /// In en, this message translates to:
+  /// **'By trip date'**
+  String get settingMapPathDisplayOrderByTrip;
+
+  /// No description provided for @settingMapPathDisplayOrderByTripAndPlane.
+  ///
+  /// In en, this message translates to:
+  /// **'By trip date (with flights above)'**
+  String get settingMapPathDisplayOrderByTripAndPlane;
 
   /// No description provided for @menuMapTitle.
   ///

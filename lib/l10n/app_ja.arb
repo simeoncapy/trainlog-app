@@ -4,12 +4,18 @@
   "language": "日本語",
 
   "settingsAppCategory": "アプリ設定",
+  "settingsMapCategory": "地図設定",
   "settingsAccountCategory": "アカウント設定",
   "settingsLanguage": "言語",
   "settingsThemeMode": "テーマモード",
   "settingsDark": "ダーク",
   "settingsLight": "ライト",
   "settingsSystem": "システム",
+  "settingsMapPathDisplayOrder": "地図上の経路の表示順",
+  "settingMapPathDisplayOrderByCreation": "作成日順",
+  "settingMapPathDisplayOrderByTrip": "旅行日順",
+  "settingMapPathDisplayOrderByTripAndPlane": "旅行日順（上空のフライトを優先）",
+
 
   "menuMapTitle": "地図",
   "menuTripsTitle": "旅行",

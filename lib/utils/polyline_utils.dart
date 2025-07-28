@@ -24,6 +24,8 @@ List<PolylineEntry> decodePolylinesBatch(Map<String, dynamic> args) {
       final startDateStr = e['start_datetime']?.toString();
       final startDate = startDateStr != null ? DateTime.tryParse(startDateStr) : DateTime(0);
       final isFuture = startDate!.isAfter(DateTime.now());
+      final createdStr = e['created']?.toString();
+      final createdDate = createdStr != null ? DateTime.tryParse(createdStr) : null;
 
       List<LatLng> points = decodePolyline(path)
           .map((p) => LatLng(p[0].toDouble(), p[1].toDouble()))
@@ -42,6 +44,7 @@ List<PolylineEntry> decodePolylinesBatch(Map<String, dynamic> args) {
         ),
         type: type,
         startDate: startDate,
+        creationDate: createdDate,
         isFuture: isFuture
       );
     } catch (_) {
@@ -89,12 +92,14 @@ class PolylineEntry {
   final Polyline polyline;
   final VehicleType type;
   final DateTime? startDate;
+  final DateTime? creationDate;
   final bool isFuture;
 
   PolylineEntry({
     required this.polyline,
     required this.type,
     required this.startDate,
+    required this.creationDate,
     this.isFuture = false,
   });
 }

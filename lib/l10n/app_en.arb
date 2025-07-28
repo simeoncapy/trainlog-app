@@ -4,12 +4,18 @@
   "language": "English",
   
   "settingsAppCategory": "App Settings",
+  "settingsMapCategory": "Map Settings",
   "settingsAccountCategory": "Account Settings",
   "settingsLanguage": "Language",
   "settingsThemeMode": "Theme Mode",
   "settingsDark": "Dark",
   "settingsLight": "Light",
   "settingsSystem": "System",
+  "settingsMapPathDisplayOrder": "Order of trip paths on the map",
+  "settingMapPathDisplayOrderByCreation": "By creation date",
+  "settingMapPathDisplayOrderByTrip": "By trip date",
+  "settingMapPathDisplayOrderByTripAndPlane": "By trip date (with flights above)",
+
   
   "menuMapTitle": "Map",
   "menuTripsTitle": "Trips",

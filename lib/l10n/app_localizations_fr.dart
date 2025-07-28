@@ -18,6 +18,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get settingsAppCategory => 'Paramètres de l\'application';
 
   @override
+  String get settingsMapCategory => 'Paramètres de la carte';
+
+  @override
   String get settingsAccountCategory => 'Paramètres du compte';
 
   @override
@@ -34,6 +37,19 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get settingsSystem => 'Système';
+
+  @override
+  String get settingsMapPathDisplayOrder => 'Ordre des trajets sur la carte';
+
+  @override
+  String get settingMapPathDisplayOrderByCreation => 'Par date de création';
+
+  @override
+  String get settingMapPathDisplayOrderByTrip => 'Par date du trajet';
+
+  @override
+  String get settingMapPathDisplayOrderByTripAndPlane =>
+      'Par date du trajet (avec les vols au-dessus)';
 
   @override
   String get menuMapTitle => 'Carte';

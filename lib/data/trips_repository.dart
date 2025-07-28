@@ -3,6 +3,7 @@ import 'package:csv/csv.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/data/database_manager.dart';
+import 'package:trainlog_app/providers/settings_provider.dart';
 
 // TripsTable defined lower
 
@@ -57,29 +58,59 @@ class TripsRepository {
     return maps.map((m) => m['path'] as String).toList();
   }
 
-  Future<List<Map<String, dynamic>>> getPathExtendedData() async {
-    final maps = await _db.query(
-      TripsTable.tableName,
-      columns: [
-        'uid',
-        'path',
-        'type',
-        'origin_station',
-        'destination_station',
-        'start_datetime',
-        'end_datetime',
-      ],
-      where: 'path IS NOT NULL AND path != ""',
-    );
+  Future<List<Map<String, dynamic>>> getPathExtendedData([
+  PathDisplayOrder order = PathDisplayOrder.creationDate,
+]) async {
+  final maps = await _db.query(
+    TripsTable.tableName,
+    columns: [
+      'uid',
+      'path',
+      'type',
+      'origin_station',
+      'destination_station',
+      'start_datetime',
+      'end_datetime',
+      'created', // Needed for sorting by creationDate
+    ],
+    where: 'path IS NOT NULL AND path != ""',
+  );
 
-    return maps.map((e) {
-      final typeEnum = VehicleType.fromString(e['type']?.toString());
-      return {
-        ...e,
-        'type': typeEnum,
-      };
-    }).toList();
+  final list = maps.map((e) {
+    final typeEnum = VehicleType.fromString(e['type']?.toString());
+    return {
+      ...e,
+      'type': typeEnum,
+    };
+  }).toList();
+
+  switch (order) {
+    case PathDisplayOrder.creationDate:
+      //list.sort((a, b) => a['uid'].compareTo(b['uid']));
+      break;
+
+    case PathDisplayOrder.tripDate:
+      list.sort((a, b) =>
+          DateTime.parse(a['start_datetime'] as String).compareTo(DateTime.parse(b['start_datetime'] as String)));
+      break;
+
+    case PathDisplayOrder.tripDatePlaneOver:
+      final nonAir = list
+          .where((e) => e['type'] != VehicleType.plane)
+          .toList()
+        ..sort((a, b) =>
+            DateTime.parse(a['start_datetime'] as String).compareTo(DateTime.parse(b['start_datetime'] as String)));
+      final air = list
+          .where((e) => e['type'] == VehicleType.plane)
+          .toList()
+        ..sort((a, b) => DateTime.parse(a['created'] as String).compareTo(DateTime.parse(b['created'] as String)));
+
+      return [...nonAir, ...air];
   }
+
+  return list;
+}
+
 
   Future<void> insertTrip(Trips trip) async {
     await _db.insert(

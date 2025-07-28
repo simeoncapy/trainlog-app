@@ -5,6 +5,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
+import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/utils/polyline_utils.dart';
 import 'package:trainlog_app/widgets/dropdown_radio_list.dart';
 import '../providers/trips_provider.dart';
@@ -66,8 +67,9 @@ class _MapPageState extends State<MapPage> {
 
   Future<void> _loadPolylines() async {
     final repo = context.read<TripsProvider>().repository;
+    final settings = context.read<SettingsProvider>();
     if (repo != null) {
-      final pathData = await repo.getPathExtendedData();
+      final pathData = await repo.getPathExtendedData(settings.pathDisplayOrder);
 
       final args = {
         'entries': pathData,
@@ -87,10 +89,48 @@ class _MapPageState extends State<MapPage> {
     }
   }
 
+  void _sortedPolylines(List<PolylineEntry> filteredPolylines, PathDisplayOrder displayOrder)
+  {
+    switch (displayOrder) {
+      case PathDisplayOrder.creationDate:
+        filteredPolylines.sort((a, b) =>
+            (a.creationDate ?? DateTime(0)).compareTo(b.creationDate ?? DateTime(0)));
+        break;
+      case PathDisplayOrder.tripDate:
+        filteredPolylines.sort((a, b) =>
+            (a.startDate ?? DateTime(0)).compareTo(b.startDate ?? DateTime(0)));
+        break;
+      case PathDisplayOrder.tripDatePlaneOver:
+        final nonAir = filteredPolylines
+            .where((e) => e.type != VehicleType.plane)
+            .toList()
+          ..sort((a, b) => (a.startDate ?? DateTime(0)).compareTo(b.startDate ?? DateTime(0)));
+        final air = filteredPolylines
+            .where((e) => e.type == VehicleType.plane)
+            .toList()
+          ..sort((a, b) => (a.creationDate ?? DateTime(0)).compareTo(b.creationDate ?? DateTime(0)));
+        filteredPolylines
+          ..clear()
+          ..addAll(nonAir)
+          ..addAll(air);
+        break;
+    }
+  }
+
 
   @override
 Widget build(BuildContext context) {
   final appLocalizations = AppLocalizations.of(context)!;
+  final settings = context.watch<SettingsProvider>();
+  final displayOrder = settings.pathDisplayOrder;
+
+  // Filtered list first
+  final filteredPolylines = _polylines.where((e) =>
+    (_selectedYears.isEmpty || _selectedYears.contains(e.startDate?.year)) &&
+    (_selectedTypes.isEmpty || _selectedTypes.contains(e.type))
+  ).toList();
+  _sortedPolylines(filteredPolylines, displayOrder);
+
   return _loading
       ? Center(
           child: Stack(
@@ -125,17 +165,10 @@ Widget build(BuildContext context) {
               children: [
                 TileLayer(
                   urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-                  userAgentPackageName: 'fr.scapy.app',
+                  userAgentPackageName: 'me.trainlog.app',//'fr.scapy.app',
                 ),
                 PolylineLayer(
-                  polylines: _polylines
-                      .where((e) =>
-                          (_selectedYears.isEmpty ||
-                              _selectedYears.contains(e.startDate?.year)) &&
-                          (_selectedTypes.isEmpty ||
-                              _selectedTypes.contains(e.type)))
-                      .map((e) => e.polyline)
-                      .toList(),
+                  polylines: filteredPolylines.map((e) => e.polyline).toList(),
                 ),
                 MarkerLayer(
                   markers: [

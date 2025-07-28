@@ -1,16 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+enum PathDisplayOrder {
+  creationDate,
+  tripDate,
+  tripDatePlaneOver,
+}
+
 class SettingsProvider with ChangeNotifier {
   ThemeMode _themeMode = ThemeMode.system;
   Locale _locale = const Locale('en');
+  PathDisplayOrder _pathDisplayOrder = PathDisplayOrder.creationDate;
 
   ThemeMode get themeMode => _themeMode;
   Locale get locale => _locale;
+  PathDisplayOrder get pathDisplayOrder => _pathDisplayOrder;
 
   SettingsProvider() {
     _loadTheme();
     _loadLocale();
+    _loadPathDisplayOrder();
   }
 
   void _loadTheme() async {
@@ -56,6 +65,28 @@ class SettingsProvider with ChangeNotifier {
     _locale = locale;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('language_code', locale.languageCode);
+    notifyListeners();
+  }
+
+  void _loadPathDisplayOrder() async {
+    final prefs = await SharedPreferences.getInstance();
+    final pathOrder = prefs.getString('path_display_order');
+    if (pathOrder != null) {
+      _pathDisplayOrder = PathDisplayOrder.values.firstWhere(
+        (e) => e.name == pathOrder,
+        orElse: () => PathDisplayOrder.creationDate,
+      );
+    } else {
+      _pathDisplayOrder = PathDisplayOrder.creationDate;
+    }
+    notifyListeners();
+  }
+
+  void setPathDisplayOrder(PathDisplayOrder pathOrder) async {
+    if (_pathDisplayOrder == pathOrder) return;
+    _pathDisplayOrder = pathOrder;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('path_display_order', pathOrder.name);
     notifyListeners();
   }
 }

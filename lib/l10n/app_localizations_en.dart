@@ -18,6 +18,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsAppCategory => 'App Settings';
 
   @override
+  String get settingsMapCategory => 'Map Settings';
+
+  @override
   String get settingsAccountCategory => 'Account Settings';
 
   @override
@@ -34,6 +37,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsSystem => 'System';
+
+  @override
+  String get settingsMapPathDisplayOrder => 'Order of trip paths on the map';
+
+  @override
+  String get settingMapPathDisplayOrderByCreation => 'By creation date';
+
+  @override
+  String get settingMapPathDisplayOrderByTrip => 'By trip date';
+
+  @override
+  String get settingMapPathDisplayOrderByTripAndPlane =>
+      'By trip date (with flights above)';
 
   @override
   String get menuMapTitle => 'Map';

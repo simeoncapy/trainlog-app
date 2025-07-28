@@ -18,6 +18,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get settingsAppCategory => 'アプリ設定';
 
   @override
+  String get settingsMapCategory => '地図設定';
+
+  @override
   String get settingsAccountCategory => 'アカウント設定';
 
   @override
@@ -34,6 +37,18 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get settingsSystem => 'システム';
+
+  @override
+  String get settingsMapPathDisplayOrder => '地図上の経路の表示順';
+
+  @override
+  String get settingMapPathDisplayOrderByCreation => '作成日順';
+
+  @override
+  String get settingMapPathDisplayOrderByTrip => '旅行日順';
+
+  @override
+  String get settingMapPathDisplayOrderByTripAndPlane => '旅行日順（上空のフライトを優先）';
 
   @override
   String get menuMapTitle => '地図';
