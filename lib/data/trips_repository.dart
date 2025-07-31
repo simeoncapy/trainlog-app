@@ -39,8 +39,13 @@ class TripsRepository {
     return TripsRepository(db);
   }
 
-  Future<List<Trips>> getAllTrips() async {
-    final maps = await _db.query(TripsTable.tableName);
+  Future<List<Trips>> getAllTrips({int? limit, int? offset, String? orderBy}) async {
+    final maps = await _db.query(
+      TripsTable.tableName,
+      limit: limit,
+      offset: offset,
+      orderBy: orderBy,
+    );
     return maps.map((map) => Trips.fromJson(map)).toList();
   }
 
