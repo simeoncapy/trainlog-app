@@ -59,6 +59,8 @@ class _MapPageState extends State<MapPage> {
   @override
   void initState() {
     super.initState();
+    final settings = context.read<SettingsProvider>();
+    _colours = MapColorPaletteHelper.getPalette(settings.mapColorPalette);
     _loadPolylines();
 
     // Trigger FAB rebuild after first frame
@@ -71,9 +73,7 @@ class _MapPageState extends State<MapPage> {
     final repo = context.read<TripsProvider>().repository;
     final settings = context.read<SettingsProvider>();
     if (repo != null) {
-      final pathData = await repo.getPathExtendedData(settings.pathDisplayOrder);
-
-      _colours = MapColorPaletteHelper.getPalette(settings.mapColorPalette);
+      final pathData = await repo.getPathExtendedData(settings.pathDisplayOrder);      
 
       final args = {
         'entries': pathData,

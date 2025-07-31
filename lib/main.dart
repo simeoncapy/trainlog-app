@@ -90,7 +90,9 @@ class _MyAppState extends State<MyApp> {
       ),
       AppPage(
         id: AppPageId.trips,
-        view: TripsPage(),
+        view: TripsPage(
+          onFabReady: (fab) => _updateFabForPage(AppPageId.trips, fab),
+        ),
         titleBuilder: (context) => AppLocalizations.of(context)!.menuTripsTitle,
         icon: Icons.commute,
       ),
