@@ -5,10 +5,10 @@ import 'package:trainlog_app/data/trips_repository.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
-import 'package:intl/intl.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
 import 'package:trainlog_app/widgets/past_future_selector.dart';
+import 'package:trainlog_app/widgets/trip_details_bottom_sheet.dart';
 
 class TripsPage extends StatefulWidget {
   final void Function(FloatingActionButton? fab) onFabReady;
@@ -22,7 +22,6 @@ class _TripsPageState extends State<TripsPage> {
   int _sortColumnIndex = 2;
   bool _sortAscending = false;
   TripsDataSource? _dataSource;
-  late List<String> _columnKeys;
   Key _tableKey = UniqueKey(); 
 
   @override
@@ -264,7 +263,16 @@ class TripsDataSource extends DataTableSource {
             ),
           );
         case 'origin_destination':
-          return DataCell(Text("${trip.originStation}\n${trip.destinationStation}"));
+          return DataCell(
+            Text("${trip.originStation}\n${trip.destinationStation}"),
+            onTap: () {
+              showModalBottomSheet(
+                context: context,
+                builder: (ctx) => TripDetailsBottomSheet(trip: trip),
+                isScrollControlled: true,
+              );
+            },
+          );
         case 'origin':
           return DataCell(Text(trip.originStation));
         case 'destination':
@@ -294,7 +302,7 @@ class TripsDataSource extends DataTableSource {
   //   ),
   // );
 
-    return DataRow(color: bkgColor, cells: cells);
+    return DataRow(color: bkgColor, cells: cells,);
   }
 
   @override
