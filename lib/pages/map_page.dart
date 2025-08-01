@@ -11,6 +11,13 @@ import 'package:trainlog_app/utils/polyline_utils.dart';
 import 'package:trainlog_app/widgets/dropdown_radio_list.dart';
 import '../providers/trips_provider.dart';
 
+enum YearFilter{
+  all,
+  past,
+  future,
+  years
+}
+
 class MapPage extends StatefulWidget {
   final void Function(FloatingActionButton? fab) onFabReady;
 
@@ -40,6 +47,7 @@ class _MapPageState extends State<MapPage> {
   //     };
 
   Set<int> _selectedYears = {};
+  YearFilter _selectedYearFilter = YearFilter.all;
   Set<VehicleType> _selectedTypes = {};
   bool _showFilterModal = false;
   int _selectedYearFilterOption = 0;
@@ -145,6 +153,31 @@ class _MapPageState extends State<MapPage> {
     });
   }
 
+  List<PolylineEntry> _sortPolylinesByTime(List<PolylineEntry> polylines)
+  {
+    switch (_selectedYearFilter)
+    {
+      case YearFilter.past:
+        final now = DateTime.now();
+        return polylines.where((e) =>
+          (e.startDate != null && e.startDate!.isBefore(now)) &&
+          (_selectedTypes.isEmpty || _selectedTypes.contains(e.type))
+        ).toList();
+      case YearFilter.future:
+        final now = DateTime.now();
+        return polylines.where((e) =>
+          (e.startDate != null && e.startDate!.isAfter(now)) &&
+          (_selectedTypes.isEmpty || _selectedTypes.contains(e.type))
+        ).toList();
+      case YearFilter.all:
+      case YearFilter.years:
+        return polylines.where((e) =>
+          (_selectedYears.isEmpty || _selectedYears.contains(e.startDate?.year)) &&
+          (_selectedTypes.isEmpty || _selectedTypes.contains(e.type))
+        ).toList();
+    }
+  }
+
 
   @override
 Widget build(BuildContext context) {
@@ -160,10 +193,11 @@ Widget build(BuildContext context) {
   }
 
   // Filtered list first
-  final filteredPolylines = _polylines.where((e) =>
-    (_selectedYears.isEmpty || _selectedYears.contains(e.startDate?.year)) &&
-    (_selectedTypes.isEmpty || _selectedTypes.contains(e.type))
-  ).toList();
+  // final filteredPolylines = _polylines.where((e) =>
+  //   (_selectedYears.isEmpty || _selectedYears.contains(e.startDate?.year)) &&
+  //   (_selectedTypes.isEmpty || _selectedTypes.contains(e.type))
+  // ).toList();
+  List<PolylineEntry> filteredPolylines = _sortPolylinesByTime(_polylines);
   _sortedPolylines(filteredPolylines, displayOrder);
 
   return _loading
@@ -278,14 +312,16 @@ Widget build(BuildContext context) {
           {
             case 0: // all
               _selectedYears = availableYears.toSet();
+              _selectedYearFilter = YearFilter.all;
               break;
             case 1: // past
-              // TODO
+              _selectedYearFilter = YearFilter.past;
               break;
             case 2: // future
-              // TODO
+              _selectedYearFilter = YearFilter.future;
               break;
             case 3: // years
+              _selectedYearFilter = YearFilter.years;
               _selectedYears = sub.asMap().entries
                 .where((e) => e.value)
                 .map((e) => availableYears[e.key])

@@ -118,6 +118,12 @@ abstract class AppLocalizations {
   /// **'Open menu'**
   String get mainMenuButtonTooltip;
 
+  /// No description provided for @filterButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter'**
+  String get filterButton;
+
   /// No description provided for @settingsAppCategory.
   ///
   /// In en, this message translates to:
@@ -369,6 +375,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Ferry'**
   String get typeFerry;
+
+  /// No description provided for @tripsTableHeaderOriginDestination.
+  ///
+  /// In en, this message translates to:
+  /// **'Origin/Destination'**
+  String get tripsTableHeaderOriginDestination;
+
+  /// No description provided for @tripsTableHeaderOrigin.
+  ///
+  /// In en, this message translates to:
+  /// **'Origin'**
+  String get tripsTableHeaderOrigin;
+
+  /// No description provided for @tripsTableHeaderDestination.
+  ///
+  /// In en, this message translates to:
+  /// **'Destination'**
+  String get tripsTableHeaderDestination;
+
+  /// No description provided for @tripsTableHeaderStartTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Departure Time'**
+  String get tripsTableHeaderStartTime;
+
+  /// No description provided for @tripsTableHeaderEndTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Arrival Time'**
+  String get tripsTableHeaderEndTime;
+
+  /// No description provided for @tripsTableHeaderOperator.
+  ///
+  /// In en, this message translates to:
+  /// **'Operator'**
+  String get tripsTableHeaderOperator;
+
+  /// No description provided for @tripsTableHeaderLineName.
+  ///
+  /// In en, this message translates to:
+  /// **'Line'**
+  String get tripsTableHeaderLineName;
+
+  /// No description provided for @tripsTableHeaderTripLength.
+  ///
+  /// In en, this message translates to:
+  /// **'Length'**
+  String get tripsTableHeaderTripLength;
 }
 
 class _AppLocalizationsDelegate

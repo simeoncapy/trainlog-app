@@ -49,8 +49,37 @@ class TripsRepository {
     return maps.map((map) => Trips.fromJson(map)).toList();
   }
 
+  Future<List<Trips>> getTripsFiltered({
+    required bool showFutureTrips,
+    int? limit,
+    int? offset,
+    String? orderBy,
+  }) async {
+    final now = DateTime.now().toIso8601String();
+
+    final maps = await _db.query(
+      TripsTable.tableName,
+      where: showFutureTrips ? 'start_datetime > ?' : 'start_datetime <= ?',
+      whereArgs: [now],
+      limit: limit,
+      offset: offset,
+      orderBy: orderBy,
+    );
+
+    return maps.map((map) => Trips.fromJson(map)).toList();
+  }
+
   Future<int> count() async {
     final result = await _db.rawQuery('SELECT COUNT(*) FROM ${TripsTable.tableName}');
+    return Sqflite.firstIntValue(result) ?? 0;
+  }
+
+  Future<int> countFilteredTrips({required bool showFutureTrips}) async {
+    final now = DateTime.now().toIso8601String();
+    final result = await _db.rawQuery(
+      'SELECT COUNT(*) FROM ${TripsTable.tableName} WHERE start_datetime ${showFutureTrips ? '>' : '<='} ?',
+      [now],
+    );
     return Sqflite.firstIntValue(result) ?? 0;
   }
 

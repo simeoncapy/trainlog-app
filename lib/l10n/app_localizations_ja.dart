@@ -18,6 +18,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get mainMenuButtonTooltip => 'メニューを開く';
 
   @override
+  String get filterButton => 'フィルター';
+
+  @override
   String get settingsAppCategory => 'アプリ設定';
 
   @override
@@ -142,4 +145,28 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get typeFerry => 'フェリー';
+
+  @override
+  String get tripsTableHeaderOriginDestination => '出発・到着駅';
+
+  @override
+  String get tripsTableHeaderOrigin => '出発駅';
+
+  @override
+  String get tripsTableHeaderDestination => '到着駅';
+
+  @override
+  String get tripsTableHeaderStartTime => '出発時刻';
+
+  @override
+  String get tripsTableHeaderEndTime => '到着時刻';
+
+  @override
+  String get tripsTableHeaderOperator => '事業者';
+
+  @override
+  String get tripsTableHeaderLineName => '路線';
+
+  @override
+  String get tripsTableHeaderTripLength => '距離';
 }

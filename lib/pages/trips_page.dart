@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/data/trips_repository.dart';
+import 'package:trainlog_app/l10n/app_localizations.dart';
+import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
 import 'package:intl/intl.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
+import 'package:trainlog_app/utils/map_color_palette.dart';
+import 'package:trainlog_app/widgets/past_future_selector.dart';
 
 class TripsPage extends StatefulWidget {
   final void Function(FloatingActionButton? fab) onFabReady;
@@ -19,6 +23,7 @@ class _TripsPageState extends State<TripsPage> {
   bool _sortAscending = false;
   TripsDataSource? _dataSource;
   late List<String> _columnKeys;
+  Key _tableKey = UniqueKey(); 
 
   @override
   void initState() {
@@ -41,7 +46,10 @@ class _TripsPageState extends State<TripsPage> {
   @override
   Widget build(BuildContext context) {
     final tripsProvider = Provider.of<TripsProvider>(context);
-    final width = MediaQuery.of(context).size.width;
+    //final width = MediaQuery.of(context).size.width;
+    // Using SingleChildScrollView then we don't need to adapt the column to the size
+    // To not delete the code, and keep it in case later use, we just force the width parameter
+    final width = 1500.0; 
 
     if (tripsProvider.isLoading || _dataSource == null) {
       return const Center(child: CircularProgressIndicator());
@@ -74,19 +82,52 @@ class _TripsPageState extends State<TripsPage> {
                   fontWeight: FontWeight.bold,
                 ),
           ),
-          child: PaginatedDataTable(
-            header: const Text('Trips'),
-            columns: _buildDataColumns(visibleColumns, width),
-            source: _dataSource!,
-            sortColumnIndex: _sortColumnIndex,
-            sortAscending: _sortAscending,
-            horizontalMargin: 5,
-            columnSpacing: 5,
-            showFirstLastButtons: true,
-            rowsPerPage: rowsPerPage,
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minWidth: MediaQuery.of(context).size.width,
+                maxWidth: MediaQuery.of(context).size.width,
+              ),
+              child: PaginatedDataTable(
+                key: _tableKey,
+                header: _tableGeneralHeaderBuilder(),
+                columns: _buildDataColumns(visibleColumns, width),
+                source: _dataSource!,
+                sortColumnIndex: _sortColumnIndex,
+                sortAscending: _sortAscending,
+                horizontalMargin: 5,
+                columnSpacing: 5,
+                showFirstLastButtons: true,
+                rowsPerPage: rowsPerPage,
+              ),
+            ),
           ),
         );
       },
+    );
+  }
+
+  Widget _tableGeneralHeaderBuilder() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        PastFutureSelector(
+          initialValue: _dataSource!.timeMoment,
+          onChanged: (newMoment) {
+            setState(() {
+              _dataSource!.setTimeMoment(newMoment);
+              _tableKey = UniqueKey();
+            });
+          },
+        ),
+        const SizedBox(width: 8),
+        ElevatedButton.icon(
+          onPressed: null,
+          label: Text(AppLocalizations.of(context)!.filterButton),
+          icon: const Icon(Icons.filter_alt),
+        ),
+      ],
     );
   }
 
@@ -114,25 +155,26 @@ class _TripsPageState extends State<TripsPage> {
   }
 
   String _getLabel(String key) {
+    final appLocalizations = AppLocalizations.of(context)!;
     switch (key) {
       case 'type':
-        return 'Type';
+        return '';
       case 'origin_destination':
-        return 'Origin/Destination';
+        return appLocalizations.tripsTableHeaderOriginDestination;
       case 'origin':
-        return 'Origin';
+        return appLocalizations.tripsTableHeaderOrigin;
       case 'destination':
-        return 'Destination';
+        return appLocalizations.tripsTableHeaderDestination;
       case 'startTime':
-        return 'Start Time';
+        return appLocalizations.tripsTableHeaderStartTime;
       case 'endTime':
-        return 'End Time';
+        return appLocalizations.tripsTableHeaderEndTime;
       case 'operator':
-        return 'Operator';
+        return appLocalizations.tripsTableHeaderOperator;
       case 'lineName':
-        return 'Line Name';
+        return appLocalizations.tripsTableHeaderLineName;
       case 'tripLength':
-        return 'Trip Length';
+        return appLocalizations.tripsTableHeaderTripLength;
       default:
         return key;
     }
@@ -158,8 +200,15 @@ class TripsDataSource extends DataTableSource {
   final List<Trips?> _cache = [];
   int _rowCount = 0;
   List<String> _visibleColumns = [];
+  TimeMoment _timeMoment = TimeMoment.past;
 
   TripsDataSource(this.context, this._repository) {
+    _fetchRowCount();
+  }
+
+  void setTimeMoment(TimeMoment moment) {
+    _timeMoment = moment;
+    _cache.clear();
     _fetchRowCount();
   }
 
@@ -169,7 +218,10 @@ class TripsDataSource extends DataTableSource {
   }
 
   Future<void> _fetchRowCount() async {
-    _rowCount = await _repository.count();
+    _rowCount = await _repository.countFilteredTrips(
+      showFutureTrips: _timeMoment == TimeMoment.future,
+    );
+    _cache.clear();
     _cache.addAll(List.generate(_rowCount, (_) => null));
     notifyListeners();
   }
@@ -179,23 +231,38 @@ class TripsDataSource extends DataTableSource {
     final bkgColor = WidgetStateProperty.resolveWith<Color?>(
           (Set<WidgetState> states) => index.isEven ? Theme.of(context).colorScheme.surfaceContainerHighest : null,
         );
+    final settings = context.read<SettingsProvider>();
+    final palette = MapColorPaletteHelper.getPalette(settings.mapColorPalette);
 
-    if (_cache[index] == null) {
-      _fetchPage(index ~/ 50);
-      return DataRow(
-        color: bkgColor,
-        cells: List.generate(
-          _visibleColumns.length,
-          (_) => const DataCell(SizedBox.shrink()),
-        ),
-      );
+    final emptyRow = DataRow(
+          color: bkgColor,
+          cells: List.generate(
+            _visibleColumns.length,
+            (_) => const DataCell(SizedBox.shrink()),
+          ),
+        );
+
+    try{
+        if (_cache[index] == null) {
+        _fetchPage(index ~/ 50);
+        return emptyRow;
+      }
+    }
+    catch (_)
+    {
+      return emptyRow;
     }
 
     final trip = _cache[index]!;
     final cells = _visibleColumns.map((key) {
       switch (key) {
         case 'type':
-          return DataCell(trip.type.icon());
+          return DataCell(
+            IconTheme(
+              data: IconThemeData(color: palette[trip.type]),
+              child: trip.type.icon(),
+            ),
+          );
         case 'origin_destination':
           return DataCell(Text("${trip.originStation}\n${trip.destinationStation}"));
         case 'origin':
@@ -207,9 +274,9 @@ class TripsDataSource extends DataTableSource {
         case 'endTime':
           return DataCell(Text(formatDateTime(context, trip.endDatetime).replaceAll(RegExp(r" "), "\n")));
         case 'operator':
-          return DataCell(Text(trip.operatorName));
+          return DataCell(Text(Uri.decodeComponent(trip.operatorName)));
         case 'lineName':
-          return DataCell(Text(trip.lineName));
+          return DataCell(Text(Uri.decodeComponent(trip.lineName)));
         case 'tripLength':
           return DataCell(Text("${(trip.tripLength/1000).round()} km", textAlign: TextAlign.end,));
         default:
@@ -238,6 +305,8 @@ class TripsDataSource extends DataTableSource {
 
   @override
   int get selectedRowCount => 0;
+  
+  get timeMoment => _timeMoment;
 
   void sort(int columnIndex, bool ascending) {
     _sortColumnIndex = columnIndex;
@@ -254,7 +323,8 @@ class TripsDataSource extends DataTableSource {
     final columnName = _mapKeyToColumnName(key);
     final orderBy = '$columnName ${_sortAscending ? 'ASC' : 'DESC'}';
 
-    final page = await _repository.getAllTrips(
+    final page = await _repository.getTripsFiltered(
+      showFutureTrips: _timeMoment == TimeMoment.future,
       limit: 50,
       offset: pageKey * 50,
       orderBy: orderBy,

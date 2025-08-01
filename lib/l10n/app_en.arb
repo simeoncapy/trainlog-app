@@ -3,6 +3,7 @@
   "appTitle": "Trainlog",
   "language": "English",
   "mainMenuButtonTooltip": "Open menu",
+  "filterButton": "Filter",
   
   "settingsAppCategory": "App Settings",
   "settingsMapCategory": "Map Settings",
@@ -47,5 +48,14 @@
   "typeBus": "Bus",
   "typeCar": "Car",
   "typePlane": "Plane",
-  "typeFerry": "Ferry"
+  "typeFerry": "Ferry",
+
+  "tripsTableHeaderOriginDestination": "Origin/Destination",
+  "tripsTableHeaderOrigin": "Origin",
+  "tripsTableHeaderDestination": "Destination",
+  "tripsTableHeaderStartTime": "Departure Time",
+  "tripsTableHeaderEndTime": "Arrival Time",
+  "tripsTableHeaderOperator": "Operator",
+  "tripsTableHeaderLineName": "Line",
+  "tripsTableHeaderTripLength": "Length"
 }

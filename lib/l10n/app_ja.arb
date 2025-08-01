@@ -3,6 +3,7 @@
   "appTitle": "トレーンログ",
   "language": "日本語",
   "mainMenuButtonTooltip": "メニューを開く",
+  "filterButton": "フィルター",
 
   "settingsAppCategory": "アプリ設定",
   "settingsMapCategory": "地図設定",
@@ -47,5 +48,14 @@
   "typeBus": "バス",
   "typeCar": "車",
   "typePlane": "飛行機",
-  "typeFerry": "フェリー"
+  "typeFerry": "フェリー",
+
+  "tripsTableHeaderOriginDestination": "出発・到着駅",
+  "tripsTableHeaderOrigin": "出発駅",
+  "tripsTableHeaderDestination": "到着駅",
+  "tripsTableHeaderStartTime": "出発時刻",
+  "tripsTableHeaderEndTime": "到着時刻",
+  "tripsTableHeaderOperator": "事業者",
+  "tripsTableHeaderLineName": "路線",
+  "tripsTableHeaderTripLength": "距離"
 }

@@ -18,6 +18,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mainMenuButtonTooltip => 'Open menu';
 
   @override
+  String get filterButton => 'Filter';
+
+  @override
   String get settingsAppCategory => 'App Settings';
 
   @override
@@ -143,4 +146,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get typeFerry => 'Ferry';
+
+  @override
+  String get tripsTableHeaderOriginDestination => 'Origin/Destination';
+
+  @override
+  String get tripsTableHeaderOrigin => 'Origin';
+
+  @override
+  String get tripsTableHeaderDestination => 'Destination';
+
+  @override
+  String get tripsTableHeaderStartTime => 'Departure Time';
+
+  @override
+  String get tripsTableHeaderEndTime => 'Arrival Time';
+
+  @override
+  String get tripsTableHeaderOperator => 'Operator';
+
+  @override
+  String get tripsTableHeaderLineName => 'Line';
+
+  @override
+  String get tripsTableHeaderTripLength => 'Length';
 }
