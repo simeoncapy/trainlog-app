@@ -4,6 +4,8 @@
   "language": "English",
   "mainMenuButtonTooltip": "Ouvrir le menu",
   "filterButton": "Filtrer",
+  "loginButton": "Connexion",
+  "createAccountButton": "Créer un compte",
 
   "settingsAppCategory": "Paramètres de l'application",
   "settingsMapCategory": "Paramètres de la carte",

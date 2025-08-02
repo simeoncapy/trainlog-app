@@ -124,6 +124,18 @@ abstract class AppLocalizations {
   /// **'Filter'**
   String get filterButton;
 
+  /// No description provided for @loginButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Log in'**
+  String get loginButton;
+
+  /// No description provided for @createAccountButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Create an account'**
+  String get createAccountButton;
+
   /// No description provided for @settingsAppCategory.
   ///
   /// In en, this message translates to:

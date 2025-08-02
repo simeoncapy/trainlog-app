@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/data/models/trips.dart';
@@ -10,6 +11,9 @@ import 'package:trainlog_app/utils/map_color_palette.dart';
 import 'package:trainlog_app/utils/polyline_utils.dart';
 import 'package:trainlog_app/widgets/dropdown_radio_list.dart';
 import '../providers/trips_provider.dart';
+import 'dart:io';
+import 'dart:convert';
+import 'package:path_provider/path_provider.dart';
 
 enum YearFilter{
   all,
@@ -34,17 +38,6 @@ class _MapPageState extends State<MapPage> {
   List<PolylineEntry> _polylines = [];
   bool _loading = true;
   late Map<VehicleType, Color> _colours;
-
-  // final Map<VehicleType, Color> _colours = {
-  //       VehicleType.train: Colors.blue,
-  //       VehicleType.plane: Colors.green,
-  //       VehicleType.tram: Colors.lightBlue,
-  //       VehicleType.metro: Colors.deepOrange,
-  //       VehicleType.bus: Colors.deepPurple,
-  //       VehicleType.car: Colors.purple,
-  //       VehicleType.ferry: Colors.teal,
-  //       VehicleType.unknown: Colors.grey,
-  //     };
 
   Set<int> _selectedYears = {};
   YearFilter _selectedYearFilter = YearFilter.all;
@@ -80,6 +73,32 @@ class _MapPageState extends State<MapPage> {
   Future<void> _loadPolylines() async {
     final repo = context.read<TripsProvider>().repository;
     final settings = context.read<SettingsProvider>();
+    final supportDir = await getApplicationSupportDirectory();
+    final cacheFile = File('${supportDir.path}/polylines_cache.json');
+
+    // Try loading from cache first
+    if (!settings.shouldReloadPolylines && await cacheFile.exists()) {
+      try {
+        final cachedJson = await cacheFile.readAsString();
+        final decoded = json.decode(cachedJson) as List<dynamic>;
+        final cachedPolylines = decoded.map((e) => PolylineEntry.fromJson(e)).toList();
+        if (mounted) {
+          setState(() {
+            _polylines = cachedPolylines;
+            _loading = false;
+            _selectedYears = availableYears.toSet();
+            _selectedTypes = availableTypes.toSet();
+          });
+          widget.onFabReady(buildFloatingActionButton(context)!);
+          debugPrint("Polylines loaded from cache");
+        }
+        return;
+      } catch (e) {
+        debugPrint('Failed to load cache: $e');
+      }
+    }
+
+    // Else, load from DB
     if (repo != null) {
       final pathData = await repo.getPathExtendedData(settings.pathDisplayOrder);      
 
@@ -97,6 +116,21 @@ class _MapPageState extends State<MapPage> {
           _selectedTypes = availableTypes.toSet();
         });
         widget.onFabReady(buildFloatingActionButton(context)!);
+
+        debugPrint("Polylines loaded from DB");
+
+        // Save to cache (in background)
+        Future(() async {
+        try {
+          final encoded = json.encode(polylines.map((e) => e.toJson()).toList());
+          final supportDir = await getApplicationSupportDirectory();
+          final cacheFile = File('${supportDir.path}/polylines_cache.json');
+          await cacheFile.writeAsString(encoded);
+          settings.setShouldReloadPolylines(false);
+        } catch (e) {
+          debugPrint('Failed to write cache: $e');
+        }
+      });
       }
     }
   }

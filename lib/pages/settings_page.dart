@@ -89,6 +89,7 @@ class SettingsPage extends StatelessWidget {
                     onChanged: (PathDisplayOrder? newValue) {
                       if (newValue != null) {
                         settings.setPathDisplayOrder(newValue);
+                        settings.setShouldReloadPolylines(true);
                       }
                     },
                     items: [
@@ -117,6 +118,7 @@ class SettingsPage extends StatelessWidget {
                 onChanged: (MapColorPalette? newValue) {
                   if (newValue != null) {
                     settings.setMapColorPalette(newValue);
+                    settings.setShouldReloadPolylines(true);
                   }
                 },
                 items: [

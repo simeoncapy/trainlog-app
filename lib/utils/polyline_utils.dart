@@ -102,4 +102,36 @@ class PolylineEntry {
     required this.creationDate,
     this.isFuture = false,
   });
+
+  Map<String, dynamic> toJson() => {
+    'type': type.name,
+    'startDate': startDate?.toIso8601String(),
+    'creationDate': creationDate?.toIso8601String(),
+    'isFuture': isFuture,
+    'polyline': {
+      'points': polyline.points
+          .map((e) => {'lat': e.latitude, 'lng': e.longitude})
+          .toList(),
+      'color': polyline.color.value,
+      'strokeWidth': polyline.strokeWidth,
+      'isDashed': (polyline.pattern).segments?.length != null && (polyline.pattern).segments!.length > 1,
+    },
+  };
+
+  factory PolylineEntry.fromJson(Map<String, dynamic> json) => PolylineEntry(
+    type: VehicleType.values.firstWhere((e) => e.name == json['type']),
+    startDate: json['startDate'] != null ? DateTime.parse(json['startDate']) : null,
+    creationDate: json['creationDate'] != null ? DateTime.parse(json['creationDate']) : null,
+    isFuture: json['isFuture'],
+    polyline: Polyline(
+      points: (json['polyline']['points'] as List)
+          .map((p) => LatLng(p['lat'], p['lng']))
+          .toList(),
+      color: Color(json['polyline']['color']),
+      pattern: json['polyline']['isDashed']
+          ? StrokePattern.dashed(segments: [20, 20])
+          : StrokePattern.solid(),
+      strokeWidth: (json['polyline']['strokeWidth'] as num).toDouble(),
+    ),
+  );
 }

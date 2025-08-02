@@ -4,6 +4,8 @@
   "language": "日本語",
   "mainMenuButtonTooltip": "メニューを開く",
   "filterButton": "フィルター",
+  "loginButton": "ログイン",
+  "createAccountButton": "アカウントを作成",
 
   "settingsAppCategory": "アプリ設定",
   "settingsMapCategory": "地図設定",

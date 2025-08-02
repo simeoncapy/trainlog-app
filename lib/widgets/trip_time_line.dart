@@ -156,22 +156,7 @@ Widget build(BuildContext context) {
         width: 10,
         height: 100,
         color: color,
-      );
-
-  Widget _buildStopInfo({required String time, required String label, String? date}) {
-    return Row(
-      children: [
-        SizedBox(
-          width: 50,
-          child: Text(time, style: const TextStyle(fontSize: 12)),
-        ),
-        Text(
-          '${date != null ? '$date  ' : ''}$label',
-          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-        ),
-      ],
-    );
-  }
+  );
 
   String formatSecondsToHMS(int totalSeconds, {bool withSeconds = false, bool hourEvenIfZero = false}) {
     int hours = totalSeconds ~/ 3600; // Integer division to get full hours

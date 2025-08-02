@@ -4,6 +4,8 @@
   "language": "English",
   "mainMenuButtonTooltip": "Open menu",
   "filterButton": "Filter",
+  "loginButton": "Log in",
+  "createAccountButton": "Create an account",
   
   "settingsAppCategory": "App Settings",
   "settingsMapCategory": "Map Settings",

@@ -21,6 +21,12 @@ class AppLocalizationsJa extends AppLocalizations {
   String get filterButton => 'フィルター';
 
   @override
+  String get loginButton => 'ログイン';
+
+  @override
+  String get createAccountButton => 'アカウントを作成';
+
+  @override
   String get settingsAppCategory => 'アプリ設定';
 
   @override

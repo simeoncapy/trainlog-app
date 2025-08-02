@@ -13,17 +13,20 @@ class SettingsProvider with ChangeNotifier {
   Locale _locale = const Locale('en');
   PathDisplayOrder _pathDisplayOrder = PathDisplayOrder.creationDate;
   MapColorPalette _mapColorPalette = MapColorPalette.trainlogWeb;
+  bool _shouldReloadPolylines = true;
 
   ThemeMode get themeMode => _themeMode;
   Locale get locale => _locale;
   PathDisplayOrder get pathDisplayOrder => _pathDisplayOrder;
   MapColorPalette get mapColorPalette => _mapColorPalette;
+  bool get shouldReloadPolylines => _shouldReloadPolylines;
 
   SettingsProvider() {
     _loadTheme();
     _loadLocale();
     _loadPathDisplayOrder();
     _loadMapColorPalette();
+    _loadShouldReloadPolylines();
   }
 
   void _loadTheme() async {
@@ -119,6 +122,23 @@ class SettingsProvider with ChangeNotifier {
     _mapColorPalette = palette;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('map_color_palette', palette.name);
+    notifyListeners();
+  }
+
+  // ------------------------------------------------------------------------------
+
+  void _loadShouldReloadPolylines() async {
+    final prefs = await SharedPreferences.getInstance();
+    final reload = prefs.getBool('should_reload_polylines');
+    _shouldReloadPolylines = reload ?? false;
+    notifyListeners();
+  }
+
+  void setShouldReloadPolylines(bool reload) async {
+    if (_shouldReloadPolylines == reload) return;
+    _shouldReloadPolylines = reload;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('should_reload_polylines', reload);
     notifyListeners();
   }
 }

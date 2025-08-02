@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/pages/about_page.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
+import 'package:trainlog_app/widgets/menu_header.dart';
 import 'package:trainlog_app/widgets/trips_loader.dart';
 import 'pages/map_page.dart';
 import 'pages/trips_page.dart';
@@ -246,13 +247,7 @@ class _MyAppState extends State<MyApp> {
                 children: [
                   const DrawerHeader(
                     decoration: BoxDecoration(color: Colors.blue),
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Menu',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
+                    child: MenuHeader(),
                   ),
                   Expanded(
                     child: ListView(
@@ -339,3 +334,4 @@ class _MyAppState extends State<MyApp> {
     );
   }
 }
+

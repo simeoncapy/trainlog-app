@@ -21,6 +21,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get filterButton => 'Filtrer';
 
   @override
+  String get loginButton => 'Connexion';
+
+  @override
+  String get createAccountButton => 'Créer un compte';
+
+  @override
   String get settingsAppCategory => 'Paramètres de l\'application';
 
   @override
