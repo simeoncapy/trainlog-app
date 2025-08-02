@@ -57,5 +57,13 @@
   "tripsTableHeaderEndTime": "到着時刻",
   "tripsTableHeaderOperator": "事業者",
   "tripsTableHeaderLineName": "路線",
-  "tripsTableHeaderTripLength": "距離"
+  "tripsTableHeaderTripLength": "距離",
+
+  "tripsDetailTitle": "{vehicle}での旅行",
+  "tripsDetailsTitleOperator": "事業者: ",
+  "tripsDetailsTitleVehicle": "車名: ",
+  "tripsDetailsTitleSeat": "席: ",
+  "tripsDetailsTitlePrice": "価格: ",
+  "tripsDetailPurchasedDate": "{date}に購入",
+  "tripsDetailsTitleNotes": "メモ: "
 }

@@ -57,5 +57,25 @@
   "tripsTableHeaderEndTime": "Arrival Time",
   "tripsTableHeaderOperator": "Operator",
   "tripsTableHeaderLineName": "Line",
-  "tripsTableHeaderTripLength": "Length"
+  "tripsTableHeaderTripLength": "Length",
+
+  "tripsDetailTitle": "Trip in {vehicle}",
+  "@tripsDetailTitle" :{
+    "description": "Transportation method",
+    "placeholders": {
+      "vehicle": {}
+    }
+  },
+  "tripsDetailsTitleOperator": "Operator: ",
+  "tripsDetailsTitleVehicle": "Vehicle: ",
+  "tripsDetailsTitleSeat": "Seat: ",
+  "tripsDetailsTitlePrice": "Price: ",
+  "tripsDetailPurchasedDate": "purchased on {date}",
+  "@tripsDetailPurchasedDate" :{
+    "description": "date of the ticket purchase",
+    "placeholders": {
+      "date": {}
+    }
+  },
+  "tripsDetailsTitleNotes": "Notes: "
 }

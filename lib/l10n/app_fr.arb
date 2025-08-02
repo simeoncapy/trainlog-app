@@ -57,5 +57,13 @@
   "tripsTableHeaderEndTime": "Heure d'arrivée",
   "tripsTableHeaderOperator": "Transporteur",
   "tripsTableHeaderLineName": "Ligne",
-  "tripsTableHeaderTripLength": "Distance"
+  "tripsTableHeaderTripLength": "Distance",
+
+  "tripsDetailTitle": "Trajet en {vehicle}",
+  "tripsDetailsTitleOperator": "Transporteur : ",
+  "tripsDetailsTitleVehicle": "Vehicule : ",
+  "tripsDetailsTitleSeat": "Siège : ",
+  "tripsDetailsTitlePrice": "Prix : ",
+  "tripsDetailPurchasedDate": "acheté le {date}",
+  "tripsDetailsTitleNotes": "Notes : "
 }

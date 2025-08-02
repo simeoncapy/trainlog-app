@@ -14,10 +14,10 @@ class TripTimeline extends StatelessWidget {
 Widget build(BuildContext context) {
   final departureTime = formatDateTime(context, trip.startDatetime).replaceAll(RegExp(r" "), "\n");
   final arrivalTime = formatDateTime(context, trip.endDatetime).replaceAll(RegExp(r" "), "\n");
-  final operatorName = Uri.decodeComponent(trip.operatorName);
+  //final operatorName = Uri.decodeComponent(trip.operatorName);
   final lineName = Uri.decodeComponent(trip.lineName);
   final distance = "${(trip.tripLength / 1000).round()} km";
-  final duration = formatDuration(trip.manualTripDuration ?? trip.estimatedTripDuration);
+  final durationStr = formatSecondsToHMS((trip.manualTripDuration ?? trip.estimatedTripDuration).toInt());
 
   final settings = context.read<SettingsProvider>();
   final palette = MapColorPaletteHelper.getPalette(settings.mapColorPalette);
@@ -92,8 +92,9 @@ Widget build(BuildContext context) {
                       color: Colors.grey,
                       strokeWidth: 1.5,
                     ),
-                    const SizedBox(width: 4),
+                    const SizedBox(width: 8),
                     Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           lineName,
@@ -101,7 +102,7 @@ Widget build(BuildContext context) {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          '$duration - $distance',
+                          '$durationStr - $distance',
                           style: TextStyle(color: Theme.of(context).colorScheme.secondary),
                         ),
                       ],
@@ -172,11 +173,26 @@ Widget build(BuildContext context) {
     );
   }
 
-  String formatDuration(double? minutes) {
-    if (minutes == null || minutes.isNaN) return '';
-    final int mins = minutes.round();
-    final int hours = mins ~/ 60;
-    final int remMins = mins % 60;
-    return '${hours > 0 ? '${hours}h ' : ''}${remMins}min';
+  String formatSecondsToHMS(int totalSeconds, {bool withSeconds = false, bool hourEvenIfZero = false}) {
+    int hours = totalSeconds ~/ 3600; // Integer division to get full hours
+    int remainingSecondsAfterHours = totalSeconds % 3600; // Remaining seconds after extracting hours
+    int minutes = remainingSecondsAfterHours ~/ 60; // Integer division to get full minutes
+    int seconds = remainingSecondsAfterHours % 60; // Remaining seconds
+
+    String result = "";
+
+    if(hours != 0 || hourEvenIfZero)
+    {
+      result += "${hours.toString().padLeft(2, '0')} h ";
+    }
+
+    result += "${minutes.toString().padLeft(2, '0')} min";
+
+    if(withSeconds)
+    {
+      result += " ${seconds.toString().padLeft(2, '0')} s";
+    }
+
+    return result;
   }
 }

@@ -171,4 +171,29 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get tripsTableHeaderTripLength => 'Distance';
+
+  @override
+  String tripsDetailTitle(Object vehicle) {
+    return 'Trajet en $vehicle';
+  }
+
+  @override
+  String get tripsDetailsTitleOperator => 'Transporteur : ';
+
+  @override
+  String get tripsDetailsTitleVehicle => 'Vehicule : ';
+
+  @override
+  String get tripsDetailsTitleSeat => 'Siège : ';
+
+  @override
+  String get tripsDetailsTitlePrice => 'Prix : ';
+
+  @override
+  String tripsDetailPurchasedDate(Object date) {
+    return 'acheté le $date';
+  }
+
+  @override
+  String get tripsDetailsTitleNotes => 'Notes : ';
 }

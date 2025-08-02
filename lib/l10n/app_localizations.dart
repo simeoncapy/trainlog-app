@@ -423,6 +423,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Length'**
   String get tripsTableHeaderTripLength;
+
+  /// Transportation method
+  ///
+  /// In en, this message translates to:
+  /// **'Trip in {vehicle}'**
+  String tripsDetailTitle(Object vehicle);
+
+  /// No description provided for @tripsDetailsTitleOperator.
+  ///
+  /// In en, this message translates to:
+  /// **'Operator: '**
+  String get tripsDetailsTitleOperator;
+
+  /// No description provided for @tripsDetailsTitleVehicle.
+  ///
+  /// In en, this message translates to:
+  /// **'Vehicle: '**
+  String get tripsDetailsTitleVehicle;
+
+  /// No description provided for @tripsDetailsTitleSeat.
+  ///
+  /// In en, this message translates to:
+  /// **'Seat: '**
+  String get tripsDetailsTitleSeat;
+
+  /// No description provided for @tripsDetailsTitlePrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Price: '**
+  String get tripsDetailsTitlePrice;
+
+  /// date of the ticket purchase
+  ///
+  /// In en, this message translates to:
+  /// **'purchased on {date}'**
+  String tripsDetailPurchasedDate(Object date);
+
+  /// No description provided for @tripsDetailsTitleNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes: '**
+  String get tripsDetailsTitleNotes;
 }
 
 class _AppLocalizationsDelegate
