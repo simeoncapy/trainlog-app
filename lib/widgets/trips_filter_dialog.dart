@@ -289,7 +289,7 @@ class _TripsFilterDialogState extends State<TripsFilterDialog> {
                     child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
                   ),
                   const SizedBox(width: 8),
-                  ElevatedButton(
+                  ElevatedButton.icon(
                     onPressed: () {
                       Navigator.of(context).pop(
                         TripsFilterResult(
@@ -302,7 +302,8 @@ class _TripsFilterDialogState extends State<TripsFilterDialog> {
                         ),
                       );
                     },
-                    child: Text(MaterialLocalizations.of(context).searchFieldLabel),
+                    label: Text(MaterialLocalizations.of(context).searchFieldLabel),
+                    icon: Icon(Icons.search),
                   ),
                 ],
               ),
