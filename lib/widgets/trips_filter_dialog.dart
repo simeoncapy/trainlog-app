@@ -7,6 +7,7 @@ import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
 import 'package:trainlog_app/utils/text_utils.dart';
+import 'package:trainlog_app/widgets/vehicle_type_filter_chips.dart';
 
 class TripsFilterResult {
   final String keyword;
@@ -116,55 +117,7 @@ class _TripsFilterDialogState extends State<TripsFilterDialog> {
     }
   }
 
-
-  void _toggleType(VehicleType type) {
-    setState(() {
-      if (_selectedTypes.contains(type)) {
-        _selectedTypes.remove(type);
-      } else {
-        _selectedTypes.add(type);
-      }
-    });
-  }
-
-  Wrap _typeFilterBuilder(BuildContext context, Map<VehicleType, Color> colours) {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: widget.typeOptions.map((type) {
-        final selected = _selectedTypes.contains(type);
-        final backgroundColor = colours[type];
-        final brightness = backgroundColor != null
-            ? ThemeData.estimateBrightnessForColor(backgroundColor)
-            : Brightness.light; // Default fallback
-
-        final textColor = brightness == Brightness.dark ? Colors.white : Colors.black;
-        return FilterChip(
-          label: Text(
-            type.label(context),
-            style: TextStyle(color: selected? textColor : Theme.of(context).chipTheme.labelStyle?.color),
-          ),
-          avatar: IconTheme(
-            data: IconThemeData(
-              color: selected
-                  ? textColor
-                  : Theme.of(context).chipTheme.labelStyle?.color,
-            ),
-            child: type.icon(),
-          ),
-          selectedColor: backgroundColor,// != null ? WidgetStateProperty.all(backgroundColor) : null,
-          selected: selected,
-          showCheckmark: false,
-          onSelected: (_) {
-            setState(() {
-              selected ? _selectedTypes.remove(type) : _selectedTypes.add(type);
-            });
-          },
-        );
-      }).toList(),
-    );
-  }
-
+ 
   @override
   Widget build(BuildContext context) {
     final Map<String, String> countryOptions = {
@@ -174,8 +127,6 @@ class _TripsFilterDialogState extends State<TripsFilterDialog> {
     final List<String> countryItems = countryOptions.keys.toList(); // country codes
     final List<String> operatorOptions = [_allOperatorLabel, ...widget.operatorOptions];
     final localizations = AppLocalizations.of(context)!;
-    final settings = context.read<SettingsProvider>();
-    final colours = MapColorPaletteHelper.getPalette(settings.mapColorPalette);
 
     return Dialog(
       insetPadding: const EdgeInsets.all(20),
@@ -317,7 +268,15 @@ class _TripsFilterDialogState extends State<TripsFilterDialog> {
                   child: Text(localizations.tripsFilterType, style: TextStyle(fontWeight: FontWeight.bold)),
                 ),
               ),
-              _typeFilterBuilder(context, colours),
+              VehicleTypeFilterChips(
+                availableTypes: widget.typeOptions,
+                selectedTypes: _selectedTypes.toSet(),
+                onTypeToggle: (type, selected) {
+                  setState(() {
+                    selected ? _selectedTypes.add(type) : _selectedTypes.remove(type);
+                  });
+                },
+              ),
 
               const SizedBox(height: 24),
 

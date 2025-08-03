@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/data/models/trips.dart';
@@ -11,6 +10,7 @@ import 'package:trainlog_app/utils/cached_data_utils.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
 import 'package:trainlog_app/utils/polyline_utils.dart';
 import 'package:trainlog_app/widgets/dropdown_radio_list.dart';
+import 'package:trainlog_app/widgets/vehicle_type_filter_chips.dart';
 import '../providers/trips_provider.dart';
 import 'dart:io';
 import 'dart:convert';
@@ -302,7 +302,15 @@ Widget build(BuildContext context) {
                         const SizedBox(height: 16),
                         Text(appLocalizations.typeTitle, style: Theme.of(context).textTheme.titleLarge),
                         const SizedBox(height: 8),
-                        _typeFilterBuilder(context),
+                        VehicleTypeFilterChips(
+                          availableTypes: availableTypes,
+                          selectedTypes: _selectedTypes,
+                          onTypeToggle: (type, selected) {
+                            setState(() {
+                              selected ? _selectedTypes.add(type) : _selectedTypes.remove(type);
+                            });
+                          },
+                        ),
                         const SizedBox(height: 16),
                         Align(
                           alignment: Alignment.centerRight,
@@ -364,45 +372,6 @@ Widget build(BuildContext context) {
       },
     );
   }
-
-  Wrap _typeFilterBuilder(BuildContext context) {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: availableTypes.map((type) {
-        final selected = _selectedTypes.contains(type);
-        final backgroundColor = _colours[type];
-        final brightness = backgroundColor != null
-            ? ThemeData.estimateBrightnessForColor(backgroundColor)
-            : Brightness.light; // Default fallback
-
-        final textColor = brightness == Brightness.dark ? Colors.white : Colors.black;
-        return FilterChip(
-          label: Text(
-            type.label(context),
-            style: TextStyle(color: selected? textColor : Theme.of(context).chipTheme.labelStyle?.color),
-          ),
-          avatar: IconTheme(
-            data: IconThemeData(
-              color: selected
-                  ? textColor
-                  : Theme.of(context).chipTheme.labelStyle?.color,
-            ),
-            child: type.icon(),
-          ),
-          selectedColor: backgroundColor,// != null ? WidgetStateProperty.all(backgroundColor) : null,
-          selected: selected,
-          showCheckmark: false,
-          onSelected: (_) {
-            setState(() {
-              selected ? _selectedTypes.remove(type) : _selectedTypes.add(type);
-            });
-          },
-        );
-      }).toList(),
-    );
-  }
-
 
   FloatingActionButton? buildFloatingActionButton(BuildContext context) {
     if (_showFilterModal) return null;
