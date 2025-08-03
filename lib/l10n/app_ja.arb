@@ -72,5 +72,14 @@
   "tripsDetailsTitleSeat": "席: ",
   "tripsDetailsTitlePrice": "価格: ",
   "tripsDetailPurchasedDate": "{date}に購入",
-  "tripsDetailsTitleNotes": "メモ: "
+  "tripsDetailsTitleNotes": "メモ: ",
+
+  "tripsFilterAllCountry": "全て",
+  "tripsFilterAllOperator": "全て",
+  "tripsFilterKeyword": "キーワード",
+  "tripsFilterDateFrom": "から",
+  "tripsFilterDateTo": "まで (任意)",
+  "tripsFilterCountry": "国",
+  "tripsFilterOperator": "事業者",
+  "tripsFilterType": "乗り物のタイプ"
 }

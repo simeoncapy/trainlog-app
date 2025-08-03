@@ -72,5 +72,14 @@
   "tripsDetailsTitleSeat": "Siège : ",
   "tripsDetailsTitlePrice": "Prix : ",
   "tripsDetailPurchasedDate": "acheté le {date}",
-  "tripsDetailsTitleNotes": "Notes : "
+  "tripsDetailsTitleNotes": "Notes : ",
+
+  "tripsFilterAllCountry": "Tous",
+  "tripsFilterAllOperator": "Tous",
+  "tripsFilterKeyword": "Mot-clef",
+  "tripsFilterDateFrom": "Du",
+  "tripsFilterDateTo": "au (facultatif)",
+  "tripsFilterCountry": "Pays",
+  "tripsFilterOperator": "Opérateur",
+  "tripsFilterType": "Types de véhicule"
 }

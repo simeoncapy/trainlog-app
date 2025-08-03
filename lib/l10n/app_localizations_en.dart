@@ -219,4 +219,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tripsDetailsTitleNotes => 'Notes: ';
+
+  @override
+  String get tripsFilterAllCountry => 'All';
+
+  @override
+  String get tripsFilterAllOperator => 'All';
+
+  @override
+  String get tripsFilterKeyword => 'Keyword';
+
+  @override
+  String get tripsFilterDateFrom => 'Date from';
+
+  @override
+  String get tripsFilterDateTo => 'to (optional)';
+
+  @override
+  String get tripsFilterCountry => 'Country';
+
+  @override
+  String get tripsFilterOperator => 'Operator';
+
+  @override
+  String get tripsFilterType => 'Vehicle Type';
 }

@@ -218,4 +218,28 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get tripsDetailsTitleNotes => 'メモ: ';
+
+  @override
+  String get tripsFilterAllCountry => '全て';
+
+  @override
+  String get tripsFilterAllOperator => '全て';
+
+  @override
+  String get tripsFilterKeyword => 'キーワード';
+
+  @override
+  String get tripsFilterDateFrom => 'から';
+
+  @override
+  String get tripsFilterDateTo => 'まで (任意)';
+
+  @override
+  String get tripsFilterCountry => '国';
+
+  @override
+  String get tripsFilterOperator => '事業者';
+
+  @override
+  String get tripsFilterType => '乗り物のタイプ';
 }

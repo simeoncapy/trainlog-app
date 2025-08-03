@@ -26,6 +26,7 @@ dependencies:
   google_polyline_algorithm: ^3.1.0
   geodesy: ^0.10.2
   infinite_scroll_pagination: ^5.1.0
+  dropdown_search: ^5.0.6
 
 dev_dependencies:
   flutter_test:

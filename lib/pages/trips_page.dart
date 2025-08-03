@@ -9,6 +9,7 @@ import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
 import 'package:trainlog_app/widgets/past_future_selector.dart';
 import 'package:trainlog_app/widgets/trip_details_bottom_sheet.dart';
+import 'package:trainlog_app/widgets/trips_filter_dialog.dart';
 
 class TripsPage extends StatefulWidget {
   final void Function(FloatingActionButton? fab) onFabReady;
@@ -126,8 +127,21 @@ class _TripsPageState extends State<TripsPage> {
           shape: const CircleBorder(),
           color: Theme.of(context).colorScheme.primaryContainer,
           child: IconButton(
-            onPressed: () {
-              // action
+            onPressed: () async {
+              final operators = await _dataSource?.fetchListOfOperator() ?? [];
+              final countries = await _dataSource?.fetchListOfCountry() ?? [];
+
+              final result = await showDialog<TripsFilterResult>(
+                context: context,
+                builder: (context) => TripsFilterDialog(
+                  operatorOptions: operators,
+                  countryOptions: countries,
+                ),
+              );
+
+              if (result != null) {
+                // Use: result.keyword, result.country, result.types, etc.
+              }
             },
             icon: const Icon(Icons.filter_alt),
             color: Theme.of(context).colorScheme.onPrimaryContainer,
@@ -211,6 +225,28 @@ class TripsDataSource extends DataTableSource {
 
   TripsDataSource(this.context, this._repository) {
     _fetchRowCount();
+  }
+
+  Future<List<String>> fetchListOfOperator() async {
+    final trips = await _repository.getAllTrips();
+    final operators = trips
+        .map((trip) => Uri.decodeComponent(trip.operatorName))
+        .where((name) => name.trim().isNotEmpty) // remove empty or blank names
+        .toSet()
+        .toList()
+      ..sort();
+    return operators;
+  }
+
+  Future<List<String>> fetchListOfCountry() async {
+    final trips = await _repository.getAllTrips();
+    final countries = trips
+        .map((trip) => Uri.decodeComponent(trip.countries))
+        .where((name) => name.trim().isNotEmpty) // remove empty or blank names
+        .toSet()
+        .toList()
+      ..sort();
+    return countries;
   }
 
   void setTimeMoment(TimeMoment moment) {

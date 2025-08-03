@@ -220,4 +220,28 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get tripsDetailsTitleNotes => 'Notes : ';
+
+  @override
+  String get tripsFilterAllCountry => 'Tous';
+
+  @override
+  String get tripsFilterAllOperator => 'Tous';
+
+  @override
+  String get tripsFilterKeyword => 'Mot-clef';
+
+  @override
+  String get tripsFilterDateFrom => 'Du';
+
+  @override
+  String get tripsFilterDateTo => 'au (facultatif)';
+
+  @override
+  String get tripsFilterCountry => 'Pays';
+
+  @override
+  String get tripsFilterOperator => 'Opérateur';
+
+  @override
+  String get tripsFilterType => 'Types de véhicule';
 }

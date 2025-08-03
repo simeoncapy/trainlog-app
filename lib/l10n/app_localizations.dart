@@ -507,6 +507,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Notes: '**
   String get tripsDetailsTitleNotes;
+
+  /// No description provided for @tripsFilterAllCountry.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get tripsFilterAllCountry;
+
+  /// No description provided for @tripsFilterAllOperator.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get tripsFilterAllOperator;
+
+  /// No description provided for @tripsFilterKeyword.
+  ///
+  /// In en, this message translates to:
+  /// **'Keyword'**
+  String get tripsFilterKeyword;
+
+  /// No description provided for @tripsFilterDateFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'Date from'**
+  String get tripsFilterDateFrom;
+
+  /// No description provided for @tripsFilterDateTo.
+  ///
+  /// In en, this message translates to:
+  /// **'to (optional)'**
+  String get tripsFilterDateTo;
+
+  /// No description provided for @tripsFilterCountry.
+  ///
+  /// In en, this message translates to:
+  /// **'Country'**
+  String get tripsFilterCountry;
+
+  /// No description provided for @tripsFilterOperator.
+  ///
+  /// In en, this message translates to:
+  /// **'Operator'**
+  String get tripsFilterOperator;
+
+  /// No description provided for @tripsFilterType.
+  ///
+  /// In en, this message translates to:
+  /// **'Vehicle Type'**
+  String get tripsFilterType;
 }
 
 class _AppLocalizationsDelegate

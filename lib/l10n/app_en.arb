@@ -91,5 +91,14 @@
       "date": {}
     }
   },
-  "tripsDetailsTitleNotes": "Notes: "
+  "tripsDetailsTitleNotes": "Notes: ",
+
+  "tripsFilterAllCountry": "All",
+  "tripsFilterAllOperator": "All",
+  "tripsFilterKeyword": "Keyword",
+  "tripsFilterDateFrom": "Date from",
+  "tripsFilterDateTo": "to (optional)",
+  "tripsFilterCountry": "Country",
+  "tripsFilterOperator": "Operator",
+  "tripsFilterType": "Vehicle Type"
 }

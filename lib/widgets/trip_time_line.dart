@@ -68,32 +68,30 @@ Widget build(BuildContext context) {
 
         // RIGHT: trip information
         Expanded(
-          child: Stack(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Positioned(
-                top: 0,
-                child: SizedBox(
-                  width: MediaQuery.of(context).size.width - 150, // Adjust to available width
-                  child: Text(
-                    trip.originStation,
-                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-                    softWrap: true,
-                    overflow: TextOverflow.visible,
-                  ),
-                ),
+              // Top: origin station
+              Text(
+                trip.originStation,
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                softWrap: true,
+                overflow: TextOverflow.visible,
               ),
-              Positioned(
-                top: timelineHeight * 0.4,
-                child: Row(
-                  children: [
-                    const Placeholder(
-                      fallbackHeight: 24,
-                      fallbackWidth: 24,
-                      color: Colors.grey,
-                      strokeWidth: 1.5,
-                    ),
-                    const SizedBox(width: 8),
-                    Column(
+
+              // Middle: line info
+              Row(
+                children: [
+                  const Placeholder(
+                    fallbackHeight: 24,
+                    fallbackWidth: 24,
+                    color: Colors.grey,
+                    strokeWidth: 1.5,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
@@ -107,20 +105,16 @@ Widget build(BuildContext context) {
                         ),
                       ],
                     ),
-                  ],
-                ),
-              ),
-              Positioned(
-                bottom: 0,
-                child: SizedBox(
-                  width: MediaQuery.of(context).size.width - 200, // Adjust to available width
-                  child: Text(
-                    trip.destinationStation,
-                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-                    softWrap: true,
-                    overflow: TextOverflow.visible,
                   ),
-                ),
+                ],
+              ),
+
+              // Bottom: destination station
+              Text(
+                trip.destinationStation,
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                softWrap: true,
+                overflow: TextOverflow.visible,
               ),
             ],
           ),
