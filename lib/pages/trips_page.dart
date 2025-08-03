@@ -121,10 +121,18 @@ class _TripsPageState extends State<TripsPage> {
           },
         ),
         const SizedBox(width: 8),
-        ElevatedButton.icon(
-          onPressed: null,
-          label: Text(AppLocalizations.of(context)!.filterButton),
-          icon: const Icon(Icons.filter_alt),
+        Material(
+          elevation: 4,
+          shape: const CircleBorder(),
+          color: Theme.of(context).colorScheme.primaryContainer,
+          child: IconButton(
+            onPressed: () {
+              // action
+            },
+            icon: const Icon(Icons.filter_alt),
+            color: Theme.of(context).colorScheme.onPrimaryContainer,
+            tooltip: AppLocalizations.of(context)!.filterButton,
+          ),
         ),
       ],
     );

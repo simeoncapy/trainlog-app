@@ -3,6 +3,7 @@ import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/utils/number_formatter.dart';
+import 'package:trainlog_app/utils/style_utils.dart';
 import 'package:trainlog_app/widgets/trip_time_line.dart';
 
 class TripDetailsBottomSheet extends StatelessWidget {
@@ -64,49 +65,31 @@ class TripDetailsBottomSheet extends StatelessWidget {
                 onPressed: null, 
                 label: Text("Share"),
                 icon: Icon(Icons.share),
-                style: _buttonStyleHelper(Theme.of(context).colorScheme.tertiary, Theme.of(context).colorScheme.onTertiary)
+                style: buttonStyleHelper(Theme.of(context).colorScheme.tertiary, Theme.of(context).colorScheme.onTertiary)
               ),
               ElevatedButton.icon(
                 onPressed: null, 
                 label: Text("Edit"),
                 icon: Icon(Icons.edit),
-                style: _buttonStyleHelper(Theme.of(context).colorScheme.primary, Theme.of(context).colorScheme.onPrimary)
+                style: buttonStyleHelper(Theme.of(context).colorScheme.primary, Theme.of(context).colorScheme.onPrimary)
               ),
               ElevatedButton.icon(
                 onPressed: null, 
                 label: Text("Copy"),
                 icon: Icon(Icons.copy),
-                style: _buttonStyleHelper(Theme.of(context).colorScheme.secondary, Theme.of(context).colorScheme.onSecondary)
+                style: buttonStyleHelper(Theme.of(context).colorScheme.secondary, Theme.of(context).colorScheme.onSecondary)
               ),
               ElevatedButton.icon(
                 onPressed: false ? () {} : null, // control enabled/disabled
                 icon: const Icon(Icons.delete),
                 label: const Text("Delete"),
-                style: _buttonStyleHelper(Theme.of(context).colorScheme.error, Theme.of(context).colorScheme.onError)
+                style: buttonStyleHelper(Theme.of(context).colorScheme.error, Theme.of(context).colorScheme.onError)
               ),
             ],
           ),
         ],
       ),
     );
-  }
-
-  ButtonStyle _buttonStyleHelper(Color background, Color foreground)
-  {
-      return ButtonStyle(
-        backgroundColor: WidgetStateProperty.resolveWith<Color?>((states) {
-          if (states.contains(WidgetState.disabled)) {
-            return background.withValues(alpha: 0.3);
-          }
-          return background;
-        }),
-        foregroundColor: WidgetStateProperty.resolveWith<Color?>((states) {
-          if (states.contains(WidgetState.disabled)) {
-            return foreground.withValues(alpha: 0.5);
-          }
-          return foreground;
-        }),
-      );
   }
 
   Text _dataElementBuilder(BuildContext context, String title, String data, {String? suffix}) {

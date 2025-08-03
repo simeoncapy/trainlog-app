@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/pages/about_page.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
+import 'package:trainlog_app/utils/cached_data_utils.dart';
 import 'package:trainlog_app/widgets/menu_header.dart';
 import 'package:trainlog_app/widgets/trips_loader.dart';
 import 'pages/map_page.dart';
@@ -29,7 +30,11 @@ enum AppPageId {
   about,
 }
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized(); // Required before any async calls
+
+  await AppCacheFilePath.init(); // Initialize paths here
+
   runApp(
     MultiProvider(
       providers: [
@@ -79,7 +84,7 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     _pageController = PageController(initialPage: _selectedIndex);
-
+    
     _pages = [
       AppPage(
         id: AppPageId.map,

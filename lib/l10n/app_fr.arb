@@ -25,6 +25,11 @@
   "settingsMapColorPaletteTrainlogRed": "Rouge",
   "settingsMapColorPaletteTrainlogGreen": "Vert",
   "settingsMapColorPaletteTrainlogBlue": "Bleu",
+  "settingsCache": "Données en cache ({size} Mio)",
+  "settingsCacheClearButton" : "Vider",
+  "settingsCacheClearConfirmTitle": "Vider le cache ?",
+  "settingsCacheClearConfirmMessage": "Êtes-vous sûr de vouloir supprimer les données en cache ? Cette action est irréversible. Le prochain chargement de l'application pourra être plus long.",
+  "settingsCacheClearedMessage": "Cache vidé avec succes.",
 
   "menuMapTitle": "Carte",
   "menuTripsTitle": "Trajets",

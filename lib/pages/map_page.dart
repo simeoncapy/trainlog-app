@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
+import 'package:trainlog_app/utils/cached_data_utils.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
 import 'package:trainlog_app/utils/polyline_utils.dart';
 import 'package:trainlog_app/widgets/dropdown_radio_list.dart';
@@ -123,8 +124,7 @@ class _MapPageState extends State<MapPage> {
         Future(() async {
         try {
           final encoded = json.encode(polylines.map((e) => e.toJson()).toList());
-          final supportDir = await getApplicationSupportDirectory();
-          final cacheFile = File('${supportDir.path}/polylines_cache.json');
+          final cacheFile = File(AppCacheFilePath.polylines);
           await cacheFile.writeAsString(encoded);
           settings.setShouldReloadPolylines(false);
         } catch (e) {

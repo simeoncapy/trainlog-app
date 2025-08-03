@@ -3,6 +3,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:trainlog_app/data/trips_repository.dart';
+import 'package:trainlog_app/utils/cached_data_utils.dart';
 
 class DatabaseManager {
   static Database? _db;
@@ -13,8 +14,7 @@ class DatabaseManager {
     sqfliteFfiInit();
     databaseFactory = databaseFactoryFfi;
 
-    final dir = await getApplicationSupportDirectory();
-    final path = p.join(dir.path, 'trainlog.db');
+    final path = AppCacheFilePath.database;
 
     _db = await databaseFactory.openDatabase(path, options: OpenDatabaseOptions(
       version: 1,

@@ -1,6 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:trainlog_app/providers/trips_provider.dart';
+import 'package:trainlog_app/utils/cached_data_utils.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
+import 'package:trainlog_app/utils/style_utils.dart';
 import '../l10n/app_localizations.dart';
 import '../providers/settings_provider.dart';
 
@@ -11,11 +16,34 @@ class Language {
   Language(this.name, this.code);
 }
 
-class SettingsPage extends StatelessWidget {
+class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
 
   @override
+  State<SettingsPage> createState() => _SettingsPageState();
+}
+
+class _SettingsPageState extends State<SettingsPage> {
+  double _totalCacheSize = 0.0;
+
+  void _refreshCacheSize() {
+    final sizeDb = computeCacheFileSize(AppCacheFilePath.database);
+    final sizePolylines = computeCacheFileSize(AppCacheFilePath.polylines);
+    setState(() {
+      _totalCacheSize = sizeDb + sizePolylines;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _refreshCacheSize();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final repo = context.read<TripsProvider>().repository;
+
     final List<Language> languages = [
       Language('English', 'en'),
       Language('Français', 'fr'),
@@ -73,7 +101,56 @@ class SettingsPage extends StatelessWidget {
                     .toList(),
               ),
             ),
-            _SettingsCategory(title: appLocalization.settingsMapCategory),
+            ListTile(
+              leading: const Icon(Icons.cloud_download),
+              title: Text(appLocalization.settingsCache(_totalCacheSize.toStringAsFixed(2))),
+              trailing: ElevatedButton.icon(
+                onPressed: _totalCacheSize  > 0
+                  ? () async {
+                      final confirmed = await showDialog<bool>(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: Text(appLocalization.settingsCacheClearConfirmTitle),
+                          content: Text(appLocalization.settingsCacheClearConfirmMessage),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, false),
+                              child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, true),
+                              child: Text(MaterialLocalizations.of(context).okButtonLabel),
+                            ),
+                          ],
+                        ),
+                      );
+
+                      if (confirmed == true) {
+                        if(repo != null) await repo.clearAllTrips();
+
+                        await File(AppCacheFilePath.polylines)
+                              .delete()
+                              .catchError((e) {
+                                debugPrint('Failed to delete polylines: $e');
+                                return File(AppCacheFilePath.polylines);
+                              });
+
+                        if (!mounted) return;
+                        _refreshCacheSize();
+                        settings.setShouldReloadPolylines(true);
+                        // ignore: use_build_context_synchronously
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(appLocalization.settingsCacheClearedMessage)),
+                        );
+                      }
+                    }
+                  : null, // disabled if cache size is 0
+                label: Text(appLocalization.settingsCacheClearButton),
+                icon: Icon(Icons.delete),
+                style: buttonStyleHelper(Theme.of(context).colorScheme.error, Theme.of(context).colorScheme.onError)
+              )
+            ),
+            _SettingsCategory(title: appLocalization.settingsMapCategory), // ---------------------------------------------
             ListTile(
               leading: const Icon(Icons.layers),
               title: Column(
@@ -145,7 +222,7 @@ class SettingsPage extends StatelessWidget {
                 ],
               ),
             ),
-            _SettingsCategory(title: appLocalization.settingsAccountCategory),
+            _SettingsCategory(title: appLocalization.settingsAccountCategory), // ---------------------------------------------
           ],
         );
       },

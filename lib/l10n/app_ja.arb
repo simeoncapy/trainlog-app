@@ -25,6 +25,11 @@
   "settingsMapColorPaletteTrainlogRed": "赤",
   "settingsMapColorPaletteTrainlogGreen": "緑",
   "settingsMapColorPaletteTrainlogBlue": "青",
+  "settingsCache": "キャッシュされたデータ ({size} MiB)",
+  "settingsCacheClearButton" : "消す",
+  "settingsCacheClearConfirmTitle": "キャッシュを消しますか?",
+  "settingsCacheClearConfirmMessage": "キャッシュデータを削除してもよろしいですか？この操作は元に戻せません。次回のアプリの読み込みに時間がかかる可能性があります。",
+  "settingsCacheClearedMessage": "キャッシュが正常に消されました。",
 
   "menuMapTitle": "地図",
   "menuTripsTitle": "旅行",

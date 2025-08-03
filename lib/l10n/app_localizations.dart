@@ -244,6 +244,36 @@ abstract class AppLocalizations {
   /// **'Blue'**
   String get settingsMapColorPaletteTrainlogBlue;
 
+  /// Size in mebibytes (MiB)
+  ///
+  /// In en, this message translates to:
+  /// **'Cached data ({size} MiB)'**
+  String settingsCache(Object size);
+
+  /// No description provided for @settingsCacheClearButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get settingsCacheClearButton;
+
+  /// No description provided for @settingsCacheClearConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear cache?'**
+  String get settingsCacheClearConfirmTitle;
+
+  /// No description provided for @settingsCacheClearConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete the cached data? This action is irreversible. The next loading of the app might take longer.'**
+  String get settingsCacheClearConfirmMessage;
+
+  /// No description provided for @settingsCacheClearedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Cache cleared successfully.'**
+  String get settingsCacheClearedMessage;
+
   /// No description provided for @menuMapTitle.
   ///
   /// In en, this message translates to:

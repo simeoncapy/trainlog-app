@@ -25,6 +25,18 @@
   "settingsMapColorPaletteTrainlogRed": "Red",
   "settingsMapColorPaletteTrainlogGreen": "Green",
   "settingsMapColorPaletteTrainlogBlue": "Blue",
+  "settingsCache": "Cached data ({size} MiB)",
+  "@settingsCache" :{
+    "description": "Size in mebibytes (MiB)",
+    "placeholders": {
+      "size": {}
+    }
+  },
+  "settingsCacheClearButton" : "Clear",
+  "settingsCacheClearConfirmTitle": "Clear cache?",
+  "settingsCacheClearConfirmMessage": "Are you sure you want to delete the cached data? This action is irreversible. The next loading of the app might take longer.",
+  "settingsCacheClearedMessage": "Cache cleared successfully.",
+
   
   "menuMapTitle": "Map",
   "menuTripsTitle": "Trips",

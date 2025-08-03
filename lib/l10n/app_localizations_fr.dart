@@ -82,6 +82,24 @@ class AppLocalizationsFr extends AppLocalizations {
   String get settingsMapColorPaletteTrainlogBlue => 'Bleu';
 
   @override
+  String settingsCache(Object size) {
+    return 'Données en cache ($size Mio)';
+  }
+
+  @override
+  String get settingsCacheClearButton => 'Vider';
+
+  @override
+  String get settingsCacheClearConfirmTitle => 'Vider le cache ?';
+
+  @override
+  String get settingsCacheClearConfirmMessage =>
+      'Êtes-vous sûr de vouloir supprimer les données en cache ? Cette action est irréversible. Le prochain chargement de l\'application pourra être plus long.';
+
+  @override
+  String get settingsCacheClearedMessage => 'Cache vidé avec succes.';
+
+  @override
   String get menuMapTitle => 'Carte';
 
   @override
