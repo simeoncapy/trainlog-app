@@ -1,9 +1,13 @@
 import 'dart:io';
 import 'package:csv/csv.dart';
+import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/data/database_manager.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
+import 'package:diacritic/diacritic.dart';
+import 'dart:convert';
+import 'package:country_picker/country_picker.dart';
 
 // TripsTable defined lower
 
@@ -93,58 +97,138 @@ class TripsRepository {
   }
 
   Future<List<Map<String, dynamic>>> getPathExtendedData([
-  PathDisplayOrder order = PathDisplayOrder.creationDate,
-]) async {
-  final maps = await _db.query(
-    TripsTable.tableName,
-    columns: [
-      'uid',
-      'path',
-      'type',
-      'origin_station',
-      'destination_station',
-      'start_datetime',
-      'end_datetime',
-      'created', // Needed for sorting by creationDate
-    ],
-    where: 'path IS NOT NULL AND path != ""',
-  );
+    PathDisplayOrder order = PathDisplayOrder.creationDate,
+  ]) async {
+    final maps = await _db.query(
+      TripsTable.tableName,
+      columns: [
+        'uid',
+        'path',
+        'type',
+        'origin_station',
+        'destination_station',
+        'start_datetime',
+        'end_datetime',
+        'created', // Needed for sorting by creationDate
+      ],
+      where: 'path IS NOT NULL AND path != ""',
+    );
 
-  final list = maps.map((e) {
-    final typeEnum = VehicleType.fromString(e['type']?.toString());
-    return {
-      ...e,
-      'type': typeEnum,
-    };
-  }).toList();
+    final list = maps.map((e) {
+      final typeEnum = VehicleType.fromString(e['type']?.toString());
+      return {
+        ...e,
+        'type': typeEnum,
+      };
+    }).toList();
 
-  switch (order) {
-    case PathDisplayOrder.creationDate:
-      //list.sort((a, b) => a['uid'].compareTo(b['uid']));
-      break;
+    switch (order) {
+      case PathDisplayOrder.creationDate:
+        //list.sort((a, b) => a['uid'].compareTo(b['uid']));
+        break;
 
-    case PathDisplayOrder.tripDate:
-      list.sort((a, b) =>
-          DateTime.parse(a['start_datetime'] as String).compareTo(DateTime.parse(b['start_datetime'] as String)));
-      break;
-
-    case PathDisplayOrder.tripDatePlaneOver:
-      final nonAir = list
-          .where((e) => e['type'] != VehicleType.plane)
-          .toList()
-        ..sort((a, b) =>
+      case PathDisplayOrder.tripDate:
+        list.sort((a, b) =>
             DateTime.parse(a['start_datetime'] as String).compareTo(DateTime.parse(b['start_datetime'] as String)));
-      final air = list
-          .where((e) => e['type'] == VehicleType.plane)
-          .toList()
-        ..sort((a, b) => DateTime.parse(a['created'] as String).compareTo(DateTime.parse(b['created'] as String)));
+        break;
 
-      return [...nonAir, ...air];
+      case PathDisplayOrder.tripDatePlaneOver:
+        final nonAir = list
+            .where((e) => e['type'] != VehicleType.plane)
+            .toList()
+          ..sort((a, b) =>
+              DateTime.parse(a['start_datetime'] as String).compareTo(DateTime.parse(b['start_datetime'] as String)));
+        final air = list
+            .where((e) => e['type'] == VehicleType.plane)
+            .toList()
+          ..sort((a, b) => DateTime.parse(a['created'] as String).compareTo(DateTime.parse(b['created'] as String)));
+
+        return [...nonAir, ...air];
+    }
+
+    return list;
   }
 
-  return list;
-}
+  Future<List<VehicleType>> fetchListOfTypes() async {
+    final maps = await _db.query(
+      TripsTable.tableName,
+      columns: ['type'],
+      where: 'type IS NOT NULL AND type != ""',
+    );
 
+    final types = maps
+        .map((map) => VehicleType.fromString(map['type'] as String))
+        .where((name) => name != VehicleType.unknown)
+        .toSet()
+        .toList()
+        ..sort((a, b) => a.index.compareTo(b.index));
+
+    return types;
+  }
+
+  Future<List<String>> fetchListOfOperators() async {
+    final maps = await _db.query(
+      TripsTable.tableName,
+      columns: ['operator'],
+      where: 'operator IS NOT NULL AND operator != ""',
+    );
+
+    final operators = maps
+        .map((map) => Uri.decodeComponent(map['operator'] as String))
+        .where((name) => name.trim().isNotEmpty)
+        .toSet()
+        .toList();
+
+      // Sort alphabetically, ignoring case and diacritics
+      operators.sort((a, b) =>
+        removeDiacritics(a).toLowerCase().compareTo(removeDiacritics(b).toLowerCase())
+      );
+
+    return operators;
+  }
+
+  Future<List<String>> fetchListOfCountryCode() async {
+    final maps = await _db.query(
+      TripsTable.tableName,
+      columns: ['countries'],
+      where: 'countries IS NOT NULL AND countries != ""',
+    );
+
+    final Set<String> countryCodes = {};
+
+    for (final map in maps) {
+      final raw = map['countries'] as String;
+      final decoded = Uri.decodeComponent(raw);
+
+      try {
+        final Map<String, dynamic> json = jsonDecode(decoded);
+        countryCodes.addAll(json.keys);
+      } catch (e) {
+        print('⚠️ Failed to decode country JSON: $decoded');
+      }
+    }
+
+    final sorted = countryCodes.toList()
+      ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
+    return sorted;
+  }
+
+  Future<Map<String, String>> fetchMapOfCountries(BuildContext context) async {
+    final details = CountryLocalizations.of(context);
+    final listCodes = await fetchListOfCountryCode();
+
+    final Map<String, String> map = {
+      for (final code in listCodes)
+        code: details?.countryName(countryCode: code) ?? code,
+    };
+
+    final sorted = Map.fromEntries(
+      map.entries.toList()
+        ..sort((a, b) => a.value.toLowerCase().compareTo(b.value.toLowerCase())),
+    );
+
+    return sorted;
+  }
 
   Future<void> insertTrip(Trips trip) async {
     await _db.insert(

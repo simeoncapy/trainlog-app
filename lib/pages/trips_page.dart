@@ -23,13 +23,14 @@ class _TripsPageState extends State<TripsPage> {
   int _sortColumnIndex = 2;
   bool _sortAscending = false;
   TripsDataSource? _dataSource;
-  Key _tableKey = UniqueKey(); 
+  Key _tableKey = UniqueKey();
+  late TripsProvider tripsProvider;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final tripsProvider = Provider.of<TripsProvider>(context, listen: false);
+      tripsProvider = Provider.of<TripsProvider>(context, listen: false);
       if (tripsProvider.repository == null) {
         await tripsProvider.loadTrips();
       }
@@ -128,19 +129,30 @@ class _TripsPageState extends State<TripsPage> {
           color: Theme.of(context).colorScheme.primaryContainer,
           child: IconButton(
             onPressed: () async {
-              final operators = await _dataSource?.fetchListOfOperator() ?? [];
-              final countries = await _dataSource?.fetchListOfCountry() ?? [];
+              final operators = await tripsProvider.repository!.fetchListOfOperators();
+              final countries = await tripsProvider.repository!.fetchMapOfCountries(context);
+              final types = await tripsProvider.repository!.fetchListOfTypes();
 
               final result = await showDialog<TripsFilterResult>(
                 context: context,
                 builder: (context) => TripsFilterDialog(
                   operatorOptions: operators,
                   countryOptions: countries,
+                  typeOptions: types,
                 ),
               );
 
               if (result != null) {
                 // Use: result.keyword, result.country, result.types, etc.
+                print("Return");
+                print("Country: ${result.country}");
+                print("Keyword: ${result.keyword}");
+                print("Operator: ${result.operatorName}");
+                print("Start Date: ${result.startDate}");
+                print("End Date: ${result.endDate}");
+
+                final labels = result.types.map((type) => type.label(context)).join(', ');
+                print("Selected vehicle types: $labels");
               }
             },
             icon: const Icon(Icons.filter_alt),
@@ -225,28 +237,6 @@ class TripsDataSource extends DataTableSource {
 
   TripsDataSource(this.context, this._repository) {
     _fetchRowCount();
-  }
-
-  Future<List<String>> fetchListOfOperator() async {
-    final trips = await _repository.getAllTrips();
-    final operators = trips
-        .map((trip) => Uri.decodeComponent(trip.operatorName))
-        .where((name) => name.trim().isNotEmpty) // remove empty or blank names
-        .toSet()
-        .toList()
-      ..sort();
-    return operators;
-  }
-
-  Future<List<String>> fetchListOfCountry() async {
-    final trips = await _repository.getAllTrips();
-    final countries = trips
-        .map((trip) => Uri.decodeComponent(trip.countries))
-        .where((name) => name.trim().isNotEmpty) // remove empty or blank names
-        .toSet()
-        .toList()
-      ..sort();
-    return countries;
   }
 
   void setTimeMoment(TimeMoment moment) {

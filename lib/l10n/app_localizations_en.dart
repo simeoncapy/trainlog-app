@@ -230,7 +230,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tripsFilterKeyword => 'Keyword';
 
   @override
-  String get tripsFilterDateFrom => 'Date from';
+  String get tripsFilterDateFrom => 'On';
 
   @override
   String get tripsFilterDateTo => 'to (optional)';

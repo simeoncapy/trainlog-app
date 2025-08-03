@@ -529,7 +529,7 @@ abstract class AppLocalizations {
   /// No description provided for @tripsFilterDateFrom.
   ///
   /// In en, this message translates to:
-  /// **'Date from'**
+  /// **'On'**
   String get tripsFilterDateFrom;
 
   /// No description provided for @tripsFilterDateTo.

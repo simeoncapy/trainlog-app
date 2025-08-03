@@ -229,7 +229,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get tripsFilterKeyword => 'キーワード';
 
   @override
-  String get tripsFilterDateFrom => 'から';
+  String get tripsFilterDateFrom => '日付';
 
   @override
   String get tripsFilterDateTo => 'まで (任意)';

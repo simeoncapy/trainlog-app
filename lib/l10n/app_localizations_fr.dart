@@ -231,7 +231,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get tripsFilterKeyword => 'Mot-clef';
 
   @override
-  String get tripsFilterDateFrom => 'Du';
+  String get tripsFilterDateFrom => 'Le';
 
   @override
   String get tripsFilterDateTo => 'au (facultatif)';

@@ -96,7 +96,7 @@
   "tripsFilterAllCountry": "All",
   "tripsFilterAllOperator": "All",
   "tripsFilterKeyword": "Keyword",
-  "tripsFilterDateFrom": "Date from",
+  "tripsFilterDateFrom": "On",
   "tripsFilterDateTo": "to (optional)",
   "tripsFilterCountry": "Country",
   "tripsFilterOperator": "Operator",

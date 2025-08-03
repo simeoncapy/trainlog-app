@@ -56,7 +56,8 @@ class _MapPageState extends State<MapPage> {
   List<VehicleType> get availableTypes => _polylines
       .map((e) => e.type)
       .toSet()
-      .toList();
+      .toList()
+      ..sort((a, b) => a.index.compareTo(b.index));
 
   @override
   void initState() {
@@ -226,11 +227,6 @@ Widget build(BuildContext context) {
     _changePolylineColor(newPalette);
   }
 
-  // Filtered list first
-  // final filteredPolylines = _polylines.where((e) =>
-  //   (_selectedYears.isEmpty || _selectedYears.contains(e.startDate?.year)) &&
-  //   (_selectedTypes.isEmpty || _selectedTypes.contains(e.type))
-  // ).toList();
   List<PolylineEntry> filteredPolylines = _sortPolylinesByTime(_polylines);
   _sortedPolylines(filteredPolylines, displayOrder);
 
@@ -268,7 +264,7 @@ Widget build(BuildContext context) {
               children: [
                 TileLayer(
                   urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-                  userAgentPackageName: 'me.trainlog.app',//'fr.scapy.app',
+                  userAgentPackageName: 'me.trainlog.app',
                 ),
                 PolylineLayer(
                   polylines: filteredPolylines.map((e) => e.polyline).toList(),

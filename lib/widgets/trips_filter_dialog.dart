@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:dropdown_search/dropdown_search.dart';
+import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
+import 'package:trainlog_app/utils/map_color_palette.dart';
+import 'package:trainlog_app/utils/text_utils.dart';
 
 class TripsFilterResult {
   final String keyword;
@@ -24,12 +28,14 @@ class TripsFilterResult {
 
 class TripsFilterDialog extends StatefulWidget {
   final List<String> operatorOptions;
-  final List<String> countryOptions;
+  final Map<String, String> countryOptions;
+  final List<VehicleType> typeOptions;
 
   const TripsFilterDialog({
     super.key,
     required this.operatorOptions,
-    required this.countryOptions,
+    required this.countryOptions, 
+    required this.typeOptions,
   });
 
   @override
@@ -44,11 +50,16 @@ class _TripsFilterDialogState extends State<TripsFilterDialog> {
   late String _allOperatorLabel;
   String? _selectedCountry = 'All';
   String? _selectedOperator = 'All';
-  final List<VehicleType> _selectedTypes = [];
+  late List<VehicleType> _selectedTypes;
   final TextEditingController _startDateController = TextEditingController();
   final TextEditingController _endDateController = TextEditingController();
-  
 
+  @override
+  void initState() {
+    super.initState();
+    _selectedTypes = List.from(widget.typeOptions); // make a copy if needed
+  }
+  
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -57,9 +68,8 @@ class _TripsFilterDialogState extends State<TripsFilterDialog> {
     _allCountryLabel = localizations.tripsFilterAllCountry;
     _allOperatorLabel = localizations.tripsFilterAllOperator;
 
-    // If already selected was "All", update to localised version
     if (_selectedCountry == null || _selectedCountry == 'All') {
-      _selectedCountry = _allCountryLabel;
+      _selectedCountry = '00'; // always use code internally
     }
     if (_selectedOperator == null || _selectedOperator == 'All') {
       _selectedOperator = _allOperatorLabel;
@@ -117,11 +127,55 @@ class _TripsFilterDialogState extends State<TripsFilterDialog> {
     });
   }
 
+  Wrap _typeFilterBuilder(BuildContext context, Map<VehicleType, Color> colours) {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: widget.typeOptions.map((type) {
+        final selected = _selectedTypes.contains(type);
+        final backgroundColor = colours[type];
+        final brightness = backgroundColor != null
+            ? ThemeData.estimateBrightnessForColor(backgroundColor)
+            : Brightness.light; // Default fallback
+
+        final textColor = brightness == Brightness.dark ? Colors.white : Colors.black;
+        return FilterChip(
+          label: Text(
+            type.label(context),
+            style: TextStyle(color: selected? textColor : Theme.of(context).chipTheme.labelStyle?.color),
+          ),
+          avatar: IconTheme(
+            data: IconThemeData(
+              color: selected
+                  ? textColor
+                  : Theme.of(context).chipTheme.labelStyle?.color,
+            ),
+            child: type.icon(),
+          ),
+          selectedColor: backgroundColor,// != null ? WidgetStateProperty.all(backgroundColor) : null,
+          selected: selected,
+          showCheckmark: false,
+          onSelected: (_) {
+            setState(() {
+              selected ? _selectedTypes.remove(type) : _selectedTypes.add(type);
+            });
+          },
+        );
+      }).toList(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final List<String> countryOptions = [_allCountryLabel, ...widget.countryOptions];
+    final Map<String, String> countryOptions = {
+      '00': _allCountryLabel,
+      ...widget.countryOptions,
+    };
+    final List<String> countryItems = countryOptions.keys.toList(); // country codes
     final List<String> operatorOptions = [_allOperatorLabel, ...widget.operatorOptions];
     final localizations = AppLocalizations.of(context)!;
+    final settings = context.read<SettingsProvider>();
+    final colours = MapColorPaletteHelper.getPalette(settings.mapColorPalette);
 
     return Dialog(
       insetPadding: const EdgeInsets.all(20),
@@ -199,8 +253,12 @@ class _TripsFilterDialogState extends State<TripsFilterDialog> {
 
               // Country dropdown (searchable)
               DropdownSearch<String>(
-                items: countryOptions,
+                items: countryItems,
                 selectedItem: _selectedCountry,
+                dropdownBuilder: (context, selectedItem) {
+                  final display = countryOptions[selectedItem] ?? selectedItem!;
+                  return Text(display);
+                },
                 dropdownDecoratorProps: DropDownDecoratorProps(
                   dropdownSearchDecoration: InputDecoration(
                     labelText: localizations.tripsFilterCountry,
@@ -213,9 +271,11 @@ class _TripsFilterDialogState extends State<TripsFilterDialog> {
                   itemBuilder: (context, item, isSelected) => Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     child: Text(
-                      item,
+                      item == '00'
+                          ? countryOptions[item]!  // "All" label
+                          : '${countryCodeToEmoji(item)} ${countryOptions[item] ?? item}',
                       style: TextStyle(
-                        fontWeight: item == _allCountryLabel ? FontWeight.bold : FontWeight.normal,
+                        fontWeight: item == '00' ? FontWeight.bold : FontWeight.normal,
                       ),
                     ),
                   ),
@@ -257,24 +317,7 @@ class _TripsFilterDialogState extends State<TripsFilterDialog> {
                   child: Text(localizations.tripsFilterType, style: TextStyle(fontWeight: FontWeight.bold)),
                 ),
               ),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  // Example types — you can replace this
-                  ChoiceChip(
-                    label: const Text('Train'),
-                    selected: _selectedTypes.contains(VehicleType.train),
-                    onSelected: (_) => _toggleType(VehicleType.train),
-                  ),
-                  ChoiceChip(
-                    label: const Text('Bus'),
-                    selected: _selectedTypes.contains(VehicleType.bus),
-                    onSelected: (_) => _toggleType(VehicleType.bus),
-                  ),
-                  // Add your own chips here
-                ],
-              ),
+              _typeFilterBuilder(context, colours),
 
               const SizedBox(height: 24),
 
@@ -294,7 +337,7 @@ class _TripsFilterDialogState extends State<TripsFilterDialog> {
                           keyword: _keywordController.text.trim(),
                           startDate: _startDate,
                           endDate: _endDate,
-                          country: _selectedCountry,
+                          country: _selectedCountry == '00' ? null : _selectedCountry,
                           operatorName: _selectedOperator,
                           types: _selectedTypes,
                         ),
@@ -311,3 +354,4 @@ class _TripsFilterDialogState extends State<TripsFilterDialog> {
     );
   }
 }
+
