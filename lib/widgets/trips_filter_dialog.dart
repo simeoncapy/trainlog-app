@@ -31,12 +31,14 @@ class TripsFilterDialog extends StatefulWidget {
   final List<String> operatorOptions;
   final Map<String, String> countryOptions;
   final List<VehicleType> typeOptions;
+  final TripsFilterResult? initialFilter;
 
   const TripsFilterDialog({
     super.key,
     required this.operatorOptions,
     required this.countryOptions, 
     required this.typeOptions,
+    this.initialFilter,
   });
 
   @override
@@ -58,7 +60,21 @@ class _TripsFilterDialogState extends State<TripsFilterDialog> {
   @override
   void initState() {
     super.initState();
-    _selectedTypes = List.from(widget.typeOptions); // make a copy if needed
+    if (widget.initialFilter != null) {
+      final f = widget.initialFilter!;
+      _keywordController.text = f.keyword ?? '';
+      _selectedCountry = f.country ?? 'All';
+      _selectedOperator = f.operatorName ?? 'All';
+      _selectedTypes = List.from(f.types);
+      _startDate = f.startDate;
+      _endDate = f.endDate;
+      _startDateController.text = _startDate != null ? formatDateTime(context, _startDate!, hasTime: false) : '';
+      _endDateController.text = _endDate != null ? formatDateTime(context, _endDate!, hasTime: false) : '';
+    }
+    else {
+      _selectedTypes = List.from(widget.typeOptions);
+    }
+    
   }
   
   @override
@@ -297,7 +313,7 @@ class _TripsFilterDialogState extends State<TripsFilterDialog> {
                           startDate: _startDate,
                           endDate: _endDate,
                           country: _selectedCountry == '00' ? null : _selectedCountry,
-                          operatorName: _selectedOperator,
+                          operatorName: _selectedOperator == _allOperatorLabel ? "All" : _selectedOperator,
                           types: _selectedTypes,
                         ),
                       );

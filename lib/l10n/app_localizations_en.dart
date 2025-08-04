@@ -243,4 +243,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tripsFilterType => 'Vehicle Type';
+
+  @override
+  String get filterClearButton => 'Clear filter';
 }

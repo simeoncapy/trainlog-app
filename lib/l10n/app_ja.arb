@@ -81,5 +81,6 @@
   "tripsFilterDateTo": "まで (任意)",
   "tripsFilterCountry": "国",
   "tripsFilterOperator": "事業者",
-  "tripsFilterType": "乗り物のタイプ"
+  "tripsFilterType": "乗り物のタイプ",
+  "filterClearButton": "フィルターを消す"
 }

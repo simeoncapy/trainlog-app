@@ -8,6 +8,7 @@ import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:diacritic/diacritic.dart';
 import 'dart:convert';
 import 'package:country_picker/country_picker.dart';
+import 'package:trainlog_app/widgets/trips_filter_dialog.dart';
 
 // TripsTable defined lower
 
@@ -58,13 +59,34 @@ class TripsRepository {
     int? limit,
     int? offset,
     String? orderBy,
+    TripsFilterResult? filter,
   }) async {
-    final now = DateTime.now().toIso8601String();
+    //final now = DateTime.now().toIso8601String();
+
+    // final maps = await _db.query(
+    //   TripsTable.tableName,
+    //   where: showFutureTrips ? 'start_datetime > ?' : 'start_datetime <= ?',
+    //   whereArgs: [now],
+    //   limit: limit,
+    //   offset: offset,
+    //   orderBy: orderBy,
+    // );
+
+    final whereInfo  = _buildWhereClause(showFutureTrips: showFutureTrips, filter: filter);
+
+    // final maps = await _db.query(
+    //   TripsTable.tableName,
+    //   where: whereString,
+    //   whereArgs: whereArgs,
+    //   limit: limit,
+    //   offset: offset,
+    //   orderBy: orderBy,
+    // );
 
     final maps = await _db.query(
       TripsTable.tableName,
-      where: showFutureTrips ? 'start_datetime > ?' : 'start_datetime <= ?',
-      whereArgs: [now],
+      where: whereInfo['where'] as String,
+      whereArgs: whereInfo['args'] as List<dynamic>,
       limit: limit,
       offset: offset,
       orderBy: orderBy,
@@ -78,13 +100,83 @@ class TripsRepository {
     return Sqflite.firstIntValue(result) ?? 0;
   }
 
-  Future<int> countFilteredTrips({required bool showFutureTrips}) async {
-    final now = DateTime.now().toIso8601String();
+  Future<int> countFilteredTrips({required bool showFutureTrips, TripsFilterResult? filter,}) async {
+    //final now = DateTime.now().toIso8601String();
+    final whereInfo = _buildWhereClause(showFutureTrips: showFutureTrips, filter: filter);
+
     final result = await _db.rawQuery(
-      'SELECT COUNT(*) FROM ${TripsTable.tableName} WHERE start_datetime ${showFutureTrips ? '>' : '<='} ?',
-      [now],
+      'SELECT COUNT(*) FROM ${TripsTable.tableName} WHERE ${whereInfo['where']}',
+      whereInfo['args'] as List<dynamic>,
     );
+
+    // final result = await _db.rawQuery(
+    //   'SELECT COUNT(*) FROM ${TripsTable.tableName} WHERE start_datetime ${showFutureTrips ? '>' : '<='} ?',
+    //   [now],
+    // );
     return Sqflite.firstIntValue(result) ?? 0;
+  }
+
+  Map<String, dynamic> _buildWhereClause({
+    required bool showFutureTrips,
+    TripsFilterResult? filter,
+  }) {
+    final now = DateTime.now().toIso8601String();
+    final clauses = <String>[];
+    final args = <dynamic>[];
+
+    // Time filter
+    clauses.add('start_datetime ${showFutureTrips ? '>' : '<='} ?');
+    args.add(now);
+
+    // Keyword
+    if (filter?.keyword.trim().isNotEmpty ?? false) {
+      final keyword = removeDiacritics(filter!.keyword.trim().toLowerCase());
+      clauses.add('('
+          'LOWER(origin_station) LIKE ? OR '
+          'LOWER(destination_station) LIKE ? OR '
+          'LOWER(material_type) LIKE ? OR '
+          'LOWER(line_name) LIKE ?'
+          ')');
+      for (int i = 0; i < 4; i++) {
+        args.add('%$keyword%');
+      }
+    }
+
+    // Operator
+    if (filter?.operatorName != null && filter!.operatorName != 'All') {
+      clauses.add('operator = ?');
+      args.add(Uri.encodeComponent(filter.operatorName!));
+    }
+
+    // Country
+    if (filter?.country != null && filter!.country != 'All') {
+      // JSON string contains country code as key like "JP"
+      clauses.add('countries LIKE ?');
+      args.add('%"${filter.country}"%');
+    }
+
+    // Types
+    if (filter?.types.isNotEmpty ?? false) {
+      final types = filter!.types.map((t) => t.toShortString()).toList();
+      final placeholders = List.filled(types.length, '?').join(',');
+      clauses.add('type IN ($placeholders)');
+      args.addAll(types);
+    }
+
+    // Dates
+    if (filter?.startDate != null) {
+      clauses.add('start_datetime >= ?');
+      args.add(filter!.startDate!.toIso8601String());
+    }
+    if (filter?.endDate != null) {
+      clauses.add('end_datetime <= ?');
+      args.add(filter!.endDate!.toIso8601String());
+    }
+
+    return {
+      'where': clauses.join(' AND '),
+      'args': args,
+    };
   }
 
   Future<List<String>> getPaths() async {

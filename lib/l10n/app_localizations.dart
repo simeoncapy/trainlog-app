@@ -555,6 +555,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Vehicle Type'**
   String get tripsFilterType;
+
+  /// No description provided for @filterClearButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear filter'**
+  String get filterClearButton;
 }
 
 class _AppLocalizationsDelegate

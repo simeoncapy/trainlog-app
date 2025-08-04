@@ -25,6 +25,7 @@ class _TripsPageState extends State<TripsPage> {
   TripsDataSource? _dataSource;
   Key _tableKey = UniqueKey();
   late TripsProvider tripsProvider;
+  TripsFilterResult? _activeFilter;
 
   @override
   void initState() {
@@ -123,6 +124,28 @@ class _TripsPageState extends State<TripsPage> {
           },
         ),
         const SizedBox(width: 8),
+        if (_activeFilter != null)
+          Container(
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: Theme.of(context).colorScheme.outline, // or any color
+                width: 1, // thickness of the border
+              ),
+              shape: BoxShape.circle,
+            ),
+            child: IconButton(
+              onPressed: () {
+                setState(() {
+                  _activeFilter = null;
+                  _dataSource!.setFilter(null);
+                  _tableKey = UniqueKey();
+                });
+              },
+              icon: const Icon(Icons.search_off),
+              tooltip: AppLocalizations.of(context)!.filterClearButton,
+            ),
+          ),
+      const SizedBox(width: 8),
         Material(
           elevation: 4,
           shape: const CircleBorder(),
@@ -132,27 +155,23 @@ class _TripsPageState extends State<TripsPage> {
               final operators = await tripsProvider.repository!.fetchListOfOperators();
               final countries = await tripsProvider.repository!.fetchMapOfCountries(context);
               final types = await tripsProvider.repository!.fetchListOfTypes();
-
+    
               final result = await showDialog<TripsFilterResult>(
                 context: context,
                 builder: (context) => TripsFilterDialog(
                   operatorOptions: operators,
                   countryOptions: countries,
                   typeOptions: types,
+                  initialFilter: _activeFilter, // ← prefill filter
                 ),
               );
-
+    
               if (result != null) {
-                // Use: result.keyword, result.country, result.types, etc.
-                print("Return");
-                print("Country: ${result.country}");
-                print("Keyword: ${result.keyword}");
-                print("Operator: ${result.operatorName}");
-                print("Start Date: ${result.startDate}");
-                print("End Date: ${result.endDate}");
-
-                final labels = result.types.map((type) => type.label(context)).join(', ');
-                print("Selected vehicle types: $labels");
+                setState(() {
+                  _activeFilter = result;
+                  _dataSource!.setFilter(result);
+                  _tableKey = UniqueKey();
+                });
               }
             },
             icon: const Icon(Icons.filter_alt),
@@ -163,6 +182,7 @@ class _TripsPageState extends State<TripsPage> {
       ],
     );
   }
+
 
   List<String> _getVisibleColumns(double width) {
     final columns = ['type', 'origin_destination', 'startTime', 'endTime'];
@@ -224,6 +244,9 @@ class _TripsPageState extends State<TripsPage> {
   }
 }
 
+// *************************************************
+// *************************************************
+// *************************************************
 
 class TripsDataSource extends DataTableSource {
   final BuildContext context;
@@ -234,8 +257,15 @@ class TripsDataSource extends DataTableSource {
   int _rowCount = 0;
   List<String> _visibleColumns = [];
   TimeMoment _timeMoment = TimeMoment.past;
+  TripsFilterResult? _filter;
 
-  TripsDataSource(this.context, this._repository) {
+  TripsDataSource(this.context, this._repository, [this._filter]) {
+    _fetchRowCount();
+  }
+
+  void setFilter(TripsFilterResult? filter) {
+    _filter = filter;
+    _cache.clear();
     _fetchRowCount();
   }
 
@@ -252,7 +282,7 @@ class TripsDataSource extends DataTableSource {
 
   Future<void> _fetchRowCount() async {
     _rowCount = await _repository.countFilteredTrips(
-      showFutureTrips: _timeMoment == TimeMoment.future,
+      showFutureTrips: _timeMoment == TimeMoment.future, filter: _filter,
     );
     _cache.clear();
     _cache.addAll(List.generate(_rowCount, (_) => null));
@@ -367,6 +397,7 @@ class TripsDataSource extends DataTableSource {
 
     final page = await _repository.getTripsFiltered(
       showFutureTrips: _timeMoment == TimeMoment.future,
+      filter: _filter,
       limit: 50,
       offset: pageKey * 50,
       orderBy: orderBy,

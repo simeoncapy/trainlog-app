@@ -242,4 +242,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get tripsFilterType => '乗り物のタイプ';
+
+  @override
+  String get filterClearButton => 'フィルターを消す';
 }

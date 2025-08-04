@@ -81,5 +81,6 @@
   "tripsFilterDateTo": "au (facultatif)",
   "tripsFilterCountry": "Pays",
   "tripsFilterOperator": "Opérateur",
-  "tripsFilterType": "Types de véhicule"
+  "tripsFilterType": "Types de véhicule",
+  "filterClearButton": "Supprimer les filtres"
 }

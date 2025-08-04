@@ -100,5 +100,6 @@
   "tripsFilterDateTo": "to (optional)",
   "tripsFilterCountry": "Country",
   "tripsFilterOperator": "Operator",
-  "tripsFilterType": "Vehicle Type"
+  "tripsFilterType": "Vehicle Type",
+  "filterClearButton": "Clear filter"
 }
