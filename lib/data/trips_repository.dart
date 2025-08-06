@@ -61,27 +61,7 @@ class TripsRepository {
     String? orderBy,
     TripsFilterResult? filter,
   }) async {
-    //final now = DateTime.now().toIso8601String();
-
-    // final maps = await _db.query(
-    //   TripsTable.tableName,
-    //   where: showFutureTrips ? 'start_datetime > ?' : 'start_datetime <= ?',
-    //   whereArgs: [now],
-    //   limit: limit,
-    //   offset: offset,
-    //   orderBy: orderBy,
-    // );
-
     final whereInfo  = _buildWhereClause(showFutureTrips: showFutureTrips, filter: filter);
-
-    // final maps = await _db.query(
-    //   TripsTable.tableName,
-    //   where: whereString,
-    //   whereArgs: whereArgs,
-    //   limit: limit,
-    //   offset: offset,
-    //   orderBy: orderBy,
-    // );
 
     final maps = await _db.query(
       TripsTable.tableName,
@@ -101,7 +81,6 @@ class TripsRepository {
   }
 
   Future<int> countFilteredTrips({required bool showFutureTrips, TripsFilterResult? filter,}) async {
-    //final now = DateTime.now().toIso8601String();
     final whereInfo = _buildWhereClause(showFutureTrips: showFutureTrips, filter: filter);
 
     final result = await _db.rawQuery(
@@ -109,10 +88,6 @@ class TripsRepository {
       whereInfo['args'] as List<dynamic>,
     );
 
-    // final result = await _db.rawQuery(
-    //   'SELECT COUNT(*) FROM ${TripsTable.tableName} WHERE start_datetime ${showFutureTrips ? '>' : '<='} ?',
-    //   [now],
-    // );
     return Sqflite.firstIntValue(result) ?? 0;
   }
 
