@@ -226,6 +226,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get tripsFilterAllOperator => '全て';
 
   @override
+  String get tripsFilterAllYears => '全ての年';
+
+  @override
   String get tripsFilterKeyword => 'キーワード';
 
   @override
@@ -245,4 +248,22 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get filterClearButton => 'フィルターを消す';
+
+  @override
+  String get graphTypeOperator => '事業者';
+
+  @override
+  String get graphTypeCountry => '国';
+
+  @override
+  String get graphTypeYears => '年';
+
+  @override
+  String get graphTypeMaterial => '車名';
+
+  @override
+  String get graphTypeItinerary => '道順';
+
+  @override
+  String get graphTypeStations => '駅';
 }

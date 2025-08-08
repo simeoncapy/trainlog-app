@@ -196,9 +196,14 @@ enum VehicleType {
 
   String label(BuildContext context)
   {
+    return labelOf(this, context);
+  }
+
+  static String labelOf(VehicleType type, BuildContext context)
+  {
     final appLocalizations = AppLocalizations.of(context)!;
     
-    switch (this) {
+    switch (type) {
       case VehicleType.train:
         return appLocalizations.typeTrain;
       case VehicleType.plane:
@@ -220,7 +225,12 @@ enum VehicleType {
 
   Icon icon()
   {
-    switch (this) {
+    return iconOf(this);
+  }
+
+  static Icon iconOf(VehicleType type)
+  {
+    switch (type) {
       case VehicleType.train:
         return Icon(Icons.train);
       case VehicleType.plane:

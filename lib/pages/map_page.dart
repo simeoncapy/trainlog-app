@@ -46,25 +46,33 @@ class _MapPageState extends State<MapPage> {
   bool _showFilterModal = false;
   int _selectedYearFilterOption = 0;
 
-  List<int> get availableYears => _polylines
-      .map((e) => e.startDate?.year)
-      .whereType<int>()
-      .toSet()
-      .toList()
-    ..sort((a, b) => b.compareTo(a));
+  late TripsProvider _trips;
 
-  List<VehicleType> get availableTypes => _polylines
-      .map((e) => e.type)
-      .toSet()
-      .toList()
-      ..sort((a, b) => a.index.compareTo(b.index));
+  // List<int> get availableYears => _polylines
+  //     .map((e) => e.startDate?.year)
+  //     .whereType<int>()
+  //     .toSet()
+  //     .toList()
+  //   ..sort((a, b) => b.compareTo(a));
+
+  // List<VehicleType> get availableTypes => _polylines
+  //     .map((e) => e.type)
+  //     .toSet()
+  //     .toList()
+  //     ..sort((a, b) => a.index.compareTo(b.index));
 
   @override
   void initState() {
     super.initState();
     final settings = context.read<SettingsProvider>();
     _colours = MapColorPaletteHelper.getPalette(settings.mapColorPalette);
-    _loadPolylines();
+
+    _trips = context.read<TripsProvider>();
+    _trips.addListener(_onTripsChanged);
+
+    if (!_trips.isLoading && _trips.repository != null) {
+      _loadPolylines();
+    }
 
     // Trigger FAB rebuild after first frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -72,11 +80,25 @@ class _MapPageState extends State<MapPage> {
     });
   }
 
+  void _onTripsChanged() {
+    // When provider finishes loading or data was refreshed, reload polylines
+    if (!_trips.isLoading && _trips.repository != null) {
+      _loadPolylines();
+    }
+  }
+
+  @override
+  void dispose() {
+    _trips.removeListener(_onTripsChanged);
+    super.dispose();
+  }
+
   Future<void> _loadPolylines() async {
     final repo = context.read<TripsProvider>().repository;
     final settings = context.read<SettingsProvider>();
-    final supportDir = await getApplicationSupportDirectory();
-    final cacheFile = File('${supportDir.path}/polylines_cache.json');
+    final cacheFile = File(AppCacheFilePath.polylines);
+    final years = _trips.years;
+    final types = _trips.vehicleTypes;
 
     // Try loading from cache first
     if (!settings.shouldReloadPolylines && await cacheFile.exists()) {
@@ -87,9 +109,9 @@ class _MapPageState extends State<MapPage> {
         if (mounted) {
           setState(() {
             _polylines = cachedPolylines;
-            _loading = false;
-            _selectedYears = availableYears.toSet();
-            _selectedTypes = availableTypes.toSet();
+            _loading = false;            
+            _selectedYears = years.toSet();
+            _selectedTypes = types.toSet();
           });
           widget.onFabReady(buildFloatingActionButton(context)!);
           debugPrint("Polylines loaded from cache");
@@ -114,8 +136,8 @@ class _MapPageState extends State<MapPage> {
         setState(() {
           _polylines = polylines;
           _loading = false;
-          _selectedYears = availableYears.toSet();
-          _selectedTypes = availableTypes.toSet();
+          _selectedYears = years.toSet();
+          _selectedTypes = types.toSet();
         });
         widget.onFabReady(buildFloatingActionButton(context)!);
 
@@ -220,6 +242,9 @@ Widget build(BuildContext context) {
   final settings = context.watch<SettingsProvider>();
   final displayOrder = settings.pathDisplayOrder;
   final newPalette = MapColorPaletteHelper.getPalette(settings.mapColorPalette);
+  final trips = context.watch<TripsProvider>();
+  final years = trips.years;
+  final types = trips.vehicleTypes;
 
   if(newPalette != _colours)
   {
@@ -298,12 +323,12 @@ Widget build(BuildContext context) {
                       children: [
                         Text(appLocalizations.yearTitle, style: Theme.of(context).textTheme.titleLarge),
                         const SizedBox(height: 8),
-                        _yearFilterBuilder(),
+                        _yearFilterBuilder(years),
                         const SizedBox(height: 16),
                         Text(appLocalizations.typeTitle, style: Theme.of(context).textTheme.titleLarge),
                         const SizedBox(height: 8),
                         VehicleTypeFilterChips(
-                          availableTypes: availableTypes,
+                          availableTypes: types,
                           selectedTypes: _selectedTypes,
                           onTypeToggle: (type, selected) {
                             setState(() {
@@ -334,22 +359,22 @@ Widget build(BuildContext context) {
         );
 }
 
-  DropdownRadioList _yearFilterBuilder() {
+  DropdownRadioList _yearFilterBuilder(List<int> years) {
     return DropdownRadioList(
       items: [
         MultiLevelItem(title: AppLocalizations.of(context)!.yearAllList, subItems: []),
         MultiLevelItem(title: AppLocalizations.of(context)!.yearPastList, subItems: []),
         MultiLevelItem(title: AppLocalizations.of(context)!.yearFutureList, subItems: []),
-        MultiLevelItem(title: AppLocalizations.of(context)!.yearYearList, subItems: availableYears.map((e) => e.toString()).toList()),
+        MultiLevelItem(title: AppLocalizations.of(context)!.yearYearList,
+                      subItems: years.map((e) => e.toString()).toList()),
       ],
       selectedTopIndex: _selectedYearFilterOption,
-      selectedSubStates: {3: availableYears.map((year) => _selectedYears.contains(year)).toList()},
+      selectedSubStates: {3: years.map((y) => _selectedYears.contains(y)).toList()},
       onChanged: (top, sub) {
         setState(() {
-          switch (top)
-          {
+          switch (top) {
             case 0: // all
-              _selectedYears = availableYears.toSet();
+              _selectedYears = years.toSet();
               _selectedYearFilter = YearFilter.all;
               break;
             case 1: // past
@@ -362,16 +387,16 @@ Widget build(BuildContext context) {
               _selectedYearFilter = YearFilter.years;
               _selectedYears = sub.asMap().entries
                 .where((e) => e.value)
-                .map((e) => availableYears[e.key])
+                .map((e) => years[e.key])
                 .toSet();
               break;
           }
           _selectedYearFilterOption = top;
         });
-
       },
     );
   }
+
 
   FloatingActionButton? buildFloatingActionButton(BuildContext context) {
     if (_showFilterModal) return null;

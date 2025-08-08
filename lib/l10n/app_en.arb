@@ -95,11 +95,19 @@
 
   "tripsFilterAllCountry": "All",
   "tripsFilterAllOperator": "All",
+  "tripsFilterAllYears": "All Years",
   "tripsFilterKeyword": "Keyword",
   "tripsFilterDateFrom": "On",
   "tripsFilterDateTo": "to (optional)",
   "tripsFilterCountry": "Country",
   "tripsFilterOperator": "Operator",
   "tripsFilterType": "Vehicle Type",
-  "filterClearButton": "Clear filter"
+  "filterClearButton": "Clear filter",
+
+  "graphTypeOperator": "Operator",
+  "graphTypeCountry": "Country",
+  "graphTypeYears": "Years",
+  "graphTypeMaterial": "Material",
+  "graphTypeItinerary": "Itinerary",
+  "graphTypeStations": "Stations"
 }

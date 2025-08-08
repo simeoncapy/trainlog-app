@@ -227,6 +227,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tripsFilterAllOperator => 'All';
 
   @override
+  String get tripsFilterAllYears => 'All Years';
+
+  @override
   String get tripsFilterKeyword => 'Keyword';
 
   @override
@@ -246,4 +249,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get filterClearButton => 'Clear filter';
+
+  @override
+  String get graphTypeOperator => 'Operator';
+
+  @override
+  String get graphTypeCountry => 'Country';
+
+  @override
+  String get graphTypeYears => 'Years';
+
+  @override
+  String get graphTypeMaterial => 'Material';
+
+  @override
+  String get graphTypeItinerary => 'Itinerary';
+
+  @override
+  String get graphTypeStations => 'Stations';
 }

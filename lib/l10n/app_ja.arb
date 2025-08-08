@@ -76,11 +76,19 @@
 
   "tripsFilterAllCountry": "全て",
   "tripsFilterAllOperator": "全て",
+  "tripsFilterAllYears": "全ての年",
   "tripsFilterKeyword": "キーワード",
   "tripsFilterDateFrom": "日付",
   "tripsFilterDateTo": "まで (任意)",
   "tripsFilterCountry": "国",
   "tripsFilterOperator": "事業者",
   "tripsFilterType": "乗り物のタイプ",
-  "filterClearButton": "フィルターを消す"
+  "filterClearButton": "フィルターを消す",
+
+  "graphTypeOperator": "事業者",
+  "graphTypeCountry": "国",
+  "graphTypeYears": "年",
+  "graphTypeMaterial": "車名",
+  "graphTypeItinerary": "道順",
+  "graphTypeStations": "駅"
 }

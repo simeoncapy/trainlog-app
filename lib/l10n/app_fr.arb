@@ -76,11 +76,19 @@
 
   "tripsFilterAllCountry": "Tous",
   "tripsFilterAllOperator": "Tous",
+  "tripsFilterAllYears": "Toutes les années",
   "tripsFilterKeyword": "Mot-clef",
   "tripsFilterDateFrom": "Le",
   "tripsFilterDateTo": "au (facultatif)",
   "tripsFilterCountry": "Pays",
   "tripsFilterOperator": "Opérateur",
   "tripsFilterType": "Types de véhicule",
-  "filterClearButton": "Supprimer les filtres"
+  "filterClearButton": "Supprimer les filtres",
+
+  "graphTypeOperator": "Opérateur",
+  "graphTypeCountry": "Pays",
+  "graphTypeYears": "Années",
+  "graphTypeMaterial": "Matériel",
+  "graphTypeItinerary": "Itinéraire",
+  "graphTypeStations": "Gares"
 }

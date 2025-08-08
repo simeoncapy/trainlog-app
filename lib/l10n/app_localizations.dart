@@ -520,6 +520,12 @@ abstract class AppLocalizations {
   /// **'All'**
   String get tripsFilterAllOperator;
 
+  /// No description provided for @tripsFilterAllYears.
+  ///
+  /// In en, this message translates to:
+  /// **'All Years'**
+  String get tripsFilterAllYears;
+
   /// No description provided for @tripsFilterKeyword.
   ///
   /// In en, this message translates to:
@@ -561,6 +567,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Clear filter'**
   String get filterClearButton;
+
+  /// No description provided for @graphTypeOperator.
+  ///
+  /// In en, this message translates to:
+  /// **'Operator'**
+  String get graphTypeOperator;
+
+  /// No description provided for @graphTypeCountry.
+  ///
+  /// In en, this message translates to:
+  /// **'Country'**
+  String get graphTypeCountry;
+
+  /// No description provided for @graphTypeYears.
+  ///
+  /// In en, this message translates to:
+  /// **'Years'**
+  String get graphTypeYears;
+
+  /// No description provided for @graphTypeMaterial.
+  ///
+  /// In en, this message translates to:
+  /// **'Material'**
+  String get graphTypeMaterial;
+
+  /// No description provided for @graphTypeItinerary.
+  ///
+  /// In en, this message translates to:
+  /// **'Itinerary'**
+  String get graphTypeItinerary;
+
+  /// No description provided for @graphTypeStations.
+  ///
+  /// In en, this message translates to:
+  /// **'Stations'**
+  String get graphTypeStations;
 }
 
 class _AppLocalizationsDelegate

@@ -30,32 +30,33 @@ class _TripsPageState extends State<TripsPage> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      tripsProvider = Provider.of<TripsProvider>(context, listen: false);
-      if (tripsProvider.repository == null) {
-        await tripsProvider.loadTrips();
-      }
-
-      if (!mounted) return;
-      setState(() {
-        _dataSource = TripsDataSource(context, tripsProvider.repository!);
-        _dataSource!.sort(_sortColumnIndex, _sortAscending);
-        widget.onFabReady(buildFloatingActionButton(context)!);
-      });
-    });
   }
 
   @override
   Widget build(BuildContext context) {
     final tripsProvider = Provider.of<TripsProvider>(context);
+
+    if (tripsProvider.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (_dataSource == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        setState(() {
+          _dataSource = TripsDataSource(context, tripsProvider.repository!);
+          _dataSource!.sort(_sortColumnIndex, _sortAscending);
+          widget.onFabReady(buildFloatingActionButton(context)!);
+        });
+      });
+      // Render a tiny placeholder for this frame
+      return const SizedBox.shrink();
+    }
+
     //final width = MediaQuery.of(context).size.width;
     // Using SingleChildScrollView then we don't need to adapt the column to the size
     // To not delete the code, and keep it in case later use, we just force the width parameter
-    final width = 1500.0; 
-
-    if (tripsProvider.isLoading || _dataSource == null) {
-      return const Center(child: CircularProgressIndicator());
-    }
+    final width = 1500.0;     
 
     final visibleColumns = _getVisibleColumns(width);
     _dataSource!.setVisibleColumns(visibleColumns);
@@ -93,7 +94,7 @@ class _TripsPageState extends State<TripsPage> {
               ),
               child: PaginatedDataTable(
                 key: _tableKey,
-                header: _tableGeneralHeaderBuilder(),
+                header: _tableGeneralHeaderBuilder(tripsProvider),
                 columns: _buildDataColumns(visibleColumns, width),
                 source: _dataSource!,
                 sortColumnIndex: _sortColumnIndex,
@@ -110,7 +111,7 @@ class _TripsPageState extends State<TripsPage> {
     );
   }
 
-  Widget _tableGeneralHeaderBuilder() {
+  Widget _tableGeneralHeaderBuilder(TripsProvider tripsProvider) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
@@ -128,8 +129,8 @@ class _TripsPageState extends State<TripsPage> {
           Container(
             decoration: BoxDecoration(
               border: Border.all(
-                color: Theme.of(context).colorScheme.outline, // or any color
-                width: 1, // thickness of the border
+                color: Theme.of(context).colorScheme.outline,
+                width: 1,
               ),
               shape: BoxShape.circle,
             ),
@@ -145,27 +146,27 @@ class _TripsPageState extends State<TripsPage> {
               tooltip: AppLocalizations.of(context)!.filterClearButton,
             ),
           ),
-      const SizedBox(width: 8),
+        const SizedBox(width: 8),
         Material(
           elevation: 4,
           shape: const CircleBorder(),
           color: Theme.of(context).colorScheme.primaryContainer,
           child: IconButton(
             onPressed: () async {
-              final operators = await tripsProvider.repository!.fetchListOfOperators();
-              final countries = await tripsProvider.repository!.fetchMapOfCountries(context);
-              final types = await tripsProvider.repository!.fetchListOfTypes();
-    
+              final operators = tripsProvider.operators;
+              final countries = tripsProvider.mapCountryCodes;
+              final types = tripsProvider.vehicleTypes;
+
               final result = await showDialog<TripsFilterResult>(
                 context: context,
                 builder: (context) => TripsFilterDialog(
                   operatorOptions: operators,
                   countryOptions: countries,
                   typeOptions: types,
-                  initialFilter: _activeFilter, // ← prefill filter
+                  initialFilter: _activeFilter,
                 ),
               );
-    
+
               if (result != null) {
                 setState(() {
                   _activeFilter = result;
@@ -182,7 +183,6 @@ class _TripsPageState extends State<TripsPage> {
       ],
     );
   }
-
 
   List<String> _getVisibleColumns(double width) {
     final columns = ['type', 'origin_destination', 'startTime', 'endTime'];

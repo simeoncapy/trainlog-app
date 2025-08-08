@@ -1,3 +1,4 @@
+import 'dart:ffi';
 import 'dart:io';
 import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
@@ -252,6 +253,22 @@ class TripsRepository {
       );
 
     return operators;
+  }
+
+  Future<List<int>> fetchListOfYears() async {
+    final maps = await _db.query(
+      TripsTable.tableName,
+      columns: ['start_datetime'],
+      where: 'start_datetime IS NOT NULL AND start_datetime != ""',
+    );
+
+    final dates = maps
+        .map((map) => DateTime.parse(map['start_datetime'] as String).year)
+        .toSet()
+        .toList()
+        ..sort();
+
+    return dates;
   }
 
   Future<List<String>> fetchListOfCountryCode() async {

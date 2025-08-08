@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:trainlog_app/l10n/app_localizations.dart';
 
 class LogoBarChart extends StatefulWidget {
   final List<double> values;
@@ -9,6 +10,7 @@ class LogoBarChart extends StatefulWidget {
   final List<Color>? colors;
   final Color? color;
   final List<double>? strippedValues;
+  final int rotationQuarterTurns;
 
   const LogoBarChart({
     super.key,
@@ -19,6 +21,7 @@ class LogoBarChart extends StatefulWidget {
     this.colors,
     this.color,
     this.strippedValues,
+    this.rotationQuarterTurns = 0, // default not rotated
   }) : assert(values.length == valuesTitles.length &&
             valuesTitles.length == images.length &&
             (colors == null || images.length == colors.length) &&
@@ -59,6 +62,16 @@ class _LogoBarChartState extends State<LogoBarChart> {
       );
   }
 
+  Color _lighten(Color color, [double amount = 0.3]) {
+    assert(amount >= 0 && amount <= 1);
+
+    final hsl = HSLColor.fromColor(color);
+    final hslLight = hsl.withLightness(
+      (hsl.lightness + amount).clamp(0.0, 1.0),
+    );
+    return hslLight.toColor();
+  }
+
   BarChartGroupData _makeGroup(int x, double value, Color color, double? shadowValue) {
     return BarChartGroupData(
       groupVertically: true,
@@ -70,7 +83,7 @@ class _LogoBarChartState extends State<LogoBarChart> {
           color: Colors.white,
           rodStackItems: [
             BarChartRodStackItem(0, value, color),
-            BarChartRodStackItem(value, value+(shadowValue ?? 0.0), color.withValues(alpha: 0.5)),
+            BarChartRodStackItem(value, value+(shadowValue ?? 0.0), _lighten(color)),
           ]
         ),
       ],
@@ -78,39 +91,12 @@ class _LogoBarChartState extends State<LogoBarChart> {
     );
   }
 
-  // BarChartGroupData _makeGroup(int x, double value, Color color, double? shadowValue) {
-  //   final radius = BorderRadius.only(topLeft: Radius.circular(8), topRight: Radius.circular(8));
-  //   const double barWidth = 20;
-
-  //   return BarChartGroupData(
-  //     groupVertically: true,
-  //     x: x,
-  //     barRods: [
-  //       BarChartRodData(
-  //         toY: value, 
-  //         color: color, 
-  //         width: barWidth, 
-  //         borderRadius: (shadowValue ?? 0.0) > 0.0 ? BorderRadius.zero : radius,
-  //       ),
-  //       if (shadowValue != null && shadowValue != 0.0)
-  //         BarChartRodData(
-  //           fromY: value, 
-  //           toY: (shadowValue+value), 
-  //           color: color.withValues(alpha: 0.5), 
-  //           width: barWidth, 
-  //           borderRadius: radius
-  //         ),
-  //     ],
-  //     showingTooltipIndicators: touchedGroupIndex == x ? [0] : [],
-  //   );
-  // }
-
   @override
   Widget build(BuildContext context) {
     return BarChart(
       BarChartData(
         //alignment: BarChartAlignment.spaceBetween,
-        rotationQuarterTurns: 1,
+        rotationQuarterTurns: widget.rotationQuarterTurns,
         barGroups: List.generate(
             widget.values.length,
             (i) => _makeGroup(
@@ -124,9 +110,10 @@ class _LogoBarChartState extends State<LogoBarChart> {
           topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)), // RIGHT TITLE
           rightTitles: AxisTitles( // BOTTOM TITLE
             axisNameWidget: Text(widget.horizontalAxisTitle), // Unit of the graph
+            axisNameSize: 20,
             sideTitles: SideTitles(
               showTitles: true,
-              reservedSize: 44,
+              reservedSize: 30,
               )
             ),
           bottomTitles: AxisTitles( // LEFT TITLE
@@ -146,6 +133,56 @@ class _LogoBarChartState extends State<LogoBarChart> {
           touchTooltipData: BarTouchTooltipData(
             fitInsideHorizontally: true,
             fitInsideVertically: true,
+            maxContentWidth: 200,
+            //direction: TooltipDirection.bottom,
+            getTooltipItem: (group, groupIndex, rod, rodIndex) {
+              // Reused lookups
+              final title = widget.valuesTitles[groupIndex];
+              final axisTitle = widget.horizontalAxisTitle;
+              final stack = rod.rodStackItems;
+
+              // Colors
+              final color = rod.gradient?.colors.first ?? rod.color;
+              final pastTripColor = _colors[groupIndex];
+              final futureTripColor = _lighten(pastTripColor);
+
+              // Values with bounds checks
+              final pastTrip = stack.isNotEmpty ? stack[0].toY : 0.0;
+              final futureTrip = stack.length > 1 ? (stack[1].toY - pastTrip) : 0.0;
+
+              final textStyle = TextStyle(
+                color: color,
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+              );
+
+              final operator = TextSpan(
+                text: "$title\n",
+                style: const TextStyle(
+                  decoration: TextDecoration.underline,
+                  decorationThickness: 2.0,
+                ),
+              );
+
+              final pastLegend  = TextSpan(text: "⬤ ", style: TextStyle(color: pastTripColor));
+              final past        = TextSpan(text: "${AppLocalizations.of(context)!.yearPastList}: $pastTrip $axisTitle");
+              final futureLegend= TextSpan(text: "\n⬤ ", style: TextStyle(color: futureTripColor));
+              final future      = TextSpan(text: "${AppLocalizations.of(context)!.yearFutureList}: $futureTrip $axisTitle");
+
+              final texts = <TextSpan>[
+                operator,
+                pastLegend,
+                past,
+                if (futureTrip > 0) ...[futureLegend, future],
+              ];
+
+              return BarTooltipItem(
+                "",
+                textStyle,
+                textAlign: TextAlign.left,
+                children: texts,
+              );
+            },
           ),
         ),
       ),
