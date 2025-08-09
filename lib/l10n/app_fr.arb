@@ -90,5 +90,8 @@
   "graphTypeYears": "Années",
   "graphTypeMaterial": "Matériel",
   "graphTypeItinerary": "Itinéraire",
-  "graphTypeStations": "Gares"
+  "graphTypeStations": "Gares",
+
+  "statisticsDisplayFilters": "Afficher les filtres",
+  "statisticsHideFilters": "Masquer les filtres"
 }

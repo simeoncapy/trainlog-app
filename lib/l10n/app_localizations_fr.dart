@@ -268,4 +268,10 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get graphTypeStations => 'Gares';
+
+  @override
+  String get statisticsDisplayFilters => 'Afficher les filtres';
+
+  @override
+  String get statisticsHideFilters => 'Masquer les filtres';
 }

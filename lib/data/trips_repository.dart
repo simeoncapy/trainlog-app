@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:ffi';
 import 'dart:io';
 import 'package:csv/csv.dart';
@@ -13,6 +14,36 @@ import 'package:trainlog_app/widgets/trips_filter_dialog.dart';
 
 // TripsTable defined lower
 
+// HELPERS --------------------------------------------------------------------
+extension _OpSplitExt on String {
+  List<String> _splitOperatorsDecoded() {
+    // Decode once; e.g. "JR%20East%26%26%20JR%20West" -> "JR East&& JR West"
+    final decoded = Uri.decodeComponent(this);
+    // Split on "&&" (or encoded %26%26 just in case), trim parts
+    return decoded
+        .split(RegExp(r'\s*(?:&&|%26%26)\s*'))
+        .map((s) => s.trim())
+        .where((s) => s.isNotEmpty)
+        .toList();
+  }
+}
+
+LinkedHashMap<K, V> _sortedByValueDesc<K, V extends num>(Map<K, V> map) {
+  final entries = map.entries.toList()
+    ..sort((a, b) => b.value.compareTo(a.value)); // descending
+  return LinkedHashMap.fromEntries(entries);
+}
+
+LinkedHashMap<K, V> _sortedBySumDesc<K, V>(
+  Map<K, V> map,
+  num Function(V v) sumOf,
+) {
+  final entries = map.entries.toList()
+    ..sort((a, b) => sumOf(b.value).compareTo(sumOf(a.value))); // desc
+  return LinkedHashMap.fromEntries(entries);
+}
+
+// CLASS -----------------------------------------------------------------------
 class TripsRepository {
   final Database _db;
 
@@ -241,19 +272,28 @@ class TripsRepository {
       where: 'operator IS NOT NULL AND operator != ""',
     );
 
-    final operators = maps
-        .map((map) => Uri.decodeComponent(map['operator'] as String))
-        .where((name) => name.trim().isNotEmpty)
-        .toSet()
-        .toList();
+    // Use a Set to dedupe after splitting
+    final Set<String> opSet = {};
 
-      // Sort alphabetically, ignoring case and diacritics
-      operators.sort((a, b) =>
-        removeDiacritics(a).toLowerCase().compareTo(removeDiacritics(b).toLowerCase())
-      );
+    for (final row in maps) {
+      final raw = row['operator'] as String?;
+      if (raw == null || raw.trim().isEmpty) continue;
+
+      // Use helper to decode + split
+      for (final op in raw._splitOperatorsDecoded()) {
+        opSet.add(op);
+      }
+    }
+
+    final operators = opSet.toList();
+
+    // Sort alphabetically, ignoring case and diacritics
+    operators.sort((a, b) =>
+        removeDiacritics(a).toLowerCase().compareTo(removeDiacritics(b).toLowerCase()));
 
     return operators;
   }
+
 
   Future<List<int>> fetchListOfYears() async {
     final maps = await _db.query(
@@ -313,6 +353,195 @@ class TripsRepository {
 
     return sorted;
   }
+
+  /// Sum of distances (trip_length) per operator.
+  /// Note: if a trip lists multiple operators, the full distance is added to each operator
+  /// (i.e., “involved in”). Change logic if you prefer dividing distance among operators.
+  Future<LinkedHashMap<String, double>> fetchOperatorsByDistance({
+    required bool showFutureTrips,
+    TripsFilterResult? filter,
+    bool splitDistance = false,
+  }) async {
+    // Build WHERE from existing logic
+    final whereInfo = _buildWhereClause(showFutureTrips: showFutureTrips, filter: filter);
+    final where = [
+      whereInfo['where'] as String,
+      'operator IS NOT NULL AND operator != ""',
+      'trip_length IS NOT NULL'
+    ].where((w) => w.isNotEmpty).join(' AND ');
+    final args = (whereInfo['args'] as List<dynamic>);
+
+    final rows = await _db.query(
+      TripsTable.tableName,
+      columns: ['operator', 'trip_length'],
+      where: where,
+      whereArgs: args,
+    );
+
+    final Map<String, double> totals = {};
+
+    for (final row in rows) {
+      final rawOp = row['operator'] as String?;
+      if (rawOp == null || rawOp.trim().isEmpty) continue;
+
+      final length = (row['trip_length'] as num?)?.toDouble() ?? 0.0;
+      if (length <= 0) continue;
+
+      final ops = rawOp._splitOperatorsDecoded();
+      final share = splitDistance && ops.isNotEmpty ? (length / ops.length) : length;
+
+      for (final op in ops) {
+        totals.update(op, (v) => v + share, ifAbsent: () => share);
+      }
+    }
+
+    return _sortedByValueDesc(totals);
+  }
+
+  Future<LinkedHashMap<String, ({double past, double future})>> fetchOperatorsByDistancePF({
+    TripsFilterResult? filter,
+    bool splitDistance = false,
+  }) async {
+    // Build WHERE twice: once for past, once for future
+    final pastWhere  = _buildWhereClause(showFutureTrips: false, filter: filter);
+    final futureWhere= _buildWhereClause(showFutureTrips: true,  filter: filter);
+
+    // Add operator/trip_length constraints
+    String _augmentWhere(Map<String, dynamic> info) => [
+      info['where'] as String,
+      'operator IS NOT NULL AND operator != ""',
+      'trip_length IS NOT NULL'
+    ].where((w) => w.isNotEmpty).join(' AND ');
+
+    final pastRows = await _db.query(
+      TripsTable.tableName,
+      columns: ['operator', 'trip_length'],
+      where: _augmentWhere(pastWhere),
+      whereArgs: pastWhere['args'] as List<dynamic>,
+    );
+
+    final futureRows = await _db.query(
+      TripsTable.tableName,
+      columns: ['operator', 'trip_length'],
+      where: _augmentWhere(futureWhere),
+      whereArgs: futureWhere['args'] as List<dynamic>,
+    );
+
+    // Accumulate
+    final Map<String, ({double past, double future})> totals = {};
+
+    void addRows(Iterable<Map<String, Object?>> rows, {required bool isFuture}) {
+      for (final row in rows) {
+        final rawOp = row['operator'] as String?;
+        if (rawOp == null || rawOp.trim().isEmpty) continue;
+
+        final length = (row['trip_length'] as num?)?.toDouble() ?? 0.0;
+        if (length <= 0) continue;
+
+        final ops = rawOp._splitOperatorsDecoded();
+        if (ops.isEmpty) continue;
+
+        final share = splitDistance ? (length / ops.length) : length;
+
+        for (final op in ops) {
+          final current = totals[op] ?? (past: 0.0, future: 0.0);
+          totals[op] = isFuture
+            ? (past: current.past, future: current.future + share)
+            : (past: current.past + share, future: current.future);
+        }
+      }
+    }
+
+    addRows(pastRows,   isFuture: false);
+    addRows(futureRows, isFuture: true);
+
+    // Sort by (past + future) desc and return LinkedHashMap
+    return _sortedBySumDesc(totals, (v) => v.past + v.future);
+  }
+
+
+  /// Number of trips each operator is involved in.
+  /// A trip with multiple operators increments *each* operator by 1.
+  Future<LinkedHashMap<String, int>> fetchOperatorsByTrip({
+    required bool showFutureTrips,
+    TripsFilterResult? filter,
+  }) async {
+    final whereInfo = _buildWhereClause(showFutureTrips: showFutureTrips, filter: filter);
+    final where = [
+      whereInfo['where'] as String,
+      'operator IS NOT NULL AND operator != ""',
+    ].where((w) => w.isNotEmpty).join(' AND ');
+    final args = (whereInfo['args'] as List<dynamic>);
+
+    final rows = await _db.query(
+      TripsTable.tableName,
+      columns: ['operator'],
+      where: where,
+      whereArgs: args,
+    );
+
+    final Map<String, int> counts = {};
+
+    for (final row in rows) {
+      final rawOp = row['operator'] as String?;
+      if (rawOp == null || rawOp.trim().isEmpty) continue;
+
+      for (final op in rawOp._splitOperatorsDecoded()) {
+        counts.update(op, (v) => v + 1, ifAbsent: () => 1);
+      }
+    }
+
+    return _sortedByValueDesc(counts);
+  }
+
+  Future<LinkedHashMap<String, ({int past, int future})>> fetchOperatorsByTripPF({
+    TripsFilterResult? filter,
+  }) async {
+    final pastWhere   = _buildWhereClause(showFutureTrips: false, filter: filter);
+    final futureWhere = _buildWhereClause(showFutureTrips: true,  filter: filter);
+
+    String _augmentWhere(Map<String, dynamic> info) => [
+      info['where'] as String,
+      'operator IS NOT NULL AND operator != ""',
+    ].where((w) => w.isNotEmpty).join(' AND ');
+
+    final pastRows = await _db.query(
+      TripsTable.tableName,
+      columns: ['operator'],
+      where: _augmentWhere(pastWhere),
+      whereArgs: pastWhere['args'] as List<dynamic>,
+    );
+
+    final futureRows = await _db.query(
+      TripsTable.tableName,
+      columns: ['operator'],
+      where: _augmentWhere(futureWhere),
+      whereArgs: futureWhere['args'] as List<dynamic>,
+    );
+
+    final Map<String, ({int past, int future})> counts = {};
+
+    void addRows(Iterable<Map<String, Object?>> rows, {required bool isFuture}) {
+      for (final row in rows) {
+        final rawOp = row['operator'] as String?;
+        if (rawOp == null || rawOp.trim().isEmpty) continue;
+
+        // Count once per operator per trip
+        for (final op in rawOp._splitOperatorsDecoded()) {
+          final current = counts[op] ?? (past: 0, future: 0);
+          counts[op] = isFuture
+            ? (past: current.past, future: current.future + 1)
+            : (past: current.past + 1, future: current.future);
+        }
+      }
+    }
+
+    addRows(pastRows,   isFuture: false);
+    addRows(futureRows, isFuture: true);
+
+    return _sortedBySumDesc(counts, (v) => v.past + v.future);
+  }
+
 
   Future<void> insertTrip(Trips trip) async {
     await _db.insert(

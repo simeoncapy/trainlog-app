@@ -266,4 +266,10 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get graphTypeStations => '駅';
+
+  @override
+  String get statisticsDisplayFilters => 'フィルターを表示';
+
+  @override
+  String get statisticsHideFilters => 'フィルターを非表示';
 }

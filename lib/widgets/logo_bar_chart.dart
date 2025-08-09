@@ -1,6 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
+import 'package:trainlog_app/utils/number_formatter.dart';
 
 class LogoBarChart extends StatefulWidget {
   final List<double> values;
@@ -33,7 +34,6 @@ class LogoBarChart extends StatefulWidget {
 
 class _LogoBarChartState extends State<LogoBarChart> {
   int touchedGroupIndex = -1;
-  late List<Color> _colors;
   late List<Tooltip> _images;
   late final List<GlobalKey<TooltipState>> _tooltipKeys;
 
@@ -42,7 +42,6 @@ class _LogoBarChartState extends State<LogoBarChart> {
       super.initState();
       _tooltipKeys = List.generate(widget.values.length, (_) => GlobalKey<TooltipState>());
 
-      _colors = widget.colors ?? List.generate(widget.values.length, (i) => (widget.color ?? Colors.blue));
       _images = List.generate(
         widget.values.length,
         (i) => Tooltip(
@@ -93,6 +92,9 @@ class _LogoBarChartState extends State<LogoBarChart> {
 
   @override
   Widget build(BuildContext context) {
+    List<Color> colors = widget.colors ??
+        List.generate(widget.values.length, (i) => widget.color ?? Colors.blue);
+
     return BarChart(
       BarChartData(
         //alignment: BarChartAlignment.spaceBetween,
@@ -102,7 +104,7 @@ class _LogoBarChartState extends State<LogoBarChart> {
             (i) => _makeGroup(
               i,
               widget.values[i],
-              _colors[i],
+              colors[i],
               widget.strippedValues != null ? widget.strippedValues![i] : null,
             ),
           ),
@@ -143,7 +145,7 @@ class _LogoBarChartState extends State<LogoBarChart> {
 
               // Colors
               final color = rod.gradient?.colors.first ?? rod.color;
-              final pastTripColor = _colors[groupIndex];
+              final pastTripColor = colors[groupIndex];
               final futureTripColor = _lighten(pastTripColor);
 
               // Values with bounds checks
@@ -165,9 +167,9 @@ class _LogoBarChartState extends State<LogoBarChart> {
               );
 
               final pastLegend  = TextSpan(text: "⬤ ", style: TextStyle(color: pastTripColor));
-              final past        = TextSpan(text: "${AppLocalizations.of(context)!.yearPastList}: $pastTrip $axisTitle");
+              final past        = TextSpan(text: "${AppLocalizations.of(context)!.yearPastList}: ${formatNumber(context, pastTrip)} $axisTitle");
               final futureLegend= TextSpan(text: "\n⬤ ", style: TextStyle(color: futureTripColor));
-              final future      = TextSpan(text: "${AppLocalizations.of(context)!.yearFutureList}: $futureTrip $axisTitle");
+              final future      = TextSpan(text: "${AppLocalizations.of(context)!.yearFutureList}: ${formatNumber(context, futureTrip)} $axisTitle");
 
               final texts = <TextSpan>[
                 operator,

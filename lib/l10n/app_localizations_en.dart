@@ -267,4 +267,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get graphTypeStations => 'Stations';
+
+  @override
+  String get statisticsDisplayFilters => 'Display the filters';
+
+  @override
+  String get statisticsHideFilters => 'Hide the filters';
 }

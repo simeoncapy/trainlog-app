@@ -90,5 +90,8 @@
   "graphTypeYears": "年",
   "graphTypeMaterial": "車名",
   "graphTypeItinerary": "道順",
-  "graphTypeStations": "駅"
+  "graphTypeStations": "駅",
+
+  "statisticsDisplayFilters": "フィルターを表示",
+  "statisticsHideFilters": "フィルターを非表示"
 }

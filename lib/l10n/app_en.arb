@@ -109,5 +109,8 @@
   "graphTypeYears": "Years",
   "graphTypeMaterial": "Material",
   "graphTypeItinerary": "Itinerary",
-  "graphTypeStations": "Stations"
+  "graphTypeStations": "Stations",
+
+  "statisticsDisplayFilters": "Display the filters",
+  "statisticsHideFilters": "Hide the filters"
 }

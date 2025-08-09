@@ -31,3 +31,11 @@ String formatCurrency(
   // Default behavior: no + sign for positive
   return formatter.format(amount);
 }
+
+String formatNumber(BuildContext context, double value) {
+  final locale = Localizations.localeOf(context).toString();
+
+  // Format with up to 2 decimal places, but strip trailing zeros
+  NumberFormat formatter = NumberFormat("#,##0.##", locale);
+  return formatter.format(value);
+}

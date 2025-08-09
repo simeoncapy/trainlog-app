@@ -603,6 +603,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Stations'**
   String get graphTypeStations;
+
+  /// No description provided for @statisticsDisplayFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'Display the filters'**
+  String get statisticsDisplayFilters;
+
+  /// No description provided for @statisticsHideFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide the filters'**
+  String get statisticsHideFilters;
 }
 
 class _AppLocalizationsDelegate
