@@ -112,5 +112,9 @@
   "graphTypeStations": "Stations",
 
   "statisticsDisplayFilters": "Display the filters",
-  "statisticsHideFilters": "Hide the filters"
+  "statisticsHideFilters": "Hide the filters",
+  "statisticsTripsUnitBase": "trips",
+  "statisticsTripsUnitKilo": "thousand trips",
+  "statisticsTripsUnitMega": "million trips",
+  "statisticsTripsUnitGiga": "billion trips"
 }

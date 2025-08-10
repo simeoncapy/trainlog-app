@@ -274,4 +274,16 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get statisticsHideFilters => 'Masquer les filtres';
+
+  @override
+  String get statisticsTripsUnitBase => 'trajets';
+
+  @override
+  String get statisticsTripsUnitKilo => 'mille trajets';
+
+  @override
+  String get statisticsTripsUnitMega => 'million de trajet';
+
+  @override
+  String get statisticsTripsUnitGiga => 'billion de trajet';
 }

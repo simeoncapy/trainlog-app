@@ -273,4 +273,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get statisticsHideFilters => 'Hide the filters';
+
+  @override
+  String get statisticsTripsUnitBase => 'trips';
+
+  @override
+  String get statisticsTripsUnitKilo => 'thousand trips';
+
+  @override
+  String get statisticsTripsUnitMega => 'million trips';
+
+  @override
+  String get statisticsTripsUnitGiga => 'billion trips';
 }

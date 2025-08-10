@@ -1,4 +1,5 @@
 import 'dart:collection';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -7,7 +8,9 @@ import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
+import 'package:trainlog_app/utils/number_formatter.dart';
 import 'package:trainlog_app/widgets/logo_bar_chart.dart';
+import 'package:trainlog_app/widgets/min_height_scrollable.dart';
 import 'package:trainlog_app/widgets/statistics_type_selector.dart';
 import 'package:trainlog_app/widgets/trips_filter_dialog.dart';
 
@@ -49,6 +52,13 @@ class _StatisticsPageState extends State<StatisticsPage> {
   LinkedHashMap<String, ({double past, double future})> get _currentStats =>
     _isDistance ? _statsOperatorDistance : _statsOperatorTrip;
 
+  final _unitsDistance = {
+    UnitFactor.base:  "km",
+    UnitFactor.thousand: "Mm",
+    UnitFactor.million:  "Gm",
+    UnitFactor.billion:  "Tm",
+  };
+
   @override
   void initState() {
     super.initState();
@@ -80,7 +90,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
     final rawDist = await repo.fetchOperatorsByDistancePF(filter: TripsFilterResult(keyword: "", types: [_selectedVehicle!]));
     final rawTrip = await repo.fetchOperatorsByTripPF(filter: TripsFilterResult(keyword: "", types: [_selectedVehicle!]));
 
-    final dist = await getTop9WithOtherPF(original: rawDist, factor: 1_000_000);
+    final dist = await getTop9WithOtherPF(original: rawDist, factor: 1_000);
     final trip = await getTop9WithOtherPF(original: rawTrip, factor: 1.0);
 
     if (!mounted) return;
@@ -92,7 +102,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
 
   Future<LinkedHashMap<String, double>> getTop9WithOther({
     required Map<String, double> original,
-    double factor = 1_000_000, // divide by this
+    double factor = 1_000, // divide by this
   }) async {
     // Sort descending by value
     final sortedEntries = original.entries.toList()
@@ -123,7 +133,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
 
   Future<LinkedHashMap<String, ({double past, double future})>> getTop9WithOtherPF({
     required Map<String, ({num past, num future})> original,
-    double factor = 1_000_000, // divide by this; use 1.0 for counts
+    double factor = 1_000, // divide by this; use 1.0 for counts
     String otherLabel = 'Other',
   }) async {
     // Sort by (past + future) descending
@@ -226,10 +236,18 @@ class _StatisticsPageState extends State<StatisticsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     final settings = context.read<SettingsProvider>();
     _palette = MapColorPaletteHelper.getPalette(settings.mapColorPalette);
     _selectedVehicleColor = _palette[_selectedVehicle] ?? Colors.blue;
     final hasData = _currentStats.isNotEmpty;
+    const double kMinPanelHeight = 350;
+    final _unitsTrips = {
+      UnitFactor.base:  loc.statisticsTripsUnitBase,
+      UnitFactor.thousand: loc.statisticsTripsUnitKilo,
+      UnitFactor.million:  loc.statisticsTripsUnitMega,
+      UnitFactor.billion:  loc.statisticsTripsUnitGiga,
+    };
 
     return Padding(
       padding: const EdgeInsets.all(20),
@@ -251,29 +269,38 @@ class _StatisticsPageState extends State<StatisticsPage> {
           const SizedBox(height: 16,),
           _graphFilterExpansionBuilder(context),
           const SizedBox(height: 16,),
-          switch (_selectedStatistics) {
-            StatisticsType.table => const Center(child: Text('data')),
-            StatisticsType.bar =>
-            Expanded(
-              child: hasData
-                ? LogoBarChart(
-                    rotationQuarterTurns: !_rotated ? 1 : 0,
-                    images: List.generate(
-                      _currentStats.length,
-                      (_) => const Icon(Icons.train),
-                    ),
-                    values: _currentStats.values.map((v) => v.past).toList(),
-                    strippedValues: _currentStats.values.map((v) => v.future).toList(),
-                    valuesTitles: _currentStats.keys.toList(),
-                    horizontalAxisTitle: _isDistance ? "Mm" : "trips",
-                    color: _selectedVehicleColor,
-                  )
-                : const Center(child: CircularProgressIndicator()),
+          Expanded(
+            child: MinHeightScrollable(
+              minHeight: kMinPanelHeight,
+              child: switch (_selectedStatistics) {
+                StatisticsType.table => const Center(child: Text("Table")),
+                StatisticsType.pie   => const Center(child: Text("Pie")),
+                StatisticsType.bar   => hasData
+                    ? LogoBarChart(
+                        rotationQuarterTurns: !_rotated ? 1 : 0,
+                        images: List.generate(_currentStats.length, (_) => const Icon(Icons.train)),
+                        values: _currentStats.values.map((v) => v.past).toList(),
+                        strippedValues: _currentStats.values.map((v) => v.future).toList(),
+                        valuesTitles: _currentStats.keys.toList(),
+                        baseUnit: _isDistance ? "km" : loc.statisticsTripsUnitBase,
+                        unitsByFactor: _isDistance ? _unitsDistance : _unitsTrips,
+                        color: _selectedVehicleColor,
+                        unitHelpTooltip: _isDistance ? _tooltipRich(_unitsDistance) : null,
+                      )
+                    : const Center(child: CircularProgressIndicator()),
+              },
             ),
-            StatisticsType.pie => const Center(child: Text('pie')),
-          }
+          ),
         ],
       ),
+    );
+  }
+
+  Widget _buildTable() {
+    // TODO: Create table
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Text("TODO")/* your DataTable */,
     );
   }
 
@@ -296,6 +323,50 @@ class _StatisticsPageState extends State<StatisticsPage> {
     );
   }
 
+  InlineSpan _tooltipRich(Map<UnitFactor, String> units) {
+    final base = Theme.of(context).textTheme.bodyMedium!;
+    final baseUnit = units[UnitFactor.base]!;
+    return WidgetSpan(
+      child: DefaultTextStyle(
+        style: base.copyWith(
+          color: Theme.of(context).colorScheme.onPrimaryContainer,
+          fontFeatures: const [FontFeature.tabularFigures()], // equal-width digits
+        ),
+        child: IntrinsicWidth( // <- remove huge right gap
+          child: Table(
+            // keep everything tight to content
+            defaultColumnWidth: const IntrinsicColumnWidth(),
+            columnWidths: const {
+              0: IntrinsicColumnWidth(), // label (km/Mm/…)
+              1: IntrinsicColumnWidth(), // number (right-aligned)
+              2: IntrinsicColumnWidth(), // baseUnit
+            },
+            children: [
+              for (final f in UnitFactor.values.where((f) => f != UnitFactor.base))
+                TableRow(children: [
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: Text(units[f]!),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        formatNumber(context, f.multiplier, noDecimal: true),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Text(baseUnit),
+                ]),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
 
   ExpansionPanelList _graphFilterExpansionBuilder(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
@@ -310,7 +381,24 @@ class _StatisticsPageState extends State<StatisticsPage> {
               canTapOnHeader: true,
               headerBuilder: (context, isExpanded) {
                 return ListTile(
-                  title: Text(isExpanded ? loc.statisticsHideFilters : loc.statisticsDisplayFilters),
+                  title: isExpanded 
+                          ? Text(loc.statisticsHideFilters)
+                          : Row(
+                            children: [
+                              _selectedVehicle!.icon(),
+                              Text("・"),
+                              graphIcon(_selectedGraphType!),
+                              Text("・"),
+                              Expanded(
+                                child: Text(_selectedYear == 0 
+                                      ? AppLocalizations.of(context)!.tripsFilterAllYears 
+                                      : _selectedYear.toString(),
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 1,
+                                    ),
+                              )
+                            ],
+                          ),
                 );
               },
               isExpanded: _isParametersExpanded,

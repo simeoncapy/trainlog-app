@@ -93,5 +93,9 @@
   "graphTypeStations": "Gares",
 
   "statisticsDisplayFilters": "Afficher les filtres",
-  "statisticsHideFilters": "Masquer les filtres"
+  "statisticsHideFilters": "Masquer les filtres",
+  "statisticsTripsUnitBase": "trajets",
+  "statisticsTripsUnitKilo": "mille trajets",
+  "statisticsTripsUnitMega": "million de trajet",
+  "statisticsTripsUnitGiga": "billion de trajet"
 }

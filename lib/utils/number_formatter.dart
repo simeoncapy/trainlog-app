@@ -32,10 +32,9 @@ String formatCurrency(
   return formatter.format(amount);
 }
 
-String formatNumber(BuildContext context, double value) {
+String formatNumber(BuildContext context, num value, {bool noDecimal = false}) {
   final locale = Localizations.localeOf(context).toString();
-
-  // Format with up to 2 decimal places, but strip trailing zeros
-  NumberFormat formatter = NumberFormat("#,##0.##", locale);
+  final pattern = noDecimal ? "#,##0" : "#,##0.##"; // strip trailing zeros when decimals allowed
+  final formatter = NumberFormat(pattern, locale);
   return formatter.format(value);
 }

@@ -93,5 +93,9 @@
   "graphTypeStations": "駅",
 
   "statisticsDisplayFilters": "フィルターを表示",
-  "statisticsHideFilters": "フィルターを非表示"
+  "statisticsHideFilters": "フィルターを非表示",
+  "statisticsTripsUnitBase": "回",
+  "statisticsTripsUnitKilo": "千回",
+  "statisticsTripsUnitMega": "百万回",
+  "statisticsTripsUnitGiga": "十億回"
 }

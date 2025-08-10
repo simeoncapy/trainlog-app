@@ -615,6 +615,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Hide the filters'**
   String get statisticsHideFilters;
+
+  /// No description provided for @statisticsTripsUnitBase.
+  ///
+  /// In en, this message translates to:
+  /// **'trips'**
+  String get statisticsTripsUnitBase;
+
+  /// No description provided for @statisticsTripsUnitKilo.
+  ///
+  /// In en, this message translates to:
+  /// **'thousand trips'**
+  String get statisticsTripsUnitKilo;
+
+  /// No description provided for @statisticsTripsUnitMega.
+  ///
+  /// In en, this message translates to:
+  /// **'million trips'**
+  String get statisticsTripsUnitMega;
+
+  /// No description provided for @statisticsTripsUnitGiga.
+  ///
+  /// In en, this message translates to:
+  /// **'billion trips'**
+  String get statisticsTripsUnitGiga;
 }
 
 class _AppLocalizationsDelegate

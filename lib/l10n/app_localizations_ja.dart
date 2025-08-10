@@ -272,4 +272,16 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get statisticsHideFilters => 'フィルターを非表示';
+
+  @override
+  String get statisticsTripsUnitBase => '回';
+
+  @override
+  String get statisticsTripsUnitKilo => '千回';
+
+  @override
+  String get statisticsTripsUnitMega => '百万回';
+
+  @override
+  String get statisticsTripsUnitGiga => '十億回';
 }
