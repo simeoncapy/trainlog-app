@@ -143,6 +143,8 @@ class _MapPageState extends State<MapPage> {
 
         debugPrint("Polylines loaded from DB");
 
+        if(polylines.isEmpty) return;
+
         // Save to cache (in background)
         Future(() async {
         try {
