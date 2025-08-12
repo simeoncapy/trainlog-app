@@ -224,7 +224,7 @@ class _MyAppState extends State<MyApp> {
           ),
           themeMode: settings.themeMode,
           home: TripsLoader(
-            //csvPath: r'C:\Users\simeo\Downloads\trainlog_papykpy_2025-07-26_034825.csv',
+            //csvPath: r'C:\Users\Simeon\Downloads\trainlog_papykpy_2025-08-12_053849.csv',
             builder: (context) => _buildAppScaffold(context),
           ),
         );
