@@ -93,11 +93,10 @@ class _LogoBarChartState extends State<LogoBarChart> {
 
   @override
   void didUpdateWidget(covariant LogoBarChart oldWidget) {
-    // TODO: implement didUpdateWidget
     super.didUpdateWidget(oldWidget);
 
-      _valueScaleAdjusted = widget.values;
-      _strippedScaleAdjusted = widget.strippedValues;
+    _valueScaleAdjusted = widget.values;
+    _strippedScaleAdjusted = widget.strippedValues;
     _adjustScale();
   }
 
@@ -229,15 +228,14 @@ class _LogoBarChartState extends State<LogoBarChart> {
             fitInsideHorizontally: true,
             fitInsideVertically: true,
             maxContentWidth: 200,
-            //direction: TooltipDirection.bottom,
+            // Auto should works for both, but I don't know why for the horizontal graph the tooltip is still going outside
+            direction: widget.rotationQuarterTurns == 1 ? TooltipDirection.bottom : TooltipDirection.auto,
             getTooltipItem: (group, groupIndex, rod, rodIndex) {
               // Reused lookups
               final title = widget.valuesTitles[groupIndex];
-              final axisTitle = widget.baseUnit;
               final stack = rod.rodStackItems;
 
               // Colors
-              final color = rod.gradient?.colors.first ?? rod.color;
               final pastTripColor = colors[groupIndex];
               final futureTripColor = _lighten(pastTripColor);
 

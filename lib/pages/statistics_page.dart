@@ -9,10 +9,12 @@ import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
 import 'package:trainlog_app/utils/number_formatter.dart';
+import 'package:trainlog_app/utils/statistics_calculator.dart';
 import 'package:trainlog_app/widgets/logo_bar_chart.dart';
 import 'package:trainlog_app/widgets/min_height_scrollable.dart';
 import 'package:trainlog_app/widgets/statistics_type_selector.dart';
-import 'package:trainlog_app/widgets/trips_filter_dialog.dart';
+import 'package:trainlog_app/widgets/stats_pie_chart.dart';
+import 'package:trainlog_app/widgets/stats_table_chart.dart';
 
 enum GraphType {
   operator,
@@ -32,25 +34,11 @@ class StatisticsPage extends StatefulWidget {
 
 class _StatisticsPageState extends State<StatisticsPage> {
   bool _rotated = false;
-  bool _isDistance = false;
+  bool _sortedAlpha = false; // for the table
   bool _isParametersExpanded = true;
-
   StatisticsType _selectedStatistics = StatisticsType.bar;
-  VehicleType? _selectedVehicle = VehicleType.train;
-  Color _selectedVehicleColor = Colors.blue;
-  int? _selectedYear = 0;
-  GraphType? _selectedGraphType = GraphType.operator;
 
-  late List<int> listYears;
-
-  late Map<VehicleType, Color> _palette;
-
-  // TODO: Create a statistics class that do and store them all
-  late LinkedHashMap<String, ({double past, double future})> _statsOperatorDistance = LinkedHashMap<String, ({double past, double future})>();
-  late LinkedHashMap<String, ({double past, double future})> _statsOperatorTrip = LinkedHashMap<String, ({double past, double future})>();
-
-  LinkedHashMap<String, ({double past, double future})> get _currentStats =>
-    _isDistance ? _statsOperatorDistance : _statsOperatorTrip;
+  late List<int> listYears;  
 
   final _unitsDistance = {
     UnitFactor.base:  "km",
@@ -80,97 +68,6 @@ class _StatisticsPageState extends State<StatisticsPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _loadStats(); // fire & forget
-  }
-
-  Future<void> _loadStats() async {
-    final repo = context.read<TripsProvider>().repository;
-    if (repo == null) return;
-
-    final rawDist = await repo.fetchOperatorsByDistancePF(filter: TripsFilterResult(keyword: "", types: [_selectedVehicle!]));
-    final rawTrip = await repo.fetchOperatorsByTripPF(filter: TripsFilterResult(keyword: "", types: [_selectedVehicle!]));
-
-    final dist = await getTop9WithOtherPF(original: rawDist, factor: 1_000);
-    final trip = await getTop9WithOtherPF(original: rawTrip, factor: 1.0);
-
-    if (!mounted) return;
-    setState(() {
-      _statsOperatorDistance = dist;
-      _statsOperatorTrip = trip;
-    });
-  }
-
-  Future<LinkedHashMap<String, double>> getTop9WithOther({
-    required Map<String, double> original,
-    double factor = 1_000, // divide by this
-  }) async {
-    // Sort descending by value
-    final sortedEntries = original.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
-
-    // Keep top 9
-    final top9 = sortedEntries.take(9).toList();
-    final rest = sortedEntries.skip(9);
-
-    // Sum the rest
-    final otherValue = rest.fold<double>(0, (sum, e) => sum + e.value);
-
-    // Create LinkedHashMap to preserve order
-    final result = LinkedHashMap<String, double>();
-
-    // Add scaled top 9
-    for (final e in top9) {
-      result[e.key] = e.value / factor;
-    }
-
-    // Add "Other" if there was anything to sum
-    if (otherValue > 0) {
-      result["Other"] = otherValue / factor;
-    }
-
-    return result;
-  }
-
-  Future<LinkedHashMap<String, ({double past, double future})>> getTop9WithOtherPF({
-    required Map<String, ({num past, num future})> original,
-    double factor = 1_000, // divide by this; use 1.0 for counts
-    String otherLabel = 'Other',
-  }) async {
-    // Sort by (past + future) descending
-    final sortedEntries = original.entries.toList()
-      ..sort((a, b) =>
-          (b.value.past + b.value.future).compareTo(a.value.past + a.value.future));
-
-    // Take top 9 and the rest
-    final top9 = sortedEntries.take(9).toList();
-    final rest = sortedEntries.skip(9);
-
-    // Sum the rest into "Other"
-    double otherPast = 0;
-    double otherFuture = 0;
-    for (final e in rest) {
-      otherPast  += e.value.past.toDouble();
-      otherFuture+= e.value.future.toDouble();
-    }
-
-    // Build result (preserve order) and apply scaling
-    final result = LinkedHashMap<String, ({double past, double future})>();
-
-    for (final e in top9) {
-      result[e.key] = (
-        past:   e.value.past.toDouble()   / factor,
-        future: e.value.future.toDouble() / factor,
-      );
-    }
-
-    if (otherPast > 0 || otherFuture > 0) {
-      result[otherLabel] = (
-        past:   otherPast   / factor,
-        future: otherFuture / factor,
-      );
-    }
-
-    return result;
   }
 
   String graphLabel(BuildContext context, GraphType type) {
@@ -236,71 +133,164 @@ class _StatisticsPageState extends State<StatisticsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context)!;
-    final settings = context.read<SettingsProvider>();
-    _palette = MapColorPaletteHelper.getPalette(settings.mapColorPalette);
-    _selectedVehicleColor = _palette[_selectedVehicle] ?? Colors.blue;
-    final hasData = _currentStats.isNotEmpty;
-    const double kMinPanelHeight = 350;
-    final _unitsTrips = {
-      UnitFactor.base:  loc.statisticsTripsUnitBase,
-      UnitFactor.thousand: loc.statisticsTripsUnitKilo,
-      UnitFactor.million:  loc.statisticsTripsUnitMega,
-      UnitFactor.billion:  loc.statisticsTripsUnitGiga,
-    };
+    final tripsProv = context.watch<TripsProvider>();
+    final repo = tripsProv.repository;
+    if (repo == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
 
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
+    return ChangeNotifierProvider(
+      // created once when inserted in the tree; .load() kicks off the async fetch
+      create: (_) => StatisticsCalculator(repo, VehicleType.train, GraphType.operator, initialYear: 0)..load(),
+      builder: (context, _) {
+        final calc = context.watch<StatisticsCalculator>();
+        final settings = context.watch<SettingsProvider>();
+        final palette = MapColorPaletteHelper.getPalette(settings.mapColorPalette);
+        final hasData = calc.currentStats.isNotEmpty && !calc.isLoading;
+        final barColor = palette[calc.vehicle] ?? Colors.blue;
+
+        return Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
             children: [
-              StatisticsTypeSelector(
-                initialValue: StatisticsType.bar,
-                onChanged: (newType) {
-                  setState(() {
-                    _selectedStatistics = newType;
-                  });
-                },
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  StatisticsTypeSelector(
+                    initialValue: StatisticsType.bar,
+                    onChanged: (newType) {
+                      setState(() {
+                        _selectedStatistics = newType;
+                      });
+                    },
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16,),
+              _graphFilterExpansionBuilder(context),
+              const SizedBox(height: 16),
+              Expanded(
+                child: MinHeightScrollable(
+                  minHeight: 350,
+                  child: Builder(
+                    builder: (_) {
+                      if (calc.isLoading) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      if (calc.error != null) {
+                        return Center(child: Text('Error: ${calc.error}'));
+                      }
+                      if (!hasData) {
+                        return const Center(child: Text('No data'));
+                      }
+
+                      final stats = calc.currentStats;
+                      final unitsTrips = {
+                        UnitFactor.base:  AppLocalizations.of(context)!.statisticsTripsUnitBase,
+                        UnitFactor.thousand: AppLocalizations.of(context)!.statisticsTripsUnitKilo,
+                        UnitFactor.million:  AppLocalizations.of(context)!.statisticsTripsUnitMega,
+                        UnitFactor.billion:  AppLocalizations.of(context)!.statisticsTripsUnitGiga,
+                      };
+                      final unit = calc.isDistance ? _unitsDistance[UnitFactor.base] : unitsTrips[UnitFactor.base];
+
+                      switch (_selectedStatistics) {
+                        case StatisticsType.bar:
+                          return LayoutBuilder(
+                            builder: (context, c) {
+                              const minH = 350.0;
+                              final h = math.max(minH, c.maxHeight.isFinite ? c.maxHeight : minH);
+                              return SizedBox(
+                                height: h, // <- finite height avoids ∞ in fl_chart
+                                child: LogoBarChart(
+                                  rotationQuarterTurns: !_rotated ? 1 : 0,
+                                  images: List.generate(stats.length, (_) => const Icon(Icons.train)),
+                                  values: stats.values.map((v) => v.past).toList(),
+                                  strippedValues: stats.values.map((v) => v.future).toList(),
+                                  valuesTitles: stats.keys.toList(),
+                                  baseUnit: unit!,
+                                  unitsByFactor: calc.isDistance ? _unitsDistance : unitsTrips,
+                                  color: barColor,
+                                  unitHelpTooltip: calc.isDistance ? _tooltipRich(_unitsDistance) : null,
+                                ),
+                              );
+                            },
+                          );
+
+                        case StatisticsType.pie:
+                          return StatsPieChart(
+                            stats: stats,
+                            interactive: false,
+                            seedColor: barColor, // ties palette vibe to the chart
+                            valueFormatter: (v) => formatNumber(context, v, noDecimal: false),
+                            showLegend: true,
+                            sectionsSpace: 2,
+                            centerSpaceRadius: 36,
+                          );
+
+                        case StatisticsType.table:
+                          return Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text("Unit: ${unit!}"),
+                              const SizedBox(height: 8),
+
+                              // ⬇️ the table
+                              StatsTableChart(
+                                stats: stats,
+                                valueFormatter: (v) => formatNumber(context, v),
+                                labelHeader: 'Operator',
+                                pastHeader: AppLocalizations.of(context)!.yearPastList,
+                                futureHeader: AppLocalizations.of(context)!.yearFutureList,
+                                totalHeader: 'Total',
+                                labelMaxWidth: 150,
+                                labelMaxLines: 3,
+                                compact: true,
+                              ),
+                            ],
+                          );
+
+                      }
+                    },
+                  ),
+                ),
               ),
             ],
           ),
-          const SizedBox(height: 16,),
-          _graphFilterExpansionBuilder(context),
-          const SizedBox(height: 16,),
-          Expanded(
-            child: MinHeightScrollable(
-              minHeight: kMinPanelHeight,
-              child: switch (_selectedStatistics) {
-                StatisticsType.table => const Center(child: Text("Table")),
-                StatisticsType.pie   => const Center(child: Text("Pie")),
-                StatisticsType.bar   => hasData
-                    ? LogoBarChart(
-                        rotationQuarterTurns: !_rotated ? 1 : 0,
-                        images: List.generate(_currentStats.length, (_) => const Icon(Icons.train)),
-                        values: _currentStats.values.map((v) => v.past).toList(),
-                        strippedValues: _currentStats.values.map((v) => v.future).toList(),
-                        valuesTitles: _currentStats.keys.toList(),
-                        baseUnit: _isDistance ? "km" : loc.statisticsTripsUnitBase,
-                        unitsByFactor: _isDistance ? _unitsDistance : _unitsTrips,
-                        color: _selectedVehicleColor,
-                        unitHelpTooltip: _isDistance ? _tooltipRich(_unitsDistance) : null,
-                      )
-                    : const Center(child: CircularProgressIndicator()),
-              },
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
-  Widget _buildTable() {
-    // TODO: Create table
+  Widget _buildTable( // TODO move to a separate widget?
+    BuildContext context,
+    LinkedHashMap<String, ({double past, double future})> stats,
+  ) {
+    final rows = stats.entries.toList();
+    if (rows.isEmpty) return const Center(child: Text('No data'));
+
+    String fmt(num v) => formatNumber(context, v, noDecimal: false);
+    const double labelMaxWidth = 220;
+
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
-      child: Text("TODO")/* your DataTable */,
+      child: DataTable(
+        columns: const [
+          DataColumn(label: Text('Label')),
+          DataColumn(label: Text('Past')),
+          DataColumn(label: Text('Future')),
+          DataColumn(label: Text('Total')),
+        ],
+        rows: [
+          for (final e in rows)
+            DataRow(cells: [
+              DataCell(Text(e.key, softWrap: true,)),
+              DataCell(Text(fmt(e.value.past))),
+              DataCell(Text(fmt(e.value.future))),
+              DataCell(Text(fmt(e.value.past + e.value.future))),
+            ]),
+        ],
+      ),
     );
   }
 
@@ -370,6 +360,8 @@ class _StatisticsPageState extends State<StatisticsPage> {
 
   ExpansionPanelList _graphFilterExpansionBuilder(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
+    final calc = context.watch<StatisticsCalculator>();
+
     return ExpansionPanelList(
           expansionCallback: (panelIndex, isExpanded) {
             setState(() {
@@ -385,14 +377,14 @@ class _StatisticsPageState extends State<StatisticsPage> {
                           ? Text(loc.statisticsHideFilters)
                           : Row(
                             children: [
-                              _selectedVehicle!.icon(),
+                              calc.vehicle.icon(),
                               Text("・"),
-                              graphIcon(_selectedGraphType!),
+                              graphIcon(calc.graph),
                               Text("・"),
                               Expanded(
-                                child: Text(_selectedYear == 0 
+                                child: Text(calc.year == 0 
                                       ? AppLocalizations.of(context)!.tripsFilterAllYears 
-                                      : _selectedYear.toString(),
+                                      : calc.year.toString(),
                                       overflow: TextOverflow.ellipsis,
                                       maxLines: 1,
                                     ),
@@ -407,19 +399,33 @@ class _StatisticsPageState extends State<StatisticsPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      _buildIconSwitch(
-                        iconBefore: Icons.sort,
-                        iconAfter: Icons.bar_chart,
-                        value: _rotated,
-                        onChanged: (v) => setState(() => _rotated = v),
-                        disabled: _selectedStatistics != StatisticsType.bar
-                      ),
+                      switch(_selectedStatistics)
+                      {
+                        StatisticsType.bar =>
+                          _buildIconSwitch(
+                            iconBefore: Icons.sort,
+                            iconAfter: Icons.bar_chart,
+                            value: _rotated,
+                            onChanged: (v) => setState(() => _rotated = v),
+                            disabled: _selectedStatistics != StatisticsType.bar
+                          ),
+                        StatisticsType.table =>
+                          _buildIconSwitch(
+                            iconBefore: Icons.arrow_downward,
+                            iconAfter: Icons.sort_by_alpha,
+                            value: _sortedAlpha,
+                            onChanged: (v) => setState(() => _sortedAlpha = v),
+                            disabled: _selectedStatistics != StatisticsType.table
+                          ),
+                        _ => const SizedBox.shrink(),
+                      },
                       const Spacer(),
                       _buildIconSwitch(
                         iconBefore: Icons.confirmation_num,
                         iconAfter: Icons.straighten,
-                        value: _isDistance,
-                        onChanged: (v) => setState(() => _isDistance = v),
+                        value: calc.isDistance,
+                        //onChanged: (v) => setState(() => _isDistance = v),
+                        onChanged: (v) => context.read<StatisticsCalculator>().isDistance = v,
                       ),
                     ],
                   ),
@@ -430,12 +436,8 @@ class _StatisticsPageState extends State<StatisticsPage> {
                         child: Consumer<TripsProvider>(
                           builder: (_, p, __) => buildDropdown<VehicleType>(
                             items: p.vehicleTypes,
-                            selectedValue: _selectedVehicle,
-                            onChanged: (v) => setState(() {
-                              _selectedVehicle = v;
-                              _selectedVehicleColor = _palette[_selectedVehicle] ?? Colors.blue;
-                              _loadStats();
-                            }),
+                            selectedValue: calc.vehicle,
+                            onChanged: (v) => context.read<StatisticsCalculator>().vehicle = v ?? VehicleType.train,
                             labelOf: (v) => VehicleType.labelOf(v, context),
                             iconOf: (v) => VehicleType.iconOf(v),
                             hintText: 'Select vehicle',
@@ -449,8 +451,9 @@ class _StatisticsPageState extends State<StatisticsPage> {
                             final yearsWithAll = [0, ...p.years]; // 0 is the "All" value
                             return buildDropdown<int>(
                               items: yearsWithAll,
-                              selectedValue: _selectedYear,
-                              onChanged: (y) => setState(() => _selectedYear = y),
+                              selectedValue: calc.year,
+                              //onChanged: (y) => setState(() => _selectedYear = y),
+                              onChanged: (y) => context.read<StatisticsCalculator>().year = y,
                               labelOf: (y) => y == 0 ? AppLocalizations.of(context)!.tripsFilterAllYears : y.toString(),
                               hintText: 'Select Year',
                             );
@@ -462,8 +465,9 @@ class _StatisticsPageState extends State<StatisticsPage> {
                   const SizedBox(height: 16,),
                   buildDropdown<GraphType>(
                     items: GraphType.values,
-                    selectedValue: _selectedGraphType,
-                    onChanged: (v) => setState(() => _selectedGraphType = v),
+                    selectedValue: calc.graph,
+                    //onChanged: (g) => setState(() => _selectedGraphType = g ?? GraphType.operator),
+                    onChanged: (g) => context.read<StatisticsCalculator>().graph = g ?? GraphType.operator,
                     labelOf: (t) => graphLabel(context, t),
                     iconOf: (t) => graphIcon(t),
                     hintText: 'Select a graph',

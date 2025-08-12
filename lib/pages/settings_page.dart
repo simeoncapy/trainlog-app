@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
 import 'package:trainlog_app/utils/cached_data_utils.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
+import 'package:trainlog_app/utils/number_formatter.dart';
 import 'package:trainlog_app/utils/style_utils.dart';
 import '../l10n/app_localizations.dart';
 import '../providers/settings_provider.dart';
@@ -103,7 +104,7 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
             ListTile(
               leading: const Icon(Icons.cloud_download),
-              title: Text(appLocalization.settingsCache(_totalCacheSize.toStringAsFixed(2))),
+              title: Text(appLocalization.settingsCache(formatNumber(context, _totalCacheSize))),
               trailing: ElevatedButton.icon(
                 onPressed: _totalCacheSize  > 0
                   ? () async {

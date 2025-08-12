@@ -1,27 +1,30 @@
 import 'dart:math' as math;
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 class MinHeightScrollable extends StatelessWidget {
-  final double minHeight;
-  final Widget child;
   const MinHeightScrollable({
     super.key,
     required this.minHeight,
     required this.child,
   });
 
+  final double minHeight;
+  final Widget child;
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final targetHeight = math.max(minHeight, constraints.maxHeight);
         return SingleChildScrollView(
+          // optional: AlwaysScrollable helps on tall screens
+          physics: const AlwaysScrollableScrollPhysics(),
           child: ConstrainedBox(
-            constraints: BoxConstraints(minWidth: constraints.maxWidth),
-            child: SizedBox(
-              height: targetHeight,
-              child: child,
+            constraints: BoxConstraints(
+              minWidth: constraints.maxWidth,
+              // key change: only a MIN height; allow growth beyond viewport
+              minHeight: math.max(minHeight, constraints.maxHeight),
             ),
+            child: child,
           ),
         );
       },

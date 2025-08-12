@@ -356,7 +356,7 @@ class TripsDataSource extends DataTableSource {
       }
     }).toList();
 
-  //   return DataCell(  // To align the distance on the right
+  //   return DataCell(  // To align the distance on the right, replace the current DataCell by this code
   //   Align(
   //     alignment: Alignment.centerRight,
   //     child: Text(
