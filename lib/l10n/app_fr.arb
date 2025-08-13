@@ -97,5 +97,10 @@
   "statisticsTripsUnitBase": "trajets",
   "statisticsTripsUnitKilo": "mille trajets",
   "statisticsTripsUnitMega": "million de trajet",
-  "statisticsTripsUnitGiga": "billion de trajet"
+  "statisticsTripsUnitGiga": "billion de trajet",
+
+  "statisticsOtherLabel": "Autres",
+  "statisticsTotalLabel": "Total",
+  "statisticsUnitLabel": "Unités :",
+  "statisticsNoDataLabel": "Pas de données"
 }

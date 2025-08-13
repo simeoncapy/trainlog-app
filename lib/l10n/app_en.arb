@@ -116,5 +116,10 @@
   "statisticsTripsUnitBase": "trips",
   "statisticsTripsUnitKilo": "thousand trips",
   "statisticsTripsUnitMega": "million trips",
-  "statisticsTripsUnitGiga": "billion trips"
+  "statisticsTripsUnitGiga": "billion trips",
+
+  "statisticsOtherLabel": "Other",
+  "statisticsTotalLabel": "Total",
+  "statisticsUnitLabel": "Unit:",
+  "statisticsNoDataLabel": "No data"
 }

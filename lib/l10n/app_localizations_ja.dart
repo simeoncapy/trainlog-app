@@ -284,4 +284,16 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get statisticsTripsUnitGiga => '十億回';
+
+  @override
+  String get statisticsOtherLabel => 'その他';
+
+  @override
+  String get statisticsTotalLabel => '総計';
+
+  @override
+  String get statisticsUnitLabel => '単位：';
+
+  @override
+  String get statisticsNoDataLabel => 'データがありません';
 }

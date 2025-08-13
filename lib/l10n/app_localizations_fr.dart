@@ -286,4 +286,16 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get statisticsTripsUnitGiga => 'billion de trajet';
+
+  @override
+  String get statisticsOtherLabel => 'Autres';
+
+  @override
+  String get statisticsTotalLabel => 'Total';
+
+  @override
+  String get statisticsUnitLabel => 'Unités :';
+
+  @override
+  String get statisticsNoDataLabel => 'Pas de données';
 }

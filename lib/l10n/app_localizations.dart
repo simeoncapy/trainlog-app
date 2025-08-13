@@ -639,6 +639,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'billion trips'**
   String get statisticsTripsUnitGiga;
+
+  /// No description provided for @statisticsOtherLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get statisticsOtherLabel;
+
+  /// No description provided for @statisticsTotalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get statisticsTotalLabel;
+
+  /// No description provided for @statisticsUnitLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Unit:'**
+  String get statisticsUnitLabel;
+
+  /// No description provided for @statisticsNoDataLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'No data'**
+  String get statisticsNoDataLabel;
 }
 
 class _AppLocalizationsDelegate

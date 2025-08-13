@@ -17,11 +17,8 @@ class StatisticsCalculator extends ChangeNotifier {
   String? _error;
   int _req = 0; // request id to ignore stale loads
 
-  late LinkedHashMap<String, ({double past, double future})> _statsDistance 
-                          = LinkedHashMap<String, ({double past, double future})>();
-
-  late LinkedHashMap<String, ({double past, double future})> _statsTrip 
-                          = LinkedHashMap<String, ({double past, double future})>();
+  LinkedHashMap<String, ({double past, double future})> _statsDistance = LinkedHashMap();
+  LinkedHashMap<String, ({double past, double future})> _statsTrip = LinkedHashMap();
 
   StatisticsCalculator(this.repository, this._vehicle, this._graph, {int? initialYear})
       : _year = initialYear;
@@ -41,30 +38,89 @@ class StatisticsCalculator extends ChangeNotifier {
   set graph(GraphType g)     { if (g != _graph)     { _graph = g; load(); } }
   set year(int? y)           { if (y != _year)      { _year = y; load(); } }
 
+  /// Full stats (ALL rows), already scaled.
   LinkedHashMap<String, ({double past, double future})> get currentStats =>
     isDistance ? _statsDistance : _statsTrip;
 
+  /// Top `itemsNumber` rows + "Other" (sum of remaining), using the current mode.
+  LinkedHashMap<String, ({double past, double future})> currentStatsShort(
+    int itemsNumber, {
+    String otherLabel = 'Other',
+  }) {
+    if (itemsNumber <= 0) return LinkedHashMap();
+
+    // Work from the full set; sort by (past+future) desc.
+    final entries = currentStats.entries.toList()
+      ..sort((a, b) => (b.value.past + b.value.future)
+          .compareTo(a.value.past + a.value.future));
+
+    if (entries.length <= itemsNumber) {
+      return LinkedHashMap.fromEntries(entries);
+    }
+
+    final top = entries.take(itemsNumber);
+    final rest = entries.skip(itemsNumber);
+
+    double otherPast = 0, otherFuture = 0;
+    for (final e in rest) {
+      otherPast += e.value.past;
+      otherFuture += e.value.future;
+    }
+
+    final out = LinkedHashMap<String, ({double past, double future})>();
+    for (final e in top) {
+      out[e.key] = (past: e.value.past, future: e.value.future);
+    }
+    if (otherPast > 0 || otherFuture > 0) {
+      out[otherLabel] = (past: otherPast, future: otherFuture);
+    }
+    return out;
+  }
+
 
   // METHODS
-
   Future<void> load() async {
     final myReq = ++_req;
     _loading = true; _error = null;
     notifyListeners();
+    final (DateTime? start, DateTime? endExclusive) = switch (year) {
+      null || 0 => (null, null),
+      int y => (DateTime(y, 1, 1), DateTime(y + 1, 1, 1)),
+    };
+    final filter = TripsFilterResult(
+      keyword: "",
+      types: [_vehicle],
+      startDate: start,
+      endDate: endExclusive,
+    );
 
     try {
-      // TODO: use _graph/_year in your queries when ready
-      final rawDist = await repository.fetchOperatorsByDistancePF(
-        filter: TripsFilterResult(keyword: "", types: [_vehicle]),
-      );
-      final rawTrip = await repository.fetchOperatorsByTripPF(
-        filter: TripsFilterResult(keyword: "", types: [_vehicle]),
-      );
+      Map<String, ({num past, num future})> rawDist;
+      Map<String, ({num past, num future})> rawTrip;
 
-      final dist = await getTop9WithOtherPF(original: rawDist, factor: 1_000);
-      final trip = await getTop9WithOtherPF(original: rawTrip, factor: 1.0);
+      switch (_graph) {
+        case GraphType.operator:
+          rawDist = await repository.fetchOperatorsByDistancePF(filter: filter);
+          rawTrip = await repository.fetchOperatorsByTripPF(filter: filter);
+          break;
 
-      if (myReq != _req) return; // a newer load started; drop this result
+        case GraphType.country:
+          rawDist = await repository.fetchCountriesByDistancePF(filter: filter);
+          rawTrip = await repository.fetchCountriesByTripPF(filter: filter);
+          break;
+
+        // TODO: GraphType.years/material/itinerary/stations
+        default:
+          rawDist = const {};
+          rawTrip = const {};
+          break;
+      }
+
+      // Store **all** rows, scaled (distance ÷ 1000; trips ×1).
+      final dist = _scalePF(rawDist, factor: 1_000);
+      final trip = _scalePF(rawTrip, factor: 1.0);
+
+      if (myReq != _req) return;
 
       _statsDistance = dist;
       _statsTrip = trip;
@@ -112,45 +168,23 @@ class StatisticsCalculator extends ChangeNotifier {
     return result;
   }
 
-  Future<LinkedHashMap<String, ({double past, double future})>> getTop9WithOtherPF({
-    required Map<String, ({num past, num future})> original,
-    double factor = 1_000, // divide by this
-    String otherLabel = 'Other',
-  }) async {
-    // Sort by (past + future) descending
-    final sortedEntries = original.entries.toList()
+  /// Scale map by `factor` (divide), return as LinkedHashMap.
+  LinkedHashMap<String, ({double past, double future})> _scalePF(
+    Map<String, ({num past, num future})> original, {
+    double factor = 1.0,
+  }) {
+    // Sort by total desc for predictable order (optional—remove if you prefer original order).
+    final sorted = original.entries.toList()
       ..sort((a, b) =>
           (b.value.past + b.value.future).compareTo(a.value.past + a.value.future));
 
-    // Take top 9 and the rest
-    final top9 = sortedEntries.take(9).toList();
-    final rest = sortedEntries.skip(9);
-
-    // Sum the rest into "Other"
-    double otherPast = 0;
-    double otherFuture = 0;
-    for (final e in rest) {
-      otherPast  += e.value.past.toDouble();
-      otherFuture+= e.value.future.toDouble();
-    }
-
-    // Build result (preserve order) and apply scaling
-    final result = LinkedHashMap<String, ({double past, double future})>();
-
-    for (final e in top9) {
-      result[e.key] = (
+    final out = LinkedHashMap<String, ({double past, double future})>();
+    for (final e in sorted) {
+      out[e.key] = (
         past:   e.value.past.toDouble()   / factor,
         future: e.value.future.toDouble() / factor,
       );
     }
-
-    if (otherPast > 0 || otherFuture > 0) {
-      result[otherLabel] = (
-        past:   otherPast   / factor,
-        future: otherFuture / factor,
-      );
-    }
-
-    return result;
+    return out;
   }
 }

@@ -1,6 +1,8 @@
 import 'dart:collection';
 import 'dart:math' as math;
 
+import 'package:country_picker/country_picker.dart';
+import 'package:diacritic/diacritic.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/data/models/trips.dart';
@@ -131,6 +133,80 @@ class _StatisticsPageState extends State<StatisticsPage> {
     );
   }
 
+  LinkedHashMap<String, ({double past, double future})> _orderedStats(
+    Map<String, ({double past, double future})> stats, {
+    required bool alpha, // true = A→Z, false = by total desc
+  }) {
+    final entries = stats.entries.toList();
+
+    if (alpha) {
+      // Alphabetical (case-insensitive where it matters)
+      entries.sort((a, b) =>
+        removeDiacritics(a.key).toLowerCase().compareTo(removeDiacritics(b.key).toLowerCase()));
+    } else {
+      // Numeric by total (past + future) descending; tie-break A→Z
+      entries.sort((a, b) {
+        final ta = a.value.past + a.value.future;
+        final tb = b.value.past + b.value.future;
+        final cmp = tb.compareTo(ta);
+        return cmp != 0 ? cmp : removeDiacritics(a.key).toLowerCase().compareTo(removeDiacritics(b.key).toLowerCase());
+      });
+    }
+
+    return LinkedHashMap.fromEntries(entries);
+  }
+
+  LinkedHashMap<String, ({double past, double future})> localizedStats(
+    BuildContext context,
+    Map<String, ({double past, double future})> stats,
+  ) {
+    final details = CountryLocalizations.of(context);
+    final out = LinkedHashMap<String, ({double past, double future})>();
+    for (final e in stats.entries) {
+      final name = details?.countryName(countryCode: e.key) ?? e.key;
+      final cur = out[name];
+      out[name] = (past: (cur?.past ?? 0) + e.value.past,
+                  future: (cur?.future ?? 0) + e.value.future);
+    }
+    return out;
+  }
+
+  List<Widget> barChartImageBuilder(GraphType type, List<String> data)
+  {
+    // Normalize common edge cases
+    String _normalize(String code) {
+      final c = code.trim().toUpperCase();
+      return (c == 'UK') ? 'GB' : c; // 'UK' is not official; use 'GB'
+    }
+
+    // Convert "JP" -> "🇯🇵"
+    String _flagEmoji(String code) {
+      final cc = _normalize(code);
+      if (cc.length != 2) return '🏳️'; // fallback white flag
+      const int base = 0x1F1E6; // Regional Indicator Symbol Letter A
+      final int a = cc.codeUnitAt(0);
+      final int b = cc.codeUnitAt(1);
+      if (a < 65 || a > 90 || b < 65 || b > 90) return '🏳️';
+      return String.fromCharCodes([base + (a - 65), base + (b - 65)]);
+    }
+
+    switch(type)
+    {
+      case GraphType.operator:
+        return List.generate(data.length, (_) => const Icon(Icons.train));
+        case GraphType.country:
+          return List.generate(
+            data.length,
+            (i) => Text(
+              _flagEmoji(data[i]),
+              style: const TextStyle(fontSize: 18), // adjust to match your bars
+            ),
+          );
+      default:
+        return List.generate(data.length, (_) => const Icon(Icons.help));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final tripsProv = context.watch<TripsProvider>();
@@ -148,6 +224,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
         final palette = MapColorPaletteHelper.getPalette(settings.mapColorPalette);
         final hasData = calc.currentStats.isNotEmpty && !calc.isLoading;
         final barColor = palette[calc.vehicle] ?? Colors.blue;
+        final loc = AppLocalizations.of(context)!;
 
         return Padding(
           padding: const EdgeInsets.all(20),
@@ -181,17 +258,27 @@ class _StatisticsPageState extends State<StatisticsPage> {
                         return Center(child: Text('Error: ${calc.error}'));
                       }
                       if (!hasData) {
-                        return const Center(child: Text('No data'));
+                        return Center(child: Text(loc.statisticsNoDataLabel));
                       }
 
-                      final stats = calc.currentStats;
+                      final stats = calc.currentStatsShort(9, otherLabel: loc.statisticsOtherLabel);
+                      final statsAll = calc.currentStats;
+                      final displayStatsTable = (calc.graph == GraphType.country)
+                          ? localizedStats(context, statsAll)
+                          : LinkedHashMap.of(statsAll);
+                      final statsForTable = _orderedStats(displayStatsTable, alpha: _sortedAlpha);
                       final unitsTrips = {
-                        UnitFactor.base:  AppLocalizations.of(context)!.statisticsTripsUnitBase,
-                        UnitFactor.thousand: AppLocalizations.of(context)!.statisticsTripsUnitKilo,
-                        UnitFactor.million:  AppLocalizations.of(context)!.statisticsTripsUnitMega,
-                        UnitFactor.billion:  AppLocalizations.of(context)!.statisticsTripsUnitGiga,
+                        UnitFactor.base:  loc.statisticsTripsUnitBase,
+                        UnitFactor.thousand: loc.statisticsTripsUnitKilo,
+                        UnitFactor.million:  loc.statisticsTripsUnitMega,
+                        UnitFactor.billion:  loc.statisticsTripsUnitGiga,
                       };
                       final unit = calc.isDistance ? _unitsDistance[UnitFactor.base] : unitsTrips[UnitFactor.base];
+                      final details = CountryLocalizations.of(context);
+                      final String Function(String)? labelBuilder =
+                        (calc.graph == GraphType.country)
+                            ? (String code) => details?.countryName(countryCode: code) ?? code
+                            : null;
 
                       switch (_selectedStatistics) {
                         case StatisticsType.bar:
@@ -202,15 +289,14 @@ class _StatisticsPageState extends State<StatisticsPage> {
                               return SizedBox(
                                 height: h, // <- finite height avoids ∞ in fl_chart
                                 child: LogoBarChart(
+                                  stats: stats,
                                   rotationQuarterTurns: !_rotated ? 1 : 0,
-                                  images: List.generate(stats.length, (_) => const Icon(Icons.train)),
-                                  values: stats.values.map((v) => v.past).toList(),
-                                  strippedValues: stats.values.map((v) => v.future).toList(),
-                                  valuesTitles: stats.keys.toList(),
+                                  images: barChartImageBuilder(calc.graph, stats.keys.toList()),                                  
                                   baseUnit: unit!,
                                   unitsByFactor: calc.isDistance ? _unitsDistance : unitsTrips,
                                   color: barColor,
                                   unitHelpTooltip: calc.isDistance ? _tooltipRich(_unitsDistance) : null,
+                                  labelBuilder: labelBuilder,
                                 ),
                               );
                             },
@@ -225,6 +311,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                             showLegend: true,
                             sectionsSpace: 2,
                             centerSpaceRadius: 36,
+                            labelBuilder: labelBuilder,
                           );
 
                         case StatisticsType.table:
@@ -232,20 +319,24 @@ class _StatisticsPageState extends State<StatisticsPage> {
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text("Unit: ${unit!}"),
+                              Text("${loc.statisticsUnitLabel} ${unit!}"),
                               const SizedBox(height: 8),
-
-                              // ⬇️ the table
                               StatsTableChart(
-                                stats: stats,
+                                stats: statsForTable,
                                 valueFormatter: (v) => formatNumber(context, v),
-                                labelHeader: 'Operator',
-                                pastHeader: AppLocalizations.of(context)!.yearPastList,
-                                futureHeader: AppLocalizations.of(context)!.yearFutureList,
-                                totalHeader: 'Total',
-                                labelMaxWidth: 150,
-                                labelMaxLines: 3,
+                                labelHeader: loc.graphTypeOperator, // TODO change hader depending on graph type
+                                pastHeader: loc.yearPastList,
+                                futureHeader: loc.yearFutureList,
+                                totalHeader: loc.statisticsTotalLabel,
+                                labelMaxWidth: 180,
+                                labelMaxLines: 4,
                                 compact: true,
+                                onlyTotal: switch (calc.year) {
+                                  null || 0 => false,
+                                  final y when y == DateTime.now().year => false,
+                                  _ => true,
+                                },
+                                //labelBuilder: labelBuilder, // Not used here because of statsForTable
                               ),
                             ],
                           );
@@ -259,38 +350,6 @@ class _StatisticsPageState extends State<StatisticsPage> {
           ),
         );
       },
-    );
-  }
-
-  Widget _buildTable( // TODO move to a separate widget?
-    BuildContext context,
-    LinkedHashMap<String, ({double past, double future})> stats,
-  ) {
-    final rows = stats.entries.toList();
-    if (rows.isEmpty) return const Center(child: Text('No data'));
-
-    String fmt(num v) => formatNumber(context, v, noDecimal: false);
-    const double labelMaxWidth = 220;
-
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: DataTable(
-        columns: const [
-          DataColumn(label: Text('Label')),
-          DataColumn(label: Text('Past')),
-          DataColumn(label: Text('Future')),
-          DataColumn(label: Text('Total')),
-        ],
-        rows: [
-          for (final e in rows)
-            DataRow(cells: [
-              DataCell(Text(e.key, softWrap: true,)),
-              DataCell(Text(fmt(e.value.past))),
-              DataCell(Text(fmt(e.value.future))),
-              DataCell(Text(fmt(e.value.past + e.value.future))),
-            ]),
-        ],
-      ),
     );
   }
 
@@ -424,7 +483,6 @@ class _StatisticsPageState extends State<StatisticsPage> {
                         iconBefore: Icons.confirmation_num,
                         iconAfter: Icons.straighten,
                         value: calc.isDistance,
-                        //onChanged: (v) => setState(() => _isDistance = v),
                         onChanged: (v) => context.read<StatisticsCalculator>().isDistance = v,
                       ),
                     ],
@@ -466,7 +524,6 @@ class _StatisticsPageState extends State<StatisticsPage> {
                   buildDropdown<GraphType>(
                     items: GraphType.values,
                     selectedValue: calc.graph,
-                    //onChanged: (g) => setState(() => _selectedGraphType = g ?? GraphType.operator),
                     onChanged: (g) => context.read<StatisticsCalculator>().graph = g ?? GraphType.operator,
                     labelOf: (t) => graphLabel(context, t),
                     iconOf: (t) => graphIcon(t),

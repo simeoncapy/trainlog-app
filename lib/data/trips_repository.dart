@@ -542,6 +542,125 @@ class TripsRepository {
     return _sortedBySumDesc(counts, (v) => v.past + v.future);
   }
 
+  Future<LinkedHashMap<String, ({double past, double future})>> fetchCountriesByDistancePF({
+    TripsFilterResult? filter,
+    bool splitDistance = false, // set true if you prefer not to double-count multi-country trips
+  }) async {
+    final pastWhere   = _buildWhereClause(showFutureTrips: false, filter: filter);
+    final futureWhere = _buildWhereClause(showFutureTrips: true,  filter: filter);
+
+    String _augmentWhere(Map<String, dynamic> info) => [
+      info['where'] as String,
+      'countries IS NOT NULL AND countries != ""',
+      'trip_length IS NOT NULL'
+    ].where((w) => w.isNotEmpty).join(' AND ');
+
+    final pastRows = await _db.query(
+      TripsTable.tableName,
+      columns: ['countries', 'trip_length'],
+      where: _augmentWhere(pastWhere),
+      whereArgs: pastWhere['args'] as List<dynamic>,
+    );
+    final futureRows = await _db.query(
+      TripsTable.tableName,
+      columns: ['countries', 'trip_length'],
+      where: _augmentWhere(futureWhere),
+      whereArgs: futureWhere['args'] as List<dynamic>,
+    );
+
+    final Map<String, ({double past, double future})> totals = {};
+
+    List<String> _codesFromRaw(String? raw) {
+      if (raw == null || raw.trim().isEmpty) return const [];
+      try {
+        final decoded = Uri.decodeComponent(raw);
+        final Map<String, dynamic> json = jsonDecode(decoded);
+        return json.keys.toList(); // country codes like "JP","FR"
+      } catch (_) {
+        return const [];
+      }
+    }
+
+    void _add(Iterable<Map<String, Object?>> rows, {required bool isFuture}) {
+      for (final row in rows) {
+        final codes = _codesFromRaw(row['countries'] as String?);
+        if (codes.isEmpty) continue;
+
+        final length = (row['trip_length'] as num?)?.toDouble() ?? 0.0;
+        if (length <= 0) continue;
+
+        final share = splitDistance && codes.isNotEmpty ? (length / codes.length) : length;
+
+        for (final code in codes) {
+          final curr = totals[code] ?? (past: 0.0, future: 0.0);
+          totals[code] = isFuture
+              ? (past: curr.past, future: curr.future + share)
+              : (past: curr.past + share, future: curr.future);
+        }
+      }
+    }
+
+    _add(pastRows,   isFuture: false);
+    _add(futureRows, isFuture: true);
+
+    return _sortedBySumDesc(totals, (v) => v.past + v.future);
+  }
+
+  Future<LinkedHashMap<String, ({int past, int future})>> fetchCountriesByTripPF({
+    TripsFilterResult? filter,
+  }) async {
+    final pastWhere   = _buildWhereClause(showFutureTrips: false, filter: filter);
+    final futureWhere = _buildWhereClause(showFutureTrips: true,  filter: filter);
+
+    String _augmentWhere(Map<String, dynamic> info) => [
+      info['where'] as String,
+      'countries IS NOT NULL AND countries != ""',
+    ].where((w) => w.isNotEmpty).join(' AND ');
+
+    final pastRows = await _db.query(
+      TripsTable.tableName,
+      columns: ['countries'],
+      where: _augmentWhere(pastWhere),
+      whereArgs: pastWhere['args'] as List<dynamic>,
+    );
+    final futureRows = await _db.query(
+      TripsTable.tableName,
+      columns: ['countries'],
+      where: _augmentWhere(futureWhere),
+      whereArgs: futureWhere['args'] as List<dynamic>,
+    );
+
+    final Map<String, ({int past, int future})> counts = {};
+
+    List<String> _codesFromRaw(String? raw) {
+      if (raw == null || raw.trim().isEmpty) return const [];
+      try {
+        final decoded = Uri.decodeComponent(raw);
+        final Map<String, dynamic> json = jsonDecode(decoded);
+        return json.keys.toList();
+      } catch (_) {
+        return const [];
+      }
+    }
+
+    void _add(Iterable<Map<String, Object?>> rows, {required bool isFuture}) {
+      for (final row in rows) {
+        for (final code in _codesFromRaw(row['countries'] as String?)) {
+          final curr = counts[code] ?? (past: 0, future: 0);
+          counts[code] = isFuture
+              ? (past: curr.past, future: curr.future + 1)
+              : (past: curr.past + 1, future: curr.future);
+        }
+      }
+    }
+
+    _add(pastRows,   isFuture: false);
+    _add(futureRows, isFuture: true);
+
+    return _sortedBySumDesc(counts, (v) => v.past + v.future);
+  }
+
+
 
   Future<void> insertTrip(Trips trip) async {
     await _db.insert(

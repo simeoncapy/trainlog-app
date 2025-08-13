@@ -97,5 +97,10 @@
   "statisticsTripsUnitBase": "回",
   "statisticsTripsUnitKilo": "千回",
   "statisticsTripsUnitMega": "百万回",
-  "statisticsTripsUnitGiga": "十億回"
+  "statisticsTripsUnitGiga": "十億回",
+
+  "statisticsOtherLabel": "その他",
+  "statisticsTotalLabel": "総計",
+  "statisticsUnitLabel": "単位：",
+  "statisticsNoDataLabel": "データがありません"
 }
