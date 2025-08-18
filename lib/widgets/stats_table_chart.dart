@@ -61,42 +61,49 @@ class StatsTableChart extends StatelessWidget {
     Widget numCell(num v) =>
         Align(alignment: Alignment.centerRight, child: Text(valueFormatter(v)));
 
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: DataTableTheme(
-        data: DataTableTheme.of(context).copyWith(
-          headingRowColor: WidgetStateProperty.resolveWith<Color?>(
-            (_) => Theme.of(context).colorScheme.primaryContainer,
-          ),
-          headingTextStyle: Theme.of(context).textTheme.labelLarge?.copyWith(
-                color: Theme.of(context).colorScheme.onPrimaryContainer,
-                fontWeight: FontWeight.bold,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minWidth: constraints.maxWidth),
+            child: DataTableTheme(
+              data: DataTableTheme.of(context).copyWith(
+                headingRowColor: WidgetStateProperty.resolveWith<Color?>(
+                  (_) => Theme.of(context).colorScheme.primaryContainer,
+                ),
+                headingTextStyle: Theme.of(context).textTheme.labelLarge?.copyWith(
+                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+                      fontWeight: FontWeight.bold,
+                    ),
               ),
-        ),
-        child: DataTable(
-          showCheckboxColumn: false,            // display-only
-          dataRowMinHeight: compact ? 0 : null, // compact rows
-          dataRowMaxHeight: null,               // allow wrapping
-          headingRowHeight: compact ? 36 : null,
-          horizontalMargin: compact ? 12 : null,
-          columnSpacing: compact ? 16 : null,
-          columns: [
-            DataColumn(label: labelCell(labelHeader, header: true)),
-            if (!onlyTotal) DataColumn(label: Text(pastHeader)),
-            if (!onlyTotal) DataColumn(label: Text(futureHeader)),
-            DataColumn(label: Text(totalHeader)),
-          ],
-          rows: [
-            for (final r in rowsData)
-              DataRow(cells: [
-                DataCell(labelCell(r.label)),
-                if (!onlyTotal) DataCell(numCell(r.past)),
-                if (!onlyTotal) DataCell(numCell(r.future)),
-                DataCell(numCell(r.past + r.future)),
-              ]),
-          ],
-        ),
-      ),
+              child: DataTable(
+                showCheckboxColumn: false,
+                dataRowMinHeight: compact ? 0 : null,
+                dataRowMaxHeight: null,
+                headingRowHeight: compact ? 36 : null,
+                horizontalMargin: compact ? 12 : null,
+                columnSpacing: compact ? 16 : null,
+                columns: [
+                  DataColumn(label: labelCell(labelHeader, header: true)),
+                  if (!onlyTotal) DataColumn(label: Text(pastHeader)),
+                  if (!onlyTotal) DataColumn(label: Text(futureHeader)),
+                  DataColumn(label: Text(totalHeader)),
+                ],
+                rows: [
+                  for (final r in rowsData)
+                    DataRow(cells: [
+                      DataCell(labelCell(r.label)),
+                      if (!onlyTotal) DataCell(numCell(r.past)),
+                      if (!onlyTotal) DataCell(numCell(r.future)),
+                      DataCell(numCell(r.past + r.future)),
+                    ]),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }
