@@ -104,11 +104,13 @@ class _StatisticsPageState extends State<StatisticsPage> {
     Icon? Function(T item)? iconOf,
     String hintText = 'Select an option',
     bool isExpanded = true,
+    bool enabled = true,
   }) {
     return DropdownButton<T>(
       hint: Text(hintText),
       value: selectedValue,
       isExpanded: isExpanded,
+      onChanged: enabled ? onChanged : null, // disabled when null
       items: items.map((item) {
         return DropdownMenuItem<T>(
           value: item,
@@ -129,7 +131,6 @@ class _StatisticsPageState extends State<StatisticsPage> {
           ),
         );
       }).toList(),
-      onChanged: onChanged,
     );
   }
 
@@ -420,6 +421,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
   ExpansionPanelList _graphFilterExpansionBuilder(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
     final calc = context.watch<StatisticsCalculator>();
+    final disabledYears = calc.graph == GraphType.years;
 
     return ExpansionPanelList(
           expansionCallback: (panelIndex, isExpanded) {
@@ -514,6 +516,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                               onChanged: (y) => context.read<StatisticsCalculator>().year = y,
                               labelOf: (y) => y == 0 ? AppLocalizations.of(context)!.tripsFilterAllYears : y.toString(),
                               hintText: 'Select Year',
+                              enabled: !disabledYears,
                             );
                           },
                         ),
