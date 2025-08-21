@@ -325,7 +325,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                               StatsTableChart(
                                 stats: statsForTable,
                                 valueFormatter: (v) => formatNumber(context, v),
-                                labelHeader: loc.graphTypeOperator, // TODO change hader depending on graph type
+                                labelHeader: graphLabel(context, calc.graph),
                                 pastHeader: loc.yearPastList,
                                 futureHeader: loc.yearFutureList,
                                 totalHeader: loc.statisticsTotalLabel,

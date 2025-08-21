@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:geodesy/geodesy.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
 
@@ -14,12 +15,21 @@ class SettingsProvider with ChangeNotifier {
   PathDisplayOrder _pathDisplayOrder = PathDisplayOrder.creationDate;
   MapColorPalette _mapColorPalette = MapColorPalette.trainlogWeb;
   bool _shouldReloadPolylines = true;
+  bool _mapDisplayUserLocationMarker = true;
+  LatLng? _SP_userPosition;
+  bool _SP_refusedToSharePosition = false;
+
+  static const _kLastUserLat = 'last_user_lat';
+  static const _kLastUserLng = 'last_user_lng';
 
   ThemeMode get themeMode => _themeMode;
   Locale get locale => _locale;
   PathDisplayOrder get pathDisplayOrder => _pathDisplayOrder;
   MapColorPalette get mapColorPalette => _mapColorPalette;
   bool get shouldReloadPolylines => _shouldReloadPolylines;
+  bool get mapDisplayUserLocationMarker => _mapDisplayUserLocationMarker;
+  LatLng? get userPosition => _SP_userPosition;
+  bool get refusedToSharePosition => _SP_refusedToSharePosition;
 
   SettingsProvider() {
     _loadTheme();
@@ -27,6 +37,11 @@ class SettingsProvider with ChangeNotifier {
     _loadPathDisplayOrder();
     _loadMapColorPalette();
     _loadShouldReloadPolylines();
+    _loadMapDisplayUserLocationMarker();
+
+    // Shared Preference only (_SP)
+    _loadLastUserPosition();
+    _loadRefusedToSharePosition();
   }
 
   void _loadTheme() async {
@@ -139,6 +154,68 @@ class SettingsProvider with ChangeNotifier {
     _shouldReloadPolylines = reload;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('should_reload_polylines', reload);
+    notifyListeners();
+  }
+
+  // ------------------------------------------------------------------------------
+
+  void _loadMapDisplayUserLocationMarker() async {
+    final prefs = await SharedPreferences.getInstance();
+    final marker = prefs.getBool('display_user_marker');
+    _mapDisplayUserLocationMarker = marker ?? false;
+    notifyListeners();
+  }
+
+  void setMapDisplayUserLocationMarker(bool maker) async {
+    if (_mapDisplayUserLocationMarker == maker) return;
+    _mapDisplayUserLocationMarker = maker;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('display_user_marker', maker);
+    notifyListeners();
+  }
+
+  // ------------------------------------------------------------------------------
+  // ------- SHARED PREFERENCES NOT IN SETTINGS MENU ------------------------------
+  // ------------------------------------------------------------------------------
+
+  void _loadLastUserPosition() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (!prefs.containsKey(_kLastUserLat) || !prefs.containsKey(_kLastUserLng)) {
+      _SP_userPosition = null;
+    }
+    final lat = prefs.getDouble(_kLastUserLat);
+    final lng = prefs.getDouble(_kLastUserLng);
+    if (lat == null || lng == null)
+    {
+      _SP_userPosition = null;
+    }
+    else
+    {
+      _SP_userPosition = LatLng(lat, lng);
+    }
+    notifyListeners();
+  }
+
+  void setLastUserPosition(LatLng pos) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble(_kLastUserLat, pos.latitude);
+    await prefs.setDouble(_kLastUserLng, pos.longitude);
+  }
+
+  // ------------------------------------------------------------------------------
+
+  void _loadRefusedToSharePosition() async {
+    final prefs = await SharedPreferences.getInstance();
+    final p = prefs.getBool('refused_share_position');
+    _SP_refusedToSharePosition = p ?? false;
+    notifyListeners();
+  }
+
+  void setRefusedToSharePosition(bool p) async {
+    if (_SP_refusedToSharePosition == p) return;
+    _SP_refusedToSharePosition = p;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('refused_share_position', p);
     notifyListeners();
   }
 }

@@ -99,6 +99,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get settingsCacheClearedMessage => 'キャッシュが正常に消されました。';
 
   @override
+  String get settingsDisplayUserMarker => '現在の位置を表示する';
+
+  @override
   String get menuMapTitle => '地図';
 
   @override

@@ -274,6 +274,12 @@ abstract class AppLocalizations {
   /// **'Cache cleared successfully.'**
   String get settingsCacheClearedMessage;
 
+  /// No description provided for @settingsDisplayUserMarker.
+  ///
+  /// In en, this message translates to:
+  /// **'Display current position'**
+  String get settingsDisplayUserMarker;
+
   /// No description provided for @menuMapTitle.
   ///
   /// In en, this message translates to:

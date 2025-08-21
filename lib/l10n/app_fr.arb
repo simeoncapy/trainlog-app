@@ -30,6 +30,7 @@
   "settingsCacheClearConfirmTitle": "Vider le cache ?",
   "settingsCacheClearConfirmMessage": "Êtes-vous sûr de vouloir supprimer les données en cache ? Cette action est irréversible. Le prochain chargement de l'application pourra être plus long.",
   "settingsCacheClearedMessage": "Cache vidé avec succes.",
+  "settingsDisplayUserMarker": "Afficher votre position",
 
   "menuMapTitle": "Carte",
   "menuTripsTitle": "Trajets",

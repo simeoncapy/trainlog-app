@@ -223,6 +223,16 @@ class _SettingsPageState extends State<SettingsPage> {
                 ],
               ),
             ),
+            ListTile(
+              leading: Icon(Icons.my_location),
+              title: Text(appLocalization.settingsDisplayUserMarker),
+              trailing: Switch(
+                value: settings.mapDisplayUserLocationMarker, 
+                onChanged: (bool val) {
+                  settings.setMapDisplayUserLocationMarker(val);
+                }
+              ),
+            ),
             _SettingsCategory(title: appLocalization.settingsAccountCategory), // ---------------------------------------------
           ],
         );

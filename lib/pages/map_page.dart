@@ -14,7 +14,8 @@ import 'package:trainlog_app/widgets/vehicle_type_filter_chips.dart';
 import '../providers/trips_provider.dart';
 import 'dart:io';
 import 'dart:convert';
-import 'package:path_provider/path_provider.dart';
+import 'package:geolocator/geolocator.dart';
+
 
 enum YearFilter{
   all,
@@ -34,8 +35,13 @@ class MapPage extends StatefulWidget {
 
 class _MapPageState extends State<MapPage> {
   final MapController _mapController = MapController();
-  LatLng _center = LatLng(35.681236, 139.767125);
+
+  // Default to Greenwich Observatory
+  static const LatLng _greenwich = LatLng(51.476852, -0.0005);
+  LatLng _center = _greenwich; //LatLng(35.681236, 139.767125);
   double _zoom = 13.0;
+  LatLng? _userPosition;
+
   List<PolylineEntry> _polylines = [];
   bool _loading = true;
   late Map<VehicleType, Color> _colours;
@@ -48,24 +54,13 @@ class _MapPageState extends State<MapPage> {
 
   late TripsProvider _trips;
 
-  // List<int> get availableYears => _polylines
-  //     .map((e) => e.startDate?.year)
-  //     .whereType<int>()
-  //     .toSet()
-  //     .toList()
-  //   ..sort((a, b) => b.compareTo(a));
-
-  // List<VehicleType> get availableTypes => _polylines
-  //     .map((e) => e.type)
-  //     .toSet()
-  //     .toList()
-  //     ..sort((a, b) => a.index.compareTo(b.index));
-
   @override
   void initState() {
     super.initState();
     final settings = context.read<SettingsProvider>();
     _colours = MapColorPaletteHelper.getPalette(settings.mapColorPalette);
+
+    _initCenterAndMarker(settings);
 
     _trips = context.read<TripsProvider>();
     _trips.addListener(_onTripsChanged);
@@ -78,6 +73,98 @@ class _MapPageState extends State<MapPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) setState(() {});
     });
+  }
+
+  Future<void> _initCenterAndMarker(SettingsProvider settings) async {
+    // Start from saved last user location or Greenwich
+    final saved = settings.userPosition;
+    if (mounted) setState(() => _center = saved ?? _greenwich);
+
+    // Ask OS once (system dialog only where available), else silently fall back
+    final current = await _maybeUseLocationWithSystemPrompt(settings);
+    if (current != null && mounted) {
+      setState(() {
+        _userPosition = current;
+        _center = current;
+      });
+      _mapController.move(current, _zoom);
+      settings.setLastUserPosition(current);
+    }
+  }
+
+  Future<LatLng?> _maybeUseLocationWithSystemPrompt(SettingsProvider settings) async {
+    // If already granted, try to get the position (no prompts)
+    var p = await Geolocator.checkPermission();
+    if (p == LocationPermission.always || p == LocationPermission.whileInUse) {
+      if (settings.refusedToSharePosition) {
+        settings.setRefusedToSharePosition(false); // reset flag
+      }
+      return await _safeGetPositionOrNull();
+    }
+
+    // If user previously refused, never ask again automatically
+    if (settings.refusedToSharePosition) return null;
+
+    // Platforms that actually show a system permission dialog
+    final canShowSystemPrompt =
+        kIsWeb || Platform.isAndroid || Platform.isIOS || Platform.isMacOS;
+
+    if (!canShowSystemPrompt) {
+      // Windows/Linux: no in-app OS prompt exists; don’t mark refusal
+      return null;
+    }
+
+    // First time: trigger the OS dialog
+    p = await Geolocator.requestPermission();
+
+    if (p == LocationPermission.always || p == LocationPermission.whileInUse) {
+      return await _safeGetPositionOrNull();
+    }
+
+    // User denied in the **system** dialog (or OS says deniedForever) → record refusal
+    settings.setRefusedToSharePosition(true);
+    return null;
+  }
+
+  Future<LatLng?> _safeGetPositionOrNull() async {
+    // If location services are off, don’t force-open settings; just fall back
+    if (!await Geolocator.isLocationServiceEnabled()) return null;
+
+    final pos = await Geolocator.getCurrentPosition(
+      locationSettings: _platformLocationSettings(),
+    );
+    return LatLng(pos.latitude, pos.longitude);
+  }
+
+  LocationSettings _platformLocationSettings() {
+    // Use platform-specific settings where available; fall back to generic.
+    if (kIsWeb) {
+      return WebSettings(
+        accuracy: LocationAccuracy.high,
+        distanceFilter: 0,
+        // timeLimit: const Duration(seconds: 10), // optional
+      );
+    }
+    if (Platform.isAndroid) {
+      return AndroidSettings(
+        accuracy: LocationAccuracy.high,
+        distanceFilter: 0,
+        // intervalDuration: const Duration(seconds: 5), // for streams; ignored by getCurrentPosition
+        // forceLocationManager: false,
+      );
+    }
+    if (Platform.isIOS || Platform.isMacOS) {
+      return AppleSettings(
+        accuracy: LocationAccuracy.high, // or .best if you prefer
+        distanceFilter: 0,
+        // pauseLocationUpdatesAutomatically: true,
+      );
+    }
+    // Windows, Linux, others
+    return const LocationSettings(
+      accuracy: LocationAccuracy.high,
+      distanceFilter: 0,
+    );
   }
 
   void _onTripsChanged() {
@@ -296,16 +383,17 @@ Widget build(BuildContext context) {
                 PolylineLayer(
                   polylines: filteredPolylines.map((e) => e.polyline).toList(),
                 ),
-                MarkerLayer(
-                  markers: [
-                    Marker(
-                      width: 80,
-                      height: 80,
-                      point: LatLng(35.681236, 139.767125),
-                      child: const Icon(Icons.location_pin, color: Colors.red),
-                    ),
-                  ],
-                ),
+                if (_userPosition != null && settings.mapDisplayUserLocationMarker)
+                  MarkerLayer(
+                    markers: [
+                      Marker(
+                        width: 40,
+                        height: 40,
+                        point: _userPosition!,
+                        child: const Icon(Icons.my_location, size: 28, color: Colors.red),
+                      ),
+                    ],
+                  ),
               ],
             ),
             if (_showFilterModal)

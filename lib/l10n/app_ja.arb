@@ -30,6 +30,7 @@
   "settingsCacheClearConfirmTitle": "キャッシュを消しますか?",
   "settingsCacheClearConfirmMessage": "キャッシュデータを削除してもよろしいですか？この操作は元に戻せません。次回のアプリの読み込みに時間がかかる可能性があります。",
   "settingsCacheClearedMessage": "キャッシュが正常に消されました。",
+  "settingsDisplayUserMarker": "現在の位置を表示する",
 
   "menuMapTitle": "地図",
   "menuTripsTitle": "旅行",

@@ -100,6 +100,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get settingsCacheClearedMessage => 'Cache vidé avec succes.';
 
   @override
+  String get settingsDisplayUserMarker => 'Afficher votre position';
+
+  @override
   String get menuMapTitle => 'Carte';
 
   @override

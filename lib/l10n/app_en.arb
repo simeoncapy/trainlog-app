@@ -36,6 +36,7 @@
   "settingsCacheClearConfirmTitle": "Clear cache?",
   "settingsCacheClearConfirmMessage": "Are you sure you want to delete the cached data? This action is irreversible. The next loading of the app might take longer.",
   "settingsCacheClearedMessage": "Cache cleared successfully.",
+  "settingsDisplayUserMarker": "Display current position",
 
   
   "menuMapTitle": "Map",

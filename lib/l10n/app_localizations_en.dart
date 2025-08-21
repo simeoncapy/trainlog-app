@@ -100,6 +100,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsCacheClearedMessage => 'Cache cleared successfully.';
 
   @override
+  String get settingsDisplayUserMarker => 'Display current position';
+
+  @override
   String get menuMapTitle => 'Map';
 
   @override
