@@ -87,7 +87,7 @@ class _MapPageState extends State<MapPage> {
         _userPosition = current;
         _center = current;
       });
-      _mapController.move(current, _zoom);
+      //_mapController.move(current, _zoom);
       settings.setLastUserPosition(current);
     }
   }

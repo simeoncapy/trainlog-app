@@ -18,9 +18,11 @@ class SettingsProvider with ChangeNotifier {
   bool _mapDisplayUserLocationMarker = true;
   LatLng? _SP_userPosition;
   bool _SP_refusedToSharePosition = false;
+  String? _SP_authUsername;
 
   static const _kLastUserLat = 'last_user_lat';
   static const _kLastUserLng = 'last_user_lng';
+  static const _kUsernameKey = 'auth.username';
 
   ThemeMode get themeMode => _themeMode;
   Locale get locale => _locale;
@@ -30,8 +32,10 @@ class SettingsProvider with ChangeNotifier {
   bool get mapDisplayUserLocationMarker => _mapDisplayUserLocationMarker;
   LatLng? get userPosition => _SP_userPosition;
   bool get refusedToSharePosition => _SP_refusedToSharePosition;
+  String? get authUsername => _SP_authUsername;
 
   SettingsProvider() {
+    // Shared Preference in settings
     _loadTheme();
     _loadLocale();
     _loadPathDisplayOrder();
@@ -39,9 +43,10 @@ class SettingsProvider with ChangeNotifier {
     _loadShouldReloadPolylines();
     _loadMapDisplayUserLocationMarker();
 
-    // Shared Preference only (_SP)
+    // Shared Preference only (_SP) i.e. internal to the app
     _loadLastUserPosition();
     _loadRefusedToSharePosition();
+    _loadUsername();
   }
 
   void _loadTheme() async {
@@ -216,6 +221,30 @@ class SettingsProvider with ChangeNotifier {
     _SP_refusedToSharePosition = p;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('refused_share_position', p);
+    notifyListeners();
+  }
+
+  // ------------------------------------------------------------------------------
+
+  Future<void> setUsername(String username) async {
+    if(_SP_authUsername == username) return;
+    _SP_authUsername = username;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_kUsernameKey, username);
+    notifyListeners();
+  }
+
+  Future<String?> _loadUsername() async {
+    final prefs = await SharedPreferences.getInstance();
+    final u = prefs.getString(_kUsernameKey);
+    _SP_authUsername = u;
+    notifyListeners();
+  }
+
+  Future<void> clearUsername() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_kUsernameKey);
+    _SP_authUsername = null;
     notifyListeners();
   }
 }

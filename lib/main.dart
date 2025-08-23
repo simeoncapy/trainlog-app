@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/pages/about_page.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
+import 'package:trainlog_app/services/trainlog_auth_service.dart';
 import 'package:trainlog_app/utils/cached_data_utils.dart';
 import 'package:trainlog_app/widgets/menu_header.dart';
 import 'package:trainlog_app/widgets/trips_loader.dart';
@@ -17,6 +18,7 @@ import 'pages/friends_page.dart';
 import 'pages/settings_page.dart';
 import 'providers/settings_provider.dart';
 import 'l10n/app_localizations.dart';
+import 'providers/auth_provider.dart';
 
 enum AppPageId {
   map,
@@ -36,11 +38,19 @@ void main() async {
 
   await AppCacheFilePath.init(); // Initialize paths here
 
+  final settings = SettingsProvider();
+  
+  final service = await TrainlogAuthService.persistent();
+  final auth = AuthProvider(service: service);
+  await auth.tryRestoreSession(settings: settings);
+
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => SettingsProvider()),
+        ChangeNotifierProvider.value(value: settings),
         ChangeNotifierProvider(create: (_) => TripsProvider()),
+        //ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider.value(value: auth)
       ],
       child: const MyApp(),
     ),
