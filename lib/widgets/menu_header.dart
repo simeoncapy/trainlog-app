@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
+import 'package:trainlog_app/widgets/auth_dialog.dart';
 
 class MenuHeader extends StatelessWidget {
   const MenuHeader({
@@ -22,17 +23,41 @@ class MenuHeader extends StatelessWidget {
           const SizedBox(height: 20),
           if (!isConnected) ...[
             ElevatedButton.icon(
-              onPressed: () {}, 
+              onPressed: () async {
+                final result = await AuthDialog.show(
+                  context,
+                  type: AuthDialogType.login,
+                );
+                if (result != null) {
+                  // TODO: handle login with result.username & result.password
+                }
+              },
               label: Text(appLocalization.loginButton), 
               icon: Icon(Icons.login),
             ),
             const SizedBox(height: 8),
             ElevatedButton.icon(
-              onPressed: () {}, 
+              onPressed: () async {
+                final result = await AuthDialog.show(
+                  context,
+                  type: AuthDialogType.createAccount,
+                );
+                if (result != null) {
+                  // TODO: handle account creation with result.email, result.username, result.password
+                }
+              },
               label: Text(appLocalization.createAccountButton), 
               icon: Icon(Icons.person_add_alt),
             ),
-          ],
+          ]
+          else
+          ElevatedButton.icon(
+            onPressed: () {
+                // TODO: logout
+            },
+            label: Text(appLocalization.logoutButton), 
+            icon: Icon(Icons.logout),
+          ),
         ],
       ),
     );

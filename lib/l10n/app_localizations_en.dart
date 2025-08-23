@@ -24,7 +24,46 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginButton => 'Log in';
 
   @override
+  String get logoutButton => 'Log out';
+
+  @override
   String get createAccountButton => 'Create an account';
+
+  @override
+  String get emailLabel => 'Email';
+
+  @override
+  String get emailHint => 'you@example.com';
+
+  @override
+  String get emailHelper => 'In case you forget your password';
+
+  @override
+  String get emailRequiredLabel => 'Email is required';
+
+  @override
+  String get emailValidLabel => 'Enter a valid email';
+
+  @override
+  String get usernameLabel => 'Username';
+
+  @override
+  String get usernameRequiredLabel => 'Username is required';
+
+  @override
+  String get passwordLabel => 'Password';
+
+  @override
+  String get passwordShowLabel => 'Show password';
+
+  @override
+  String get passwordHideLabel => 'Hide password';
+
+  @override
+  String get passwordRequiredLabel => 'Password is required';
+
+  @override
+  String get createAccountButtonShort => 'Create';
 
   @override
   String get settingsAppCategory => 'App Settings';

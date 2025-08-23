@@ -130,11 +130,89 @@ abstract class AppLocalizations {
   /// **'Log in'**
   String get loginButton;
 
+  /// No description provided for @logoutButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Log out'**
+  String get logoutButton;
+
   /// No description provided for @createAccountButton.
   ///
   /// In en, this message translates to:
   /// **'Create an account'**
   String get createAccountButton;
+
+  /// No description provided for @emailLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get emailLabel;
+
+  /// No description provided for @emailHint.
+  ///
+  /// In en, this message translates to:
+  /// **'you@example.com'**
+  String get emailHint;
+
+  /// No description provided for @emailHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'In case you forget your password'**
+  String get emailHelper;
+
+  /// No description provided for @emailRequiredLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Email is required'**
+  String get emailRequiredLabel;
+
+  /// No description provided for @emailValidLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid email'**
+  String get emailValidLabel;
+
+  /// No description provided for @usernameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Username'**
+  String get usernameLabel;
+
+  /// No description provided for @usernameRequiredLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Username is required'**
+  String get usernameRequiredLabel;
+
+  /// No description provided for @passwordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get passwordLabel;
+
+  /// No description provided for @passwordShowLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Show password'**
+  String get passwordShowLabel;
+
+  /// No description provided for @passwordHideLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide password'**
+  String get passwordHideLabel;
+
+  /// No description provided for @passwordRequiredLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Password is required'**
+  String get passwordRequiredLabel;
+
+  /// No description provided for @createAccountButtonShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Create'**
+  String get createAccountButtonShort;
 
   /// No description provided for @settingsAppCategory.
   ///

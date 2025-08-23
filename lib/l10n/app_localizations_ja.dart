@@ -24,7 +24,46 @@ class AppLocalizationsJa extends AppLocalizations {
   String get loginButton => 'ログイン';
 
   @override
+  String get logoutButton => 'ログアウト';
+
+  @override
   String get createAccountButton => 'アカウントを作成';
+
+  @override
+  String get emailLabel => 'メールアドレス';
+
+  @override
+  String get emailHint => 'you@example.com';
+
+  @override
+  String get emailHelper => 'パスワードを忘れたときのため';
+
+  @override
+  String get emailRequiredLabel => 'メールアドレスは必須です';
+
+  @override
+  String get emailValidLabel => '有効なメールアドレスを入力してください';
+
+  @override
+  String get usernameLabel => 'ユーザー名';
+
+  @override
+  String get usernameRequiredLabel => 'ユーザー名は必須です';
+
+  @override
+  String get passwordLabel => 'パスワード';
+
+  @override
+  String get passwordShowLabel => 'パスワードを表示';
+
+  @override
+  String get passwordHideLabel => 'パスワードを非表示';
+
+  @override
+  String get passwordRequiredLabel => 'パスワードは必須です';
+
+  @override
+  String get createAccountButtonShort => '作成';
 
   @override
   String get settingsAppCategory => 'アプリ設定';
