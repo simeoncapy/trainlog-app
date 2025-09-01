@@ -72,7 +72,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
     super.didChangeDependencies();
   }
 
-  String graphLabel(BuildContext context, GraphType type) {
+  String graphLabel(BuildContext context, GraphType type, VehicleType vehicleType) {
     final loc = AppLocalizations.of(context)!;
     switch (type) {
       case GraphType.operator: return loc.graphTypeOperator;
@@ -80,7 +80,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
       case GraphType.years:    return loc.graphTypeYears;
       case GraphType.material: return loc.graphTypeMaterial;
       case GraphType.itinerary:return loc.graphTypeItinerary;
-      case GraphType.stations: return loc.graphTypeStations;
+      case GraphType.stations: return loc.graphTypeStations(vehicleType.name.toLowerCase());
     }
   }
 
@@ -325,7 +325,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                               StatsTableChart(
                                 stats: statsForTable,
                                 valueFormatter: (v) => formatNumber(context, v),
-                                labelHeader: graphLabel(context, calc.graph),
+                                labelHeader: graphLabel(context, calc.graph, calc.vehicle),
                                 pastHeader: loc.yearPastList,
                                 futureHeader: loc.yearFutureList,
                                 totalHeader: loc.statisticsTotalLabel,
@@ -528,7 +528,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                     items: GraphType.values,
                     selectedValue: calc.graph,
                     onChanged: (g) => context.read<StatisticsCalculator>().graph = g ?? GraphType.operator,
-                    labelOf: (t) => graphLabel(context, t),
+                    labelOf: (t) => graphLabel(context, t, calc.vehicle),
                     iconOf: (t) => graphIcon(t),
                     hintText: 'Select a graph',
                   ),

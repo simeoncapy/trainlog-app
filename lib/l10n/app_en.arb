@@ -123,7 +123,13 @@
   "graphTypeYears": "Years",
   "graphTypeMaterial": "Material",
   "graphTypeItinerary": "Itinerary",
-  "graphTypeStations": "Stations",
+  "graphTypeStations": "{type, select, train{Stations} plane{airports} bus{Stops} tram{Stations} metro{Stations} ferry{Ports} other{Locations}}",
+  "@graphTypeStations": {
+    "description": "Label for stations based on vehicle type",
+    "placeholders": {
+      "type": { "type": "String" }
+    }
+  },  
 
   "statisticsDisplayFilters": "Display the filters",
   "statisticsHideFilters": "Hide the filters",

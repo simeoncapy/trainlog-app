@@ -104,7 +104,7 @@
   "graphTypeYears": "年",
   "graphTypeMaterial": "車名",
   "graphTypeItinerary": "道順",
-  "graphTypeStations": "駅",
+  "graphTypeStations": "{type, select, train{駅} plane{空港} bus{停留場} tram{停留場} metro{駅} ferry{港} other{場所}}", 
 
   "statisticsDisplayFilters": "フィルターを表示",
   "statisticsHideFilters": "フィルターを非表示",

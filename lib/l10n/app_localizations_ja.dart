@@ -307,7 +307,18 @@ class AppLocalizationsJa extends AppLocalizations {
   String get graphTypeItinerary => '道順';
 
   @override
-  String get graphTypeStations => '駅';
+  String graphTypeStations(String type) {
+    String _temp0 = intl.Intl.selectLogic(type, {
+      'train': '駅',
+      'plane': '空港',
+      'bus': '停留場',
+      'tram': '停留場',
+      'metro': '駅',
+      'ferry': '港',
+      'other': '場所',
+    });
+    return '$_temp0';
+  }
 
   @override
   String get statisticsDisplayFilters => 'フィルターを表示';

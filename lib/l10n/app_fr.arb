@@ -104,7 +104,7 @@
   "graphTypeYears": "Années",
   "graphTypeMaterial": "Matériel",
   "graphTypeItinerary": "Itinéraire",
-  "graphTypeStations": "Gares",
+  "graphTypeStations": "{type, select, train{Gares} plane{Aéroports} bus{Arrêts} tram{Arrêts} metro{Stations} ferry{Ports} other{Lieux}}",
 
   "statisticsDisplayFilters": "Afficher les filtres",
   "statisticsHideFilters": "Masquer les filtres",

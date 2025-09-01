@@ -682,11 +682,11 @@ abstract class AppLocalizations {
   /// **'Itinerary'**
   String get graphTypeItinerary;
 
-  /// No description provided for @graphTypeStations.
+  /// Label for stations based on vehicle type
   ///
   /// In en, this message translates to:
-  /// **'Stations'**
-  String get graphTypeStations;
+  /// **'{type, select, train{Stations} plane{airports} bus{Stops} tram{Stations} metro{Stations} ferry{Ports} other{Locations}}'**
+  String graphTypeStations(String type);
 
   /// No description provided for @statisticsDisplayFilters.
   ///
