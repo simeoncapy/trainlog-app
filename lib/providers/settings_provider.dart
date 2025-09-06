@@ -9,6 +9,7 @@ enum PathDisplayOrder {
   tripDatePlaneOver,
 }
 
+// _SP members are stored in the Shared Preferences only, they cannot be modified by the user in settings
 class SettingsProvider with ChangeNotifier {
   ThemeMode _themeMode = ThemeMode.system;
   Locale _locale = const Locale('en');
