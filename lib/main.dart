@@ -2,6 +2,7 @@ import 'package:country_picker/country_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/pages/about_page.dart';
+import 'package:trainlog_app/pages/welcome_page.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
 import 'package:trainlog_app/services/trainlog_auth_service.dart';
 import 'package:trainlog_app/utils/cached_data_utils.dart';
@@ -39,7 +40,7 @@ void main() async {
   await AppCacheFilePath.init(); // Initialize paths here
 
   final settings = SettingsProvider();
-  
+
   final service = await TrainlogAuthService.persistent();
   final auth = AuthProvider(service: service);
   await auth.tryRestoreSession(settings: settings);
@@ -49,12 +50,60 @@ void main() async {
       providers: [
         ChangeNotifierProvider.value(value: settings),
         ChangeNotifierProvider(create: (_) => TripsProvider()),
-        //ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider.value(value: auth)
       ],
-      child: const MyApp(),
+      child: const AppRoot(),
     ),
   );
+}
+
+class AppRoot extends StatelessWidget {
+  const AppRoot({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<SettingsProvider>(
+      builder: (context, settings, child) {
+        return MaterialApp(
+          locale: settings.locale,
+          localizationsDelegates: const [
+            ...AppLocalizations.localizationsDelegates,
+            CountryLocalizations.delegate,
+          ],
+          supportedLocales: AppLocalizations.supportedLocales,
+          theme: ThemeData(
+            useMaterial3: true,
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: Colors.blue,
+              brightness: Brightness.light,
+            ),
+          ),
+          darkTheme: ThemeData(
+            useMaterial3: true,
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: Colors.blue,
+              brightness: Brightness.dark,
+            ),
+          ),
+          themeMode: settings.themeMode,
+          home: Consumer<AuthProvider>(
+            builder: (context, auth, child) {
+              if (auth.isAuthenticated) {
+                // User is authenticated, show the main app
+                // You can add operations here before showing the map.
+                return const TripsLoader(
+                  builder: (context) => MyApp(),
+                );
+              } else {
+                // User is not authenticated, show the welcome page
+                return const WelcomePage();
+              }
+            },
+          ),
+        );
+      },
+    );
+  }
 }
 
 class AppPage {
@@ -209,37 +258,7 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<SettingsProvider>(
-      builder: (context, settings, child) {
-        return MaterialApp(
-          locale: settings.locale,
-          localizationsDelegates: [
-            ...AppLocalizations.localizationsDelegates,
-            CountryLocalizations.delegate,
-          ],
-          supportedLocales: AppLocalizations.supportedLocales,
-          theme: ThemeData(
-            useMaterial3: true,
-            colorScheme: ColorScheme.fromSeed(
-              seedColor: Colors.blue,
-              brightness: Brightness.light,
-            ),
-          ),
-          darkTheme: ThemeData(
-            useMaterial3: true,
-            colorScheme: ColorScheme.fromSeed(
-              seedColor: Colors.blue,
-              brightness: Brightness.dark,
-            ),
-          ),
-          themeMode: settings.themeMode,
-          home: TripsLoader(
-            //csvPath: r'C:\Users\Simeon\Downloads\trainlog_papykpy_2025-08-12_053849.csv',
-            builder: (context) => _buildAppScaffold(context),
-          ),
-        );
-      },
-    );
+    return _buildAppScaffold(context);
   }
 
   Scaffold _buildAppScaffold(BuildContext context) {
