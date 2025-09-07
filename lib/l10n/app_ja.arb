@@ -19,6 +19,7 @@
   "passwordHideLabel": "パスワードを非表示",
   "passwordRequiredLabel": "パスワードは必須です",
   "createAccountButtonShort": "作成",
+  "loginToYourAccount": "アカウントにログイン",
 
   "settingsAppCategory": "アプリ設定",
   "settingsMapCategory": "地図設定",

@@ -66,6 +66,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get createAccountButtonShort => 'Create';
 
   @override
+  String get loginToYourAccount => 'Log in to your account';
+
+  @override
   String get settingsAppCategory => 'App Settings';
 
   @override

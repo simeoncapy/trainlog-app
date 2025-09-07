@@ -10,7 +10,6 @@ class AuthDialog extends StatefulWidget {
     required this.type,
   });
 
-  /// Helper to show the dialog and get the result
   static Future<AuthResult?> show(
     BuildContext context, {
     required AuthFormType type,
@@ -26,6 +25,8 @@ class AuthDialog extends StatefulWidget {
 }
 
 class _AuthDialogState extends State<AuthDialog> {
+  final _formKey = GlobalKey<AuthFormState>();
+
   void _submit(AuthResult result) {
     Navigator.of(context).pop(result);
   }
@@ -36,14 +37,14 @@ class _AuthDialogState extends State<AuthDialog> {
     final loc = AppLocalizations.of(context)!;
     final title = isCreate ? loc.createAccountButton : loc.loginButton;
 
-    // The AuthForm provides the fields and validation.
-    // The Dialog provides the window, title and buttons.
     return AlertDialog(
       title: Text(title),
       content: SingleChildScrollView(
         child: AuthForm(
+          key: _formKey,
           type: widget.type,
           onSubmitted: _submit,
+          showSubmitButton: false, // use dialog action instead
         ),
       ),
       actions: [
@@ -52,13 +53,7 @@ class _AuthDialogState extends State<AuthDialog> {
           child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
         ),
         FilledButton(
-          // This button is outside the form, so it needs to trigger the form's
-          // internal submit method. We can't easily do this with a GlobalKey
-          // as the AuthForm is internal.
-          // A simpler way for now is to just not have this button and let the
-          // user submit via the keyboard action.
-          // TODO: Re-add this button with better form control.
-          onPressed: null, // Simplified: user submits via keyboard
+          onPressed: () => _formKey.currentState?.submit(),
           child: Text(isCreate ? loc.createAccountButtonShort : loc.loginButton),
         ),
       ],

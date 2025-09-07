@@ -19,6 +19,7 @@
   "passwordHideLabel": "Hide password",
   "passwordRequiredLabel": "Password is required",
   "createAccountButtonShort": "Create",
+  "loginToYourAccount": "Log in to your account",
   
   "settingsAppCategory": "App Settings",
   "settingsMapCategory": "Map Settings",

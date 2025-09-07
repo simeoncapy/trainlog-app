@@ -214,6 +214,12 @@ abstract class AppLocalizations {
   /// **'Create'**
   String get createAccountButtonShort;
 
+  /// No description provided for @loginToYourAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Log in to your account'**
+  String get loginToYourAccount;
+
   /// No description provided for @settingsAppCategory.
   ///
   /// In en, this message translates to:

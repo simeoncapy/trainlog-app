@@ -16,11 +16,7 @@ class WelcomePage extends StatelessWidget {
       password: result.password,
       settings: settings,
     );
-    if (success) {
-      // User is now authenticated, the main app will be shown.
-      // A comment can be added here for operations to be done after connection.
-    } else {
-      // Optionally, show an error message
+    if (!success) {
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
         ..showSnackBar(
@@ -31,6 +27,8 @@ class WelcomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Trainlog.me App'),
@@ -43,13 +41,14 @@ class WelcomePage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                AppLocalizations.of(context)!.loginToYourAccount,
+                loc.loginToYourAccount, // restore when ready
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
               const SizedBox(height: 24),
               AuthForm(
                 type: AuthFormType.login,
                 onSubmitted: (result) => _onLogin(context, result),
+                // showSubmitButton: true (default) -> tap to submit
               ),
             ],
           ),

@@ -19,6 +19,7 @@
   "passwordHideLabel": "Masquer le mot de passe",
   "passwordRequiredLabel": "Le mot de passe est obligatoire",
   "createAccountButtonShort": "Créer",
+  "loginToYourAccount": "Connectez-vous à votre compte",
 
   "settingsAppCategory": "Paramètres de l'application",
   "settingsMapCategory": "Paramètres de la carte",

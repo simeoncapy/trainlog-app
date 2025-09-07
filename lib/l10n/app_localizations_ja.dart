@@ -66,6 +66,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get createAccountButtonShort => '作成';
 
   @override
+  String get loginToYourAccount => 'アカウントにログイン';
+
+  @override
   String get settingsAppCategory => 'アプリ設定';
 
   @override

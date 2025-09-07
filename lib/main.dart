@@ -66,7 +66,7 @@ class AppRoot extends StatelessWidget {
       builder: (context, settings, child) {
         return MaterialApp(
           locale: settings.locale,
-          localizationsDelegates: const [
+          localizationsDelegates: [
             ...AppLocalizations.localizationsDelegates,
             CountryLocalizations.delegate,
           ],
@@ -91,7 +91,8 @@ class AppRoot extends StatelessWidget {
               if (auth.isAuthenticated) {
                 // User is authenticated, show the main app
                 // You can add operations here before showing the map.
-                return const TripsLoader(
+                return TripsLoader(
+                  //csvPath: r'C:\Users\Simeon\Downloads\trainlog_papykpy_2025-08-12_053849.csv',
                   builder: (context) => MyApp(),
                 );
               } else {
