@@ -82,9 +82,11 @@ class TripsRepository {
     print("Trip load from API");
     //throw UnimplementedError('API loading not implemented');
     final auth = Provider.of<AuthProvider>(context, listen: false);
+    final settings = Provider.of<SettingsProvider>(context, listen: false);
     final service = auth.service;
     final content = await service.fetchAllTripsData(auth.username ?? "");
 
+    settings.setShouldLoadTripsFromApi(false);
     return loadFromCsv(content, replace: true, path: false);
   }
 
