@@ -69,7 +69,7 @@ class MenuHeader extends StatelessWidget {
               },
             ),
           ] else if (isConnected) ...[
-            Text('Hello, ${auth.username ?? ''}',
+            Text(appLocalization.menuHello(auth.username ?? ''),
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white)),
             const SizedBox(height: 8),
             ElevatedButton.icon(

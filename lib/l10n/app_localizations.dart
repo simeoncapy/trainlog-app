@@ -220,6 +220,18 @@ abstract class AppLocalizations {
   /// **'Log in to your account'**
   String get loginToYourAccount;
 
+  /// The username
+  ///
+  /// In en, this message translates to:
+  /// **'Hello {username}'**
+  String menuHello(Object username);
+
+  /// No description provided for @connectionError.
+  ///
+  /// In en, this message translates to:
+  /// **'Login failed, please check your credentials'**
+  String get connectionError;
+
   /// No description provided for @settingsAppCategory.
   ///
   /// In en, this message translates to:

@@ -20,6 +20,14 @@
   "passwordRequiredLabel": "パスワードは必須です",
   "createAccountButtonShort": "作成",
   "loginToYourAccount": "アカウントにログイン",
+  "menuHello": "こんにちは {username}さん",
+  "@menuHello" :{
+    "description": "The username",
+    "placeholders": {
+      "username": {}
+    }
+  },
+  "connectionError": "ログインに失敗しました。資格情報を確認してください。",
 
   "settingsAppCategory": "アプリ設定",
   "settingsMapCategory": "地図設定",

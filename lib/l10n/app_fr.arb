@@ -20,6 +20,14 @@
   "passwordRequiredLabel": "Le mot de passe est obligatoire",
   "createAccountButtonShort": "Créer",
   "loginToYourAccount": "Connectez-vous à votre compte",
+  "menuHello": "Bonjour {username}",
+  "@menuHello" :{
+    "description": "The username",
+    "placeholders": {
+      "username": {}
+    }
+  },
+  "connectionError": "Echec de la connexion, vérifiez vos identifiants",
 
   "settingsAppCategory": "Paramètres de l'application",
   "settingsMapCategory": "Paramètres de la carte",

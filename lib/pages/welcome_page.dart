@@ -11,6 +11,7 @@ class WelcomePage extends StatelessWidget {
   Future<void> _onLogin(BuildContext context, AuthResult result) async {
     final auth = Provider.of<AuthProvider>(context, listen: false);
     final settings = Provider.of<SettingsProvider>(context, listen: false);
+    final loc = AppLocalizations.of(context)!;
     final success = await auth.login(
       username: result.username,
       password: result.password,
@@ -20,8 +21,16 @@ class WelcomePage extends StatelessWidget {
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
         ..showSnackBar(
-          SnackBar(content: Text(auth.error ?? 'Login failed')),
+          //SnackBar(content: Text(auth.error ?? 'Login failed')),
+          SnackBar(content: Text(loc.connectionError)),
         );
+    }
+    else
+    {
+      print("DO THINGS HERE");
+      // LOAD TRIPS
+      settings.setShouldReloadPolylines(true);
+      settings.setShouldLoadTripsFromApi(true);
     }
   }
 
@@ -50,6 +59,12 @@ class WelcomePage extends StatelessWidget {
                 onSubmitted: (result) => _onLogin(context, result),
                 // showSubmitButton: true (default) -> tap to submit
               ),
+              SizedBox(height: 24,),
+              ElevatedButton.icon(
+                onPressed: null, 
+                label: Text(loc.createAccountButton),
+                icon: Icon(Icons.person_add_alt),
+              )
             ],
           ),
         ),

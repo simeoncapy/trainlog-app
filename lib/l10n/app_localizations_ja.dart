@@ -69,6 +69,14 @@ class AppLocalizationsJa extends AppLocalizations {
   String get loginToYourAccount => 'アカウントにログイン';
 
   @override
+  String menuHello(Object username) {
+    return 'こんにちは $usernameさん';
+  }
+
+  @override
+  String get connectionError => 'ログインに失敗しました。資格情報を確認してください。';
+
+  @override
   String get settingsAppCategory => 'アプリ設定';
 
   @override

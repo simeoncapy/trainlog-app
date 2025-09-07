@@ -3,13 +3,16 @@ import 'dart:ffi';
 import 'dart:io';
 import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/data/database_manager.dart';
+import 'package:trainlog_app/providers/auth_provider.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:diacritic/diacritic.dart';
 import 'dart:convert';
 import 'package:country_picker/country_picker.dart';
+import 'package:trainlog_app/services/trainlog_service.dart';
 import 'package:trainlog_app/widgets/trips_filter_dialog.dart';
 
 // TripsTable defined lower
@@ -49,12 +52,20 @@ class TripsRepository {
 
   TripsRepository(this._db);
 
-  static Future<TripsRepository> loadFromCsv(String csvPath, {bool replace = false}) async {
-    if (!File(csvPath).existsSync()) {
-      throw FileSystemException('CSV file not found', csvPath);
+  static Future<TripsRepository> loadFromCsv(String csvPathOrContent, {bool replace = false, bool path = true}) async {
+    String content;
+    if(path){
+      final csvPath = csvPathOrContent;
+      if (!File(csvPath).existsSync()) {
+        throw FileSystemException('CSV file not found', csvPath);
+      }
+
+      content = await File(csvPath).readAsString();
+    }
+    else {
+      content = csvPathOrContent;
     }
 
-    final content = await File(csvPath).readAsString();
     final trips = await parseCsv(content);
     final db = await DatabaseManager.database;
     final repo = TripsRepository(db);
@@ -67,8 +78,14 @@ class TripsRepository {
     return repo;
   }
 
-  Future<void> loadFromApi() async {
-    throw UnimplementedError('API loading not implemented');
+  static Future<TripsRepository> loadFromApi(BuildContext context) async {
+    print("Trip load from API");
+    //throw UnimplementedError('API loading not implemented');
+    final auth = Provider.of<AuthProvider>(context, listen: false);
+    final service = auth.service;
+    final content = await service.fetchAllTripsData(auth.username ?? "");
+
+    return loadFromCsv(content, replace: true, path: false);
   }
 
   static Future<TripsRepository> loadFromDatabase() async {

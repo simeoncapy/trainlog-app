@@ -69,6 +69,15 @@ class AppLocalizationsFr extends AppLocalizations {
   String get loginToYourAccount => 'Connectez-vous à votre compte';
 
   @override
+  String menuHello(Object username) {
+    return 'Bonjour $username';
+  }
+
+  @override
+  String get connectionError =>
+      'Echec de la connexion, vérifiez vos identifiants';
+
+  @override
   String get settingsAppCategory => 'Paramètres de l\'application';
 
   @override

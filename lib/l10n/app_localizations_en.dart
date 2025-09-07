@@ -69,6 +69,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginToYourAccount => 'Log in to your account';
 
   @override
+  String menuHello(Object username) {
+    return 'Hello $username';
+  }
+
+  @override
+  String get connectionError => 'Login failed, please check your credentials';
+
+  @override
   String get settingsAppCategory => 'App Settings';
 
   @override

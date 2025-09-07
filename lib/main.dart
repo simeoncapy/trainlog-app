@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:trainlog_app/pages/about_page.dart';
 import 'package:trainlog_app/pages/welcome_page.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
-import 'package:trainlog_app/services/trainlog_auth_service.dart';
+import 'package:trainlog_app/services/trainlog_service.dart';
 import 'package:trainlog_app/utils/cached_data_utils.dart';
 import 'package:trainlog_app/widgets/menu_header.dart';
 import 'package:trainlog_app/widgets/trips_loader.dart';
@@ -41,7 +41,7 @@ void main() async {
 
   final settings = SettingsProvider();
 
-  final service = await TrainlogAuthService.persistent();
+  final service = await TrainlogService.persistent();
   final auth = AuthProvider(service: service);
   await auth.tryRestoreSession(settings: settings);
 
@@ -94,6 +94,7 @@ class AppRoot extends StatelessWidget {
                 return TripsLoader(
                   //csvPath: r'C:\Users\Simeon\Downloads\trainlog_papykpy_2025-08-12_053849.csv',
                   builder: (context) => MyApp(),
+                  loadFromApi: settings.shouldLoadTripsFromApi,
                 );
               } else {
                 // User is not authenticated, show the welcome page

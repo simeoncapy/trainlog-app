@@ -20,6 +20,14 @@
   "passwordRequiredLabel": "Password is required",
   "createAccountButtonShort": "Create",
   "loginToYourAccount": "Log in to your account",
+  "menuHello": "Hello {username}",
+  "@menuHello" :{
+    "description": "The username",
+    "placeholders": {
+      "username": {}
+    }
+  },
+  "connectionError": "Login failed, please check your credentials",
   
   "settingsAppCategory": "App Settings",
   "settingsMapCategory": "Map Settings",
