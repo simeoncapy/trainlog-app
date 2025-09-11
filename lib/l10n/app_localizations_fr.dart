@@ -12,7 +12,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get appTitle => 'Trainlog';
 
   @override
-  String get language => 'English';
+  String get language => 'Français';
 
   @override
   String get mainMenuButtonTooltip => 'Ouvrir le menu';
@@ -350,7 +350,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get statisticsTripsUnitMega => 'million de trajet';
 
   @override
-  String get statisticsTripsUnitGiga => 'billion de trajet';
+  String get statisticsTripsUnitGiga => 'milliard de trajet';
 
   @override
   String get statisticsOtherLabel => 'Autres';

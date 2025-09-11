@@ -227,7 +227,9 @@ class TripsRepository {
         'destination_station',
         'start_datetime',
         'end_datetime',
-        'created', // Needed for sorting by creationDate
+        'utc_start_datetime',   // <-- added
+        'utc_end_datetime',     // <-- added
+        'created',              // Needed for sorting by creationDate
       ],
       where: 'path IS NOT NULL AND path != ""',
     );
@@ -242,12 +244,12 @@ class TripsRepository {
 
     switch (order) {
       case PathDisplayOrder.creationDate:
-        //list.sort((a, b) => a['uid'].compareTo(b['uid']));
         break;
 
       case PathDisplayOrder.tripDate:
         list.sort((a, b) =>
-            DateTime.parse(a['start_datetime'] as String).compareTo(DateTime.parse(b['start_datetime'] as String)));
+            DateTime.parse(a['start_datetime'] as String)
+                .compareTo(DateTime.parse(b['start_datetime'] as String)));
         break;
 
       case PathDisplayOrder.tripDatePlaneOver:
@@ -255,17 +257,21 @@ class TripsRepository {
             .where((e) => e['type'] != VehicleType.plane)
             .toList()
           ..sort((a, b) =>
-              DateTime.parse(a['start_datetime'] as String).compareTo(DateTime.parse(b['start_datetime'] as String)));
+              DateTime.parse(a['start_datetime'] as String)
+                  .compareTo(DateTime.parse(b['start_datetime'] as String)));
         final air = list
             .where((e) => e['type'] == VehicleType.plane)
             .toList()
-          ..sort((a, b) => DateTime.parse(a['created'] as String).compareTo(DateTime.parse(b['created'] as String)));
+          ..sort((a, b) =>
+              DateTime.parse(a['created'] as String)
+                  .compareTo(DateTime.parse(b['created'] as String)));
 
         return [...nonAir, ...air];
     }
 
     return list;
   }
+
 
   Future<List<VehicleType>> fetchListOfTypes() async {
     final maps = await _db.query(

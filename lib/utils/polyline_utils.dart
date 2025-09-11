@@ -12,21 +12,42 @@ List<LatLng> decodePath(String path) {
       .toList();
 }
 
+// Treat strings without offset as *UTC*, not device-local,
+// to avoid accidental device-TZ contamination.
+DateTime? _parseUtcLoose(String? s) {
+  if (s == null) return null;
+  final text = s.trim();
+  if (text.isEmpty) return null;
+  final hasOffset = RegExp(r'(Z|[+\-]\d{2}:\d{2})$').hasMatch(text);
+  final iso = hasOffset ? text : '${text}Z';
+  final dt = DateTime.parse(iso);
+  return dt.toUtc();
+}
+
 List<PolylineEntry> decodePolylinesBatch(Map<String, dynamic> args) {
   final List<Map<String, dynamic>> entries = List<Map<String, dynamic>>.from(args['entries']);
   final Map<VehicleType, Color> colorPalette = Map<VehicleType, Color>.from(args['colors']);
+
+  final nowUtc = DateTime.now().toUtc();
 
   return entries.map((e) {
     try {
       final path = (e['path'] as String).trim();
       final type = e['type'] as VehicleType;
 
-      final startDateStr = e['start_datetime']?.toString();
-      final startDate = startDateStr != null ? DateTime.tryParse(startDateStr) : null;
+      // Local times (kept for UI/year filters)
+      final startLocalStr = e['start_datetime']?.toString();
+      final startLocal = startLocalStr != null ? DateTime.tryParse(startLocalStr) : null;
+
+      // UTC times (truth for past/future + flip)
+      final startUtc = _parseUtcLoose(e['utc_start_datetime']?.toString());
+      final endUtc   = _parseUtcLoose(e['utc_end_datetime']?.toString());
+
       final createdStr = e['created']?.toString();
       final createdDate = createdStr != null ? DateTime.tryParse(createdStr) : null;
 
-      final isFuture = (startDate != null) && startDate.isAfter(DateTime.now());
+      // Decide future strictly from UTC
+      final isFuture = (startUtc != null) ? startUtc.isAfter(nowUtc) : false;
 
       List<LatLng> points =
           decodePolyline(path).map((p) => LatLng(p[0].toDouble(), p[1].toDouble())).toList();
@@ -43,8 +64,10 @@ List<PolylineEntry> decodePolylinesBatch(Map<String, dynamic> args) {
           strokeWidth: 4.0,
         ),
         type: type,
-        startDate: startDate,
+        startDate: startLocal,
         creationDate: createdDate,
+        utcStartDate: startUtc,
+        utcEndDate: endUtc,
         isFuture: isFuture,
       );
     } catch (_) {
@@ -91,8 +114,10 @@ List<LatLng> generateGeodesicPoints(LatLng start, LatLng end, int numPoints) {
 class PolylineEntry {
   final Polyline polyline;
   final VehicleType type;
-  final DateTime? startDate;
+  final DateTime? startDate;     // local start (kept for UI)
   final DateTime? creationDate;
+  final DateTime? utcStartDate;  // source of truth for past/future
+  final DateTime? utcEndDate;
   final bool isFuture;
 
   PolylineEntry({
@@ -100,6 +125,8 @@ class PolylineEntry {
     required this.type,
     required this.startDate,
     required this.creationDate,
+    required this.utcStartDate,
+    required this.utcEndDate,
     this.isFuture = false,
   });
 
@@ -107,6 +134,8 @@ class PolylineEntry {
         'type': type.name,
         'startDate': startDate?.toIso8601String(),
         'creationDate': creationDate?.toIso8601String(),
+        'utcStartDate': utcStartDate?.toIso8601String(),
+        'utcEndDate': utcEndDate?.toIso8601String(),
         'isFuture': isFuture,
         'polyline': {
           'points': polyline.points.map((e) => {'lat': e.latitude, 'lng': e.longitude}).toList(),
@@ -117,20 +146,33 @@ class PolylineEntry {
         },
       };
 
-  factory PolylineEntry.fromJson(Map<String, dynamic> json) => PolylineEntry(
-        type: VehicleType.values.firstWhere((e) => e.name == json['type']),
-        startDate: json['startDate'] != null ? DateTime.parse(json['startDate']) : null,
-        creationDate: json['creationDate'] != null ? DateTime.parse(json['creationDate']) : null,
-        isFuture: json['isFuture'] == true,
-        polyline: Polyline(
-          points: (json['polyline']['points'] as List)
-              .map((p) => LatLng((p['lat'] as num).toDouble(), (p['lng'] as num).toDouble()))
-              .toList(),
-          color: Color(json['polyline']['color']),
-          pattern: (json['polyline']['isDashed'] == true)
-              ? StrokePattern.dashed(segments: const [20, 20])
-              : const StrokePattern.solid(),
-          strokeWidth: (json['polyline']['strokeWidth'] as num).toDouble(),
-        ),
-      );
+  factory PolylineEntry.fromJson(Map<String, dynamic> json) {
+    // Keep local start as-is
+    final startLocal =
+        json['startDate'] != null ? DateTime.parse(json['startDate'] as String) : null;
+
+    // Parse UTC robustly (treat naive as UTC)
+    DateTime? parseUtcLoose(dynamic v) =>
+        _parseUtcLoose(v is String ? v : v?.toString());
+
+    return PolylineEntry(
+      type: VehicleType.values.firstWhere((e) => e.name == json['type']),
+      startDate: startLocal,
+      creationDate:
+          json['creationDate'] != null ? DateTime.parse(json['creationDate'] as String) : null,
+      utcStartDate: parseUtcLoose(json['utcStartDate']),
+      utcEndDate: parseUtcLoose(json['utcEndDate']),
+      isFuture: json['isFuture'] == true,
+      polyline: Polyline(
+        points: (json['polyline']['points'] as List)
+            .map((p) => LatLng((p['lat'] as num).toDouble(), (p['lng'] as num).toDouble()))
+            .toList(),
+        color: Color(json['polyline']['color']),
+        pattern: (json['polyline']['isDashed'] == true)
+            ? StrokePattern.dashed(segments: const [20, 20])
+            : const StrokePattern.solid(),
+        strokeWidth: (json['polyline']['strokeWidth'] as num).toDouble(),
+      ),
+    );
+  }
 }

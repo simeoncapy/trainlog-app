@@ -1,7 +1,7 @@
 {
   "@@locale": "fr",
   "appTitle": "Trainlog",  
-  "language": "English",
+  "language": "Français",
   "mainMenuButtonTooltip": "Ouvrir le menu",
   "filterButton": "Filtrer",
   "loginButton": "Connexion",
@@ -120,7 +120,7 @@
   "statisticsTripsUnitBase": "trajets",
   "statisticsTripsUnitKilo": "mille trajets",
   "statisticsTripsUnitMega": "million de trajet",
-  "statisticsTripsUnitGiga": "billion de trajet",
+  "statisticsTripsUnitGiga": "milliard de trajet",
 
   "statisticsOtherLabel": "Autres",
   "statisticsTotalLabel": "Total",

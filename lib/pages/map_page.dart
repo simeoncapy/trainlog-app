@@ -69,7 +69,6 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
       _loadPolylines();
     }
 
-    // Trigger FAB rebuild after first frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) setState(() {});
     });
@@ -173,10 +172,16 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
     }
   }
 
-  bool _computeIsFuture(DateTime? d) => d != null && d.isAfter(DateTime.now());
+  // ---- UTC-aware helpers (trip-zone correct) --------------------------------
+
+  /// Decide future strictly from UTC fields.
+  bool _computeIsFuture(DateTime? utcStart) {
+    if (utcStart == null) return false; // cannot decide without UTC; be conservative
+    final nowUtc = DateTime.now().toUtc();
+    return utcStart.isAfter(nowUtc);
+  }
 
   Polyline _rebuildPolyline(Polyline src, {required bool isFuture, required Color color}) {
-    // Build a fresh Polyline preserving geometry and width; enforce pattern & color
     return Polyline(
       points: src.points,
       color: color,
@@ -186,13 +191,15 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
   }
 
   PolylineEntry _withStyle(PolylineEntry e, {Map<VehicleType, Color>? palette}) {
-    final isFutureNow = _computeIsFuture(e.startDate);
+    final isFutureNow = _computeIsFuture(e.utcStartDate);
     final color = (palette ?? _colours)[e.type] ?? e.polyline.color;
 
     return PolylineEntry(
       type: e.type,
-      startDate: e.startDate,
+      startDate: e.startDate,          // keep local for UI
       creationDate: e.creationDate,
+      utcStartDate: e.utcStartDate,    // truth for time comparisons
+      utcEndDate: e.utcEndDate,
       isFuture: isFutureNow,
       polyline: _rebuildPolyline(e.polyline, isFuture: isFutureNow, color: color),
     );
@@ -201,7 +208,7 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
   void _refreshFutureStyles({bool force = false}) {
     bool changed = false;
     final updated = _polylines.map((e) {
-      final newIsFuture = _computeIsFuture(e.startDate);
+      final newIsFuture = _computeIsFuture(e.utcStartDate);
       if (force || newIsFuture != e.isFuture) {
         changed = true;
         return _withStyle(e);
@@ -217,22 +224,26 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
   void _scheduleNextFlip() {
     _futureFlipTimer?.cancel();
 
-    final now = DateTime.now();
-    DateTime? next;
+    final nowUtc = DateTime.now().toUtc();
+    DateTime? nextUtc;
     for (final e in _polylines) {
-      final d = e.startDate;
-      if (d != null && d.isAfter(now)) {
-        if (next == null || d.isBefore(next!)) next = d;
+      final d = e.utcStartDate;
+      if (d != null && d.isAfter(nowUtc)) {
+        if (nextUtc == null || d.isBefore(nextUtc!)) nextUtc = d;
       }
     }
-    if (next == null) return;
+    if (nextUtc == null) return;
 
-    final delay = next!.difference(now) + const Duration(milliseconds: 50);
+    var delay = nextUtc!.difference(nowUtc) + const Duration(milliseconds: 50);
+    if (delay.isNegative) delay = const Duration(milliseconds: 50);
+
     _futureFlipTimer = Timer(delay, () {
       _refreshFutureStyles(force: true);
       _scheduleNextFlip();
     });
   }
+
+  // ---- Load & cache ---------------------------------------------------------
 
   Future<void> _loadPolylines() async {
     final repo = context.read<TripsProvider>().repository;
@@ -241,17 +252,15 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
     final years = _trips.years;
     final types = _trips.vehicleTypes;
 
-    // Try loading from cache first
+    // Try cache
     if (!settings.shouldReloadPolylines && await cacheFile.exists()) {
       try {
         final cachedJson = await cacheFile.readAsString();
         final decoded = json.decode(cachedJson) as List<dynamic>;
-        final cachedPolylines = decoded
-            .map((e) => PolylineEntry.fromJson(e as Map<String, dynamic>))
-            .toList();
+        final cached = decoded.map((e) => PolylineEntry.fromJson(e as Map<String, dynamic>)).toList();
 
-        // Re-style from *now* and current palette; ignore cached isFuture/pattern
-        final restyled = cachedPolylines.map((e) => _withStyle(e, palette: _colours)).toList();
+        // Re-style based on *now* + palette; ignore cached isFuture/pattern
+        final restyled = cached.map((e) => _withStyle(e, palette: _colours)).toList();
 
         if (mounted) {
           setState(() {
@@ -276,13 +285,12 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
       final pathData = await repo.getPathExtendedData(settings.pathDisplayOrder);
 
       final args = {
-        'entries': pathData,
+        'entries': pathData,   // must include utc_start_datetime & utc_end_datetime
         'colors': _colours,
       };
-      final polylines = await compute(decodePolylinesBatch, args);
+      final decoded = await compute(decodePolylinesBatch, args);
 
-      // Re-style again here to ensure "now" semantics (in case isolate time differed)
-      final restyled = polylines.map((e) => _withStyle(e, palette: _colours)).toList();
+      final restyled = decoded.map((e) => _withStyle(e, palette: _colours)).toList();
 
       if (mounted) {
         setState(() {
@@ -311,6 +319,8 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
       }
     }
   }
+
+  // ---- Sorting & palette ----------------------------------------------------
 
   void _sortedPolylines(List<PolylineEntry> filteredPolylines, PathDisplayOrder displayOrder) {
     switch (displayOrder) {
@@ -345,22 +355,25 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
 
   List<PolylineEntry> _sortPolylinesByTime(List<PolylineEntry> polylines) {
     switch (_selectedYearFilter) {
-      case YearFilter.past:
-        final now = DateTime.now();
+      case YearFilter.past: {
+        final nowUtc = DateTime.now().toUtc();
         return polylines
             .where((e) =>
-                (e.startDate != null && e.startDate!.isBefore(now)) &&
+                (e.utcStartDate?.isBefore(nowUtc) ?? false) &&
                 (_selectedTypes.isEmpty || _selectedTypes.contains(e.type)))
             .toList();
-      case YearFilter.future:
-        final now = DateTime.now();
+      }
+      case YearFilter.future: {
+        final nowUtc = DateTime.now().toUtc();
         return polylines
             .where((e) =>
-                (e.startDate != null && e.startDate!.isAfter(now)) &&
+                (e.utcStartDate?.isAfter(nowUtc) ?? false) &&
                 (_selectedTypes.isEmpty || _selectedTypes.contains(e.type)))
             .toList();
+      }
       case YearFilter.all:
       case YearFilter.years:
+        // Year filtering uses LOCAL start year for UI/ UX as before.
         return polylines
             .where((e) =>
                 (_selectedYears.isEmpty || _selectedYears.contains(e.startDate?.year)) &&
@@ -368,6 +381,8 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
             .toList();
     }
   }
+
+  // ---- UI -------------------------------------------------------------------
 
   @override
   Widget build(BuildContext context) {
@@ -520,12 +535,8 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
               break;
             case 3: // years
               _selectedYearFilter = YearFilter.years;
-              _selectedYears = sub
-                  .asMap()
-                  .entries
-                  .where((e) => e.value)
-                  .map((e) => years[e.key])
-                  .toSet();
+              _selectedYears =
+                  sub.asMap().entries.where((e) => e.value).map((e) => years[e.key]).toSet();
               break;
           }
           _selectedYearFilterOption = top;
