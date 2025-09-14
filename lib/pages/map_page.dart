@@ -52,6 +52,10 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
 
   late TripsProvider _trips;
 
+  static const double _dashLen = 20.0;
+  static const double _gapLen  = 20.0;
+  static const Color  _futureDashColor = Colors.white;
+
   @override
   void initState() {
     super.initState();
@@ -186,6 +190,8 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
       points: src.points,
       color: color,
       pattern: isFuture ? StrokePattern.dashed(segments: const [20, 20]) : const StrokePattern.solid(),
+      borderColor: Colors.black,
+      borderStrokeWidth: 1.0,
       strokeWidth: src.strokeWidth,
     );
   }
@@ -241,6 +247,37 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
       _refreshFutureStyles(force: true);
       _scheduleNextFlip();
     });
+  }
+
+  List<Polyline> _renderPolylinesForEntry(PolylineEntry e) {
+    // past: nothing changes — use your existing styled polyline
+    if (!e.isFuture) return [e.polyline];
+
+    final pts = e.polyline.points;
+    final w   = e.polyline.strokeWidth;
+    final baseColor = e.polyline.color;
+
+    // 1) base: solid with border (covers entire path)
+    final base = Polyline(
+      points: pts,
+      color: baseColor,
+      strokeWidth: w,
+      pattern: const StrokePattern.solid(),
+      borderColor: Colors.black,
+      borderStrokeWidth: 1.0,
+    );
+
+    // 2) overlay: dashed, *no* border, different color
+    final top = Polyline(
+      points: pts,
+      color: _futureDashColor,
+      // Optional: make overlay a hair thinner so the black border peeks everywhere
+      // strokeWidth: (w - 0.5).clamp(0.5, w),
+      strokeWidth: w,
+      pattern: StrokePattern.dashed(segments: const [_dashLen, _gapLen]),
+    );
+
+    return [base, top];
   }
 
   // ---- Load & cache ---------------------------------------------------------
@@ -400,6 +437,9 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
 
     List<PolylineEntry> filteredPolylines = _sortPolylinesByTime(_polylines);
     _sortedPolylines(filteredPolylines, displayOrder);
+    final polylinesToDraw = filteredPolylines
+    .expand((e) => _renderPolylinesForEntry(e))
+    .toList();
 
     return _loading
         ? Center(
@@ -437,9 +477,7 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
                     urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
                     userAgentPackageName: 'me.trainlog.app',
                   ),
-                  PolylineLayer(
-                    polylines: filteredPolylines.map((e) => e.polyline).toList(),
-                  ),
+                  PolylineLayer(polylines: polylinesToDraw),
                   if (_userPosition != null && settings.mapDisplayUserLocationMarker)
                     MarkerLayer(
                       markers: [

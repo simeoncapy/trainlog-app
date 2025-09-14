@@ -21,6 +21,7 @@ class SettingsProvider with ChangeNotifier {
   bool _SP_refusedToSharePosition = false;
   String? _SP_authUsername;
   bool _SP_shouldLoadTripsFromApi = true;
+  DateTime? _SP_mostRecentFutureTripOnMap;
 
   static const _kLastUserLat = 'last_user_lat';
   static const _kLastUserLng = 'last_user_lng';
@@ -36,6 +37,7 @@ class SettingsProvider with ChangeNotifier {
   bool get refusedToSharePosition => _SP_refusedToSharePosition;
   String? get authUsername => _SP_authUsername;
   bool get shouldLoadTripsFromApi => _SP_shouldLoadTripsFromApi;
+  DateTime? get mostRecentFutureTripOnMap => _SP_mostRecentFutureTripOnMap;
 
   SettingsProvider() {
     // Shared Preference in settings

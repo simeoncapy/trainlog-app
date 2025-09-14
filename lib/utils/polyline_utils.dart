@@ -62,6 +62,8 @@ List<PolylineEntry> decodePolylinesBatch(Map<String, dynamic> args) {
           color: colorPalette[type] ?? Colors.black,
           pattern: isFuture ? StrokePattern.dashed(segments: const [20, 20]) : const StrokePattern.solid(),
           strokeWidth: 4.0,
+          borderColor: Colors.black,
+          borderStrokeWidth: 1.0,
         ),
         type: type,
         startDate: startLocal,
