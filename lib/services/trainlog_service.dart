@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'dart:ui';
+import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
@@ -27,6 +29,7 @@ class TrainlogService {
   static const String _baseUrl = 'https://trainlog.me';
   static const String _loginPath = '/login'; // we'll add ?raw=1 via query
   static const String _userAgent = 'TrainlogApp/1.0 (+Flutter)';
+  static const String _logoPath = "$_baseUrl/static/";
 
   final Dio _dio;
   final CookieJar _cookieJar;
@@ -185,42 +188,54 @@ class TrainlogService {
     return '';
   }
 
-    /// Debug helper: fetch all trips for a user and print the first [limit] rows.
-  /// URL shape: https://trainlog.me/<username>/getTripsPaths/all
-  Future<void> debugPrintFirstTrips(String username, {int limit = 10}) async {
-    final path = '/$username/export';
-    try {
-      final res = await _dio.get<String>(
-        path,
-        options: Options(
-          followRedirects: true,     // follow harmless redirects
-          maxRedirects: 5,
-          responseType: ResponseType.plain, // get raw CSV as String
-          headers: {'Accept': 'text/csv, text/plain;q=0.9, */*;q=0.8'},
-          validateStatus: (s) => s != null && s >= 200 && s < 400,
+  /// Fetches {"operators": { "<name>": "<path>", ... }} and returns the inner map.
+  /// - Keys/values are trimmed
+  /// - Null/empty values are skipped
+  Future<Map<String, Image>> fetchAllOperatorLogos(
+    String username, {
+    required double maxWidth,
+    required double maxHeight,
+  }) async {
+    final path = '/$username/getManAndOps/train';
+
+    final res = await _dio.get<Map<String, dynamic>>(
+      path,
+      options: Options(
+        followRedirects: true,
+        maxRedirects: 5,
+        responseType: ResponseType.json,
+        validateStatus: (s) => s != null && s >= 200 && s < 400,
+      ),
+    );
+
+    final data = res.data; // already decoded JSON
+    if (data == null) return {};
+
+    final ops = data['operators'];
+    if (ops is! Map) return {}; // not present or wrong shape
+
+    final out = <String, Image>{};
+    ops.forEach((k, v) {
+      final name = k?.toString().trim();
+      final path = v?.toString().trim();
+      if (name == null || name.isEmpty || path == null || path.isEmpty) return;
+
+      final url = _prefixLogo(_logoPath, path);
+
+      out[name] = Image.network(
+        url,
+        width: maxWidth,
+        height: maxHeight,
+        fit: BoxFit.contain,             // <- keeps aspect ratio inside the box
+        errorBuilder: (_, __, ___) => const Image(
+          image: AssetImage('assets/images/logo_fallback.png'),
+          fit: BoxFit.contain,
         ),
+        // Optional: filterQuality: FilterQuality.medium,
       );
-
-      // If we still ended at a redirect, check if it's a login redirect
-      if (res.statusCode != null && res.statusCode! >= 300 && res.statusCode! < 400) {
-        final loc = res.headers['location']?.first ?? '';
-        if (loc.contains('/login')) {
-          print('debugPrintFirstTrips: redirected to login → not authenticated');
-          return;
-        }
-      }
-
-      final csv = res.data ?? '';
-      if (csv.isEmpty) {
-        print('debugPrintFirstTrips: (empty response)');
-        return;
-      }
-
-      _printFirstCsvLines(csv, limit: limit);
-    } catch (e) {
-      print('debugPrintFirstTrips: error fetching $path: $e');
-    }
-  } 
+    });
+    return out;
+  }
 
 
   // ---- helpers ----
@@ -234,56 +249,19 @@ class TrainlogService {
     return null;
   }
 
-  /// Prints the header + first [limit] non-empty lines without splitting the whole CSV.
-  /// Handles CRLF and trims trailing \r. (Does not attempt full CSV quoting rules.)
-  void _printFirstCsvLines(String body, {int limit = 10}) {
-    int pos = 0;
+  String _prefixLogo(String base, String path) {
+    if (path.isEmpty) return path;
 
-    // Header
-    int next = body.indexOf('\n', pos);
-    if (next == -1) {
-      final headerOnly = _trimCr(body);
-      print('[header] $headerOnly');
-      print('debugPrintFirstTrips: printed 0/0 line(s)');
-      return;
-    }
-    String header = _trimCr(body.substring(pos, next)).replaceFirst('\uFEFF', ''); // strip BOM if present
-    print('[header] $header');
-    pos = next + 1;
-
-    // First N lines
-    int printed = 0;
-    while (printed < limit && pos < body.length) {
-      next = body.indexOf('\n', pos);
-      String line;
-      if (next == -1) {
-        line = _trimCr(body.substring(pos));
-        pos = body.length;
-      } else {
-        line = _trimCr(body.substring(pos, next));
-        pos = next + 1;
-      }
-      if (line.isEmpty) continue;
-      printed++;
-      print('[$printed] $line');
+    final p = path.toLowerCase();
+    // Don't touch absolute or data URLs
+    if (p.startsWith('http://') || p.startsWith('https://') || p.startsWith('data:')) {
+      return path;
     }
 
-    // Try to estimate remaining lines cheaply (scan a small tail window)
-    int remainingEstimate = 0;
-    if (pos < body.length) {
-      final tail = body.substring(pos, math.min(body.length, pos + 64 * 1024));
-      remainingEstimate = '\n'.allMatches(tail).length;
-      if (tail.isNotEmpty && !tail.endsWith('\n')) remainingEstimate += 1;
-    }
-
-    print('debugPrintFirstTrips: printed $printed line(s)${remainingEstimate > 0 ? " (+ ~$remainingEstimate more…)" : ""}');
+    // Ensure base ends with a slash, then resolve relative path
+    final baseWithSlash = base.endsWith('/') ? base : '$base/';
+    final rel = path.startsWith('/') ? path.substring(1) : path;
+    return Uri.parse(baseWithSlash).resolve(rel).toString();
   }
 
-  String _trimCr(String s) {
-    // Drop trailing \r if CRLF
-    if (s.isNotEmpty && s.codeUnitAt(s.length - 1) == 13) {
-      return s.substring(0, s.length - 1);
-    }
-    return s;
-  }
 }

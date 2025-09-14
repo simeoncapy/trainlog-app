@@ -7,8 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
+import 'package:trainlog_app/providers/auth_provider.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
+import 'package:trainlog_app/services/trainlog_service.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
 import 'package:trainlog_app/utils/number_formatter.dart';
 import 'package:trainlog_app/utils/statistics_calculator.dart';
@@ -39,6 +41,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
   bool _sortedAlpha = false; // for the table
   bool _isParametersExpanded = true;
   StatisticsType _selectedStatistics = StatisticsType.bar;
+  Map<String, Image> _operatorLogos = Map();
 
   late List<int> listYears;  
 
@@ -59,6 +62,10 @@ class _StatisticsPageState extends State<StatisticsPage> {
         await tripsProvider.loadTrips();
       }
       final years = await tripsProvider.repository?.fetchListOfYears()?..sort((a, b) => b.compareTo(a));
+
+      final auth = Provider.of<AuthProvider>(context, listen: false);
+      final service = auth.service;
+      _operatorLogos = await service.fetchAllOperatorLogos(auth.username ?? "", maxWidth: 48, maxHeight: 48);
 
       if (!mounted) return;
       setState(() {
@@ -194,7 +201,11 @@ class _StatisticsPageState extends State<StatisticsPage> {
     switch(type)
     {
       case GraphType.operator:
-        return List.generate(data.length, (_) => const Icon(Icons.train));
+        //return List.generate(data.length, (_) => const Icon(Icons.train));
+        return List.generate(
+            data.length,
+            (i) => _operatorLogos[data[i]] ?? const Icon(Icons.train), 
+          );
         case GraphType.country:
           return List.generate(
             data.length,
@@ -212,6 +223,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
   Widget build(BuildContext context) {
     final tripsProv = context.watch<TripsProvider>();
     final repo = tripsProv.repository;
+
     if (repo == null) {
       return const Center(child: CircularProgressIndicator());
     }
