@@ -31,15 +31,14 @@ class MapPage extends StatefulWidget {
 }
 
 class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
+  // --- Map state
   final MapController _mapController = MapController();
-  Timer? _futureFlipTimer;
-
-  // Default to Greenwich Observatory
   static const LatLng _greenwich = LatLng(51.476852, -0.0005);
   LatLng _center = _greenwich;
   double _zoom = 13.0;
   LatLng? _userPosition;
 
+  // --- Data/state
   List<PolylineEntry> _polylines = [];
   bool _loading = true;
   late Map<VehicleType, Color> _colours;
@@ -52,10 +51,122 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
 
   late TripsProvider _trips;
 
+  // --- Future/ongoing flip timer
+  Timer? _futureFlipTimer;
+
+  // --- Rendering constants
   static const double _dashLen = 20.0;
   static const double _gapLen  = 20.0;
   static const Color  _futureDashColor = Colors.white;
+  static const Color  _ongoingColor = Colors.red;
 
+  // --- Utilities --------------------------------------------------------------
+  DateTime get _nowUtc => DateTime.now().toUtc();
+
+  bool _isFutureUtc(DateTime? utcStart) =>
+      utcStart != null && utcStart.isAfter(_nowUtc);
+
+  bool _isOngoing(PolylineEntry e) {
+    if (!e.hasTimeRange) return false; // apply only when times exist
+    final s = e.utcStartDate;
+    final en = e.utcEndDate;
+    if (s == null || en == null) return false;
+    final now = _nowUtc;
+    final started  = !now.isBefore(s); // now >= s
+    final notEnded = !now.isAfter(en); // now <= en
+    return started && notEnded;
+  }
+
+  PolylineEntry _restyleEntry(PolylineEntry e, {Map<VehicleType, Color>? palette}) {
+    final ongoing = _isOngoing(e);
+    final isFuture = !ongoing && _isFutureUtc(e.utcStartDate);
+    final baseColor = ongoing
+        ? _ongoingColor
+        : (palette ?? _colours)[e.type] ?? e.polyline.color;
+
+    final base = Polyline(
+      points: e.polyline.points,
+      color: baseColor,
+      strokeWidth: e.polyline.strokeWidth,
+      borderColor: Colors.black,
+      borderStrokeWidth: 1.0,
+      pattern: const StrokePattern.solid(),
+    );
+
+    return PolylineEntry(
+      polyline: base,
+      type: e.type,
+      startDate: e.startDate,
+      creationDate: e.creationDate,
+      utcStartDate: e.utcStartDate,
+      utcEndDate: e.utcEndDate,
+      hasTimeRange: e.hasTimeRange,
+      isFuture: isFuture,
+    );
+  }
+
+  List<PolylineEntry> _restyleAll(List<PolylineEntry> list, {Map<VehicleType, Color>? palette}) =>
+      list.map((e) => _restyleEntry(e, palette: palette)).toList();
+
+  void _applyLoaded(List<PolylineEntry> entries, Set<int> years, Set<VehicleType> types) {
+    if (!mounted) return;
+    setState(() {
+      _polylines = entries;
+      _loading = false;
+      _selectedYears = years;
+      _selectedTypes = types;
+    });
+    widget.onFabReady(buildFloatingActionButton(context)!);
+    _scheduleNextFlip();
+  }
+
+  void _scheduleNextFlip() {
+    _futureFlipTimer?.cancel();
+
+    final now = _nowUtc;
+    DateTime? nextEdge;
+
+    for (final e in _polylines) {
+      // future->ongoing at start
+      final s = e.utcStartDate;
+      if (s != null && s.isAfter(now)) {
+        if (nextEdge == null || s.isBefore(nextEdge!)) nextEdge = s;
+      }
+      // ongoing->past at end (only if we have a time range)
+      if (e.hasTimeRange) {
+        final en = e.utcEndDate;
+        if (en != null && en.isAfter(now)) {
+          if (nextEdge == null || en.isBefore(nextEdge!)) nextEdge = en;
+        }
+      }
+    }
+    if (nextEdge == null) return;
+
+    var delay = nextEdge!.difference(now) + const Duration(milliseconds: 50);
+    if (delay.isNegative) delay = const Duration(milliseconds: 50);
+
+    _futureFlipTimer = Timer(delay, () {
+      _refreshTemporalStyles(force: true);
+      _scheduleNextFlip();
+    });
+  }
+
+  void _refreshTemporalStyles({bool force = false}) {
+    bool changed = false;
+    final updated = _polylines.map((e) {
+      final newOngoing = _isOngoing(e);
+      final newIsFuture = !newOngoing && _isFutureUtc(e.utcStartDate);
+      if (force || newIsFuture != e.isFuture || (newOngoing && e.polyline.color != _ongoingColor)) {
+        changed = true;
+        return _restyleEntry(e);
+      }
+      return e;
+    }).toList();
+
+    if (changed && mounted) setState(() => _polylines = updated);
+  }
+
+  // --- Lifecycle --------------------------------------------------------------
   @override
   void initState() {
     super.initState();
@@ -89,11 +200,12 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      _refreshFutureStyles(force: true);
+      _refreshTemporalStyles(force: true);
       _scheduleNextFlip();
     }
   }
 
+  // --- Location ---------------------------------------------------------------
   Future<void> _initCenterAndMarker(SettingsProvider settings) async {
     final saved = settings.userPosition;
     if (mounted) setState(() => _center = saved ?? _greenwich);
@@ -111,10 +223,8 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
   Future<LatLng?> _maybeUseLocationWithSystemPrompt(SettingsProvider settings) async {
     var p = await Geolocator.checkPermission();
     if (p == LocationPermission.always || p == LocationPermission.whileInUse) {
-      if (settings.refusedToSharePosition) {
-        settings.setRefusedToSharePosition(false);
-      }
-      return await _safeGetPositionOrNull();
+      if (settings.refusedToSharePosition) settings.setRefusedToSharePosition(false);
+      return _safeGetPositionOrNull();
     }
 
     if (settings.refusedToSharePosition) return null;
@@ -124,9 +234,8 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
     if (!canShowSystemPrompt) return null;
 
     p = await Geolocator.requestPermission();
-
     if (p == LocationPermission.always || p == LocationPermission.whileInUse) {
-      return await _safeGetPositionOrNull();
+      return _safeGetPositionOrNull();
     }
 
     settings.setRefusedToSharePosition(true);
@@ -135,246 +244,127 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
 
   Future<LatLng?> _safeGetPositionOrNull() async {
     if (!await Geolocator.isLocationServiceEnabled()) return null;
-
-    final pos = await Geolocator.getCurrentPosition(
-      locationSettings: _platformLocationSettings(),
-    );
+    final pos = await Geolocator.getCurrentPosition(locationSettings: _platformLocationSettings());
     return LatLng(pos.latitude, pos.longitude);
   }
 
   LocationSettings _platformLocationSettings() {
     if (kIsWeb) {
-      return WebSettings(
-        accuracy: LocationAccuracy.high,
-        distanceFilter: 0,
-      );
+      return WebSettings(accuracy: LocationAccuracy.high, distanceFilter: 0);
     }
     if (Platform.isAndroid) {
-      return AndroidSettings(
-        accuracy: LocationAccuracy.high,
-        distanceFilter: 0,
-      );
+      return AndroidSettings(accuracy: LocationAccuracy.high, distanceFilter: 0);
     }
     if (Platform.isIOS || Platform.isMacOS) {
-      return AppleSettings(
-        accuracy: LocationAccuracy.high,
-        distanceFilter: 0,
-      );
+      return AppleSettings(accuracy: LocationAccuracy.high, distanceFilter: 0);
     }
-    return const LocationSettings(
-      accuracy: LocationAccuracy.high,
-      distanceFilter: 0,
-    );
+    return const LocationSettings(accuracy: LocationAccuracy.high, distanceFilter: 0);
   }
 
+  // --- Trips provider hook ----------------------------------------------------
   void _onTripsChanged() {
     if (!_trips.isLoading && _trips.repository != null) {
       _loadPolylines();
     } else {
-      _refreshFutureStyles();
+      _refreshTemporalStyles();
       _scheduleNextFlip();
     }
   }
 
-  // ---- UTC-aware helpers (trip-zone correct) --------------------------------
-
-  /// Decide future strictly from UTC fields.
-  bool _computeIsFuture(DateTime? utcStart) {
-    if (utcStart == null) return false; // cannot decide without UTC; be conservative
-    final nowUtc = DateTime.now().toUtc();
-    return utcStart.isAfter(nowUtc);
-  }
-
-  Polyline _rebuildPolyline(Polyline src, {required bool isFuture, required Color color}) {
-    return Polyline(
-      points: src.points,
-      color: color,
-      pattern: isFuture ? StrokePattern.dashed(segments: const [20, 20]) : const StrokePattern.solid(),
-      borderColor: Colors.black,
-      borderStrokeWidth: 1.0,
-      strokeWidth: src.strokeWidth,
-    );
-  }
-
-  PolylineEntry _withStyle(PolylineEntry e, {Map<VehicleType, Color>? palette}) {
-    final isFutureNow = _computeIsFuture(e.utcStartDate);
-    final color = (palette ?? _colours)[e.type] ?? e.polyline.color;
-
-    return PolylineEntry(
-      type: e.type,
-      startDate: e.startDate,          // keep local for UI
-      creationDate: e.creationDate,
-      utcStartDate: e.utcStartDate,    // truth for time comparisons
-      utcEndDate: e.utcEndDate,
-      isFuture: isFutureNow,
-      polyline: _rebuildPolyline(e.polyline, isFuture: isFutureNow, color: color),
-    );
-  }
-
-  void _refreshFutureStyles({bool force = false}) {
-    bool changed = false;
-    final updated = _polylines.map((e) {
-      final newIsFuture = _computeIsFuture(e.utcStartDate);
-      if (force || newIsFuture != e.isFuture) {
-        changed = true;
-        return _withStyle(e);
-      }
-      return e;
-    }).toList();
-
-    if (changed && mounted) {
-      setState(() => _polylines = updated);
-    }
-  }
-
-  void _scheduleNextFlip() {
-    _futureFlipTimer?.cancel();
-
-    final nowUtc = DateTime.now().toUtc();
-    DateTime? nextUtc;
-    for (final e in _polylines) {
-      final d = e.utcStartDate;
-      if (d != null && d.isAfter(nowUtc)) {
-        if (nextUtc == null || d.isBefore(nextUtc!)) nextUtc = d;
-      }
-    }
-    if (nextUtc == null) return;
-
-    var delay = nextUtc!.difference(nowUtc) + const Duration(milliseconds: 50);
-    if (delay.isNegative) delay = const Duration(milliseconds: 50);
-
-    _futureFlipTimer = Timer(delay, () {
-      _refreshFutureStyles(force: true);
-      _scheduleNextFlip();
-    });
-  }
-
-  List<Polyline> _renderPolylinesForEntry(PolylineEntry e) {
-    // past: nothing changes — use your existing styled polyline
-    if (!e.isFuture) return [e.polyline];
-
-    final pts = e.polyline.points;
-    final w   = e.polyline.strokeWidth;
-    final baseColor = e.polyline.color;
-
-    // 1) base: solid with border (covers entire path)
-    final base = Polyline(
-      points: pts,
-      color: baseColor,
-      strokeWidth: w,
-      pattern: const StrokePattern.solid(),
-      borderColor: Colors.black,
-      borderStrokeWidth: 1.0,
-    );
-
-    // 2) overlay: dashed, *no* border, different color
-    final top = Polyline(
-      points: pts,
-      color: _futureDashColor,
-      // Optional: make overlay a hair thinner so the black border peeks everywhere
-      // strokeWidth: (w - 0.5).clamp(0.5, w),
-      strokeWidth: w,
-      pattern: StrokePattern.dashed(segments: const [_dashLen, _gapLen]),
-    );
-
-    return [base, top];
-  }
-
-  // ---- Load & cache ---------------------------------------------------------
-
+  // --- Load & cache -----------------------------------------------------------
   Future<void> _loadPolylines() async {
     final repo = context.read<TripsProvider>().repository;
     final settings = context.read<SettingsProvider>();
     final cacheFile = File(AppCacheFilePath.polylines);
-    final years = _trips.years;
-    final types = _trips.vehicleTypes;
+    final years = _trips.years.toSet();
+    final types = _trips.vehicleTypes.toSet();
 
-    // Try cache
+    // 1) Try cache
     if (!settings.shouldReloadPolylines && await cacheFile.exists()) {
       try {
         final cachedJson = await cacheFile.readAsString();
-        final decoded = json.decode(cachedJson) as List<dynamic>;
-        final cached = decoded.map((e) => PolylineEntry.fromJson(e as Map<String, dynamic>)).toList();
+        final decoded = (json.decode(cachedJson) as List<dynamic>)
+            .map((e) => PolylineEntry.fromJson(e as Map<String, dynamic>))
+            .toList();
 
-        // Re-style based on *now* + palette; ignore cached isFuture/pattern
-        final restyled = cached.map((e) => _withStyle(e, palette: _colours)).toList();
-
-        if (mounted) {
-          setState(() {
-            _polylines = restyled;
-            _loading = false;
-            _selectedYears = years.toSet();
-            _selectedTypes = types.toSet();
-          });
-          widget.onFabReady(buildFloatingActionButton(context)!);
-          debugPrint("Polylines loaded from cache");
-        }
-
-        _scheduleNextFlip();
+        final restyled = _restyleAll(decoded);
+        _applyLoaded(restyled, years, types);
         return;
       } catch (e) {
         debugPrint('Failed to load cache: $e');
       }
     }
 
-    // Else, load from DB
-    if (repo != null) {
-      final pathData = await repo.getPathExtendedData(settings.pathDisplayOrder);
+    // 2) Load from DB
+    if (repo == null) return;
 
-      final args = {
-        'entries': pathData,   // must include utc_start_datetime & utc_end_datetime
-        'colors': _colours,
-      };
-      final decoded = await compute(decodePolylinesBatch, args);
+    final pathData = await repo.getPathExtendedData(context.read<SettingsProvider>().pathDisplayOrder);
+    final decoded = await compute(
+      decodePolylinesBatch,
+      {'entries': pathData, 'colors': _colours},
+    );
+    final restyled = _restyleAll(decoded);
+    _applyLoaded(restyled, years, types);
 
-      final restyled = decoded.map((e) => _withStyle(e, palette: _colours)).toList();
-
-      if (mounted) {
-        setState(() {
-          _polylines = restyled;
-          _loading = false;
-          _selectedYears = years.toSet();
-          _selectedTypes = types.toSet();
-        });
-        widget.onFabReady(buildFloatingActionButton(context)!);
-        debugPrint("Polylines loaded from DB");
-
-        if (restyled.isNotEmpty) {
-          // Save to cache (fire-and-forget)
-          Future(() async {
-            try {
-              final encoded = json.encode(restyled.map((e) => e.toJson()).toList());
-              final cf = File(AppCacheFilePath.polylines);
-              await cf.writeAsString(encoded);
-              settings.setShouldReloadPolylines(false);
-            } catch (e) {
-              debugPrint('Failed to write cache: $e');
-            }
-          });
-        }
-        _scheduleNextFlip();
-      }
+    // Persist cache (fire-and-forget)
+    if (restyled.isNotEmpty) {
+      unawaited(_writeCache(restyled, settings));
     }
   }
 
-  // ---- Sorting & palette ----------------------------------------------------
+  Future<void> _writeCache(List<PolylineEntry> list, SettingsProvider settings) async {
+    try {
+      final encoded = json.encode(list.map((e) => e.toJson()).toList());
+      final cf = File(AppCacheFilePath.polylines);
+      await cf.writeAsString(encoded);
+      settings.setShouldReloadPolylines(false);
+    } catch (e) {
+      debugPrint('Failed to write cache: $e');
+    }
+  }
 
-  void _sortedPolylines(List<PolylineEntry> filteredPolylines, PathDisplayOrder displayOrder) {
-    switch (displayOrder) {
+  // --- Filtering / sorting / rendering ---------------------------------------
+  List<PolylineEntry> _filterBySelection(List<PolylineEntry> polylines) {
+    switch (_selectedYearFilter) {
+      case YearFilter.past:
+        final now = _nowUtc;
+        return polylines.where((e) =>
+          (e.utcStartDate?.isBefore(now) ?? false) &&
+          (_selectedTypes.isEmpty || _selectedTypes.contains(e.type))
+        ).toList();
+
+      case YearFilter.future:
+        final now = _nowUtc;
+        return polylines.where((e) =>
+          (e.utcStartDate?.isAfter(now) ?? false) &&
+          (_selectedTypes.isEmpty || _selectedTypes.contains(e.type))
+        ).toList();
+
+      case YearFilter.all:
+      case YearFilter.years:
+        return polylines.where((e) =>
+          (_selectedYears.isEmpty || _selectedYears.contains(e.startDate?.year)) &&
+          (_selectedTypes.isEmpty || _selectedTypes.contains(e.type))
+        ).toList();
+    }
+  }
+
+  void _sortInPlace(List<PolylineEntry> list, PathDisplayOrder order) {
+    switch (order) {
       case PathDisplayOrder.creationDate:
-        filteredPolylines.sort((a, b) =>
+        list.sort((a, b) =>
             (a.creationDate ?? DateTime(0)).compareTo(b.creationDate ?? DateTime(0)));
         break;
       case PathDisplayOrder.tripDate:
-        filteredPolylines.sort(
-            (a, b) => (a.startDate ?? DateTime(0)).compareTo(b.startDate ?? DateTime(0)));
+        list.sort((a, b) =>
+            (a.startDate ?? DateTime(0)).compareTo(b.startDate ?? DateTime(0)));
         break;
       case PathDisplayOrder.tripDatePlaneOver:
-        final nonAir = filteredPolylines.where((e) => e.type != VehicleType.plane).toList()
+        final nonAir = list.where((e) => e.type != VehicleType.plane).toList()
           ..sort((a, b) => (a.startDate ?? DateTime(0)).compareTo(b.startDate ?? DateTime(0)));
-        final air = filteredPolylines.where((e) => e.type == VehicleType.plane).toList()
+        final air = list.where((e) => e.type == VehicleType.plane).toList()
           ..sort((a, b) => (a.creationDate ?? DateTime(0)).compareTo(b.creationDate ?? DateTime(0)));
-        filteredPolylines
+        list
           ..clear()
           ..addAll(nonAir)
           ..addAll(air);
@@ -382,168 +372,153 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
     }
   }
 
-  void _changePolylineColor(Map<VehicleType, Color> newPalette) {
-    setState(() {
-      _polylines = _polylines.map((e) => _withStyle(e, palette: newPalette)).toList();
-      _colours = newPalette;
-    });
-    _scheduleNextFlip();
+  /// Past: single base polyline.
+  /// Future: base + dashed overlay (white).
+  /// Ongoing: base painted red (no overlay).
+  List<Polyline> _toRenderPolylines(List<PolylineEntry> entries) {
+    return entries.expand((e) {
+      final base = e.polyline;
+      // Ongoing: base already red; no overlay
+      if (_isOngoing(e)) return [base];
+
+      // Future: overlay dashed white
+      if (e.isFuture) {
+        final overlay = Polyline(
+          points: base.points,
+          color: _futureDashColor,
+          strokeWidth: base.strokeWidth,
+          pattern: StrokePattern.dashed(segments: const [_dashLen, _gapLen]),
+        );
+        return [base, overlay];
+      }
+
+      // Past
+      return [base];
+    }).toList();
   }
 
-  List<PolylineEntry> _sortPolylinesByTime(List<PolylineEntry> polylines) {
-    switch (_selectedYearFilter) {
-      case YearFilter.past: {
-        final nowUtc = DateTime.now().toUtc();
-        return polylines
-            .where((e) =>
-                (e.utcStartDate?.isBefore(nowUtc) ?? false) &&
-                (_selectedTypes.isEmpty || _selectedTypes.contains(e.type)))
-            .toList();
-      }
-      case YearFilter.future: {
-        final nowUtc = DateTime.now().toUtc();
-        return polylines
-            .where((e) =>
-                (e.utcStartDate?.isAfter(nowUtc) ?? false) &&
-                (_selectedTypes.isEmpty || _selectedTypes.contains(e.type)))
-            .toList();
-      }
-      case YearFilter.all:
-      case YearFilter.years:
-        // Year filtering uses LOCAL start year for UI/ UX as before.
-        return polylines
-            .where((e) =>
-                (_selectedYears.isEmpty || _selectedYears.contains(e.startDate?.year)) &&
-                (_selectedTypes.isEmpty || _selectedTypes.contains(e.type)))
-            .toList();
-    }
-  }
-
-  // ---- UI -------------------------------------------------------------------
-
+  // --- UI --------------------------------------------------------------------
   @override
   Widget build(BuildContext context) {
     final appLocalizations = AppLocalizations.of(context)!;
     final settings = context.watch<SettingsProvider>();
     final displayOrder = settings.pathDisplayOrder;
-    final newPalette = MapColorPaletteHelper.getPalette(settings.mapColorPalette);
-    final trips = context.watch<TripsProvider>();
-    final years = trips.years;
-    final types = trips.vehicleTypes;
 
+    // Palette change: restyle and re-arm timer
+    final newPalette = MapColorPaletteHelper.getPalette(settings.mapColorPalette);
     if (newPalette != _colours) {
-      _changePolylineColor(newPalette);
+      _colours = newPalette;
+      setState(() => _polylines = _restyleAll(_polylines, palette: _colours));
+      _scheduleNextFlip();
     }
 
-    List<PolylineEntry> filteredPolylines = _sortPolylinesByTime(_polylines);
-    _sortedPolylines(filteredPolylines, displayOrder);
-    final polylinesToDraw = filteredPolylines
-    .expand((e) => _renderPolylinesForEntry(e))
-    .toList();
+    if (_loading) {
+      return Center(
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            const CircularProgressIndicator(),
+            const SizedBox(height: 16),
+            Text(appLocalizations.tripPathLoading,
+                style: const TextStyle(fontWeight: FontWeight.bold)),
+          ],
+        ),
+      );
+    }
 
-    return _loading
-        ? Center(
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                const CircularProgressIndicator(),
-                const SizedBox(height: 16),
-                Text(
-                  appLocalizations.tripPathLoading,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ],
+    final filtered = _filterBySelection(_polylines);
+    _sortInPlace(filtered, displayOrder);
+    final toDraw = _toRenderPolylines(filtered);
+
+    return Stack(
+      children: [
+        FlutterMap(
+          mapController: _mapController,
+          options: MapOptions(
+            initialCenter: _center,
+            initialZoom: _zoom,
+            keepAlive: true,
+            onPositionChanged: (pos, hasGesture) {
+              if (hasGesture) {
+                setState(() {
+                  _center = pos.center;
+                  _zoom = pos.zoom;
+                });
+              }
+            },
+          ),
+          children: [
+            TileLayer(
+              urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+              userAgentPackageName: 'me.trainlog.app',
             ),
-          )
-        : Stack(
-            children: [
-              FlutterMap(
-                mapController: _mapController,
-                options: MapOptions(
-                  initialCenter: _center,
-                  initialZoom: _zoom,
-                  keepAlive: true,
-                  onPositionChanged: (position, hasGesture) {
-                    if (hasGesture) {
-                      setState(() {
-                        _center = position.center;
-                        _zoom = position.zoom;
-                      });
-                    }
-                  },
-                ),
-                children: [
-                  TileLayer(
-                    urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-                    userAgentPackageName: 'me.trainlog.app',
+            PolylineLayer(polylines: toDraw),
+            if (_userPosition != null && settings.mapDisplayUserLocationMarker)
+              MarkerLayer(
+                markers: [
+                  Marker(
+                    width: 40,
+                    height: 40,
+                    point: _userPosition!,
+                    child: const Icon(Icons.my_location, size: 28, color: Colors.red),
                   ),
-                  PolylineLayer(polylines: polylinesToDraw),
-                  if (_userPosition != null && settings.mapDisplayUserLocationMarker)
-                    MarkerLayer(
-                      markers: [
-                        Marker(
-                          width: 40,
-                          height: 40,
-                          point: _userPosition!,
-                          child: const Icon(Icons.my_location, size: 28, color: Colors.red),
-                        ),
-                      ],
-                    ),
                 ],
               ),
-              if (_showFilterModal)
-                Positioned(
-                  bottom: 16,
-                  left: 16,
-                  right: 16,
-                  child: Material(
-                    elevation: 4,
-                    borderRadius: BorderRadius.circular(16),
-                    color: Theme.of(context).cardColor,
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(appLocalizations.yearTitle,
-                              style: Theme.of(context).textTheme.titleLarge),
-                          const SizedBox(height: 8),
-                          _yearFilterBuilder(years),
-                          const SizedBox(height: 16),
-                          Text(appLocalizations.typeTitle,
-                              style: Theme.of(context).textTheme.titleLarge),
-                          const SizedBox(height: 8),
-                          VehicleTypeFilterChips(
-                            availableTypes: types,
-                            selectedTypes: _selectedTypes,
-                            onTypeToggle: (type, selected) {
-                              setState(() {
-                                selected ? _selectedTypes.add(type) : _selectedTypes.remove(type);
-                              });
-                            },
-                          ),
-                          const SizedBox(height: 16),
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: ElevatedButton.icon(
-                              onPressed: () {
-                                setState(() {
-                                  _showFilterModal = false;
-                                  widget.onFabReady(buildFloatingActionButton(context)!);
-                                });
-                              },
-                              icon: const Icon(Icons.close),
-                              label: Text(MaterialLocalizations.of(context).closeButtonLabel),
-                            ),
-                          )
-                        ],
-                      ),
+          ],
+        ),
+        if (_showFilterModal)
+          Positioned(
+            bottom: 16,
+            left: 16,
+            right: 16,
+            child: Material(
+              elevation: 4,
+              borderRadius: BorderRadius.circular(16),
+              color: Theme.of(context).cardColor,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(appLocalizations.yearTitle,
+                        style: Theme.of(context).textTheme.titleLarge),
+                    const SizedBox(height: 8),
+                    _yearFilterBuilder(context.watch<TripsProvider>().years),
+                    const SizedBox(height: 16),
+                    Text(appLocalizations.typeTitle,
+                        style: Theme.of(context).textTheme.titleLarge),
+                    const SizedBox(height: 8),
+                    VehicleTypeFilterChips(
+                      availableTypes: context.watch<TripsProvider>().vehicleTypes,
+                      selectedTypes: _selectedTypes,
+                      onTypeToggle: (type, selected) {
+                        setState(() {
+                          selected ? _selectedTypes.add(type) : _selectedTypes.remove(type);
+                        });
+                      },
                     ),
-                  ),
+                    const SizedBox(height: 16),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          setState(() {
+                            _showFilterModal = false;
+                            widget.onFabReady(buildFloatingActionButton(context)!);
+                          });
+                        },
+                        icon: const Icon(Icons.close),
+                        label: Text(MaterialLocalizations.of(context).closeButtonLabel),
+                      ),
+                    )
+                  ],
                 ),
-            ],
-          );
+              ),
+            ),
+          ),
+      ],
+    );
   }
 
   DropdownRadioList _yearFilterBuilder(List<int> years) {
@@ -553,28 +528,21 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
         MultiLevelItem(title: AppLocalizations.of(context)!.yearPastList, subItems: []),
         MultiLevelItem(title: AppLocalizations.of(context)!.yearFutureList, subItems: []),
         MultiLevelItem(
-            title: AppLocalizations.of(context)!.yearYearList,
-            subItems: years.map((e) => e.toString()).toList()),
+          title: AppLocalizations.of(context)!.yearYearList,
+          subItems: years.map((e) => e.toString()).toList(),
+        ),
       ],
       selectedTopIndex: _selectedYearFilterOption,
       selectedSubStates: {3: years.map((y) => _selectedYears.contains(y)).toList()},
       onChanged: (top, sub) {
         setState(() {
           switch (top) {
-            case 0: // all
-              _selectedYears = years.toSet();
-              _selectedYearFilter = YearFilter.all;
-              break;
-            case 1: // past
-              _selectedYearFilter = YearFilter.past;
-              break;
-            case 2: // future
-              _selectedYearFilter = YearFilter.future;
-              break;
-            case 3: // years
+            case 0: _selectedYears = years.toSet(); _selectedYearFilter = YearFilter.all; break;
+            case 1: _selectedYearFilter = YearFilter.past;   break;
+            case 2: _selectedYearFilter = YearFilter.future; break;
+            case 3:
               _selectedYearFilter = YearFilter.years;
-              _selectedYears =
-                  sub.asMap().entries.where((e) => e.value).map((e) => years[e.key]).toSet();
+              _selectedYears = sub.asMap().entries.where((e) => e.value).map((e) => years[e.key]).toSet();
               break;
           }
           _selectedYearFilterOption = top;
@@ -585,12 +553,11 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
 
   FloatingActionButton? buildFloatingActionButton(BuildContext context) {
     if (_showFilterModal) return null;
-
     return FloatingActionButton(
       onPressed: () {
         setState(() {
           _showFilterModal = true;
-          widget.onFabReady(null); // Hide FAB
+          widget.onFabReady(null);
         });
       },
       child: const Icon(Icons.filter_alt),
