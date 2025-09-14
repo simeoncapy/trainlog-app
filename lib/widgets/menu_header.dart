@@ -4,6 +4,7 @@ import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/providers/auth_provider.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/widgets/auth_dialog.dart';
+import 'package:trainlog_app/widgets/auth_form.dart';
 
 class MenuHeader extends StatelessWidget {
   const MenuHeader({super.key});
@@ -35,7 +36,7 @@ class MenuHeader extends StatelessWidget {
               onPressed: () async {
                 final result = await AuthDialog.show(
                   context,
-                  type: AuthDialogType.login,
+                  type: AuthFormType.login,
                 );
                 if (result != null) {
                   final ok = await context.read<AuthProvider>().login(
@@ -57,7 +58,7 @@ class MenuHeader extends StatelessWidget {
               onPressed: () async {
                 final result = await AuthDialog.show(
                   context,
-                  type: AuthDialogType.createAccount,
+                  type: AuthFormType.createAccount,
                 );
                 if (result != null) {
                   // TODO: call your sign-up endpoint when available
@@ -68,7 +69,7 @@ class MenuHeader extends StatelessWidget {
               },
             ),
           ] else if (isConnected) ...[
-            Text('Hello, ${auth.username ?? ''}',
+            Text(appLocalization.menuHello(auth.username ?? ''),
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white)),
             const SizedBox(height: 8),
             ElevatedButton.icon(

@@ -1,10 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
-import '../services/trainlog_auth_service.dart';
+import '../services/trainlog_service.dart';
 
 class AuthProvider extends ChangeNotifier {
-  final TrainlogAuthService _service;
+  final TrainlogService _service;
 
   bool _loading = false;
   bool _isAuthenticated = false;
@@ -12,14 +12,15 @@ class AuthProvider extends ChangeNotifier {
   String? _username;
   TrainlogLoginResult? _session;
 
-  AuthProvider({TrainlogAuthService? service})
-      : _service = service ?? TrainlogAuthService();
+  AuthProvider({TrainlogService? service})
+      : _service = service ?? TrainlogService();
 
   bool get loading => _loading;
   bool get isAuthenticated => _isAuthenticated;
   String? get error => _error;
   String? get username => _username;
   TrainlogLoginResult? get session => _session;
+  TrainlogService get service => _service;
 
   Future<bool> login({
     required String username,

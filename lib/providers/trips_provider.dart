@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/data/trips_repository.dart';
+import 'package:trainlog_app/providers/auth_provider.dart';
 
 class TripsProvider extends ChangeNotifier {
   TripsRepository? _repository;
@@ -28,13 +30,13 @@ class TripsProvider extends ChangeNotifier {
   // Public API
   // ------------------------
 
-  Future<void> loadTrips({String csvPath = "", BuildContext? context}) async {
+  Future<void> loadTrips({String csvPath = "", BuildContext? context, bool loadFromApi = false}) async {
     _loading = true;
     notifyListeners();
 
     try {
       _repository = (csvPath.isEmpty)
-          ? await TripsRepository.loadFromDatabase()
+          ? (loadFromApi ? await TripsRepository.loadFromApi(context!) : await TripsRepository.loadFromDatabase())
           : await TripsRepository.loadFromCsv(csvPath);
 
       await _refreshDerivedLists(context: context);

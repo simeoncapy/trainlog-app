@@ -3,13 +3,16 @@ import 'dart:ffi';
 import 'dart:io';
 import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/data/database_manager.dart';
+import 'package:trainlog_app/providers/auth_provider.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:diacritic/diacritic.dart';
 import 'dart:convert';
 import 'package:country_picker/country_picker.dart';
+import 'package:trainlog_app/services/trainlog_service.dart';
 import 'package:trainlog_app/widgets/trips_filter_dialog.dart';
 
 // TripsTable defined lower
@@ -49,12 +52,20 @@ class TripsRepository {
 
   TripsRepository(this._db);
 
-  static Future<TripsRepository> loadFromCsv(String csvPath, {bool replace = false}) async {
-    if (!File(csvPath).existsSync()) {
-      throw FileSystemException('CSV file not found', csvPath);
+  static Future<TripsRepository> loadFromCsv(String csvPathOrContent, {bool replace = false, bool path = true}) async {
+    String content;
+    if(path){
+      final csvPath = csvPathOrContent;
+      if (!File(csvPath).existsSync()) {
+        throw FileSystemException('CSV file not found', csvPath);
+      }
+
+      content = await File(csvPath).readAsString();
+    }
+    else {
+      content = csvPathOrContent;
     }
 
-    final content = await File(csvPath).readAsString();
     final trips = await parseCsv(content);
     final db = await DatabaseManager.database;
     final repo = TripsRepository(db);
@@ -67,8 +78,16 @@ class TripsRepository {
     return repo;
   }
 
-  Future<void> loadFromApi() async {
-    throw UnimplementedError('API loading not implemented');
+  static Future<TripsRepository> loadFromApi(BuildContext context) async {
+    print("Trip load from API");
+    //throw UnimplementedError('API loading not implemented');
+    final auth = Provider.of<AuthProvider>(context, listen: false);
+    final settings = Provider.of<SettingsProvider>(context, listen: false);
+    final service = auth.service;
+    final content = await service.fetchAllTripsData(auth.username ?? "");
+
+    settings.setShouldLoadTripsFromApi(false);
+    return loadFromCsv(content, replace: true, path: false);
   }
 
   static Future<TripsRepository> loadFromDatabase() async {
@@ -208,7 +227,9 @@ class TripsRepository {
         'destination_station',
         'start_datetime',
         'end_datetime',
-        'created', // Needed for sorting by creationDate
+        'utc_start_datetime',   // <-- added
+        'utc_end_datetime',     // <-- added
+        'created',              // Needed for sorting by creationDate
       ],
       where: 'path IS NOT NULL AND path != ""',
     );
@@ -223,12 +244,12 @@ class TripsRepository {
 
     switch (order) {
       case PathDisplayOrder.creationDate:
-        //list.sort((a, b) => a['uid'].compareTo(b['uid']));
         break;
 
       case PathDisplayOrder.tripDate:
         list.sort((a, b) =>
-            DateTime.parse(a['start_datetime'] as String).compareTo(DateTime.parse(b['start_datetime'] as String)));
+            DateTime.parse(a['start_datetime'] as String)
+                .compareTo(DateTime.parse(b['start_datetime'] as String)));
         break;
 
       case PathDisplayOrder.tripDatePlaneOver:
@@ -236,17 +257,21 @@ class TripsRepository {
             .where((e) => e['type'] != VehicleType.plane)
             .toList()
           ..sort((a, b) =>
-              DateTime.parse(a['start_datetime'] as String).compareTo(DateTime.parse(b['start_datetime'] as String)));
+              DateTime.parse(a['start_datetime'] as String)
+                  .compareTo(DateTime.parse(b['start_datetime'] as String)));
         final air = list
             .where((e) => e['type'] == VehicleType.plane)
             .toList()
-          ..sort((a, b) => DateTime.parse(a['created'] as String).compareTo(DateTime.parse(b['created'] as String)));
+          ..sort((a, b) =>
+              DateTime.parse(a['created'] as String)
+                  .compareTo(DateTime.parse(b['created'] as String)));
 
         return [...nonAir, ...air];
     }
 
     return list;
   }
+
 
   Future<List<VehicleType>> fetchListOfTypes() async {
     final maps = await _db.query(

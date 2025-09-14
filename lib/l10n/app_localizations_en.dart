@@ -66,6 +66,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get createAccountButtonShort => 'Create';
 
   @override
+  String get loginToYourAccount => 'Log in to your account';
+
+  @override
+  String menuHello(Object username) {
+    return 'Hello $username';
+  }
+
+  @override
+  String get connectionError => 'Login failed, please check your credentials';
+
+  @override
   String get settingsAppCategory => 'App Settings';
 
   @override
@@ -212,6 +223,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get typeFerry => 'Ferry';
+
+  @override
+  String get typeAerialway => 'Aerialway';
+
+  @override
+  String get typeWalk => 'Walk';
+
+  @override
+  String get typePoi => 'Point of interest';
+
+  @override
+  String get typeCycle => 'Bicycle';
+
+  @override
+  String get typeHelicopter => 'Helicopter';
 
   @override
   String get tripsTableHeaderOriginDestination => 'Origin/Destination';

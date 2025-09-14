@@ -12,7 +12,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get appTitle => 'Trainlog';
 
   @override
-  String get language => 'English';
+  String get language => 'Français';
 
   @override
   String get mainMenuButtonTooltip => 'Ouvrir le menu';
@@ -64,6 +64,18 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get createAccountButtonShort => 'Créer';
+
+  @override
+  String get loginToYourAccount => 'Connectez-vous à votre compte';
+
+  @override
+  String menuHello(Object username) {
+    return 'Bonjour $username';
+  }
+
+  @override
+  String get connectionError =>
+      'Echec de la connexion, vérifiez vos identifiants';
 
   @override
   String get settingsAppCategory => 'Paramètres de l\'application';
@@ -215,6 +227,21 @@ class AppLocalizationsFr extends AppLocalizations {
   String get typeFerry => 'Ferry';
 
   @override
+  String get typeAerialway => 'Téléphérique';
+
+  @override
+  String get typeWalk => 'Marche';
+
+  @override
+  String get typePoi => 'Point d\'intéret';
+
+  @override
+  String get typeCycle => 'Vélo';
+
+  @override
+  String get typeHelicopter => 'Hélicoptère';
+
+  @override
   String get tripsTableHeaderOriginDestination => 'Origine/Destination';
 
   @override
@@ -338,7 +365,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get statisticsTripsUnitMega => 'million de trajet';
 
   @override
-  String get statisticsTripsUnitGiga => 'billion de trajet';
+  String get statisticsTripsUnitGiga => 'milliard de trajet';
 
   @override
   String get statisticsOtherLabel => 'Autres';

@@ -1,9 +1,13 @@
 import 'dart:io';
+import 'dart:ui';
+import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
+import 'dart:convert';
+import 'dart:math' as math;
 
 class TrainlogLoginResult {
   final bool success;
@@ -21,18 +25,19 @@ class TrainlogLoginResult {
   });
 }
 
-class TrainlogAuthService {
+class TrainlogService {
   static const String _baseUrl = 'https://trainlog.me';
   static const String _loginPath = '/login'; // we'll add ?raw=1 via query
   static const String _userAgent = 'TrainlogApp/1.0 (+Flutter)';
+  static const String _logoPath = "$_baseUrl/static/";
 
   final Dio _dio;
   final CookieJar _cookieJar;
 
-  TrainlogAuthService._(this._dio, this._cookieJar);
+  TrainlogService._(this._dio, this._cookieJar);
 
   /// Non-persistent cookies (useful for tests)
-  factory TrainlogAuthService() {
+  factory TrainlogService() {
     final dio = Dio(
       BaseOptions(
         baseUrl: _baseUrl,
@@ -43,11 +48,11 @@ class TrainlogAuthService {
     );
     final jar = CookieJar();
     dio.interceptors.add(CookieManager(jar));
-    return TrainlogAuthService._(dio, jar);
+    return TrainlogService._(dio, jar);
   }
 
   /// Persistent cookies (survive app restarts)
-  static Future<TrainlogAuthService> persistent() async {
+  static Future<TrainlogService> persistent() async {
     final dir = await getApplicationSupportDirectory();
     final cookieDir = p.join(dir.path, 'cookies');
     final jar = PersistCookieJar(
@@ -63,7 +68,7 @@ class TrainlogAuthService {
       ),
     );
     dio.interceptors.add(CookieManager(jar));
-    return TrainlogAuthService._(dio, jar);
+    return TrainlogService._(dio, jar);
   }
 
   Future<void> clearSession() async => _cookieJar.deleteAll();
@@ -148,6 +153,91 @@ class TrainlogAuthService {
     return null;
   }
 
+  Future<String> fetchAllTripsData(String username) async {
+    final path = '/$username/export';
+    try {
+      final res = await _dio.get<String>(
+        path,
+        options: Options(
+          followRedirects: true,     // follow harmless redirects
+          maxRedirects: 5,
+          responseType: ResponseType.plain, // get raw CSV as String
+          headers: {'Accept': 'text/csv, text/plain;q=0.9, */*;q=0.8'},
+          validateStatus: (s) => s != null && s >= 200 && s < 400,
+        ),
+      );
+
+      // If we still ended at a redirect, check if it's a login redirect
+      if (res.statusCode != null && res.statusCode! >= 300 && res.statusCode! < 400) {
+        final loc = res.headers['location']?.first ?? '';
+        if (loc.contains('/login')) {
+          print('Not conected: redirected to login → not authenticated');
+          return "";
+        }
+      }
+
+      final csv = res.data ?? '';
+      if (csv.isEmpty) {
+        print('debugPrintFirstTrips: (empty response)');
+        return "";
+      }
+      return csv;
+    } catch (e) {
+      print('debugPrintFirstTrips: error fetching $path: $e');
+    }
+    return '';
+  }
+
+  /// Fetches {"operators": { "<name>": "<path>", ... }} and returns the inner map.
+  /// - Keys/values are trimmed
+  /// - Null/empty values are skipped
+  Future<Map<String, Image>> fetchAllOperatorLogos(
+    String username, {
+    required double maxWidth,
+    required double maxHeight,
+  }) async {
+    final path = '/$username/getManAndOps/train';
+
+    final res = await _dio.get<Map<String, dynamic>>(
+      path,
+      options: Options(
+        followRedirects: true,
+        maxRedirects: 5,
+        responseType: ResponseType.json,
+        validateStatus: (s) => s != null && s >= 200 && s < 400,
+      ),
+    );
+
+    final data = res.data; // already decoded JSON
+    if (data == null) return {};
+
+    final ops = data['operators'];
+    if (ops is! Map) return {}; // not present or wrong shape
+
+    final out = <String, Image>{};
+    ops.forEach((k, v) {
+      final name = k?.toString().trim();
+      final path = v?.toString().trim();
+      if (name == null || name.isEmpty || path == null || path.isEmpty) return;
+
+      final url = _prefixLogo(_logoPath, path);
+
+      out[name] = Image.network(
+        url,
+        width: maxWidth,
+        height: maxHeight,
+        fit: BoxFit.contain,             // <- keeps aspect ratio inside the box
+        errorBuilder: (_, __, ___) => const Image(
+          image: AssetImage('assets/images/logo_fallback.png'),
+          fit: BoxFit.contain,
+        ),
+        // Optional: filterQuality: FilterQuality.medium,
+      );
+    });
+    return out;
+  }
+
+
   // ---- helpers ----
   Cookie? _findSessionCookie(List<Cookie> cookies) {
     for (final c in cookies) {
@@ -158,4 +248,20 @@ class TrainlogAuthService {
     }
     return null;
   }
+
+  String _prefixLogo(String base, String path) {
+    if (path.isEmpty) return path;
+
+    final p = path.toLowerCase();
+    // Don't touch absolute or data URLs
+    if (p.startsWith('http://') || p.startsWith('https://') || p.startsWith('data:')) {
+      return path;
+    }
+
+    // Ensure base ends with a slash, then resolve relative path
+    final baseWithSlash = base.endsWith('/') ? base : '$base/';
+    final rel = path.startsWith('/') ? path.substring(1) : path;
+    return Uri.parse(baseWithSlash).resolve(rel).toString();
+  }
+
 }

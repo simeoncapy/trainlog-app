@@ -1,7 +1,7 @@
 {
   "@@locale": "fr",
   "appTitle": "Trainlog",  
-  "language": "English",
+  "language": "Français",
   "mainMenuButtonTooltip": "Ouvrir le menu",
   "filterButton": "Filtrer",
   "loginButton": "Connexion",
@@ -19,6 +19,15 @@
   "passwordHideLabel": "Masquer le mot de passe",
   "passwordRequiredLabel": "Le mot de passe est obligatoire",
   "createAccountButtonShort": "Créer",
+  "loginToYourAccount": "Connectez-vous à votre compte",
+  "menuHello": "Bonjour {username}",
+  "@menuHello" :{
+    "description": "The username",
+    "placeholders": {
+      "username": {}
+    }
+  },
+  "connectionError": "Echec de la connexion, vérifiez vos identifiants",
 
   "settingsAppCategory": "Paramètres de l'application",
   "settingsMapCategory": "Paramètres de la carte",
@@ -70,6 +79,11 @@
   "typeCar": "Voiture",
   "typePlane": "Avion",
   "typeFerry": "Ferry",
+  "typeAerialway": "Téléphérique",
+  "typeWalk": "Marche",
+  "typePoi": "Point d'intéret",
+  "typeCycle": "Vélo",
+  "typeHelicopter": "Hélicoptère",
 
   "tripsTableHeaderOriginDestination": "Origine/Destination",
   "tripsTableHeaderOrigin": "Origine",
@@ -111,7 +125,7 @@
   "statisticsTripsUnitBase": "trajets",
   "statisticsTripsUnitKilo": "mille trajets",
   "statisticsTripsUnitMega": "million de trajet",
-  "statisticsTripsUnitGiga": "billion de trajet",
+  "statisticsTripsUnitGiga": "milliard de trajet",
 
   "statisticsOtherLabel": "Autres",
   "statisticsTotalLabel": "Total",

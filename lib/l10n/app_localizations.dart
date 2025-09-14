@@ -214,6 +214,24 @@ abstract class AppLocalizations {
   /// **'Create'**
   String get createAccountButtonShort;
 
+  /// No description provided for @loginToYourAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Log in to your account'**
+  String get loginToYourAccount;
+
+  /// The username
+  ///
+  /// In en, this message translates to:
+  /// **'Hello {username}'**
+  String menuHello(Object username);
+
+  /// No description provided for @connectionError.
+  ///
+  /// In en, this message translates to:
+  /// **'Login failed, please check your credentials'**
+  String get connectionError;
+
   /// No description provided for @settingsAppCategory.
   ///
   /// In en, this message translates to:
@@ -501,6 +519,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Ferry'**
   String get typeFerry;
+
+  /// No description provided for @typeAerialway.
+  ///
+  /// In en, this message translates to:
+  /// **'Aerialway'**
+  String get typeAerialway;
+
+  /// No description provided for @typeWalk.
+  ///
+  /// In en, this message translates to:
+  /// **'Walk'**
+  String get typeWalk;
+
+  /// No description provided for @typePoi.
+  ///
+  /// In en, this message translates to:
+  /// **'Point of interest'**
+  String get typePoi;
+
+  /// No description provided for @typeCycle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bicycle'**
+  String get typeCycle;
+
+  /// No description provided for @typeHelicopter.
+  ///
+  /// In en, this message translates to:
+  /// **'Helicopter'**
+  String get typeHelicopter;
 
   /// No description provided for @tripsTableHeaderOriginDestination.
   ///

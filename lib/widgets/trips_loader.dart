@@ -6,11 +6,13 @@ import 'package:fluttertoast/fluttertoast.dart';
 class TripsLoader extends StatefulWidget {
   final Widget Function(BuildContext) builder;
   final String csvPath;
+  final bool loadFromApi;
 
   const TripsLoader({
     super.key,
     required this.builder,
     this.csvPath = "",
+    this.loadFromApi = false,
   });
 
   @override
@@ -31,7 +33,7 @@ class _TripsLoaderState extends State<TripsLoader> {
   Future<void> _loadTrips() async {
     try {
       await Provider.of<TripsProvider>(context, listen: false)
-          .loadTrips(csvPath: widget.csvPath, context: context);
+          .loadTrips(csvPath: widget.csvPath, context: context, loadFromApi: widget.loadFromApi);
     } catch (e) {
       Fluttertoast.showToast(
         msg: '⚠️ Failed to load trips.',

@@ -19,6 +19,15 @@
   "passwordHideLabel": "Hide password",
   "passwordRequiredLabel": "Password is required",
   "createAccountButtonShort": "Create",
+  "loginToYourAccount": "Log in to your account",
+  "menuHello": "Hello {username}",
+  "@menuHello" :{
+    "description": "The username",
+    "placeholders": {
+      "username": {}
+    }
+  },
+  "connectionError": "Login failed, please check your credentials",
   
   "settingsAppCategory": "App Settings",
   "settingsMapCategory": "Map Settings",
@@ -77,6 +86,11 @@
   "typeCar": "Car",
   "typePlane": "Plane",
   "typeFerry": "Ferry",
+  "typeAerialway": "Aerialway",
+  "typeWalk": "Walk",
+  "typePoi": "Point of interest",
+  "typeCycle": "Bicycle",
+  "typeHelicopter": "Helicopter",
 
   "tripsTableHeaderOriginDestination": "Origin/Destination",
   "tripsTableHeaderOrigin": "Origin",

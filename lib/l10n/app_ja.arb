@@ -19,6 +19,15 @@
   "passwordHideLabel": "パスワードを非表示",
   "passwordRequiredLabel": "パスワードは必須です",
   "createAccountButtonShort": "作成",
+  "loginToYourAccount": "アカウントにログイン",
+  "menuHello": "こんにちは {username}さん",
+  "@menuHello" :{
+    "description": "The username",
+    "placeholders": {
+      "username": {}
+    }
+  },
+  "connectionError": "ログインに失敗しました。資格情報を確認してください。",
 
   "settingsAppCategory": "アプリ設定",
   "settingsMapCategory": "地図設定",
@@ -70,6 +79,11 @@
   "typeCar": "車",
   "typePlane": "飛行機",
   "typeFerry": "フェリー",
+  "typeAerialway": "索道",
+  "typeWalk": "散歩",
+  "typePoi": "地点",
+  "typeCycle": "自転車",
+  "typeHelicopter": "ヘリコプター",
 
   "tripsTableHeaderOriginDestination": "出発・到着駅",
   "tripsTableHeaderOrigin": "出発駅",

@@ -20,6 +20,8 @@ class SettingsProvider with ChangeNotifier {
   LatLng? _SP_userPosition;
   bool _SP_refusedToSharePosition = false;
   String? _SP_authUsername;
+  bool _SP_shouldLoadTripsFromApi = true;
+  DateTime? _SP_mostRecentFutureTripOnMap;
 
   static const _kLastUserLat = 'last_user_lat';
   static const _kLastUserLng = 'last_user_lng';
@@ -34,6 +36,8 @@ class SettingsProvider with ChangeNotifier {
   LatLng? get userPosition => _SP_userPosition;
   bool get refusedToSharePosition => _SP_refusedToSharePosition;
   String? get authUsername => _SP_authUsername;
+  bool get shouldLoadTripsFromApi => _SP_shouldLoadTripsFromApi;
+  DateTime? get mostRecentFutureTripOnMap => _SP_mostRecentFutureTripOnMap;
 
   SettingsProvider() {
     // Shared Preference in settings
@@ -48,6 +52,7 @@ class SettingsProvider with ChangeNotifier {
     _loadLastUserPosition();
     _loadRefusedToSharePosition();
     _loadUsername();
+    _loadShouldLoadTripsFromApi();
   }
 
   void _loadTheme() async {
@@ -235,7 +240,7 @@ class SettingsProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<String?> _loadUsername() async {
+  void _loadUsername() async {
     final prefs = await SharedPreferences.getInstance();
     final u = prefs.getString(_kUsernameKey);
     _SP_authUsername = u;
@@ -246,6 +251,23 @@ class SettingsProvider with ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_kUsernameKey);
     _SP_authUsername = null;
+    notifyListeners();
+  }
+
+  // ------------------------------------------------------------------------------
+
+  void _loadShouldLoadTripsFromApi() async {
+    final prefs = await SharedPreferences.getInstance();
+    final p = prefs.getBool('should_load_trips_from_api');
+    _SP_shouldLoadTripsFromApi = p ?? false;
+    notifyListeners();
+  }
+
+  void setShouldLoadTripsFromApi(bool p) async {
+    if (_SP_shouldLoadTripsFromApi == p) return;
+    _SP_shouldLoadTripsFromApi = p;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('should_load_trips_from_api', p);
     notifyListeners();
   }
 }
