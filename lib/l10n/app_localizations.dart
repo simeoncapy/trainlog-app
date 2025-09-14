@@ -520,6 +520,36 @@ abstract class AppLocalizations {
   /// **'Ferry'**
   String get typeFerry;
 
+  /// No description provided for @typeAerialway.
+  ///
+  /// In en, this message translates to:
+  /// **'Aerialway'**
+  String get typeAerialway;
+
+  /// No description provided for @typeWalk.
+  ///
+  /// In en, this message translates to:
+  /// **'Walk'**
+  String get typeWalk;
+
+  /// No description provided for @typePoi.
+  ///
+  /// In en, this message translates to:
+  /// **'Point of interest'**
+  String get typePoi;
+
+  /// No description provided for @typeCycle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bicycle'**
+  String get typeCycle;
+
+  /// No description provided for @typeHelicopter.
+  ///
+  /// In en, this message translates to:
+  /// **'Helicopter'**
+  String get typeHelicopter;
+
   /// No description provided for @tripsTableHeaderOriginDestination.
   ///
   /// In en, this message translates to:

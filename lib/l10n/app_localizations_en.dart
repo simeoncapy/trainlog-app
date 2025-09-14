@@ -225,6 +225,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get typeFerry => 'Ferry';
 
   @override
+  String get typeAerialway => 'Aerialway';
+
+  @override
+  String get typeWalk => 'Walk';
+
+  @override
+  String get typePoi => 'Point of interest';
+
+  @override
+  String get typeCycle => 'Bicycle';
+
+  @override
+  String get typeHelicopter => 'Helicopter';
+
+  @override
   String get tripsTableHeaderOriginDestination => 'Origin/Destination';
 
   @override

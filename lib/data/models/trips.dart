@@ -149,6 +149,11 @@ enum VehicleType {
   bus,
   car,
   ferry,
+  aerialway,
+  walk,
+  poi, // point of interest
+  cycle,
+  helicopter,
   unknown;
 
   static VehicleType fromString(String? str) {
@@ -168,6 +173,16 @@ enum VehicleType {
         return VehicleType.car;
       case 'ferry':
         return VehicleType.ferry;
+      case 'aerialway':
+        return VehicleType.aerialway;
+      case 'walk':
+        return VehicleType.walk;
+      case 'poi':
+        return VehicleType.poi;
+      case 'cycle':
+        return VehicleType.cycle;
+      case 'helicopter':
+        return VehicleType.helicopter;
       default:
         return VehicleType.unknown;
     }
@@ -189,6 +204,16 @@ enum VehicleType {
         return 'car';
       case VehicleType.ferry:
         return 'ferry';
+      case VehicleType.aerialway:
+        return 'aerialway';
+      case VehicleType.walk:
+        return 'walk';
+      case VehicleType.poi:
+        return 'poi';
+      case VehicleType.cycle:
+        return 'cycle';
+      case VehicleType.helicopter:
+        return 'helicopter';
       case VehicleType.unknown:
         return 'unknown';
     }
@@ -218,6 +243,16 @@ enum VehicleType {
         return appLocalizations.typeCar;
       case VehicleType.ferry:
         return appLocalizations.typeFerry;
+      case VehicleType.aerialway:
+        return appLocalizations.typeAerialway;
+      case VehicleType.walk:
+        return appLocalizations.typeWalk;
+      case VehicleType.poi:
+        return appLocalizations.typePoi;
+      case VehicleType.cycle:
+        return appLocalizations.typeCycle;
+      case VehicleType.helicopter:
+        return appLocalizations.typeHelicopter;
       case VehicleType.unknown:
         return 'unknown';
     }
@@ -245,6 +280,16 @@ enum VehicleType {
         return Icon(Icons.directions_car);
       case VehicleType.ferry:
         return Icon(Icons.directions_ferry);
+      case VehicleType.aerialway:
+        return Icon(Icons.downhill_skiing); // TO CHANGE
+      case VehicleType.walk:
+        return Icon(Icons.directions_walk);
+      case VehicleType.poi:
+        return Icon(Icons.flag_circle);
+      case VehicleType.cycle:
+        return Icon(Icons.pedal_bike);
+      case VehicleType.helicopter:
+        return Icon(Icons.wind_power); // TO CHANGE
       case VehicleType.unknown:
         return Icon(Icons.question_mark);
     }

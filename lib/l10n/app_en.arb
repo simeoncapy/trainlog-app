@@ -86,6 +86,11 @@
   "typeCar": "Car",
   "typePlane": "Plane",
   "typeFerry": "Ferry",
+  "typeAerialway": "Aerialway",
+  "typeWalk": "Walk",
+  "typePoi": "Point of interest",
+  "typeCycle": "Bicycle",
+  "typeHelicopter": "Helicopter",
 
   "tripsTableHeaderOriginDestination": "Origin/Destination",
   "tripsTableHeaderOrigin": "Origin",

@@ -224,6 +224,21 @@ class AppLocalizationsJa extends AppLocalizations {
   String get typeFerry => 'フェリー';
 
   @override
+  String get typeAerialway => '索道';
+
+  @override
+  String get typeWalk => '散歩';
+
+  @override
+  String get typePoi => '地点';
+
+  @override
+  String get typeCycle => '自転車';
+
+  @override
+  String get typeHelicopter => 'ヘリコプター';
+
+  @override
   String get tripsTableHeaderOriginDestination => '出発・到着駅';
 
   @override

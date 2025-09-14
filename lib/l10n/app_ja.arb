@@ -79,6 +79,11 @@
   "typeCar": "車",
   "typePlane": "飛行機",
   "typeFerry": "フェリー",
+  "typeAerialway": "索道",
+  "typeWalk": "散歩",
+  "typePoi": "地点",
+  "typeCycle": "自転車",
+  "typeHelicopter": "ヘリコプター",
 
   "tripsTableHeaderOriginDestination": "出発・到着駅",
   "tripsTableHeaderOrigin": "出発駅",
