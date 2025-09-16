@@ -41,7 +41,8 @@ class _StatisticsPageState extends State<StatisticsPage> {
   bool _sortedAlpha = false; // for the table
   bool _isParametersExpanded = true;
   StatisticsType _selectedStatistics = StatisticsType.bar;
-  Map<String, Image> _operatorLogos = Map();
+  late Map<String, Image> _operatorLogos;
+  late TrainlogService _service;
 
   late List<int> listYears;  
 
@@ -64,8 +65,9 @@ class _StatisticsPageState extends State<StatisticsPage> {
       final years = await tripsProvider.repository?.fetchListOfYears()?..sort((a, b) => b.compareTo(a));
 
       final auth = Provider.of<AuthProvider>(context, listen: false);
-      final service = auth.service;
-      _operatorLogos = await service.fetchAllOperatorLogos(auth.username ?? "", maxWidth: 48, maxHeight: 48);
+      _service = auth.service;
+      await _service.fetchAllOperatorLogosUrl(auth.username ?? "");
+      //_operatorLogos = await _service.fetchAllOperatorLogos(auth.username ?? "", maxWidth: 48, maxHeight: 48);
 
       if (!mounted) return;
       setState(() {
@@ -204,7 +206,8 @@ class _StatisticsPageState extends State<StatisticsPage> {
         //return List.generate(data.length, (_) => const Icon(Icons.train));
         return List.generate(
             data.length,
-            (i) => _operatorLogos[data[i]] ?? const Icon(Icons.train), 
+            (i) => _service.getOperatorImage(data[i], maxWidth: 48, maxHeight: 48), 
+            //(i) => _operatorLogos[data[i]] ?? const Icon(Icons.train), 
           );
         case GraphType.country:
           return List.generate(

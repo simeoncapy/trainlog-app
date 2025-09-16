@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:ui';
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:cookie_jar/cookie_jar.dart';
@@ -33,6 +34,7 @@ class TrainlogService {
 
   final Dio _dio;
   final CookieJar _cookieJar;
+  Map<String, String> _listOperators = Map();
 
   TrainlogService._(this._dio, this._cookieJar);
 
@@ -71,7 +73,9 @@ class TrainlogService {
     return TrainlogService._(dio, jar);
   }
 
-  Future<void> clearSession() async => _cookieJar.deleteAll();
+  Future<void> clearSession() async {
+    _cookieJar.deleteAll();
+  }
 
   /// Lightweight auth check without scraping:
   /// If you're authenticated, GET /login/ typically redirects away (302).
@@ -122,6 +126,7 @@ class TrainlogService {
     // Grab current cookies (session should now be set on success)
     final cookies = await _cookieJar.loadForRequest(Uri.parse('$_baseUrl/'));
     final sessionCookie = _findSessionCookie(cookies);
+    if(success) _listOperators = await fetchAllOperatorLogosUrl(username);
 
     return TrainlogLoginResult(
       success: success,
@@ -196,6 +201,67 @@ class TrainlogService {
     required double maxWidth,
     required double maxHeight,
   }) async {
+    // local helper so every image shows a spinner while loading
+    Image buildLogo(String url) {
+      return Image.network(
+        url,
+        width: maxWidth,
+        height: maxHeight,
+        fit: BoxFit.contain,
+        loadingBuilder: (context, child, progress) {
+          if (progress == null) return child; // finished
+          final total = progress.expectedTotalBytes;
+          final loaded = progress.cumulativeBytesLoaded;
+          final value = total != null ? loaded / total : null;
+          return SizedBox(
+            width: maxWidth,
+            height: maxHeight,
+            child: Center(
+              child: CircularProgressIndicator(strokeWidth: 2, value: value),
+            ),
+          );
+        },
+        errorBuilder: (context, error, stack) => Image.asset(
+          'assets/images/logo_fallback.png',
+          width: maxWidth,
+          height: maxHeight,
+          fit: BoxFit.contain,
+        ),
+      );
+    }
+
+    final path = '/$username/getManAndOps/train';
+    final res = await _dio.get<Map<String, dynamic>>(
+      path,
+      options: Options(
+        followRedirects: true,
+        maxRedirects: 5,
+        responseType: ResponseType.json,
+        validateStatus: (s) => s != null && s >= 200 && s < 400,
+      ),
+    );
+
+    final data = res.data;
+    if (data == null) return {};
+
+    final ops = data['operators'];
+    if (ops is! Map) return {};
+
+    final out = <String, Image>{};
+    ops.forEach((k, v) {
+      final name = k?.toString().trim();
+      final raw  = v?.toString().trim();
+      if (name == null || name.isEmpty || raw == null || raw.isEmpty) return;
+
+      final url = _prefixLogo(_logoPath, raw); // keep your prefixing
+      out[name] = buildLogo(url);
+    });
+
+    return out;
+  }
+
+
+  Future<Map<String, String>> fetchAllOperatorLogosUrl(String username) async {
     final path = '/$username/getManAndOps/train';
 
     final res = await _dio.get<Map<String, dynamic>>(
@@ -214,29 +280,66 @@ class TrainlogService {
     final ops = data['operators'];
     if (ops is! Map) return {}; // not present or wrong shape
 
-    final out = <String, Image>{};
+    final out = <String, String>{};
     ops.forEach((k, v) {
-      final name = k?.toString().trim();
-      final path = v?.toString().trim();
-      if (name == null || name.isEmpty || path == null || path.isEmpty) return;
-
-      final url = _prefixLogo(_logoPath, path);
-
-      out[name] = Image.network(
-        url,
-        width: maxWidth,
-        height: maxHeight,
-        fit: BoxFit.contain,             // <- keeps aspect ratio inside the box
-        errorBuilder: (_, __, ___) => const Image(
-          image: AssetImage('assets/images/logo_fallback.png'),
-          fit: BoxFit.contain,
-        ),
-        // Optional: filterQuality: FilterQuality.medium,
-      );
+      final key = k?.toString().trim();
+      final val = v?.toString().trim();
+      if (key != null && key.isNotEmpty && val != null && val.isNotEmpty) {
+        out[key] = _prefixLogo(_logoPath, val);
+      }
     });
+    _listOperators = out;
     return out;
   }
 
+  Image getOperatorImage(
+    String operatorName, {
+    required double maxWidth,
+    required double maxHeight,
+  }) {
+    final url = _listOperators[operatorName];
+
+    if (url == null || url.trim().isEmpty) {
+      return Image.asset(
+        'assets/images/logo_fallback.png',
+        width: maxWidth,
+        height: maxHeight,
+        fit: BoxFit.contain,
+      );
+    }
+
+    return Image.network(
+      url,
+      width: maxWidth,
+      height: maxHeight,
+      fit: BoxFit.contain,
+      // 1) spinner while loading
+      loadingBuilder: (context, child, progress) {
+        if (progress == null) return child; // finished
+        final expected = progress.expectedTotalBytes;
+        final loaded = progress.cumulativeBytesLoaded;
+        final value = expected != null ? loaded / expected : null;
+
+        return SizedBox(
+          width: maxWidth,
+          height: maxHeight,
+          child: Center(
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              value: value, // null = indeterminate
+            ),
+          ),
+        );
+      },
+      // 2) fallback on error
+      errorBuilder: (context, error, stack) => Image.asset(
+        'assets/images/logo_fallback.png',
+        width: maxWidth,
+        height: maxHeight,
+        fit: BoxFit.contain,
+      ),
+    );
+  }
 
   // ---- helpers ----
   Cookie? _findSessionCookie(List<Cookie> cookies) {

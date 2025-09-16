@@ -3,8 +3,10 @@ import 'package:provider/provider.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/data/trips_repository.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
+import 'package:trainlog_app/providers/auth_provider.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
+import 'package:trainlog_app/services/trainlog_service.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
 import 'package:trainlog_app/widgets/past_future_selector.dart';
@@ -26,10 +28,37 @@ class _TripsPageState extends State<TripsPage> {
   Key _tableKey = UniqueKey();
   late TripsProvider tripsProvider;
   TripsFilterResult? _activeFilter;
+  final Map<String, Image> _operatorLogos = {};
 
   @override
   void initState() {
     super.initState();
+    final auth = Provider.of<AuthProvider>(context, listen: false);
+    final service = auth.service;
+
+    _loadOperatorLogos(service, auth.username);
+  }
+
+  Future<void> _loadOperatorLogos(TrainlogService service, String? username) async {
+    try {
+      final logos = await service.fetchAllOperatorLogos(
+        username ?? "",
+        maxWidth: 45,
+        maxHeight: 45,
+      );
+      if (!mounted) return;
+
+      setState(() {
+        _operatorLogos
+          ..clear()
+          ..addAll(logos);   // mutate same Map instance
+      });
+
+      // Ask the table to repaint so new images appear
+      _dataSource?.notifyListeners();
+    } catch (e) {
+      // optional: log or show a snackbar
+    }
   }
 
   @override
@@ -41,16 +70,14 @@ class _TripsPageState extends State<TripsPage> {
     }
 
     if (_dataSource == null) {
+      // Create it synchronously; pass the (currently empty) map
+      _dataSource = TripsDataSource(context, tripsProvider.repository!, _operatorLogos);
+      _dataSource!.sort(_sortColumnIndex, _sortAscending);
+
+      // If you need to (re)expose the FAB after first layout:
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
-        setState(() {
-          _dataSource = TripsDataSource(context, tripsProvider.repository!);
-          _dataSource!.sort(_sortColumnIndex, _sortAscending);
-          widget.onFabReady(buildFloatingActionButton(context)!);
-        });
+        if (mounted) widget.onFabReady(buildFloatingActionButton(context)!);
       });
-      // Render a tiny placeholder for this frame
-      return const SizedBox.shrink();
     }
 
     //final width = MediaQuery.of(context).size.width;
@@ -251,6 +278,7 @@ class _TripsPageState extends State<TripsPage> {
 class TripsDataSource extends DataTableSource {
   final BuildContext context;
   final TripsRepository _repository;
+  final Map<String, Image> _operatorLogos;
   int _sortColumnIndex = 0;
   bool _sortAscending = true;
   final List<Trips?> _cache = [];
@@ -259,7 +287,7 @@ class TripsDataSource extends DataTableSource {
   TimeMoment _timeMoment = TimeMoment.past;
   TripsFilterResult? _filter;
 
-  TripsDataSource(this.context, this._repository, [this._filter]) {
+  TripsDataSource(this.context, this._repository, this._operatorLogos, [this._filter]) {
     _fetchRowCount();
   }
 
@@ -346,7 +374,8 @@ class TripsDataSource extends DataTableSource {
         case 'endTime':
           return DataCell(Text(formatDateTime(context, trip.endDatetime).replaceAll(RegExp(r" "), "\n")));
         case 'operator':
-          return DataCell(Text(Uri.decodeComponent(trip.operatorName)));
+          return DataCell(_operatorLogos[Uri.decodeComponent(trip.operatorName)] ?? Text(Uri.decodeComponent(trip.operatorName))); // _operatorLogos
+          //return DataCell(Text(Uri.decodeComponent(trip.operatorName))); // _operatorLogos
         case 'lineName':
           return DataCell(Text(Uri.decodeComponent(trip.lineName)));
         case 'tripLength':
