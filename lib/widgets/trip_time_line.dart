@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
+import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
 
@@ -14,7 +15,7 @@ class TripTimeline extends StatelessWidget {
 Widget build(BuildContext context) {
   final departureTime = formatDateTime(context, trip.startDatetime).replaceAll(RegExp(r" "), "\n");
   final arrivalTime = formatDateTime(context, trip.endDatetime).replaceAll(RegExp(r" "), "\n");
-  //final operatorName = Uri.decodeComponent(trip.operatorName);
+  final operatorName = Uri.decodeComponent(trip.operatorName);
   final lineName = Uri.decodeComponent(trip.lineName);
   final distance = "${(trip.tripLength / 1000).round()} km";
   final durationStr = formatSecondsToHMS((trip.manualTripDuration ?? trip.estimatedTripDuration).toInt());
@@ -22,8 +23,9 @@ Widget build(BuildContext context) {
   final settings = context.read<SettingsProvider>();
   final palette = MapColorPaletteHelper.getPalette(settings.mapColorPalette);
   final color = palette[trip.type] ?? Colors.black;
+  final trainlog = Provider.of<TrainlogProvider>(context, listen: false);
 
-  const double timelineHeight = 200;
+  const double timelineHeight = 250;
 
   return SizedBox(
     height: timelineHeight,
@@ -81,17 +83,12 @@ Widget build(BuildContext context) {
               ),
 
               // Middle: line info
-              Row(
+              Column(
                 children: [
-                  const Placeholder(
-                    fallbackHeight: 24,
-                    fallbackWidth: 24,
-                    color: Colors.grey,
-                    strokeWidth: 1.5,
-                  ),
+                  trainlog.getOperatorImage(operatorName, maxWidth: 96, maxHeight: 96),
                   const SizedBox(width: 8),
-                  Expanded(
-                    child: Column(
+                  //Expanded(
+                    /*child:*/ Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
@@ -105,7 +102,7 @@ Widget build(BuildContext context) {
                         ),
                       ],
                     ),
-                  ),
+                  //),
                 ],
               ),
 
@@ -148,7 +145,7 @@ Widget build(BuildContext context) {
 
   Widget _buildLine(Color color) => Container(
         width: 10,
-        height: 100,
+        height: 150,
         color: color,
   );
 

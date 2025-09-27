@@ -125,6 +125,7 @@ class TrainlogProvider extends ChangeNotifier {
     required double maxWidth,
     required double maxHeight,
   }) {
+    if (_listOperatorsLogoUrl.isEmpty) reloadOperatorList();
     final url = _listOperatorsLogoUrl[operatorName];
 
     if (url == null || url.trim().isEmpty) {
