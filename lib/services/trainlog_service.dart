@@ -34,7 +34,6 @@ class TrainlogService {
 
   final Dio _dio;
   final CookieJar _cookieJar;
-  Map<String, String> _listOperators = Map();
 
   TrainlogService._(this._dio, this._cookieJar);
 
@@ -126,7 +125,6 @@ class TrainlogService {
     // Grab current cookies (session should now be set on success)
     final cookies = await _cookieJar.loadForRequest(Uri.parse('$_baseUrl/'));
     final sessionCookie = _findSessionCookie(cookies);
-    if(success) _listOperators = await fetchAllOperatorLogosUrl(username);
 
     return TrainlogLoginResult(
       success: success,
@@ -193,74 +191,6 @@ class TrainlogService {
     return '';
   }
 
-  /// Fetches {"operators": { "<name>": "<path>", ... }} and returns the inner map.
-  /// - Keys/values are trimmed
-  /// - Null/empty values are skipped
-  Future<Map<String, Image>> fetchAllOperatorLogos(
-    String username, {
-    required double maxWidth,
-    required double maxHeight,
-  }) async {
-    // local helper so every image shows a spinner while loading
-    Image buildLogo(String url) {
-      return Image.network(
-        url,
-        width: maxWidth,
-        height: maxHeight,
-        fit: BoxFit.contain,
-        loadingBuilder: (context, child, progress) {
-          if (progress == null) return child; // finished
-          final total = progress.expectedTotalBytes;
-          final loaded = progress.cumulativeBytesLoaded;
-          final value = total != null ? loaded / total : null;
-          return SizedBox(
-            width: maxWidth,
-            height: maxHeight,
-            child: Center(
-              child: CircularProgressIndicator(strokeWidth: 2, value: value),
-            ),
-          );
-        },
-        errorBuilder: (context, error, stack) => Image.asset(
-          'assets/images/logo_fallback.png',
-          width: maxWidth,
-          height: maxHeight,
-          fit: BoxFit.contain,
-        ),
-      );
-    }
-
-    final path = '/$username/getManAndOps/train';
-    final res = await _dio.get<Map<String, dynamic>>(
-      path,
-      options: Options(
-        followRedirects: true,
-        maxRedirects: 5,
-        responseType: ResponseType.json,
-        validateStatus: (s) => s != null && s >= 200 && s < 400,
-      ),
-    );
-
-    final data = res.data;
-    if (data == null) return {};
-
-    final ops = data['operators'];
-    if (ops is! Map) return {};
-
-    final out = <String, Image>{};
-    ops.forEach((k, v) {
-      final name = k?.toString().trim();
-      final raw  = v?.toString().trim();
-      if (name == null || name.isEmpty || raw == null || raw.isEmpty) return;
-
-      final url = _prefixLogo(_logoPath, raw); // keep your prefixing
-      out[name] = buildLogo(url);
-    });
-
-    return out;
-  }
-
-
   Future<Map<String, String>> fetchAllOperatorLogosUrl(String username) async {
     final path = '/$username/getManAndOps/train';
 
@@ -288,58 +218,9 @@ class TrainlogService {
         out[key] = _prefixLogo(_logoPath, val);
       }
     });
-    _listOperators = out;
     return out;
   }
 
-  Image getOperatorImage(
-    String operatorName, {
-    required double maxWidth,
-    required double maxHeight,
-  }) {
-    final url = _listOperators[operatorName];
-
-    if (url == null || url.trim().isEmpty) {
-      return Image.asset(
-        'assets/images/logo_fallback.png',
-        width: maxWidth,
-        height: maxHeight,
-        fit: BoxFit.contain,
-      );
-    }
-
-    return Image.network(
-      url,
-      width: maxWidth,
-      height: maxHeight,
-      fit: BoxFit.contain,
-      // 1) spinner while loading
-      loadingBuilder: (context, child, progress) {
-        if (progress == null) return child; // finished
-        final expected = progress.expectedTotalBytes;
-        final loaded = progress.cumulativeBytesLoaded;
-        final value = expected != null ? loaded / expected : null;
-
-        return SizedBox(
-          width: maxWidth,
-          height: maxHeight,
-          child: Center(
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
-              value: value, // null = indeterminate
-            ),
-          ),
-        );
-      },
-      // 2) fallback on error
-      errorBuilder: (context, error, stack) => Image.asset(
-        'assets/images/logo_fallback.png',
-        width: maxWidth,
-        height: maxHeight,
-        fit: BoxFit.contain,
-      ),
-    );
-  }
 
   // ---- helpers ----
   Cookie? _findSessionCookie(List<Cookie> cookies) {
