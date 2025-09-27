@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/data/trips_repository.dart';
-import 'package:trainlog_app/providers/auth_provider.dart';
+import 'package:trainlog_app/providers/trainlog_provider.dart';
 
 class TripsProvider extends ChangeNotifier {
   TripsRepository? _repository;

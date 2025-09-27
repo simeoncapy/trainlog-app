@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/data/trips_repository.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
-import 'package:trainlog_app/providers/auth_provider.dart';
+import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
 import 'package:trainlog_app/services/trainlog_service.dart';
@@ -27,38 +27,13 @@ class _TripsPageState extends State<TripsPage> {
   TripsDataSource? _dataSource;
   Key _tableKey = UniqueKey();
   late TripsProvider tripsProvider;
+  late TrainlogProvider trainlog;
   TripsFilterResult? _activeFilter;
-  final Map<String, Image> _operatorLogos = {};
 
   @override
   void initState() {
     super.initState();
-    final auth = Provider.of<AuthProvider>(context, listen: false);
-    final service = auth.service;
-
-    _loadOperatorLogos(service, auth.username);
-  }
-
-  Future<void> _loadOperatorLogos(TrainlogService service, String? username) async {
-    try {
-      final logos = await service.fetchAllOperatorLogos(
-        username ?? "",
-        maxWidth: 45,
-        maxHeight: 45,
-      );
-      if (!mounted) return;
-
-      setState(() {
-        _operatorLogos
-          ..clear()
-          ..addAll(logos);   // mutate same Map instance
-      });
-
-      // Ask the table to repaint so new images appear
-      _dataSource?.notifyListeners();
-    } catch (e) {
-      // optional: log or show a snackbar
-    }
+    trainlog = Provider.of<TrainlogProvider>(context, listen: false);
   }
 
   @override
@@ -71,7 +46,7 @@ class _TripsPageState extends State<TripsPage> {
 
     if (_dataSource == null) {
       // Create it synchronously; pass the (currently empty) map
-      _dataSource = TripsDataSource(context, tripsProvider.repository!, _operatorLogos);
+      _dataSource = TripsDataSource(context, tripsProvider.repository!, trainlog);
       _dataSource!.sort(_sortColumnIndex, _sortAscending);
 
       // If you need to (re)expose the FAB after first layout:
@@ -278,7 +253,7 @@ class _TripsPageState extends State<TripsPage> {
 class TripsDataSource extends DataTableSource {
   final BuildContext context;
   final TripsRepository _repository;
-  final Map<String, Image> _operatorLogos;
+  final TrainlogProvider _trainlog;
   int _sortColumnIndex = 0;
   bool _sortAscending = true;
   final List<Trips?> _cache = [];
@@ -287,7 +262,7 @@ class TripsDataSource extends DataTableSource {
   TimeMoment _timeMoment = TimeMoment.past;
   TripsFilterResult? _filter;
 
-  TripsDataSource(this.context, this._repository, this._operatorLogos, [this._filter]) {
+  TripsDataSource(this.context, this._repository, this._trainlog, [this._filter]) {
     _fetchRowCount();
   }
 
@@ -374,7 +349,8 @@ class TripsDataSource extends DataTableSource {
         case 'endTime':
           return DataCell(Text(formatDateTime(context, trip.endDatetime).replaceAll(RegExp(r" "), "\n")));
         case 'operator':
-          return DataCell(_operatorLogos[Uri.decodeComponent(trip.operatorName)] ?? Text(Uri.decodeComponent(trip.operatorName))); // _operatorLogos
+          return DataCell(_trainlog.getOperatorImage(Uri.decodeComponent(trip.operatorName), maxWidth: 45, maxHeight: 45));
+          //return DataCell(_operatorLogos[Uri.decodeComponent(trip.operatorName)] ?? Text(Uri.decodeComponent(trip.operatorName))); // _operatorLogos
           //return DataCell(Text(Uri.decodeComponent(trip.operatorName))); // _operatorLogos
         case 'lineName':
           return DataCell(Text(Uri.decodeComponent(trip.lineName)));

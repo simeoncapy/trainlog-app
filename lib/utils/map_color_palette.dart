@@ -22,6 +22,11 @@ class MapColorPaletteHelper {
           VehicleType.bus: Color(0xFF9F4BBB),
           VehicleType.car: Color(0xFFA68FCD),
           VehicleType.ferry: Color(0xFF1E1E7C),
+          VehicleType.aerialway: Color(0xFFB1CF29),
+          VehicleType.cycle: Color(0xFF692018),
+          VehicleType.helicopter: Color(0xFF5771E0),
+          VehicleType.walk: Color(0xFFE18B00),
+          VehicleType.poi: Colors.black,
           VehicleType.unknown: Colors.grey,
         };
       case MapColorPalette.trainlogVariation:

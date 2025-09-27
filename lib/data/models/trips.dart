@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
+import 'package:material_symbols_icons/symbols.dart';
 
 class Trips {
   final String uid;
@@ -281,7 +282,7 @@ enum VehicleType {
       case VehicleType.ferry:
         return Icon(Icons.directions_ferry);
       case VehicleType.aerialway:
-        return Icon(Icons.downhill_skiing); // TO CHANGE
+        return Icon(Symbols.gondola_lift, fill: 1,);
       case VehicleType.walk:
         return Icon(Icons.directions_walk);
       case VehicleType.poi:
@@ -289,7 +290,7 @@ enum VehicleType {
       case VehicleType.cycle:
         return Icon(Icons.pedal_bike);
       case VehicleType.helicopter:
-        return Icon(Icons.wind_power); // TO CHANGE
+        return Icon(Symbols.helicopter, fill: 1,);
       case VehicleType.unknown:
         return Icon(Icons.question_mark);
     }

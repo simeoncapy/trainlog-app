@@ -1,5 +1,5 @@
 import 'dart:collection';
-import 'dart:ffi';
+//import 'dart:ffi';
 import 'dart:io';
 import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/data/database_manager.dart';
-import 'package:trainlog_app/providers/auth_provider.dart';
+import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:diacritic/diacritic.dart';
 import 'dart:convert';
@@ -81,7 +81,7 @@ class TripsRepository {
   static Future<TripsRepository> loadFromApi(BuildContext context) async {
     print("Trip load from API");
     //throw UnimplementedError('API loading not implemented');
-    final auth = Provider.of<AuthProvider>(context, listen: false);
+    final auth = Provider.of<TrainlogProvider>(context, listen: false);
     final settings = Provider.of<SettingsProvider>(context, listen: false);
     final service = auth.service;
     final content = await service.fetchAllTripsData(auth.username ?? "");

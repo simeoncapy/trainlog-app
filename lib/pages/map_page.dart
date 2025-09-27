@@ -360,10 +360,21 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
             (a.startDate ?? DateTime(0)).compareTo(b.startDate ?? DateTime(0)));
         break;
       case PathDisplayOrder.tripDatePlaneOver:
-        final nonAir = list.where((e) => e.type != VehicleType.plane).toList()
-          ..sort((a, b) => (a.startDate ?? DateTime(0)).compareTo(b.startDate ?? DateTime(0)));
-        final air = list.where((e) => e.type == VehicleType.plane).toList()
-          ..sort((a, b) => (a.creationDate ?? DateTime(0)).compareTo(b.creationDate ?? DateTime(0)));
+        final nonAir = list
+            .where((e) =>
+                e.type != VehicleType.plane &&
+                e.type != VehicleType.helicopter) // exclude both
+            .toList()
+          ..sort((a, b) =>
+              (a.startDate ?? DateTime(0)).compareTo(b.startDate ?? DateTime(0)));
+
+        final air = list
+            .where((e) =>
+                e.type == VehicleType.plane || e.type == VehicleType.helicopter) // include both
+            .toList()
+          ..sort((a, b) =>
+              (a.creationDate ?? DateTime(0)).compareTo(b.creationDate ?? DateTime(0)));
+
         list
           ..clear()
           ..addAll(nonAir)

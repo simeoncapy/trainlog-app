@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
-import 'package:trainlog_app/providers/auth_provider.dart';
+import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
 import 'package:trainlog_app/services/trainlog_service.dart';
@@ -41,8 +41,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
   bool _sortedAlpha = false; // for the table
   bool _isParametersExpanded = true;
   StatisticsType _selectedStatistics = StatisticsType.bar;
-  late Map<String, Image> _operatorLogos;
-  late TrainlogService _service;
+  late TrainlogProvider _trainlog;
 
   late List<int> listYears;  
 
@@ -64,10 +63,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
       }
       final years = await tripsProvider.repository?.fetchListOfYears()?..sort((a, b) => b.compareTo(a));
 
-      final auth = Provider.of<AuthProvider>(context, listen: false);
-      _service = auth.service;
-      await _service.fetchAllOperatorLogosUrl(auth.username ?? "");
-      //_operatorLogos = await _service.fetchAllOperatorLogos(auth.username ?? "", maxWidth: 48, maxHeight: 48);
+      _trainlog = Provider.of<TrainlogProvider>(context, listen: false);
 
       if (!mounted) return;
       setState(() {
@@ -206,8 +202,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
         //return List.generate(data.length, (_) => const Icon(Icons.train));
         return List.generate(
             data.length,
-            (i) => _service.getOperatorImage(data[i], maxWidth: 48, maxHeight: 48), 
-            //(i) => _operatorLogos[data[i]] ?? const Icon(Icons.train), 
+            (i) => _trainlog.getOperatorImage(data[i], maxWidth: 48, maxHeight: 48), 
           );
         case GraphType.country:
           return List.generate(

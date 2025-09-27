@@ -1,9 +1,12 @@
+import 'dart:ui';
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import '../services/trainlog_service.dart';
 
-class AuthProvider extends ChangeNotifier {
+class TrainlogProvider extends ChangeNotifier {
   final TrainlogService _service;
 
   bool _loading = false;
@@ -11,8 +14,10 @@ class AuthProvider extends ChangeNotifier {
   String? _error;
   String? _username;
   TrainlogLoginResult? _session;
+  Map<String, String> _listOperatorsLogoUrl = Map();
+  Map<String, String> _listOperators = Map();
 
-  AuthProvider({TrainlogService? service})
+  TrainlogProvider({TrainlogService? service})
       : _service = service ?? TrainlogService();
 
   bool get loading => _loading;
@@ -21,6 +26,7 @@ class AuthProvider extends ChangeNotifier {
   String? get username => _username;
   TrainlogLoginResult? get session => _session;
   TrainlogService get service => _service;
+  Map<String, String> get listOperators => _listOperators;
 
   Future<bool> login({
     required String username,
@@ -38,6 +44,7 @@ class AuthProvider extends ChangeNotifier {
       if (res.success) {
         _username = username;              // keep what the user typed
         settings?.setUsername(username);
+        _listOperatorsLogoUrl = await _service.fetchAllOperatorLogosUrl(username);
       } else {
         _username = null;
         _error = res.failureReason ?? 'Invalid username or password';
@@ -107,4 +114,58 @@ class AuthProvider extends ChangeNotifier {
 
   Future<Response<T>> post<T>(String path, Map<String, dynamic> data) =>
       _service.post<T>(path, data);
+
+  Future<void> reloadOperatorList() async {
+    if (_username == null) return;
+    _listOperatorsLogoUrl = await _service.fetchAllOperatorLogosUrl(_username ?? "");
+  }
+
+  Image getOperatorImage(
+    String operatorName, {
+    required double maxWidth,
+    required double maxHeight,
+  }) {
+    final url = _listOperatorsLogoUrl[operatorName];
+
+    if (url == null || url.trim().isEmpty) {
+      return Image.asset(
+        'assets/images/logo_fallback.png',
+        width: maxWidth,
+        height: maxHeight,
+        fit: BoxFit.contain,
+      );
+    }
+
+    return Image.network(
+      url,
+      width: maxWidth,
+      height: maxHeight,
+      fit: BoxFit.contain,
+      // 1) spinner while loading
+      loadingBuilder: (context, child, progress) {
+        if (progress == null) return child; // finished
+        final expected = progress.expectedTotalBytes;
+        final loaded = progress.cumulativeBytesLoaded;
+        final value = expected != null ? loaded / expected : null;
+
+        return SizedBox(
+          width: maxWidth,
+          height: maxHeight,
+          child: Center(
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              value: value, // null = indeterminate
+            ),
+          ),
+        );
+      },
+      // 2) fallback on error
+      errorBuilder: (context, error, stack) => Image.asset(
+        'assets/images/logo_fallback.png',
+        width: maxWidth,
+        height: maxHeight,
+        fit: BoxFit.contain,
+      ),
+    );
+  }
 }

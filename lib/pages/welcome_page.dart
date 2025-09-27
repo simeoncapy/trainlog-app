@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
-import 'package:trainlog_app/providers/auth_provider.dart';
+import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/widgets/auth_form.dart';
 
@@ -9,7 +9,7 @@ class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});
 
   Future<void> _onLogin(BuildContext context, AuthResult result) async {
-    final auth = Provider.of<AuthProvider>(context, listen: false);
+    final auth = Provider.of<TrainlogProvider>(context, listen: false);
     final settings = Provider.of<SettingsProvider>(context, listen: false);
     final loc = AppLocalizations.of(context)!;
     final success = await auth.login(

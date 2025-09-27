@@ -19,7 +19,7 @@ import 'pages/friends_page.dart';
 import 'pages/settings_page.dart';
 import 'providers/settings_provider.dart';
 import 'l10n/app_localizations.dart';
-import 'providers/auth_provider.dart';
+import 'providers/trainlog_provider.dart';
 
 enum AppPageId {
   map,
@@ -42,7 +42,7 @@ void main() async {
   final settings = SettingsProvider();
 
   final service = await TrainlogService.persistent();
-  final auth = AuthProvider(service: service);
+  final auth = TrainlogProvider(service: service);
   await auth.tryRestoreSession(settings: settings);
 
   runApp(
@@ -86,7 +86,7 @@ class AppRoot extends StatelessWidget {
             ),
           ),
           themeMode: settings.themeMode,
-          home: Consumer<AuthProvider>(
+          home: Consumer<TrainlogProvider>(
             builder: (context, auth, child) {
               if (auth.isAuthenticated) {
                 // User is authenticated, show the main app

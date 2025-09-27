@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
-import 'package:trainlog_app/providers/auth_provider.dart';
+import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/widgets/auth_dialog.dart';
 import 'package:trainlog_app/widgets/auth_form.dart';
@@ -12,7 +12,7 @@ class MenuHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appLocalization = AppLocalizations.of(context)!;
-    final auth = context.watch<AuthProvider>();
+    final auth = context.watch<TrainlogProvider>();
     final isConnected = auth.isAuthenticated;
     final settings = context.read<SettingsProvider>();
 
@@ -39,14 +39,14 @@ class MenuHeader extends StatelessWidget {
                   type: AuthFormType.login,
                 );
                 if (result != null) {
-                  final ok = await context.read<AuthProvider>().login(
+                  final ok = await context.read<TrainlogProvider>().login(
                         username: result.username,
                         password: result.password,
                         settings: settings
                       );
                   final msg = ok
                       ? 'Logged in as ${result.username}'
-                      : (context.read<AuthProvider>().error ?? 'Login failed');
+                      : (context.read<TrainlogProvider>().error ?? 'Login failed');
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
                 }
               },
@@ -76,7 +76,7 @@ class MenuHeader extends StatelessWidget {
               icon: const Icon(Icons.logout),
               label: Text(appLocalization.logoutButton),
               onPressed: () async {
-                await context.read<AuthProvider>().logout(settings: settings);
+                await context.read<TrainlogProvider>().logout(settings: settings);
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Logged out')),
                 );

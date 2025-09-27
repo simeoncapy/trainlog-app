@@ -35,6 +35,7 @@ dependencies:
   cookie_jar: ^4.0.6
   dio_cookie_manager: ^3.3.0
   html: ^0.15.4
+  material_symbols_icons: ^4.2719.0
 
 dev_dependencies:
   flutter_test:
