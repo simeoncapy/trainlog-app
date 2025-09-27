@@ -1,6 +1,6 @@
 import 'dart:collection';
 import 'dart:math' as math;
-
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:country_picker/country_picker.dart';
 import 'package:diacritic/diacritic.dart';
 import 'package:flutter/material.dart';
@@ -94,7 +94,8 @@ class _StatisticsPageState extends State<StatisticsPage> {
       case GraphType.operator: return const Icon(Icons.business);
       case GraphType.country: return const Icon(Icons.flag);
       case GraphType.years: return const Icon(Icons.calendar_today);
-      case GraphType.material: return const Icon(Icons.train);
+      case GraphType.material: return const Icon(Symbols.car_tag, fill: 1,);
+      //case GraphType.material: return const Icon(Icons.train);
       case GraphType.itinerary: return const Icon(Icons.route);
       case GraphType.stations: return const Icon(Icons.villa);
     }

@@ -349,7 +349,16 @@ class TripsDataSource extends DataTableSource {
         case 'endTime':
           return DataCell(Text(formatDateTime(context, trip.endDatetime).replaceAll(RegExp(r" "), "\n")));
         case 'operator':
-          return DataCell(_trainlog.getOperatorImage(Uri.decodeComponent(trip.operatorName), maxWidth: 45, maxHeight: 45));
+          return DataCell(
+            Tooltip(
+              message: Uri.decodeComponent(trip.operatorName), // tooltip text
+              child: _trainlog.getOperatorImage(
+                Uri.decodeComponent(trip.operatorName),
+                maxWidth: 45,
+                maxHeight: 45,
+              ),
+            ),
+          );
           //return DataCell(_operatorLogos[Uri.decodeComponent(trip.operatorName)] ?? Text(Uri.decodeComponent(trip.operatorName))); // _operatorLogos
           //return DataCell(Text(Uri.decodeComponent(trip.operatorName))); // _operatorLogos
         case 'lineName':
