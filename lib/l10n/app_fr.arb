@@ -101,6 +101,8 @@
   "tripsDetailsTitlePrice": "Prix : ",
   "tripsDetailPurchasedDate": "acheté le {date}",
   "tripsDetailsTitleNotes": "Notes : ",
+  "tripsDetailsEditButton": "Modifier",
+  "tripsDetailsDeleteButton": "Supprimer",
 
   "tripsFilterAllCountry": "Tous",
   "tripsFilterAllOperator": "Tous",

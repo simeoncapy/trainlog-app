@@ -640,6 +640,18 @@ abstract class AppLocalizations {
   /// **'Notes: '**
   String get tripsDetailsTitleNotes;
 
+  /// No description provided for @tripsDetailsEditButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get tripsDetailsEditButton;
+
+  /// No description provided for @tripsDetailsDeleteButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get tripsDetailsDeleteButton;
+
   /// No description provided for @tripsFilterAllCountry.
   ///
   /// In en, this message translates to:

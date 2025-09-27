@@ -72,7 +72,7 @@
   "yearFutureList": "未来",
   "yearYearList": "年...",
   "typeTitle": "乗り物のタイプ",
-  "typeTrain": "電車",
+  "typeTrain": "列車",
   "typeTram": "路面電車",
   "typeMetro": "地下鉄",
   "typeBus": "バス",
@@ -101,6 +101,8 @@
   "tripsDetailsTitlePrice": "価格: ",
   "tripsDetailPurchasedDate": "{date}に購入",
   "tripsDetailsTitleNotes": "メモ: ",
+  "tripsDetailsEditButton": "編集",
+  "tripsDetailsDeleteButton": "消す",
 
   "tripsFilterAllCountry": "全て",
   "tripsFilterAllOperator": "全て",

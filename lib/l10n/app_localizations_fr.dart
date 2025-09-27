@@ -291,6 +291,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get tripsDetailsTitleNotes => 'Notes : ';
 
   @override
+  String get tripsDetailsEditButton => 'Modifier';
+
+  @override
+  String get tripsDetailsDeleteButton => 'Supprimer';
+
+  @override
   String get tripsFilterAllCountry => 'Tous';
 
   @override

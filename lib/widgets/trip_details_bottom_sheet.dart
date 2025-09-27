@@ -63,26 +63,26 @@ class TripDetailsBottomSheet extends StatelessWidget {
             children: [
               ElevatedButton.icon(
                 onPressed: null, 
-                label: Text("Share"),
+                label: Text(MaterialLocalizations.of(context).shareButtonLabel),
                 icon: Icon(Icons.share),
                 style: buttonStyleHelper(Theme.of(context).colorScheme.tertiary, Theme.of(context).colorScheme.onTertiary)
               ),
               ElevatedButton.icon(
                 onPressed: null, 
-                label: Text("Edit"),
+                label: Text(appLocalization.tripsDetailsEditButton),
                 icon: Icon(Icons.edit),
                 style: buttonStyleHelper(Theme.of(context).colorScheme.primary, Theme.of(context).colorScheme.onPrimary)
               ),
               ElevatedButton.icon(
                 onPressed: null, 
-                label: Text("Copy"),
+                label: Text(MaterialLocalizations.of(context).copyButtonLabel),
                 icon: Icon(Icons.copy),
                 style: buttonStyleHelper(Theme.of(context).colorScheme.secondary, Theme.of(context).colorScheme.onSecondary)
               ),
               ElevatedButton.icon(
                 onPressed: false ? () {} : null, // control enabled/disabled
                 icon: const Icon(Icons.delete),
-                label: const Text("Delete"),
+                label: Text(appLocalization.tripsDetailsDeleteButton),
                 style: buttonStyleHelper(Theme.of(context).colorScheme.error, Theme.of(context).colorScheme.onError)
               ),
             ],

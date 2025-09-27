@@ -120,6 +120,8 @@
     }
   },
   "tripsDetailsTitleNotes": "Notes: ",
+  "tripsDetailsEditButton": "Edit",
+  "tripsDetailsDeleteButton": "Delete",
 
   "tripsFilterAllCountry": "All",
   "tripsFilterAllOperator": "All",

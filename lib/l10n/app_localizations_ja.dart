@@ -203,7 +203,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get typeTitle => '乗り物のタイプ';
 
   @override
-  String get typeTrain => '電車';
+  String get typeTrain => '列車';
 
   @override
   String get typeTram => '路面電車';
@@ -286,6 +286,12 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get tripsDetailsTitleNotes => 'メモ: ';
+
+  @override
+  String get tripsDetailsEditButton => '編集';
+
+  @override
+  String get tripsDetailsDeleteButton => '消す';
 
   @override
   String get tripsFilterAllCountry => '全て';
