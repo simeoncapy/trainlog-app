@@ -120,53 +120,71 @@ class TrainlogProvider extends ChangeNotifier {
     _listOperatorsLogoUrl = await _service.fetchAllOperatorLogosUrl(_username ?? "");
   }
 
-  Image getOperatorImage(
+  List<Image> getOperatorImages(
     String operatorName, {
     required double maxWidth,
     required double maxHeight,
   }) {
     if (_listOperatorsLogoUrl.isEmpty) reloadOperatorList();
-    final url = _listOperatorsLogoUrl[operatorName];
 
-    if (url == null || url.trim().isEmpty) {
-      return Image.asset(
-        'assets/images/logo_fallback.png',
-        width: maxWidth,
-        height: maxHeight,
-        fit: BoxFit.contain,
-      );
-    }
+    // Split multiple operators by &&
+    final operators = operatorName.split('&&').map((s) => s.trim()).toList();
 
-    return Image.network(
-      url,
-      width: maxWidth,
-      height: maxHeight,
-      fit: BoxFit.contain,
-      // 1) spinner while loading
-      loadingBuilder: (context, child, progress) {
-        if (progress == null) return child; // finished
-        final expected = progress.expectedTotalBytes;
-        final loaded = progress.cumulativeBytesLoaded;
-        final value = expected != null ? loaded / expected : null;
+    // Return one image per operator
+    return operators.map((op) {
+      final url = _listOperatorsLogoUrl[op];
 
-        return SizedBox(
+      if (url == null || url.trim().isEmpty) {
+        return Image.asset(
+          'assets/images/logo_fallback.png',
           width: maxWidth,
           height: maxHeight,
-          child: Center(
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
-              value: value, // null = indeterminate
-            ),
-          ),
+          fit: BoxFit.contain,
         );
-      },
-      // 2) fallback on error
-      errorBuilder: (context, error, stack) => Image.asset(
-        'assets/images/logo_fallback.png',
+      }
+
+      return Image.network(
+        url,
         width: maxWidth,
         height: maxHeight,
         fit: BoxFit.contain,
-      ),
+        loadingBuilder: (context, child, progress) {
+          if (progress == null) return child;
+          final expected = progress.expectedTotalBytes;
+          final loaded = progress.cumulativeBytesLoaded;
+          final value = expected != null ? loaded / expected : null;
+
+          return SizedBox(
+            width: maxWidth,
+            height: maxHeight,
+            child: Center(
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                value: value,
+              ),
+            ),
+          );
+        },
+        errorBuilder: (context, error, stack) => Image.asset(
+          'assets/images/logo_fallback.png',
+          width: maxWidth,
+          height: maxHeight,
+          fit: BoxFit.contain,
+        ),
+      );
+    }).toList();
+  }
+
+  Image getOperatorImage(
+    String operatorName, {
+    required double maxWidth,
+    required double maxHeight,
+  }) {
+    final images = getOperatorImages(
+      operatorName,
+      maxWidth: maxWidth,
+      maxHeight: maxHeight,
     );
+    return images.first; // use first image only
   }
 }

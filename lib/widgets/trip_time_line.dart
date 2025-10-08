@@ -84,8 +84,18 @@ Widget build(BuildContext context) {
 
               // Middle: line info
               Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  trainlog.getOperatorImage(operatorName, maxWidth: 96, maxHeight: 96),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: trainlog
+                          .getOperatorImages(operatorName, maxWidth: 96, maxHeight: 96)
+                          .expand((img) => [img, const SizedBox(width: 4)])
+                          .toList()
+                        ..removeLast(),
+                    ),
+                  ),
                   const SizedBox(width: 8),
                   //Expanded(
                     /*child:*/ Column(

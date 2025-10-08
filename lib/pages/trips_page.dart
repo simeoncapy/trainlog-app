@@ -351,7 +351,7 @@ class TripsDataSource extends DataTableSource {
         case 'operator':
           return DataCell(
             Tooltip(
-              message: Uri.decodeComponent(trip.operatorName), // tooltip text
+              message: Uri.decodeComponent(trip.operatorName).replaceAll("&&", ","), // tooltip text
               child: _trainlog.getOperatorImage(
                 Uri.decodeComponent(trip.operatorName),
                 maxWidth: 45,

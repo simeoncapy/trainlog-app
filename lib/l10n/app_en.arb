@@ -157,5 +157,6 @@
   "statisticsOtherLabel": "Other",
   "statisticsTotalLabel": "Total",
   "statisticsUnitLabel": "Unit:",
-  "statisticsNoDataLabel": "No data"
+  "statisticsNoDataLabel": "No data",
+  "internationalWaters": "International waters"
 }

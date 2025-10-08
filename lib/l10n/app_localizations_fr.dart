@@ -384,4 +384,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get statisticsNoDataLabel => 'Pas de données';
+
+  @override
+  String get internationalWaters => 'Eaux internationales';
 }

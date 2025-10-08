@@ -14,6 +14,7 @@ import 'package:trainlog_app/services/trainlog_service.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
 import 'package:trainlog_app/utils/number_formatter.dart';
 import 'package:trainlog_app/utils/statistics_calculator.dart';
+import 'package:trainlog_app/utils/text_utils.dart';
 import 'package:trainlog_app/widgets/logo_bar_chart.dart';
 import 'package:trainlog_app/widgets/min_height_scrollable.dart';
 import 'package:trainlog_app/widgets/statistics_type_selector.dart';
@@ -167,10 +168,9 @@ class _StatisticsPageState extends State<StatisticsPage> {
     BuildContext context,
     Map<String, ({double past, double future})> stats,
   ) {
-    final details = CountryLocalizations.of(context);
     final out = LinkedHashMap<String, ({double past, double future})>();
     for (final e in stats.entries) {
-      final name = details?.countryName(countryCode: e.key) ?? e.key;
+      final name = countryCodeToName(e.key, context);
       final cur = out[name];
       out[name] = (past: (cur?.past ?? 0) + e.value.past,
                   future: (cur?.future ?? 0) + e.value.future);
@@ -286,10 +286,9 @@ class _StatisticsPageState extends State<StatisticsPage> {
                         UnitFactor.billion:  loc.statisticsTripsUnitGiga,
                       };
                       final unit = calc.isDistance ? _unitsDistance[UnitFactor.base] : unitsTrips[UnitFactor.base];
-                      final details = CountryLocalizations.of(context);
                       final String Function(String)? labelBuilder =
                         (calc.graph == GraphType.country)
-                            ? (String code) => details?.countryName(countryCode: code) ?? code
+                            ? (String code) => countryCodeToName(code, context)
                             : null;
 
                       switch (_selectedStatistics) {

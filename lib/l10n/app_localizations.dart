@@ -807,6 +807,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No data'**
   String get statisticsNoDataLabel;
+
+  /// No description provided for @internationalWaters.
+  ///
+  /// In en, this message translates to:
+  /// **'International waters'**
+  String get internationalWaters;
 }
 
 class _AppLocalizationsDelegate
