@@ -813,6 +813,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'International waters'**
   String get internationalWaters;
+
+  /// No description provided for @addTripPageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a Trip'**
+  String get addTripPageTitle;
+
+  /// Label for the first step when adding a trip. Choose a short word if possible
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get addTripStepDetails;
+
+  /// Label for the second step when adding a trip. Choose a short word if possible
+  ///
+  /// In en, this message translates to:
+  /// **'Path'**
+  String get addTripStepPath;
+
+  /// Label for the last step when adding a trip. Choose a short word if possible
+  ///
+  /// In en, this message translates to:
+  /// **'Validate'**
+  String get addTripStepValidate;
 }
 
 class _AppLocalizationsDelegate

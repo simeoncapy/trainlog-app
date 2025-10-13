@@ -384,4 +384,16 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get internationalWaters => '公海';
+
+  @override
+  String get addTripPageTitle => '旅行を加える';
+
+  @override
+  String get addTripStepDetails => '詳細';
+
+  @override
+  String get addTripStepPath => '道筋';
+
+  @override
+  String get addTripStepValidate => '確認';
 }

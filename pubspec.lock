@@ -153,6 +153,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.1"
+  dotted_border:
+    dependency: transitive
+    description:
+      name: dotted_border
+      sha256: "99b091ec6891ba0c5331fdc2b502993c7c108f898995739a73c6845d71dad70c"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.1.0"
   dropdown_search:
     dependency: "direct main"
     description:
@@ -722,6 +730,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.12.1"
+  step_progress:
+    dependency: "direct main"
+    description:
+      name: step_progress
+      sha256: d4f3fe5a6d79b21adc6397defdfce5997ed5144b275c45dd2c13247d9c1a7a0b
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.7.0"
   stream_channel:
     dependency: transitive
     description:

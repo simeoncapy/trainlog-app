@@ -133,5 +133,10 @@
   "statisticsTotalLabel": "Total",
   "statisticsUnitLabel": "Unités :",
   "statisticsNoDataLabel": "Pas de données",
-  "internationalWaters": "Eaux internationales"
+  "internationalWaters": "Eaux internationales",
+
+  "addTripPageTitle": "Ajouter un trajet",
+  "addTripStepDetails": "Détails",
+  "addTripStepPath": "Trajet",
+  "addTripStepValidate": "Valider"
 }

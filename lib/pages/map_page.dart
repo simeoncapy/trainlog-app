@@ -486,7 +486,7 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
                 if (result == null) return;
 
                 for (final hit in result.hitValues) {
-                  debugPrint('👆 Tapped polyline with tripId $hit');
+                  //debugPrint('👆 Tapped polyline with tripId $hit');
                   final tappedEntry = await repo?.getTripById(hit);
 
                   if (tappedEntry != null) {
@@ -498,8 +498,7 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
                     break;
                   }
                 }
-
-                debugPrint('📍 Touch at map coordinate: ${result.coordinate}');
+                //debugPrint('📍 Touch at map coordinate: ${result.coordinate}');
               },
               child: PolylineLayer<int>(
                 hitNotifier: hitNotifier, // 👈 Enable tap hit detection

@@ -387,4 +387,16 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get internationalWaters => 'Eaux internationales';
+
+  @override
+  String get addTripPageTitle => 'Ajouter un trajet';
+
+  @override
+  String get addTripStepDetails => 'Détails';
+
+  @override
+  String get addTripStepPath => 'Trajet';
+
+  @override
+  String get addTripStepValidate => 'Valider';
 }

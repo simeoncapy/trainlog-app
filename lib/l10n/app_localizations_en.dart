@@ -385,4 +385,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get internationalWaters => 'International waters';
+
+  @override
+  String get addTripPageTitle => 'Add a Trip';
+
+  @override
+  String get addTripStepDetails => 'Details';
+
+  @override
+  String get addTripStepPath => 'Path';
+
+  @override
+  String get addTripStepValidate => 'Validate';
 }

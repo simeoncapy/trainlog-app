@@ -133,5 +133,10 @@
   "statisticsTotalLabel": "総計",
   "statisticsUnitLabel": "単位：",
   "statisticsNoDataLabel": "データがありません",
-  "internationalWaters": "公海"
+  "internationalWaters": "公海",
+
+  "addTripPageTitle": "旅行を加える",
+  "addTripStepDetails": "詳細",
+  "addTripStepPath": "道筋",
+  "addTripStepValidate": "確認"
 }

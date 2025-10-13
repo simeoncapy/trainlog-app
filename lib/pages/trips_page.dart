@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/data/trips_repository.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
+import 'package:trainlog_app/pages/add_trip_page.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
@@ -238,10 +239,13 @@ class _TripsPageState extends State<TripsPage> {
   FloatingActionButton? buildFloatingActionButton(BuildContext context) {
     return FloatingActionButton(
       onPressed: () {
-        setState(() {
-        });
+        Navigator.of(context).push(PageRouteBuilder(
+          pageBuilder: (_, __, ___) => const AddTripPage(),
+          transitionDuration: Duration.zero,
+          reverseTransitionDuration: Duration.zero,
+        ));
       },
-      child: Icon(Icons.add),
+      child: const Icon(Icons.add),
     );
   }
 }

@@ -158,5 +158,19 @@
   "statisticsTotalLabel": "Total",
   "statisticsUnitLabel": "Unit:",
   "statisticsNoDataLabel": "No data",
-  "internationalWaters": "International waters"
+  "internationalWaters": "International waters",
+
+  "addTripPageTitle": "Add a Trip",
+  "addTripStepDetails": "Details",
+  "@addTripStepDetails": {
+    "description": "Label for the first step when adding a trip. Choose a short word if possible"
+  },  
+  "addTripStepPath": "Path",
+  "@addTripStepPath": {
+    "description": "Label for the second step when adding a trip. Choose a short word if possible"
+  }, 
+  "addTripStepValidate": "Validate",
+  "@addTripStepValidate": {
+    "description": "Label for the last step when adding a trip. Choose a short word if possible"
+  }
 }
