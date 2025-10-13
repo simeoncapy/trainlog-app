@@ -33,6 +33,7 @@ List<PolylineEntry> decodePolylinesBatch(Map<String, dynamic> args) {
     try {
       final path  = (e['path'] as String).trim();
       final type  = e['type'] as VehicleType;
+      final id = int.parse(e['uid'] as String);
 
       // Keep local for UI/year filters
       final startLocal = (e['start_datetime'] as String?) != null
@@ -78,6 +79,7 @@ List<PolylineEntry> decodePolylinesBatch(Map<String, dynamic> args) {
         utcEndDate: utcEnd,
         hasTimeRange: hasTimeRange,
         isFuture: isFutureHint,
+        tripId: id,
       );
     } catch (_) {
       return null;
@@ -128,6 +130,7 @@ class PolylineEntry {
   final DateTime? utcEndDate;
   final bool hasTimeRange;       // true only if both UTC strings had a clock part
   final bool isFuture;           // hint only; MapPage recomputes
+  final int tripId;
 
   PolylineEntry({
     required this.polyline,
@@ -138,9 +141,11 @@ class PolylineEntry {
     required this.utcEndDate,
     required this.hasTimeRange,
     this.isFuture = false,
+    required this.tripId,
   });
 
   Map<String, dynamic> toJson() => {
+    'uid': tripId,
     'type': type.name,
     'startDate': startDate?.toIso8601String(),
     'creationDate': creationDate?.toIso8601String(),
@@ -184,6 +189,7 @@ class PolylineEntry {
       utcEndDate: _parseUtc(json['utcEndDate']),
       hasTimeRange: json['hasTimeRange'] == true,
       isFuture: json['isFuture'] == true,
+      tripId: json['uid'],
     );
   }
 }

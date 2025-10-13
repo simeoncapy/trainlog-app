@@ -95,6 +95,22 @@ class TripsRepository {
     return TripsRepository(db);
   }
 
+  Future<Trips?> getTripById(int id) async {
+    // Query the database for a single trip with the matching ID.
+    final maps = await _db.query(
+      TripsTable.tableName,
+      where: 'uid = ?',
+      whereArgs: [id.toString()],
+      limit: 1,
+    );
+
+    if (maps.isNotEmpty) {
+      return Trips.fromJson(maps.first);
+    } else {
+      return null; // No trip found with that ID
+    }
+  }
+
   Future<List<Trips>> getAllTrips({int? limit, int? offset, String? orderBy}) async {
     final maps = await _db.query(
       TripsTable.tableName,

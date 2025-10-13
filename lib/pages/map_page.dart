@@ -17,6 +17,7 @@ import 'package:trainlog_app/utils/cached_data_utils.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
 import 'package:trainlog_app/utils/polyline_utils.dart';
 import 'package:trainlog_app/widgets/dropdown_radio_list.dart';
+import 'package:trainlog_app/widgets/trip_details_bottom_sheet.dart';
 import 'package:trainlog_app/widgets/vehicle_type_filter_chips.dart';
 
 enum YearFilter { all, past, future, years }
@@ -37,6 +38,7 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
   LatLng _center = _greenwich;
   double _zoom = 13.0;
   LatLng? _userPosition;
+  final LayerHitNotifier<int> hitNotifier = ValueNotifier(null);
 
   // --- Data/state
   List<PolylineEntry> _polylines = [];
@@ -102,6 +104,7 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
       utcEndDate: e.utcEndDate,
       hasTimeRange: e.hasTimeRange,
       isFuture: isFuture,
+      tripId: e.tripId,
     );
   }
 
@@ -386,19 +389,31 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
   /// Past: single base polyline.
   /// Future: base + dashed overlay (white).
   /// Ongoing: base painted red (no overlay).
-  List<Polyline> _toRenderPolylines(List<PolylineEntry> entries) {
+  List<Polyline<int>> _toRenderPolylines(List<PolylineEntry> entries) {
     return entries.expand((e) {
-      final base = e.polyline;
+      final base = Polyline<int>(
+        points: e.polyline.points,
+        color: e.polyline.color,
+        strokeWidth: e.polyline.strokeWidth,
+        borderColor: e.polyline.borderColor,
+        borderStrokeWidth: e.polyline.borderStrokeWidth,
+        pattern: e.polyline.pattern,
+        hitValue: e.tripId, // assign the trip ID as hitValue to detect on touch
+      );
+
       // Ongoing: base already red; no overlay
       if (_isOngoing(e)) return [base];
 
       // Future: overlay dashed white
       if (e.isFuture) {
-        final overlay = Polyline(
-          points: base.points,
+        final overlay = Polyline<int>(
+          points: e.polyline.points,
           color: _futureDashColor,
-          strokeWidth: base.strokeWidth,
-          pattern: StrokePattern.dashed(segments: const [_dashLen, _gapLen]),
+          strokeWidth: e.polyline.strokeWidth,
+          pattern: StrokePattern.dashed(
+            segments: const [_dashLen, _gapLen],
+          ),
+          hitValue: e.tripId,
         );
         return [base, overlay];
       }
@@ -414,6 +429,7 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
     final appLocalizations = AppLocalizations.of(context)!;
     final settings = context.watch<SettingsProvider>();
     final displayOrder = settings.pathDisplayOrder;
+    final repo = context.read<TripsProvider>().repository;
 
     // Palette change: restyle and re-arm timer
     final newPalette = MapColorPaletteHelper.getPalette(settings.mapColorPalette);
@@ -463,7 +479,33 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
               urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
               userAgentPackageName: 'me.trainlog.app',
             ),
-            PolylineLayer(polylines: toDraw),
+            //PolylineLayer<int>(polylines: toDraw),
+            GestureDetector(
+              onTapUp: (details) async {
+                final LayerHitResult<int>? result = hitNotifier.value;
+                if (result == null) return;
+
+                for (final hit in result.hitValues) {
+                  debugPrint('👆 Tapped polyline with tripId $hit');
+                  final tappedEntry = await repo?.getTripById(hit);
+
+                  if (tappedEntry != null) {
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      builder: (_) => TripDetailsBottomSheet(trip: tappedEntry),
+                    );
+                    break;
+                  }
+                }
+
+                debugPrint('📍 Touch at map coordinate: ${result.coordinate}');
+              },
+              child: PolylineLayer<int>(
+                hitNotifier: hitNotifier, // 👈 Enable tap hit detection
+                polylines: toDraw,
+              ),
+            ),
             if (_userPosition != null && settings.mapDisplayUserLocationMarker)
               MarkerLayer(
                 markers: [
