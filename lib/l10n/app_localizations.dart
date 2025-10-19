@@ -748,6 +748,30 @@ abstract class AppLocalizations {
   /// **'{type, select, train{Stations} plane{airports} bus{Stops} tram{Stations} metro{Stations} ferry{Ports} other{Locations}}'**
   String graphTypeStations(String type);
 
+  /// No description provided for @statisticsGraphUnitTrips.
+  ///
+  /// In en, this message translates to:
+  /// **'Trips'**
+  String get statisticsGraphUnitTrips;
+
+  /// No description provided for @statisticsGraphUnitDistance.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance'**
+  String get statisticsGraphUnitDistance;
+
+  /// No description provided for @statisticsGraphUnitDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Duration'**
+  String get statisticsGraphUnitDuration;
+
+  /// No description provided for @statisticsGraphUnitCo2.
+  ///
+  /// In en, this message translates to:
+  /// **'CO2'**
+  String get statisticsGraphUnitCo2;
+
   /// No description provided for @statisticsDisplayFilters.
   ///
   /// In en, this message translates to:

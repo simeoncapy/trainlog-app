@@ -353,6 +353,18 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
+  String get statisticsGraphUnitTrips => '旅行';
+
+  @override
+  String get statisticsGraphUnitDistance => '距離';
+
+  @override
+  String get statisticsGraphUnitDuration => '時間';
+
+  @override
+  String get statisticsGraphUnitCo2 => 'CO2';
+
+  @override
   String get statisticsDisplayFilters => 'フィルターを表示';
 
   @override

@@ -5,10 +5,11 @@ import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/utils/number_formatter.dart';
 
 enum UnitFactor {
-  base    (1,   ''),
-  thousand(1e3, 'k'),
-  million (1e6, 'M'),
-  billion (1e9, 'G');
+  //thousandth    (1e-3,'m'),
+  base          (1,   ''),
+  thousand      (1e3, 'k'),
+  million       (1e6, 'M'),
+  billion       (1e9, 'G');
 
   const UnitFactor(this.multiplier, this.suffix);
   final double multiplier;
@@ -35,6 +36,16 @@ class LogoBarChart extends StatefulWidget {
   final int rotationQuarterTurns;
   final InlineSpan? unitHelpTooltip;
 
+    /// Optional: raw (unscaled) values for tooltips, matching the stat order.
+  /// If provided with [tooltipValueFormatter], the tooltip will display these
+  /// pretty-printed values instead of the scaled ones.
+  final List<double>? tooltipRawPast;
+  final List<double>? tooltipRawFuture;
+
+  /// Optional: pretty formatter for tooltip values (receives a raw value).
+  final String Function(BuildContext context, double rawValue)? tooltipValueFormatter;
+
+
   const LogoBarChart({
     super.key,
     required this.stats,
@@ -46,6 +57,9 @@ class LogoBarChart extends StatefulWidget {
     this.color,
     this.rotationQuarterTurns = 0,
     this.unitHelpTooltip,
+    this.tooltipRawPast,
+    this.tooltipRawFuture,
+    this.tooltipValueFormatter,
   }) : assert(
          (colors == null || stats.length == colors.length) &&
          (images.length == stats.length),
@@ -187,6 +201,76 @@ class _LogoBarChartState extends State<LogoBarChart> {
     );
   }
 
+  BarTooltipItem _buildTooltipItem({
+    required int groupIndex,
+    required List<BarChartRodStackItem> stack,
+    required Color pastColor,
+    required Color futureColor,
+  }) {
+    final title = _titles[groupIndex];
+
+    final past = stack.isNotEmpty ? stack[0].toY : 0.0;
+    final future = stack.length > 1 ? (stack[1].toY - past) : 0.0;
+
+    final style = const TextStyle(
+      color: Colors.white,
+      fontWeight: FontWeight.bold,
+      fontSize: 14,
+    );
+
+    final operator = TextSpan(
+      text: "$title\n",
+      style: const TextStyle(
+        decoration: TextDecoration.underline,
+        decorationThickness: 2.0,
+      ),
+    );
+
+    // Check if we have a pretty formatter and raw values
+    final hasPretty = widget.tooltipRawPast != null &&
+        widget.tooltipRawFuture != null &&
+        widget.tooltipValueFormatter != null;
+
+    // Resolve display strings
+    String pastDisplay;
+    String futureDisplay;
+
+    if (hasPretty) {
+      final rawPast = widget.tooltipRawPast![groupIndex];
+      final rawFuture = widget.tooltipRawFuture![groupIndex];
+      pastDisplay = widget.tooltipValueFormatter!(context, rawPast);
+      futureDisplay = widget.tooltipValueFormatter!(context, rawFuture);
+    } else {
+      pastDisplay = "${formatNumber(context, past)} $_unitLabel";
+      futureDisplay = "${formatNumber(context, future)} $_unitLabel";
+    }
+
+    final pastLegend = TextSpan(text: "⬤ ", style: TextStyle(color: pastColor));
+    final pastText = TextSpan(
+      text:
+          "${AppLocalizations.of(context)!.yearPastList}: $pastDisplay",
+    );
+    final futureLegend =
+        TextSpan(text: "\n⬤ ", style: TextStyle(color: futureColor));
+    final futureText = TextSpan(
+      text:
+          "${AppLocalizations.of(context)!.yearFutureList}: $futureDisplay",
+    );
+
+    return BarTooltipItem(
+      "",
+      style,
+      textAlign: TextAlign.left,
+      children: [
+        operator,
+        pastLegend,
+        pastText,
+        if (future > 0) ...[futureLegend, futureText],
+      ],
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
     final n = widget.stats.length;
@@ -231,42 +315,15 @@ class _LogoBarChartState extends State<LogoBarChart> {
                 ? TooltipDirection.bottom
                 : TooltipDirection.auto,
             getTooltipItem: (group, groupIndex, rod, rodIndex) {
-              final title = _titles[groupIndex];
               final stack = rod.rodStackItems;
-
               final pastColor = colors[groupIndex];
               final futureColor = _lighten(pastColor);
 
-              final past = stack.isNotEmpty ? stack[0].toY : 0.0;
-              final future = stack.length > 1 ? (stack[1].toY - past) : 0.0;
-
-              final style = const TextStyle(
-                color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14);
-
-              final operator = TextSpan(
-                text: "$title\n",
-                style: const TextStyle(
-                  decoration: TextDecoration.underline,
-                  decorationThickness: 2.0,
-                ),
-              );
-
-              final pastLegend   = TextSpan(text: "⬤ ", style: TextStyle(color: pastColor));
-              final pastText     = TextSpan(text:
-                "${AppLocalizations.of(context)!.yearPastList}: ${formatNumber(context, past)} $_unitLabel");
-              final futureLegend = TextSpan(text: "\n⬤ ", style: TextStyle(color: futureColor));
-              final futureText   = TextSpan(text:
-                "${AppLocalizations.of(context)!.yearFutureList}: ${formatNumber(context, future)} $_unitLabel");
-
-              return BarTooltipItem(
-                "",
-                style,
-                textAlign: TextAlign.left,
-                children: [
-                  operator,
-                  pastLegend, pastText,
-                  if (future > 0) ...[futureLegend, futureText],
-                ],
+              return _buildTooltipItem(
+                groupIndex: groupIndex,
+                stack: stack,
+                pastColor: pastColor,
+                futureColor: futureColor,
               );
             },
           ),
@@ -274,6 +331,8 @@ class _LogoBarChartState extends State<LogoBarChart> {
       ),
     );
   }
+
+
 
   double _computeMaxY() {
     double maxY = 0;

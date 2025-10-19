@@ -356,6 +356,18 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String get statisticsGraphUnitTrips => 'Trajet';
+
+  @override
+  String get statisticsGraphUnitDistance => 'Distance';
+
+  @override
+  String get statisticsGraphUnitDuration => 'Durée';
+
+  @override
+  String get statisticsGraphUnitCo2 => 'CO2';
+
+  @override
   String get statisticsDisplayFilters => 'Afficher les filtres';
 
   @override

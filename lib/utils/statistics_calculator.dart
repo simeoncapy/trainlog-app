@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/data/trips_repository.dart';
 import 'package:trainlog_app/pages/statistics_page.dart';
+import 'package:trainlog_app/providers/statistics_provider.dart';
 import 'package:trainlog_app/widgets/trips_filter_dialog.dart';
 
 class StatisticsCalculator extends ChangeNotifier {

@@ -122,6 +122,11 @@
   "graphTypeItinerary": "Itinéraire",
   "graphTypeStations": "{type, select, train{Gares} plane{Aéroports} bus{Arrêts} tram{Arrêts} metro{Stations} ferry{Ports} other{Lieux}}",
 
+  "statisticsGraphUnitTrips": "Trajet",
+  "statisticsGraphUnitDistance": "Distance",
+  "statisticsGraphUnitDuration": "Durée",
+  "statisticsGraphUnitCo2": "CO2",
+  
   "statisticsDisplayFilters": "Afficher les filtres",
   "statisticsHideFilters": "Masquer les filtres",
   "statisticsTripsUnitBase": "trajets",

@@ -122,6 +122,11 @@
   "graphTypeItinerary": "道順",
   "graphTypeStations": "{type, select, train{駅} plane{空港} bus{停留場} tram{停留場} metro{駅} ferry{港} other{場所}}", 
 
+  "statisticsGraphUnitTrips": "旅行",
+  "statisticsGraphUnitDistance": "距離",
+  "statisticsGraphUnitDuration": "時間",
+  "statisticsGraphUnitCo2": "CO2",
+  
   "statisticsDisplayFilters": "フィルターを表示",
   "statisticsHideFilters": "フィルターを非表示",
   "statisticsTripsUnitBase": "回",

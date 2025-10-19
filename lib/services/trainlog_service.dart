@@ -10,6 +10,8 @@ import 'package:path/path.dart' as p;
 import 'dart:convert';
 import 'dart:math' as math;
 
+import 'package:trainlog_app/data/models/trips.dart';
+
 class TrainlogLoginResult {
   final bool success;
   final List<Cookie> cookies;
@@ -219,6 +221,27 @@ class TrainlogService {
       }
     });
     return out;
+  }
+
+  Future<Map<String, dynamic>> fetchStatsByVehicle(String username, VehicleType type, int? year) async {
+    final path = year == null
+        ? '/$username/getStats/${type.toShortString()}'
+        : '/$username/getStats/$year/${type.toShortString()}';
+
+    final res = await _dio.get<Map<String, dynamic>>(
+      path,
+      options: Options(
+        followRedirects: true,
+        maxRedirects: 5,
+        responseType: ResponseType.json,
+        validateStatus: (s) => s != null && s >= 200 && s < 400,
+      ),
+    );
+
+    final data = res.data; // already decoded JSON
+    if (data == null) return {};
+
+    return data;
   }
 
 

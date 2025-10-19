@@ -145,7 +145,12 @@
     "placeholders": {
       "type": { "type": "String" }
     }
-  },  
+  },
+  
+  "statisticsGraphUnitTrips": "Trips",
+  "statisticsGraphUnitDistance": "Distance",
+  "statisticsGraphUnitDuration": "Duration",
+  "statisticsGraphUnitCo2": "CO2",
 
   "statisticsDisplayFilters": "Display the filters",
   "statisticsHideFilters": "Hide the filters",

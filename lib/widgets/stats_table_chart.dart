@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 /// Displays stats as a table: Label | Past | Future | Total
 /// `stats`: key -> (past, future)
+/// Optionally supports time (duration) humanization.
 class StatsTableChart extends StatelessWidget {
   const StatsTableChart({
     super.key,
@@ -16,6 +17,9 @@ class StatsTableChart extends StatelessWidget {
     this.labelMaxLines,                  // null = unlimited
     this.compact = true,                 // shrink rows to content
     this.onlyTotal = false,
+    this.rawValues,                      // same keys as stats, in seconds for duration
+    this.rawValueFormatter,              // (context, seconds) -> humanized string
+    this.isDuration = false,             // automatically use duration formatting
   });
 
   final Map<String, ({double past, double future})> stats;
@@ -27,6 +31,13 @@ class StatsTableChart extends StatelessWidget {
   final int? labelMaxLines;
   final bool compact;
   final bool onlyTotal;
+
+  /// Optional: raw time values in seconds for human formatting
+  final Map<String, ({double past, double future})>? rawValues;
+  final String Function(BuildContext context, double rawSeconds)? rawValueFormatter;
+
+  /// If true, display durations as “1 year 2 months …”
+  final bool isDuration;
 
   @override
   Widget build(BuildContext context) {
@@ -51,15 +62,40 @@ class StatsTableChart extends StatelessWidget {
         constraints: BoxConstraints(maxWidth: labelMaxWidth),
         child: header
             ? DefaultTextStyle.merge(
-                style: Theme.of(context).textTheme.titleSmall ?? const TextStyle(),
+                style: Theme.of(context).textTheme.titleSmall ??
+                    const TextStyle(),
                 child: child,
               )
             : child,
       );
     }
 
-    Widget numCell(num v) =>
-        Align(alignment: Alignment.centerRight, child: Text(valueFormatter(v)));
+    // Helper for formatting each numeric or duration cell
+    String _formatValue(String key, num scaledValue, {required bool isFuture}) {
+      if (isDuration && rawValues != null && rawValueFormatter != null) {
+        final raw = rawValues![key];
+        if (raw != null) {
+          final rawVal = isFuture ? raw.future : raw.past;
+          return rawValueFormatter!(context, rawVal);
+        }
+      }
+      return valueFormatter(scaledValue);
+    }
+
+    String _formatTotal(String key, num scaledTotal) {
+      if (isDuration && rawValues != null && rawValueFormatter != null) {
+        final raw = rawValues![key];
+        if (raw != null) {
+          final totalRaw = raw.past + raw.future;
+          return rawValueFormatter!(context, totalRaw);
+        }
+      }
+      return valueFormatter(scaledTotal);
+    }
+
+    Widget numCell(String text) => Align(
+        alignment: Alignment.centerRight,
+        child: Text(text, softWrap: false));
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -72,8 +108,12 @@ class StatsTableChart extends StatelessWidget {
                 headingRowColor: WidgetStateProperty.resolveWith<Color?>(
                   (_) => Theme.of(context).colorScheme.primaryContainer,
                 ),
-                headingTextStyle: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+                headingTextStyle: Theme.of(context)
+                    .textTheme
+                    .labelLarge
+                    ?.copyWith(
+                      color:
+                          Theme.of(context).colorScheme.onPrimaryContainer,
                       fontWeight: FontWeight.bold,
                     ),
               ),
@@ -92,12 +132,24 @@ class StatsTableChart extends StatelessWidget {
                 ],
                 rows: [
                   for (final r in rowsData)
-                    DataRow(cells: [
-                      DataCell(labelCell(r.label)),
-                      if (!onlyTotal) DataCell(numCell(r.past)),
-                      if (!onlyTotal) DataCell(numCell(r.future)),
-                      DataCell(numCell(r.past + r.future)),
-                    ]),
+                    DataRow(
+                      cells: [
+                        DataCell(labelCell(r.label)),
+                        if (!onlyTotal)
+                          DataCell(
+                            numCell(
+                              _formatValue(r.key, r.past, isFuture: false),
+                            ),
+                          ),
+                        if (!onlyTotal)
+                          DataCell(
+                            numCell(
+                              _formatValue(r.key, r.future, isFuture: true),
+                            ),
+                          ),
+                        DataCell(numCell(_formatTotal(r.key, r.past + r.future))),
+                      ],
+                    ),
                 ],
               ),
             ),

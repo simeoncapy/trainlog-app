@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import '../services/trainlog_service.dart';
 
@@ -186,5 +187,10 @@ class TrainlogProvider extends ChangeNotifier {
       maxHeight: maxHeight,
     );
     return images.first; // use first image only
+  }
+
+  Future<Map<String, dynamic>> fetchStatsForVehicleType(VehicleType type, int? year) async {
+    if (_username == null) return {};
+    return await _service.fetchStatsByVehicle(_username ?? "", type, year);
   }
 }
