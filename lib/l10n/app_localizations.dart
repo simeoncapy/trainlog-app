@@ -232,6 +232,30 @@ abstract class AppLocalizations {
   /// **'Login failed, please check your credentials'**
   String get connectionError;
 
+  /// No description provided for @refreshCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh completed'**
+  String get refreshCompleted;
+
+  /// No description provided for @nextButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get nextButton;
+
+  /// No description provided for @previousButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous'**
+  String get previousButton;
+
+  /// No description provided for @validateButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Validate'**
+  String get validateButton;
+
   /// No description provided for @settingsAppCategory.
   ///
   /// In en, this message translates to:
@@ -742,10 +766,10 @@ abstract class AppLocalizations {
   /// **'Itinerary'**
   String get graphTypeItinerary;
 
-  /// Label for stations based on vehicle type
+  /// Label for stations based on vehicle type (plural)
   ///
   /// In en, this message translates to:
-  /// **'{type, select, train{Stations} plane{airports} bus{Stops} tram{Stations} metro{Stations} ferry{Ports} other{Locations}}'**
+  /// **'{type, select, train{Stations} plane{Airports} bus{Stops} tram{Stations} metro{Stations} ferry{Ports} helicopter{Heliports} aerialway{Stations} other{Locations}}'**
   String graphTypeStations(String type);
 
   /// No description provided for @statisticsGraphUnitTrips.
@@ -847,10 +871,22 @@ abstract class AppLocalizations {
   /// Label for the first step when adding a trip. Choose a short word if possible
   ///
   /// In en, this message translates to:
+  /// **'Basics'**
+  String get addTripStepBasics;
+
+  /// Label for the second step when adding a trip. Choose a short word if possible
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get addTripStepDate;
+
+  /// Label for the third step when adding a trip. Choose a short word if possible
+  ///
+  /// In en, this message translates to:
   /// **'Details'**
   String get addTripStepDetails;
 
-  /// Label for the second step when adding a trip. Choose a short word if possible
+  /// Label for the fourth step when adding a trip. Choose a short word if possible
   ///
   /// In en, this message translates to:
   /// **'Path'**
@@ -861,6 +897,144 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Validate'**
   String get addTripStepValidate;
+
+  /// No description provided for @addTripTransportationMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Transportation mode'**
+  String get addTripTransportationMode;
+
+  /// No description provided for @addTripManualDeparture.
+  ///
+  /// In en, this message translates to:
+  /// **'Manual departure'**
+  String get addTripManualDeparture;
+
+  /// No description provided for @addTripManualArrival.
+  ///
+  /// In en, this message translates to:
+  /// **'Manual arrival'**
+  String get addTripManualArrival;
+
+  /// No description provided for @addTripDeparture.
+  ///
+  /// In en, this message translates to:
+  /// **'Departure'**
+  String get addTripDeparture;
+
+  /// No description provided for @addTripArrival.
+  ///
+  /// In en, this message translates to:
+  /// **'Arrival'**
+  String get addTripArrival;
+
+  /// No description provided for @addTripOperator.
+  ///
+  /// In en, this message translates to:
+  /// **'Operator'**
+  String get addTripOperator;
+
+  /// No description provided for @addTripLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Line'**
+  String get addTripLine;
+
+  /// No description provided for @addTripDateTypePrecise.
+  ///
+  /// In en, this message translates to:
+  /// **'Precise'**
+  String get addTripDateTypePrecise;
+
+  /// No description provided for @addTripDateTypeUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown'**
+  String get addTripDateTypeUnknown;
+
+  /// No description provided for @addTripDateTypeDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get addTripDateTypeDate;
+
+  /// No description provided for @addTripStartDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Start of the trip'**
+  String get addTripStartDate;
+
+  /// No description provided for @addTripEndDate.
+  ///
+  /// In en, this message translates to:
+  /// **'End of the trip'**
+  String get addTripEndDate;
+
+  /// No description provided for @addTripDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Duration'**
+  String get addTripDuration;
+
+  /// No description provided for @addTripPast.
+  ///
+  /// In en, this message translates to:
+  /// **'Past'**
+  String get addTripPast;
+
+  /// No description provided for @addTripFuture.
+  ///
+  /// In en, this message translates to:
+  /// **'Future'**
+  String get addTripFuture;
+
+  /// No description provided for @addTripFacultative.
+  ///
+  /// In en, this message translates to:
+  /// **'Facultative fields'**
+  String get addTripFacultative;
+
+  /// No description provided for @addTripMaterial.
+  ///
+  /// In en, this message translates to:
+  /// **'Material'**
+  String get addTripMaterial;
+
+  /// No description provided for @addTripRegistration.
+  ///
+  /// In en, this message translates to:
+  /// **'Registration'**
+  String get addTripRegistration;
+
+  /// No description provided for @addTripSeat.
+  ///
+  /// In en, this message translates to:
+  /// **'Seat'**
+  String get addTripSeat;
+
+  /// No description provided for @addTripNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get addTripNotes;
+
+  /// No description provided for @addTripTicketTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ticket'**
+  String get addTripTicketTitle;
+
+  /// No description provided for @addTripTicketPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Ticket price'**
+  String get addTripTicketPrice;
+
+  /// No description provided for @addTripPurchaseDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase date'**
+  String get addTripPurchaseDate;
 }
 
 class _AppLocalizationsDelegate

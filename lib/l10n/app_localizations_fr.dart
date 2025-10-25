@@ -78,6 +78,18 @@ class AppLocalizationsFr extends AppLocalizations {
       'Echec de la connexion, vérifiez vos identifiants';
 
   @override
+  String get refreshCompleted => 'Actualisation terminée';
+
+  @override
+  String get nextButton => 'Suivant';
+
+  @override
+  String get previousButton => 'Précédent';
+
+  @override
+  String get validateButton => 'Valider';
+
+  @override
   String get settingsAppCategory => 'Paramètres de l\'application';
 
   @override
@@ -350,6 +362,8 @@ class AppLocalizationsFr extends AppLocalizations {
       'tram': 'Arrêts',
       'metro': 'Stations',
       'ferry': 'Ports',
+      'helicopter': 'Héliports',
+      'aerialway': 'Stations',
       'other': 'Lieux',
     });
     return '$_temp0';
@@ -404,6 +418,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get addTripPageTitle => 'Ajouter un trajet';
 
   @override
+  String get addTripStepBasics => 'Info';
+
+  @override
+  String get addTripStepDate => 'Date';
+
+  @override
   String get addTripStepDetails => 'Détails';
 
   @override
@@ -411,4 +431,73 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get addTripStepValidate => 'Valider';
+
+  @override
+  String get addTripTransportationMode => 'Moyen de transport';
+
+  @override
+  String get addTripManualDeparture => 'Départ manuel';
+
+  @override
+  String get addTripManualArrival => 'Arrivée manuelle';
+
+  @override
+  String get addTripDeparture => 'Départ';
+
+  @override
+  String get addTripArrival => 'Arrivée';
+
+  @override
+  String get addTripOperator => 'Opérateur';
+
+  @override
+  String get addTripLine => 'Ligne';
+
+  @override
+  String get addTripDateTypePrecise => 'Précis';
+
+  @override
+  String get addTripDateTypeUnknown => 'Inconnue';
+
+  @override
+  String get addTripDateTypeDate => 'Date';
+
+  @override
+  String get addTripStartDate => 'Début du trajet';
+
+  @override
+  String get addTripEndDate => 'Fin du trajet';
+
+  @override
+  String get addTripDuration => 'Durée';
+
+  @override
+  String get addTripPast => 'Passé';
+
+  @override
+  String get addTripFuture => 'Futur';
+
+  @override
+  String get addTripFacultative => 'Champs facultatifs';
+
+  @override
+  String get addTripMaterial => 'Matérial';
+
+  @override
+  String get addTripRegistration => 'Immatriculation';
+
+  @override
+  String get addTripSeat => 'Siège';
+
+  @override
+  String get addTripNotes => 'Note';
+
+  @override
+  String get addTripTicketTitle => 'Billet';
+
+  @override
+  String get addTripTicketPrice => 'Prix du billet';
+
+  @override
+  String get addTripPurchaseDate => 'Date d\'achat';
 }

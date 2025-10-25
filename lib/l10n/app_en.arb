@@ -28,7 +28,11 @@
     }
   },
   "connectionError": "Login failed, please check your credentials",
-  
+  "refreshCompleted": "Refresh completed",
+  "nextButton": "Next",
+  "previousButton": "Previous",
+  "validateButton": "Validate",
+    
   "settingsAppCategory": "App Settings",
   "settingsMapCategory": "Map Settings",
   "settingsAccountCategory": "Account Settings",
@@ -139,9 +143,9 @@
   "graphTypeYears": "Years",
   "graphTypeMaterial": "Material",
   "graphTypeItinerary": "Itinerary",
-  "graphTypeStations": "{type, select, train{Stations} plane{airports} bus{Stops} tram{Stations} metro{Stations} ferry{Ports} other{Locations}}",
+  "graphTypeStations": "{type, select, train{Stations} plane{Airports} bus{Stops} tram{Stations} metro{Stations} ferry{Ports} helicopter{Heliports} aerialway{Stations} other{Locations}}",
   "@graphTypeStations": {
-    "description": "Label for stations based on vehicle type",
+    "description": "Label for stations based on vehicle type (plural)",
     "placeholders": {
       "type": { "type": "String" }
     }
@@ -166,16 +170,47 @@
   "internationalWaters": "International waters",
 
   "addTripPageTitle": "Add a Trip",
+  "addTripStepBasics": "Basics",
+  "@addTripStepBasics": {
+    "description": "Label for the first step when adding a trip. Choose a short word if possible"
+  },
+  "addTripStepDate": "Date",
+  "@addTripStepDate": {
+    "description": "Label for the second step when adding a trip. Choose a short word if possible"
+  },  
   "addTripStepDetails": "Details",
   "@addTripStepDetails": {
-    "description": "Label for the first step when adding a trip. Choose a short word if possible"
+    "description": "Label for the third step when adding a trip. Choose a short word if possible"
   },  
   "addTripStepPath": "Path",
   "@addTripStepPath": {
-    "description": "Label for the second step when adding a trip. Choose a short word if possible"
+    "description": "Label for the fourth step when adding a trip. Choose a short word if possible"
   }, 
   "addTripStepValidate": "Validate",
   "@addTripStepValidate": {
     "description": "Label for the last step when adding a trip. Choose a short word if possible"
-  }
+  },
+  "addTripTransportationMode": "Transportation mode",
+  "addTripManualDeparture": "Manual departure",
+  "addTripManualArrival": "Manual arrival",
+  "addTripDeparture": "Departure",
+  "addTripArrival": "Arrival",
+  "addTripOperator": "Operator",
+  "addTripLine": "Line",
+  "addTripDateTypePrecise": "Precise",
+  "addTripDateTypeUnknown": "Unknown",
+  "addTripDateTypeDate": "Date",
+  "addTripStartDate": "Start of the trip",
+  "addTripEndDate": "End of the trip",
+  "addTripDuration": "Duration",
+  "addTripPast": "Past",
+  "addTripFuture": "Future",
+  "addTripFacultative": "Facultative fields",
+  "addTripMaterial": "Material",
+  "addTripRegistration": "Registration",
+  "addTripSeat": "Seat",
+  "addTripNotes": "Note",
+  "addTripTicketTitle": "Ticket",
+  "addTripTicketPrice": "Ticket price",
+  "addTripPurchaseDate": "Purchase date"
 }

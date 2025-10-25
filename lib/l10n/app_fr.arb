@@ -28,6 +28,10 @@
     }
   },
   "connectionError": "Echec de la connexion, vérifiez vos identifiants",
+  "refreshCompleted": "Actualisation terminée",
+  "nextButton": "Suivant",
+  "previousButton": "Précédent",
+  "validateButton": "Valider",
 
   "settingsAppCategory": "Paramètres de l'application",
   "settingsMapCategory": "Paramètres de la carte",
@@ -120,7 +124,7 @@
   "graphTypeYears": "Années",
   "graphTypeMaterial": "Matériel",
   "graphTypeItinerary": "Itinéraire",
-  "graphTypeStations": "{type, select, train{Gares} plane{Aéroports} bus{Arrêts} tram{Arrêts} metro{Stations} ferry{Ports} other{Lieux}}",
+  "graphTypeStations": "{type, select, train{Gares} plane{Aéroports} bus{Arrêts} tram{Arrêts} metro{Stations} ferry{Ports}  helicopter{Héliports} aerialway{Stations} other{Lieux}}",
 
   "statisticsGraphUnitTrips": "Trajet",
   "statisticsGraphUnitDistance": "Distance",
@@ -141,7 +145,32 @@
   "internationalWaters": "Eaux internationales",
 
   "addTripPageTitle": "Ajouter un trajet",
+  "addTripStepBasics": "Info",
+  "addTripStepDate": "Date",
   "addTripStepDetails": "Détails",
   "addTripStepPath": "Trajet",
-  "addTripStepValidate": "Valider"
+  "addTripStepValidate": "Valider",
+  "addTripTransportationMode": "Moyen de transport",
+  "addTripManualDeparture": "Départ manuel",
+  "addTripManualArrival": "Arrivée manuelle",
+  "addTripDeparture": "Départ",
+  "addTripArrival": "Arrivée",
+  "addTripOperator": "Opérateur",
+  "addTripLine": "Ligne",
+  "addTripDateTypePrecise": "Précis",
+  "addTripDateTypeUnknown": "Inconnue",
+  "addTripDateTypeDate": "Date",
+  "addTripStartDate": "Début du trajet",
+  "addTripEndDate": "Fin du trajet",
+  "addTripDuration": "Durée",
+  "addTripPast": "Passé",
+  "addTripFuture": "Futur",
+  "addTripFacultative": "Champs facultatifs",
+  "addTripMaterial": "Matérial",
+  "addTripRegistration": "Immatriculation",
+  "addTripSeat": "Siège",
+  "addTripNotes": "Note",
+  "addTripTicketTitle": "Billet",
+  "addTripTicketPrice": "Prix du billet",
+  "addTripPurchaseDate": "Date d'achat"
 }

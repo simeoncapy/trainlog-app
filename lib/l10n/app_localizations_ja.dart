@@ -77,6 +77,18 @@ class AppLocalizationsJa extends AppLocalizations {
   String get connectionError => 'ログインに失敗しました。資格情報を確認してください。';
 
   @override
+  String get refreshCompleted => '更新が完了しました';
+
+  @override
+  String get nextButton => '次へ';
+
+  @override
+  String get previousButton => '戻る';
+
+  @override
+  String get validateButton => '確認';
+
+  @override
   String get settingsAppCategory => 'アプリ設定';
 
   @override
@@ -271,10 +283,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get tripsDetailsTitleOperator => '事業者: ';
 
   @override
-  String get tripsDetailsTitleVehicle => '車名: ';
+  String get tripsDetailsTitleVehicle => '車両名: ';
 
   @override
-  String get tripsDetailsTitleSeat => '席: ';
+  String get tripsDetailsTitleSeat => '座席: ';
 
   @override
   String get tripsDetailsTitlePrice => '価格: ';
@@ -333,7 +345,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get graphTypeYears => '年';
 
   @override
-  String get graphTypeMaterial => '車名';
+  String get graphTypeMaterial => '車両名';
 
   @override
   String get graphTypeItinerary => '道順';
@@ -347,6 +359,8 @@ class AppLocalizationsJa extends AppLocalizations {
       'tram': '停留場',
       'metro': '駅',
       'ferry': '港',
+      'helicopter': 'ヘリポート',
+      'aerialway': '駅',
       'other': '場所',
     });
     return '$_temp0';
@@ -401,6 +415,12 @@ class AppLocalizationsJa extends AppLocalizations {
   String get addTripPageTitle => '旅行を加える';
 
   @override
+  String get addTripStepBasics => '基本';
+
+  @override
+  String get addTripStepDate => '日付';
+
+  @override
   String get addTripStepDetails => '詳細';
 
   @override
@@ -408,4 +428,73 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get addTripStepValidate => '確認';
+
+  @override
+  String get addTripTransportationMode => 'Transportation mode';
+
+  @override
+  String get addTripManualDeparture => '出発地を手動で設定';
+
+  @override
+  String get addTripManualArrival => '到着地を手動で設定';
+
+  @override
+  String get addTripDeparture => '出発地';
+
+  @override
+  String get addTripArrival => '到着地';
+
+  @override
+  String get addTripOperator => '事業者';
+
+  @override
+  String get addTripLine => '路線';
+
+  @override
+  String get addTripDateTypePrecise => '精密';
+
+  @override
+  String get addTripDateTypeUnknown => '不明';
+
+  @override
+  String get addTripDateTypeDate => '日付';
+
+  @override
+  String get addTripStartDate => '出発日';
+
+  @override
+  String get addTripEndDate => '到着日';
+
+  @override
+  String get addTripDuration => '時間';
+
+  @override
+  String get addTripPast => '過去';
+
+  @override
+  String get addTripFuture => '未来';
+
+  @override
+  String get addTripFacultative => '任意項目';
+
+  @override
+  String get addTripMaterial => '車両名';
+
+  @override
+  String get addTripRegistration => '登録番号';
+
+  @override
+  String get addTripSeat => '座席';
+
+  @override
+  String get addTripNotes => 'メモ';
+
+  @override
+  String get addTripTicketTitle => '乗車券';
+
+  @override
+  String get addTripTicketPrice => '運賃';
+
+  @override
+  String get addTripPurchaseDate => '購入日';
 }

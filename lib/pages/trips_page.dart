@@ -30,11 +30,26 @@ class _TripsPageState extends State<TripsPage> {
   late TripsProvider tripsProvider;
   late TrainlogProvider trainlog;
   TripsFilterResult? _activeFilter;
+  final _refreshKey = GlobalKey<RefreshIndicatorState>(); // DELETE ON MOBILE
+  bool _refreshTriggered = false; // DELETE ON MOBILE
 
   @override
   void initState() {
     super.initState();
     trainlog = Provider.of<TrainlogProvider>(context, listen: false);
+  }
+
+  @override // temp for test // DELETE ON MOBILE
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // This depends on Theme, so it belongs here
+    if (!_refreshTriggered && Theme.of(context).platform == TargetPlatform.windows) {
+      _refreshTriggered = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _refreshKey.currentState?.show(); // 👈 triggers the refresh
+      });
+    }
   }
 
   @override
@@ -64,53 +79,72 @@ class _TripsPageState extends State<TripsPage> {
     final visibleColumns = _getVisibleColumns(width);
     _dataSource!.setVisibleColumns(visibleColumns);
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final visibleColumns = _getVisibleColumns(width);
-        _dataSource!.setVisibleColumns(visibleColumns);
+    return RefreshIndicator(
+      key: _refreshKey,
+      onRefresh: () async {
+        final settings = context.read<SettingsProvider>();        
+        // Force reloading data from repository
+        await tripsProvider.loadTrips(context: context, loadFromApi: true); // or whatever refresh logic you have
+        settings.setShouldReloadPolylines(true);
+        setState(() {
+          _dataSource = null; // rebuild data source
+          _tableKey = UniqueKey();
+        });
 
-        final double availableHeight = constraints.maxHeight;
-        const double headingHeight = 56.0;
-        const double rowHeight = 48.0;
-        const double footerHeight = 180.0;
-
-        // Estimate how many rows fit in the remaining height
-        final rowsPerPage = ((availableHeight - headingHeight - footerHeight) ~/ rowHeight).clamp(5, 50);
-
-        return DataTableTheme(
-          data: DataTableTheme.of(context).copyWith(
-            headingRowColor: WidgetStateProperty.resolveWith<Color?>(
-              (Set<WidgetState> states) =>
-                  Theme.of(context).colorScheme.primaryContainer,
-            ),
-            headingTextStyle: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  color: Theme.of(context).colorScheme.onPrimaryContainer,
-                  fontWeight: FontWeight.bold,
-                ),
-          ),
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                minWidth: MediaQuery.of(context).size.width,
-                maxWidth: MediaQuery.of(context).size.width,
-              ),
-              child: PaginatedDataTable(
-                key: _tableKey,
-                header: _tableGeneralHeaderBuilder(tripsProvider),
-                columns: _buildDataColumns(visibleColumns, width),
-                source: _dataSource!,
-                sortColumnIndex: _sortColumnIndex,
-                sortAscending: _sortAscending,
-                horizontalMargin: 5,
-                columnSpacing: 5,
-                showFirstLastButtons: true,
-                rowsPerPage: rowsPerPage,
-              ),
-            ),
-          ),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('✅ ${AppLocalizations.of(context)!.refreshCompleted}')),
+          );
+        }
       },
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final visibleColumns = _getVisibleColumns(width);
+          _dataSource!.setVisibleColumns(visibleColumns);
+      
+          final double availableHeight = constraints.maxHeight;
+          const double headingHeight = 56.0;
+          const double rowHeight = 48.0;
+          const double footerHeight = 180.0;
+      
+          // Estimate how many rows fit in the remaining height
+          final rowsPerPage = ((availableHeight - headingHeight - footerHeight) ~/ rowHeight).clamp(5, 50);
+      
+          return DataTableTheme(
+            data: DataTableTheme.of(context).copyWith(
+              headingRowColor: WidgetStateProperty.resolveWith<Color?>(
+                (Set<WidgetState> states) =>
+                    Theme.of(context).colorScheme.primaryContainer,
+              ),
+              headingTextStyle: Theme.of(context).textTheme.labelLarge?.copyWith(
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minWidth: MediaQuery.of(context).size.width,
+                  maxWidth: MediaQuery.of(context).size.width,
+                ),
+                child: PaginatedDataTable(
+                  key: _tableKey,
+                  header: _tableGeneralHeaderBuilder(tripsProvider),
+                  columns: _buildDataColumns(visibleColumns, width),
+                  source: _dataSource!,
+                  sortColumnIndex: _sortColumnIndex,
+                  sortAscending: _sortAscending,
+                  horizontalMargin: 5,
+                  columnSpacing: 5,
+                  showFirstLastButtons: true,
+                  rowsPerPage: rowsPerPage,
+                ),
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 
