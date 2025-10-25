@@ -9,6 +9,8 @@ import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/utils/text_utils.dart'; // for countryCodeToName(...)
 import 'package:trainlog_app/widgets/logo_bar_chart.dart'; // for UnitFactor
+import 'package:duration/duration.dart';
+import 'package:duration/locale.dart';
 
 /// Graph categories aligned with the UI page.
 enum GraphType {
@@ -105,6 +107,8 @@ class StatisticsProvider extends ChangeNotifier {
 
   // For duration base unit (readable): we convert seconds to one of these
   _DurationBase _durationBase = _DurationBase.hours;
+
+  static const int shortLabelSize = 15; //characters
 
   // -------------------------------------------------------------------
   // Public getters
@@ -286,7 +290,7 @@ class StatisticsProvider extends ChangeNotifier {
       case GraphUnit.trip:     return loc.statisticsTripsUnitBase; // e.g., "trips"
       case GraphUnit.distance: return "km";
       case GraphUnit.co2:      return "kg";
-      case GraphUnit.duration: return _durationBase.localizedShort(context); // "min", "h", "d", "mo", "y"
+      case GraphUnit.duration: return _durationBase.localizedTimeUnit(context);
     }
   }
 
@@ -387,7 +391,7 @@ class StatisticsProvider extends ChangeNotifier {
         return List.generate(
           data.length,
           (i) => Text(
-            _shortLabel(data[i], maxLen: 5),
+            _shortLabel(data[i], maxLen: shortLabelSize),
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
@@ -442,7 +446,7 @@ class StatisticsProvider extends ChangeNotifier {
           return List.generate(
             data.length,
             (i) => Text(
-              _shortLabel(data[i], maxLen: 5),
+              _shortLabel(data[i], maxLen: shortLabelSize),
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
@@ -528,37 +532,24 @@ class StatisticsProvider extends ChangeNotifier {
 
   /// Pretty-print seconds as: "1 year 2 months 15 days 3 h 15 min"
   /// Localize tokens as needed (placeholders provided).
-  String humanizeSeconds(BuildContext context, double seconds) {
-    final s = seconds.round(); // whole seconds
+  String humanizeSeconds(BuildContext context, num seconds) {
+    final localeCode = Localizations.localeOf(context).languageCode;
 
-    final secPerMin = _DurationBase.minutes.secondsPerUnit.toInt();
-    final secPerHour = _DurationBase.hours.secondsPerUnit.toInt();
-    final secPerDay = _DurationBase.days.secondsPerUnit.toInt();
-    final secPerMonth = _DurationBase.months.secondsPerUnit.toInt();
-    final secPerYear = _DurationBase.years.secondsPerUnit.toInt();
+    // Create a Duration object
+    final duration = Duration(seconds: seconds.round());
 
-    int years   = s ~/ secPerYear;
-    int rem     = s %  secPerYear;
-    int months  = rem ~/ secPerMonth;  rem %= secPerMonth;
-    int days    = rem ~/ secPerDay;    rem %= secPerDay;
-    int hours   = rem ~/ secPerHour;   rem %= secPerHour;
-    int minutes = rem ~/ secPerMin;
-
-    // You can replace these tokens with AppLocalizations if you have them.
-    String y(int v)   => v == 0 ? "" : (v == 1 ? "1 year"   : "$v years");
-    String mo(int v)  => v == 0 ? "" : (v == 1 ? "1 month"  : "$v months");
-    String d(int v)   => v == 0 ? "" : (v == 1 ? "1 day"    : "$v days");
-    String h(int v)   => v == 0 ? "" : "$v h";
-    String m(int v)   => v == 0 ? "" : "$v min";
-
-    final parts = [y(years), mo(months), d(days), h(hours), m(minutes)]
-        .where((p) => p.isNotEmpty)
-        .toList();
-
-    // Edge case: extremely small values (< 1 min)
-    if (parts.isEmpty) return "0 min";
-
-    return parts.join(" ");
+    // Pick the correct localized DurationLocale
+    final locale = DurationLocale.fromLanguageCode(localeCode) ?? const EnglishDurationLocale();
+        
+    // Format it nicely
+    return prettyDuration(
+      duration,
+      locale: locale,
+      abbreviated: true, // set to true for shorter format (e.g. 3h 15m)
+      spacer: ' ',
+      delimiter: ' ',
+      conjunction: ' ',
+    );
   }
 
   /// Raw duration (in seconds) directly from the JSON.
@@ -630,23 +621,25 @@ enum _DurationBase { minutes, hours, days, months, years }
 extension on _DurationBase {
   double get secondsPerUnit {
     switch (this) {
-      case _DurationBase.minutes: return 60.0;
-      case _DurationBase.hours:   return 3600.0;
-      case _DurationBase.days:    return 86400.0;
+      case _DurationBase.minutes: return Duration.secondsPerMinute.toDouble();
+      case _DurationBase.hours:   return Duration.secondsPerHour.toDouble();
+      case _DurationBase.days:    return Duration.secondsPerDay.toDouble();
       case _DurationBase.months:  return 2592000.0;   // ~30 days
       case _DurationBase.years:   return 31536000.0;  // 365 days
     }
   }
 
   /// Short, localized label (axis): e.g., "min", "h", "d", "mo", "y"
-  String localizedShort(BuildContext context) {
-    final loc = AppLocalizations.of(context)!;
+  String localizedTimeUnit(BuildContext context, {short = false}) {
+    final localeCode = Localizations.localeOf(context).languageCode;
+    final durLoc = DurationLocale.fromLanguageCode(localeCode) ?? const EnglishDurationLocale();
+    
     switch (this) {
-      case _DurationBase.minutes: return "min";//loc.durationShortMinutes; // provide in ARB
-      case _DurationBase.hours:   return "h";//loc.durationShortHours;
-      case _DurationBase.days:    return "d";//loc.durationShortDays;
-      case _DurationBase.months:  return "mo.";//loc.durationShortMonths;
-      case _DurationBase.years:   return "y";//loc.durationShortYears;
+      case _DurationBase.minutes: return durLoc.minute(0, short);
+      case _DurationBase.hours:   return durLoc.hour(0, short);
+      case _DurationBase.days:    return durLoc.day(0, short);
+      case _DurationBase.months:  return durLoc.month(0, short);
+      case _DurationBase.years:   return durLoc.year(0, short);
     }
   }
 }

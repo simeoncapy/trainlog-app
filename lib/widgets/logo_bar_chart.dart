@@ -270,6 +270,14 @@ class _LogoBarChartState extends State<LogoBarChart> {
     );
   }
 
+  Widget _axisLabel(String text) {
+    final w = Text(text);
+    // counter-rotate labels when the chart is rotated 90°/270°
+    return (widget.rotationQuarterTurns % 2 == 1)
+        ? RotatedBox(quarterTurns: 3, child: w) // -90°
+        : w;
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -290,9 +298,35 @@ class _LogoBarChartState extends State<LogoBarChart> {
         titlesData: FlTitlesData(
           topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
           rightTitles: AxisTitles(
+            // 🟩 keep axis title orientation unchanged
             axisNameWidget: _horizontalAxisTitleBuilder(),
             axisNameSize: 20,
-            sideTitles: SideTitles(showTitles: true, reservedSize: 30),
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: 30,//(widget.rotationQuarterTurns % 2 == 1) ? 40 : 30,
+              getTitlesWidget: (value, meta) {
+                // hide the last number to prevent overlap
+                if ((value - meta.max).abs() < 1e-6) return const SizedBox.shrink();
+
+                // 🟦 only rotate the numeric labels if the chart is rotated
+                final label = Text(meta.formattedValue);
+                if (widget.rotationQuarterTurns % 2 == 1) {
+                  return RotatedBox(quarterTurns: 3, child: label);
+                }
+                return label;
+              },
+            ),
+          ),
+          leftTitles: AxisTitles(
+            axisNameSize: 0,
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: 0, // no number labels, so minimal space
+              getTitlesWidget: (value, meta) {
+                // we don’t want numeric labels on the left, only spacing
+                return const SizedBox.shrink();
+              },
+            ),
           ),
           bottomTitles: AxisTitles(
             sideTitles: SideTitles(

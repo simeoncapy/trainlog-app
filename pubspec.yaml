@@ -37,6 +37,7 @@ dependencies:
   html: ^0.15.4
   material_symbols_icons: ^4.2719.0
   step_progress: ^2.7.0
+  duration: ^3.0.13
 
 dev_dependencies:
   flutter_test:
