@@ -89,6 +89,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get validateButton => '確認';
 
   @override
+  String get nameField => '名前';
+
+  @override
   String get settingsAppCategory => 'アプリ設定';
 
   @override
@@ -446,6 +449,12 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get addTripOperator => '事業者';
+
+  @override
+  String get addTripOperatorHelper => '複数はカンマで区切ります';
+
+  @override
+  String get addTripOperatorPlaceholderLogo => '事業者を選択してください';
 
   @override
   String get addTripLine => '路線';

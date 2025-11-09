@@ -90,6 +90,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get validateButton => 'Valider';
 
   @override
+  String get nameField => 'Nom';
+
+  @override
   String get settingsAppCategory => 'Paramètres de l\'application';
 
   @override
@@ -449,6 +452,13 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get addTripOperator => 'Opérateur';
+
+  @override
+  String get addTripOperatorHelper =>
+      'Séparez plusieurs opérateurs par une virgule';
+
+  @override
+  String get addTripOperatorPlaceholderLogo => 'Sélectionnez un opérateur';
 
   @override
   String get addTripLine => 'Ligne';

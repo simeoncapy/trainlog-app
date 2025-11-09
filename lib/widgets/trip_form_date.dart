@@ -82,8 +82,8 @@ class _TripFormDateState extends State<TripFormDate> {
                     final picked = await showDatePicker(
                       context: context,
                       initialDate: _departureDate ?? DateTime.now(),
-                      firstDate: DateTime(2000),
-                      lastDate: DateTime(2100),
+                      firstDate: DateTime(1900),
+                      lastDate: DateTime(2500),
                     );
                     if (picked != null) {
                       setState(() => _departureDate = picked);
@@ -143,8 +143,8 @@ class _TripFormDateState extends State<TripFormDate> {
                     final picked = await showDatePicker(
                       context: context,
                       initialDate: _arrivalDate ?? DateTime.now(),
-                      firstDate: DateTime(2000),
-                      lastDate: DateTime(2100),
+                      firstDate: DateTime(1900),
+                      lastDate: DateTime(2500),
                     );
                     if (picked != null) {
                       setState(() => _arrivalDate = picked);
@@ -260,8 +260,8 @@ class _TripFormDateState extends State<TripFormDate> {
               final picked = await showDatePicker(
                 context: context,
                 initialDate: _departureDate ?? DateTime.now(),
-                firstDate: DateTime(2000),
-                lastDate: DateTime(2100),
+                firstDate: DateTime(1900),
+                lastDate: DateTime(2500),
               );
               if (picked != null) {
                 setState(() => _departureDate = picked);

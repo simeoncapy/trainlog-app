@@ -32,6 +32,7 @@
   "nextButton": "次へ",
   "previousButton": "戻る",
   "validateButton": "確認",
+  "nameField": "名前",
 
   "settingsAppCategory": "アプリ設定",
   "settingsMapCategory": "地図設定",
@@ -156,6 +157,8 @@
   "addTripDeparture": "出発地",
   "addTripArrival": "到着地",
   "addTripOperator": "事業者",
+  "addTripOperatorHelper": "複数はカンマで区切ります",
+  "addTripOperatorPlaceholderLogo": "事業者を選択してください",
   "addTripLine": "路線",
   "addTripDateTypePrecise": "精密",
   "addTripDateTypeUnknown": "不明",

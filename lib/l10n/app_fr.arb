@@ -32,6 +32,7 @@
   "nextButton": "Suivant",
   "previousButton": "Précédent",
   "validateButton": "Valider",
+  "nameField": "Nom",
 
   "settingsAppCategory": "Paramètres de l'application",
   "settingsMapCategory": "Paramètres de la carte",
@@ -156,6 +157,8 @@
   "addTripDeparture": "Départ",
   "addTripArrival": "Arrivée",
   "addTripOperator": "Opérateur",
+  "addTripOperatorHelper": "Séparez plusieurs opérateurs par une virgule",
+  "addTripOperatorPlaceholderLogo": "Sélectionnez un opérateur",
   "addTripLine": "Ligne",
   "addTripDateTypePrecise": "Précis",
   "addTripDateTypeUnknown": "Inconnue",

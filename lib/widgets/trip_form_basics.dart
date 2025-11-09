@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
+import 'package:trainlog_app/providers/trainlog_provider.dart';
+import 'package:trainlog_app/widgets/titled_container.dart';
 
 class TripFormBasics extends StatefulWidget {
   const TripFormBasics({super.key});
@@ -10,7 +13,15 @@ class TripFormBasics extends StatefulWidget {
 }
 
 class _TripFormBasicsState extends State<TripFormBasics> {
+  late TrainlogProvider trainlog;
   VehicleType? _selectedVehicleType;
+  String? _selectedOperatorName;
+
+  @override
+  void initState() {
+    super.initState();
+    trainlog = Provider.of<TrainlogProvider>(context, listen: false);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,17 +57,12 @@ class _TripFormBasicsState extends State<TripFormBasics> {
           const SizedBox(height: 16),
 
           /// Departure & Arrival (grouped box)
-          Container(
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainerLow,
-              borderRadius: BorderRadius.circular(12),
+          TitledContainer(
+            title: loc.graphTypeStations(
+              _selectedVehicleType?.name ?? VehicleType.train.name,
             ),
-            padding: const EdgeInsets.all(12),
-            child: Column(
+            content: Column(
               children: [
-                Text(loc.graphTypeStations(_selectedVehicleType?.name ?? VehicleType.train.name),
-                  style: Theme.of(context).textTheme.titleSmall,),
-                const SizedBox(height: 8),
                 CheckboxListTile(
                   title: Text(loc.addTripManualDeparture),
                   value: false,
@@ -86,24 +92,72 @@ class _TripFormBasicsState extends State<TripFormBasics> {
             ),
           ),
           const SizedBox(height: 16),
-
-          /// Carrier and Line
-          TextFormField(
-            decoration: InputDecoration(
-              labelText: loc.addTripOperator,
-              prefixIcon: Icon(Icons.business),
-              border: OutlineInputBorder(),
-            ),
-          ),
-          const SizedBox(height: 16),
-          TextFormField(
-            decoration: InputDecoration(
-              labelText: loc.addTripLine,
-              border: OutlineInputBorder(),
-            ),
-          ),
-          const SizedBox(height: 16), 
           
+          TitledContainer(
+            title: loc.addTripOperator,
+            content: Column(
+              children: [
+                TextFormField(
+                  decoration: InputDecoration(
+                    labelText: loc.nameField,
+                    prefixIcon: const Icon(Icons.business),
+                    border: const OutlineInputBorder(),
+                    helperText: loc.addTripOperatorHelper,
+                  ),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedOperatorName = value.trim();
+                    });
+                  },
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  height: 72,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: _selectedOperatorName == null || _selectedOperatorName!.isEmpty
+                        ? Theme.of(context).colorScheme.surfaceContainerHighest
+                        : null,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Theme.of(context).dividerColor),
+                  ),
+                  alignment: Alignment.center,
+                  child: _selectedOperatorName == null || _selectedOperatorName!.isEmpty
+                      ? Text(
+                          loc.addTripOperatorPlaceholderLogo,
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                color: Theme.of(context).hintColor,
+                              ),
+                        )
+                      : Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: trainlog
+                                  .getOperatorImages(
+                                    _selectedOperatorName!,
+                                    maxWidth: 80,
+                                    maxHeight: 48,
+                                    separator: ",",
+                                  )
+                                  .map((img) => Padding(
+                                        padding:
+                                            const EdgeInsets.symmetric(horizontal: 4.0),
+                                        child: ClipRRect(
+                                          borderRadius: BorderRadius.circular(8),
+                                          child: img,
+                                        ),
+                                      ))
+                                  .toList(),
+                            ),
+                          ),
+                        ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );

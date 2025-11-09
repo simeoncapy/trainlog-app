@@ -256,6 +256,12 @@ abstract class AppLocalizations {
   /// **'Validate'**
   String get validateButton;
 
+  /// No description provided for @nameField.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get nameField;
+
   /// No description provided for @settingsAppCategory.
   ///
   /// In en, this message translates to:
@@ -933,6 +939,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Operator'**
   String get addTripOperator;
+
+  /// No description provided for @addTripOperatorHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'Separate multiple operators by a comma'**
+  String get addTripOperatorHelper;
+
+  /// No description provided for @addTripOperatorPlaceholderLogo.
+  ///
+  /// In en, this message translates to:
+  /// **'Select an operator'**
+  String get addTripOperatorPlaceholderLogo;
 
   /// No description provided for @addTripLine.
   ///

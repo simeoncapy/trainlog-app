@@ -89,6 +89,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get validateButton => 'Validate';
 
   @override
+  String get nameField => 'Name';
+
+  @override
   String get settingsAppCategory => 'App Settings';
 
   @override
@@ -447,6 +450,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get addTripOperator => 'Operator';
+
+  @override
+  String get addTripOperatorHelper => 'Separate multiple operators by a comma';
+
+  @override
+  String get addTripOperatorPlaceholderLogo => 'Select an operator';
 
   @override
   String get addTripLine => 'Line';

@@ -32,6 +32,7 @@
   "nextButton": "Next",
   "previousButton": "Previous",
   "validateButton": "Validate",
+  "nameField": "Name",
     
   "settingsAppCategory": "App Settings",
   "settingsMapCategory": "Map Settings",
@@ -196,6 +197,8 @@
   "addTripDeparture": "Departure",
   "addTripArrival": "Arrival",
   "addTripOperator": "Operator",
+  "addTripOperatorHelper": "Separate multiple operators by a comma",
+  "addTripOperatorPlaceholderLogo": "Select an operator",
   "addTripLine": "Line",
   "addTripDateTypePrecise": "Precise",
   "addTripDateTypeUnknown": "Unknown",

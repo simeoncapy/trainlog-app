@@ -125,11 +125,12 @@ class TrainlogProvider extends ChangeNotifier {
     String operatorName, {
     required double maxWidth,
     required double maxHeight,
+    String separator = "&&"
   }) {
     if (_listOperatorsLogoUrl.isEmpty) reloadOperatorList();
 
     // Split multiple operators by &&
-    final operators = operatorName.split('&&').map((s) => s.trim()).toList();
+    final operators = operatorName.split(separator).map((s) => s.trim()).toList();
 
     // Return one image per operator
     return operators.map((op) {
