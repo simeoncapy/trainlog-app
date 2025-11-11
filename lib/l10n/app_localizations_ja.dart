@@ -448,6 +448,12 @@ class AppLocalizationsJa extends AppLocalizations {
   String get addTripArrival => '到着地';
 
   @override
+  String get addTripLatitudeShort => '緯度';
+
+  @override
+  String get addTripLongitudeShort => '経度';
+
+  @override
   String get addTripOperator => '事業者';
 
   @override

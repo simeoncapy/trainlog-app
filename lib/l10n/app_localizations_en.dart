@@ -449,6 +449,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addTripArrival => 'Arrival';
 
   @override
+  String get addTripLatitudeShort => 'Lat';
+
+  @override
+  String get addTripLongitudeShort => 'Long';
+
+  @override
   String get addTripOperator => 'Operator';
 
   @override

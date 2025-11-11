@@ -451,6 +451,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get addTripArrival => 'Arrivée';
 
   @override
+  String get addTripLatitudeShort => 'Lat';
+
+  @override
+  String get addTripLongitudeShort => 'Long';
+
+  @override
   String get addTripOperator => 'Opérateur';
 
   @override

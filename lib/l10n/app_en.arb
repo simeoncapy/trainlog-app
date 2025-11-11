@@ -196,6 +196,8 @@
   "addTripManualArrival": "Manual arrival",
   "addTripDeparture": "Departure",
   "addTripArrival": "Arrival",
+  "addTripLatitudeShort": "Lat",
+  "addTripLongitudeShort": "Long",
   "addTripOperator": "Operator",
   "addTripOperatorHelper": "Separate multiple operators by a comma",
   "addTripOperatorPlaceholderLogo": "Select an operator",

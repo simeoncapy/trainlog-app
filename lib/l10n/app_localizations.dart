@@ -934,6 +934,18 @@ abstract class AppLocalizations {
   /// **'Arrival'**
   String get addTripArrival;
 
+  /// No description provided for @addTripLatitudeShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Lat'**
+  String get addTripLatitudeShort;
+
+  /// No description provided for @addTripLongitudeShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Long'**
+  String get addTripLongitudeShort;
+
   /// No description provided for @addTripOperator.
   ///
   /// In en, this message translates to:

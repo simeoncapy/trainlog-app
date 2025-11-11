@@ -156,6 +156,8 @@
   "addTripManualArrival": "到着地を手動で設定",
   "addTripDeparture": "出発地",
   "addTripArrival": "到着地",
+  "addTripLatitudeShort": "緯度",
+  "addTripLongitudeShort": "経度",
   "addTripOperator": "事業者",
   "addTripOperatorHelper": "複数はカンマで区切ります",
   "addTripOperatorPlaceholderLogo": "事業者を選択してください",

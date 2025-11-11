@@ -156,6 +156,8 @@
   "addTripManualArrival": "Arrivée manuelle",
   "addTripDeparture": "Départ",
   "addTripArrival": "Arrivée",
+  "addTripLatitudeShort": "Lat",
+  "addTripLongitudeShort": "Long",
   "addTripOperator": "Opérateur",
   "addTripOperatorHelper": "Séparez plusieurs opérateurs par une virgule",
   "addTripOperatorPlaceholderLogo": "Sélectionnez un opérateur",

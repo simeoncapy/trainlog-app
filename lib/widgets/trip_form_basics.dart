@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
+import 'package:trainlog_app/widgets/station_fields_switcher.dart';
 import 'package:trainlog_app/widgets/titled_container.dart';
 
 class TripFormBasics extends StatefulWidget {
@@ -21,6 +23,17 @@ class _TripFormBasicsState extends State<TripFormBasics> {
   void initState() {
     super.initState();
     trainlog = Provider.of<TrainlogProvider>(context, listen: false);
+  }
+
+  Widget _leftAlignedSubtitle(BuildContext context, String text, {TextStyle? style}) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Text(
+        text,
+        style: style ?? Theme.of(context).textTheme.titleSmall,
+        textAlign: TextAlign.left,
+      ),
+    );
   }
 
   @override
@@ -63,30 +76,25 @@ class _TripFormBasicsState extends State<TripFormBasics> {
             ),
             content: Column(
               children: [
-                CheckboxListTile(
-                  title: Text(loc.addTripManualDeparture),
-                  value: false,
-                  onChanged: (_) {},
-                  controlAffinity: ListTileControlAffinity.leading,
-                ),
-                TextFormField(
-                  decoration: InputDecoration(
-                    labelText: loc.addTripDeparture,
-                    border: OutlineInputBorder(),
-                  ),
+                _leftAlignedSubtitle(context, loc.addTripDeparture),
+                const SizedBox(height: 8),
+                StationFieldsSwitcher(
+                  globePinIcon: Symbols.globe_location_pin,
+                  onChanged: (values) {
+                    debugPrint('Station name: ${values['name']}');
+                    debugPrint('Latitude: ${values['lat']}');
+                    debugPrint('Longitude: ${values['long']}');
+                  },
                 ),
                 const SizedBox(height: 12),
-                CheckboxListTile(
-                  title: Text(loc.addTripManualArrival),
-                  value: false,
-                  onChanged: (_) {},
-                  controlAffinity: ListTileControlAffinity.leading,
-                ),
-                TextFormField(
-                  decoration: InputDecoration(
-                    labelText: loc.addTripArrival,
-                    border: OutlineInputBorder(),
-                  ),
+                _leftAlignedSubtitle(context, loc.addTripArrival),
+                const SizedBox(height: 8),
+                StationFieldsSwitcher(
+                  // Optional:
+                  // initialGeoMode: false,
+                  // onModeChanged: (isGeo) => debugPrint('Geo mode: $isGeo'),
+                  // searchIcon: Symbols.search,           // if using Material Symbols
+                  globePinIcon: Symbols.globe_location_pin, // if using Material Symbols
                 ),
               ],
             ),
