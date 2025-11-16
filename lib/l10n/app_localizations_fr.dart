@@ -93,6 +93,18 @@ class AppLocalizationsFr extends AppLocalizations {
   String get nameField => 'Nom';
 
   @override
+  String get auto => 'Auto';
+
+  @override
+  String get energyElectric => 'Electrique';
+
+  @override
+  String get energyThermic => 'Thermique';
+
+  @override
+  String get energyHydrogen => 'Hydrogène';
+
+  @override
   String get settingsAppCategory => 'Paramètres de l\'application';
 
   @override
@@ -461,7 +473,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get addTripOperatorHelper =>
-      'Séparez plusieurs opérateurs par une virgule';
+      'Virgule ou Entrée pour valider un opérateur inconnu';
 
   @override
   String get addTripOperatorPlaceholderLogo => 'Sélectionnez un opérateur';

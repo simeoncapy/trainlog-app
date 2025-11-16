@@ -92,6 +92,18 @@ class AppLocalizationsJa extends AppLocalizations {
   String get nameField => '名前';
 
   @override
+  String get auto => '自動';
+
+  @override
+  String get energyElectric => '電動';
+
+  @override
+  String get energyThermic => 'ガソリン';
+
+  @override
+  String get energyHydrogen => '水素';
+
+  @override
   String get settingsAppCategory => 'アプリ設定';
 
   @override
@@ -457,7 +469,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get addTripOperator => '事業者';
 
   @override
-  String get addTripOperatorHelper => '複数はカンマで区切ります';
+  String get addTripOperatorHelper => '不明な事業者は、カンマまたはEnterで確定';
 
   @override
   String get addTripOperatorPlaceholderLogo => '事業者を選択してください';

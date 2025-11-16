@@ -97,19 +97,23 @@ class _StationFieldsSwitcherState extends State<StationFieldsSwitcher>
       children: [
         // Name field
         Expanded(
-          child: TextFormField(
-            controller: _nameCtl,
-            decoration: InputDecoration(
-              labelText: loc.nameField,
-              border: border,
+          child: Padding(
+            padding: const EdgeInsets.only(top: 4.0, bottom: 4.0),
+            child: TextFormField(
+              controller: _nameCtl,
+              decoration: InputDecoration(
+                labelText: loc.nameField,
+                border: border,
+              ),
+              onChanged: (_) {
+                widget.onChanged?.call({
+                  'name': _nameCtl.text,
+                  'lat': _latCtl.text,
+                  'long': _longCtl.text,
+                  'mode': _geoMode ? "geo" : "name",
+                });
+              },
             ),
-            onChanged: (_) {
-              widget.onChanged?.call({
-                'name': _nameCtl.text,
-                'lat': _latCtl.text,
-                'long': _longCtl.text,
-              });
-            },
           ),
         ),
         const SizedBox(width: 8),
@@ -139,6 +143,7 @@ class _StationFieldsSwitcherState extends State<StationFieldsSwitcher>
                 'name': _nameCtl.text,
                 'lat': _latCtl.text,
                 'long': _longCtl.text,
+                'mode': _geoMode ? "geo" : "name",
               });
             },
           ),
@@ -159,6 +164,7 @@ class _StationFieldsSwitcherState extends State<StationFieldsSwitcher>
                 'name': _nameCtl.text,
                 'lat': _latCtl.text,
                 'long': _longCtl.text,
+                'mode': _geoMode ? "geo" : "name",
               });
             },
           ),

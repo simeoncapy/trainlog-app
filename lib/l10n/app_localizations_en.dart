@@ -92,6 +92,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get nameField => 'Name';
 
   @override
+  String get auto => 'Auto';
+
+  @override
+  String get energyElectric => 'Electric';
+
+  @override
+  String get energyThermic => 'Fuel';
+
+  @override
+  String get energyHydrogen => 'Hydrogen';
+
+  @override
   String get settingsAppCategory => 'App Settings';
 
   @override
@@ -458,7 +470,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addTripOperator => 'Operator';
 
   @override
-  String get addTripOperatorHelper => 'Separate multiple operators by a comma';
+  String get addTripOperatorHelper =>
+      'Use a comma or enter to validate an unknown operator';
 
   @override
   String get addTripOperatorPlaceholderLogo => 'Select an operator';

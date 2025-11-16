@@ -262,6 +262,30 @@ abstract class AppLocalizations {
   /// **'Name'**
   String get nameField;
 
+  /// No description provided for @auto.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto'**
+  String get auto;
+
+  /// No description provided for @energyElectric.
+  ///
+  /// In en, this message translates to:
+  /// **'Electric'**
+  String get energyElectric;
+
+  /// No description provided for @energyThermic.
+  ///
+  /// In en, this message translates to:
+  /// **'Fuel'**
+  String get energyThermic;
+
+  /// No description provided for @energyHydrogen.
+  ///
+  /// In en, this message translates to:
+  /// **'Hydrogen'**
+  String get energyHydrogen;
+
   /// No description provided for @settingsAppCategory.
   ///
   /// In en, this message translates to:
@@ -955,7 +979,7 @@ abstract class AppLocalizations {
   /// No description provided for @addTripOperatorHelper.
   ///
   /// In en, this message translates to:
-  /// **'Separate multiple operators by a comma'**
+  /// **'Use a comma or enter to validate an unknown operator'**
   String get addTripOperatorHelper;
 
   /// No description provided for @addTripOperatorPlaceholderLogo.

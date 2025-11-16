@@ -120,6 +120,10 @@ class TrainlogProvider extends ChangeNotifier {
     if (_username == null) return;
     _listOperatorsLogoUrl = await _service.fetchAllOperatorLogosUrl(_username ?? "");
   }
+  
+  bool hasOperatorLogo(String operatorName) {
+    return _listOperatorsLogoUrl.containsKey(operatorName);
+  }
 
   List<Image> getOperatorImages(
     String operatorName, {
@@ -194,4 +198,81 @@ class TrainlogProvider extends ChangeNotifier {
     if (_username == null) return {};
     return await _service.fetchStatsByVehicle(_username ?? "", type, year);
   }
+
+  /// Return up to [limit] operators that match [query] by
+  /// substring match first, then fuzzy Levenshtein distance.
+  List<String> getClosestOperators(String query, {int limit = 10}) {
+    if (query.isEmpty) return [];
+
+    final q = query.toLowerCase();
+
+    // All available operators (keys of _listOperatorsLogoUrl)
+    final ops = _listOperatorsLogoUrl.keys.toList();
+    if (ops.isEmpty) return [];
+
+    // 1) SUBSTRING MATCHES (higher priority)
+    final substringMatches = ops
+        .where((op) => op.toLowerCase().contains(q))
+        .toList();
+
+    // If enough matches found, return top results
+    if (substringMatches.length >= limit) {
+      substringMatches.sort(
+        (a, b) => a.toLowerCase().indexOf(q).compareTo(b.toLowerCase().indexOf(q)),
+      );
+      return substringMatches.take(limit).toList();
+    }
+
+    // 2) FUZZY MATCHES (Levenshtein distance)
+    final fuzzyMatches = <String, int>{};
+
+    for (final op in ops) {
+      final dist = _levenshteinDistance(q, op.toLowerCase());
+      fuzzyMatches[op] = dist;
+    }
+
+    // Sort by closeness (smallest distance first)
+    final sortedFuzzy = fuzzyMatches.entries.toList()
+      ..sort((a, b) => a.value.compareTo(b.value));
+
+    // Combine substring + fuzzy (without duplicates)
+    final combined = [
+      ...substringMatches,
+      ...sortedFuzzy.map((e) => e.key).where((op) => !substringMatches.contains(op))
+    ];
+
+    return combined.take(limit).toList();
+  }
+
+  /// Basic Levenshtein distance implementation.
+  int _levenshteinDistance(String s, String t) {
+    if (s == t) return 0;
+    if (s.isEmpty) return t.length;
+    if (t.isEmpty) return s.length;
+
+    final m = s.length;
+    final n = t.length;
+
+    final dp = List<List<int>>.generate(
+      m + 1,
+      (_) => List<int>.filled(n + 1, 0),
+    );
+
+    for (int i = 0; i <= m; i++) dp[i][0] = i;
+    for (int j = 0; j <= n; j++) dp[0][j] = j;
+
+    for (int i = 1; i <= m; i++) {
+      for (int j = 1; j <= n; j++) {
+        final cost = s[i - 1] == t[j - 1] ? 0 : 1;
+        dp[i][j] = [
+          dp[i - 1][j] + 1,     // deletion
+          dp[i][j - 1] + 1,     // insertion
+          dp[i - 1][j - 1] + cost, // replacement
+        ].reduce((a, b) => a < b ? a : b);
+      }
+    }
+
+    return dp[m][n];
+  }
+
 }

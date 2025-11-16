@@ -3,6 +3,7 @@ import 'package:currency_picker/currency_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/widgets/titled_container.dart';
+import 'package:trainlog_app/widgets/vehicle_energy_selector.dart';
 
 class TripFormDetails extends StatefulWidget {
   const TripFormDetails({super.key});
@@ -132,6 +133,11 @@ class _TripFormDetailsState extends State<TripFormDetails> {
                 ),
               ],
             ),
+          ),
+          const SizedBox(height: 16),
+          TitledContainer(
+            title: "Energy", 
+            content: const VehicleEnergySelector(),
           ),
         ],
       ),
