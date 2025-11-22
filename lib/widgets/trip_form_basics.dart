@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
+import 'package:trainlog_app/widgets/mini_map_box.dart';
 import 'package:trainlog_app/widgets/operator_selector.dart';
 import 'package:trainlog_app/widgets/station_fields_switcher.dart';
 import 'package:trainlog_app/widgets/titled_container.dart';
@@ -20,6 +21,12 @@ class _TripFormBasicsState extends State<TripFormBasics> {
   VehicleType? _selectedVehicleType;
   String? _selectedOperatorName;
   final _operatorSelectorKey = GlobalKey<OperatorSelectorState>();
+  double? _departureLat;
+  double? _departureLong;
+
+  double? _arrivalLat;
+  double? _arrivalLong;
+
 
   @override
   void initState() {
@@ -83,6 +90,11 @@ class _TripFormBasicsState extends State<TripFormBasics> {
                 StationFieldsSwitcher(
                   globePinIcon: Symbols.globe_location_pin,
                   onChanged: (values) {
+                    setState(() {
+                      _departureLat = double.tryParse(values['lat'] ?? '');
+                      _departureLong = double.tryParse(values['long'] ?? '');
+                    });
+
                     debugPrint('Station name: ${values['name']}');
                     debugPrint('Latitude: ${values['lat']}');
                     debugPrint('Longitude: ${values['long']}');
@@ -93,11 +105,39 @@ class _TripFormBasicsState extends State<TripFormBasics> {
                 _leftAlignedSubtitle(context, loc.addTripArrival),
                 const SizedBox(height: 4),
                 StationFieldsSwitcher(
-                  // Optional:
-                  // initialGeoMode: false,
-                  // onModeChanged: (isGeo) => debugPrint('Geo mode: $isGeo'),
-                  // searchIcon: Symbols.search,           // if using Material Symbols
-                  globePinIcon: Symbols.globe_location_pin, // if using Material Symbols
+                  globePinIcon: Symbols.globe_location_pin,
+                  onChanged: (values) {
+                    setState(() {
+                      _arrivalLat = double.tryParse(values['lat'] ?? '');
+                      _arrivalLong = double.tryParse(values['long'] ?? '');
+                    });
+
+                    debugPrint('Arrival Station: ${values['name']}');
+                    debugPrint('Latitude: $_arrivalLat');
+                    debugPrint('Longitude: $_arrivalLong');
+                  },
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [ // 35.6808907,139.7671718
+                    Expanded(
+                      child: MiniMapBox(
+                        lat: _departureLat,
+                        long: _departureLong,
+                        emptyMessage: "Please enter the departure station",
+                        markerColor: Colors.green,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: MiniMapBox(
+                        lat: _arrivalLat,
+                        long: _arrivalLong,
+                        emptyMessage: "Please enter the arrival station",
+                        markerColor: Colors.red,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

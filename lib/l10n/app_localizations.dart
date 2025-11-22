@@ -982,6 +982,12 @@ abstract class AppLocalizations {
   /// **'Use a comma or enter to validate an unknown operator'**
   String get addTripOperatorHelper;
 
+  /// No description provided for @addTripOperatorHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search operator...'**
+  String get addTripOperatorHint;
+
   /// No description provided for @addTripOperatorPlaceholderLogo.
   ///
   /// In en, this message translates to:

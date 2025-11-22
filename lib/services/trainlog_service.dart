@@ -9,6 +9,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'dart:convert';
 import 'dart:math' as math;
+import 'package:latlong2/latlong.dart';
 
 import 'package:trainlog_app/data/models/trips.dart';
 
@@ -159,7 +160,7 @@ class TrainlogService {
   }
 
   Future<String> fetchAllTripsData(String username) async {
-    final path = '/$username/export';
+    final path = '/u/$username/export';
     try {
       final res = await _dio.get<String>(
         path,
@@ -194,7 +195,7 @@ class TrainlogService {
   }
 
   Future<Map<String, String>> fetchAllOperatorLogosUrl(String username) async {
-    final path = '/$username/getManAndOps/train';
+    final path = '/u/$username/getManAndOps/train';
 
     final res = await _dio.get<Map<String, dynamic>>(
       path,
@@ -225,8 +226,8 @@ class TrainlogService {
 
   Future<Map<String, dynamic>> fetchStatsByVehicle(String username, VehicleType type, int? year) async {
     final path = year == null
-        ? '/$username/getStats/${type.toShortString()}'
-        : '/$username/getStats/$year/${type.toShortString()}';
+        ? '/u/$username/getStats/${type.toShortString()}'
+        : '/u/$username/getStats/$year/${type.toShortString()}';
 
     final res = await _dio.get<Map<String, dynamic>>(
       path,
@@ -270,5 +271,101 @@ class TrainlogService {
     final rel = path.startsWith('/') ? path.substring(1) : path;
     return Uri.parse(baseWithSlash).resolve(rel).toString();
   }
+
+  Future<Map<String, List<LatLng>>> fetchAllManualStations(
+      String username,
+      VehicleType type,
+  ) async {
+    final path = '/u/$username/getManAndOps/${type.toShortString()}';
+
+    final res = await _dio.get<Map<String, dynamic>>(
+      path,
+      options: Options(
+        followRedirects: true,
+        maxRedirects: 5,
+        responseType: ResponseType.json,
+        validateStatus: (s) => s != null && s >= 200 && s < 400,
+      ),
+    );
+
+    final data = res.data;
+    if (data == null || data['manualStations'] == null) {
+      return {};
+    }
+
+    final manual = data['manualStations'] as Map<String, dynamic>;
+
+    final result = <String, List<LatLng>>{};
+
+    manual.forEach((name, entry) {
+      // entry = [ [lat, lng], "Name again" ]
+      final coords = entry[0];
+      final lat = coords[0] as double;
+      final lng = coords[1] as double;
+
+      final point = LatLng(lat, lng);
+
+      result.putIfAbsent(name, () => []);
+      result[name]!.add(point);
+    });
+
+    return result;
+  }
+
+  Future<Map<String, LatLng>> fetchAllManualStationsSuffixed(
+      String username,
+      VehicleType type,
+  ) async {
+    final path = '/u/$username/getManAndOps/${type.toShortString()}';
+
+    final res = await _dio.get<Map<String, dynamic>>(
+      path,
+      options: Options(
+        followRedirects: true,
+        maxRedirects: 5,
+        responseType: ResponseType.json,
+        validateStatus: (s) => s != null && s >= 200 && s < 400,
+      ),
+    );
+
+    final data = res.data;
+    if (data == null || data['manualStations'] == null) {
+      return {};
+    }
+
+    final manual = data['manualStations'] as Map<String, dynamic>;
+
+    final result = <String, LatLng>{};
+
+    for (final entry in manual.entries) {
+      final baseName = entry.key;
+      final coords = entry.value[0];
+
+      final lat = coords[0] as double;
+      final lng = coords[1] as double;
+      final latLng = LatLng(lat, lng);
+
+      var name = baseName;
+
+      // If name already exists, append (a), (b), (c) …
+      if (result.containsKey(name)) {
+        int suffixIndex = 0;
+        while (true) {
+          final candidate = "$baseName (${String.fromCharCode(97 + suffixIndex)})";
+          if (!result.containsKey(candidate)) {
+            name = candidate;
+            break;
+          }
+          suffixIndex++;
+        }
+      }
+
+      result[name] = latLng;
+    }
+
+    return result;
+  }
+
+  // https://trainlog.me/stationAutocomplete?osm_tag=railway:halt&osm_tag=railway:station&q=kita-senju
 
 }

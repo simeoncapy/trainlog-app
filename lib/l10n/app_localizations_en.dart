@@ -474,6 +474,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Use a comma or enter to validate an unknown operator';
 
   @override
+  String get addTripOperatorHint => 'Search operator...';
+
+  @override
   String get addTripOperatorPlaceholderLogo => 'Select an operator';
 
   @override

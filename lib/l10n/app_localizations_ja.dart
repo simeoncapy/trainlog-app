@@ -472,6 +472,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get addTripOperatorHelper => '不明な事業者は、カンマまたはEnterで確定';
 
   @override
+  String get addTripOperatorHint => '事業者を検索';
+
+  @override
   String get addTripOperatorPlaceholderLogo => '事業者を選択してください';
 
   @override

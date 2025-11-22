@@ -130,43 +130,49 @@ class _StationFieldsSwitcherState extends State<StationFieldsSwitcher>
         const SizedBox(width: 8),
         // Lat field
         Expanded(
-          child: TextFormField(
-            controller: _latCtl,
-            keyboardType:
-                const TextInputType.numberWithOptions(signed: true, decimal: true),
-            decoration: InputDecoration(
-              labelText: loc.addTripLatitudeShort,
-              border: border,
+          child: Padding(
+            padding: const EdgeInsets.only(top: 4.0, bottom: 4.0),
+            child: TextFormField(
+              controller: _latCtl,
+              keyboardType:
+                  const TextInputType.numberWithOptions(signed: true, decimal: true),
+              decoration: InputDecoration(
+                labelText: loc.addTripLatitudeShort,
+                border: border,
+              ),
+              onChanged: (_) {
+                widget.onChanged?.call({
+                  'name': _nameCtl.text,
+                  'lat': _latCtl.text,
+                  'long': _longCtl.text,
+                  'mode': _geoMode ? "geo" : "name",
+                });
+              },
             ),
-            onChanged: (_) {
-              widget.onChanged?.call({
-                'name': _nameCtl.text,
-                'lat': _latCtl.text,
-                'long': _longCtl.text,
-                'mode': _geoMode ? "geo" : "name",
-              });
-            },
           ),
         ),
         const SizedBox(width: 8),
         // Long field
         Expanded(
-          child: TextFormField(
-            controller: _longCtl,
-            keyboardType:
-                const TextInputType.numberWithOptions(signed: true, decimal: true),
-            decoration: InputDecoration(
-              labelText: loc.addTripLongitudeShort,
-              border: border,
+          child: Padding(
+            padding: const EdgeInsets.only(top: 4.0, bottom: 4.0),
+            child: TextFormField(
+              controller: _longCtl,
+              keyboardType:
+                  const TextInputType.numberWithOptions(signed: true, decimal: true),
+              decoration: InputDecoration(
+                labelText: loc.addTripLongitudeShort,
+                border: border,
+              ),
+              onChanged: (_) {
+                widget.onChanged?.call({
+                  'name': _nameCtl.text,
+                  'lat': _latCtl.text,
+                  'long': _longCtl.text,
+                  'mode': _geoMode ? "geo" : "name",
+                });
+              },
             ),
-            onChanged: (_) {
-              widget.onChanged?.call({
-                'name': _nameCtl.text,
-                'lat': _latCtl.text,
-                'long': _longCtl.text,
-                'mode': _geoMode ? "geo" : "name",
-              });
-            },
           ),
         ),
       ],

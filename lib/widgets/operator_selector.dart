@@ -2,20 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
+import 'package:trainlog_app/widgets/full_screen_search_overlay.dart';
 
-/// Content for the "operator" block:
-///  - Text field with autocomplete suggestions (inline, not overlay)
-///  - Multiple operators support (comma or Enter to add)
-///  - Suggestions shown above or below depending on screen space
-///  - Logos (or text badge if unknown), each with a close button
-///  - Auto-scrolls to the right when a new logo is added
-///
-/// Usage:
-///   final key = GlobalKey<OperatorSelectorState>();
-///   ...
-///   OperatorSelector(key: key)
-///   ...
-///   final value = key.currentState?.finalValue ?? '';
 class OperatorSelector extends StatefulWidget {
   const OperatorSelector({Key? key}) : super(key: key);
 
@@ -25,33 +13,28 @@ class OperatorSelector extends StatefulWidget {
 
 class OperatorSelectorState extends State<OperatorSelector> {
   final TextEditingController _inputController = TextEditingController();
-  final FocusNode _focusNode = FocusNode();
+  final FocusNode _fieldFocusNode = FocusNode();        // main form field
+  final FocusNode _overlayFocusNode = FocusNode();      // overlay search field
   final ScrollController _logosScrollController = ScrollController();
 
-  // Key to measure the TextFormField position on screen
   final GlobalKey _fieldKey = GlobalKey();
 
-  // Validated operators (those already turned into logos)
   final List<String> _selectedOperators = [];
-
-  // Autocomplete suggestions
   List<String> _suggestions = [];
 
-  // Whether to show suggestions above the field (if not enough space below)
   bool _showSuggestionsAbove = false;
-
   static const double _suggestionsMaxHeight = 220;
+
+  OverlayEntry? _overlayEntry;
 
   @override
   void initState() {
     super.initState();
 
-    _focusNode.addListener(() {
-      if (!_focusNode.hasFocus) {
-        // Hide suggestions when field loses focus
-        setState(() {
-          _suggestions = [];
-        });
+    // When the main field gains focus, show overlay.
+    _fieldFocusNode.addListener(() {
+      if (_fieldFocusNode.hasFocus) {
+        _showOverlay();
       }
     });
   }
@@ -59,7 +42,8 @@ class OperatorSelectorState extends State<OperatorSelector> {
   @override
   void dispose() {
     _inputController.dispose();
-    _focusNode.dispose();
+    _fieldFocusNode.dispose();
+    _overlayFocusNode.dispose();
     _logosScrollController.dispose();
     super.dispose();
   }
@@ -78,12 +62,16 @@ class OperatorSelectorState extends State<OperatorSelector> {
   // ─────────────────────────────────────────────────────────────
 
   void _onTextChanged(String value, BuildContext fieldContext) {
-    // Commit completed parts separated by commas, keep last fragment in field.
+    bool committed = false;
+
+    // Commit parts separated by commas
     if (value.contains(',')) {
       final parts = value.split(',');
       for (int i = 0; i < parts.length - 1; i++) {
         _commitRawOperator(parts[i]);
+        committed = true;
       }
+
       final remaining = parts.last;
       _inputController.value = TextEditingValue(
         text: remaining,
@@ -91,15 +79,24 @@ class OperatorSelectorState extends State<OperatorSelector> {
       );
     }
 
-    _updateSuggestions(fieldContext);
+    // If we committed at least one operator while overlay is open,
+    // close overlay (Option 2 behaviour).
+    if (committed && _overlayEntry != null) {
+      _closeOverlayAndReset();
+      return;
+    }
+
+    if (_overlayEntry == null) {
+      _updateSuggestions(fieldContext);
+    } else {
+      _updateSuggestionsOverlay();
+    }
   }
 
   void _onSubmitted(String value) {
+    // Enter pressed in overlay or main field: commit once and close overlay.
     _commitRawOperator(value);
-    _inputController.clear();
-    setState(() {
-      _suggestions = [];
-    });
+    _closeOverlayAndReset();
   }
 
   /// Take a raw string from input and add it as operator (matching known if possible).
@@ -139,14 +136,16 @@ class OperatorSelectorState extends State<OperatorSelector> {
   }
 
   // ─────────────────────────────────────────────────────────────
-  // Suggestions (inline, above or below)
+  // Inline suggestions (for non-overlay usage, e.g. desktop)
   // ─────────────────────────────────────────────────────────────
 
   void _updateSuggestions(BuildContext fieldContext) {
+    if (_overlayEntry != null) return;
+
     final query = _inputController.text.trim();
     final trainlog = context.read<TrainlogProvider>();
 
-    if (!_focusNode.hasFocus || query.isEmpty) {
+    if (!_fieldFocusNode.hasFocus || query.isEmpty) {
       setState(() {
         _suggestions = [];
       });
@@ -195,16 +194,8 @@ class OperatorSelectorState extends State<OperatorSelector> {
           return GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTapDown: (_) {
-              // Must run BEFORE the field loses focus
               _addOperator(op);
-              // Clear input
-              _inputController.clear();
-              // Keep keyboard open
-              _focusNode.requestFocus();
-              // Hide suggestions
-              setState(() {
-                _suggestions = [];
-              });
+              _closeOverlayAndReset();
             },
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
@@ -214,6 +205,87 @@ class OperatorSelectorState extends State<OperatorSelector> {
         },
       ),
     );
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // Overlay autocomplete (mobile-style)
+  // ─────────────────────────────────────────────────────────────
+
+  OverlayEntry _buildOverlay() {
+  final loc = AppLocalizations.of(context)!;
+  return OverlayEntry(
+    builder: (context) {
+      return FullScreenSearchOverlay<String>(
+        controller: _inputController,
+        focusNode: _overlayFocusNode,
+        items: _suggestions,
+        hintText: loc.addTripOperatorHint,
+        onSelected: (op) {
+          _addOperator(op);
+          _closeOverlayAndReset();
+        },
+        onClose: _closeOverlayAndReset,
+        itemBuilder: (context, op) {
+          final trainlog = context.read<TrainlogProvider>();
+          final hasLogo = trainlog.hasOperatorLogo(op);
+
+          return ListTile(
+            leading: hasLogo
+                ? SizedBox(
+                    width: 32,
+                    height: 32,
+                    child: trainlog.getOperatorImage(
+                      op,
+                      maxWidth: 32,
+                      maxHeight: 32,
+                    ),
+                  )
+                : const Icon(Icons.train),
+            title: Text(op),
+          );
+        },
+      );
+    },
+  );
+}
+
+
+  void _showOverlay() {
+    if (_overlayEntry != null) return;
+
+    _overlayEntry = _buildOverlay();
+    Overlay.of(context).insert(_overlayEntry!);
+
+    _updateSuggestionsOverlay();
+  }
+
+  void _closeOverlayAndReset() {
+    // Remove overlay if present
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+
+    // Clear text & suggestions
+    _inputController.clear();
+    _suggestions = [];
+
+    // Unfocus both fields: form field should end up empty and unfocused
+    _overlayFocusNode.unfocus();
+    _fieldFocusNode.unfocus();
+
+    if (mounted) setState(() {});
+  }
+
+  void _updateSuggestionsOverlay() {
+    final query = _inputController.text.trim();
+    final trainlog = context.read<TrainlogProvider>();
+
+    if (query.isEmpty) {
+      _suggestions = [];
+    } else {
+      _suggestions = trainlog.getClosestOperators(query, limit: 10);
+    }
+
+    _overlayEntry?.markNeedsBuild();
   }
 
   // ─────────────────────────────────────────────────────────────
@@ -317,8 +389,8 @@ class OperatorSelectorState extends State<OperatorSelector> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // If we should show suggestions above the field, render them first.
-        if (_showSuggestionsAbove && _suggestions.isNotEmpty)
+        // If we should show suggestions above the field (inline mode)
+        if (_overlayEntry == null && _showSuggestionsAbove && _suggestions.isNotEmpty)
           _buildSuggestionsBox(context),
 
         // Text field with key for position measurement
@@ -328,7 +400,7 @@ class OperatorSelectorState extends State<OperatorSelector> {
               key: _fieldKey,
               child: TextFormField(
                 controller: _inputController,
-                focusNode: _focusNode,
+                focusNode: _fieldFocusNode,
                 decoration: InputDecoration(
                   labelText: loc.nameField,
                   prefixIcon: const Icon(Icons.business),
@@ -343,8 +415,7 @@ class OperatorSelectorState extends State<OperatorSelector> {
           },
         ),
 
-        // If we show suggestions below, render them here.
-        if (!_showSuggestionsAbove && _suggestions.isNotEmpty)
+        if (_overlayEntry == null && !_showSuggestionsAbove && _suggestions.isNotEmpty)
           _buildSuggestionsBox(context),
 
         const SizedBox(height: 12),
@@ -372,8 +443,7 @@ class OperatorSelectorState extends State<OperatorSelector> {
                   scrollDirection: Axis.horizontal,
                   controller: _logosScrollController,
                   child: Row(
-                    children:
-                        _selectedOperators.map(_buildOperatorChip).toList(),
+                    children: _selectedOperators.map(_buildOperatorChip).toList(),
                   ),
                 ),
         ),

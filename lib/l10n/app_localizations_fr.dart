@@ -476,6 +476,9 @@ class AppLocalizationsFr extends AppLocalizations {
       'Virgule ou Entrée pour valider un opérateur inconnu';
 
   @override
+  String get addTripOperatorHint => 'Recherche d\'un opérateur...';
+
+  @override
   String get addTripOperatorPlaceholderLogo => 'Sélectionnez un opérateur';
 
   @override

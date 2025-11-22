@@ -164,6 +164,7 @@
   "addTripLongitudeShort": "経度",
   "addTripOperator": "事業者",
   "addTripOperatorHelper": "不明な事業者は、カンマまたはEnterで確定",
+  "addTripOperatorHint" : "事業者を検索",
   "addTripOperatorPlaceholderLogo": "事業者を選択してください",
   "addTripLine": "路線",
   "addTripDateTypePrecise": "精密",

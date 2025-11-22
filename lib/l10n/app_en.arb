@@ -204,6 +204,7 @@
   "addTripLongitudeShort": "Long",
   "addTripOperator": "Operator",
   "addTripOperatorHelper": "Use a comma or enter to validate an unknown operator",
+  "addTripOperatorHint" : "Search operator...",
   "addTripOperatorPlaceholderLogo": "Select an operator",
   "addTripLine": "Line",
   "addTripDateTypePrecise": "Precise",
