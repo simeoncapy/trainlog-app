@@ -48,6 +48,7 @@ class _TripFormBasicsState extends State<TripFormBasics> {
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
+    final vehicleType = _selectedVehicleType?.name ?? VehicleType.train.name;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -80,15 +81,15 @@ class _TripFormBasicsState extends State<TripFormBasics> {
 
           /// Departure & Arrival (grouped box)
           TitledContainer(
-            title: loc.graphTypeStations(
-              _selectedVehicleType?.name ?? VehicleType.train.name,
-            ),
+            title: loc.typeStations(vehicleType),
             content: Column(
               children: [
                 _leftAlignedSubtitle(context, loc.addTripDeparture),
                 const SizedBox(height: 4),
                 StationFieldsSwitcher(
                   globePinIcon: Symbols.globe_location_pin,
+                  addressDefaultText: loc.typeStationAddress(vehicleType),
+                  manualNameFieldHint: loc.manualNameStation(vehicleType),
                   onChanged: (values) {
                     setState(() {
                       _departureLat = double.tryParse(values['lat'] ?? '');
@@ -106,6 +107,8 @@ class _TripFormBasicsState extends State<TripFormBasics> {
                 const SizedBox(height: 4),
                 StationFieldsSwitcher(
                   globePinIcon: Symbols.globe_location_pin,
+                  addressDefaultText: loc.typeStationAddress(vehicleType),
+                  manualNameFieldHint: loc.manualNameStation(vehicleType),
                   onChanged: (values) {
                     setState(() {
                       _arrivalLat = double.tryParse(values['lat'] ?? '');
@@ -124,7 +127,9 @@ class _TripFormBasicsState extends State<TripFormBasics> {
                       child: MiniMapBox(
                         lat: _departureLat,
                         long: _departureLong,
-                        emptyMessage: "Please enter the departure station",
+                        emptyMessage: loc.enterStation("departure",
+                          _selectedVehicleType?.name ?? VehicleType.train.name,
+                        ),
                         markerColor: Colors.green,
                       ),
                     ),
@@ -133,7 +138,9 @@ class _TripFormBasicsState extends State<TripFormBasics> {
                       child: MiniMapBox(
                         lat: _arrivalLat,
                         long: _arrivalLong,
-                        emptyMessage: "Please enter the arrival station",
+                        emptyMessage: loc.enterStation("arrival",
+                          _selectedVehicleType?.name ?? VehicleType.train.name,
+                        ),
                         markerColor: Colors.red,
                       ),
                     ),

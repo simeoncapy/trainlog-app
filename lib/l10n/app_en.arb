@@ -148,14 +148,51 @@
   "graphTypeYears": "Years",
   "graphTypeMaterial": "Material",
   "graphTypeItinerary": "Itinerary",
-  "graphTypeStations": "{type, select, train{Stations} plane{Airports} bus{Stops} tram{Stations} metro{Stations} ferry{Ports} helicopter{Heliports} aerialway{Stations} other{Locations}}",
-  "@graphTypeStations": {
+
+  "typeStation": "{type, select, train{Station} plane{Airport} bus{Stop} tram{Station} metro{Station} ferry{Port} helicopter{Heliport} aerialway{Station} other{Location}}",
+  "@typeStation": {
+    "description": "Label for station based on vehicle type (singular)",
+    "placeholders": { "type": { "type": "String" } }
+  },
+  "typeStations": "{type, select, train{Stations} plane{Airports} bus{Stops} tram{Stations} metro{Stations} ferry{Ports} helicopter{Heliports} aerialway{Stations} other{Locations}}",
+  "@typeStations": {
     "description": "Label for stations based on vehicle type (plural)",
     "placeholders": {
       "type": { "type": "String" }
     }
   },
-  
+  "typeStationAddress": "{type, select, train{Address of the station} plane{Address of the airport} bus{Address of the stop} tram{Address of the station} metro{Address of the station} ferry{Address of the port} helicopter{Address of the heliport} aerialway{Address of the station} other{Address of the location}}",
+  "@typeStationAddress": {
+    "description": "Label for stations address based on vehicle type",
+    "placeholders": {
+      "type": { "type": "String" }
+    }
+  },
+  "enterStation": "{direction, select, departure{{type, select, train{Please enter the departure station} plane{Please enter the departure airport} bus{Please enter the departure stop} tram{Please enter the departure station} metro{Please enter the departure station} ferry{Please enter the departure port} helicopter{Please enter the departure heliport} aerialway{Please enter the departure station} other{Please enter the departure location}}} arrival{{type, select, train{Please enter the arrival station} plane{Please enter the arrival airport} bus{Please enter the arrival stop} tram{Please enter the arrival station} metro{Please enter the arrival station} ferry{Please enter the arrival port} helicopter{Please enter the arrival heliport} aerialway{Please enter the arrival station} other{Please enter the arrival location}}} other{{type, select, train{Please enter the station} plane{Please enter the airport} bus{Please enter the stop} tram{Please enter the station} metro{Please enter the station} ferry{Please enter the port} helicopter{Please enter the heliport} aerialway{Please enter the station} other{Please enter the location}}}}",
+  "@enterStation": {
+    "description": "Prompts the user to enter a departure or arrival station, airport, port, stop, etc., depending on the vehicle type.",
+    "placeholders": {
+      "direction": {
+        "type": "String",
+        "description": "Either 'departure' or 'arrival'. Determines which phrasing to use."
+      },
+      "type": {
+        "type": "String",
+        "description": "Vehicle type (train, plane, bus, tram, metro, ferry, helicopter, aerialway, other). Determines which facility name is used."
+      }
+    }
+  },
+  "manualNameStation": "{type, select, train{Manual name of the station} plane{Manual name of the airport} bus{Manual name of the stop} tram{Manual name of the station} metro{Manual name of the station} ferry{Manual name of the port} helicopter{Manual name of the heliport} aerialway{Manual name of the station} other{Manual name of the location}}",
+  "@manualNameStation": {
+    "description": "Label asking for the manual/custom name of the station (airport, port, stop, heliport, etc.) depending on the vehicle type.",
+    "placeholders": {
+      "type": {
+        "type": "String",
+        "description": "Vehicle type determining the facility name. Expected values: train, plane, bus, tram, metro, ferry, helicopter, aerialway, other."
+      }
+    }
+  },
+
   "statisticsGraphUnitTrips": "Trips",
   "statisticsGraphUnitDistance": "Distance",
   "statisticsGraphUnitDuration": "Duration",
@@ -196,6 +233,7 @@
     "description": "Label for the last step when adding a trip. Choose a short word if possible"
   },
   "addTripTransportationMode": "Transportation mode",
+  "addTipSearchStation": "Search ",
   "addTripManualDeparture": "Manual departure",
   "addTripManualArrival": "Manual arrival",
   "addTripDeparture": "Departure",

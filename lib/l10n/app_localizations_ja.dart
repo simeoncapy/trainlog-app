@@ -366,17 +366,108 @@ class AppLocalizationsJa extends AppLocalizations {
   String get graphTypeItinerary => '道順';
 
   @override
-  String graphTypeStations(String type) {
+  String typeStation(String type) {
     String _temp0 = intl.Intl.selectLogic(type, {
       'train': '駅',
       'plane': '空港',
-      'bus': '停留場',
+      'bus': '停留所',
       'tram': '停留場',
       'metro': '駅',
       'ferry': '港',
       'helicopter': 'ヘリポート',
       'aerialway': '駅',
       'other': '場所',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String typeStations(String type) {
+    String _temp0 = intl.Intl.selectLogic(type, {
+      'train': '駅',
+      'plane': '空港',
+      'bus': '停留所',
+      'tram': '停留場',
+      'metro': '駅',
+      'ferry': '港',
+      'helicopter': 'ヘリポート',
+      'aerialway': '駅',
+      'other': '場所',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String typeStationAddress(String type) {
+    String _temp0 = intl.Intl.selectLogic(type, {
+      'train': '駅の住所',
+      'plane': '空港の住所',
+      'bus': '停留所の住所',
+      'tram': '停留場の住所',
+      'metro': '駅の住所',
+      'ferry': '港の住所',
+      'helicopter': 'ヘリポートの住所',
+      'aerialway': '駅の住所',
+      'other': '場所の住所',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String enterStation(String direction, String type) {
+    String _temp0 = intl.Intl.selectLogic(type, {
+      'train': '出発駅を入力してください',
+      'plane': '出発空港を入力してください',
+      'bus': '出発停留所を入力してください',
+      'tram': '出発停留場を入力してください',
+      'metro': '出発駅を入力してください',
+      'ferry': '出発港を入力してください',
+      'helicopter': '出発ヘリポートを入力してください',
+      'aerialway': '出発駅を入力してください',
+      'other': '出発場所を入力してください',
+    });
+    String _temp1 = intl.Intl.selectLogic(type, {
+      'train': '到着駅を入力してください',
+      'plane': '到着空港を入力してください',
+      'bus': '到着停留所を入力してください',
+      'tram': '到着停留場を入力してください',
+      'metro': '到着駅を入力してください',
+      'ferry': '到着港を入力してください',
+      'helicopter': '到着ヘリポートを入力してください',
+      'aerialway': '到着駅を入力してください',
+      'other': '到着場所を入力してください',
+    });
+    String _temp2 = intl.Intl.selectLogic(type, {
+      'train': '駅を入力してください',
+      'plane': '空港を入力してください',
+      'bus': '停留所を入力してください',
+      'tram': '停留場を入力してください',
+      'metro': '駅を入力してください',
+      'ferry': '港を入力してください',
+      'helicopter': 'ヘリポートを入力してください',
+      'aerialway': '駅を入力してください',
+      'other': '場所を入力してください',
+    });
+    String _temp3 = intl.Intl.selectLogic(direction, {
+      'departure': '$_temp0',
+      'arrival': '$_temp1',
+      'other': '$_temp2',
+    });
+    return '$_temp3';
+  }
+
+  @override
+  String manualNameStation(String type) {
+    String _temp0 = intl.Intl.selectLogic(type, {
+      'train': '駅の手動名称',
+      'plane': '空港の手動名称',
+      'bus': '停留所の手動名称',
+      'tram': '停留場の手動名称',
+      'metro': '駅の手動名称',
+      'ferry': '港の手動名称',
+      'helicopter': 'ヘリポートの手動名称',
+      'aerialway': '駅の手動名称',
+      'other': '場所の手動名称',
     });
     return '$_temp0';
   }
@@ -445,7 +536,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get addTripStepValidate => '確認';
 
   @override
-  String get addTripTransportationMode => 'Transportation mode';
+  String get addTripTransportationMode => '交通手段';
+
+  @override
+  String get addTipSearchStation => 'Search ';
 
   @override
   String get addTripManualDeparture => '出発地を手動で設定';

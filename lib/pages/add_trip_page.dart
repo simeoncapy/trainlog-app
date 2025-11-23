@@ -147,7 +147,7 @@ class _AddTripPageState extends State<AddTripPage> {
 
           // Bottom button
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             child: SizedBox(
               width: double.infinity,
               height: 40, // makes it taller

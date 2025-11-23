@@ -69,19 +69,23 @@ class _MiniMapBoxState extends State<MiniMapBox> {
 
   Widget _buildContent() {
     final hasCoords = widget.lat != null && widget.long != null;
+    final theme = Theme.of(context);
 
     if (!hasCoords) {
       return Container(
         decoration: BoxDecoration(
           border: Border.all(color: Colors.grey.shade400),
           borderRadius: BorderRadius.circular(12),
+          color: theme.colorScheme.surfaceContainerHighest,
         ),
         alignment: Alignment.center,
         padding: const EdgeInsets.all(8),
         child: Text(
           widget.emptyMessage,
           textAlign: TextAlign.center,
-          style: const TextStyle(fontSize: 12),
+          style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.hintColor,
+                  ),
         ),
       );
     }

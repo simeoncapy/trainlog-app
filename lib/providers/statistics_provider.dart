@@ -29,7 +29,7 @@ enum GraphType {
       case GraphType.years:     return loc.graphTypeYears;
       case GraphType.material:  return loc.graphTypeMaterial;
       case GraphType.itinerary: return loc.graphTypeItinerary;
-      case GraphType.stations:  return loc.graphTypeStations(vehicleType.name.toLowerCase());
+      case GraphType.stations:  return loc.typeStations(vehicleType.name.toLowerCase());
     }
   }
 

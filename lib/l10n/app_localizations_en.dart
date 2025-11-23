@@ -367,7 +367,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get graphTypeItinerary => 'Itinerary';
 
   @override
-  String graphTypeStations(String type) {
+  String typeStation(String type) {
+    String _temp0 = intl.Intl.selectLogic(type, {
+      'train': 'Station',
+      'plane': 'Airport',
+      'bus': 'Stop',
+      'tram': 'Station',
+      'metro': 'Station',
+      'ferry': 'Port',
+      'helicopter': 'Heliport',
+      'aerialway': 'Station',
+      'other': 'Location',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String typeStations(String type) {
     String _temp0 = intl.Intl.selectLogic(type, {
       'train': 'Stations',
       'plane': 'Airports',
@@ -378,6 +394,81 @@ class AppLocalizationsEn extends AppLocalizations {
       'helicopter': 'Heliports',
       'aerialway': 'Stations',
       'other': 'Locations',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String typeStationAddress(String type) {
+    String _temp0 = intl.Intl.selectLogic(type, {
+      'train': 'Address of the station',
+      'plane': 'Address of the airport',
+      'bus': 'Address of the stop',
+      'tram': 'Address of the station',
+      'metro': 'Address of the station',
+      'ferry': 'Address of the port',
+      'helicopter': 'Address of the heliport',
+      'aerialway': 'Address of the station',
+      'other': 'Address of the location',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String enterStation(String direction, String type) {
+    String _temp0 = intl.Intl.selectLogic(type, {
+      'train': 'Please enter the departure station',
+      'plane': 'Please enter the departure airport',
+      'bus': 'Please enter the departure stop',
+      'tram': 'Please enter the departure station',
+      'metro': 'Please enter the departure station',
+      'ferry': 'Please enter the departure port',
+      'helicopter': 'Please enter the departure heliport',
+      'aerialway': 'Please enter the departure station',
+      'other': 'Please enter the departure location',
+    });
+    String _temp1 = intl.Intl.selectLogic(type, {
+      'train': 'Please enter the arrival station',
+      'plane': 'Please enter the arrival airport',
+      'bus': 'Please enter the arrival stop',
+      'tram': 'Please enter the arrival station',
+      'metro': 'Please enter the arrival station',
+      'ferry': 'Please enter the arrival port',
+      'helicopter': 'Please enter the arrival heliport',
+      'aerialway': 'Please enter the arrival station',
+      'other': 'Please enter the arrival location',
+    });
+    String _temp2 = intl.Intl.selectLogic(type, {
+      'train': 'Please enter the station',
+      'plane': 'Please enter the airport',
+      'bus': 'Please enter the stop',
+      'tram': 'Please enter the station',
+      'metro': 'Please enter the station',
+      'ferry': 'Please enter the port',
+      'helicopter': 'Please enter the heliport',
+      'aerialway': 'Please enter the station',
+      'other': 'Please enter the location',
+    });
+    String _temp3 = intl.Intl.selectLogic(direction, {
+      'departure': '$_temp0',
+      'arrival': '$_temp1',
+      'other': '$_temp2',
+    });
+    return '$_temp3';
+  }
+
+  @override
+  String manualNameStation(String type) {
+    String _temp0 = intl.Intl.selectLogic(type, {
+      'train': 'Manual name of the station',
+      'plane': 'Manual name of the airport',
+      'bus': 'Manual name of the stop',
+      'tram': 'Manual name of the station',
+      'metro': 'Manual name of the station',
+      'ferry': 'Manual name of the port',
+      'helicopter': 'Manual name of the heliport',
+      'aerialway': 'Manual name of the station',
+      'other': 'Manual name of the location',
     });
     return '$_temp0';
   }
@@ -447,6 +538,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get addTripTransportationMode => 'Transportation mode';
+
+  @override
+  String get addTipSearchStation => 'Search ';
 
   @override
   String get addTripManualDeparture => 'Manual departure';
