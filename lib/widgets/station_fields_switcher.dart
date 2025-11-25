@@ -1,5 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
+import 'package:trainlog_app/providers/trainlog_provider.dart';
 
 class StationFieldsSwitcher extends StatefulWidget {
   const StationFieldsSwitcher({
@@ -14,6 +18,8 @@ class StationFieldsSwitcher extends StatefulWidget {
     this.globePinIcon,
     required this.addressDefaultText,
     required this.manualNameFieldHint,
+    required this.trainlog,
+    required this.vehicleType,
   }) : super(key: key);
 
   final TextEditingController? nameController;
@@ -30,6 +36,9 @@ class StationFieldsSwitcher extends StatefulWidget {
 
   final String addressDefaultText;
   final String manualNameFieldHint;
+
+  final TrainlogProvider trainlog;
+  final VehicleType vehicleType;
 
   @override
   State<StationFieldsSwitcher> createState() => _StationFieldsSwitcherState();
@@ -51,6 +60,19 @@ class _StationFieldsSwitcherState extends State<StationFieldsSwitcher>
   /// Use a fixed height so mode switching doesn’t change widget height
   static const double _extraFieldHeight = 48.0;
 
+  OverlayEntry? _overlayEntry;
+
+  final FocusNode _searchFocusNode = FocusNode();
+  final TextEditingController _searchCtl = TextEditingController();
+
+  List<StationInfo> _stationResults = [];
+
+  String _currentAddress = "";
+  double? _savedLat;
+  double? _savedLng;
+  Timer? _debounce;
+
+
   void _toggleMode() {
     setState(() {
       _geoMode = !_geoMode;
@@ -66,6 +88,159 @@ class _StationFieldsSwitcherState extends State<StationFieldsSwitcher>
       'lat': _geoMode ? _latCtl.text : "0.0",
       'long': _geoMode ? _longCtl.text : "0.0",
     });
+  }
+
+  OverlayEntry _buildStationSearchOverlay() {
+    return OverlayEntry(
+      builder: (context) {
+        final media = MediaQuery.of(context);
+        final keyboard = media.viewInsets.bottom;
+        final theme = Theme.of(context);
+
+        return Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: keyboard,
+          child: Stack(
+            children: [
+              GestureDetector(
+                onTap: _closeOverlay,
+                child: Container(color: Colors.black54),
+              ),
+
+              Positioned.fill(
+                child: Material(
+                  color: theme.colorScheme.surface,
+                  child: SafeArea(
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: TextField(
+                            controller: _searchCtl,
+                            focusNode: _searchFocusNode,
+                            autofocus: true,
+                            decoration: InputDecoration(
+                              filled: true,
+                              fillColor:
+                                  theme.colorScheme.surfaceContainerHighest,
+                              hintText: "Search station...",
+                              prefixIcon: const Icon(Icons.search),
+                              suffixIcon: IconButton(
+                                icon: const Icon(Icons.close),
+                                onPressed: _closeOverlay,
+                              ),
+                              border: const OutlineInputBorder(),
+                            ),
+                            onChanged: _performStationSearch,
+                          ),
+                        ),
+
+                        Expanded(
+                          child: ListView.builder(
+                            padding: EdgeInsets.zero,
+                            itemCount: _stationResults.length,
+                            itemBuilder: (context, index) {
+                              final station = _stationResults[index];
+                              final (label, coords, address, isManual) = station;
+
+                              return Container(
+                                color: isManual
+                                    ? Colors.red.withOpacity(0.12)
+                                    : Colors.transparent,
+                                child: ListTile(
+                                  leading: isManual
+                                      ? const Icon(Icons.edit, color: Colors.red)
+                                      : null,
+                                  title: Text(label),
+                                  onTap: () {
+                                    _selectStation(station);
+                                    _closeOverlay();
+                                  },
+                                ),
+                              );
+                            },
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _performStationSearch(String query) async {
+    // Cancel previous scheduled search
+    _debounce?.cancel();
+
+    // Debounce 250ms
+    _debounce = Timer(const Duration(milliseconds: 250), () async {
+      if (query.isEmpty) {
+        setState(() => _stationResults = []);
+        return;
+      }
+
+      final results = await widget.trainlog.fetchStations(
+        query,
+        widget.vehicleType,
+      );
+
+      if (!mounted) return;
+
+      setState(() => _stationResults = results);
+    });
+  }
+
+    void _selectStation(StationInfo station) {
+    final (label, coords, address, isManual) = station;
+
+    // Update name field
+    _nameCtl.text = label;
+
+    // Update lat/lng fields
+    _latCtl.text = coords.latitude.toString();
+    _longCtl.text = coords.longitude.toString();
+
+    // Persist coordinates separately (so they survive mode switches)
+    _savedLat = coords.latitude;
+    _savedLng = coords.longitude;
+
+    // Update extra field (manual vs normal)
+    setState(() {
+      _currentAddress = isManual ? "manual station" : address;
+    });
+
+    // Emit values to parent
+    _emitValues();
+  }
+
+  void _openStationOverlay() {
+    if (_overlayEntry != null) return;
+
+    _overlayEntry = _buildStationSearchOverlay();
+    Overlay.of(context).insert(_overlayEntry!);
+
+    _searchCtl.clear();
+    _stationResults = [];
+
+    // Ensure the search field gets focus *after* the overlay is attached
+    Future.microtask(() => _searchFocusNode.requestFocus());
+  }
+
+  void _closeOverlay() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+
+    _searchFocusNode.unfocus();
+    _debounce?.cancel();
+
+    setState(() {});
   }
 
   @override
@@ -101,11 +276,13 @@ class _StationFieldsSwitcherState extends State<StationFieldsSwitcher>
                 padding: const EdgeInsets.symmetric(vertical: 4),
                 child: TextFormField(
                   controller: _nameCtl,
+                  readOnly: true,
                   decoration: InputDecoration(
                     labelText: loc.nameField,
                     border: border,
                   ),
-                  onChanged: (_) => _emitValues(),
+                  //onChanged: (_) => _emitValues(),
+                  onTap: _openStationOverlay,
                 ),
               ),
             ),
@@ -120,7 +297,9 @@ class _StationFieldsSwitcherState extends State<StationFieldsSwitcher>
           child: Align(
             alignment: Alignment.centerLeft,
             child: Text(
-              widget.addressDefaultText,
+              _currentAddress.isEmpty
+                ? widget.addressDefaultText
+                : _currentAddress,
               style: TextStyle(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
                 fontSize: 14,

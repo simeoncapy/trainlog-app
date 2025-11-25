@@ -3,9 +3,19 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:path/path.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import '../services/trainlog_service.dart';
+import 'package:latlong2/latlong.dart';
+import "package:unorm_dart/unorm_dart.dart" as unorm;
+
+typedef StationInfo = (
+  String label,
+  LatLng coords,
+  String address,
+  bool isManual
+);
 
 class TrainlogProvider extends ChangeNotifier {
   final TrainlogService _service;
@@ -275,4 +285,82 @@ class TrainlogProvider extends ChangeNotifier {
     return dp[m][n];
   }
 
+  String _normalize(String input) {
+    // Decompose Unicode characters (NFD)
+    final decomposed = unorm.nfd(input.toLowerCase());
+
+    // Remove diacritic marks
+    return decomposed.replaceAll(RegExp(r'[\u0300-\u036f]'), '');
+  }
+
+  Future<List<StationInfo>> fetchStations(
+    String query,
+    VehicleType type,
+  ) async {
+    if (_username == null) return [];
+
+    final manualFuture = service.fetchAllManualStationsSuffixed(_username!, type);
+    final osmFuture = service.fetchStations(query, type);
+
+    final manualMap = await manualFuture;
+    final osmMap = await osmFuture;
+
+    final normalizedQuery = _normalize(query);
+
+    final manualList = manualMap.entries
+        .map((e) => (
+              e.key,         // label
+              e.value.$1,    // LatLng
+              e.value.$2,    // address
+              true,          // isManual
+            ))
+        .where((entry) {
+          final label   = _normalize(entry.$1);
+          final address = _normalize(entry.$3);
+          return label.contains(normalizedQuery) ||
+                address.contains(normalizedQuery);
+        })
+        .toList();
+
+    final osmList = osmMap.entries
+        .map((e) => (
+              e.key,
+              e.value.$1,
+              e.value.$2,
+              false,
+            ))
+        .toList();
+
+    // Sort manual alphabetically
+    manualList.sort((a, b) => a.$1.compareTo(b.$1));
+
+    return _mergeStationLists(osmList, manualList);
+  }
+
+  List<StationInfo> _mergeStationLists(
+    List<StationInfo> osm,
+    List<StationInfo> manual,
+  ) {
+    final merged = <StationInfo>[];
+
+    int i = 0;
+
+    for (final osmItem in osm) {
+      // Insert all manual items alphabetically before this OSM item
+      while (i < manual.length && manual[i].$1.compareTo(osmItem.$1) < 0) {
+        merged.add(manual[i]);
+        i++;
+      }
+
+      merged.add(osmItem);
+    }
+
+    // Add remaining manual entries
+    while (i < manual.length) {
+      merged.add(manual[i]);
+      i++;
+    }
+
+    return merged;
+  }
 }

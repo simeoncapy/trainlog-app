@@ -12,6 +12,7 @@ import 'dart:math' as math;
 import 'package:latlong2/latlong.dart';
 
 import 'package:trainlog_app/data/models/trips.dart';
+import 'package:trainlog_app/utils/text_utils.dart';
 
 class TrainlogLoginResult {
   final bool success;
@@ -272,9 +273,12 @@ class TrainlogService {
     return Uri.parse(baseWithSlash).resolve(rel).toString();
   }
 
-  Future<Map<String, List<LatLng>>> fetchAllManualStations(
-      String username,
-      VehicleType type,
+  // ----------------------------
+  // Shared private fetcher
+  // ----------------------------
+  Future<Map<String, dynamic>> _fetchRawManualStations(
+    String username,
+    VehicleType type,
   ) async {
     final path = '/u/$username/getManAndOps/${type.toShortString()}';
 
@@ -293,65 +297,57 @@ class TrainlogService {
       return {};
     }
 
-    final manual = data['manualStations'] as Map<String, dynamic>;
+    return data['manualStations'] as Map<String, dynamic>;
+  }
 
-    final result = <String, List<LatLng>>{};
+  Future<Map<String, List<(LatLng, String)>>> fetchAllManualStations(
+    String username,
+    VehicleType type,
+  ) async {
+    final manual = await _fetchRawManualStations(username, type);
+    final result = <String, List<(LatLng, String)>>{};
 
     manual.forEach((name, entry) {
-      // entry = [ [lat, lng], "Name again" ]
       final coords = entry[0];
-      final lat = coords[0] as double;
-      final lng = coords[1] as double;
-
-      final point = LatLng(lat, lng);
+      final latLng = LatLng(coords[0] as double, coords[1] as double);
 
       result.putIfAbsent(name, () => []);
-      result[name]!.add(point);
+      result[name]!.add((latLng, "@manual@"));
     });
 
     return result;
   }
 
-  Future<Map<String, LatLng>> fetchAllManualStationsSuffixed(
-      String username,
-      VehicleType type,
+  double _toDouble(dynamic v) {
+    if (v is num) return v.toDouble();
+    if (v is String) return double.tryParse(v) ?? 0.0;
+    throw Exception("Invalid coordinate type: $v");
+  }
+
+  Future<Map<String, (LatLng, String)>> fetchAllManualStationsSuffixed(
+    String username,
+    VehicleType type,
   ) async {
-    final path = '/u/$username/getManAndOps/${type.toShortString()}';
-
-    final res = await _dio.get<Map<String, dynamic>>(
-      path,
-      options: Options(
-        followRedirects: true,
-        maxRedirects: 5,
-        responseType: ResponseType.json,
-        validateStatus: (s) => s != null && s >= 200 && s < 400,
-      ),
-    );
-
-    final data = res.data;
-    if (data == null || data['manualStations'] == null) {
-      return {};
-    }
-
-    final manual = data['manualStations'] as Map<String, dynamic>;
-
-    final result = <String, LatLng>{};
+    final manual = await _fetchRawManualStations(username, type);
+    final result = <String, (LatLng, String)>{};
 
     for (final entry in manual.entries) {
       final baseName = entry.key;
       final coords = entry.value[0];
 
-      final lat = coords[0] as double;
-      final lng = coords[1] as double;
-      final latLng = LatLng(lat, lng);
+      final latLng = LatLng(
+        _toDouble(coords[1]), // latitude is index 1
+        _toDouble(coords[0]), // longitude is index 0
+      );
 
       var name = baseName;
 
-      // If name already exists, append (a), (b), (c) …
+      // Handle suffixing
       if (result.containsKey(name)) {
         int suffixIndex = 0;
         while (true) {
-          final candidate = "$baseName (${String.fromCharCode(97 + suffixIndex)})";
+          final candidate =
+              "$baseName (${String.fromCharCode(97 + suffixIndex)})";
           if (!result.containsKey(candidate)) {
             name = candidate;
             break;
@@ -360,12 +356,143 @@ class TrainlogService {
         }
       }
 
-      result[name] = latLng;
+      result[name] = (latLng, "@manual@");
     }
 
     return result;
   }
 
-  // https://trainlog.me/stationAutocomplete?osm_tag=railway:halt&osm_tag=railway:station&q=kita-senju
+  Future<Map<String, (LatLng, String)>> fetchStations(
+    String query,
+    VehicleType type,
+  ) async {
+    String path;
+    if(type == VehicleType.plane) {
+      path = "/api/airportAutocomplete/";
+    }
+    else {
+      path = "/stationAutocomplete?";
+      switch (type) {
+        case VehicleType.aerialway:
+          path += "osm_tag=aerialway:station&q=";
+          break;
+        case VehicleType.bus:
+          path += "osm_tag=amenity:bus_station&osm_tag=highway:bus_stop&q=";
+          break;
+        case VehicleType.ferry:
+          path += "osm_tag=amenity:ferry_terminal&q=";
+          break;
+        case VehicleType.helicopter:
+          path += "osm_tag=aeroway:helipad&osm_tag=aeroway:heliport&osm_tag=aeroway:aerodrome&q=";
+          break;
+        case VehicleType.metro:
+          path += "osm_tag=railway:station&osm_tag=railway:subway_entrance&q=";
+          break;
+        case VehicleType.train:
+          path += "osm_tag=railway:halt&osm_tag=railway:station&q=";
+          break;
+        case VehicleType.tram:
+          path += "osm_tag=railway:tram_stop&osm_tag=railway:station&osm_tag=railway:halt&q=";
+          break;
+        default:
+          path += "q=";
+          break;
+      }
+    }
+    path += query;
 
+    final res = await _dio.get<Map<String, dynamic>>(
+      path,
+      options: Options(
+        followRedirects: true,
+        maxRedirects: 5,
+        responseType: ResponseType.json,
+        validateStatus: (s) => s != null && s >= 200 && s < 400,
+      ),
+    );
+
+    final data = res.data;
+    if (data == null) {
+      return {};
+    }
+
+    if(type == VehicleType.plane) {
+      return _airportListGenerator(data);
+    }
+
+    return _stationListGenerator(data);
+  }
+
+  Map<String, (LatLng, String)> _airportListGenerator(Map<String, dynamic> data) {
+    final List airports = data as List;
+    final result = <String, (LatLng, String)>{};
+
+    for (final raw in airports) {
+      final entry = raw as Map<String, dynamic>;
+
+      final country = entry['iso_country'] as String? ?? "";
+      final city = entry['city'] as String? ?? "";
+      final name = entry['name'] as String? ?? "";
+      final iata = entry['iata'] as String? ?? "";
+      final lat = entry['latitude'] as num?;
+      final lng = entry['longitude'] as num?;
+
+      if (lat == null || lng == null) continue;
+
+      final key = "${countryCodeToEmoji(country)} $name ($iata)";
+      final value = (LatLng(lat.toDouble(), lng.toDouble()), city);
+
+      result[key] = value;
+    }
+
+    return result;
+  }
+
+  Map<String, (LatLng, String)> _stationListGenerator(
+    Map<String, dynamic> data,
+  ) {
+    final features = data["features"] as List<dynamic>? ?? [];
+    final result = <String, (LatLng, String)>{};
+
+    for (final f in features) {
+      final feature = f as Map<String, dynamic>;
+
+      // --- Coordinates ---
+      final coords = feature["geometry"]["coordinates"] as List<dynamic>;
+      final lng = coords[0] as num;
+      final lat = coords[1] as num;
+
+      final latLng = LatLng(lat.toDouble(), lng.toDouble());
+
+      // --- Properties ---
+      final props = feature["properties"] as Map<String, dynamic>;
+
+      final countryCode = props["countrycode"] as String? ?? "";
+      final name = props["name"] as String? ?? "";
+      final homonymy = props["homonymy_order"] as String? ?? "";
+
+      final street = props["street"] as String? ?? "";
+      final locality = props["locality"] as String? ?? "";
+      final district = props["district"] as String? ?? "";
+      final city = props["city"] as String? ?? "";
+
+      // --- Key: "🇯🇵 Tokyo - Kita-Senju (a)" ---
+      final emoji = countryCodeToEmoji(countryCode);
+      final key = "$emoji $name$homonymy";
+
+      // --- Address string ---
+      final parts = [
+        street,
+        locality,
+        district,
+        city,
+      ].where((e) => e.trim().isNotEmpty).toList();
+
+      final address = parts.join(", ");
+
+      result[key] = (latLng, address);
+    }
+
+    return result;
+  }
 }

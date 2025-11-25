@@ -18,7 +18,7 @@ class TripFormBasics extends StatefulWidget {
 
 class _TripFormBasicsState extends State<TripFormBasics> {
   late TrainlogProvider trainlog;
-  VehicleType? _selectedVehicleType;
+  VehicleType? _selectedVehicleType = VehicleType.train;
   String? _selectedOperatorName;
   final _operatorSelectorKey = GlobalKey<OperatorSelectorState>();
   double? _departureLat;
@@ -90,6 +90,8 @@ class _TripFormBasicsState extends State<TripFormBasics> {
                   globePinIcon: Symbols.globe_location_pin,
                   addressDefaultText: loc.typeStationAddress(vehicleType),
                   manualNameFieldHint: loc.manualNameStation(vehicleType),
+                  trainlog: trainlog,
+                  vehicleType: _selectedVehicleType ?? VehicleType.train,
                   onChanged: (values) {
                     setState(() {
                       _departureLat = double.tryParse(values['lat'] ?? '');
@@ -109,6 +111,8 @@ class _TripFormBasicsState extends State<TripFormBasics> {
                   globePinIcon: Symbols.globe_location_pin,
                   addressDefaultText: loc.typeStationAddress(vehicleType),
                   manualNameFieldHint: loc.manualNameStation(vehicleType),
+                  trainlog: trainlog,
+                  vehicleType: _selectedVehicleType ?? VehicleType.train,
                   onChanged: (values) {
                     setState(() {
                       _arrivalLat = double.tryParse(values['lat'] ?? '');

@@ -38,6 +38,7 @@ dependencies:
   material_symbols_icons: ^4.2719.0
   step_progress: ^2.7.0
   duration: ^3.0.13
+  unorm_dart: ^0.3.2
 
 dev_dependencies:
   flutter_test:
