@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
+import 'package:trainlog_app/utils/text_utils.dart';
 import '../services/trainlog_service.dart';
 import 'package:latlong2/latlong.dart';
 import "package:unorm_dart/unorm_dart.dart" as unorm;
@@ -332,7 +333,11 @@ class TrainlogProvider extends ChangeNotifier {
         .toList();
 
     // Sort manual alphabetically
-    manualList.sort((a, b) => a.$1.compareTo(b.$1));
+    manualList.sort((a, b) {
+      final aKey = removeFlagPrefix(a.$1).toLowerCase();
+      final bKey = removeFlagPrefix(b.$1).toLowerCase();
+      return aKey.compareTo(bKey);
+    });
 
     return _mergeStationLists(osmList, manualList);
   }
@@ -342,20 +347,28 @@ class TrainlogProvider extends ChangeNotifier {
     List<StationInfo> manual,
   ) {
     final merged = <StationInfo>[];
-
     int i = 0;
 
     for (final osmItem in osm) {
-      // Insert all manual items alphabetically before this OSM item
-      while (i < manual.length && manual[i].$1.compareTo(osmItem.$1) < 0) {
-        merged.add(manual[i]);
-        i++;
+      final osmKey =
+          removeFlagPrefix(osmItem.$1).toLowerCase(); // key without emoji
+
+      while (i < manual.length) {
+        final manualKey =
+            removeFlagPrefix(manual[i].$1).toLowerCase(); // key without emoji
+
+        if (manualKey.compareTo(osmKey) < 0) {
+          merged.add(manual[i]);
+          i++;
+        } else {
+          break;
+        }
       }
 
       merged.add(osmItem);
     }
 
-    // Add remaining manual entries
+    // Remaining manual items
     while (i < manual.length) {
       merged.add(manual[i]);
       i++;

@@ -13,3 +13,11 @@ String countryCodeToName(String code, BuildContext context) {
   return code == "UN" ? AppLocalizations.of(context)!.internationalWaters
                       : details?.countryName(countryCode: code) ?? code;
 }
+
+String removeFlagPrefix(String s) {
+  // Remove first 'grapheme cluster' (flag = 1 cluster) + following space
+  // Example: "🇯🇵 Tokyo" → "Tokyo"
+  final parts = s.trim().split(' ');
+  if (parts.length <= 1) return s;
+  return parts.sublist(1).join(' ');
+}

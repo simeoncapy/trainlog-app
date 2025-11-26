@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
+import 'package:trainlog_app/widgets/full_screen_search_overlay.dart';
 
 class StationFieldsSwitcher extends StatefulWidget {
   const StationFieldsSwitcher({
@@ -70,7 +71,7 @@ class _StationFieldsSwitcherState extends State<StationFieldsSwitcher>
   String _currentAddress = "";
   double? _savedLat;
   double? _savedLng;
-  Timer? _debounce;
+  bool _isSearching = false;
 
 
   void _toggleMode() {
@@ -93,111 +94,70 @@ class _StationFieldsSwitcherState extends State<StationFieldsSwitcher>
   OverlayEntry _buildStationSearchOverlay() {
     return OverlayEntry(
       builder: (context) {
-        final media = MediaQuery.of(context);
-        final keyboard = media.viewInsets.bottom;
-        final theme = Theme.of(context);
+        return FullScreenSearchOverlay<StationInfo>(
+          controller: _searchCtl,
+          focusNode: _searchFocusNode,
+          items: _stationResults,
+          hintText: "Search station...",
+          isLoading: _isSearching,
+          onChanged: _performStationSearch,   // dynamic async search
 
-        return Positioned(
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: keyboard,
-          child: Stack(
-            children: [
-              GestureDetector(
-                onTap: _closeOverlay,
-                child: Container(color: Colors.black54),
+          itemBuilder: (context, station) {
+            final (label, coords, address, isManual) = station;
+
+            return Container(
+              color: isManual
+                  ? Colors.red.withOpacity(0.12)
+                  : Colors.transparent,
+              child: ListTile(
+                leading: isManual
+                    ? const Icon(Icons.edit, color: Colors.red)
+                    : null,
+                title: Text(label),
               ),
+            );
+          },
 
-              Positioned.fill(
-                child: Material(
-                  color: theme.colorScheme.surface,
-                  child: SafeArea(
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(12),
-                          child: TextField(
-                            controller: _searchCtl,
-                            focusNode: _searchFocusNode,
-                            autofocus: true,
-                            decoration: InputDecoration(
-                              filled: true,
-                              fillColor:
-                                  theme.colorScheme.surfaceContainerHighest,
-                              hintText: "Search station...",
-                              prefixIcon: const Icon(Icons.search),
-                              suffixIcon: IconButton(
-                                icon: const Icon(Icons.close),
-                                onPressed: _closeOverlay,
-                              ),
-                              border: const OutlineInputBorder(),
-                            ),
-                            onChanged: _performStationSearch,
-                          ),
-                        ),
+          onSelected: (station) {
+            _selectStation(station);
+            _closeOverlay();
+          },
 
-                        Expanded(
-                          child: ListView.builder(
-                            padding: EdgeInsets.zero,
-                            itemCount: _stationResults.length,
-                            itemBuilder: (context, index) {
-                              final station = _stationResults[index];
-                              final (label, coords, address, isManual) = station;
-
-                              return Container(
-                                color: isManual
-                                    ? Colors.red.withOpacity(0.12)
-                                    : Colors.transparent,
-                                child: ListTile(
-                                  leading: isManual
-                                      ? const Icon(Icons.edit, color: Colors.red)
-                                      : null,
-                                  title: Text(label),
-                                  onTap: () {
-                                    _selectStation(station);
-                                    _closeOverlay();
-                                  },
-                                ),
-                              );
-                            },
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
+          onClose: _closeOverlay,
         );
       },
     );
   }
 
   Future<void> _performStationSearch(String query) async {
-    // Cancel previous scheduled search
-    _debounce?.cancel();
+    if (query.isEmpty) {
+      setState(() {
+        _stationResults = [];
+        _isSearching = false;
+      });
+      _overlayEntry?.markNeedsBuild();
+      return;
+    }
 
-    // Debounce 250ms
-    _debounce = Timer(const Duration(milliseconds: 250), () async {
-      if (query.isEmpty) {
-        setState(() => _stationResults = []);
-        return;
-      }
+    setState(() => _isSearching = true);
+    _overlayEntry?.markNeedsBuild();
 
-      final results = await widget.trainlog.fetchStations(
-        query,
-        widget.vehicleType,
-      );
+    final results = await widget.trainlog.fetchStations(
+      query,
+      widget.vehicleType,
+    );
 
-      if (!mounted) return;
+    if (!mounted || _overlayEntry == null) return;
 
-      setState(() => _stationResults = results);
+    setState(() {
+      _stationResults = results;
+      _isSearching = false;
     });
+
+    _overlayEntry?.markNeedsBuild();
   }
 
-    void _selectStation(StationInfo station) {
+  void _selectStation(StationInfo station) {
     final (label, coords, address, isManual) = station;
 
     // Update name field
@@ -238,7 +198,6 @@ class _StationFieldsSwitcherState extends State<StationFieldsSwitcher>
     _overlayEntry = null;
 
     _searchFocusNode.unfocus();
-    _debounce?.cancel();
 
     setState(() {});
   }
