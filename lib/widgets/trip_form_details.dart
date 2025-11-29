@@ -136,7 +136,7 @@ class _TripFormDetailsState extends State<TripFormDetails> {
           ),
           const SizedBox(height: 16),
           TitledContainer(
-            title: "Energy", 
+            title: loc.energy, 
             content: const VehicleEnergySelector(),
           ),
         ],

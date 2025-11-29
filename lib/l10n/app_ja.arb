@@ -28,6 +28,7 @@
   "validateButton": "確認",
   "nameField": "名前",
   "auto": "自動",
+  "energy": "エネルギー",
   "energyElectric": "電動",
   "energyThermic": "ガソリン",
   "energyHydrogen": "水素",

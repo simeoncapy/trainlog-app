@@ -96,7 +96,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get auto => 'Auto';
 
   @override
-  String get energyElectric => 'Electrique';
+  String get energy => 'Énergie';
+
+  @override
+  String get energyElectric => 'Électrique';
 
   @override
   String get energyThermic => 'Thermique';

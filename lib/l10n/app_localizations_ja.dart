@@ -95,6 +95,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get auto => '自動';
 
   @override
+  String get energy => 'エネルギー';
+
+  @override
   String get energyElectric => '電動';
 
   @override

@@ -268,6 +268,12 @@ abstract class AppLocalizations {
   /// **'Auto'**
   String get auto;
 
+  /// No description provided for @energy.
+  ///
+  /// In en, this message translates to:
+  /// **'Energy'**
+  String get energy;
+
   /// No description provided for @energyElectric.
   ///
   /// In en, this message translates to:

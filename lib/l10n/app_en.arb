@@ -34,6 +34,7 @@
   "validateButton": "Validate",
   "nameField": "Name",
   "auto": "Auto",
+  "energy": "Energy",
   "energyElectric": "Electric",
   "energyThermic": "Fuel",
   "energyHydrogen": "Hydrogen",

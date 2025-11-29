@@ -95,6 +95,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get auto => 'Auto';
 
   @override
+  String get energy => 'Energy';
+
+  @override
   String get energyElectric => 'Electric';
 
   @override
