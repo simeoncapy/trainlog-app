@@ -21,12 +21,6 @@
   "createAccountButtonShort": "Créer",
   "loginToYourAccount": "Connectez-vous à votre compte",
   "menuHello": "Bonjour {username}",
-  "@menuHello" :{
-    "description": "The username",
-    "placeholders": {
-      "username": {}
-    }
-  },
   "connectionError": "Echec de la connexion, vérifiez vos identifiants",
   "refreshCompleted": "Actualisation terminée",
   "nextButton": "Suivant",
@@ -37,6 +31,7 @@
   "energyElectric": "Electrique",
   "energyThermic": "Thermique",
   "energyHydrogen": "Hydrogène",
+  "manual": "manuel",
 
   "settingsAppCategory": "Paramètres de l'application",
   "settingsMapCategory": "Paramètres de la carte",
@@ -134,6 +129,7 @@
   "typeStationAddress": "{type, select, train{Adresse de la gare} plane{Adresse de l'aéroport} bus{Adresse de l'arrêt} tram{Adresse de l'arrêt} metro{Adresse de la station} ferry{Adresse du port} helicopter{Adresse de l'héliport} aerialway{Adresse de la station} other{Adresse du lieu}}",
   "enterStation": "{direction, select, departure{{type, select, train{Veuillez saisir la gare de départ} plane{Veuillez saisir l'aéroport de départ} bus{Veuillez saisir l'arrêt de départ} tram{Veuillez saisir l'arrêt de départ} metro{Veuillez saisir la station de départ} ferry{Veuillez saisir le port de départ} helicopter{Veuillez saisir l'héliport de départ} aerialway{Veuillez saisir la station de départ} other{Veuillez saisir le lieu de départ}}} arrival{{type, select, train{Veuillez saisir la gare d'arrivée} plane{Veuillez saisir l'aéroport d'arrivée} bus{Veuillez saisir l'arrêt d'arrivée} tram{Veuillez saisir l'arrêt d'arrivée} metro{Veuillez saisir la station d'arrivée} ferry{Veuillez saisir le port d'arrivée} helicopter{Veuillez saisir l'héliport d'arrivée} aerialway{Veuillez saisir la station d'arrivée} other{Veuillez saisir le lieu d'arrivée}}} other{{type, select, train{Veuillez saisir la gare} plane{Veuillez saisir l'aéroport} bus{Veuillez saisir l'arrêt} tram{Veuillez saisir l'arrêt} metro{Veuillez saisir la station} ferry{Veuillez saisir le port} helicopter{Veuillez saisir l'héliport} aerialway{Veuillez saisir la station} other{Veuillez saisir le lieu}}}}",
   "manualNameStation": "{type, select, train{Nom manuel de la gare} plane{Nom manuel de l'aéroport} bus{Nom manuel de l'arrêt} tram{Nom manuel de l'arrêt} metro{Nom manuel de la station} ferry{Nom manuel du port} helicopter{Nom manuel de l'héliport} aerialway{Nom manuel de la station} other{Nom manuel du lieu}}",
+  "searchStationHint": "{type, select, train{Rechercher une gare...} plane{Rechercher un aéroport...} bus{Rechercher un arrêt...} tram{Rechercher un arrêt...} metro{Rechercher une station...} ferry{Rechercher un port...} helicopter{Rechercher un héliport...} aerialway{Rechercher une station...} other{Rechercher un lieu...} }",
 
   "statisticsGraphUnitTrips": "Trajet",
   "statisticsGraphUnitDistance": "Distance",
@@ -168,7 +164,7 @@
   "addTripLongitudeShort": "Long",
   "addTripOperator": "Opérateur",
   "addTripOperatorHelper": "Virgule ou Entrée pour valider un opérateur inconnu",
-  "addTripOperatorHint" : "Recherche d'un opérateur...",
+  "addTripOperatorHint" : "Rechercher un opérateur...",
   "addTripOperatorPlaceholderLogo": "Sélectionnez un opérateur",
   "addTripLine": "Ligne",
   "addTripDateTypePrecise": "Précis",

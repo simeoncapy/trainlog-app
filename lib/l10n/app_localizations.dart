@@ -286,6 +286,12 @@ abstract class AppLocalizations {
   /// **'Hydrogen'**
   String get energyHydrogen;
 
+  /// manual (opposed as automatic). Should be gender and number neutral.
+  ///
+  /// In en, this message translates to:
+  /// **'manual'**
+  String get manual;
+
   /// No description provided for @settingsAppCategory.
   ///
   /// In en, this message translates to:
@@ -825,6 +831,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{type, select, train{Manual name of the station} plane{Manual name of the airport} bus{Manual name of the stop} tram{Manual name of the station} metro{Manual name of the station} ferry{Manual name of the port} helicopter{Manual name of the heliport} aerialway{Manual name of the station} other{Manual name of the location}}'**
   String manualNameStation(String type);
+
+  /// Hint for the search field for stations
+  ///
+  /// In en, this message translates to:
+  /// **'{type, select, train{Search station...} plane{Search airport...} bus{Search stop...} tram{Search station...} metro{Search station...} ferry{Search port...} helicopter{Search heliport...} aerialway{Search station...} other{Search location...}}'**
+  String searchStationHint(String type);
 
   /// No description provided for @statisticsGraphUnitTrips.
   ///

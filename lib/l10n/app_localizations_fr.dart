@@ -105,6 +105,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get energyHydrogen => 'Hydrogène';
 
   @override
+  String get manual => 'manuel';
+
+  @override
   String get settingsAppCategory => 'Paramètres de l\'application';
 
   @override
@@ -476,6 +479,22 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String searchStationHint(String type) {
+    String _temp0 = intl.Intl.selectLogic(type, {
+      'train': 'Rechercher une gare...',
+      'plane': 'Rechercher un aéroport...',
+      'bus': 'Rechercher un arrêt...',
+      'tram': 'Rechercher un arrêt...',
+      'metro': 'Rechercher une station...',
+      'ferry': 'Rechercher un port...',
+      'helicopter': 'Rechercher un héliport...',
+      'aerialway': 'Rechercher une station...',
+      'other': 'Rechercher un lieu...',
+    });
+    return '$_temp0';
+  }
+
+  @override
   String get statisticsGraphUnitTrips => 'Trajet';
 
   @override
@@ -570,7 +589,7 @@ class AppLocalizationsFr extends AppLocalizations {
       'Virgule ou Entrée pour valider un opérateur inconnu';
 
   @override
-  String get addTripOperatorHint => 'Recherche d\'un opérateur...';
+  String get addTripOperatorHint => 'Rechercher un opérateur...';
 
   @override
   String get addTripOperatorPlaceholderLogo => 'Sélectionnez un opérateur';

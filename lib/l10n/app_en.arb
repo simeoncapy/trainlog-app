@@ -37,6 +37,10 @@
   "energyElectric": "Electric",
   "energyThermic": "Fuel",
   "energyHydrogen": "Hydrogen",
+  "manual": "manual",
+  "@manual" :{
+    "description": "manual (opposed as automatic). Should be gender and number neutral."
+  },
     
   "settingsAppCategory": "App Settings",
   "settingsMapCategory": "Map Settings",
@@ -185,6 +189,16 @@
   "manualNameStation": "{type, select, train{Manual name of the station} plane{Manual name of the airport} bus{Manual name of the stop} tram{Manual name of the station} metro{Manual name of the station} ferry{Manual name of the port} helicopter{Manual name of the heliport} aerialway{Manual name of the station} other{Manual name of the location}}",
   "@manualNameStation": {
     "description": "Label asking for the manual/custom name of the station (airport, port, stop, heliport, etc.) depending on the vehicle type.",
+    "placeholders": {
+      "type": {
+        "type": "String",
+        "description": "Vehicle type determining the facility name. Expected values: train, plane, bus, tram, metro, ferry, helicopter, aerialway, other."
+      }
+    }
+  },
+  "searchStationHint": "{type, select, train{Search station...} plane{Search airport...} bus{Search stop...} tram{Search station...} metro{Search station...} ferry{Search port...} helicopter{Search heliport...} aerialway{Search station...} other{Search location...}}",
+  "@searchStationHint": {
+    "description": "Hint for the search field for stations",
     "placeholders": {
       "type": {
         "type": "String",

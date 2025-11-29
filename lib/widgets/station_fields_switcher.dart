@@ -72,13 +72,17 @@ class _StationFieldsSwitcherState extends State<StationFieldsSwitcher>
   double? _savedLat;
   double? _savedLng;
   bool _isSearching = false;
-
+  int _searchRequestId = 0;
 
   void _toggleMode() {
     setState(() {
       _geoMode = !_geoMode;
       _direction = _geoMode ? -1 : 1;
     });
+
+    // Notify parent about the mode change
+    _emitValues();
+
     widget.onModeChanged?.call(_geoMode);
   }
 
@@ -86,19 +90,20 @@ class _StationFieldsSwitcherState extends State<StationFieldsSwitcher>
     widget.onChanged?.call({
       'mode': _geoMode ? "geo" : "name",
       'name': _geoMode ? _manualNameCtl.text : _nameCtl.text,
-      'lat': _geoMode ? _latCtl.text : "0.0",
-      'long': _geoMode ? _longCtl.text : "0.0",
+      'lat': _geoMode ? _latCtl.text : _savedLat.toString(),
+      'long': _geoMode ? _longCtl.text : _savedLng.toString(),
     });
   }
 
   OverlayEntry _buildStationSearchOverlay() {
+    final loc = AppLocalizations.of(context)!;
     return OverlayEntry(
       builder: (context) {
         return FullScreenSearchOverlay<StationInfo>(
           controller: _searchCtl,
           focusNode: _searchFocusNode,
           items: _stationResults,
-          hintText: "Search station...",
+          hintText: loc.searchStationHint(widget.vehicleType.toString()),
           isLoading: _isSearching,
           onChanged: _performStationSearch,   // dynamic async search
 
@@ -107,11 +112,14 @@ class _StationFieldsSwitcherState extends State<StationFieldsSwitcher>
 
             return Container(
               color: isManual
-                  ? Colors.red.withOpacity(0.12)
+                  ? Colors.red.withValues(alpha:0.12)
                   : Colors.transparent,
               child: ListTile(
-                leading: isManual
-                    ? const Icon(Icons.edit, color: Colors.red)
+                trailing: isManual
+                    ? Text(
+                        loc.manual,
+                        style: TextStyle(color: Colors.red),
+                      )//Icon(Icons.edit, color: Colors.red)
                     : null,
                 title: Text(label),
               ),
@@ -139,16 +147,25 @@ class _StationFieldsSwitcherState extends State<StationFieldsSwitcher>
       return;
     }
 
+    // Increment request ID → cancels any previous incomplete search
+    final int requestId = ++_searchRequestId;
+
+    // Show spinner immediately
     setState(() => _isSearching = true);
     _overlayEntry?.markNeedsBuild();
 
+    // Perform provider search (may return partial lists internally)
     final results = await widget.trainlog.fetchStations(
       query,
       widget.vehicleType,
     );
 
-    if (!mounted || _overlayEntry == null) return;
+    // If this search is outdated → ignore result completely
+    if (!mounted || _overlayEntry == null || requestId != _searchRequestId) {
+      return; // NO partial update happens
+    }
 
+    // This is the most recent search → apply it
     setState(() {
       _stationResults = results;
       _isSearching = false;
@@ -163,17 +180,13 @@ class _StationFieldsSwitcherState extends State<StationFieldsSwitcher>
     // Update name field
     _nameCtl.text = label;
 
-    // Update lat/lng fields
-    _latCtl.text = coords.latitude.toString();
-    _longCtl.text = coords.longitude.toString();
-
     // Persist coordinates separately (so they survive mode switches)
     _savedLat = coords.latitude;
     _savedLng = coords.longitude;
 
     // Update extra field (manual vs normal)
     setState(() {
-      _currentAddress = isManual ? "manual station" : address;
+      _currentAddress = isManual ? AppLocalizations.of(context)!.manual : address;
     });
 
     // Emit values to parent

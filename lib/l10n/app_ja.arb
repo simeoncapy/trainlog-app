@@ -21,12 +21,6 @@
   "createAccountButtonShort": "作成",
   "loginToYourAccount": "アカウントにログイン",
   "menuHello": "こんにちは {username}さん",
-  "@menuHello" :{
-    "description": "The username",
-    "placeholders": {
-      "username": {}
-    }
-  },
   "connectionError": "ログインに失敗しました。資格情報を確認してください。",
   "refreshCompleted": "更新が完了しました",
   "nextButton": "次へ",
@@ -37,6 +31,7 @@
   "energyElectric": "電動",
   "energyThermic": "ガソリン",
   "energyHydrogen": "水素",
+  "manual": "手動",
 
   "settingsAppCategory": "アプリ設定",
   "settingsMapCategory": "地図設定",
@@ -135,6 +130,7 @@
   "typeStationAddress": "{type, select, train{駅の住所} plane{空港の住所} bus{停留所の住所} tram{停留場の住所} metro{駅の住所} ferry{港の住所} helicopter{ヘリポートの住所} aerialway{駅の住所} other{場所の住所}}",
   "enterStation": "{direction, select, departure{{type, select, train{出発駅を入力してください} plane{出発空港を入力してください} bus{出発停留所を入力してください} tram{出発停留場を入力してください} metro{出発駅を入力してください} ferry{出発港を入力してください} helicopter{出発ヘリポートを入力してください} aerialway{出発駅を入力してください} other{出発場所を入力してください}}} arrival{{type, select, train{到着駅を入力してください} plane{到着空港を入力してください} bus{到着停留所を入力してください} tram{到着停留場を入力してください} metro{到着駅を入力してください} ferry{到着港を入力してください} helicopter{到着ヘリポートを入力してください} aerialway{到着駅を入力してください} other{到着場所を入力してください}}} other{{type, select, train{駅を入力してください} plane{空港を入力してください} bus{停留所を入力してください} tram{停留場を入力してください} metro{駅を入力してください} ferry{港を入力してください} helicopter{ヘリポートを入力してください} aerialway{駅を入力してください} other{場所を入力してください}}}}",
   "manualNameStation": "{type, select, train{駅の手動名称} plane{空港の手動名称} bus{停留所の手動名称} tram{停留場の手動名称} metro{駅の手動名称} ferry{港の手動名称} helicopter{ヘリポートの手動名称} aerialway{駅の手動名称} other{場所の手動名称}}",
+  "searchStationHint": "{type, select, train{駅を検索...} plane{空港を検索...} bus{停留所を検索...} tram{停留場を検索...} metro{駅を検索...} ferry{港を検索...} helicopter{ヘリポートを検索...} aerialway{駅を検索...} other{場所を検索...} }",
 
   "statisticsGraphUnitTrips": "旅行",
   "statisticsGraphUnitDistance": "距離",

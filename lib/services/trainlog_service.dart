@@ -281,18 +281,28 @@ class TrainlogService {
     VehicleType type,
   ) async {
     final path = '/u/$username/getManAndOps/${type.toShortString()}';
+    Map<String, dynamic>? data;
 
-    final res = await _dio.get<Map<String, dynamic>>(
-      path,
-      options: Options(
-        followRedirects: true,
-        maxRedirects: 5,
-        responseType: ResponseType.json,
-        validateStatus: (s) => s != null && s >= 200 && s < 400,
-      ),
-    );
+    try{
+        final res = await _dio.get<Map<String, dynamic>>(
+        path,
+        options: Options(
+          followRedirects: true,
+          maxRedirects: 5,
+          responseType: ResponseType.json,
+          validateStatus: (s) => s != null && s >= 200 && s < 400,
+        ),
+      );
+      data = res.data;
+    } on DioException catch (e) {
+      if (e.error is HttpException &&
+          e.error.toString().contains("Connection closed before full header was received")) {
+        // Already got data earlier → ignore.
+        return {};
+      }
+      rethrow; // other real errors
+    }
 
-    final data = res.data;
     if (data == null || data['manualStations'] == null) {
       return {};
     }
@@ -336,8 +346,8 @@ class TrainlogService {
       final coords = entry.value[0];
 
       final latLng = LatLng(
-        _toDouble(coords[1]), // latitude is index 1
-        _toDouble(coords[0]), // longitude is index 0
+        _toDouble(coords[0]),
+        _toDouble(coords[1]),
       );
 
       var name = baseName;
@@ -494,5 +504,43 @@ class TrainlogService {
     }
 
     return result;
+  }
+
+  Future<Map<String, int>> fetchAllVisitedStations(String username, VehicleType type) async {
+    final path = '/u/$username/getManAndOps/${type.toShortString()}';
+
+    final res = await _dio.get<Map<String, dynamic>>(
+      path,
+      options: Options(
+        followRedirects: true,
+        maxRedirects: 5,
+        responseType: ResponseType.json,
+        validateStatus: (s) => s != null && s >= 200 && s < 400,
+      ),
+    );
+
+    final data = res.data; // already decoded JSON
+    if (data == null) return {};
+
+    final ops = data['visitedStations'];
+    if (ops is! Map) return {}; // not present or wrong shape
+
+    final out = <String, int>{};
+    ops.forEach((k, v) {
+      final key = k?.toString().trim();
+      final val = toInt(v);
+      if (key != null && key.isNotEmpty && val != null) {
+        out[key] = val;
+      }
+    });
+    return out;
+  }
+
+  int? toInt(dynamic v) {
+    if (v == null) return null;
+    if (v is int) return v;
+    if (v is double) return v.toInt();
+    if (v is String) return int.tryParse(v);
+    return null;
   }
 }

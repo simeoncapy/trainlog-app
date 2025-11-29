@@ -104,6 +104,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get energyHydrogen => 'Hydrogen';
 
   @override
+  String get manual => 'manual';
+
+  @override
   String get settingsAppCategory => 'App Settings';
 
   @override
@@ -469,6 +472,22 @@ class AppLocalizationsEn extends AppLocalizations {
       'helicopter': 'Manual name of the heliport',
       'aerialway': 'Manual name of the station',
       'other': 'Manual name of the location',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String searchStationHint(String type) {
+    String _temp0 = intl.Intl.selectLogic(type, {
+      'train': 'Search station...',
+      'plane': 'Search airport...',
+      'bus': 'Search stop...',
+      'tram': 'Search station...',
+      'metro': 'Search station...',
+      'ferry': 'Search port...',
+      'helicopter': 'Search heliport...',
+      'aerialway': 'Search station...',
+      'other': 'Search location...',
     });
     return '$_temp0';
   }

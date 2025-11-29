@@ -104,6 +104,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get energyHydrogen => '水素';
 
   @override
+  String get manual => '手動';
+
+  @override
   String get settingsAppCategory => 'アプリ設定';
 
   @override
@@ -468,6 +471,22 @@ class AppLocalizationsJa extends AppLocalizations {
       'helicopter': 'ヘリポートの手動名称',
       'aerialway': '駅の手動名称',
       'other': '場所の手動名称',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String searchStationHint(String type) {
+    String _temp0 = intl.Intl.selectLogic(type, {
+      'train': '駅を検索...',
+      'plane': '空港を検索...',
+      'bus': '停留所を検索...',
+      'tram': '停留場を検索...',
+      'metro': '駅を検索...',
+      'ferry': '港を検索...',
+      'helicopter': 'ヘリポートを検索...',
+      'aerialway': '駅を検索...',
+      'other': '場所を検索...',
     });
     return '$_temp0';
   }

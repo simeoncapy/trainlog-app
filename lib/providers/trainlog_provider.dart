@@ -294,35 +294,50 @@ class TrainlogProvider extends ChangeNotifier {
     return decomposed.replaceAll(RegExp(r'[\u0300-\u036f]'), '');
   }
 
+  int visitCount(String label, Map<String, int> visits) {
+    return visits[label] ?? 0;
+  }
+
+  String cleanLabel(String label) {
+    return removeFlagPrefix(label).toLowerCase();
+  }
+
   Future<List<StationInfo>> fetchStations(
     String query,
     VehicleType type,
   ) async {
     if (_username == null) return [];
 
-    final manualFuture = service.fetchAllManualStationsSuffixed(_username!, type);
+    // Run all three in parallel
+    final manualFuture =
+        service.fetchAllManualStationsSuffixed(_username!, type);
     final osmFuture = service.fetchStations(query, type);
+    final visitsFuture =
+        service.fetchAllVisitedStations(_username!, type);
 
     final manualMap = await manualFuture;
     final osmMap = await osmFuture;
+    final visits = await visitsFuture; // Map<String, int>
 
     final normalizedQuery = _normalize(query);
 
+    // ---- Manual stations (filtered by query) ----
     final manualList = manualMap.entries
         .map((e) => (
-              e.key,         // label
+              e.key,         // label with flag
               e.value.$1,    // LatLng
               e.value.$2,    // address
               true,          // isManual
             ))
         .where((entry) {
           final label   = _normalize(entry.$1);
-          final address = _normalize(entry.$3);
-          return label.contains(normalizedQuery) ||
-                address.contains(normalizedQuery);
+          //final address = _normalize(entry.$3);
+          return label.contains(normalizedQuery)/* ||
+                address.contains(normalizedQuery)*/;
         })
         .toList();
 
+    // ---- OSM stations (already filtered by query in API) ----
     final osmList = osmMap.entries
         .map((e) => (
               e.key,
@@ -332,14 +347,37 @@ class TrainlogProvider extends ChangeNotifier {
             ))
         .toList();
 
-    // Sort manual alphabetically
-    manualList.sort((a, b) {
-      final aKey = removeFlagPrefix(a.$1).toLowerCase();
-      final bKey = removeFlagPrefix(b.$1).toLowerCase();
-      return aKey.compareTo(bKey);
+    // ---- Combine + attach visit counts ----
+    // (label, coords, address, isManual, visits)
+    final combined = <(
+      String,
+      LatLng,
+      String,
+      bool,
+      int
+    )>[];
+
+    int visitCount(String label) => visits[label] ?? 0;
+    String cleanLabel(String label) =>
+        removeFlagPrefix(label).toLowerCase();
+
+    for (final m in manualList) {
+      combined.add((m.$1, m.$2, m.$3, m.$4, visitCount(m.$1)));
+    }
+    for (final o in osmList) {
+      combined.add((o.$1, o.$2, o.$3, o.$4, visitCount(o.$1)));
+    }
+
+    // ---- Sort: 1) visits DESC, 2) alphabetical ignoring flag ----
+    combined.sort((a, b) {
+      final visitsDiff = b.$5.compareTo(a.$5); // most visited first
+      if (visitsDiff != 0) return visitsDiff;
+
+      return cleanLabel(a.$1).compareTo(cleanLabel(b.$1));
     });
 
-    return _mergeStationLists(osmList, manualList);
+    // ---- Back to StationInfo (label, coords, address, isManual) ----
+    return combined.map((e) => (e.$1, e.$2, e.$3, e.$4)).toList();
   }
 
   List<StationInfo> _mergeStationLists(
