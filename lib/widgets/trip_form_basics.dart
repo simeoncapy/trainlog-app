@@ -23,6 +23,8 @@ class _TripFormBasicsState extends State<TripFormBasics> {
   final TextEditingController departureLongCtrlr = TextEditingController();
   final TextEditingController arrivalLatCtrlr = TextEditingController();
   final TextEditingController arrivalLongCtrlr = TextEditingController();
+  final _departureSwitcherKey = GlobalKey<StationFieldsSwitcherState>();
+  final _arrivalSwitcherKey = GlobalKey<StationFieldsSwitcherState>();
   String? _selectedOperatorName;
   final _operatorSelectorKey = GlobalKey<OperatorSelectorState>();
   double? _departureLat;
@@ -79,7 +81,21 @@ class _TripFormBasicsState extends State<TripFormBasics> {
                       ),
                     ))
                 .toList(),
-            onChanged: (value) => setState(() => _selectedVehicleType = value),
+            onChanged: (value) {
+              if(_selectedVehicleType == value) return;
+              setState(() {                
+                _selectedVehicleType = value;
+
+                _departureLat = null;
+                _departureLong = null;
+                _arrivalLat = null;
+                _arrivalLong = null;
+              });
+
+              // Clear both station switchers
+              _departureSwitcherKey.currentState?.clearAll();
+              _arrivalSwitcherKey.currentState?.clearAll();
+            },
           ),
           const SizedBox(height: 16),
 
@@ -91,6 +107,7 @@ class _TripFormBasicsState extends State<TripFormBasics> {
                 _leftAlignedSubtitle(context, loc.addTripDeparture),
                 const SizedBox(height: 4),
                 StationFieldsSwitcher(
+                  key: _departureSwitcherKey,
                   globePinIcon: Symbols.globe_location_pin,
                   addressDefaultText: loc.typeStationAddress(vehicleType),
                   manualNameFieldHint: loc.manualNameStation(vehicleType),
@@ -112,6 +129,7 @@ class _TripFormBasicsState extends State<TripFormBasics> {
                 _leftAlignedSubtitle(context, loc.addTripArrival),
                 const SizedBox(height: 4),
                 StationFieldsSwitcher(
+                  key: _arrivalSwitcherKey,
                   globePinIcon: Symbols.globe_location_pin,
                   addressDefaultText: loc.typeStationAddress(vehicleType),
                   manualNameFieldHint: loc.manualNameStation(vehicleType),

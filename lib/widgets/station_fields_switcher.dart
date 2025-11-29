@@ -45,7 +45,11 @@ class StationFieldsSwitcher extends StatefulWidget {
   State<StationFieldsSwitcher> createState() => _StationFieldsSwitcherState();
 }
 
-class _StationFieldsSwitcherState extends State<StationFieldsSwitcher>
+abstract class StationFieldsSwitcherState extends State<StationFieldsSwitcher> {
+  void clearAll();
+}
+
+class _StationFieldsSwitcherState extends StationFieldsSwitcherState
     with TickerProviderStateMixin {
   late final TextEditingController _nameCtl =
       widget.nameController ?? TextEditingController();
@@ -213,6 +217,24 @@ class _StationFieldsSwitcherState extends State<StationFieldsSwitcher>
     _searchFocusNode.unfocus();
 
     setState(() {});
+  }
+
+  void clearAll() {
+    setState(() {
+      // Clear name mode fields
+      _nameCtl.clear();
+      _currentAddress = "";
+      _savedLat = null;
+      _savedLng = null;
+
+      // Clear geo mode fields
+      _latCtl.clear();
+      _longCtl.clear();
+      _manualNameCtl.clear();
+    });
+
+    // Emit cleared values to parent
+    _emitValues();
   }
 
   @override
