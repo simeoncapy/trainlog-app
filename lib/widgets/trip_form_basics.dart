@@ -1,174 +1,169 @@
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
+
+import 'package:trainlog_app/data/models/trip_form_model.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
-import 'package:trainlog_app/widgets/mini_map_box.dart';
-import 'package:trainlog_app/widgets/operator_selector.dart';
+
 import 'package:trainlog_app/widgets/station_fields_switcher.dart';
+import 'package:trainlog_app/widgets/operator_selector.dart';
+import 'package:trainlog_app/widgets/mini_map_box.dart';
 import 'package:trainlog_app/widgets/titled_container.dart';
 
-class TripFormBasics extends StatefulWidget {
+class TripFormBasics extends StatelessWidget {
   const TripFormBasics({super.key});
 
   @override
-  State<TripFormBasics> createState() => _TripFormBasicsState();
-}
-
-class _TripFormBasicsState extends State<TripFormBasics> {
-  late TrainlogProvider trainlog;
-  VehicleType? _selectedVehicleType = VehicleType.train;
-  final TextEditingController departureLatCtrlr = TextEditingController();
-  final TextEditingController departureLongCtrlr = TextEditingController();
-  final TextEditingController arrivalLatCtrlr = TextEditingController();
-  final TextEditingController arrivalLongCtrlr = TextEditingController();
-  final _departureSwitcherKey = GlobalKey<StationFieldsSwitcherState>();
-  final _arrivalSwitcherKey = GlobalKey<StationFieldsSwitcherState>();
-  String? _selectedOperatorName;
-  final _operatorSelectorKey = GlobalKey<OperatorSelectorState>();
-  double? _departureLat;
-  double? _departureLong;
-
-  double? _arrivalLat;
-  double? _arrivalLong;
-
-
-  @override
-  void initState() {
-    super.initState();
-    trainlog = Provider.of<TrainlogProvider>(context, listen: false);
-  }
-
-  Widget _leftAlignedSubtitle(BuildContext context, String text, {TextStyle? style}) {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Text(
-        text,
-        style: style ?? Theme.of(context).textTheme.titleSmall,
-        textAlign: TextAlign.left,
-      ),
-    );
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final model = context.watch<TripFormModel>();
+    final trainlog = Provider.of<TrainlogProvider>(context, listen: false);
+
     final loc = AppLocalizations.of(context)!;
-    final vehicleType = _selectedVehicleType?.name ?? VehicleType.train.name;
+    final vType = model.vehicleType ?? VehicleType.train;
+    final vehicleType = vType.name;
+
+    final hasStationsError = (model.departureHasError && model.highlightDepartureErrors 
+                              || model.arrivalHasError && model.highlightArrivalErrors);
+
+    final borderErrorColor = Theme.of(context).colorScheme.error;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          /// Transportation Mode Dropdown
+          // ---------------- Vehicle Type ----------------
           DropdownButtonFormField<VehicleType>(
             decoration: InputDecoration(
               labelText: loc.addTripTransportationMode,
-              border: OutlineInputBorder(),
+              border: const OutlineInputBorder(),
             ),
-            value: _selectedVehicleType,
+            value: model.vehicleType,
             items: VehicleType.values
                 .where((v) => v != VehicleType.unknown && v != VehicleType.poi)
-                .map((type) => DropdownMenuItem<VehicleType>(
-                      value: type,
-                      child: Row(
-                        children: [
-                          type.icon(),
-                          const SizedBox(width: 8),
-                          Text(type.label(context)),
-                        ],
-                      ),
-                    ))
+                .map(
+                  (type) => DropdownMenuItem(
+                    value: type,
+                    child: Row(
+                      children: [
+                        type.icon(),
+                        const SizedBox(width: 8),
+                        Text(type.label(context)),
+                      ],
+                    ),
+                  ),
+                )
                 .toList(),
-            onChanged: (value) {
-              if(_selectedVehicleType == value) return;
-              setState(() {                
-                _selectedVehicleType = value;
+            onChanged: (v) {
+              if (v == null || v == model.vehicleType) return;
 
-                _departureLat = null;
-                _departureLong = null;
-                _arrivalLat = null;
-                _arrivalLong = null;
-              });
+              // 1) update type in model
+              model.setVehicleType(v);
 
-              // Clear both station switchers
-              _departureSwitcherKey.currentState?.clearAll();
-              _arrivalSwitcherKey.currentState?.clearAll();
+              // 2) reset stations in the model
+              model.setDeparture(
+                name: null,
+                lat: null,
+                long: null,
+                address: null,
+                geoMode: false,
+              );
+              model.setArrival(
+                name: null,
+                lat: null,
+                long: null,
+                address: null,
+                geoMode: false,
+              );
             },
           ),
+
           const SizedBox(height: 16),
 
-          /// Departure & Arrival (grouped box)
           TitledContainer(
             title: loc.typeStations(vehicleType),
+            borderColor: hasStationsError ? borderErrorColor : null,
             content: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _leftAlignedSubtitle(context, loc.addTripDeparture),
-                const SizedBox(height: 4),
+                Text(loc.addTripDeparture,
+                    style: Theme.of(context).textTheme.titleSmall),
+                const SizedBox(height: 8,),
+                // key depends on vehicle type → forces rebuild on change
                 StationFieldsSwitcher(
-                  key: _departureSwitcherKey,
-                  globePinIcon: Symbols.globe_location_pin,
+                  key: ValueKey('dep-${vType.name}'),
+                  trainlog: trainlog,
+                  vehicleType: model.vehicleType ?? VehicleType.train,
                   addressDefaultText: loc.typeStationAddress(vehicleType),
                   manualNameFieldHint: loc.manualNameStation(vehicleType),
-                  trainlog: trainlog,
-                  vehicleType: _selectedVehicleType ?? VehicleType.train,
-                  onChanged: (values) {
-                    setState(() {
-                      _departureLat = double.tryParse(values['lat'] ?? '');
-                      _departureLong = double.tryParse(values['long'] ?? '');
-                    });
 
-                    debugPrint('Station name: ${values['name']}');
-                    debugPrint('Latitude: ${values['lat']}');
-                    debugPrint('Longitude: ${values['long']}');
-                    debugPrint('Mode: ${values['mode']}');
+                  initialGeoMode: model.departureGeoMode,
+                  initialStationName: model.departureStationName,
+                  initialLat: model.departureLat,
+                  initialLng: model.departureLong,
+                  initialAddress: model.departureAddress,
+
+                  onChanged: (values) {
+                    model.setDeparture(
+                      name: values['name'],
+                      lat: double.tryParse(values['lat'] ?? ''),
+                      long: double.tryParse(values['long'] ?? ''),
+                      geoMode: values['mode'] == 'geo',
+                      address: values['address'],
+                    );
+                    model.clearDepartureError();
                   },
                 ),
+
                 const SizedBox(height: 12),
-                _leftAlignedSubtitle(context, loc.addTripArrival),
-                const SizedBox(height: 4),
+                Text(loc.addTripArrival,
+                    style: Theme.of(context).textTheme.titleSmall),
+                const SizedBox(height: 8,),
                 StationFieldsSwitcher(
-                  key: _arrivalSwitcherKey,
-                  globePinIcon: Symbols.globe_location_pin,
+                  key: ValueKey('arr-${vType.name}'),
+                  trainlog: trainlog,
+                  vehicleType: model.vehicleType ?? VehicleType.train,
                   addressDefaultText: loc.typeStationAddress(vehicleType),
                   manualNameFieldHint: loc.manualNameStation(vehicleType),
-                  trainlog: trainlog,
-                  latController: arrivalLatCtrlr,
-                  longController: arrivalLongCtrlr,
-                  vehicleType: _selectedVehicleType ?? VehicleType.train,
-                  onChanged: (values) {
-                    setState(() {
-                      _arrivalLat = double.tryParse(values['lat'] ?? '');
-                      _arrivalLong = double.tryParse(values['long'] ?? '');
-                    });
 
-                    debugPrint('Arrival Station: ${values['name']}');
-                    debugPrint('Latitude: $_arrivalLat');
-                    debugPrint('Longitude: $_arrivalLong');
+                  initialGeoMode: model.arrivalGeoMode,
+                  initialStationName: model.arrivalStationName,
+                  initialLat: model.arrivalLat,
+                  initialLng: model.arrivalLong,
+                  initialAddress: model.arrivalAddress,
+
+                  onChanged: (values) {
+                    model.setArrival(
+                      name: values['name'],
+                      lat: double.tryParse(values['lat'] ?? ''),
+                      long: double.tryParse(values['long'] ?? ''),
+                      geoMode: values['mode'] == 'geo',
+                      address: values['address'],
+                    );
+                    model.clearArrivalError();
                   },
                 ),
+
                 const SizedBox(height: 12),
                 Row(
-                  children: [ // 35.6808907,139.7671718
+                  children: [
                     Expanded(
                       child: MiniMapBox(
-                        lat: _departureLat,
-                        long: _departureLong,
-                        emptyMessage: loc.enterStation("departure",
-                          _selectedVehicleType?.name ?? VehicleType.train.name,
-                        ),
+                        lat: model.departureLat,
+                        long: model.departureLong,
+                        emptyMessage:
+                            loc.enterStation("departure", vehicleType),
                         markerColor: Colors.green,
                       ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: MiniMapBox(
-                        lat: _arrivalLat,
-                        long: _arrivalLong,
-                        emptyMessage: loc.enterStation("arrival",
-                          _selectedVehicleType?.name ?? VehicleType.train.name,
-                        ),
+                        lat: model.arrivalLat,
+                        long: model.arrivalLong,
+                        emptyMessage:
+                            loc.enterStation("arrival", vehicleType),
                         markerColor: Colors.red,
                       ),
                     ),
@@ -177,14 +172,23 @@ class _TripFormBasicsState extends State<TripFormBasics> {
               ],
             ),
           ),
+
           const SizedBox(height: 16),
-          
+
           TitledContainer(
             title: loc.addTripOperator,
-            content: OperatorSelector(key: _operatorSelectorKey),
+            borderColor: (model.operatorHasError && model.highlightOperatorsErrors) ? borderErrorColor : null,
+            content: OperatorSelector(
+              initialOperators: model.selectedOperators,
+              onChanged: (ops) {
+                model.setOperators(ops);
+                model.clearOperatorError();
+              },
+            ),
           ),
         ],
       ),
     );
   }
 }
+

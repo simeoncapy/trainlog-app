@@ -42,6 +42,7 @@
   "@manual" :{
     "description": "manual (opposed as automatic). Should be gender and number neutral."
   },
+  "fillRequiredFields": "Please fill the required fields",
     
   "settingsAppCategory": "App Settings",
   "settingsMapCategory": "Map Settings",

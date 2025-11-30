@@ -110,6 +110,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get manual => '手動';
 
   @override
+  String get fillRequiredFields => '必須項目を入力してください';
+
+  @override
   String get settingsAppCategory => 'アプリ設定';
 
   @override

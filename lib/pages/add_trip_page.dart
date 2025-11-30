@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:step_progress/step_progress.dart';
+import 'package:trainlog_app/data/models/trip_form_model.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/widgets/trip_form_basics.dart';
 import 'package:trainlog_app/widgets/trip_form_date.dart';
@@ -47,7 +49,30 @@ class _AddTripPageState extends State<AddTripPage> {
     super.dispose();
   }
 
+  void _showSnackBarMessage()
+  {
+    ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppLocalizations.of(context)!.fillRequiredFields)),
+      );
+      return;
+  }
+
   void _nextStep() {
+    final model = context.read<TripFormModel>();
+
+    bool isValid = false;
+
+    if (currentStep == 0) isValid = model.validateBasics();
+    if (currentStep == 1) isValid = model.validateDate();
+    if (currentStep == 2) isValid = model.validateDetails();
+    if (currentStep == 3) isValid = true; // Final step
+
+    if (!isValid) {
+      _showSnackBarMessage();
+      return;
+    }
+
+    // Move to next page
     if (currentStep < stepList!.length - 1) {
       setState(() => currentStep++);
       stepProgressController.nextStep();

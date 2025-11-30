@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:trainlog_app/data/models/trip_form_model.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/data/trips_repository.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
@@ -274,7 +275,10 @@ class _TripsPageState extends State<TripsPage> {
     return FloatingActionButton(
       onPressed: () {
         Navigator.of(context).push(PageRouteBuilder(
-          pageBuilder: (_, __, ___) => const AddTripPage(),
+          pageBuilder: (_, __, ___) => ChangeNotifierProvider(
+            create: (_) => TripFormModel(),
+            child: const AddTripPage(),
+          ),
           transitionDuration: Duration.zero,
           reverseTransitionDuration: Duration.zero,
         ));

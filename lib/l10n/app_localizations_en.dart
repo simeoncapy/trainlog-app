@@ -110,6 +110,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get manual => 'manual';
 
   @override
+  String get fillRequiredFields => 'Please fill the required fields';
+
+  @override
   String get settingsAppCategory => 'App Settings';
 
   @override

@@ -298,6 +298,12 @@ abstract class AppLocalizations {
   /// **'manual'**
   String get manual;
 
+  /// No description provided for @fillRequiredFields.
+  ///
+  /// In en, this message translates to:
+  /// **'Please fill the required fields'**
+  String get fillRequiredFields;
+
   /// No description provided for @settingsAppCategory.
   ///
   /// In en, this message translates to:

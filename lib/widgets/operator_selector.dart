@@ -5,7 +5,14 @@ import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/widgets/full_screen_search_overlay.dart';
 
 class OperatorSelector extends StatefulWidget {
-  const OperatorSelector({Key? key}) : super(key: key);
+  final List<String>? initialOperators;
+  final ValueChanged<List<String>>? onChanged;
+
+  const OperatorSelector({
+    Key? key,
+    this.initialOperators,
+    this.onChanged,
+  }) : super(key: key);
 
   @override
   OperatorSelectorState createState() => OperatorSelectorState();
@@ -31,11 +38,12 @@ class OperatorSelectorState extends State<OperatorSelector> {
   void initState() {
     super.initState();
 
-    // When the main field gains focus, show overlay.
+    if (widget.initialOperators != null) {
+      _selectedOperators.addAll(widget.initialOperators!);
+    }
+
     _fieldFocusNode.addListener(() {
-      if (_fieldFocusNode.hasFocus) {
-        _showOverlay();
-      }
+      if (_fieldFocusNode.hasFocus) _showOverlay();
     });
   }
 
@@ -46,6 +54,15 @@ class OperatorSelectorState extends State<OperatorSelector> {
     _overlayFocusNode.dispose();
     _logosScrollController.dispose();
     super.dispose();
+  }
+
+  void clear() {
+    setState(() {
+      _selectedOperators.clear();
+      _inputController.clear();
+      _suggestions.clear();
+    });
+    widget.onChanged?.call([]);
   }
 
   /// Public getter: final value = selected operators + current text (comma separated)
@@ -122,17 +139,16 @@ class OperatorSelectorState extends State<OperatorSelector> {
     if (trimmed.isEmpty) return;
     if (_selectedOperators.contains(trimmed)) return;
 
-    setState(() {
-      _selectedOperators.add(trimmed);
-    });
+    setState(() => _selectedOperators.add(trimmed));
+
+    widget.onChanged?.call(List.from(_selectedOperators));
 
     _scrollLogosToEnd();
   }
 
   void _removeOperator(String name) {
-    setState(() {
-      _selectedOperators.remove(name);
-    });
+    setState(() => _selectedOperators.remove(name));
+    widget.onChanged?.call(List.from(_selectedOperators));
   }
 
   // ─────────────────────────────────────────────────────────────

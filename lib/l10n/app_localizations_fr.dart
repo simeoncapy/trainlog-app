@@ -111,6 +111,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get manual => 'manuel';
 
   @override
+  String get fillRequiredFields => 'Veuillez remplir les champs obligatoires';
+
+  @override
   String get settingsAppCategory => 'Paramètres de l\'application';
 
   @override

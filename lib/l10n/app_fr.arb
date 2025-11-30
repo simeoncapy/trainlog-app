@@ -33,6 +33,7 @@
   "energyThermic": "Thermique",
   "energyHydrogen": "Hydrogène",
   "manual": "manuel",
+  "fillRequiredFields": "Veuillez remplir les champs obligatoires",
 
   "settingsAppCategory": "Paramètres de l'application",
   "settingsMapCategory": "Paramètres de la carte",

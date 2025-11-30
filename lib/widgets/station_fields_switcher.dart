@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
@@ -8,125 +7,141 @@ import 'package:trainlog_app/widgets/full_screen_search_overlay.dart';
 
 class StationFieldsSwitcher extends StatefulWidget {
   const StationFieldsSwitcher({
-    Key? key,
-    this.nameController,
-    this.latController,
-    this.longController,
+    super.key,
+
+    required this.trainlog,
+    required this.vehicleType,
+    required this.addressDefaultText,
+    required this.manualNameFieldHint,
+
+    // Initial values (for restore)
     this.initialGeoMode = false,
-    this.onModeChanged,
+    this.initialStationName,
+    this.initialLat,
+    this.initialLng,
+    this.initialAddress,
+
     this.onChanged,
     this.searchIcon,
     this.globePinIcon,
-    required this.addressDefaultText,
-    required this.manualNameFieldHint,
-    required this.trainlog,
-    required this.vehicleType,
-  }) : super(key: key);
+  });
 
-  final TextEditingController? nameController;
-  final TextEditingController? latController;
-  final TextEditingController? longController;
+  final TrainlogProvider trainlog;
+  final VehicleType vehicleType;
 
   final bool initialGeoMode;
-  final ValueChanged<bool>? onModeChanged;
-
-  final IconData? searchIcon;
-  final IconData? globePinIcon;
-
-  final ValueChanged<Map<String, String>>? onChanged;
+  final String? initialStationName;
+  final double? initialLat;
+  final double? initialLng;
+  final String? initialAddress;
 
   final String addressDefaultText;
   final String manualNameFieldHint;
 
-  final TrainlogProvider trainlog;
-  final VehicleType vehicleType;
+  final ValueChanged<Map<String, String>>? onChanged;
+
+  final IconData? searchIcon;
+  final IconData? globePinIcon;
 
   @override
   State<StationFieldsSwitcher> createState() => _StationFieldsSwitcherState();
 }
 
-abstract class StationFieldsSwitcherState extends State<StationFieldsSwitcher> {
-  void clearAll();
-}
-
-class _StationFieldsSwitcherState extends StationFieldsSwitcherState
+class _StationFieldsSwitcherState extends State<StationFieldsSwitcher>
     with TickerProviderStateMixin {
-  late final TextEditingController _nameCtl =
-      widget.nameController ?? TextEditingController();
-  late final TextEditingController _latCtl =
-      widget.latController ?? TextEditingController();
-  late final TextEditingController _longCtl =
-      widget.longController ?? TextEditingController();
+
+  late final TextEditingController _nameCtl = TextEditingController();
+  late final TextEditingController _latCtl = TextEditingController();
+  late final TextEditingController _longCtl = TextEditingController();
   late final TextEditingController _manualNameCtl = TextEditingController();
 
   late bool _geoMode = widget.initialGeoMode;
-  int _direction = -1;
-
-  /// Use a fixed height so mode switching doesn’t change widget height
-  static const double _extraFieldHeight = 48.0;
-
-  OverlayEntry? _overlayEntry;
-
-  final FocusNode _searchFocusNode = FocusNode();
-  final TextEditingController _searchCtl = TextEditingController();
-
-  List<StationInfo> _stationResults = [];
-
-  String _currentAddress = "";
   double? _savedLat;
   double? _savedLng;
+
+  static const double _extraFieldHeight = 48;
+  int _direction = -1;
+
+  String _currentAddress = "";
+
+  OverlayEntry? _overlayEntry;
+  final TextEditingController _searchCtl = TextEditingController();
+  final FocusNode _searchFocusNode = FocusNode();
+
+  List<StationInfo> _stationResults = [];
   bool _isSearching = false;
   int _searchRequestId = 0;
 
+  // ------------------------------
+  // INIT: restore values properly
+  // ------------------------------
+  @override
+  void initState() {
+    super.initState();
+
+    _geoMode = widget.initialGeoMode;
+
+    if (_geoMode) {
+      _latCtl.text = widget.initialLat?.toString() ?? "";
+      _longCtl.text = widget.initialLng?.toString() ?? "";
+      _manualNameCtl.text = widget.initialStationName ?? "";
+    } else {
+      _nameCtl.text = widget.initialStationName ?? "";
+      _savedLat = widget.initialLat;
+      _savedLng = widget.initialLng;
+    }
+    _currentAddress = widget.initialAddress ?? '';
+  }
+
+  // ------------------------------
+  // Emit updated values to parent
+  // ------------------------------
+  void _emitValues() {
+    widget.onChanged?.call({
+      'mode': _geoMode ? "geo" : "name",
+      'name': _geoMode ? _manualNameCtl.text : _nameCtl.text,
+      'lat': _geoMode ? _latCtl.text : _savedLat?.toString() ?? "",
+      'long': _geoMode ? _longCtl.text : _savedLng?.toString() ?? "",
+      'address': _geoMode ? '' : _currentAddress,
+    });
+  }
+
+  // ------------------------------
+  // Toggle mode
+  // ------------------------------
   void _toggleMode() {
     setState(() {
       _geoMode = !_geoMode;
       _direction = _geoMode ? -1 : 1;
     });
-
-    // Notify parent about the mode change
     _emitValues();
-
-    widget.onModeChanged?.call(_geoMode);
   }
 
-  void _emitValues() {
-    widget.onChanged?.call({
-      'mode': _geoMode ? "geo" : "name",
-      'name': _geoMode ? _manualNameCtl.text : _nameCtl.text,
-      'lat': _geoMode ? _latCtl.text : _savedLat.toString(),
-      'long': _geoMode ? _longCtl.text : _savedLng.toString(),
-    });
-  }
-
-  OverlayEntry _buildStationSearchOverlay() {
+  // ------------------------------
+  // Search overlay
+  // ------------------------------
+  OverlayEntry _buildOverlay() {
     final loc = AppLocalizations.of(context)!;
+
     return OverlayEntry(
       builder: (context) {
         return FullScreenSearchOverlay<StationInfo>(
           controller: _searchCtl,
           focusNode: _searchFocusNode,
           items: _stationResults,
-          hintText: loc.searchStationHint(widget.vehicleType.toString()),
           isLoading: _isSearching,
-          onChanged: _performStationSearch,   // dynamic async search
+          hintText: loc.searchStationHint(widget.vehicleType.toString()),
+
+          onChanged: _performStationSearch,
 
           itemBuilder: (context, station) {
             final (label, coords, address, isManual) = station;
-
-            return Container(
-              color: isManual
-                  ? Colors.red.withValues(alpha:0.12)
-                  : Colors.transparent,
-              child: ListTile(
-                trailing: isManual
-                    ? Text(
-                        loc.manual,
-                        style: TextStyle(color: Colors.red),
-                      )//Icon(Icons.edit, color: Colors.red)
-                    : null,
-                title: Text(label),
-              ),
+            return ListTile(
+              tileColor: isManual ? Colors.red.withOpacity(0.1) : null,
+              title: Text(label),
+              trailing: isManual
+                  ? Text(loc.manual, style: const TextStyle(color: Colors.red))
+                  : null,
             );
           },
 
@@ -141,6 +156,28 @@ class _StationFieldsSwitcherState extends StationFieldsSwitcherState
     );
   }
 
+  void _openOverlay() {
+    if (_overlayEntry != null) return;
+
+    _overlayEntry = _buildOverlay();
+    Overlay.of(context).insert(_overlayEntry!);
+
+    _searchCtl.clear();
+    _stationResults = [];
+
+    Future.microtask(() => _searchFocusNode.requestFocus());
+  }
+
+  void _closeOverlay() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+    _searchFocusNode.unfocus();
+    setState(() {});
+  }
+
+  // ------------------------------
+  // Perform search
+  // ------------------------------
   Future<void> _performStationSearch(String query) async {
     if (query.isEmpty) {
       setState(() {
@@ -151,25 +188,18 @@ class _StationFieldsSwitcherState extends StationFieldsSwitcherState
       return;
     }
 
-    // Increment request ID → cancels any previous incomplete search
     final int requestId = ++_searchRequestId;
 
-    // Show spinner immediately
     setState(() => _isSearching = true);
     _overlayEntry?.markNeedsBuild();
 
-    // Perform provider search (may return partial lists internally)
-    final results = await widget.trainlog.fetchStations(
-      query,
-      widget.vehicleType,
-    );
+    final results =
+        await widget.trainlog.fetchStations(query, widget.vehicleType);
 
-    // If this search is outdated → ignore result completely
     if (!mounted || _overlayEntry == null || requestId != _searchRequestId) {
-      return; // NO partial update happens
+      return;
     }
 
-    // This is the most recent search → apply it
     setState(() {
       _stationResults = results;
       _isSearching = false;
@@ -178,105 +208,65 @@ class _StationFieldsSwitcherState extends StationFieldsSwitcherState
     _overlayEntry?.markNeedsBuild();
   }
 
+  // ------------------------------
+  // Select station
+  // ------------------------------
   void _selectStation(StationInfo station) {
     final (label, coords, address, isManual) = station;
 
-    // Update name field
     _nameCtl.text = label;
-
-    // Persist coordinates separately (so they survive mode switches)
     _savedLat = coords.latitude;
     _savedLng = coords.longitude;
 
-    // Update extra field (manual vs normal)
-    setState(() {
-      _currentAddress = isManual ? AppLocalizations.of(context)!.manual : address;
-    });
+    _currentAddress = isManual
+        ? AppLocalizations.of(context)!.manual
+        : address;
 
-    // Emit values to parent
     _emitValues();
-  }
-
-  void _openStationOverlay() {
-    if (_overlayEntry != null) return;
-
-    _overlayEntry = _buildStationSearchOverlay();
-    Overlay.of(context).insert(_overlayEntry!);
-
-    _searchCtl.clear();
-    _stationResults = [];
-
-    // Ensure the search field gets focus *after* the overlay is attached
-    Future.microtask(() => _searchFocusNode.requestFocus());
-  }
-
-  void _closeOverlay() {
-    _overlayEntry?.remove();
-    _overlayEntry = null;
-
-    _searchFocusNode.unfocus();
-
     setState(() {});
   }
 
-  void clearAll() {
-    setState(() {
-      // Clear name mode fields
-      _nameCtl.clear();
-      _currentAddress = "";
-      _savedLat = null;
-      _savedLng = null;
-
-      // Clear geo mode fields
-      _latCtl.clear();
-      _longCtl.clear();
-      _manualNameCtl.clear();
-    });
-
-    // Emit cleared values to parent
-    _emitValues();
-  }
-
+  // ------------------------------
+  // Build UI
+  // ------------------------------
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     final border = const OutlineInputBorder();
     final searchIcon = widget.searchIcon ?? Icons.search;
     final globeIcon = widget.globePinIcon ?? Icons.public;
-    final loc = AppLocalizations.of(context)!;
 
-    Widget actionButton(IconData icon, VoidCallback onTap) => Material(
-          color: Theme.of(context).colorScheme.primary,
+    Widget actionButton(IconData icon, VoidCallback onTap) {
+      return Material(
+        color: Theme.of(context).colorScheme.primary,
+        borderRadius: BorderRadius.circular(12),
+        child: InkWell(
+          onTap: onTap,
           borderRadius: BorderRadius.circular(12),
-          child: InkWell(
-            onTap: onTap,
-            borderRadius: BorderRadius.circular(12),
-            child: SizedBox(
-              width: 44,
-              height: 44,
-              child: Icon(icon, color: Theme.of(context).colorScheme.onPrimary),
-            ),
+          child: SizedBox(
+            width: 44,
+            height: 44,
+            child: Icon(icon,
+                color: Theme.of(context).colorScheme.onPrimary),
           ),
-        );
+        ),
+      );
+    }
 
-    /// ---------- NAME MODE ----------
+    // ---------------- NAME MODE ------------------
     final nameMode = Column(
       key: const ValueKey('name-mode'),
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
             Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4),
-                child: TextFormField(
-                  controller: _nameCtl,
-                  readOnly: true,
-                  decoration: InputDecoration(
-                    labelText: loc.nameField,
-                    border: border,
-                  ),
-                  //onChanged: (_) => _emitValues(),
-                  onTap: _openStationOverlay,
+              child: TextFormField(
+                controller: _nameCtl,
+                readOnly: true,
+                onTap: _openOverlay,
+                decoration: InputDecoration(
+                  labelText: loc.nameField,
+                  border: border,
                 ),
               ),
             ),
@@ -284,19 +274,19 @@ class _StationFieldsSwitcherState extends StationFieldsSwitcherState
             actionButton(globeIcon, _toggleMode),
           ],
         ),
-        const SizedBox(height: 4),
-        /// Extra fixed-height area (text only)
+        const SizedBox(height: 8),
         SizedBox(
           height: _extraFieldHeight,
           child: Align(
             alignment: Alignment.centerLeft,
             child: Text(
               _currentAddress.isEmpty
-                ? widget.addressDefaultText
-                : _currentAddress,
+                  ? widget.addressDefaultText
+                  : _currentAddress,
               style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                fontSize: 14,
+                color: Theme.of(context)
+                    .colorScheme
+                    .onSurfaceVariant,
               ),
             ),
           ),
@@ -304,61 +294,49 @@ class _StationFieldsSwitcherState extends StationFieldsSwitcherState
       ],
     );
 
-    /// ---------- GEO MODE ----------
+    // ---------------- GEO MODE ------------------
     final geoMode = Column(
       key: const ValueKey('geo-mode'),
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
             actionButton(searchIcon, _toggleMode),
             const SizedBox(width: 8),
             Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4),
-                child: TextFormField(
-                  controller: _latCtl,
-                  keyboardType: const TextInputType.numberWithOptions(
-                    signed: true,
-                    decimal: true,
-                  ),
-                  decoration: InputDecoration(
-                    labelText: loc.addTripLatitudeShort,
-                    border: border,
-                  ),
-                  onChanged: (_) => _emitValues(),
+              child: TextFormField(
+                controller: _latCtl,
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
+                decoration: InputDecoration(
+                  labelText: loc.addTripLatitudeShort,
+                  border: border,
                 ),
+                onChanged: (_) => _emitValues(),
               ),
             ),
             const SizedBox(width: 8),
             Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4),
-                child: TextFormField(
-                  controller: _longCtl,
-                  keyboardType: const TextInputType.numberWithOptions(
-                    signed: true,
-                    decimal: true,
-                  ),
-                  decoration: InputDecoration(
-                    labelText: loc.addTripLongitudeShort,
-                    border: border,
-                  ),
-                  onChanged: (_) => _emitValues(),
+              child: TextFormField(
+                controller: _longCtl,
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
+                decoration: InputDecoration(
+                  labelText: loc.addTripLongitudeShort,
+                  border: border,
                 ),
+                onChanged: (_) => _emitValues(),
               ),
             ),
           ],
         ),
-        const SizedBox(height: 4),
-        /// Extra fixed-height area → manual station name
+        const SizedBox(height: 8),
         SizedBox(
           height: _extraFieldHeight,
           child: TextFormField(
             controller: _manualNameCtl,
             decoration: InputDecoration(
               labelText: widget.manualNameFieldHint,
-              border: OutlineInputBorder(),
+              border: border,
             ),
             onChanged: (_) => _emitValues(),
           ),
@@ -368,37 +346,19 @@ class _StationFieldsSwitcherState extends StationFieldsSwitcherState
 
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 250),
-      switchInCurve: Curves.easeOutCubic,
-      switchOutCurve: Curves.easeInCubic,
       transitionBuilder: (child, animation) {
-        final beginOffset =
-            _direction == -1 ? const Offset(0.15, 0) : const Offset(-0.15, 0);
-        return ClipRect(
-          child: SlideTransition(
-            position: Tween(begin: beginOffset, end: Offset.zero)
-                .chain(CurveTween(curve: Curves.easeOutCubic))
-                .animate(animation),
-            child: FadeTransition(opacity: animation, child: child),
+        return SlideTransition(
+          position: Tween(
+            begin: Offset(_direction * 0.15, 0),
+            end: Offset.zero,
+          ).animate(animation),
+          child: FadeTransition(
+            opacity: animation,
+            child: child,
           ),
         );
       },
       child: _geoMode ? geoMode : nameMode,
-      layoutBuilder: (currentChild, previousChildren) => Stack(
-        alignment: Alignment.centerLeft,
-        children: [
-          ...previousChildren,
-          if (currentChild != null) currentChild,
-        ],
-      ),
     );
-  }
-
-  @override
-  void dispose() {
-    if (widget.nameController == null) _nameCtl.dispose();
-    if (widget.latController == null) _latCtl.dispose();
-    if (widget.longController == null) _longCtl.dispose();
-    _manualNameCtl.dispose();
-    super.dispose();
   }
 }
