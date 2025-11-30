@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:trainlog_app/data/models/trips.dart';
+import 'package:trainlog_app/utils/date_utils.dart';
+import 'package:timezone/timezone.dart' as tz;
 
 class TripFormModel extends ChangeNotifier {
   // STEP 1 — Basic info
@@ -26,8 +28,20 @@ class TripFormModel extends ChangeNotifier {
 
   // STEP 2 — Dates
   bool dateHasError = false;
+  DateType dateType = DateType.precise;
   DateTime? departureDate;
+  ({bool depDate, bool depTime}) hasDepartureDateTime = (
+    depDate: false,
+    depTime: false,
+  );
   DateTime? arrivalDate;
+  ({bool arrDate, bool arrTime}) hasArrivalDateTime = (
+    arrDate: false,
+    arrTime: false,
+  );
+  bool isPast = true;
+  int? duration; // second
+  DateTime? departureDayDateOnly;
 
   // STEP 3 — Details
   String? notes;
@@ -48,15 +62,22 @@ class TripFormModel extends ChangeNotifier {
   bool validateOperators() => selectedOperators.isNotEmpty;
   bool get operatorHasError => !validateOperators();
 
+  bool arrivalIsAfterDeparture() {
+    if (departureDate == null || arrivalDate == null) return false;
+    return arrivalDate!.isAfter(departureDate!);
+  }
+
   // -----------------------------
   // Validation
   // -----------------------------
   bool validateBasics() {
-    basicsHasError = operatorHasError || departureHasError || arrivalHasError;
+    basicsHasError = departureHasError || arrivalHasError;
     highlightBasicsErrors = basicsHasError;
     highlightDepartureErrors = departureHasError;
     highlightArrivalErrors = arrivalHasError;
-    highlightOperatorsErrors = operatorHasError;
+    //highlightOperatorsErrors = operatorHasError;
+
+    // Operator is no more an error if missing
 
     notifyListeners();
 
@@ -64,7 +85,14 @@ class TripFormModel extends ChangeNotifier {
   }
 
   bool validateDate() {
-    return departureDate != null && arrivalDate != null;
+    switch(dateType) {
+      case DateType.date:
+        return departureDayDateOnly != null;
+      case DateType.unknown: // Nothing is mandatory
+        return true;
+      case DateType.precise:
+        return _checkDateAndTime();
+    }
   }
 
   bool validateDetails() {
@@ -74,6 +102,19 @@ class TripFormModel extends ChangeNotifier {
   void triggerBasicsValidation() {
     highlightBasicsErrors = true;
     notifyListeners();
+  }
+
+  bool _checkDateAndTime()
+  {
+    if (!hasDepartureDateTime.depDate ||
+        !hasDepartureDateTime.depTime ||
+        !hasArrivalDateTime.arrDate ||
+        !hasArrivalDateTime.arrTime) {
+      return false;
+    }
+
+    // Check if the arrival is AFTER the depature (regarding time zone)
+    return arrivalIsAfterDeparture();
   }
 
   // -----------------------------
@@ -116,6 +157,61 @@ class TripFormModel extends ChangeNotifier {
 
   void setOperators(List<String> ops) {
     selectedOperators = ops;
+    notifyListeners();
+  }
+
+  DateTime _setDateTimeWithTimeZone(DateTime date, TimeOfDay time, String timezone)
+  {
+    // get the TZ location (DST-aware)
+    final location = tz.getLocation(timezone);
+
+    // Construct local datetime inside that timezone
+    final localTzDate = tz.TZDateTime(
+      location,
+      date.year,
+      date.month,
+      date.day,
+      time.hour,
+      time.minute,
+    );
+
+    // Convert to UTC for storage
+    return localTzDate.toUtc();
+  }
+
+  void setDepartureDateTime(DateTime? date, TimeOfDay? time, String timezone)
+  {
+     hasDepartureDateTime = (
+      depDate: date != null,
+      depTime: time != null,
+    );
+
+    // If missing either field, do not compute a full DateTime
+    if (date == null || time == null) {
+      departureDate = null;
+      notifyListeners();
+      return;
+    }
+
+    departureDate = _setDateTimeWithTimeZone(date, time, timezone);
+    notifyListeners();
+  }
+
+  void setArrivalDateTime(DateTime? date, TimeOfDay? time, String timezone)
+  {
+     hasArrivalDateTime = (
+      arrDate: date != null,
+      arrTime: time != null,
+    );
+
+    // If missing either field, do not compute a full DateTime
+    if (date == null || time == null) {
+      arrivalDate = null;
+      notifyListeners();
+      return;
+    }
+
+    arrivalDate = _setDateTimeWithTimeZone(date, time, timezone);
     notifyListeners();
   }
 

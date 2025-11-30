@@ -20,6 +20,7 @@ import 'pages/settings_page.dart';
 import 'providers/settings_provider.dart';
 import 'l10n/app_localizations.dart';
 import 'providers/trainlog_provider.dart';
+import 'package:timezone/data/latest.dart' as tz;
 
 enum AppPageId {
   map,
@@ -38,6 +39,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Required before any async calls
 
   await AppCacheFilePath.init(); // Initialize paths here
+  tz.initializeTimeZones();
 
   final settings = SettingsProvider();
 

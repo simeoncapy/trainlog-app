@@ -1,6 +1,10 @@
 import 'package:duration/locale.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:trainlog_app/data/models/trip_form_model.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
+import 'package:lat_lng_to_timezone/lat_lng_to_timezone.dart' as tzmap;
+import 'package:trainlog_app/utils/date_utils.dart';
 
 class TripFormDate extends StatefulWidget {
   const TripFormDate({super.key});
@@ -10,7 +14,7 @@ class TripFormDate extends StatefulWidget {
 }
 
 class _TripFormDateState extends State<TripFormDate> {
-  String _scheduleMode = 'precise';
+  DateType _scheduleMode = DateType.precise;
   DateTime? _departureDate = DateTime.now();
   TimeOfDay? _departureTime;
   DateTime? _arrivalDate;
@@ -18,10 +22,11 @@ class _TripFormDateState extends State<TripFormDate> {
   bool _isPast = true;
   int? _durationHours;
   int? _durationMinutes;
-
+  
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
+    final model = context.watch<TripFormModel>();
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -34,11 +39,11 @@ class _TripFormDateState extends State<TripFormDate> {
               // --- Mode Selector ---
               SizedBox(
                 width: double.infinity,
-                child: SegmentedButton<String>(
+                child: SegmentedButton<DateType>(
                   segments: [
-                    ButtonSegment(value: 'precise', label: FittedBox(child: Text(loc.addTripDateTypePrecise, softWrap: false))),
-                    ButtonSegment(value: 'unknown', label: FittedBox(child: Text(loc.addTripDateTypeUnknown, softWrap: false))),
-                    ButtonSegment(value: 'date', label: FittedBox(child: Text(loc.addTripDateTypeDate, softWrap: false))),
+                    ButtonSegment(value: DateType.precise, label: FittedBox(child: Text(loc.addTripDateTypePrecise, softWrap: false))),
+                    ButtonSegment(value: DateType.unknown, label: FittedBox(child: Text(loc.addTripDateTypeUnknown, softWrap: false))),
+                    ButtonSegment(value: DateType.date,    label: FittedBox(child: Text(loc.addTripDateTypeDate, softWrap: false))),
                   ],
                   selected: {_scheduleMode},
                   onSelectionChanged: (value) {
@@ -48,9 +53,9 @@ class _TripFormDateState extends State<TripFormDate> {
               ),
               //const Divider(height: 24),
               const SizedBox(height: 16),
-              if (_scheduleMode == 'precise') ..._buildPreciseMode(loc),
-              if (_scheduleMode == 'unknown') ..._buildUnknownMode(loc),
-              if (_scheduleMode == 'date') ..._buildDateMode(loc),
+              if (_scheduleMode == DateType.precise) ..._buildPreciseMode(loc, model),
+              if (_scheduleMode == DateType.unknown) ..._buildUnknownMode(loc, model),
+              if (_scheduleMode == DateType.date) ..._buildDateMode(loc, model),
             ],
           ),
           const SizedBox(height: 16),
@@ -59,7 +64,10 @@ class _TripFormDateState extends State<TripFormDate> {
     );
   }
   
-  _buildPreciseMode(AppLocalizations loc) {
+  _buildPreciseMode(AppLocalizations loc, TripFormModel model) {
+    String departureTimezone = tzmap.latLngToTimezoneString(model.departureLat!, model.departureLong!);
+    String arrivalTimezone = tzmap.latLngToTimezoneString(model.arrivalLat!, model.arrivalLong!);
+
     return [
       Text(loc.addTripStartDate),
       const SizedBox(height: 4),
@@ -76,6 +84,7 @@ class _TripFormDateState extends State<TripFormDate> {
               ),
               decoration: InputDecoration(
                 border: const OutlineInputBorder(),
+                helperText: "",
                 suffixIcon: IconButton(
                   icon: const Icon(Icons.calendar_today),
                   onPressed: () async {
@@ -87,6 +96,7 @@ class _TripFormDateState extends State<TripFormDate> {
                     );
                     if (picked != null) {
                       setState(() => _departureDate = picked);
+                      model.setDepartureDateTime(_departureDate, _departureTime, departureTimezone);
                     }
                   },
                 ),
@@ -101,9 +111,10 @@ class _TripFormDateState extends State<TripFormDate> {
                 text: _departureTime != null
                     ? _departureTime!.format(context)
                     : '',
-              ),
+              ),     
               decoration: InputDecoration(
                 border: const OutlineInputBorder(),
+                helperText: departureTimezone,
                 suffixIcon: IconButton(
                   icon: const Icon(Icons.access_time),
                   onPressed: () async {
@@ -113,6 +124,7 @@ class _TripFormDateState extends State<TripFormDate> {
                     );
                     if (picked != null) {
                       setState(() => _departureTime = picked);
+                      model.setDepartureDateTime(_departureDate, _departureTime, departureTimezone);
                     }
                   },
                 ),
@@ -137,6 +149,7 @@ class _TripFormDateState extends State<TripFormDate> {
               ),
               decoration: InputDecoration(
                 border: const OutlineInputBorder(),
+                helperText: "",
                 suffixIcon: IconButton(
                   icon: const Icon(Icons.calendar_today),
                   onPressed: () async {
@@ -148,6 +161,7 @@ class _TripFormDateState extends State<TripFormDate> {
                     );
                     if (picked != null) {
                       setState(() => _arrivalDate = picked);
+                      model.setArrivalDateTime(_arrivalDate, _arrivalTime, arrivalTimezone);
                     }
                   },
                 ),
@@ -165,6 +179,7 @@ class _TripFormDateState extends State<TripFormDate> {
               ),
               decoration: InputDecoration(
                 border: const OutlineInputBorder(),
+                helperText: arrivalTimezone,
                 suffixIcon: IconButton(
                   icon: const Icon(Icons.access_time),
                   onPressed: () async {
@@ -174,6 +189,7 @@ class _TripFormDateState extends State<TripFormDate> {
                     );
                     if (picked != null) {
                       setState(() => _arrivalTime = picked);
+                      model.setArrivalDateTime(_arrivalDate, _arrivalTime, arrivalTimezone);
                     }
                   },
                 ),
@@ -182,10 +198,15 @@ class _TripFormDateState extends State<TripFormDate> {
           ),
         ],
       ),
+      const SizedBox(height: 8,),
+      Text(
+        loc.timezoneInformation,
+        style: Theme.of(context).textTheme.bodySmall,
+      ),
     ];
   }
   
-  _buildUnknownMode(AppLocalizations loc) {
+  _buildUnknownMode(AppLocalizations loc, TripFormModel model) {
     final localeCode = Localizations.localeOf(context).languageCode;
     final durLoc = DurationLocale.fromLanguageCode(localeCode) ?? const EnglishDurationLocale();
     return [
@@ -210,7 +231,7 @@ class _TripFormDateState extends State<TripFormDate> {
         ],
       ),
       const SizedBox(height: 8),
-      Text(loc.addTripDuration),
+      Text("${loc.addTripDuration} (${loc.facultative})"),
       const SizedBox(height: 4),
       Row(
         children: [
@@ -240,7 +261,7 @@ class _TripFormDateState extends State<TripFormDate> {
     ];
   }
   
-  _buildDateMode(AppLocalizations loc) {
+  _buildDateMode(AppLocalizations loc, TripFormModel model) {
     final localeCode = Localizations.localeOf(context).languageCode;
     final durLoc = DurationLocale.fromLanguageCode(localeCode) ?? const EnglishDurationLocale();
     return [
@@ -271,7 +292,7 @@ class _TripFormDateState extends State<TripFormDate> {
         ),
       ),
       const SizedBox(height: 12),
-      Text(loc.addTripDuration),
+      Text("${loc.addTripDuration} (${loc.facultative})"),
       const SizedBox(height: 4),
       Row(
         children: [

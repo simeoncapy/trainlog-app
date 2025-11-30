@@ -113,6 +113,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get fillRequiredFields => '必須項目を入力してください';
 
   @override
+  String get facultative => '任意';
+
+  @override
   String get settingsAppCategory => 'アプリ設定';
 
   @override
@@ -622,6 +625,9 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get addTripFuture => '未来';
+
+  @override
+  String get timezoneInformation => 'タイムゾーンは、出発地点と到着地点の座標に基づいて決定されます。';
 
   @override
   String get addTripFacultative => '任意項目';

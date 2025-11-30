@@ -34,6 +34,7 @@
   "energyHydrogen": "水素",
   "manual": "手動",
   "fillRequiredFields": "必須項目を入力してください",
+  "facultative": "任意",
 
   "settingsAppCategory": "アプリ設定",
   "settingsMapCategory": "地図設定",
@@ -178,6 +179,7 @@
   "addTripDuration": "時間",
   "addTripPast": "過去",
   "addTripFuture": "未来",
+  "timezoneInformation": "タイムゾーンは、出発地点と到着地点の座標に基づいて決定されます。",
   "addTripFacultative": "任意項目",
   "addTripMaterial": "車両名",
   "addTripRegistration": "登録番号",

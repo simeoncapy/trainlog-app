@@ -114,6 +114,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get fillRequiredFields => 'Veuillez remplir les champs obligatoires';
 
   @override
+  String get facultative => 'facultatif';
+
+  @override
   String get settingsAppCategory => 'Paramètres de l\'application';
 
   @override
@@ -604,7 +607,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get addTripLine => 'Ligne';
 
   @override
-  String get addTripDateTypePrecise => 'Précis';
+  String get addTripDateTypePrecise => 'Précise';
 
   @override
   String get addTripDateTypeUnknown => 'Inconnue';
@@ -626,6 +629,10 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get addTripFuture => 'Futur';
+
+  @override
+  String get timezoneInformation =>
+      'Les fuseaux horaires sont déterminés en fonction des coordonnées du point de départ et du point d’arrivée.';
 
   @override
   String get addTripFacultative => 'Champs facultatifs';

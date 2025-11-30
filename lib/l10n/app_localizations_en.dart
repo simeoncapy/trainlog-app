@@ -113,6 +113,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fillRequiredFields => 'Please fill the required fields';
 
   @override
+  String get facultative => 'facultative';
+
+  @override
   String get settingsAppCategory => 'App Settings';
 
   @override
@@ -624,6 +627,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get addTripFuture => 'Future';
+
+  @override
+  String get timezoneInformation =>
+      'The time zones are based on the coordinates of the departure and the arrival.';
 
   @override
   String get addTripFacultative => 'Facultative fields';

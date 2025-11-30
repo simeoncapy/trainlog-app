@@ -304,6 +304,12 @@ abstract class AppLocalizations {
   /// **'Please fill the required fields'**
   String get fillRequiredFields;
 
+  /// No description provided for @facultative.
+  ///
+  /// In en, this message translates to:
+  /// **'facultative'**
+  String get facultative;
+
   /// No description provided for @settingsAppCategory.
   ///
   /// In en, this message translates to:
@@ -1101,6 +1107,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Future'**
   String get addTripFuture;
+
+  /// No description provided for @timezoneInformation.
+  ///
+  /// In en, this message translates to:
+  /// **'The time zones are based on the coordinates of the departure and the arrival.'**
+  String get timezoneInformation;
 
   /// No description provided for @addTripFacultative.
   ///

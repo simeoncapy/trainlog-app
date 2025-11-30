@@ -39,6 +39,8 @@ dependencies:
   step_progress: ^2.7.0
   duration: ^3.0.13
   unorm_dart: ^0.3.2
+  lat_lng_to_timezone: ^0.2.0
+  timezone: ^0.10.1
 
 dev_dependencies:
   flutter_test:

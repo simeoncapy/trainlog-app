@@ -43,6 +43,7 @@
     "description": "manual (opposed as automatic). Should be gender and number neutral."
   },
   "fillRequiredFields": "Please fill the required fields",
+  "facultative": "facultative",
     
   "settingsAppCategory": "App Settings",
   "settingsMapCategory": "Map Settings",
@@ -269,6 +270,7 @@
   "addTripDuration": "Duration",
   "addTripPast": "Past",
   "addTripFuture": "Future",
+  "timezoneInformation": "The time zones are based on the coordinates of the departure and the arrival.",
   "addTripFacultative": "Facultative fields",
   "addTripMaterial": "Material",
   "addTripRegistration": "Registration",
