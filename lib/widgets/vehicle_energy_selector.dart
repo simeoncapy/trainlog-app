@@ -25,12 +25,12 @@ class _VehicleEnergySelectorState extends State<VehicleEnergySelector> {
         ),
         ButtonSegment(
           value: EnergyType.electric,
-          label: Text(loc.energyElectric),
+          label: Text(loc.energyElectricShort),
           icon: Icon(Icons.bolt),
         ),
         ButtonSegment(
           value: EnergyType.thermic,
-          label: Text(loc.energyThermic),
+          label: Text(loc.energyThermicShort),
           icon: Icon(Icons.local_fire_department),
         ),
       ],

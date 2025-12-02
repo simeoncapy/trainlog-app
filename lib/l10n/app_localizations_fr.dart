@@ -102,10 +102,19 @@ class AppLocalizationsFr extends AppLocalizations {
   String get energyElectric => 'Électrique';
 
   @override
+  String get energyElectricShort => 'Élec.';
+
+  @override
   String get energyThermic => 'Thermique';
 
   @override
+  String get energyThermicShort => 'Therm.';
+
+  @override
   String get energyHydrogen => 'Hydrogène';
+
+  @override
+  String get energyHydrogenShort => 'H2';
 
   @override
   String get manual => 'manuel';

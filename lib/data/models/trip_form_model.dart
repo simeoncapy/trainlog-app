@@ -64,7 +64,7 @@ class TripFormModel extends ChangeNotifier {
 
   bool arrivalIsAfterDeparture() {
     if (departureDate == null || arrivalDate == null) return false;
-    return arrivalDate!.isAfter(departureDate!);
+    return !arrivalDate!.isBefore(departureDate!);
   }
 
   // -----------------------------

@@ -101,10 +101,19 @@ class AppLocalizationsJa extends AppLocalizations {
   String get energyElectric => '電動';
 
   @override
+  String get energyElectricShort => '電動';
+
+  @override
   String get energyThermic => 'ガソリン';
 
   @override
+  String get energyThermicShort => 'ガソリン';
+
+  @override
   String get energyHydrogen => '水素';
+
+  @override
+  String get energyHydrogenShort => 'H2';
 
   @override
   String get manual => '手動';

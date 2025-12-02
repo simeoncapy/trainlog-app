@@ -280,17 +280,35 @@ abstract class AppLocalizations {
   /// **'Electric'**
   String get energyElectric;
 
+  /// No description provided for @energyElectricShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Elec.'**
+  String get energyElectricShort;
+
   /// No description provided for @energyThermic.
   ///
   /// In en, this message translates to:
   /// **'Fuel'**
   String get energyThermic;
 
+  /// No description provided for @energyThermicShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Fuel'**
+  String get energyThermicShort;
+
   /// No description provided for @energyHydrogen.
   ///
   /// In en, this message translates to:
   /// **'Hydrogen'**
   String get energyHydrogen;
+
+  /// No description provided for @energyHydrogenShort.
+  ///
+  /// In en, this message translates to:
+  /// **'H2'**
+  String get energyHydrogenShort;
 
   /// manual (opposed as automatic). Should be gender and number neutral.
   ///

@@ -36,8 +36,11 @@
   "auto": "Auto",
   "energy": "Energy",
   "energyElectric": "Electric",
+  "energyElectricShort": "Elec.",
   "energyThermic": "Fuel",
+  "energyThermicShort": "Fuel",
   "energyHydrogen": "Hydrogen",
+  "energyHydrogenShort": "H2",
   "manual": "manual",
   "@manual" :{
     "description": "manual (opposed as automatic). Should be gender and number neutral."

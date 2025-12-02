@@ -78,8 +78,9 @@ class _TripFormDateState extends State<TripFormDate> {
               readOnly: true,
               controller: TextEditingController(
                 text: _departureDate != null
-                    ? MaterialLocalizations.of(context)
-                        .formatMediumDate(_departureDate!)
+                    ? formatDateTime(context, _departureDate!, hasTime: false)
+                    //? MaterialLocalizations.of(context).formatCompactDate(_departureDate!)
+                        //.formatMediumDate(_departureDate!)
                     : '',
               ),
               decoration: InputDecoration(
@@ -143,8 +144,8 @@ class _TripFormDateState extends State<TripFormDate> {
               readOnly: true,
               controller: TextEditingController(
                 text: _arrivalDate != null
-                    ? MaterialLocalizations.of(context)
-                        .formatMediumDate(_arrivalDate!)
+                    ? formatDateTime(context, _arrivalDate!, hasTime: false)
+                        //.formatMediumDate(_arrivalDate!)
                     : '',
               ),
               decoration: InputDecoration(
