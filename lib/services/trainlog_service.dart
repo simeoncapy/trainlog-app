@@ -151,6 +151,29 @@ class TrainlogService {
         options: Options(contentType: Headers.formUrlEncodedContentType),
       );
 
+  Future<Response<T>> _safeGet<T>(
+    String path, {
+    Map<String, dynamic>? query,
+    ResponseType responseType = ResponseType.json,
+    bool followRedirects = true,
+    int maxRedirects = 5,
+    Map<String, dynamic>? headers,
+    ValidateStatus? validate,
+  }) async {
+    return _dio.get<T>(
+      path,
+      queryParameters: query,
+      options: Options(
+        followRedirects: followRedirects,
+        maxRedirects: maxRedirects,
+        responseType: responseType,
+        headers: headers,
+        validateStatus: validate ??
+            (s) => s != null && s >= 200 && s < 400, // default logic everywhere
+      ),
+    );
+  }
+
   // (Optional) replace when you have a real endpoint
   Future<String?> fetchUsernameViaApi() async {
     // TODO: call Trainlog’s real endpoint to get the current user
@@ -163,15 +186,12 @@ class TrainlogService {
   Future<String> fetchAllTripsData(String username) async {
     final path = '/u/$username/export';
     try {
-      final res = await _dio.get<String>(
+      final res = await _safeGet<String>(
         path,
-        options: Options(
-          followRedirects: true,     // follow harmless redirects
-          maxRedirects: 5,
-          responseType: ResponseType.plain, // get raw CSV as String
-          headers: {'Accept': 'text/csv, text/plain;q=0.9, */*;q=0.8'},
-          validateStatus: (s) => s != null && s >= 200 && s < 400,
-        ),
+        responseType: ResponseType.plain,
+        headers: {
+          'Accept': 'text/csv, text/plain;q=0.9, */*;q=0.8',
+        },
       );
 
       // If we still ended at a redirect, check if it's a login redirect
@@ -198,15 +218,7 @@ class TrainlogService {
   Future<Map<String, String>> fetchAllOperatorLogosUrl(String username) async {
     final path = '/u/$username/getManAndOps/train';
 
-    final res = await _dio.get<Map<String, dynamic>>(
-      path,
-      options: Options(
-        followRedirects: true,
-        maxRedirects: 5,
-        responseType: ResponseType.json,
-        validateStatus: (s) => s != null && s >= 200 && s < 400,
-      ),
-    );
+    final res = await _safeGet<Map<String, dynamic>>(path);
 
     final data = res.data; // already decoded JSON
     if (data == null) return {};
@@ -230,15 +242,7 @@ class TrainlogService {
         ? '/u/$username/getStats/${type.toShortString()}'
         : '/u/$username/getStats/$year/${type.toShortString()}';
 
-    final res = await _dio.get<Map<String, dynamic>>(
-      path,
-      options: Options(
-        followRedirects: true,
-        maxRedirects: 5,
-        responseType: ResponseType.json,
-        validateStatus: (s) => s != null && s >= 200 && s < 400,
-      ),
-    );
+    final res = await _safeGet<Map<String, dynamic>>(path);
 
     final data = res.data; // already decoded JSON
     if (data == null) return {};
@@ -284,16 +288,8 @@ class TrainlogService {
     Map<String, dynamic>? data;
 
     try{
-        final res = await _dio.get<Map<String, dynamic>>(
-        path,
-        options: Options(
-          followRedirects: true,
-          maxRedirects: 5,
-          responseType: ResponseType.json,
-          validateStatus: (s) => s != null && s >= 200 && s < 400,
-        ),
-      );
-      data = res.data;
+        final res = await _safeGet<Map<String, dynamic>>(path);
+        data = res.data;
     } on DioException catch (e) {
       if (e.error is HttpException &&
           e.error.toString().contains("Connection closed before full header was received")) {
@@ -412,16 +408,7 @@ class TrainlogService {
     path += query;
 
     if(type == VehicleType.plane) {
-
-      final res = await _dio.get<List<dynamic>>(
-        path,
-        options: Options(
-          followRedirects: true,
-          maxRedirects: 5,
-          responseType: ResponseType.json,
-          validateStatus: (s) => s != null && s >= 200 && s < 400,
-        ),
-      );
+      final res = await _safeGet<List<dynamic>>(path);
 
       final data = res.data;
       if (data == null) {
@@ -431,15 +418,7 @@ class TrainlogService {
       return _airportListGenerator(data);
     }
 
-    final res = await _dio.get<Map<String, dynamic>>(
-      path,
-      options: Options(
-        followRedirects: true,
-        maxRedirects: 5,
-        responseType: ResponseType.json,
-        validateStatus: (s) => s != null && s >= 200 && s < 400,
-      ),
-    );
+    final res = await _safeGet<Map<String, dynamic>>(path);
 
     final data = res.data;
     if (data == null) {
