@@ -411,6 +411,26 @@ class TrainlogService {
     }
     path += query;
 
+    if(type == VehicleType.plane) {
+
+      final res = await _dio.get<List<dynamic>>(
+        path,
+        options: Options(
+          followRedirects: true,
+          maxRedirects: 5,
+          responseType: ResponseType.json,
+          validateStatus: (s) => s != null && s >= 200 && s < 400,
+        ),
+      );
+
+      final data = res.data;
+      if (data == null) {
+        return {};
+      }
+
+      return _airportListGenerator(data);
+    }
+
     final res = await _dio.get<Map<String, dynamic>>(
       path,
       options: Options(
@@ -426,15 +446,10 @@ class TrainlogService {
       return {};
     }
 
-    if(type == VehicleType.plane) {
-      return _airportListGenerator(data);
-    }
-
     return _stationListGenerator(data);
   }
 
-  Map<String, (LatLng, String)> _airportListGenerator(Map<String, dynamic> data) {
-    final List airports = data as List;
+  Map<String, (LatLng, String)> _airportListGenerator(List<dynamic> airports) {
     final result = <String, (LatLng, String)>{};
 
     for (final raw in airports) {
