@@ -257,6 +257,7 @@
   "addTripArrival": "Arrival",
   "addTripLatitudeShort": "Lat",
   "addTripLongitudeShort": "Long",
+  "addTripMapUsageHelper": "In manual mode you can enter the coordinates directly or move the marker to the desired position after expanding the map.",
   "addTripOperator": "Operator",
   "addTripOperatorHelper": "Use a comma or enter to validate an unknown operator",
   "addTripOperatorHint" : "Search operator...",

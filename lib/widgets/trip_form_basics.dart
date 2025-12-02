@@ -155,6 +155,12 @@ class TripFormBasics extends StatelessWidget {
                         emptyMessage:
                             loc.enterStation("departure", vehicleType),
                         markerColor: Colors.green,
+                        isCoordinateMovable: model.departureGeoMode,
+                        onCoordinateChanged: (lat, long) {
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            model.updateDepartureCoords(lat, long);
+                          });
+                        },
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -165,9 +171,21 @@ class TripFormBasics extends StatelessWidget {
                         emptyMessage:
                             loc.enterStation("arrival", vehicleType),
                         markerColor: Colors.red,
+                        isCoordinateMovable: model.arrivalGeoMode,
+                        onCoordinateChanged: (lat, long) {
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            model.updateArrivalCoords(lat, long);
+                          });
+                        },
                       ),
                     ),
                   ],
+                ),
+                const SizedBox(height: 8,),
+                Text(
+                  loc.addTripMapUsageHelper,
+                  softWrap: true,
+                  style: Theme.of(context).textTheme.bodySmall,
                 ),
               ],
             ),

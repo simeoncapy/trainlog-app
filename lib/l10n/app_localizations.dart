@@ -1030,6 +1030,12 @@ abstract class AppLocalizations {
   /// **'Long'**
   String get addTripLongitudeShort;
 
+  /// No description provided for @addTripMapUsageHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'In manual mode you can enter the coordinates directly or move the marker to the desired position after expanding the map.'**
+  String get addTripMapUsageHelper;
+
   /// No description provided for @addTripOperator.
   ///
   /// In en, this message translates to:

@@ -589,6 +589,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addTripLongitudeShort => 'Long';
 
   @override
+  String get addTripMapUsageHelper =>
+      'In manual mode you can enter the coordinates directly or move the marker to the desired position after expanding the map.';
+
+  @override
   String get addTripOperator => 'Operator';
 
   @override

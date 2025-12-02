@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
@@ -81,16 +83,29 @@ class _StationFieldsSwitcherState extends State<StationFieldsSwitcher>
 
     _geoMode = widget.initialGeoMode;
 
-    if (_geoMode) {
-      _latCtl.text = widget.initialLat?.toString() ?? "";
-      _longCtl.text = widget.initialLng?.toString() ?? "";
+    //if (_geoMode) {
+      _latCtl.text = (widget.initialLat ?? 0.0).toString();
+      _longCtl.text = (widget.initialLng ?? 0.0).toString();
       _manualNameCtl.text = widget.initialStationName ?? "";
-    } else {
+    //} else {
       _nameCtl.text = widget.initialStationName ?? "";
       _savedLat = widget.initialLat;
       _savedLng = widget.initialLng;
-    }
+    //}
     _currentAddress = widget.initialAddress ?? '';
+  }
+
+  @override
+  void didUpdateWidget(covariant StationFieldsSwitcher oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // Only update if geoMode AND new coords are provided
+    if (_geoMode && widget.initialLat != oldWidget.initialLat) {
+      _latCtl.text = (widget.initialLat ?? 0.0).toString();
+    }
+    if (_geoMode && widget.initialLng != oldWidget.initialLng) {
+      _longCtl.text = (widget.initialLng ?? 0.0).toString();
+    }
   }
 
   // ------------------------------
@@ -234,7 +249,7 @@ class _StationFieldsSwitcherState extends State<StationFieldsSwitcher>
     final loc = AppLocalizations.of(context)!;
     final border = const OutlineInputBorder();
     final searchIcon = widget.searchIcon ?? Icons.search;
-    final globeIcon = widget.globePinIcon ?? Icons.public;
+    final globeIcon = widget.globePinIcon ?? Symbols.globe_location_pin;
 
     Widget actionButton(IconData icon, VoidCallback onTap) {
       return Material(
@@ -311,6 +326,9 @@ class _StationFieldsSwitcherState extends State<StationFieldsSwitcher>
                   labelText: loc.addTripLatitudeShort,
                   border: border,
                 ),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),
+                ],
                 onChanged: (_) => _emitValues(),
               ),
             ),
@@ -324,6 +342,9 @@ class _StationFieldsSwitcherState extends State<StationFieldsSwitcher>
                   labelText: loc.addTripLongitudeShort,
                   border: border,
                 ),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),
+                ],
                 onChanged: (_) => _emitValues(),
               ),
             ),

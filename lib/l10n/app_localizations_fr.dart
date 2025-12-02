@@ -591,6 +591,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get addTripLongitudeShort => 'Long';
 
   @override
+  String get addTripMapUsageHelper =>
+      'En mode manuel vous pouvez saisir les coordonnées directement ou déplacer le marqueur à l’emplacement souhaité après avoir agrandi la carte.';
+
+  @override
   String get addTripOperator => 'Opérateur';
 
   @override

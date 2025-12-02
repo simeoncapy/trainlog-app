@@ -165,6 +165,7 @@
   "addTripArrival": "Arrivée",
   "addTripLatitudeShort": "Lat",
   "addTripLongitudeShort": "Long",
+  "addTripMapUsageHelper": "En mode manuel vous pouvez saisir les coordonnées directement ou déplacer le marqueur à l’emplacement souhaité après avoir agrandi la carte.",
   "addTripOperator": "Opérateur",
   "addTripOperatorHelper": "Virgule ou Entrée pour valider un opérateur inconnu",
   "addTripOperatorHint" : "Rechercher un opérateur...",

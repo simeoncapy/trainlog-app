@@ -140,6 +140,12 @@ class TripFormModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void updateDepartureCoords(double lat, double long) {
+    departureLat = lat;
+    departureLong = long;
+    notifyListeners();
+  }
+
   void setArrival({
     String? name,
     double? lat,
@@ -152,6 +158,12 @@ class TripFormModel extends ChangeNotifier {
     arrivalLong = long;
     arrivalAddress = address;
     arrivalGeoMode = geoMode ?? false;
+    notifyListeners();
+  }
+
+  void updateArrivalCoords(double lat, double long) {
+    arrivalLat = lat;
+    arrivalLong = long;
     notifyListeners();
   }
 

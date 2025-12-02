@@ -588,6 +588,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get addTripLongitudeShort => '経度';
 
   @override
+  String get addTripMapUsageHelper =>
+      '手動モードでは座標を直接入力することも、地図を拡大してマーカーを目的の位置まで移動することもできます。';
+
+  @override
   String get addTripOperator => '事業者';
 
   @override
