@@ -3,9 +3,10 @@ import 'package:provider/provider.dart';
 import 'package:step_progress/step_progress.dart';
 import 'package:trainlog_app/data/models/trip_form_model.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
-import 'package:trainlog_app/widgets/trip_form_basics.dart';
-import 'package:trainlog_app/widgets/trip_form_date.dart';
-import 'package:trainlog_app/widgets/trip_form_details.dart';
+import 'package:trainlog_app/pages/trip_form_basics.dart';
+import 'package:trainlog_app/pages/trip_form_date.dart';
+import 'package:trainlog_app/pages/trip_form_details.dart';
+import 'package:trainlog_app/pages/trip_form_path.dart';
 
 class AddTripPage extends StatefulWidget {
   const AddTripPage({super.key});
@@ -107,6 +108,94 @@ class _AddTripPageState extends State<AddTripPage> {
     );
   }
 
+  Widget _bottomButtonHelper(bool isLastStep)
+  {
+    final loc = AppLocalizations.of(context)!;
+
+    if(isLastStep)
+    {
+      return Column(
+        children: [
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              icon: Icon(Icons.check, size: 24,),
+              label: Text(
+                loc.validateButton,
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              ),
+              onPressed: _validateTrip,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                padding: const EdgeInsets.symmetric(vertical: 18),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(28),
+                ),
+                elevation: 3,
+              ),
+            ),
+          ),
+          SizedBox(height: 8,),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: _validateTrip,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.secondary,
+                foregroundColor: Theme.of(context).colorScheme.onSecondary,
+                padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(28),
+                ),
+                elevation: 3,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.subdirectory_arrow_right, size: 24),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Text(
+                      loc.continueTripButton,
+                      textAlign: TextAlign.center,
+                      softWrap: true,
+                      maxLines: 2,
+                      overflow: TextOverflow.visible,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          )
+        ],
+      );
+    }
+    else{
+      return ElevatedButton.icon(
+        icon: Icon(Icons.arrow_forward, size: 24,),
+        label: Text(
+          loc.nextButton,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        ),
+        onPressed: _nextStep,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
+          foregroundColor: Theme.of(context).colorScheme.onSecondaryContainer,
+          padding: const EdgeInsets.symmetric(vertical: 18),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(28),
+          ),
+          elevation: 3,
+        ),
+      );
+    }    
+  }
+
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
@@ -165,7 +254,7 @@ class _AddTripPageState extends State<AddTripPage> {
                 TripFormBasics(),
                 TripFormDate(),
                 TripFormDetails(),
-                Center(child: Text("Path placeholder page")),
+                TripFormPath(),
               ],
             ),
           ),
@@ -173,33 +262,11 @@ class _AddTripPageState extends State<AddTripPage> {
           // Bottom button
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            child: SizedBox(
-              width: double.infinity,
-              height: 40, // makes it taller
-              child: ElevatedButton.icon(
-                icon: Icon(
-                  isLastStep ? Icons.check : Icons.arrow_forward,
-                  size: 24,
-                ),
-                label: Text(
-                  isLastStep ? loc.validateButton : loc.nextButton,
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                ),
-                onPressed: _nextStep,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: isLastStep
-                      ? Theme.of(context).colorScheme.primary
-                      : Theme.of(context).colorScheme.secondaryContainer,
-                  foregroundColor: isLastStep
-                      ? Theme.of(context).colorScheme.onPrimary
-                      : Theme.of(context).colorScheme.onSecondaryContainer,
-                  padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 18),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(28),
-                  ),
-                  elevation: 3,
-                ),
-              ),
+            child: isLastStep ? _bottomButtonHelper(isLastStep) 
+                  : SizedBox(
+                    width: double.infinity,
+                    height: 40,
+                    child: _bottomButtonHelper(isLastStep),
             ),
           ),
         ],

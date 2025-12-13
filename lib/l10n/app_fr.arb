@@ -26,6 +26,7 @@
   "nextButton": "Suivant",
   "previousButton": "Précédent",
   "validateButton": "Valider",
+  "continueButton": "Continuer",
   "nameField": "Nom",
   "auto": "Auto",
   "energy": "Énergie",
@@ -41,6 +42,7 @@
   "visibilityPublic": "Public",
   "visibilityFriends": "Amis",
   "visibilityPrivate": "Privé",
+  "helpTitle": "Aide",
 
   "settingsAppCategory": "Paramètres de l'application",
   "settingsMapCategory": "Paramètres de la carte",
@@ -195,5 +197,7 @@
   "addTripNotes": "Note",
   "addTripTicketTitle": "Billet",
   "addTripTicketPrice": "Prix du billet",
-  "addTripPurchaseDate": "Date d'achat"
+  "addTripPurchaseDate": "Date d'achat",
+  "continueTripButton": "Valider et continuer le voyage",
+  "addTripPathUseNewRouter": "Utiliser le nouveau routeur"
 }

@@ -256,6 +256,12 @@ abstract class AppLocalizations {
   /// **'Validate'**
   String get validateButton;
 
+  /// No description provided for @continueButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get continueButton;
+
   /// No description provided for @nameField.
   ///
   /// In en, this message translates to:
@@ -351,6 +357,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Private'**
   String get visibilityPrivate;
+
+  /// No description provided for @helpTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Help'**
+  String get helpTitle;
 
   /// No description provided for @settingsAppCategory.
   ///
@@ -1221,6 +1233,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Purchase date'**
   String get addTripPurchaseDate;
+
+  /// No description provided for @continueTripButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Validate and continue the trip'**
+  String get continueTripButton;
+
+  /// No description provided for @addTripPathUseNewRouter.
+  ///
+  /// In en, this message translates to:
+  /// **'Use the new router'**
+  String get addTripPathUseNewRouter;
 }
 
 class _AppLocalizationsDelegate

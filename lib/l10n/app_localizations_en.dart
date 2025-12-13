@@ -89,6 +89,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get validateButton => 'Validate';
 
   @override
+  String get continueButton => 'Continue';
+
+  @override
   String get nameField => 'Name';
 
   @override
@@ -135,6 +138,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get visibilityPrivate => 'Private';
+
+  @override
+  String get helpTitle => 'Help';
 
   @override
   String get settingsAppCategory => 'App Settings';
@@ -686,4 +692,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get addTripPurchaseDate => 'Purchase date';
+
+  @override
+  String get continueTripButton => 'Validate and continue the trip';
+
+  @override
+  String get addTripPathUseNewRouter => 'Use the new router';
 }

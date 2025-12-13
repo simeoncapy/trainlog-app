@@ -26,6 +26,7 @@
   "nextButton": "次へ",
   "previousButton": "戻る",
   "validateButton": "確認",
+  "continueButton": "続く",
   "nameField": "名前",
   "auto": "自動",
   "energy": "エネルギー",
@@ -41,6 +42,7 @@
   "visibilityPublic": "公開",
   "visibilityFriends": "フレンドのみ",
   "visibilityPrivate": "非公開",
+  "helpTitle": "使い方",
 
   "settingsAppCategory": "アプリ設定",
   "settingsMapCategory": "地図設定",
@@ -196,5 +198,7 @@
   "addTripNotes": "メモ",
   "addTripTicketTitle": "乗車券",
   "addTripTicketPrice": "運賃",
-  "addTripPurchaseDate": "購入日"
+  "addTripPurchaseDate": "購入日",
+  "continueTripButton": "確認して旅行を続ける",
+  "addTripPathUseNewRouter": "新しいルーターを使用する"
 }

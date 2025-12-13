@@ -32,6 +32,7 @@
   "nextButton": "Next",
   "previousButton": "Previous",
   "validateButton": "Validate",
+  "continueButton": "Continue",  
   "nameField": "Name",
   "auto": "Auto",
   "energy": "Energy",
@@ -51,6 +52,7 @@
   "visibilityPublic": "Public",
   "visibilityFriends": "Friends",
   "visibilityPrivate": "Private",
+  "helpTitle": "Help",
     
   "settingsAppCategory": "App Settings",
   "settingsMapCategory": "Map Settings",
@@ -288,5 +290,7 @@
   "addTripNotes": "Note",
   "addTripTicketTitle": "Ticket",
   "addTripTicketPrice": "Ticket price",
-  "addTripPurchaseDate": "Purchase date"
+  "addTripPurchaseDate": "Purchase date",
+  "continueTripButton": "Validate and continue the trip",
+  "addTripPathUseNewRouter": "Use the new router"
 }
