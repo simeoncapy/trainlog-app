@@ -27,7 +27,7 @@ class _TripFormDetailsState extends State<TripFormDetails> {
 
     final model = context.read<TripFormModel>();
     _currencyCode = model.currencyCode ?? "EUR"; // TODO get user default currency
-    _selectedPurchaseDate = model.purchaseDate;
+    _selectedPurchaseDate = model.purchaseDate ?? DateTime.now();
   }
 
   @override

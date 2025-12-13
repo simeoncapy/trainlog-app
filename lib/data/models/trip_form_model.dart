@@ -147,7 +147,7 @@ class TripFormModel extends ChangeNotifier {
   }
 
   bool validateDetails() {
-    return true; // Decide your required fields
+    return true; // All facultative and no check required
   }
 
   void triggerBasicsValidation() {
