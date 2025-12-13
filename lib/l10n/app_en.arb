@@ -47,6 +47,10 @@
   },
   "fillRequiredFields": "Please fill the required fields",
   "facultative": "facultative",
+  "visibility": "Visibility",
+  "visibilityPublic": "Public",
+  "visibilityFriends": "Friends",
+  "visibilityPrivate": "Private",
     
   "settingsAppCategory": "App Settings",
   "settingsMapCategory": "Map Settings",
@@ -253,6 +257,7 @@
     "description": "Label for the last step when adding a trip. Choose a short word if possible"
   },
   "addTripTransportationMode": "Transportation mode",
+  "addTripImportFr24": "Import flight data from FR24",
   "addTipSearchStation": "Search ",
   "addTripManualDeparture": "Manual departure",
   "addTripManualArrival": "Manual arrival",
@@ -275,6 +280,7 @@
   "addTripPast": "Past",
   "addTripFuture": "Future",
   "timezoneInformation": "The time zones are based on the coordinates of the departure and the arrival.",
+  "addTripDepartureAfterArrival": "Departure after arrival!",
   "addTripFacultative": "Facultative fields",
   "addTripMaterial": "Material",
   "addTripRegistration": "Registration",

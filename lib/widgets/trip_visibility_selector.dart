@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 
-enum EnergyType { auto, electric, thermic }
+enum TripVisibility { public, friends, private }
 
-class VehicleEnergySelector extends StatelessWidget {
-  final EnergyType value;
-  final ValueChanged<EnergyType> onChanged;
+class TripVisibilitySelector extends StatelessWidget {
+  final TripVisibility value;
+  final ValueChanged<TripVisibility> onChanged;
 
-  const VehicleEnergySelector({
+  const TripVisibilitySelector({
     super.key,
     required this.value,
     required this.onChanged,
@@ -17,22 +17,22 @@ class VehicleEnergySelector extends StatelessWidget {
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
 
-    return SegmentedButton<EnergyType>(
+    return SegmentedButton<TripVisibility>(
       segments: [
         ButtonSegment(
-          value: EnergyType.auto,
-          label: Text(loc.auto),
-          icon: const Icon(Icons.auto_awesome),
+          value: TripVisibility.public,
+          label: Text(loc.visibilityPublic),
+          icon: const Icon(Icons.public),
         ),
         ButtonSegment(
-          value: EnergyType.electric,
-          label: Text(loc.energyElectricShort),
-          icon: const Icon(Icons.bolt),
+          value: TripVisibility.friends,
+          label: Text(loc.visibilityFriends),
+          icon: const Icon(Icons.people),
         ),
         ButtonSegment(
-          value: EnergyType.thermic,
-          label: Text(loc.energyThermicShort),
-          icon: const Icon(Icons.local_fire_department),
+          value: TripVisibility.private,
+          label: Text(loc.visibilityPrivate),
+          icon: const Icon(Icons.lock),
         ),
       ],
       selected: {value},

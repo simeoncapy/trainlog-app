@@ -125,6 +125,18 @@ class AppLocalizationsJa extends AppLocalizations {
   String get facultative => '任意';
 
   @override
+  String get visibility => '公開範囲';
+
+  @override
+  String get visibilityPublic => '公開';
+
+  @override
+  String get visibilityFriends => 'フレンドのみ';
+
+  @override
+  String get visibilityPrivate => '非公開';
+
+  @override
   String get settingsAppCategory => 'アプリ設定';
 
   @override
@@ -576,6 +588,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get addTripTransportationMode => '交通手段';
 
   @override
+  String get addTripImportFr24 => 'FR24からフライトデータをインポートする';
+
+  @override
   String get addTipSearchStation => 'Search ';
 
   @override
@@ -641,6 +656,9 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get timezoneInformation => 'タイムゾーンは、出発地点と到着地点の座標に基づいて決定されます。';
+
+  @override
+  String get addTripDepartureAfterArrival => '出発時間は到着時間より後です!';
 
   @override
   String get addTripFacultative => '任意項目';

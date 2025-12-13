@@ -87,6 +87,15 @@ class TripFormBasics extends StatelessWidget {
             content: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                if (model.vehicleType == VehicleType.plane)
+                  ...[
+                    ElevatedButton.icon(
+                      onPressed: null, 
+                      label: Text(loc.addTripImportFr24),
+                      icon: Icon(Icons.cloud_download),
+                    ),
+                    SizedBox(height: 12,),
+                  ],
                 Text(loc.addTripDeparture,
                     style: Theme.of(context).textTheme.titleSmall),
                 const SizedBox(height: 8,),
@@ -143,8 +152,7 @@ class TripFormBasics extends StatelessWidget {
                     );
                     model.clearArrivalError();
                   },
-                ),
-
+                ),              
                 const SizedBox(height: 12),
                 Row(
                   children: [

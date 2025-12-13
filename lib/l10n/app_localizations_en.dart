@@ -125,6 +125,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get facultative => 'facultative';
 
   @override
+  String get visibility => 'Visibility';
+
+  @override
+  String get visibilityPublic => 'Public';
+
+  @override
+  String get visibilityFriends => 'Friends';
+
+  @override
+  String get visibilityPrivate => 'Private';
+
+  @override
   String get settingsAppCategory => 'App Settings';
 
   @override
@@ -577,6 +589,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addTripTransportationMode => 'Transportation mode';
 
   @override
+  String get addTripImportFr24 => 'Import flight data from FR24';
+
+  @override
   String get addTipSearchStation => 'Search ';
 
   @override
@@ -644,6 +659,9 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get timezoneInformation =>
       'The time zones are based on the coordinates of the departure and the arrival.';
+
+  @override
+  String get addTripDepartureAfterArrival => 'Departure after arrival!';
 
   @override
   String get addTripFacultative => 'Facultative fields';

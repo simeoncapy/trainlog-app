@@ -126,6 +126,18 @@ class AppLocalizationsFr extends AppLocalizations {
   String get facultative => 'facultatif';
 
   @override
+  String get visibility => 'Visibilité';
+
+  @override
+  String get visibilityPublic => 'Public';
+
+  @override
+  String get visibilityFriends => 'Amis';
+
+  @override
+  String get visibilityPrivate => 'Privé';
+
+  @override
   String get settingsAppCategory => 'Paramètres de l\'application';
 
   @override
@@ -579,6 +591,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get addTripTransportationMode => 'Moyen de transport';
 
   @override
+  String get addTripImportFr24 => 'Importer les données du vol de FR24';
+
+  @override
   String get addTipSearchStation => 'Search ';
 
   @override
@@ -646,6 +661,9 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get timezoneInformation =>
       'Les fuseaux horaires sont déterminés en fonction des coordonnées du point de départ et du point d’arrivée.';
+
+  @override
+  String get addTripDepartureAfterArrival => 'Le départ est après l\'arrivée !';
 
   @override
   String get addTripFacultative => 'Champs facultatifs';

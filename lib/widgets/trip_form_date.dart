@@ -1,10 +1,13 @@
 import 'package:duration/locale.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:timezone/timezone.dart' as tz;
 import 'package:trainlog_app/data/models/trip_form_model.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:lat_lng_to_timezone/lat_lng_to_timezone.dart' as tzmap;
 import 'package:trainlog_app/utils/date_utils.dart';
+import 'package:trainlog_app/widgets/error_banner.dart';
 
 class TripFormDate extends StatefulWidget {
   const TripFormDate({super.key});
@@ -15,13 +18,77 @@ class TripFormDate extends StatefulWidget {
 
 class _TripFormDateState extends State<TripFormDate> {
   DateType _scheduleMode = DateType.precise;
-  DateTime? _departureDate = DateTime.now();
+  DateTime? _departureDate;// = DateTime.now();
+  DateTime? _departureDateOnly;
   TimeOfDay? _departureTime;
   DateTime? _arrivalDate;
   TimeOfDay? _arrivalTime;
   bool _isPast = true;
-  int? _durationHours;
-  int? _durationMinutes;
+  bool _isDepartureFilledFromNow = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    final model = context.read<TripFormModel>();
+    _scheduleMode = model.dateType;
+    _isPast = model.isPast;
+    _departureDateOnly = model.departureDayDateOnly;
+    _initPreciseFromModel(model);
+  }
+
+  void _initPreciseFromModel(TripFormModel model) {
+    // Departure
+    if (model.departureLat != null &&
+        model.departureLong != null) {
+
+      final departureTimezone = tzmap.latLngToTimezoneString(
+        model.departureLat!,
+        model.departureLong!,
+      );           
+
+      if (model.departureDate == null) {
+        final now = DateTime.now();
+
+        _departureDate = DateTime(now.year, now.month, now.day);
+        _departureTime = TimeOfDay(hour: now.hour, minute: now.minute);
+        _isDepartureFilledFromNow = true;
+      }
+      else {
+        final local = _convertUtcToTimezone(
+          model.departureDate!,
+          departureTimezone,
+        ); 
+
+        _departureDate = DateTime(local.year, local.month, local.day);
+        _departureTime = TimeOfDay(hour: local.hour, minute: local.minute);
+      }
+    }
+
+    // Arrival
+    if (model.arrivalDate != null &&
+        model.arrivalLat != null &&
+        model.arrivalLong != null) {
+
+      final arrivalTimezone = tzmap.latLngToTimezoneString(
+        model.arrivalLat!,
+        model.arrivalLong!,
+      );
+
+      final local = _convertUtcToTimezone(
+        model.arrivalDate!,
+        arrivalTimezone,
+      );
+
+      _arrivalDate = DateTime(local.year, local.month, local.day);
+      _arrivalTime = TimeOfDay(hour: local.hour, minute: local.minute);
+    }
+  }
+
+  DateTime _convertUtcToTimezone(DateTime utc, String timezone) {
+    final location = tz.getLocation(timezone);
+    return tz.TZDateTime.from(utc, location);
+  }
   
   @override
   Widget build(BuildContext context) {
@@ -47,7 +114,9 @@ class _TripFormDateState extends State<TripFormDate> {
                   ],
                   selected: {_scheduleMode},
                   onSelectionChanged: (value) {
-                    setState(() => _scheduleMode = value.first);
+                    setState(() => _scheduleMode = value.first
+                    );
+                    model.dateType = value.first;
                   },
                 ),
               ),
@@ -64,6 +133,10 @@ class _TripFormDateState extends State<TripFormDate> {
     );
   }
   
+  /* --------------------------------------------------------------
+     ******************** PRECISE *********************************
+     --------------------------------------------------------------
+  */
   _buildPreciseMode(AppLocalizations loc, TripFormModel model) {
     String departureTimezone = tzmap.latLngToTimezoneString(model.departureLat!, model.departureLong!);
     String arrivalTimezone = tzmap.latLngToTimezoneString(model.arrivalLat!, model.arrivalLong!);
@@ -93,7 +166,7 @@ class _TripFormDateState extends State<TripFormDate> {
                       context: context,
                       initialDate: _departureDate ?? DateTime.now(),
                       firstDate: DateTime(1900),
-                      lastDate: DateTime(2500),
+                      lastDate: DateTime(DateTime.now().year+200),
                     );
                     if (picked != null) {
                       setState(() => _departureDate = picked);
@@ -158,11 +231,15 @@ class _TripFormDateState extends State<TripFormDate> {
                       context: context,
                       initialDate: _arrivalDate ?? DateTime.now(),
                       firstDate: DateTime(1900),
-                      lastDate: DateTime(2500),
+                      lastDate: DateTime(DateTime.now().year+200),
                     );
                     if (picked != null) {
                       setState(() => _arrivalDate = picked);
                       model.setArrivalDateTime(_arrivalDate, _arrivalTime, arrivalTimezone);
+                      if(_isDepartureFilledFromNow) {
+                        model.setDepartureDateTime(_departureDate, _departureTime, departureTimezone);
+                        _isDepartureFilledFromNow = false;
+                      }
                     }
                   },
                 ),
@@ -191,6 +268,10 @@ class _TripFormDateState extends State<TripFormDate> {
                     if (picked != null) {
                       setState(() => _arrivalTime = picked);
                       model.setArrivalDateTime(_arrivalDate, _arrivalTime, arrivalTimezone);
+                      if(_isDepartureFilledFromNow) {
+                        model.setDepartureDateTime(_departureDate, _departureTime, departureTimezone);
+                        _isDepartureFilledFromNow = false;
+                      }
                     }
                   },
                 ),
@@ -204,9 +285,20 @@ class _TripFormDateState extends State<TripFormDate> {
         loc.timezoneInformation,
         style: Theme.of(context).textTheme.bodySmall,
       ),
+      if(model.hasDepartureAndArrivalDates() && !model.arrivalIsAfterDeparture())
+        ...[
+          SizedBox(height: 12,),
+          ErrorBanner(
+            message: loc.addTripDepartureAfterArrival,
+          )
+        ],
     ];
   }
   
+  /* --------------------------------------------------------------
+     ******************** UNKNOWN *********************************
+     --------------------------------------------------------------
+  */
   _buildUnknownMode(AppLocalizations loc, TripFormModel model) {
     final localeCode = Localizations.localeOf(context).languageCode;
     final durLoc = DurationLocale.fromLanguageCode(localeCode) ?? const EnglishDurationLocale();
@@ -218,7 +310,10 @@ class _TripFormDateState extends State<TripFormDate> {
               value: true,
               groupValue: _isPast,
               title: Text(loc.addTripPast),
-              onChanged: (v) => setState(() => _isPast = v!),
+              onChanged: (v) {
+                setState(() => _isPast = v!);
+                model.isPast = _isPast;
+              },
             ),
           ),
           Expanded(
@@ -226,7 +321,10 @@ class _TripFormDateState extends State<TripFormDate> {
               value: false,
               groupValue: _isPast,
               title: Text(loc.addTripFuture),
-              onChanged: (v) => setState(() => _isPast = v!),
+              onChanged: (v) {
+                setState(() => _isPast = v!);
+                model.isPast = _isPast;
+              },
             ),
           ),
         ],
@@ -238,23 +336,37 @@ class _TripFormDateState extends State<TripFormDate> {
         children: [
           Expanded(
             child: TextFormField(
+              key: const ValueKey('duration_hour_unknown'),
               keyboardType: TextInputType.number,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+              ],
               decoration: InputDecoration(
                 labelText: durLoc.hour(0, false),
                 border: OutlineInputBorder(),
               ),
-              onChanged: (v) => _durationHours = int.tryParse(v),
+              onChanged: (v) {
+                model.setDurationHour(DateType.unknown, int.tryParse(v));
+              },
+              initialValue: model.durationHourByType(DateType.unknown)?.toString(),
             ),
           ),
           const SizedBox(width: 8),
           Expanded(
             child: TextFormField(
+              key: const ValueKey('duration_minute_unknown'),
               keyboardType: TextInputType.number,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+              ],
               decoration: InputDecoration(
                 labelText: durLoc.minute(0, false),
                 border: OutlineInputBorder(),
               ),
-              onChanged: (v) => _durationMinutes = int.tryParse(v),
+              onChanged: (v) {
+                model.setDurationMinute(DateType.unknown, int.tryParse(v));
+              },
+              initialValue: model.durationMinuteByType(DateType.unknown)?.toString(),
             ),
           ),
         ],
@@ -262,6 +374,10 @@ class _TripFormDateState extends State<TripFormDate> {
     ];
   }
   
+  /* --------------------------------------------------------------
+     ******************** DATE ************************************
+     --------------------------------------------------------------
+  */
   _buildDateMode(AppLocalizations loc, TripFormModel model) {
     final localeCode = Localizations.localeOf(context).languageCode;
     final durLoc = DurationLocale.fromLanguageCode(localeCode) ?? const EnglishDurationLocale();
@@ -272,7 +388,7 @@ class _TripFormDateState extends State<TripFormDate> {
         readOnly: true,
         controller: TextEditingController(
           text: MaterialLocalizations.of(context)
-              .formatMediumDate(_departureDate ?? DateTime.now()),
+              .formatMediumDate(_departureDateOnly ?? DateTime.now()),
         ),
         decoration: InputDecoration(
           border: const OutlineInputBorder(),
@@ -281,12 +397,13 @@ class _TripFormDateState extends State<TripFormDate> {
             onPressed: () async {
               final picked = await showDatePicker(
                 context: context,
-                initialDate: _departureDate ?? DateTime.now(),
+                initialDate: _departureDateOnly ?? DateTime.now(),
                 firstDate: DateTime(1900),
-                lastDate: DateTime(2500),
+                lastDate: DateTime(DateTime.now().year+200),
               );
               if (picked != null) {
-                setState(() => _departureDate = picked);
+                setState(() => _departureDateOnly = picked);
+                model.departureDayDateOnly = picked;
               }
             },
           ),
@@ -299,23 +416,37 @@ class _TripFormDateState extends State<TripFormDate> {
         children: [
           Expanded(
             child: TextFormField(
+              key: const ValueKey('duration_hour_date'),
               keyboardType: TextInputType.number,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+              ],
               decoration: InputDecoration(
                 labelText: durLoc.hour(0, false),
                 border: OutlineInputBorder(),
               ),
-              onChanged: (v) => _durationHours = int.tryParse(v),
+              onChanged: (v) {
+                model.setDurationHour(DateType.date, int.tryParse(v));
+              },
+              initialValue: model.durationHourByType(DateType.date)?.toString(),
             ),
           ),
           const SizedBox(width: 8),
           Expanded(
             child: TextFormField(
+              key: const ValueKey('duration_minute_date'),
               keyboardType: TextInputType.number,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+              ],
               decoration: InputDecoration(
                 labelText: durLoc.minute(0, false),
                 border: OutlineInputBorder(),
               ),
-              onChanged: (v) => _durationMinutes = int.tryParse(v),
+              onChanged: (v) {
+                model.setDurationMinute(DateType.date, int.tryParse(v));
+              },
+              initialValue: model.durationMinuteByType(DateType.date)?.toString(),
             ),
           ),
         ],

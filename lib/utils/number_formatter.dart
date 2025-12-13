@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 
@@ -37,4 +38,19 @@ String formatNumber(BuildContext context, num value, {bool noDecimal = false}) {
   final pattern = noDecimal ? "#,##0" : "#,##0.##"; // strip trailing zeros when decimals allowed
   final formatter = NumberFormat(pattern, locale);
   return formatter.format(value);
+}
+
+class DecimalTextInputFormatter extends TextInputFormatter {
+  final RegExp _regExp = RegExp(r'^\d*([.,]\d*)?$');
+
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    if (_regExp.hasMatch(newValue.text)) {
+      return newValue;
+    }
+    return oldValue;
+  }
 }

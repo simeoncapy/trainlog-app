@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:timezone/timezone.dart' as tz;
+import 'package:trainlog_app/widgets/trip_visibility_selector.dart';
+import 'package:trainlog_app/widgets/vehicle_energy_selector.dart';
 
 class TripFormModel extends ChangeNotifier {
   // STEP 1 — Basic info
@@ -40,11 +42,26 @@ class TripFormModel extends ChangeNotifier {
     arrTime: false,
   );
   bool isPast = true;
-  int? duration; // second
+  Map <DateType, (int?, int?)> duration = {
+    DateType.precise: (null, null),
+    DateType.unknown: (null, null),
+    DateType.date: (null, null)
+  };
   DateTime? departureDayDateOnly;
 
   // STEP 3 — Details
+  String? line;
+  String? material;
+  String? registration;
+  String? seat;
   String? notes;
+
+  double? price;
+  DateTime? purchaseDate;
+  String? currencyCode;
+
+  EnergyType energyType = EnergyType.auto;
+  TripVisibility tripVisibility = TripVisibility.private;
 
   // -----------------------------
   // Getters
@@ -59,12 +76,46 @@ class TripFormModel extends ChangeNotifier {
     arrivalLat == null ||
     arrivalLong == null;
 
+  (int?, int?) get currentDuration => duration[dateType] ?? (null, null);
+
   bool validateOperators() => selectedOperators.isNotEmpty;
   bool get operatorHasError => !validateOperators();
 
   bool arrivalIsAfterDeparture() {
     if (departureDate == null || arrivalDate == null) return false;
     return !arrivalDate!.isBefore(departureDate!);
+  }
+
+  bool hasDepartureAndArrivalDates() {
+    if (!hasDepartureDateTime.depDate ||
+        !hasDepartureDateTime.depTime ||
+        !hasArrivalDateTime.arrDate ||
+        !hasArrivalDateTime.arrTime) {
+      return false;
+    }
+    return true;
+  }
+
+  int? durationS() {
+    final value = duration[dateType];
+    if (value == null) return null;
+
+    final (hour, minute) = value;
+    if (hour == null || minute == null) return null;
+
+    return hour * 3600 + minute * 60;
+  }
+
+  (int?, int?) durationByType(DateType type) {
+    return duration[type] ?? (null, null);
+  }
+
+  int? durationHourByType(type) {
+    return durationByType(type).$1;
+  }
+
+  int? durationMinuteByType(type) {
+    return durationByType(type).$2;
   }
 
   // -----------------------------
@@ -106,10 +157,7 @@ class TripFormModel extends ChangeNotifier {
 
   bool _checkDateAndTime()
   {
-    if (!hasDepartureDateTime.depDate ||
-        !hasDepartureDateTime.depTime ||
-        !hasArrivalDateTime.arrDate ||
-        !hasArrivalDateTime.arrTime) {
+    if (!hasDepartureAndArrivalDates()) {
       return false;
     }
 
@@ -224,6 +272,37 @@ class TripFormModel extends ChangeNotifier {
     }
 
     arrivalDate = _setDateTimeWithTimeZone(date, time, timezone);
+    notifyListeners();
+  }
+
+  void setDuration(DateType type, int? hour, int? minute) {
+    setDurationHour(type, hour);
+    setDurationMinute(type, minute);
+  }
+
+  void setDurationHour(DateType type, int? hour) {
+    final (_, minute) = duration[type] ?? (null, null);
+    duration[type] = (hour, minute);
+    notifyListeners();
+  }
+
+  void setDurationMinute(DateType type, int? minute) {
+    final (hour, _) = duration[type] ?? (null, null);
+    duration[type] = (hour, minute);
+    notifyListeners();
+  }
+
+  // Page 3
+
+  void setenergyType(EnergyType value) {
+    if (energyType == value) return; // avoids extra rebuilds
+    energyType = value;
+    notifyListeners();
+  }
+
+  void setVisibility(TripVisibility value) {
+    if (tripVisibility == value) return; // avoids extra rebuilds
+    tripVisibility = value;
     notifyListeners();
   }
 
