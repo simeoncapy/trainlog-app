@@ -700,4 +700,13 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get addTripPathUseNewRouter => 'Utiliser le nouveau routeur';
+
+  @override
+  String addTripNameEnd(String departure, String arrival) {
+    return '$departure à $arrival';
+  }
+
+  @override
+  String get addTripPathHelp =>
+      'The nouveau routeur est en bêta et affiche l\'électrification.\n\nLes routeurs (ancien et nouveau) sont les mêmes pour le train, le tramway et le métro. Vous devrez peut-être ajuster la position des marqueurs pour que le trajet suive le parcours souhaité.';
 }

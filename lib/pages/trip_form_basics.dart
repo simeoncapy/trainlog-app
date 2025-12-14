@@ -179,6 +179,7 @@ class TripFormBasics extends StatelessWidget {
                         emptyMessage:
                             loc.enterStation("arrival", vehicleType),
                         markerColor: Colors.red,
+                        marker: Icons.where_to_vote,
                         isCoordinateMovable: model.arrivalGeoMode,
                         onCoordinateChanged: (lat, long) {
                           WidgetsBinding.instance.addPostFrameCallback((_) {

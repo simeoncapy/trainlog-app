@@ -20,7 +20,7 @@ class _TripFormPathState extends State<TripFormPath> {
   void initState() {
     super.initState();
 
-    final model = context.read<TripFormModel>();
+    //final model = context.read<TripFormModel>();
   }
 
   void _showHelpDialog(BuildContext context) {
@@ -33,7 +33,7 @@ class _TripFormPathState extends State<TripFormPath> {
           title: Text(loc.helpTitle),
           content: SingleChildScrollView(
             child: Text(
-              "Bla bla bla",
+              loc.addTripPathHelp,
               style: Theme.of(context).textTheme.bodyMedium,
             ),
           ),
@@ -80,50 +80,74 @@ class _TripFormPathState extends State<TripFormPath> {
     final loc = AppLocalizations.of(context)!;
     final model = context.watch<TripFormModel>();
 
-    return Column(
-      children: [
-        Row(
-          children: [
-            Checkbox(
-            value: _isNewRouter,
-            onChanged: (value) {
-              setState(() {
-                _isNewRouter = value!;
-              });
-            },
+    return Padding(
+      padding: const EdgeInsets.all(0),
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 8.0, right: 8.0),
+            child: Row(
+              children: [
+                Checkbox(
+                value: _isNewRouter,
+                onChanged: (value) {
+                  setState(() {
+                    _isNewRouter = value!;
+                  });
+                },
+                ),
+                Expanded(
+                  child: Text(
+                    loc.addTripPathUseNewRouter
+                  )
+                ),
+                IconButton(
+                  onPressed: () {
+                    _showHelpDialog(context);
+                    //_showHelpBottomSheet(context); TODO Choose the best option
+                  },
+                  icon: const Icon(Icons.help_outline),
+                  style: IconButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
+                    foregroundColor: Theme.of(context).colorScheme.onSecondaryContainer,
+                    shape: const CircleBorder(),
+                  ),
+                ),
+              ],
             ),
-            Expanded(child: Text(loc.addTripPathUseNewRouter)),
-            IconButton(
-              onPressed: () {
-                _showHelpDialog(context);
-                //_showHelpBottomSheet(context); TODO Choose the best option
-              },
-              icon: const Icon(Icons.help_outline),
-              style: IconButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
-                foregroundColor: Theme.of(context).colorScheme.onSecondaryContainer,
-                shape: const CircleBorder(),
-              ),
-            ),
-            SizedBox(width: 8,),
-          ],
-        ),
-        SizedBox(height: 8,),
-        Expanded(
-          child: MiniMapBox(
-            lat: model.departureLat,
-            long: model.departureLong,
-            emptyMessage: "", // always display a map here
-            markerColor: Colors.green,
-            isCoordinateMovable: model.departureGeoMode,
-            onCoordinateChanged: (lat, long) {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                model.updateDepartureCoords(lat, long);
-              });
-            },
           ),
-        ),
-      ],
+          SizedBox(height: 8,),
+          Padding(
+            padding: EdgeInsets.only(left: 8.0, right: 8.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    loc.addTripNameEnd(model.departureStationName!, model.arrivalStationName!),
+                    maxLines: 2,
+                  )
+                ),
+                Text("(xxx km, 3 h 25)")
+              ],
+            ),
+          ),
+          SizedBox(height: 8,),
+          Expanded(
+            child: MiniMapBox(
+              lat: model.departureLat,
+              long: model.departureLong,
+              emptyMessage: "", // always display a map here
+              markerColor: Colors.green,
+              isCoordinateMovable: model.departureGeoMode,
+              onCoordinateChanged: (lat, long) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  model.updateDepartureCoords(lat, long);
+                });
+              },
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -1245,6 +1245,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Use the new router'**
   String get addTripPathUseNewRouter;
+
+  /// The trip name (departure station to arrival station)
+  ///
+  /// In en, this message translates to:
+  /// **'{departure} to {arrival}'**
+  String addTripNameEnd(String departure, String arrival);
+
+  /// No description provided for @addTripPathHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'The new router is in beta and shows electrification.\n\nThe routers (old and new) are the same for train, tram, and metro. You may need to fine-tune the peg placement to get it to route on the desired path.'**
+  String get addTripPathHelp;
 }
 
 class _AppLocalizationsDelegate

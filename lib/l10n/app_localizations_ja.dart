@@ -695,4 +695,13 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get addTripPathUseNewRouter => '新しいルーターを使用する';
+
+  @override
+  String addTripNameEnd(String departure, String arrival) {
+    return '$departureから$arrivalまで';
+  }
+
+  @override
+  String get addTripPathHelp =>
+      '新しいルーターはベータ版で、電化を示しています。\n\nルーター（新旧）は、電車、路面電車、地下鉄で同じです。希望の経路にルートを設定するには、ピンの配置を微調整する必要があるかもしれません。';
 }

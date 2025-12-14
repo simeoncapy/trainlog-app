@@ -698,4 +698,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get addTripPathUseNewRouter => 'Use the new router';
+
+  @override
+  String addTripNameEnd(String departure, String arrival) {
+    return '$departure to $arrival';
+  }
+
+  @override
+  String get addTripPathHelp =>
+      'The new router is in beta and shows electrification.\n\nThe routers (old and new) are the same for train, tram, and metro. You may need to fine-tune the peg placement to get it to route on the desired path.';
 }

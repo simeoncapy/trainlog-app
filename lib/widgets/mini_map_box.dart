@@ -11,6 +11,7 @@ class MiniMapBox extends StatefulWidget {
   final double? long;
   final String emptyMessage;
   final Color markerColor;
+  final IconData marker;
   final double zoom;
   final double? size;
 
@@ -24,6 +25,7 @@ class MiniMapBox extends StatefulWidget {
     required this.long,
     required this.emptyMessage,
     required this.markerColor,
+    this.marker = Icons.location_pin,
     this.zoom = 13,
     this.size,
 
@@ -113,7 +115,7 @@ class _MiniMapBoxState extends State<MiniMapBox> {
         // NEW — the centered pin, only when movable
         if (widget.isCoordinateMovable)
           Center(
-            child: Icon(Icons.location_pin, size: 40, color: widget.markerColor),
+            child: Icon(widget.marker, size: 40, color: widget.markerColor),
           ),
 
         // Maximize button (unchanged)
@@ -177,7 +179,7 @@ class _MiniMapBoxState extends State<MiniMapBox> {
               width: 40,
               height: 40,
               point: LatLng(widget.lat!, widget.long!),
-              child: Icon(Icons.location_pin,
+              child: Icon(widget.marker,
                   size: 40, color: widget.markerColor),
             ),
           ]),
@@ -201,6 +203,7 @@ class _MiniMapBoxState extends State<MiniMapBox> {
             long: widget.long!,
             zoom: widget.zoom,
             markerColor: widget.markerColor,
+            marker: widget.marker,
             isCoordinateMovable: widget.isCoordinateMovable,     // NEW
             onCoordinateChanged: widget.onCoordinateChanged,      // NEW
           );
@@ -219,6 +222,7 @@ class FullscreenMapOverlay extends StatefulWidget {
   final double long;
   final double zoom;
   final Color markerColor;
+  final IconData marker;
 
   final bool isCoordinateMovable;                     // NEW
   final void Function(double lat, double long)? onCoordinateChanged; // NEW
@@ -229,6 +233,7 @@ class FullscreenMapOverlay extends StatefulWidget {
     required this.long,
     required this.zoom,
     required this.markerColor,
+    required this.marker,
     required this.isCoordinateMovable,
     this.onCoordinateChanged,
   });
@@ -284,7 +289,7 @@ class _FullscreenMapOverlayState extends State<FullscreenMapOverlay> {
                     width: 40,
                     height: 40,
                     point: LatLng(widget.lat, widget.long),
-                    child: Icon(Icons.location_pin,
+                    child: Icon(widget.marker,
                         size: 40, color: widget.markerColor),
                   ),
                 ]),
@@ -294,7 +299,7 @@ class _FullscreenMapOverlayState extends State<FullscreenMapOverlay> {
           // NEW center pin when movable
           if (widget.isCoordinateMovable)
             Center(
-              child: Icon(Icons.location_pin, size: 40, color: widget.markerColor),
+              child: Icon(widget.marker, size: 40, color: widget.markerColor),
             ),
 
           // Exit fullscreen

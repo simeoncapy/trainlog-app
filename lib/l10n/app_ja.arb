@@ -200,5 +200,7 @@
   "addTripTicketPrice": "運賃",
   "addTripPurchaseDate": "購入日",
   "continueTripButton": "確認して旅行を続ける",
-  "addTripPathUseNewRouter": "新しいルーターを使用する"
+  "addTripPathUseNewRouter": "新しいルーターを使用する",
+  "addTripNameEnd": "{departure}から{arrival}まで",
+  "addTripPathHelp": "新しいルーターはベータ版で、電化を示しています。\n\nルーター（新旧）は、電車、路面電車、地下鉄で同じです。希望の経路にルートを設定するには、ピンの配置を微調整する必要があるかもしれません。"
 }
