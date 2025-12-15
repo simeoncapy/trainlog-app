@@ -53,7 +53,8 @@
   "visibilityFriends": "Friends",
   "visibilityPrivate": "Private",
   "helpTitle": "Help",
-    
+  "pageNotImplementedYet": "This page has not been implemented in the application yet. The website version will be displayed instead. The user interface may not be optimal.",
+
   "settingsAppCategory": "App Settings",
   "settingsMapCategory": "Map Settings",
   "settingsAccountCategory": "Account Settings",

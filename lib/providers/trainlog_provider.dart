@@ -120,6 +120,10 @@ class TrainlogProvider extends ChangeNotifier {
     }
   }
 
+  String generateUserUrl(String? suffix, {bool publicPage = false}) {
+    return publicPage ? "${_service.baseUrl}/$suffix" : "${_service.baseUrl}/u/$username/$suffix";
+  }
+
   // Expose authenticated requests for the rest of the app.
   Future<Response<T>> get<T>(String path, {Map<String, dynamic>? query}) =>
       _service.get<T>(path, query: query);

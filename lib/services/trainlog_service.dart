@@ -41,6 +41,8 @@ class TrainlogService {
 
   TrainlogService._(this._dio, this._cookieJar);
 
+  String get baseUrl => _baseUrl;
+
   /// Non-persistent cookies (useful for tests)
   factory TrainlogService() {
     final dio = Dio(
@@ -138,6 +140,10 @@ class TrainlogService {
       failureReason:
           success ? null : (resp.statusMessage ?? 'Invalid credentials'),
     );
+  }
+
+  Future<List<Cookie>> getCookiesForWebView() async {
+    return _cookieJar.loadForRequest(Uri.parse(_baseUrl));
   }
 
   // Expose authenticated requests

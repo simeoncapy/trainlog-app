@@ -41,6 +41,7 @@ dependencies:
   unorm_dart: ^0.3.2
   lat_lng_to_timezone: ^0.2.0
   timezone: ^0.10.1
+  flutter_inappwebview: ^6.1.5
 
 dev_dependencies:
   flutter_test:

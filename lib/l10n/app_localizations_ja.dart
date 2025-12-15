@@ -143,6 +143,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get helpTitle => '使い方';
 
   @override
+  String get pageNotImplementedYet =>
+      'このページはまだアプリに実装されていません。そのため、Webサイト版が表示されます。ユーザーインターフェースが最適でない場合があります。';
+
+  @override
   String get settingsAppCategory => 'アプリ設定';
 
   @override

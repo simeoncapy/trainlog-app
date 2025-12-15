@@ -76,8 +76,8 @@ class ErrorBanner extends StatelessWidget {
     switch (severity) {
       case ErrorSeverity.warning:
         return _Style(
-          background: scheme.secondaryContainer,
-          foreground: scheme.onSecondaryContainer,
+          background: Colors.amber,
+          foreground: Colors.black87,
           icon: Icons.warning_amber_outlined,
         );
       case ErrorSeverity.info:

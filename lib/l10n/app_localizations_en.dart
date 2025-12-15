@@ -143,6 +143,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get helpTitle => 'Help';
 
   @override
+  String get pageNotImplementedYet =>
+      'This page has not been implemented in the application yet. The website version will be displayed instead. The user interface may not be optimal.';
+
+  @override
   String get settingsAppCategory => 'App Settings';
 
   @override

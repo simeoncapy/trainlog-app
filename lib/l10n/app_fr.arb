@@ -43,6 +43,7 @@
   "visibilityFriends": "Amis",
   "visibilityPrivate": "Privé",
   "helpTitle": "Aide",
+  "pageNotImplementedYet": "Cette page n’est pas encore disponible dans l’application. La version web est affichée à la place, et l’interface utilisateur peut être moins adaptée.",
 
   "settingsAppCategory": "Paramètres de l'application",
   "settingsMapCategory": "Paramètres de la carte",

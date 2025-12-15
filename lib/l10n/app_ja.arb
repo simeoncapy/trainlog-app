@@ -43,6 +43,7 @@
   "visibilityFriends": "フレンドのみ",
   "visibilityPrivate": "非公開",
   "helpTitle": "使い方",
+  "pageNotImplementedYet": "このページはまだアプリに実装されていません。そのため、Webサイト版が表示されます。ユーザーインターフェースが最適でない場合があります。",
 
   "settingsAppCategory": "アプリ設定",
   "settingsMapCategory": "地図設定",

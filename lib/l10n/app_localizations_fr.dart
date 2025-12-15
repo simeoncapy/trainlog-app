@@ -144,6 +144,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get helpTitle => 'Aide';
 
   @override
+  String get pageNotImplementedYet =>
+      'Cette page n’est pas encore disponible dans l’application. La version web est affichée à la place, et l’interface utilisateur peut être moins adaptée.';
+
+  @override
   String get settingsAppCategory => 'Paramètres de l\'application';
 
   @override
@@ -708,5 +712,5 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get addTripPathHelp =>
-      'The nouveau routeur est en bêta et affiche l\'électrification.\n\nLes routeurs (ancien et nouveau) sont les mêmes pour le train, le tramway et le métro. Vous devrez peut-être ajuster la position des marqueurs pour que le trajet suive le parcours souhaité.';
+      'Le nouveau routeur est en bêta et affiche l\'électrification.\n\nLes routeurs (ancien et nouveau) sont les mêmes pour le train, le tramway et le métro. Vous devrez peut-être ajuster la position des marqueurs pour que le trajet suive le parcours souhaité.';
 }

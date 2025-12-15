@@ -364,6 +364,12 @@ abstract class AppLocalizations {
   /// **'Help'**
   String get helpTitle;
 
+  /// No description provided for @pageNotImplementedYet.
+  ///
+  /// In en, this message translates to:
+  /// **'This page has not been implemented in the application yet. The website version will be displayed instead. The user interface may not be optimal.'**
+  String get pageNotImplementedYet;
+
   /// No description provided for @settingsAppCategory.
   ///
   /// In en, this message translates to:
