@@ -15,13 +15,6 @@ class TicketsPage extends StatefulWidget {
 }
 
 class _TicketsPageState extends State<TicketsPage> {
-  // @override
-  // void initState() {
-  //   super.initState();
-
-  //   widget.onFabReady(buildFloatingActionButton(context)!);
-  // }
-
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;

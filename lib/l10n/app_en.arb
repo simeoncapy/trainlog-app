@@ -322,5 +322,6 @@
     }
   },
   "addTripPathHelp": "The new router is in beta and shows electrification.\n\nThe routers (old and new) are the same for train, tram, and metro. You may need to fine-tune the peg placement to get it to route on the desired path.",
-  "addTicketPageTitle": "New Ticket"
+  "addTicketPageTitle": "New Ticket",
+  "addTagPageTitle": "New Tag"
 }

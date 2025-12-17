@@ -1317,6 +1317,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'New Ticket'**
   String get addTicketPageTitle;
+
+  /// No description provided for @addTagPageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New Tag'**
+  String get addTagPageTitle;
 }
 
 class _AppLocalizationsDelegate

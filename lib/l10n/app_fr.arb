@@ -211,5 +211,6 @@
   "addTripPathUseNewRouter": "Utiliser le nouveau routeur",
   "addTripNameEnd": "{departure} à {arrival}",
   "addTripPathHelp": "Le nouveau routeur est en bêta et affiche l'électrification.\n\nLes routeurs (ancien et nouveau) sont les mêmes pour le train, le tramway et le métro. Vous devrez peut-être ajuster la position des marqueurs pour que le trajet suive le parcours souhaité.",
-  "addTicketPageTitle": "Nouveau billet"
+  "addTicketPageTitle": "Nouveau billet",
+  "addTagPageTitle": "Nouveau Tag"
 }

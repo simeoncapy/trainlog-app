@@ -189,7 +189,9 @@ class _MyAppState extends State<MyApp> {
       ),
       AppPage(
         id: AppPageId.tags,
-        view: TagsPage(),
+        view: TagsPage(
+          onFabReady: (fab) => _updateFabForPage(AppPageId.tags, fab),
+        ),
         titleBuilder: (context) => AppLocalizations.of(context)!.menuTagsTitle,
         icon: Icons.label,
       ),

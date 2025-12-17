@@ -741,4 +741,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get addTicketPageTitle => 'New Ticket';
+
+  @override
+  String get addTagPageTitle => 'New Tag';
 }

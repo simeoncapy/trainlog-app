@@ -737,4 +737,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get addTicketPageTitle => '新しい乗車券';
+
+  @override
+  String get addTagPageTitle => '新しいタグ';
 }
