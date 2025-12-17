@@ -388,6 +388,12 @@ abstract class AppLocalizations {
   /// **'Account Settings'**
   String get settingsAccountCategory;
 
+  /// No description provided for @settingsDangerZoneCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Danger Zone'**
+  String get settingsDangerZoneCategory;
+
   /// No description provided for @settingsLanguage.
   ///
   /// In en, this message translates to:
@@ -411,6 +417,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Light'**
   String get settingsLight;
+
+  /// No description provided for @settingsDateFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Date Format'**
+  String get settingsDateFormat;
+
+  /// No description provided for @settingsExampleShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Ex:'**
+  String get settingsExampleShort;
 
   /// No description provided for @settingsSystem.
   ///
@@ -454,11 +472,11 @@ abstract class AppLocalizations {
   /// **'Trainlog Web'**
   String get settingsMapColorPaletteTrainlogWeb;
 
-  /// No description provided for @settingsMapColorPaletteTrainlogVariation.
+  /// No description provided for @settingsMapColorPaletteColourBlind.
   ///
   /// In en, this message translates to:
-  /// **'Trainlog Variation'**
-  String get settingsMapColorPaletteTrainlogVariation;
+  /// **'Palette for colour blindness'**
+  String get settingsMapColorPaletteColourBlind;
 
   /// No description provided for @settingsMapColorPaletteTrainlogRed.
   ///
@@ -477,6 +495,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Blue'**
   String get settingsMapColorPaletteTrainlogBlue;
+
+  /// No description provided for @settingsMapColorPaletteVibrantTones.
+  ///
+  /// In en, this message translates to:
+  /// **'Vibrant Tones'**
+  String get settingsMapColorPaletteVibrantTones;
 
   /// Size in mebibytes (MiB)
   ///
@@ -513,6 +537,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Display current position'**
   String get settingsDisplayUserMarker;
+
+  /// No description provided for @settingsDeleteAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete my account'**
+  String get settingsDeleteAccount;
+
+  /// No description provided for @settingsDeleteAccountRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Request'**
+  String get settingsDeleteAccountRequest;
+
+  /// email address to request the account deletion
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to open email client, request at {email}'**
+  String settingsDeleteAccountError(Object email);
+
+  /// No description provided for @settingsHideWarningMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide warning messages'**
+  String get settingsHideWarningMessage;
 
   /// No description provided for @menuMapTitle.
   ///
@@ -1263,6 +1311,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The new router is in beta and shows electrification.\n\nThe routers (old and new) are the same for train, tram, and metro. You may need to fine-tune the peg placement to get it to route on the desired path.'**
   String get addTripPathHelp;
+
+  /// No description provided for @addTicketPageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New Ticket'**
+  String get addTicketPageTitle;
 }
 
 class _AppLocalizationsDelegate

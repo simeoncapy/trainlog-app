@@ -42,6 +42,7 @@ dependencies:
   lat_lng_to_timezone: ^0.2.0
   timezone: ^0.10.1
   flutter_inappwebview: ^6.1.5
+  url_launcher: ^6.2.6
 
 dev_dependencies:
   flutter_test:

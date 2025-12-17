@@ -13,10 +13,12 @@ enum PathDisplayOrder {
 class SettingsProvider with ChangeNotifier {
   ThemeMode _themeMode = ThemeMode.system;
   Locale _locale = const Locale('en');
+  String _dateFormat = 'yyyy/MM/dd';
   PathDisplayOrder _pathDisplayOrder = PathDisplayOrder.creationDate;
   MapColorPalette _mapColorPalette = MapColorPalette.trainlogWeb;
   bool _shouldReloadPolylines = true;
   bool _mapDisplayUserLocationMarker = true;
+  bool _hideWarningMessage = false;
   LatLng? _SP_userPosition;
   bool _SP_refusedToSharePosition = false;
   String? _SP_authUsername;
@@ -29,10 +31,12 @@ class SettingsProvider with ChangeNotifier {
 
   ThemeMode get themeMode => _themeMode;
   Locale get locale => _locale;
+  String get dateFormat => _dateFormat;
   PathDisplayOrder get pathDisplayOrder => _pathDisplayOrder;
   MapColorPalette get mapColorPalette => _mapColorPalette;
   bool get shouldReloadPolylines => _shouldReloadPolylines;
   bool get mapDisplayUserLocationMarker => _mapDisplayUserLocationMarker;
+  bool get hideWarningMessage => _hideWarningMessage;
   LatLng? get userPosition => _SP_userPosition;
   bool get refusedToSharePosition => _SP_refusedToSharePosition;
   String? get authUsername => _SP_authUsername;
@@ -43,10 +47,12 @@ class SettingsProvider with ChangeNotifier {
     // Shared Preference in settings
     _loadTheme();
     _loadLocale();
+    _loadDateFormat();
     _loadPathDisplayOrder();
     _loadMapColorPalette();
     _loadShouldReloadPolylines();
     _loadMapDisplayUserLocationMarker();
+    _loadHideWarningMessage();
 
     // Shared Preference only (_SP) i.e. internal to the app
     _loadLastUserPosition();
@@ -100,6 +106,23 @@ class SettingsProvider with ChangeNotifier {
     _locale = locale;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('language_code', locale.languageCode);
+    notifyListeners();
+  }
+
+  // ------------------------------------------------------------------------------
+
+  void _loadDateFormat() async {
+    final prefs = await SharedPreferences.getInstance();
+    final u = prefs.getString('date_format');
+    _dateFormat = u ?? 'yyyy/MM/dd';
+    notifyListeners();
+  }
+
+  void setDateFormat(String format) async {
+    if (_dateFormat == format) return;
+    _dateFormat = format;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('date_format', format);
     notifyListeners();
   }
 
@@ -182,6 +205,23 @@ class SettingsProvider with ChangeNotifier {
     _mapDisplayUserLocationMarker = maker;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('display_user_marker', maker);
+    notifyListeners();
+  }
+
+  // ------------------------------------------------------------------------------
+
+  void _loadHideWarningMessage() async {
+    final prefs = await SharedPreferences.getInstance();
+    final h = prefs.getBool('hide_warning_message');
+    _hideWarningMessage = h ?? false;
+    notifyListeners();
+  }
+
+  void setHideWarningMessage(bool hide) async {
+    if (_hideWarningMessage == hide) return;
+    _hideWarningMessage = hide;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('hide_warning_message', hide);
     notifyListeners();
   }
 

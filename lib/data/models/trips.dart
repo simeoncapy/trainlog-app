@@ -151,10 +151,10 @@ enum VehicleType {
   car,
   ferry,
   aerialway,
-  walk,
-  poi, // point of interest
   cycle,
   helicopter,
+  walk,
+  poi, // point of interest
   unknown;
 
   static VehicleType fromString(String? str) {

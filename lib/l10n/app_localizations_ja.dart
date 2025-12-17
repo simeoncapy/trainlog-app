@@ -156,6 +156,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get settingsAccountCategory => 'アカウント設定';
 
   @override
+  String get settingsDangerZoneCategory => '危険地帯';
+
+  @override
   String get settingsLanguage => '言語';
 
   @override
@@ -166,6 +169,12 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get settingsLight => 'ライト';
+
+  @override
+  String get settingsDateFormat => '年月日の順序';
+
+  @override
+  String get settingsExampleShort => '例:';
 
   @override
   String get settingsSystem => 'システム';
@@ -189,7 +198,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get settingsMapColorPaletteTrainlogWeb => 'Trainlog Web';
 
   @override
-  String get settingsMapColorPaletteTrainlogVariation => 'Trainlog バリエーション';
+  String get settingsMapColorPaletteColourBlind => '色覚異常者用パレット';
 
   @override
   String get settingsMapColorPaletteTrainlogRed => '赤';
@@ -199,6 +208,9 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get settingsMapColorPaletteTrainlogBlue => '青';
+
+  @override
+  String get settingsMapColorPaletteVibrantTones => '鮮やかな色合い';
 
   @override
   String settingsCache(Object size) {
@@ -220,6 +232,20 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get settingsDisplayUserMarker => '現在の位置を表示する';
+
+  @override
+  String get settingsDeleteAccount => 'アカウントを削除する';
+
+  @override
+  String get settingsDeleteAccountRequest => '申請';
+
+  @override
+  String settingsDeleteAccountError(Object email) {
+    return 'メールクライアントを開けません。$email に申請してください';
+  }
+
+  @override
+  String get settingsHideWarningMessage => '警告メッセージを非表示にする';
 
   @override
   String get menuMapTitle => '地図';
@@ -708,4 +734,7 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get addTripPathHelp =>
       '新しいルーターはベータ版で、電化を示しています。\n\nルーター（新旧）は、電車、路面電車、地下鉄で同じです。希望の経路にルートを設定するには、ピンの配置を微調整する必要があるかもしれません。';
+
+  @override
+  String get addTicketPageTitle => '新しい乗車券';
 }

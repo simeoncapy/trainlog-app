@@ -3,7 +3,8 @@ import 'package:trainlog_app/data/models/trips.dart';
 
 enum MapColorPalette {
   trainlogWeb,
-  trainlogVariation,
+  vibrantTones,
+  colorBlind,
   red,
   blue,
   green,
@@ -29,15 +30,36 @@ class MapColorPaletteHelper {
           VehicleType.poi: Colors.black,
           VehicleType.unknown: Colors.grey,
         };
-      case MapColorPalette.trainlogVariation:
+      case MapColorPalette.vibrantTones:
         return {
-          VehicleType.train: Colors.blue,
-          VehicleType.plane: Colors.green,
-          VehicleType.tram: Colors.lightBlue,
-          VehicleType.metro: Colors.deepOrange,
-          VehicleType.bus: Colors.deepPurple,
-          VehicleType.car: Colors.purple,
-          VehicleType.ferry: Colors.teal,
+          VehicleType.train: Color(0xFF277DA1),
+          VehicleType.plane: Color(0xFF90BE6D),
+          VehicleType.tram: Color(0xFFF94144),
+          VehicleType.metro: Color(0xFF4D908E),
+          VehicleType.bus: Color(0xFFF9C74F),
+          VehicleType.car: Color(0xFFF9844A),
+          VehicleType.ferry: Color(0xFF577590),
+          VehicleType.aerialway: Color(0xFFF8961E),
+          VehicleType.cycle: Color(0xFFF3722C),
+          VehicleType.helicopter: Color(0xFF43AA8B),
+          VehicleType.walk: Color(0xFF220901),
+          VehicleType.poi: Colors.black,
+          VehicleType.unknown: Colors.grey,
+        };
+      case MapColorPalette.colorBlind:
+        return {
+          VehicleType.train: Color(0xFF9F0162),
+          VehicleType.plane: Color(0xFF009F81),
+          VehicleType.tram: Color(0xFFFF5AAF),
+          VehicleType.metro: Color(0xFF00FCCF),
+          VehicleType.bus: Color(0xFF8400CD),
+          VehicleType.car: Color(0xFF008DF9),
+          VehicleType.ferry: Color(0xFF00C2F9),
+          VehicleType.aerialway: Color(0xFFFFB2FD),
+          VehicleType.cycle: Color(0xFFA40122),
+          VehicleType.helicopter: Color(0xFFE20134),
+          VehicleType.walk: Color(0xFFFF6E3A),
+          VehicleType.poi: Color(0xFFFFC33B),
           VehicleType.unknown: Colors.grey,
         };
       case MapColorPalette.red:

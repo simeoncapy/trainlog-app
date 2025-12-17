@@ -157,6 +157,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get settingsAccountCategory => 'Paramètres du compte';
 
   @override
+  String get settingsDangerZoneCategory => 'Paramètres sensibles';
+
+  @override
   String get settingsLanguage => 'Langue';
 
   @override
@@ -167,6 +170,12 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get settingsLight => 'Clair';
+
+  @override
+  String get settingsDateFormat => 'Format de la date';
+
+  @override
+  String get settingsExampleShort => 'Ex :';
 
   @override
   String get settingsSystem => 'Système';
@@ -191,7 +200,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get settingsMapColorPaletteTrainlogWeb => 'Trainlog Web';
 
   @override
-  String get settingsMapColorPaletteTrainlogVariation => 'Trainlog (variation)';
+  String get settingsMapColorPaletteColourBlind => 'Palette pour daltonien';
 
   @override
   String get settingsMapColorPaletteTrainlogRed => 'Rouge';
@@ -201,6 +210,9 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get settingsMapColorPaletteTrainlogBlue => 'Bleu';
+
+  @override
+  String get settingsMapColorPaletteVibrantTones => 'Couleurs vives';
 
   @override
   String settingsCache(Object size) {
@@ -222,6 +234,21 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get settingsDisplayUserMarker => 'Afficher votre position';
+
+  @override
+  String get settingsDeleteAccount => 'Supprimer mon compte';
+
+  @override
+  String get settingsDeleteAccountRequest => 'Demander';
+
+  @override
+  String settingsDeleteAccountError(Object email) {
+    return 'Impossible d\'ouvrir le client mail, demander à $email';
+  }
+
+  @override
+  String get settingsHideWarningMessage =>
+      'Ne plus afficher les messages d\'avertissement';
 
   @override
   String get menuMapTitle => 'Carte';
@@ -713,4 +740,7 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get addTripPathHelp =>
       'Le nouveau routeur est en bêta et affiche l\'électrification.\n\nLes routeurs (ancien et nouveau) sont les mêmes pour le train, le tramway et le métro. Vous devrez peut-être ajuster la position des marqueurs pour que le trajet suive le parcours souhaité.';
+
+  @override
+  String get addTicketPageTitle => 'Nouveau billet';
 }

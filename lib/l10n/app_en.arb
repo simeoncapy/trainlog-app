@@ -58,10 +58,13 @@
   "settingsAppCategory": "App Settings",
   "settingsMapCategory": "Map Settings",
   "settingsAccountCategory": "Account Settings",
+  "settingsDangerZoneCategory": "Danger Zone",
   "settingsLanguage": "Language",
   "settingsThemeMode": "Theme Mode",
   "settingsDark": "Dark",
   "settingsLight": "Light",
+  "settingsDateFormat": "Date Format",
+  "settingsExampleShort": "Ex:",
   "settingsSystem": "System",
   "settingsMapPathDisplayOrder": "Order of trip paths on the map",
   "settingMapPathDisplayOrderByCreation": "By creation date",
@@ -69,10 +72,11 @@
   "settingMapPathDisplayOrderByTripAndPlane": "By trip date (with flights above)",
   "settingsMapColorPalette": "Colour palette for trips",
   "settingsMapColorPaletteTrainlogWeb": "Trainlog Web",
-  "settingsMapColorPaletteTrainlogVariation": "Trainlog Variation",
+  "settingsMapColorPaletteColourBlind": "Palette for colour blindness",
   "settingsMapColorPaletteTrainlogRed": "Red",
   "settingsMapColorPaletteTrainlogGreen": "Green",
   "settingsMapColorPaletteTrainlogBlue": "Blue",
+  "settingsMapColorPaletteVibrantTones": "Vibrant Tones",
   "settingsCache": "Cached data ({size} MiB)",
   "@settingsCache" :{
     "description": "Size in mebibytes (MiB)",
@@ -85,7 +89,16 @@
   "settingsCacheClearConfirmMessage": "Are you sure you want to delete the cached data? This action is irreversible. The next loading of the app might take longer.",
   "settingsCacheClearedMessage": "Cache cleared successfully.",
   "settingsDisplayUserMarker": "Display current position",
-
+  "settingsDeleteAccount": "Delete my account",
+  "settingsDeleteAccountRequest": "Request",
+  "settingsDeleteAccountError": "Unable to open email client, request at {email}",
+  "@settingsDeleteAccountError" :{
+    "description": "email address to request the account deletion",
+    "placeholders": {
+      "email": {}
+    }
+  },
+  "settingsHideWarningMessage": "Hide warning messages",
   
   "menuMapTitle": "Map",
   "menuTripsTitle": "Trips",
@@ -308,5 +321,6 @@
       }
     }
   },
-  "addTripPathHelp": "The new router is in beta and shows electrification.\n\nThe routers (old and new) are the same for train, tram, and metro. You may need to fine-tune the peg placement to get it to route on the desired path."
+  "addTripPathHelp": "The new router is in beta and shows electrification.\n\nThe routers (old and new) are the same for train, tram, and metro. You may need to fine-tune the peg placement to get it to route on the desired path.",
+  "addTicketPageTitle": "New Ticket"
 }

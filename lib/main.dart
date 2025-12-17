@@ -195,7 +195,9 @@ class _MyAppState extends State<MyApp> {
       ),
       AppPage(
         id: AppPageId.tickets,
-        view: TicketsPage(),
+        view: TicketsPage(
+          onFabReady: (fab) => _updateFabForPage(AppPageId.tickets, fab),
+        ),
         titleBuilder: (context) =>
             AppLocalizations.of(context)!.menuTicketsTitle,
         icon: Icons.confirmation_number,

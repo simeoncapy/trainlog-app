@@ -156,6 +156,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsAccountCategory => 'Account Settings';
 
   @override
+  String get settingsDangerZoneCategory => 'Danger Zone';
+
+  @override
   String get settingsLanguage => 'Language';
 
   @override
@@ -166,6 +169,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsLight => 'Light';
+
+  @override
+  String get settingsDateFormat => 'Date Format';
+
+  @override
+  String get settingsExampleShort => 'Ex:';
 
   @override
   String get settingsSystem => 'System';
@@ -190,7 +199,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsMapColorPaletteTrainlogWeb => 'Trainlog Web';
 
   @override
-  String get settingsMapColorPaletteTrainlogVariation => 'Trainlog Variation';
+  String get settingsMapColorPaletteColourBlind =>
+      'Palette for colour blindness';
 
   @override
   String get settingsMapColorPaletteTrainlogRed => 'Red';
@@ -200,6 +210,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsMapColorPaletteTrainlogBlue => 'Blue';
+
+  @override
+  String get settingsMapColorPaletteVibrantTones => 'Vibrant Tones';
 
   @override
   String settingsCache(Object size) {
@@ -221,6 +234,20 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsDisplayUserMarker => 'Display current position';
+
+  @override
+  String get settingsDeleteAccount => 'Delete my account';
+
+  @override
+  String get settingsDeleteAccountRequest => 'Request';
+
+  @override
+  String settingsDeleteAccountError(Object email) {
+    return 'Unable to open email client, request at $email';
+  }
+
+  @override
+  String get settingsHideWarningMessage => 'Hide warning messages';
 
   @override
   String get menuMapTitle => 'Map';
@@ -711,4 +738,7 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get addTripPathHelp =>
       'The new router is in beta and shows electrification.\n\nThe routers (old and new) are the same for train, tram, and metro. You may need to fine-tune the peg placement to get it to route on the desired path.';
+
+  @override
+  String get addTicketPageTitle => 'New Ticket';
 }
