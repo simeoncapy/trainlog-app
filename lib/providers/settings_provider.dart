@@ -14,11 +14,14 @@ class SettingsProvider with ChangeNotifier {
   ThemeMode _themeMode = ThemeMode.system;
   Locale _locale = const Locale('en');
   String _dateFormat = 'yyyy/MM/dd';
+  bool _hourFormat12 = false;
   PathDisplayOrder _pathDisplayOrder = PathDisplayOrder.creationDate;
   MapColorPalette _mapColorPalette = MapColorPalette.trainlogWeb;
   bool _shouldReloadPolylines = true;
   bool _mapDisplayUserLocationMarker = true;
   bool _hideWarningMessage = false;
+  String _currency = "EUR";
+
   LatLng? _SP_userPosition;
   bool _SP_refusedToSharePosition = false;
   String? _SP_authUsername;
@@ -29,14 +32,18 @@ class SettingsProvider with ChangeNotifier {
   static const _kLastUserLng = 'last_user_lng';
   static const _kUsernameKey = 'auth.username';
 
+  // Getters
   ThemeMode get themeMode => _themeMode;
   Locale get locale => _locale;
   String get dateFormat => _dateFormat;
+  bool get hourFormat12 => _hourFormat12;
   PathDisplayOrder get pathDisplayOrder => _pathDisplayOrder;
   MapColorPalette get mapColorPalette => _mapColorPalette;
   bool get shouldReloadPolylines => _shouldReloadPolylines;
   bool get mapDisplayUserLocationMarker => _mapDisplayUserLocationMarker;
   bool get hideWarningMessage => _hideWarningMessage;
+  String get currency => _currency;
+
   LatLng? get userPosition => _SP_userPosition;
   bool get refusedToSharePosition => _SP_refusedToSharePosition;
   String? get authUsername => _SP_authUsername;
@@ -48,11 +55,13 @@ class SettingsProvider with ChangeNotifier {
     _loadTheme();
     _loadLocale();
     _loadDateFormat();
+    _loadHourFormat12();
     _loadPathDisplayOrder();
     _loadMapColorPalette();
     _loadShouldReloadPolylines();
     _loadMapDisplayUserLocationMarker();
     _loadHideWarningMessage();
+    _loadCurrency();
 
     // Shared Preference only (_SP) i.e. internal to the app
     _loadLastUserPosition();
@@ -123,6 +132,23 @@ class SettingsProvider with ChangeNotifier {
     _dateFormat = format;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('date_format', format);
+    notifyListeners();
+  }
+
+  // ------------------------------------------------------------------------------
+
+  void _loadHourFormat12() async {
+    final prefs = await SharedPreferences.getInstance();
+    final format12 = prefs.getBool('hour_format_12');
+    _hourFormat12 = format12 ?? false;
+    notifyListeners();
+  }
+
+  void setHourFormat12(bool format12) async {
+    if (_hourFormat12 == format12) return;
+    _hourFormat12 = format12;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('hour_format_12', format12);
     notifyListeners();
   }
 
@@ -222,6 +248,23 @@ class SettingsProvider with ChangeNotifier {
     _hideWarningMessage = hide;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('hide_warning_message', hide);
+    notifyListeners();
+  }
+
+  // ------------------------------------------------------------------------------
+
+  void _loadCurrency() async {
+    final prefs = await SharedPreferences.getInstance();
+    final c = prefs.getString('currency');
+    _currency = c ?? 'EUR';
+    notifyListeners();
+  }
+
+  void setCurrency(String currency) async {
+    if (_currency == currency) return;
+    _currency = currency;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('currency', currency);
     notifyListeners();
   }
 

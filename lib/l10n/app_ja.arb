@@ -1,6 +1,6 @@
 {
   "@@locale": "ja",
-  "appTitle": "トレーンログ",
+  "appTitle": "トレインログ",
   "language": "日本語",
   "mainMenuButtonTooltip": "メニューを開く",
   "filterButton": "フィルター",
@@ -54,7 +54,9 @@
   "settingsDark": "ダーク",
   "settingsLight": "ライト",
   "settingsDateFormat": "年月日の順序",
+  "settingsHourFormat12": "12時間形式",
   "settingsExampleShort": "例:",
+  "settingsCurrency": "通貨",
   "settingsSystem": "システム",
   "settingsMapPathDisplayOrder": "地図上の経路の表示順",
   "settingMapPathDisplayOrderByCreation": "作成日順",
@@ -213,5 +215,17 @@
   "addTripNameEnd": "{departure}から{arrival}まで",
   "addTripPathHelp": "新しいルーターはベータ版で、電化を示しています。\n\nルーター（新旧）は、電車、路面電車、地下鉄で同じです。希望の経路にルートを設定するには、ピンの配置を微調整する必要があるかもしれません。",
   "addTicketPageTitle": "新しい乗車券",
-  "addTagPageTitle": "新しいタグ"
+  "addTagPageTitle": "新しいタグ",
+
+  "aboutPageAboutSubPageTitle": "Trainlog",
+  "aboutPageHowToSubPageTitle": "使い方",
+  "aboutPagePrivacySubPageTitle": "プライバシ",
+
+  "supportTrainlogButton": "トレインログをサポートする",
+  "joinDiscordButton": "Discordでコミュニティに参加しましょう",
+
+  "websiteRepoButton": "ウェブサイトのリポジトリ",
+  "applicationRepoButton": "アプリケーションのリポジトリ",
+  "pageNotAvailableInUserLanguage": "このページは現在、日本語ではご利用いただけないため、英語で表示されています。",
+  "tableOfContents": "目次"
 }

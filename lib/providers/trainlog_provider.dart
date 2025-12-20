@@ -121,7 +121,7 @@ class TrainlogProvider extends ChangeNotifier {
   }
 
   String generateUserUrl(String? suffix, {bool publicPage = false}) {
-    return publicPage ? "${_service.baseUrl}/$suffix" : "${_service.baseUrl}/u/$username/$suffix";
+    return publicPage ? "${TrainlogService.baseUrl}/$suffix" : "${TrainlogService.baseUrl}/u/$username/$suffix";
   }
 
   // Expose authenticated requests for the rest of the app.
@@ -134,6 +134,8 @@ class TrainlogProvider extends ChangeNotifier {
   Future<void> reloadOperatorList() async {
     if (_username == null) return;
     _listOperatorsLogoUrl = await _service.fetchAllOperatorLogosUrl(_username ?? "");
+
+    notifyListeners();
   }
   
   bool hasOperatorLogo(String operatorName) {
@@ -146,7 +148,9 @@ class TrainlogProvider extends ChangeNotifier {
     required double maxHeight,
     String separator = "&&"
   }) {
-    if (_listOperatorsLogoUrl.isEmpty) reloadOperatorList();
+    if (_listOperatorsLogoUrl.isEmpty && !_loading) {
+      reloadOperatorList();
+    }
 
     // Split multiple operators by &&
     final operators = operatorName.split(separator).map((s) => s.trim()).toList();

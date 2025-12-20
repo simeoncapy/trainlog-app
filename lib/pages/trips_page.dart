@@ -130,6 +130,7 @@ class _TripsPageState extends State<TripsPage> {
                   maxWidth: MediaQuery.of(context).size.width,
                 ),
                 child: PaginatedDataTable(
+                  showCheckboxColumn: false,
                   key: _tableKey,
                   header: _tableGeneralHeaderBuilder(tripsProvider),
                   columns: _buildDataColumns(visibleColumns, width),
@@ -374,13 +375,13 @@ class TripsDataSource extends DataTableSource {
         case 'origin_destination':
           return DataCell(
             Text("${trip.originStation}\n${trip.destinationStation}"),
-            onTap: () {
-              showModalBottomSheet(
-                context: context,
-                builder: (ctx) => TripDetailsBottomSheet(trip: trip),
-                isScrollControlled: true,
-              );
-            },
+            // onTap: () {
+            //   showModalBottomSheet(
+            //     context: context,
+            //     builder: (ctx) => TripDetailsBottomSheet(trip: trip),
+            //     isScrollControlled: true,
+            //   );
+            // },
           );
         case 'origin':
           return DataCell(Text(trip.originStation));
@@ -391,13 +392,20 @@ class TripsDataSource extends DataTableSource {
         case 'endTime':
           return DataCell(Text(formatDateTime(context, trip.endDatetime).replaceAll(RegExp(r" "), "\n")));
         case 'operator':
+          final raw = Uri.decodeComponent(trip.operatorName);
+          final operators = raw.split('&&').map((s) => s.trim()).where((s) => s.isNotEmpty).toList();
+          final count = operators.length;
+
           return DataCell(
             Tooltip(
-              message: Uri.decodeComponent(trip.operatorName).replaceAll("&&", ","), // tooltip text
-              child: _trainlog.getOperatorImage(
-                Uri.decodeComponent(trip.operatorName),
-                maxWidth: 45,
-                maxHeight: 45,
+              message: operators.join(', '),
+              child: _OperatorLogoWithCount(
+                image: _trainlog.getOperatorImage(
+                  raw,
+                  maxWidth: 45,
+                  maxHeight: 45,
+                ),
+                count: count,
               ),
             ),
           );
@@ -422,7 +430,17 @@ class TripsDataSource extends DataTableSource {
   //   ),
   // );
 
-    return DataRow(color: bkgColor, cells: cells,);
+    return DataRow(
+      color: bkgColor, 
+      onSelectChanged: (_) {
+        showModalBottomSheet(
+          context: context,
+          builder: (ctx) => TripDetailsBottomSheet(trip: trip),
+          isScrollControlled: true,
+        );
+      },
+      cells: cells,
+    );
   }
 
   @override
@@ -489,4 +507,67 @@ class TripsDataSource extends DataTableSource {
     }
   }
 }
+
+class _OperatorLogoWithCount extends StatelessWidget {
+  const _OperatorLogoWithCount({
+    required this.image,
+    required this.count,
+  });
+
+  final Widget image;
+  final int count;
+
+  static const double _size = 45;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: _size,
+      height: _size,
+      child: Stack(
+        clipBehavior: Clip.hardEdge, 
+        children: [
+          Center(child: image),
+
+          if (count > 1)
+            Positioned(
+              top: 2,
+              right: 0,
+              child: _Badge(
+                text: count > 9 ? '9+' : '$count',
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Badge extends StatelessWidget {
+  const _Badge({required this.text});
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+      constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
+      decoration: BoxDecoration(
+        color: Colors.red,
+        borderRadius: BorderRadius.circular(9),
+        //border: Border.all(color: Colors.white, width: 1.5),
+      ),
+      child: Text(
+        text,
+        textAlign: TextAlign.center,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 11,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+}
+
 

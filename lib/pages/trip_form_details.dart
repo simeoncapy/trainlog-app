@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/data/models/trip_form_model.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
+import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/utils/number_formatter.dart';
 import 'package:trainlog_app/widgets/titled_container.dart';
@@ -18,7 +19,7 @@ class TripFormDetails extends StatefulWidget {
 }
 
 class _TripFormDetailsState extends State<TripFormDetails> {
-  late String? _currencyCode;
+  late String _currencyCode;
   DateTime? _selectedPurchaseDate;
 
   @override
@@ -26,7 +27,9 @@ class _TripFormDetailsState extends State<TripFormDetails> {
     super.initState();
 
     final model = context.read<TripFormModel>();
-    _currencyCode = model.currencyCode ?? "EUR"; // TODO get user default currency
+    final settings = context.read<SettingsProvider>();
+    
+    _currencyCode = model.currencyCode ?? settings.currency; // TODO get user default currency
     _selectedPurchaseDate = model.purchaseDate ?? DateTime.now();
   }
 
@@ -136,7 +139,7 @@ class _TripFormDetailsState extends State<TripFormDetails> {
                           },
                         );
                       },
-                      child: Text(_currencyCode ?? 'EUR'),
+                      child: Text(_currencyCode),
                     ),
                   ],
                 ),

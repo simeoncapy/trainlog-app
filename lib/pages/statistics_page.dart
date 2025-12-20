@@ -64,6 +64,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
       // Inject StatisticsProvider with TrainlogProvider, then load once
       create: (ctx) => StatisticsProvider(ctx.read<TrainlogProvider>())..load(),
       builder: (context, _) {
+        context.watch<TrainlogProvider>();  // forces rebuild when logos load
         final statsProv  = context.watch<StatisticsProvider>();
         final settings   = context.watch<SettingsProvider>();
         final palette    = MapColorPaletteHelper.getPalette(settings.mapColorPalette);

@@ -174,7 +174,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsDateFormat => 'Date Format';
 
   @override
+  String get settingsHourFormat12 => '12-hour format';
+
+  @override
   String get settingsExampleShort => 'Ex:';
+
+  @override
+  String get settingsCurrency => 'Currency';
 
   @override
   String get settingsSystem => 'System';
@@ -744,4 +750,32 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get addTagPageTitle => 'New Tag';
+
+  @override
+  String get aboutPageAboutSubPageTitle => 'Trainlog';
+
+  @override
+  String get aboutPageHowToSubPageTitle => 'How To';
+
+  @override
+  String get aboutPagePrivacySubPageTitle => 'Privacy';
+
+  @override
+  String get supportTrainlogButton => 'Support Trainlog';
+
+  @override
+  String get joinDiscordButton => 'Join the community on Discord';
+
+  @override
+  String get websiteRepoButton => 'Repository of the website';
+
+  @override
+  String get applicationRepoButton => 'Repository of the application';
+
+  @override
+  String get pageNotAvailableInUserLanguage =>
+      'This page is currently displayed in English because it is not yet available in **your language**.';
+
+  @override
+  String get tableOfContents => 'Table of content';
 }

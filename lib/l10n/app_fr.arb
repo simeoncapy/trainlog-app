@@ -54,7 +54,9 @@
   "settingsDark": "Sombre",
   "settingsLight": "Clair",
   "settingsDateFormat": "Format de la date",
-  "settingsExampleShort": "Ex :", 
+  "settingsHourFormat12": "Format 12 heures",
+  "settingsExampleShort": "Ex :",
+  "settingsCurrency": "Devise",
   "settingsSystem": "Système",
   "settingsMapPathDisplayOrder": "Ordre des trajets sur la carte",
   "settingMapPathDisplayOrderByCreation": "Par date de création",
@@ -212,5 +214,17 @@
   "addTripNameEnd": "{departure} à {arrival}",
   "addTripPathHelp": "Le nouveau routeur est en bêta et affiche l'électrification.\n\nLes routeurs (ancien et nouveau) sont les mêmes pour le train, le tramway et le métro. Vous devrez peut-être ajuster la position des marqueurs pour que le trajet suive le parcours souhaité.",
   "addTicketPageTitle": "Nouveau billet",
-  "addTagPageTitle": "Nouveau Tag"
+  "addTagPageTitle": "Nouveau Tag",
+
+  "aboutPageAboutSubPageTitle": "Trainlog",
+  "aboutPageHowToSubPageTitle": "Aide",
+  "aboutPagePrivacySubPageTitle": "Confidentialité",
+
+  "supportTrainlogButton": "Soutenir Trainlog",
+  "joinDiscordButton": "Rejoignez la communauté sur Discord",
+
+  "websiteRepoButton": "Dépôt du site web",
+  "applicationRepoButton": "Dépôt de l'application",
+  "pageNotAvailableInUserLanguage": "Cette page est actuellement affichée en anglais car elle n'est pas encore disponible en français.",
+  "tableOfContents": "Sommaire"
 }

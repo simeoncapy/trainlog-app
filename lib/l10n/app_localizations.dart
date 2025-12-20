@@ -424,11 +424,23 @@ abstract class AppLocalizations {
   /// **'Date Format'**
   String get settingsDateFormat;
 
+  /// No description provided for @settingsHourFormat12.
+  ///
+  /// In en, this message translates to:
+  /// **'12-hour format'**
+  String get settingsHourFormat12;
+
   /// No description provided for @settingsExampleShort.
   ///
   /// In en, this message translates to:
   /// **'Ex:'**
   String get settingsExampleShort;
+
+  /// No description provided for @settingsCurrency.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency'**
+  String get settingsCurrency;
 
   /// No description provided for @settingsSystem.
   ///
@@ -1323,6 +1335,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'New Tag'**
   String get addTagPageTitle;
+
+  /// No description provided for @aboutPageAboutSubPageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Trainlog'**
+  String get aboutPageAboutSubPageTitle;
+
+  /// No description provided for @aboutPageHowToSubPageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How To'**
+  String get aboutPageHowToSubPageTitle;
+
+  /// No description provided for @aboutPagePrivacySubPageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy'**
+  String get aboutPagePrivacySubPageTitle;
+
+  /// No description provided for @supportTrainlogButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Support Trainlog'**
+  String get supportTrainlogButton;
+
+  /// No description provided for @joinDiscordButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Join the community on Discord'**
+  String get joinDiscordButton;
+
+  /// No description provided for @websiteRepoButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Repository of the website'**
+  String get websiteRepoButton;
+
+  /// No description provided for @applicationRepoButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Repository of the application'**
+  String get applicationRepoButton;
+
+  /// Text displayed if a page file doesn't exist in the user langue. Please replace '**your language**' by the name of the language.
+  ///
+  /// In en, this message translates to:
+  /// **'This page is currently displayed in English because it is not yet available in **your language**.'**
+  String get pageNotAvailableInUserLanguage;
+
+  /// No description provided for @tableOfContents.
+  ///
+  /// In en, this message translates to:
+  /// **'Table of content'**
+  String get tableOfContents;
 }
 
 class _AppLocalizationsDelegate

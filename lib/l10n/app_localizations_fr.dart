@@ -175,7 +175,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String get settingsDateFormat => 'Format de la date';
 
   @override
+  String get settingsHourFormat12 => 'Format 12 heures';
+
+  @override
   String get settingsExampleShort => 'Ex :';
+
+  @override
+  String get settingsCurrency => 'Devise';
 
   @override
   String get settingsSystem => 'Système';
@@ -746,4 +752,32 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get addTagPageTitle => 'Nouveau Tag';
+
+  @override
+  String get aboutPageAboutSubPageTitle => 'Trainlog';
+
+  @override
+  String get aboutPageHowToSubPageTitle => 'Aide';
+
+  @override
+  String get aboutPagePrivacySubPageTitle => 'Confidentialité';
+
+  @override
+  String get supportTrainlogButton => 'Soutenir Trainlog';
+
+  @override
+  String get joinDiscordButton => 'Rejoignez la communauté sur Discord';
+
+  @override
+  String get websiteRepoButton => 'Dépôt du site web';
+
+  @override
+  String get applicationRepoButton => 'Dépôt de l\'application';
+
+  @override
+  String get pageNotAvailableInUserLanguage =>
+      'Cette page est actuellement affichée en anglais car elle n\'est pas encore disponible en français.';
+
+  @override
+  String get tableOfContents => 'Sommaire';
 }

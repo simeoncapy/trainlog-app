@@ -25,17 +25,40 @@ String formatDateTime(
   BuildContext context,
   DateTime dateTime, {
   bool hasTime = true,
+  bool timeOnly = false,
 }) {
   final locale = Localizations.localeOf(context);
   final settings = context.read<SettingsProvider>();
 
-  final pattern = settings.dateFormat;
+  final timeFormat12h = settings.hourFormat12;
+  final showTime = timeOnly || hasTime;
 
-  final formatter = DateFormat(pattern, locale.languageCode == 'en' ? 'en_GB' : locale.toString());
+  // Decide base pattern
+  final basePattern = timeOnly ? '' : settings.dateFormat;
 
-  if (hasTime) {
-    formatter.add_Hm(); // 24h time
+  final formatter = DateFormat(
+    basePattern,
+    locale.languageCode == 'en' ? 'en_GB' : locale.toString(),
+  );
+
+  if (showTime) {
+    if (timeFormat12h) {
+      formatter.addPattern('h:mma');
+    } else {
+      formatter.add_Hm();
+    }
   }
 
-  return formatter.format(dateTime);
+  var result = formatter.format(dateTime);
+
+  if (showTime && timeFormat12h) {
+    result = result
+        .replaceAll(RegExp(r'AM', caseSensitive: false), 'a')
+        .replaceAll(RegExp(r'PM', caseSensitive: false), 'p')
+        .replaceAll(RegExp(r'a\.m\.', caseSensitive: false), 'a')
+        .replaceAll(RegExp(r'p\.m\.', caseSensitive: false), 'p');
+  }
+
+  return result;
 }
+

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:currency_picker/currency_picker.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/material.dart';
@@ -139,6 +140,34 @@ class _SettingsPageState extends State<SettingsPage> {
                       ),
                     )
                     .toList(),
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.watch),
+              title: Text(appLocalization.settingsHourFormat12),
+              subtitle: Text("(${appLocalization.settingsExampleShort} ${formatDateTime(context, DateTime.now(), timeOnly: true)})"),
+              trailing: Switch(
+                value: settings.hourFormat12, 
+                onChanged: (bool val) {
+                  settings.setHourFormat12(val);
+                }
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.currency_exchange),
+              title: Text(appLocalization.settingsCurrency),
+              trailing: OutlinedButton(
+                onPressed: () {
+                  showCurrencyPicker(
+                    context: context,
+                    showFlag: true,
+                    showCurrencyName: true,
+                    onSelect: (currency) {
+                      settings.setCurrency(currency.code);
+                    },
+                  );
+                },
+                child: Text(settings.currency),
               ),
             ),            
             ListTile(
@@ -322,20 +351,20 @@ class _SettingsPageState extends State<SettingsPage> {
                 icon: const Icon(Icons.mail),
                 label: Text(appLocalization.settingsDeleteAccountRequest),
                 onPressed: () async {
-                  final uri = Uri(
-                    scheme: 'mailto',
-                    path: trainLogDeleteAccountEmail,
-                    queryParameters: {
-                      'subject': 'Request to delete my account',
-                      'body': """
-                          Hello,\n
-                          I would like to delete my account, my username is ${trainlog.username}.\n
-                          \n
-                          Thanks in advance\n
-                          \n
-                          NB: message sent with Trainlog App.
-                        """,
-                    },
+                  final body = [
+                    'Hello,',
+                    '',
+                    'I would like to delete my account, my username is ${trainlog.username}.',
+                    '',
+                    'Thanks in advance,',
+                    '',
+                    'NB: message sent with Trainlog App.',
+                  ].join('\r\n');
+                  final subject = 'Request to delete my account';
+                  final uri = Uri.parse(
+                    'mailto:$trainLogDeleteAccountEmail'
+                    '?subject=${Uri.encodeComponent(subject)}'
+                    '&body=${Uri.encodeComponent(body)}',
                   );
 
                   if (await canLaunchUrl(uri)) {

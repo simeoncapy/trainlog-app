@@ -43,6 +43,9 @@ dependencies:
   timezone: ^0.10.1
   flutter_inappwebview: ^6.1.5
   url_launcher: ^6.2.6
+  flutter_html: ^3.0.0
+  flutter_markdown_plus: ^1.0.5
+  flutter_svg: ^2.0.9
 
 dev_dependencies:
   flutter_test:
@@ -54,3 +57,4 @@ flutter:
   generate: true
   assets:
     - assets/images/
+    - assets/i18n/

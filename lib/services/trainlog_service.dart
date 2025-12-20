@@ -41,7 +41,7 @@ class TrainlogService {
 
   TrainlogService._(this._dio, this._cookieJar);
 
-  String get baseUrl => _baseUrl;
+  static String get baseUrl => _baseUrl;
 
   /// Non-persistent cookies (useful for tests)
   factory TrainlogService() {

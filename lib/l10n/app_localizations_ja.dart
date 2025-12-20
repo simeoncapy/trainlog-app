@@ -9,7 +9,7 @@ class AppLocalizationsJa extends AppLocalizations {
   AppLocalizationsJa([String locale = 'ja']) : super(locale);
 
   @override
-  String get appTitle => 'トレーンログ';
+  String get appTitle => 'トレインログ';
 
   @override
   String get language => '日本語';
@@ -174,7 +174,13 @@ class AppLocalizationsJa extends AppLocalizations {
   String get settingsDateFormat => '年月日の順序';
 
   @override
+  String get settingsHourFormat12 => '12時間形式';
+
+  @override
   String get settingsExampleShort => '例:';
+
+  @override
+  String get settingsCurrency => '通貨';
 
   @override
   String get settingsSystem => 'システム';
@@ -740,4 +746,32 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get addTagPageTitle => '新しいタグ';
+
+  @override
+  String get aboutPageAboutSubPageTitle => 'Trainlog';
+
+  @override
+  String get aboutPageHowToSubPageTitle => '使い方';
+
+  @override
+  String get aboutPagePrivacySubPageTitle => 'プライバシ';
+
+  @override
+  String get supportTrainlogButton => 'トレインログをサポートする';
+
+  @override
+  String get joinDiscordButton => 'Discordでコミュニティに参加しましょう';
+
+  @override
+  String get websiteRepoButton => 'ウェブサイトのリポジトリ';
+
+  @override
+  String get applicationRepoButton => 'アプリケーションのリポジトリ';
+
+  @override
+  String get pageNotAvailableInUserLanguage =>
+      'このページは現在、日本語ではご利用いただけないため、英語で表示されています。';
+
+  @override
+  String get tableOfContents => '目次';
 }
