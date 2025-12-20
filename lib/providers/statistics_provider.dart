@@ -84,6 +84,8 @@ enum GraphUnit {
 
 class StatisticsProvider extends ChangeNotifier {
   StatisticsProvider(this._trainlog);
+  bool _disposed = false;
+  int _loadToken = 0;
 
   // -------------------------------------------------------------------
   // Dependencies
@@ -130,13 +132,13 @@ class StatisticsProvider extends ChangeNotifier {
   set graph(GraphType g) {
     if (_graph == g) return;
     _graph = g;
-    notifyListeners();
+    _safeNotify();
   }
 
   set unit(GraphUnit u) {
     if (_unit == u) return;
     _unit = u;
-    notifyListeners();
+    _safeNotify();
   }
 
   set year(int? y) {
@@ -146,30 +148,50 @@ class StatisticsProvider extends ChangeNotifier {
     load(); // refetch when year changes
   }
 
+  @override
+  void dispose() {
+    _disposed = true;
+    super.dispose();
+  }
+
+  void _safeNotify() {
+    if (!_disposed) {
+      notifyListeners();
+    }
+  }
+
   // -------------------------------------------------------------------
   // Fetch & cache
   // -------------------------------------------------------------------
   Future<void> load() async {
+    final token = ++_loadToken;
     _isLoading = true;
     _error = null;
-    notifyListeners();
+    _safeNotify();
 
     try {
       final key = _cacheKey(_vehicle, _year);
       if (!_cache.containsKey(key)) {
         final data = await _trainlog.fetchStatsForVehicleType(_vehicle, _year);
+        // Abort if this load is outdated or provider disposed
+        if (_disposed || token != _loadToken) return;
         _cache[key] = data;
       }
+      // Abort again after await-boundary logic
+      if (_disposed || token != _loadToken) return;
+
       // If unit is duration, decide best readable base (min/h/d/mo/y)
       if (_unit == GraphUnit.duration) {
         _durationBase = _decideDurationBase(_rawForCurrentKey());
       }
     } catch (e) {
+      if (_disposed || token != _loadToken) return;
       _error = e.toString();
     }
 
+    if (_disposed || token != _loadToken) return;
     _isLoading = false;
-    notifyListeners();
+    _safeNotify();
   }
 
   String _cacheKey(VehicleType v, int? y) => "${v.name}|${y ?? 'all'}";
