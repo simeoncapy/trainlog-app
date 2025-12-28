@@ -180,7 +180,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsExampleShort => 'Ex:';
 
   @override
-  String get settingsCurrency => 'Currency';
+  String get settingsCurrency => 'Default Currency';
 
   @override
   String get settingsSystem => 'System';

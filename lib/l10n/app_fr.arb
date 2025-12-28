@@ -56,7 +56,7 @@
   "settingsDateFormat": "Format de la date",
   "settingsHourFormat12": "Format 12 heures",
   "settingsExampleShort": "Ex :",
-  "settingsCurrency": "Devise",
+  "settingsCurrency": "Devise par défaut",
   "settingsSystem": "Système",
   "settingsMapPathDisplayOrder": "Ordre des trajets sur la carte",
   "settingMapPathDisplayOrderByCreation": "Par date de création",

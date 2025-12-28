@@ -66,7 +66,7 @@
   "settingsDateFormat": "Date Format",
   "settingsHourFormat12": "12-hour format",
   "settingsExampleShort": "Ex:",
-  "settingsCurrency": "Currency",
+  "settingsCurrency": "Default Currency",
   "settingsSystem": "System",
   "settingsMapPathDisplayOrder": "Order of trip paths on the map",
   "settingMapPathDisplayOrderByCreation": "By creation date",

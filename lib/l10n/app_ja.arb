@@ -56,7 +56,7 @@
   "settingsDateFormat": "年月日の順序",
   "settingsHourFormat12": "12時間形式",
   "settingsExampleShort": "例:",
-  "settingsCurrency": "通貨",
+  "settingsCurrency": "デフォルト通貨",
   "settingsSystem": "システム",
   "settingsMapPathDisplayOrder": "地図上の経路の表示順",
   "settingMapPathDisplayOrderByCreation": "作成日順",

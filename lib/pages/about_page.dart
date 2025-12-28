@@ -4,6 +4,7 @@ import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/pages/privacy_tab.dart';
 import 'package:trainlog_app/services/trainlog_service.dart';
 import 'package:trainlog_app/widgets/localised_markdown.dart';
+import 'package:trainlog_app/widgets/localised_markdown_v2.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class AboutPage extends StatelessWidget {
@@ -90,7 +91,7 @@ class TrainlogProjectDescription extends StatelessWidget {
               padding: const EdgeInsets.all(16),
               child: Column(
                 children: [
-                  LocalisedMarkdown(assetBaseName: 'about', displayToc: true,),
+                  LocalisedMarkdownV2(assetBaseName: 'about', displayToc: false,),
                   SizedBox(height: 8,),
                   _buttonHelper(
                     context, 

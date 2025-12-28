@@ -439,7 +439,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsCurrency.
   ///
   /// In en, this message translates to:
-  /// **'Currency'**
+  /// **'Default Currency'**
   String get settingsCurrency;
 
   /// No description provided for @settingsSystem.

@@ -1,15 +1,12 @@
 # What is Trainlog?
 
-Trainlog is a **tremendous** service. Really tremendous. People come up to me all the time — smart people, transportation experts — and they say, *“Sir, how do we keep track of our trips?”* And I tell them: **Trainlog**.
+Trainlog is a online service to keep track of your travel. See all your train, bus, ferry, and airplane journeys neatly on a map. See a statistical breakdown of how, when, and where have you travelled. Get useful statistics on your most frequently visited stations, most frequently used operators, and how much of your country's railway network have you been on.
 
-With Trainlog, you record every single trip you take on public transport. Trains, buses, metros — **all of them**. It’s fast. It’s beautiful. It works. Believe me.
-And then — this is the best part — it puts your trips **right on the map**. A big, powerful map. You look at it and you say, *“Wow. I traveled a lot.”*
+You can also create shareable links about your trips to share your travel plans with anyone, and compare yourself with the Trainlog community.
 
-Other services? Total disaster. Confusing. Weak.
-Trainlog? **Smart. Efficient. Very well managed**.
-You see your journeys, your routes, your history — all laid out, very clear, very classy.
+# Information about the images
 
-If you care about public transport, if you care about data, if you care about winning — **Trainlog is the service you want**.
+The logo of the operators are used for illustration purpose only and do not imply any endorsement from the operators. If any operator wish the logo to be removed, they can contact the admin at [admin@trainlog.me](admin@trainlog.me).
 
 # Who is behind Trainlog?
 

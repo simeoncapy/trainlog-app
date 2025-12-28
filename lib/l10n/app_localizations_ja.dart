@@ -180,7 +180,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get settingsExampleShort => '例:';
 
   @override
-  String get settingsCurrency => '通貨';
+  String get settingsCurrency => 'デフォルト通貨';
 
   @override
   String get settingsSystem => 'システム';
