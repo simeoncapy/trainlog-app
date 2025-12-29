@@ -18,7 +18,8 @@ Widget build(BuildContext context) {
   final operatorName = Uri.decodeComponent(trip.operatorName);
   final lineName = Uri.decodeComponent(trip.lineName);
   final distance = "${(trip.tripLength / 1000).round()} km";
-  final durationStr = formatSecondsToHMS((trip.manualTripDuration ?? trip.estimatedTripDuration).toInt());
+  final duration = trip.utcEndDatetime?.difference(trip.utcStartDatetime ?? trip.startDatetime);
+  final durationStr = formatSecondsToHMS((trip.manualTripDuration ?? duration?.inSeconds ?? trip.estimatedTripDuration).round().toInt());
 
   final settings = context.read<SettingsProvider>();
   final palette = MapColorPaletteHelper.getPalette(settings.mapColorPalette);
@@ -160,22 +161,28 @@ Widget build(BuildContext context) {
   );
 
   String formatSecondsToHMS(int totalSeconds, {bool withSeconds = false, bool hourEvenIfZero = false}) {
-    int hours = totalSeconds ~/ 3600; // Integer division to get full hours
-    int remainingSecondsAfterHours = totalSeconds % 3600; // Remaining seconds after extracting hours
-    int minutes = remainingSecondsAfterHours ~/ 60; // Integer division to get full minutes
-    int seconds = remainingSecondsAfterHours % 60; // Remaining seconds
+    int days = totalSeconds ~/ 86400; // 24 * 3600
+    int remainingAfterDays = totalSeconds % 86400;
+
+    int hours = remainingAfterDays ~/ 3600;
+    int remainingSecondsAfterHours = remainingAfterDays % 3600;
+
+    int minutes = remainingSecondsAfterHours ~/ 60;
+    int seconds = remainingSecondsAfterHours % 60;
 
     String result = "";
 
-    if(hours != 0 || hourEvenIfZero)
-    {
+    if (days > 0) {
+      result += "$days d ";
+    }
+
+    if (hours != 0 || hourEvenIfZero || days > 0) {
       result += "${hours.toString().padLeft(2, '0')} h ";
     }
 
     result += "${minutes.toString().padLeft(2, '0')} min";
 
-    if(withSeconds)
-    {
+    if (withSeconds) {
       result += " ${seconds.toString().padLeft(2, '0')} s";
     }
 
