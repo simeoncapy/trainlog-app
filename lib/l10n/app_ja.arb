@@ -4,6 +4,10 @@
   "language": "日本語",
   "mainMenuButtonTooltip": "メニューを開く",
   "filterButton": "フィルター",
+  "descendingOrder": "降順",
+  "ascendingOrder": "昇順",
+  "deleteAll": "すべて削除",
+  "deleteSelection": "選択を削除",
   "loginButton": "ログイン",
   "logoutButton": "ログアウト",
   "createAccountButton": "アカウントを作成",
@@ -44,6 +48,8 @@
   "visibilityPrivate": "非公開",
   "helpTitle": "使い方",
   "pageNotImplementedYet": "このページはまだアプリに実装されていません。そのため、Webサイト版が表示されます。ユーザーインターフェースが最適でない場合があります。",
+  "departureSingleCharacter": "発",
+  "arrivalSingleCharacter": "着",
 
   "settingsAppCategory": "アプリ設定",
   "settingsMapCategory": "地図設定",
@@ -88,6 +94,7 @@
   "menuTagsTitle": "タグ",
   "menuTicketsTitle": "乗車券",
   "menuFriendsTitle": "フレンド",
+  "menuSmartPrerecorderTitle": "ココログ",
   "menuSettingsTitle": "設定",
   "menuAboutTitle": "ついて",
 
@@ -227,5 +234,15 @@
   "websiteRepoButton": "ウェブサイトのリポジトリ",
   "applicationRepoButton": "アプリケーションのリポジトリ",
   "pageNotAvailableInUserLanguage": "このページは現在、日本語ではご利用いただけないため、英語で表示されています。",
-  "tableOfContents": "目次"
+  "tableOfContents": "目次",
+
+  "prerecorderExplanationTitle": "ココログとは",
+  "prerecorderExplanation": "ココログツールは、スマートな事前記録ツールです。記録ボタンをクリックすると、現在の座標と日時が自動的に保存されます。その後、2つのログを選択して、保存したデータを使って新しい旅程を作成できます。",
+  "prerecorderExplanationPrivacy": "データはデバイスにのみ保存されます。",
+  "prerecorderRecordButton": "記録",
+  "prerecorderCreateTripButton": "旅行を作成する",
+  "prerecorderNoData": "データは記録されていません",
+  "prerecorderUnknownStation": "不明な駅",
+  "prerecorderDeleteSelectionConfirm": "選択内容を削除してもよろしいですか? この操作は元に戻せません。",
+  "prerecorderDeleteAllConfirm": "記録されたログをすべて削除してもよろしいですか? この操作は元に戻せません。"
 }

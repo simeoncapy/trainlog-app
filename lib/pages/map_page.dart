@@ -14,6 +14,7 @@ import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
 import 'package:trainlog_app/utils/cached_data_utils.dart';
+import 'package:trainlog_app/utils/location_utils.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
 import 'package:trainlog_app/utils/polyline_utils.dart';
 import 'package:trainlog_app/widgets/dropdown_radio_list.dart';
@@ -247,21 +248,8 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
 
   Future<LatLng?> _safeGetPositionOrNull() async {
     if (!await Geolocator.isLocationServiceEnabled()) return null;
-    final pos = await Geolocator.getCurrentPosition(locationSettings: _platformLocationSettings());
+    final pos = await Geolocator.getCurrentPosition(locationSettings: platformLocationSettings());
     return LatLng(pos.latitude, pos.longitude);
-  }
-
-  LocationSettings _platformLocationSettings() {
-    if (kIsWeb) {
-      return WebSettings(accuracy: LocationAccuracy.high, distanceFilter: 0);
-    }
-    if (Platform.isAndroid) {
-      return AndroidSettings(accuracy: LocationAccuracy.high, distanceFilter: 0);
-    }
-    if (Platform.isIOS || Platform.isMacOS) {
-      return AppleSettings(accuracy: LocationAccuracy.high, distanceFilter: 0);
-    }
-    return const LocationSettings(accuracy: LocationAccuracy.high, distanceFilter: 0);
   }
 
   // --- Trips provider hook ----------------------------------------------------

@@ -18,7 +18,7 @@ Widget build(BuildContext context) {
   final operatorName = Uri.decodeComponent(trip.operatorName);
   final lineName = Uri.decodeComponent(trip.lineName);
   final distance = "${(trip.tripLength / 1000).round()} km";
-  final duration = trip.utcEndDatetime?.difference(trip.utcStartDatetime ?? trip.startDatetime);
+  final duration = trip.utcEndDatetime?.difference(trip.utcStartDatetime ?? trip.startDatetime); // UTC start shouldn't be NULL if UTC end is not NULL, so startDatetime shouldn't be used (placed here to avoid NULL error)
   final durationStr = formatSecondsToHMS((trip.manualTripDuration ?? duration?.inSeconds ?? trip.estimatedTripDuration).round().toInt());
 
   final settings = context.read<SettingsProvider>();

@@ -21,6 +21,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get filterButton => 'Filter';
 
   @override
+  String get descendingOrder => 'Descending order';
+
+  @override
+  String get ascendingOrder => 'Ascending order';
+
+  @override
+  String get deleteAll => 'Delete all';
+
+  @override
+  String get deleteSelection => 'Delete selection';
+
+  @override
   String get loginButton => 'Log in';
 
   @override
@@ -145,6 +157,12 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get pageNotImplementedYet =>
       'This page has not been implemented in the application yet. The website version will be displayed instead. The user interface may not be optimal.';
+
+  @override
+  String get departureSingleCharacter => 'D';
+
+  @override
+  String get arrivalSingleCharacter => 'A';
 
   @override
   String get settingsAppCategory => 'App Settings';
@@ -278,6 +296,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get menuFriendsTitle => 'Friends';
+
+  @override
+  String get menuSmartPrerecorderTitle => 'WayStamp';
 
   @override
   String get menuSettingsTitle => 'Settings';
@@ -778,4 +799,35 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tableOfContents => 'Table of content';
+
+  @override
+  String get prerecorderExplanationTitle => 'Explanation';
+
+  @override
+  String get prerecorderExplanation =>
+      'The WayStamp tool is a smart pre-recorder. When you click on the record button, it will automatically save your current coordinate with the date and time. Later one, you could select two stamps and use them to create a new trip with the saved data.';
+
+  @override
+  String get prerecorderExplanationPrivacy =>
+      'The data are saved on your device only.';
+
+  @override
+  String get prerecorderRecordButton => 'Record';
+
+  @override
+  String get prerecorderCreateTripButton => 'Create a trip';
+
+  @override
+  String get prerecorderNoData => 'No data recorded';
+
+  @override
+  String get prerecorderUnknownStation => 'Unknown station';
+
+  @override
+  String get prerecorderDeleteSelectionConfirm =>
+      'Are you sure to delete the selection? This action is irreversible.';
+
+  @override
+  String get prerecorderDeleteAllConfirm =>
+      'Are you sure to delete all the recorded stamps? This action is irreversible.';
 }

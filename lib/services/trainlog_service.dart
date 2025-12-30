@@ -10,6 +10,7 @@ import 'package:path/path.dart' as p;
 import 'dart:convert';
 import 'dart:math' as math;
 import 'package:latlong2/latlong.dart';
+import 'package:trainlog_app/data/models/pre_record_model.dart';
 
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/utils/text_utils.dart';
@@ -534,6 +535,92 @@ class TrainlogService {
       }
     });
     return out;
+  }
+
+  Future<(String? name, String? address, VehicleType type)> findStationFromCoordinate(
+    double lat,
+    double long,
+  ) async {
+    String path = "/reverse?lon=$long&lat=$lat&lang=en";
+    const nullReturn = (null, null, VehicleType.unknown);
+
+    final dio = Dio(
+      BaseOptions(
+        baseUrl: "https://photon.komoot.io",
+        followRedirects: false,
+        validateStatus: (s) => s != null && s >= 200 && s < 400, // general
+        headers: {'User-Agent': _userAgent},
+      ),
+    );
+
+    final res = await dio.get<Map<String, dynamic>>(
+      path,
+      options: Options(
+        followRedirects: true,
+        maxRedirects: 5,
+        responseType: ResponseType.json,
+        validateStatus: (s) => s != null && s >= 200 && s < 400,
+      ),
+    );
+
+    final data = res.data;
+    if (data == null) {
+      return nullReturn;
+    }
+
+    final features = data['features'];
+    if (features is! List || features.isEmpty) {
+      return nullReturn;
+    }
+
+    final feature = features.first as Map<String, dynamic>;
+    final properties = feature['properties'] as Map<String, dynamic>?;
+
+    if (properties == null) {
+      return nullReturn;
+    }
+
+    // --- NAME ---
+    final rawName = properties['name']?.toString();
+    final countryCode = properties['countrycode']?.toString() ?? "";
+    final flag = countryCodeToEmoji(countryCode);
+    String? name = rawName != null ? '$flag $rawName' : null;
+
+    // --- ADDRESS ---
+    final street = properties['street']?.toString() ?? '';
+    final locality = properties['locality']?.toString() ?? '';
+    final district = properties['district']?.toString() ?? '';
+    final city = properties['city']?.toString() ?? '';
+
+    final parts = [
+      street,
+      locality,
+      district,
+      city,
+    ].where((e) => e.trim().isNotEmpty).toList();
+
+    final String? address = parts.isNotEmpty ? parts.join(", ") : null;
+
+    // --- VEHICLE TYPE ---
+    final osmKey = properties['osm_key']?.toString();
+    final osmValue = properties['osm_value']?.toString();
+
+    VehicleType type = VehicleType.unknown;
+
+    if (osmKey == 'railway' && osmValue == 'station') {
+      type = VehicleType.train;
+    }
+    else if (osmKey == 'highway' && osmValue == 'bus_stop') {
+      type = VehicleType.bus;
+    }
+    // else if (osmKey == 'aeroway' && osmValue == 'aerodrome') {
+    //   type = VehicleType.plane;
+    // }
+    else {
+      name = null; // if no station detected, the name is not saved
+    }
+
+    return (name, address, type);
   }
 
   int? toInt(dynamic v) {

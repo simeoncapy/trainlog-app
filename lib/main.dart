@@ -1,7 +1,9 @@
 import 'package:country_picker/country_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/pages/about_page.dart';
+import 'package:trainlog_app/pages/smart_prerecorder_page.dart';
 import 'package:trainlog_app/pages/welcome_page.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
 import 'package:trainlog_app/services/trainlog_service.dart';
@@ -31,6 +33,7 @@ enum AppPageId {
   tags,
   tickets,
   friends,
+  smartPrerecorder,
   settings,
   about,
 }
@@ -212,6 +215,15 @@ class _MyAppState extends State<MyApp> {
         icon: Icons.people,
       ),
       AppPage(
+        id: AppPageId.smartPrerecorder,
+        view: SmartPrerecorderPage(
+          onFabReady: (fab) => _updateFabForPage(AppPageId.smartPrerecorder, fab),
+        ),
+        titleBuilder: (context) =>
+            AppLocalizations.of(context)!.menuSmartPrerecorderTitle,
+        icon: Symbols.checkbook,
+      ),
+      AppPage(
         id: AppPageId.settings,
         view: SettingsPage(),
         titleBuilder: (context) =>
@@ -303,6 +315,7 @@ class _MyAppState extends State<MyApp> {
                         _buildDrawerItem(context, _indexOf(AppPageId.tags)),
                         _buildDrawerItem(context, _indexOf(AppPageId.tickets)),
                         _buildDrawerItem(context, _indexOf(AppPageId.friends)),
+                        _buildDrawerItem(context, _indexOf(AppPageId.smartPrerecorder)),
                       ],
                     ),
                   ),

@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart';
+import 'package:trainlog_app/data/models/pre_record_model.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/utils/text_utils.dart';
@@ -421,5 +422,23 @@ class TrainlogProvider extends ChangeNotifier {
     }
 
     return merged;
+  }
+
+  Future<PreRecordModel> findStationFromCoordinate(
+    double lat,
+    double long,
+  ) async {
+
+    final (name, address, type) = await _service.findStationFromCoordinate(lat, long);
+
+    return PreRecordModel(
+      id: DateTime.now().millisecondsSinceEpoch,
+      stationName: name,
+      address: address,
+      lat: lat,
+      long: long,
+      dateTime: DateTime.now(),
+      type: type,
+    );
   }
 }

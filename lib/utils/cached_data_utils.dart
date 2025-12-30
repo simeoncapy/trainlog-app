@@ -5,16 +5,19 @@ import 'dart:io';
 class AppCacheFileNames {
   static const database = "trainlog.db";
   static const polylines = "polylines_cache.json";
+  static const preRecord = "prerecord.json";
 }
 
 class AppCacheFilePath {
   static late String database;
   static late String polylines;
+  static late String preRecord;
 
   static Future<void> init() async {
     final dir = await getApplicationSupportDirectory();
     database = p.join(dir.path, AppCacheFileNames.database);
     polylines = p.join(dir.path, AppCacheFileNames.polylines);
+    preRecord = p.join(dir.path, AppCacheFileNames.preRecord);
   }
 }
 

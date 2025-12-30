@@ -124,6 +124,30 @@ abstract class AppLocalizations {
   /// **'Filter'**
   String get filterButton;
 
+  /// No description provided for @descendingOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Descending order'**
+  String get descendingOrder;
+
+  /// No description provided for @ascendingOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Ascending order'**
+  String get ascendingOrder;
+
+  /// No description provided for @deleteAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete all'**
+  String get deleteAll;
+
+  /// No description provided for @deleteSelection.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete selection'**
+  String get deleteSelection;
+
   /// No description provided for @loginButton.
   ///
   /// In en, this message translates to:
@@ -369,6 +393,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This page has not been implemented in the application yet. The website version will be displayed instead. The user interface may not be optimal.'**
   String get pageNotImplementedYet;
+
+  /// No description provided for @departureSingleCharacter.
+  ///
+  /// In en, this message translates to:
+  /// **'D'**
+  String get departureSingleCharacter;
+
+  /// No description provided for @arrivalSingleCharacter.
+  ///
+  /// In en, this message translates to:
+  /// **'A'**
+  String get arrivalSingleCharacter;
 
   /// No description provided for @settingsAppCategory.
   ///
@@ -621,6 +657,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Friends'**
   String get menuFriendsTitle;
+
+  /// No description provided for @menuSmartPrerecorderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'WayStamp'**
+  String get menuSmartPrerecorderTitle;
 
   /// No description provided for @menuSettingsTitle.
   ///
@@ -1389,6 +1431,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Table of content'**
   String get tableOfContents;
+
+  /// No description provided for @prerecorderExplanationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Explanation'**
+  String get prerecorderExplanationTitle;
+
+  /// No description provided for @prerecorderExplanation.
+  ///
+  /// In en, this message translates to:
+  /// **'The WayStamp tool is a smart pre-recorder. When you click on the record button, it will automatically save your current coordinate with the date and time. Later one, you could select two stamps and use them to create a new trip with the saved data.'**
+  String get prerecorderExplanation;
+
+  /// No description provided for @prerecorderExplanationPrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'The data are saved on your device only.'**
+  String get prerecorderExplanationPrivacy;
+
+  /// No description provided for @prerecorderRecordButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Record'**
+  String get prerecorderRecordButton;
+
+  /// No description provided for @prerecorderCreateTripButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a trip'**
+  String get prerecorderCreateTripButton;
+
+  /// No description provided for @prerecorderNoData.
+  ///
+  /// In en, this message translates to:
+  /// **'No data recorded'**
+  String get prerecorderNoData;
+
+  /// No description provided for @prerecorderUnknownStation.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown station'**
+  String get prerecorderUnknownStation;
+
+  /// No description provided for @prerecorderDeleteSelectionConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure to delete the selection? This action is irreversible.'**
+  String get prerecorderDeleteSelectionConfirm;
+
+  /// No description provided for @prerecorderDeleteAllConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure to delete all the recorded stamps? This action is irreversible.'**
+  String get prerecorderDeleteAllConfirm;
 }
 
 class _AppLocalizationsDelegate

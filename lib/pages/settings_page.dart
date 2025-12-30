@@ -41,8 +41,9 @@ class _SettingsPageState extends State<SettingsPage> {
   void _refreshCacheSize() {
     final sizeDb = computeCacheFileSize(AppCacheFilePath.database);
     final sizePolylines = computeCacheFileSize(AppCacheFilePath.polylines);
+    final sizePreRecord = computeCacheFileSize(AppCacheFilePath.preRecord);
     setState(() {
-      _totalCacheSize = sizeDb + sizePolylines;
+      _totalCacheSize = sizeDb + sizePolylines + sizePreRecord;
     });
   }
 

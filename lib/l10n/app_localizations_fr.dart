@@ -21,6 +21,18 @@ class AppLocalizationsFr extends AppLocalizations {
   String get filterButton => 'Filtrer';
 
   @override
+  String get descendingOrder => 'Ordre décroissant';
+
+  @override
+  String get ascendingOrder => 'Ordre croissant';
+
+  @override
+  String get deleteAll => 'Tout supprimer';
+
+  @override
+  String get deleteSelection => 'Supprimer la sélection';
+
+  @override
   String get loginButton => 'Connexion';
 
   @override
@@ -146,6 +158,12 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get pageNotImplementedYet =>
       'Cette page n’est pas encore disponible dans l’application. La version web est affichée à la place, et l’interface utilisateur peut être moins adaptée.';
+
+  @override
+  String get departureSingleCharacter => 'D';
+
+  @override
+  String get arrivalSingleCharacter => 'A';
 
   @override
   String get settingsAppCategory => 'Paramètres de l\'application';
@@ -279,6 +297,9 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get menuFriendsTitle => 'Amis';
+
+  @override
+  String get menuSmartPrerecorderTitle => 'Géomémo';
 
   @override
   String get menuSettingsTitle => 'Paramètres';
@@ -780,4 +801,35 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get tableOfContents => 'Sommaire';
+
+  @override
+  String get prerecorderExplanationTitle => 'Explications';
+
+  @override
+  String get prerecorderExplanation =>
+      'L\'outil Géomémo est un pré-enregistreur intelligent. Lorsque vous cliquez sur le bouton d\'enregistrement, il sauvegarde automatiquement vos coordonnées actuelles, ainsi que la date et l\'heure. Vous pourrez ensuite sélectionner deux points de repère et les utiliser pour créer un nouveau parcours à partir des données enregistrées.';
+
+  @override
+  String get prerecorderExplanationPrivacy =>
+      'Les données sont sauvegardées sur votre appareil uniquement.';
+
+  @override
+  String get prerecorderRecordButton => 'Enregistrer';
+
+  @override
+  String get prerecorderCreateTripButton => 'Créer un trajet';
+
+  @override
+  String get prerecorderNoData => 'Aucune données enregistrées';
+
+  @override
+  String get prerecorderUnknownStation => 'Gare inconnue';
+
+  @override
+  String get prerecorderDeleteSelectionConfirm =>
+      'Êtes-vous sûr(e) de vouloir supprimer la sélection ? Cette action est irréversible.';
+
+  @override
+  String get prerecorderDeleteAllConfirm =>
+      'Êtes-vous sûr(e) de vouloir supprimer touts les repères enregistrés ? Cette action est irréversible.';
 }

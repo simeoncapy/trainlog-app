@@ -4,6 +4,10 @@
   "language": "Français",
   "mainMenuButtonTooltip": "Ouvrir le menu",
   "filterButton": "Filtrer",
+  "descendingOrder": "Ordre décroissant",
+  "ascendingOrder": "Ordre croissant",
+  "deleteAll": "Tout supprimer",
+  "deleteSelection": "Supprimer la sélection",
   "loginButton": "Connexion",
   "logoutButton": "Déconnexion",
   "createAccountButton": "Créer un compte",
@@ -44,6 +48,8 @@
   "visibilityPrivate": "Privé",
   "helpTitle": "Aide",
   "pageNotImplementedYet": "Cette page n’est pas encore disponible dans l’application. La version web est affichée à la place, et l’interface utilisateur peut être moins adaptée.",
+  "departureSingleCharacter": "D",
+  "arrivalSingleCharacter": "A",
 
   "settingsAppCategory": "Paramètres de l'application",
   "settingsMapCategory": "Paramètres de la carte",
@@ -87,7 +93,8 @@
   "menuCoverageTitle": "Couverture",
   "menuTagsTitle": "Tags",    
   "menuTicketsTitle": "Tickets", 
-  "menuFriendsTitle": "Amis", 
+  "menuFriendsTitle": "Amis",
+  "menuSmartPrerecorderTitle": "Géomémo",
   "menuSettingsTitle": "Paramètres",
   "menuAboutTitle": "À propos",
 
@@ -226,5 +233,15 @@
   "websiteRepoButton": "Dépôt du site web",
   "applicationRepoButton": "Dépôt de l'application",
   "pageNotAvailableInUserLanguage": "Cette page est actuellement affichée en anglais car elle n'est pas encore disponible en français.",
-  "tableOfContents": "Sommaire"
+  "tableOfContents": "Sommaire",
+
+  "prerecorderExplanationTitle": "Explications",
+  "prerecorderExplanation": "L'outil Géomémo est un pré-enregistreur intelligent. Lorsque vous cliquez sur le bouton d'enregistrement, il sauvegarde automatiquement vos coordonnées actuelles, ainsi que la date et l'heure. Vous pourrez ensuite sélectionner deux points de repère et les utiliser pour créer un nouveau parcours à partir des données enregistrées.",
+  "prerecorderExplanationPrivacy": "Les données sont sauvegardées sur votre appareil uniquement.",
+  "prerecorderRecordButton": "Enregistrer",
+  "prerecorderCreateTripButton": "Créer un trajet",
+  "prerecorderNoData": "Aucune données enregistrées",
+  "prerecorderUnknownStation": "Gare inconnue",
+  "prerecorderDeleteSelectionConfirm": "Êtes-vous sûr(e) de vouloir supprimer la sélection ? Cette action est irréversible.",
+  "prerecorderDeleteAllConfirm": "Êtes-vous sûr(e) de vouloir supprimer touts les repères enregistrés ? Cette action est irréversible."
 }

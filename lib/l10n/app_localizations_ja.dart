@@ -21,6 +21,18 @@ class AppLocalizationsJa extends AppLocalizations {
   String get filterButton => 'フィルター';
 
   @override
+  String get descendingOrder => '降順';
+
+  @override
+  String get ascendingOrder => '昇順';
+
+  @override
+  String get deleteAll => 'すべて削除';
+
+  @override
+  String get deleteSelection => '選択を削除';
+
+  @override
   String get loginButton => 'ログイン';
 
   @override
@@ -145,6 +157,12 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get pageNotImplementedYet =>
       'このページはまだアプリに実装されていません。そのため、Webサイト版が表示されます。ユーザーインターフェースが最適でない場合があります。';
+
+  @override
+  String get departureSingleCharacter => '発';
+
+  @override
+  String get arrivalSingleCharacter => '着';
 
   @override
   String get settingsAppCategory => 'アプリ設定';
@@ -276,6 +294,9 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get menuFriendsTitle => 'フレンド';
+
+  @override
+  String get menuSmartPrerecorderTitle => 'ココログ';
 
   @override
   String get menuSettingsTitle => '設定';
@@ -774,4 +795,34 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get tableOfContents => '目次';
+
+  @override
+  String get prerecorderExplanationTitle => 'ココログとは';
+
+  @override
+  String get prerecorderExplanation =>
+      'ココログツールは、スマートな事前記録ツールです。記録ボタンをクリックすると、現在の座標と日時が自動的に保存されます。その後、2つのログを選択して、保存したデータを使って新しい旅程を作成できます。';
+
+  @override
+  String get prerecorderExplanationPrivacy => 'データはデバイスにのみ保存されます。';
+
+  @override
+  String get prerecorderRecordButton => '記録';
+
+  @override
+  String get prerecorderCreateTripButton => '旅行を作成する';
+
+  @override
+  String get prerecorderNoData => 'データは記録されていません';
+
+  @override
+  String get prerecorderUnknownStation => '不明な駅';
+
+  @override
+  String get prerecorderDeleteSelectionConfirm =>
+      '選択内容を削除してもよろしいですか? この操作は元に戻せません。';
+
+  @override
+  String get prerecorderDeleteAllConfirm =>
+      '記録されたログをすべて削除してもよろしいですか? この操作は元に戻せません。';
 }
