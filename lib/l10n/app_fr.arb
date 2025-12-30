@@ -50,6 +50,8 @@
   "pageNotImplementedYet": "Cette page n’est pas encore disponible dans l’application. La version web est affichée à la place, et l’interface utilisateur peut être moins adaptée.",
   "departureSingleCharacter": "D",
   "arrivalSingleCharacter": "A",
+  "locationServicesDisabled": "Services de location désactivés",
+  "locationPermissionDenied": "Partage de la localisation refusé",
 
   "settingsAppCategory": "Paramètres de l'application",
   "settingsMapCategory": "Paramètres de la carte",

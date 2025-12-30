@@ -406,6 +406,18 @@ abstract class AppLocalizations {
   /// **'A'**
   String get arrivalSingleCharacter;
 
+  /// No description provided for @locationServicesDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Location services are disabled'**
+  String get locationServicesDisabled;
+
+  /// No description provided for @locationPermissionDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Location permission denied'**
+  String get locationPermissionDenied;
+
   /// No description provided for @settingsAppCategory.
   ///
   /// In en, this message translates to:
@@ -1441,7 +1453,7 @@ abstract class AppLocalizations {
   /// No description provided for @prerecorderExplanation.
   ///
   /// In en, this message translates to:
-  /// **'The WayStamp tool is a smart pre-recorder. When you click on the record button, it will automatically save your current coordinate with the date and time. Later one, you could select two stamps and use them to create a new trip with the saved data.'**
+  /// **'The WayStamp tool is a smart pre-recorder. When you click on the record button, it will automatically save your current coordinate with the date and time. Later on, you could select two stamps and use them to create a new trip with the saved data.'**
   String get prerecorderExplanation;
 
   /// No description provided for @prerecorderExplanationPrivacy.

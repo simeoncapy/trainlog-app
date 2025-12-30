@@ -165,6 +165,12 @@ class AppLocalizationsJa extends AppLocalizations {
   String get arrivalSingleCharacter => '着';
 
   @override
+  String get locationServicesDisabled => '位置情報サービスが無効になっています';
+
+  @override
+  String get locationPermissionDenied => '位置情報の許可が拒否されました';
+
+  @override
   String get settingsAppCategory => 'アプリ設定';
 
   @override

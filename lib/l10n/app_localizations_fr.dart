@@ -166,6 +166,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get arrivalSingleCharacter => 'A';
 
   @override
+  String get locationServicesDisabled => 'Services de location désactivés';
+
+  @override
+  String get locationPermissionDenied => 'Partage de la localisation refusé';
+
+  @override
   String get settingsAppCategory => 'Paramètres de l\'application';
 
   @override

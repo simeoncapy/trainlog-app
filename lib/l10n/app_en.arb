@@ -60,6 +60,8 @@
   "pageNotImplementedYet": "This page has not been implemented in the application yet. The website version will be displayed instead. The user interface may not be optimal.",
   "departureSingleCharacter": "D",
   "arrivalSingleCharacter": "A",
+  "locationServicesDisabled": "Location services are disabled",
+  "locationPermissionDenied": "Location permission denied",
   
   "settingsAppCategory": "App Settings",
   "settingsMapCategory": "Map Settings",

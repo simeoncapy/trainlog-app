@@ -165,6 +165,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get arrivalSingleCharacter => 'A';
 
   @override
+  String get locationServicesDisabled => 'Location services are disabled';
+
+  @override
+  String get locationPermissionDenied => 'Location permission denied';
+
+  @override
   String get settingsAppCategory => 'App Settings';
 
   @override
@@ -805,7 +811,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get prerecorderExplanation =>
-      'The WayStamp tool is a smart pre-recorder. When you click on the record button, it will automatically save your current coordinate with the date and time. Later one, you could select two stamps and use them to create a new trip with the saved data.';
+      'The WayStamp tool is a smart pre-recorder. When you click on the record button, it will automatically save your current coordinate with the date and time. Later on, you could select two stamps and use them to create a new trip with the saved data.';
 
   @override
   String get prerecorderExplanationPrivacy =>

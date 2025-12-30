@@ -64,10 +64,10 @@ class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
             : b.dateTime.compareTo(a.dateTime));
   }
 
-  Future<Position> _getCurrentPosition() async {
+  Future<Position> _getCurrentPosition(AppLocalizations loc) async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      throw Exception('Location services are disabled');
+      throw Exception(loc.locationServicesDisabled);
     }
 
     LocationPermission permission = await Geolocator.checkPermission();
@@ -77,7 +77,7 @@ class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
 
     if (permission == LocationPermission.denied ||
         permission == LocationPermission.deniedForever) {
-      throw Exception('Location permission denied');
+      throw Exception(loc.locationPermissionDenied);
     }
 
     return Geolocator.getCurrentPosition(
@@ -397,10 +397,12 @@ class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
 
   FloatingActionButton? buildFloatingActionButton(BuildContext context) {
     final trainlog = Provider.of<TrainlogProvider>(context, listen: false);
+    final loc = AppLocalizations.of(context)!;
     return FloatingActionButton.extended(
       onPressed: () async {
         try {
-          final position = await _getCurrentPosition();
+          final position = await _getCurrentPosition(loc);
+
           final record = await trainlog.findStationFromCoordinate(position.latitude, position.longitude);
           await _savePreRecord(record);
 
@@ -416,7 +418,7 @@ class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
         }
       },
       icon: const Icon(Icons.edit),
-      label: Text(AppLocalizations.of(context)!.prerecorderRecordButton)
+      label: Text(loc.prerecorderRecordButton)
     );
   }
 }

@@ -50,6 +50,8 @@
   "pageNotImplementedYet": "このページはまだアプリに実装されていません。そのため、Webサイト版が表示されます。ユーザーインターフェースが最適でない場合があります。",
   "departureSingleCharacter": "発",
   "arrivalSingleCharacter": "着",
+  "locationServicesDisabled": "位置情報サービスが無効になっています",
+  "locationPermissionDenied": "位置情報の許可が拒否されました",
 
   "settingsAppCategory": "アプリ設定",
   "settingsMapCategory": "地図設定",
