@@ -215,6 +215,38 @@ class TripFormModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void switchDepartureArrival() {
+    // --- swap station names ---
+    final tmpName = departureStationName;
+    departureStationName = arrivalStationName;
+    arrivalStationName = tmpName;
+
+    // --- swap coordinates ---
+    final tmpLat = departureLat;
+    final tmpLong = departureLong;
+    departureLat = arrivalLat;
+    departureLong = arrivalLong;
+    arrivalLat = tmpLat;
+    arrivalLong = tmpLong;
+
+    // --- swap addresses ---
+    final tmpAddress = departureAddress;
+    departureAddress = arrivalAddress;
+    arrivalAddress = tmpAddress;
+
+    // --- swap geo modes ---
+    final tmpGeo = departureGeoMode;
+    departureGeoMode = arrivalGeoMode;
+    arrivalGeoMode = tmpGeo;
+
+    // --- swap error highlights ---
+    final tmpErr = highlightDepartureErrors;
+    highlightDepartureErrors = highlightArrivalErrors;
+    highlightArrivalErrors = tmpErr;
+
+    notifyListeners();
+  }
+
   void setOperators(List<String> ops) {
     selectedOperators = ops;
     notifyListeners();

@@ -12,6 +12,8 @@ import 'package:trainlog_app/widgets/operator_selector.dart';
 import 'package:trainlog_app/widgets/mini_map_box.dart';
 import 'package:trainlog_app/widgets/titled_container.dart';
 
+enum TripPoint { departure, arrival }
+
 class TripFormBasics extends StatelessWidget {
   const TripFormBasics({super.key});
 
@@ -20,6 +22,7 @@ class TripFormBasics extends StatelessWidget {
     final model = context.watch<TripFormModel>();
     final trainlog = Provider.of<TrainlogProvider>(context, listen: false);
 
+    final theme = Theme.of(context);
     final loc = AppLocalizations.of(context)!;
     final vType = model.vehicleType ?? VehicleType.train;
     final vehicleType = vType.name;
@@ -27,7 +30,7 @@ class TripFormBasics extends StatelessWidget {
     final hasStationsError = (model.departureHasError && model.highlightDepartureErrors 
                               || model.arrivalHasError && model.highlightArrivalErrors);
 
-    final borderErrorColor = Theme.of(context).colorScheme.error;
+    final borderErrorColor = theme.colorScheme.error;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -96,96 +99,67 @@ class TripFormBasics extends StatelessWidget {
                     ),
                     SizedBox(height: 12,),
                   ],
+
                 Text(loc.addTripDeparture,
-                    style: Theme.of(context).textTheme.titleSmall),
-                const SizedBox(height: 8,),
-                // key depends on vehicle type → forces rebuild on change
-                StationFieldsSwitcher(
-                  key: ValueKey('dep-${vType.name}'),
+                    style: theme.textTheme.titleSmall),
+                const SizedBox(height: 8,),                
+                _stationFields(
+                  point: TripPoint.departure,
+                  model: model,
                   trainlog: trainlog,
-                  vehicleType: model.vehicleType ?? VehicleType.train,
-                  addressDefaultText: loc.typeStationAddress(vehicleType),
-                  manualNameFieldHint: loc.manualNameStation(vehicleType),
-
-                  initialGeoMode: model.departureGeoMode,
-                  initialStationName: model.departureStationName,
-                  initialLat: model.departureLat,
-                  initialLng: model.departureLong,
-                  initialAddress: model.departureAddress,
-
-                  onChanged: (values) {
-                    model.setDeparture(
-                      name: values['name'],
-                      lat: double.tryParse(values['lat'] ?? ''),
-                      long: double.tryParse(values['long'] ?? ''),
-                      geoMode: values['mode'] == 'geo',
-                      address: values['address'],
-                    );
-                    model.clearDepartureError();
-                  },
+                  loc: loc,
+                  vehicleType: vType,
                 ),
 
-                const SizedBox(height: 12),
+                const SizedBox(height: 8),
+                Align(
+                  alignment: Alignment.center,
+                  child: IconButton(
+                    onPressed: () {
+                      model.switchDepartureArrival();
+                    },
+                    icon: Icon(Icons.swap_vert),
+                    style: IconButton.styleFrom(
+                      backgroundColor: theme.colorScheme.tertiary,
+                      foregroundColor: theme.colorScheme.onTertiary,
+                      fixedSize: const Size(44, 44),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+
                 Text(loc.addTripArrival,
-                    style: Theme.of(context).textTheme.titleSmall),
+                    style: theme.textTheme.titleSmall),
                 const SizedBox(height: 8,),
-                StationFieldsSwitcher(
-                  key: ValueKey('arr-${vType.name}'),
+                _stationFields(
+                  point: TripPoint.arrival,
+                  model: model,
                   trainlog: trainlog,
-                  vehicleType: model.vehicleType ?? VehicleType.train,
-                  addressDefaultText: loc.typeStationAddress(vehicleType),
-                  manualNameFieldHint: loc.manualNameStation(vehicleType),
-
-                  initialGeoMode: model.arrivalGeoMode,
-                  initialStationName: model.arrivalStationName,
-                  initialLat: model.arrivalLat,
-                  initialLng: model.arrivalLong,
-                  initialAddress: model.arrivalAddress,
-
-                  onChanged: (values) {
-                    model.setArrival(
-                      name: values['name'],
-                      lat: double.tryParse(values['lat'] ?? ''),
-                      long: double.tryParse(values['long'] ?? ''),
-                      geoMode: values['mode'] == 'geo',
-                      address: values['address'],
-                    );
-                    model.clearArrivalError();
-                  },
-                ),              
+                  loc: loc,
+                  vehicleType: vType,
+                ),             
                 const SizedBox(height: 12),
+
                 Row(
                   children: [
                     Expanded(
-                      child: MiniMapBox(
-                        lat: model.departureLat,
-                        long: model.departureLong,
-                        emptyMessage:
-                            loc.enterStation("departure", vehicleType),
-                        markerColor: Colors.green,
-                        isCoordinateMovable: model.departureGeoMode,
-                        onCoordinateChanged: (lat, long) {
-                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                            model.updateDepartureCoords(lat, long);
-                          });
-                        },
+                      child: _miniMap(
+                        point: TripPoint.departure,
+                        model: model,
+                        loc: loc,
+                        vehicleType: vType,
                       ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
-                      child: MiniMapBox(
-                        lat: model.arrivalLat,
-                        long: model.arrivalLong,
-                        emptyMessage:
-                            loc.enterStation("arrival", vehicleType),
-                        markerColor: Colors.red,
-                        marker: Icons.where_to_vote,
-                        isCoordinateMovable: model.arrivalGeoMode,
-                        onCoordinateChanged: (lat, long) {
-                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                            model.updateArrivalCoords(lat, long);
-                          });
-                        },
+                      child: _miniMap(
+                        point: TripPoint.arrival,
+                        model: model,
+                        loc: loc,
+                        vehicleType: vType,
                       ),
                     ),
                   ],
@@ -194,7 +168,7 @@ class TripFormBasics extends StatelessWidget {
                 Text(
                   loc.addTripMapUsageHelper,
                   softWrap: true,
-                  style: Theme.of(context).textTheme.bodySmall,
+                  style: theme.textTheme.bodySmall,
                 ),
               ],
             ),
@@ -217,5 +191,90 @@ class TripFormBasics extends StatelessWidget {
       ),
     );
   }
+
+  Widget _stationFields({
+    required TripPoint point,
+    required TripFormModel model,
+    required TrainlogProvider trainlog,
+    required AppLocalizations loc,
+    required VehicleType vehicleType,
+  }) {
+    final isDeparture = point == TripPoint.departure;
+
+    return StationFieldsSwitcher(
+      // key depends on vehicle type → forces rebuild on change
+      key: ValueKey('${isDeparture ? 'dep' : 'arr'}-${vehicleType.name}'),
+      trainlog: trainlog,
+      vehicleType: vehicleType,
+      addressDefaultText: loc.typeStationAddress(vehicleType.name),
+      manualNameFieldHint: loc.manualNameStation(vehicleType.name),
+
+      initialGeoMode:
+          isDeparture ? model.departureGeoMode : model.arrivalGeoMode,
+      initialStationName:
+          isDeparture ? model.departureStationName : model.arrivalStationName,
+      initialLat: isDeparture ? model.departureLat : model.arrivalLat,
+      initialLng: isDeparture ? model.departureLong : model.arrivalLong,
+      initialAddress:
+          isDeparture ? model.departureAddress : model.arrivalAddress,
+
+      onChanged: (values) {
+        final lat = double.tryParse(values['lat'] ?? '');
+        final lng = double.tryParse(values['long'] ?? '');
+
+        if (isDeparture) {
+          model.setDeparture(
+            name: values['name'],
+            lat: lat,
+            long: lng,
+            geoMode: values['mode'] == 'geo',
+            address: values['address'],
+          );
+          model.clearDepartureError();
+        } else {
+          model.setArrival(
+            name: values['name'],
+            lat: lat,
+            long: lng,
+            geoMode: values['mode'] == 'geo',
+            address: values['address'],
+          );
+          model.clearArrivalError();
+        }
+      },
+    );
+  }
+
+  Widget _miniMap({
+    required TripPoint point,
+    required TripFormModel model,
+    required AppLocalizations loc,
+    required VehicleType vehicleType,
+  }) {
+    final isDeparture = point == TripPoint.departure;
+
+    return MiniMapBox(
+      lat: isDeparture ? model.departureLat : model.arrivalLat,
+      long: isDeparture ? model.departureLong : model.arrivalLong,
+      emptyMessage: loc.enterStation(
+        isDeparture ? 'departure' : 'arrival',
+        vehicleType.name,
+      ),
+      markerColor: isDeparture ? Colors.green : Colors.red,
+      marker: isDeparture ? Icons.location_pin : Icons.where_to_vote,
+      isCoordinateMovable:
+          isDeparture ? model.departureGeoMode : model.arrivalGeoMode,
+      onCoordinateChanged: (lat, long) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (isDeparture) {
+            model.updateDepartureCoords(lat, long);
+          } else {
+            model.updateArrivalCoords(lat, long);
+          }
+        });
+      },
+    );
+  }
+
 }
 

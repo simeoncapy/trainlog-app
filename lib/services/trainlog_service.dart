@@ -166,20 +166,37 @@ class TrainlogService {
     int maxRedirects = 5,
     Map<String, dynamic>? headers,
     ValidateStatus? validate,
-  }) async {
-    return _dio.get<T>(
-      path,
-      queryParameters: query,
-      options: Options(
-        followRedirects: followRedirects,
-        maxRedirects: maxRedirects,
-        responseType: responseType,
-        headers: headers,
-        validateStatus: validate ??
-            (s) => s != null && s >= 200 && s < 400, // default logic everywhere
-      ),
-    );
+  }) {
+    return _safeGetWithRetry(() {
+      return _dio.get<T>(
+        path,
+        queryParameters: query,
+        options: Options(
+          followRedirects: followRedirects,
+          maxRedirects: maxRedirects,
+          responseType: responseType,
+          headers: headers,
+          validateStatus: validate ??
+              (s) => s != null && s >= 200 && s < 400,
+        ),
+      );
+    });
   }
+
+  Future<Response<T>> _safeGetWithRetry<T>(
+    Future<Response<T>> Function() request,
+  ) async {
+    try {
+      return await request();
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 500) {
+        await Future.delayed(const Duration(milliseconds: 300));
+        return await request(); // retry once
+      }
+      rethrow;
+    }
+  }
+
 
   // (Optional) replace when you have a real endpoint
   Future<String?> fetchUsernameViaApi() async {
@@ -414,25 +431,30 @@ class TrainlogService {
     }
     path += query;
 
-    if(type == VehicleType.plane) {
-      final res = await _safeGet<List<dynamic>>(path);
+    try
+    {
+      if(type == VehicleType.plane) {
+        final res = await _safeGet<List<dynamic>>(path);
+
+        final data = res.data;
+        if (data == null) {
+          return {};
+        }
+
+        return _airportListGenerator(data);
+      }
+    
+      final res = await _safeGet<Map<String, dynamic>>(path);
 
       final data = res.data;
       if (data == null) {
         return {};
       }
 
-      return _airportListGenerator(data);
-    }
-
-    final res = await _safeGet<Map<String, dynamic>>(path);
-
-    final data = res.data;
-    if (data == null) {
+      return _stationListGenerator(data);
+    } on Exception catch (_) {
       return {};
     }
-
-    return _stationListGenerator(data);
   }
 
   Map<String, (LatLng, String)> _airportListGenerator(List<dynamic> airports) {

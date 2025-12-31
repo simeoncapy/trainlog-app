@@ -74,6 +74,8 @@ class _StationFieldsSwitcherState extends State<StationFieldsSwitcher>
   bool _isSearching = false;
   int _searchRequestId = 0;
 
+  bool _updatingFromSelf = false;
+
   // ------------------------------
   // INIT: restore values properly
   // ------------------------------
@@ -99,25 +101,61 @@ class _StationFieldsSwitcherState extends State<StationFieldsSwitcher>
   void didUpdateWidget(covariant StationFieldsSwitcher oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    // Only update if geoMode AND new coords are provided
-    if (_geoMode && widget.initialLat != oldWidget.initialLat) {
-      _latCtl.text = (widget.initialLat ?? 0.0).toString();
+    // Do NOT resync if this widget triggered the update
+    if (_updatingFromSelf) return;
+
+    // Detect a meaningful external change (switch or reset)
+    final shouldUpdate =
+        widget.initialGeoMode != oldWidget.initialGeoMode ||
+        widget.initialStationName != oldWidget.initialStationName ||
+        widget.initialLat != oldWidget.initialLat ||
+        widget.initialLng != oldWidget.initialLng ||
+        widget.initialAddress != oldWidget.initialAddress;
+
+    if (!shouldUpdate) return;
+
+    // --- sync geo mode ---
+    _geoMode = widget.initialGeoMode;
+
+    if(_geoMode) {
+      _manualNameCtl.text = widget.initialStationName ?? '';
+      _latCtl.text = widget.initialLat?.toString() ?? '0.0';
+      _longCtl.text = widget.initialLng?.toString() ?? '0.0';
+      _nameCtl.text = "";
+      _savedLat = null;
+      _savedLng = null;
     }
-    if (_geoMode && widget.initialLng != oldWidget.initialLng) {
-      _longCtl.text = (widget.initialLng ?? 0.0).toString();
+    else {
+      _nameCtl.text = widget.initialStationName ?? '';
+      _manualNameCtl.text = "";
+      _latCtl.text = "0.0";
+      _longCtl.text = "0.0";
+      _savedLat = widget.initialLat;
+      _savedLng = widget.initialLng;
     }
+
+    _currentAddress = widget.initialAddress ?? '';
+
+    setState(() {});
   }
 
   // ------------------------------
   // Emit updated values to parent
   // ------------------------------
   void _emitValues() {
+    _updatingFromSelf = true;
+
     widget.onChanged?.call({
       'mode': _geoMode ? "geo" : "name",
       'name': _geoMode ? _manualNameCtl.text : _nameCtl.text,
       'lat': _geoMode ? _latCtl.text : _savedLat?.toString() ?? "",
       'long': _geoMode ? _longCtl.text : _savedLng?.toString() ?? "",
       'address': _geoMode ? '' : _currentAddress,
+    });
+
+    // Let the parent rebuild first
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _updatingFromSelf = false;
     });
   }
 
@@ -252,21 +290,22 @@ class _StationFieldsSwitcherState extends State<StationFieldsSwitcher>
     final globeIcon = widget.globePinIcon ?? Symbols.globe_location_pin;
 
     Widget actionButton(IconData icon, VoidCallback onTap) {
-      return Material(
-        color: Theme.of(context).colorScheme.primary,
-        borderRadius: BorderRadius.circular(12),
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(12),
-          child: SizedBox(
-            width: 44,
-            height: 44,
-            child: Icon(icon,
-                color: Theme.of(context).colorScheme.onPrimary),
+      final theme = Theme.of(context);
+
+      return IconButton(
+        onPressed: onTap,
+        icon: Icon(icon),
+        style: IconButton.styleFrom(
+          backgroundColor: theme.colorScheme.primary,
+          foregroundColor: theme.colorScheme.onPrimary,
+          fixedSize: const Size(44, 44),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
           ),
         ),
       );
     }
+
 
     // ---------------- NAME MODE ------------------
     final nameMode = Column(
