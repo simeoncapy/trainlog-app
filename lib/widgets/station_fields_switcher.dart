@@ -93,6 +93,8 @@ class _StationFieldsSwitcherState extends State<StationFieldsSwitcher>
       _nameCtl.text = widget.initialStationName ?? "";
       _savedLat = widget.initialLat;
       _savedLng = widget.initialLng;
+      _latCtl.text = "0.0";
+      _longCtl.text = "0.0";
     }
     _currentAddress = widget.initialAddress ?? '';
   }

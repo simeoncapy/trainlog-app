@@ -27,6 +27,7 @@ class SettingsProvider with ChangeNotifier {
   String? _SP_authUsername;
   bool _SP_shouldLoadTripsFromApi = true;
   DateTime? _SP_mostRecentFutureTripOnMap;
+  bool _SP_isSmartPrerecorderExplanationExpanded = true;
 
   static const _kLastUserLat = 'last_user_lat';
   static const _kLastUserLng = 'last_user_lng';
@@ -49,6 +50,7 @@ class SettingsProvider with ChangeNotifier {
   String? get authUsername => _SP_authUsername;
   bool get shouldLoadTripsFromApi => _SP_shouldLoadTripsFromApi;
   DateTime? get mostRecentFutureTripOnMap => _SP_mostRecentFutureTripOnMap;
+  bool get isSmartPrerecorderExplanationExpanded => _SP_isSmartPrerecorderExplanationExpanded;
 
   SettingsProvider() {
     // Shared Preference in settings
@@ -68,6 +70,7 @@ class SettingsProvider with ChangeNotifier {
     _loadRefusedToSharePosition();
     _loadUsername();
     _loadShouldLoadTripsFromApi();
+    _loadIsSmartPrerecorderExplanationExpanded();
   }
 
   void _loadTheme() async {
@@ -351,6 +354,23 @@ class SettingsProvider with ChangeNotifier {
     _SP_shouldLoadTripsFromApi = p;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('should_load_trips_from_api', p);
+    notifyListeners();
+  }
+
+  // ------------------------------------------------------------------------------
+
+  void _loadIsSmartPrerecorderExplanationExpanded() async {
+    final prefs = await SharedPreferences.getInstance();
+    final p = prefs.getBool('is_spr_explanation_expanded');
+    _SP_isSmartPrerecorderExplanationExpanded = p ?? true;
+    notifyListeners();
+  }
+
+  void setIsSmartPrerecorderExplanationExpanded(bool p) async {
+    if (_SP_isSmartPrerecorderExplanationExpanded == p) return;
+    _SP_isSmartPrerecorderExplanationExpanded = p;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('is_spr_explanation_expanded', p);
     notifyListeners();
   }
 }

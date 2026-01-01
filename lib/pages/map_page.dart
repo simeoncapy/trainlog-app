@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -429,8 +430,8 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
 
     if (_loading) {
       return Center(
-        child: Stack(
-          alignment: Alignment.center,
+        child: Column(  
+          mainAxisAlignment: MainAxisAlignment.center,        
           children: [
             const CircularProgressIndicator(),
             const SizedBox(height: 16),
@@ -480,8 +481,18 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
                   if (tappedEntry != null) {
                     showModalBottomSheet(
                       context: context,
+                      useSafeArea: true,
                       isScrollControlled: true,
-                      builder: (_) => TripDetailsBottomSheet(trip: tappedEntry),
+                      //builder: (_) => TripDetailsBottomSheet(trip: tappedEntry),
+                      builder: (ctx) {
+                        final mq = MediaQuery.of(ctx);
+                        final bottom = math.max(mq.viewPadding.bottom, mq.viewInsets.bottom);
+
+                        return Padding(
+                          padding: EdgeInsets.only(bottom: bottom),
+                          child: TripDetailsBottomSheet(trip: tappedEntry),
+                        );
+                      },
                     );
                     break;
                   }

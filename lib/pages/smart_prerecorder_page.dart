@@ -280,8 +280,10 @@ class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
   }
 
   ExpansionTile _explanationTile(AppLocalizations loc, ThemeData theme) {
+    final settings = context.read<SettingsProvider>();
     return ExpansionTile(
-          initiallyExpanded: true,
+          initiallyExpanded: settings.isSmartPrerecorderExplanationExpanded,
+          onExpansionChanged: (p) => settings.setIsSmartPrerecorderExplanationExpanded(p),
           tilePadding: const EdgeInsets.symmetric(horizontal: 16),
           childrenPadding: const EdgeInsets.only(bottom: 8),
           leading: Icon(Icons.info),

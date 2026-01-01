@@ -281,116 +281,118 @@ class _MyAppState extends State<MyApp> {
     return _buildAppScaffold(context);
   }
 
-  Scaffold _buildAppScaffold(BuildContext context) {
+  SafeArea _buildAppScaffold(BuildContext context) {
     final currentPage = _pages[_selectedIndex];
 
-    return Scaffold(
-      appBar: isDrawerPage
-          ? AppBar(
-              title: Text(currentPage.titleBuilder(context)),
-              leading: IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: _goBackToBottomNavPage,
-              ),
-            )
-          : null,
-      floatingActionButton: ValueListenableBuilder<FloatingActionButton?>(
-        valueListenable: _fabNotifier,
-        builder: (_, fab, __) => fab ?? const SizedBox.shrink(),
-      ),
-      drawer: isDrawerPage
-          ? null
-          : Drawer(
-              //shape: ShapeBorder.lerp(a, b, t),
-              child: Column(
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      border: Border.symmetric(
-                        horizontal: BorderSide(
-                          color: Color(0xFF3772FF),
-                          width: 20
+    return SafeArea(
+      child: Scaffold(
+        appBar: isDrawerPage
+            ? AppBar(
+                title: Text(currentPage.titleBuilder(context)),
+                leading: IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: _goBackToBottomNavPage,
+                ),
+              )
+            : null,
+        floatingActionButton: ValueListenableBuilder<FloatingActionButton?>(
+          valueListenable: _fabNotifier,
+          builder: (_, fab, __) => fab ?? const SizedBox.shrink(),
+        ),
+        drawer: isDrawerPage
+            ? null
+            : Drawer(
+                //shape: ShapeBorder.lerp(a, b, t),
+                child: Column(
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.symmetric(
+                          horizontal: BorderSide(
+                            color: Color(0xFF3772FF),
+                            width: 20
+                          )
                         )
-                      )
+                      ),
+                      child: const DrawerHeader(
+                        margin: EdgeInsets.all(0),
+                        decoration: BoxDecoration(color: Color(0xFF14213D)),
+                        //decoration: BoxDecoration(color: Colors.blue),
+                        child: MenuHeader(),
+                      ),
                     ),
-                    child: const DrawerHeader(
-                      margin: EdgeInsets.all(0),
-                      decoration: BoxDecoration(color: Color(0xFF14213D)),
-                      //decoration: BoxDecoration(color: Colors.blue),
-                      child: MenuHeader(),
+                    Expanded(
+                      child: ListView(
+                        padding: EdgeInsets.zero,
+                        children: [
+                          _buildDrawerItem(context, _indexOf(AppPageId.coverage)),
+                          _buildDrawerItem(context, _indexOf(AppPageId.tags)),
+                          _buildDrawerItem(context, _indexOf(AppPageId.tickets)),
+                          _buildDrawerItem(context, _indexOf(AppPageId.friends)),
+                          _buildDrawerItem(context, _indexOf(AppPageId.smartPrerecorder)),
+                        ],
+                      ),
                     ),
-                  ),
-                  Expanded(
-                    child: ListView(
-                      padding: EdgeInsets.zero,
-                      children: [
-                        _buildDrawerItem(context, _indexOf(AppPageId.coverage)),
-                        _buildDrawerItem(context, _indexOf(AppPageId.tags)),
-                        _buildDrawerItem(context, _indexOf(AppPageId.tickets)),
-                        _buildDrawerItem(context, _indexOf(AppPageId.friends)),
-                        _buildDrawerItem(context, _indexOf(AppPageId.smartPrerecorder)),
+                    const Divider(),
+                    _buildDrawerItem(context, _indexOf(AppPageId.about)),
+                    _buildDrawerItem(context, _indexOf(AppPageId.settings)),
+                  ],
+                ),
+              ),
+        body: Stack(
+          children: [
+            PageView(
+              controller: _pageController,
+              physics: const NeverScrollableScrollPhysics(),
+              children: _pages.map((p) => p.view).toList(),
+            ),
+            if (!isDrawerPage)
+              Positioned(
+                top: 16,
+                left: 16,
+                child: Builder(
+                  builder: (innerContext) => Container(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surfaceBright,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Theme.of(context).colorScheme.primary,
+                        width: 2,
+                      ),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 4,
+                          offset: Offset(2, 2),
+                        ),
                       ],
                     ),
-                  ),
-                  const Divider(),
-                  _buildDrawerItem(context, _indexOf(AppPageId.about)),
-                  _buildDrawerItem(context, _indexOf(AppPageId.settings)),
-                ],
-              ),
-            ),
-      body: Stack(
-        children: [
-          PageView(
-            controller: _pageController,
-            physics: const NeverScrollableScrollPhysics(),
-            children: _pages.map((p) => p.view).toList(),
-          ),
-          if (!isDrawerPage)
-            Positioned(
-              top: 16,
-              left: 16,
-              child: Builder(
-                builder: (innerContext) => Container(
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surfaceBright,
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: Theme.of(context).colorScheme.primary,
-                      width: 2,
+                    child: IconButton(
+                      icon: const Icon(Icons.menu),
+                      color: Theme.of(context).colorScheme.onSurface,
+                      tooltip: AppLocalizations.of(context)!.mainMenuButtonTooltip,
+                      onPressed: () => Scaffold.of(innerContext).openDrawer(),
                     ),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Colors.black12,
-                        blurRadius: 4,
-                        offset: Offset(2, 2),
-                      ),
-                    ],
-                  ),
-                  child: IconButton(
-                    icon: const Icon(Icons.menu),
-                    color: Theme.of(context).colorScheme.onSurface,
-                    tooltip: AppLocalizations.of(context)!.mainMenuButtonTooltip,
-                    onPressed: () => Scaffold.of(innerContext).openDrawer(),
                   ),
                 ),
               ),
-            ),
-        ],
+          ],
+        ),
+        bottomNavigationBar: isDrawerPage
+            ? null
+            : NavigationBar(
+                onDestinationSelected: _onItemTapped,
+                selectedIndex: _selectedIndex,
+                destinations: [
+                  for (int i = 0; i < 4; i++)
+                    NavigationDestination(
+                      icon: Icon(_pages[i].icon),
+                      selectedIcon: Icon(_pages[i].icon),
+                      label: _pages[i].titleBuilder(context),
+                    ),
+                ],
+              ),
       ),
-      bottomNavigationBar: isDrawerPage
-          ? null
-          : NavigationBar(
-              onDestinationSelected: _onItemTapped,
-              selectedIndex: _selectedIndex,
-              destinations: [
-                for (int i = 0; i < 4; i++)
-                  NavigationDestination(
-                    icon: Icon(_pages[i].icon),
-                    selectedIcon: Icon(_pages[i].icon),
-                    label: _pages[i].titleBuilder(context),
-                  ),
-              ],
-            ),
     );
   }
 

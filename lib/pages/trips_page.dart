@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/data/models/trip_form_model.dart';
@@ -434,8 +436,18 @@ class TripsDataSource extends DataTableSource {
       color: bkgColor, 
       onSelectChanged: (_) {
         showModalBottomSheet(
+          useSafeArea: true,
           context: context,
-          builder: (ctx) => TripDetailsBottomSheet(trip: trip),
+          builder: (ctx) {
+            final mq = MediaQuery.of(ctx);
+            final bottom = math.max(mq.viewPadding.bottom, mq.viewInsets.bottom);
+
+            return Padding(
+              padding: EdgeInsets.only(bottom: bottom),
+              child: TripDetailsBottomSheet(trip: trip),
+            );
+          },
+          //builder: (ctx) => TripDetailsBottomSheet(trip: trip),
           isScrollControlled: true,
         );
       },

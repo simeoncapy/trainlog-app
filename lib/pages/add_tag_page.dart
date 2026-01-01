@@ -11,28 +11,30 @@ class AddTagPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(loc.addTagPageTitle),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          },
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(loc.addTagPageTitle),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
         ),
-      ),
-      body: Column(
-        children: [
-          DismissibleErrorBannerBlock(
-            message: loc.pageNotImplementedYet,
-            severity: ErrorSeverity.warning,
-          ),
-          Expanded(
-            child: TrainlogWebPage(
-              trainlogPage: "new_tag",
+        body: Column(
+          children: [
+            DismissibleErrorBannerBlock(
+              message: loc.pageNotImplementedYet,
+              severity: ErrorSeverity.warning,
             ),
-          ),
-        ],
+            Expanded(
+              child: TrainlogWebPage(
+                trainlogPage: "new_tag",
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

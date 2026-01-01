@@ -1,4 +1,4 @@
-package com.example.trainlog_app
+package me.trainlog.app
 
 import io.flutter.embedding.android.FlutterActivity
 

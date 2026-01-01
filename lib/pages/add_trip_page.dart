@@ -202,75 +202,77 @@ class _AddTripPageState extends State<AddTripPage> {
     final loc = AppLocalizations.of(context)!;
     final isLastStep = currentStep == stepList!.length - 1;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(loc.addTripPageTitle),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: _previousStepOrExit,
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(loc.addTripPageTitle),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: _previousStepOrExit,
+          ),
         ),
-      ),
-      body: Column(
-        children: [
-          StepProgress(
-            totalSteps: stepList!.length,
-            currentStep: currentStep,
-            controller: stepProgressController,
-            nodeTitles: stepList,
-            nodeIconBuilder: (index, _) {
-              switch (index) {
-                case 0:
-                  return const Icon(Icons.info);
-                case 1:
-                  return const Icon(Icons.date_range);
-                case 2:
-                  return const Icon(Icons.subject);
-                case 3:
-                  return const Icon(Icons.route);
-                default:
-                  return const Icon(Icons.help);
-              }
-            },
-            theme: StepProgressThemeData(
-              nodeLabelAlignment: StepLabelAlignment.top,
-              stepLineSpacing: 2,
-              stepLineStyle: const StepLineStyle(lineThickness: 2),
-              defaultForegroundColor:
-                  Theme.of(context).colorScheme.surfaceContainerHighest,
-              activeForegroundColor: Theme.of(context).colorScheme.primary,
-              stepNodeStyle: StepNodeStyle(
-                iconColor: Theme.of(context).colorScheme.onSurface,
-                activeIconColor: Theme.of(context).colorScheme.onPrimary,
+        body: Column(
+          children: [
+            StepProgress(
+              totalSteps: stepList!.length,
+              currentStep: currentStep,
+              controller: stepProgressController,
+              nodeTitles: stepList,
+              nodeIconBuilder: (index, _) {
+                switch (index) {
+                  case 0:
+                    return const Icon(Icons.info);
+                  case 1:
+                    return const Icon(Icons.date_range);
+                  case 2:
+                    return const Icon(Icons.subject);
+                  case 3:
+                    return const Icon(Icons.route);
+                  default:
+                    return const Icon(Icons.help);
+                }
+              },
+              theme: StepProgressThemeData(
+                nodeLabelAlignment: StepLabelAlignment.top,
+                stepLineSpacing: 2,
+                stepLineStyle: const StepLineStyle(lineThickness: 2),
+                defaultForegroundColor:
+                    Theme.of(context).colorScheme.surfaceContainerHighest,
+                activeForegroundColor: Theme.of(context).colorScheme.primary,
+                stepNodeStyle: StepNodeStyle(
+                  iconColor: Theme.of(context).colorScheme.onSurface,
+                  activeIconColor: Theme.of(context).colorScheme.onPrimary,
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 16),
-
-          // Step content
-          Expanded(
-            child: PageView(
-              controller: _pageController,
-              physics: const NeverScrollableScrollPhysics(),
-              children: const [
-                TripFormBasics(),
-                TripFormDate(),
-                TripFormDetails(),
-                TripFormPath(),
-              ],
+            const SizedBox(height: 16),
+      
+            // Step content
+            Expanded(
+              child: PageView(
+                controller: _pageController,
+                physics: const NeverScrollableScrollPhysics(),
+                children: const [
+                  TripFormBasics(),
+                  TripFormDate(),
+                  TripFormDetails(),
+                  TripFormPath(),
+                ],
+              ),
             ),
-          ),
-
-          // Bottom button
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            child: isLastStep ? _bottomButtonHelper(isLastStep) 
-                  : SizedBox(
-                    width: double.infinity,
-                    height: 40,
-                    child: _bottomButtonHelper(isLastStep),
+      
+            // Bottom button
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              child: isLastStep ? _bottomButtonHelper(isLastStep) 
+                    : SizedBox(
+                      width: double.infinity,
+                      height: 40,
+                      child: _bottomButtonHelper(isLastStep),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

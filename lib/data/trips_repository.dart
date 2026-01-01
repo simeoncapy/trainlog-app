@@ -53,6 +53,7 @@ class TripsRepository {
   TripsRepository(this._db);
 
   static Future<TripsRepository> loadFromCsv(String csvPathOrContent, {bool replace = false, bool path = true}) async {
+    print("Trip load from CSV");
     String content;
     if(path){
       final csvPath = csvPathOrContent;
@@ -91,6 +92,7 @@ class TripsRepository {
   }
 
   static Future<TripsRepository> loadFromDatabase() async {
+    print("Trip load from DB");
     final db = await DatabaseManager.database;
     return TripsRepository(db);
   }

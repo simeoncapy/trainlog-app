@@ -68,6 +68,8 @@ flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
   image_path: "assets/icon/trainlog_icon.png"
+  adaptive_icon_background: "assets/icon/trainlog_icon_background.png"
+  adaptive_icon_foreground: "assets/icon/trainlog_icon_foreground.png"
   min_sdk_android: 21
   windows:
     generate: true
