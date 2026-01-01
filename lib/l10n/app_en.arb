@@ -10,6 +10,7 @@
   "deleteSelection": "Delete selection",
   "loginButton": "Log in",
   "logoutButton": "Log out",
+  "loggedOut": "Logged out",
   "createAccountButton": "Create an account",
   "emailLabel": "Email",
   "emailHint": "you@example.com",

@@ -10,6 +10,7 @@
   "deleteSelection": "選択を削除",
   "loginButton": "ログイン",
   "logoutButton": "ログアウト",
+  "loggedOut": "ログアウトしました",
   "createAccountButton": "アカウントを作成",
   "emailLabel": "メールアドレス",
   "emailHint": "you@example.com",

@@ -10,6 +10,7 @@
   "deleteSelection": "Supprimer la sélection",
   "loginButton": "Connexion",
   "logoutButton": "Déconnexion",
+  "loggedOut": "Déconnecté",
   "createAccountButton": "Créer un compte",
   "emailLabel": "Courriel",
   "emailHint": "vous@example.com",

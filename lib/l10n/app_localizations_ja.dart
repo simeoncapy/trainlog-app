@@ -39,6 +39,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get logoutButton => 'ログアウト';
 
   @override
+  String get loggedOut => 'ログアウトしました';
+
+  @override
   String get createAccountButton => 'アカウントを作成';
 
   @override

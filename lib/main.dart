@@ -301,11 +301,24 @@ class _MyAppState extends State<MyApp> {
       drawer: isDrawerPage
           ? null
           : Drawer(
+              //shape: ShapeBorder.lerp(a, b, t),
               child: Column(
                 children: [
-                  const DrawerHeader(
-                    decoration: BoxDecoration(color: Colors.blue),
-                    child: MenuHeader(),
+                  Container(
+                    decoration: BoxDecoration(
+                      border: Border.symmetric(
+                        horizontal: BorderSide(
+                          color: Color(0xFF3772FF),
+                          width: 20
+                        )
+                      )
+                    ),
+                    child: const DrawerHeader(
+                      margin: EdgeInsets.all(0),
+                      decoration: BoxDecoration(color: Color(0xFF14213D)),
+                      //decoration: BoxDecoration(color: Colors.blue),
+                      child: MenuHeader(),
+                    ),
                   ),
                   Expanded(
                     child: ListView(

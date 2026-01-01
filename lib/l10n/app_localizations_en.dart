@@ -39,6 +39,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get logoutButton => 'Log out';
 
   @override
+  String get loggedOut => 'Logged out';
+
+  @override
   String get createAccountButton => 'Create an account';
 
   @override

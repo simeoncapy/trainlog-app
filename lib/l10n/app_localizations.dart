@@ -160,6 +160,12 @@ abstract class AppLocalizations {
   /// **'Log out'**
   String get logoutButton;
 
+  /// No description provided for @loggedOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Logged out'**
+  String get loggedOut;
+
   /// No description provided for @createAccountButton.
   ///
   /// In en, this message translates to:

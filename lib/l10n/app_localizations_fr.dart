@@ -39,6 +39,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get logoutButton => 'Déconnexion';
 
   @override
+  String get loggedOut => 'Déconnecté';
+
+  @override
   String get createAccountButton => 'Créer un compte';
 
   @override
