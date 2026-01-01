@@ -85,15 +85,15 @@ class _StationFieldsSwitcherState extends State<StationFieldsSwitcher>
 
     _geoMode = widget.initialGeoMode;
 
-    //if (_geoMode) {
+    if (_geoMode) {
       _latCtl.text = (widget.initialLat ?? 0.0).toString();
       _longCtl.text = (widget.initialLng ?? 0.0).toString();
       _manualNameCtl.text = widget.initialStationName ?? "";
-    //} else {
+    } else {
       _nameCtl.text = widget.initialStationName ?? "";
       _savedLat = widget.initialLat;
       _savedLng = widget.initialLng;
-    //}
+    }
     _currentAddress = widget.initialAddress ?? '';
   }
 

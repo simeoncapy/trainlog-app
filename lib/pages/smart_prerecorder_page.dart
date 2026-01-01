@@ -254,7 +254,7 @@ class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
           SizedBox(height: 8,),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.only(bottom: 80), // Avoing the last item to be hidden by the FAB
+              padding: const EdgeInsets.only(bottom: 80), // Avoid the last item to be hidden by the FAB
               child: _records.isEmpty
                 ? Center(
                     child: Text(
@@ -263,6 +263,7 @@ class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
                     ),
                   )
                 : ListView.builder(
+                    //padding: const EdgeInsets.only(bottom: 80), // Avoid the last item to be hidden by the FAB
                     itemCount: _records.length,
                     itemBuilder: (context, index) {
                       final record = _records[index];
