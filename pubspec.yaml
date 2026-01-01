@@ -1,5 +1,5 @@
 name: trainlog_app
-description: "A new Flutter project."
+description: "Your online travel diary"
 publish_to: 'none'
 version: 0.1.0
 
@@ -47,6 +47,9 @@ dependencies:
   flutter_markdown_plus: ^1.0.5
   markdown_widget: ^2.3.2
   flutter_svg: ^2.0.9
+  flutter_launcher_icons: ^0.14.4
+  #dotted_line_flutter: ^2.1.8 # not used anymore, delete?
+  #dotted_border: ^3.1.0
 
 dev_dependencies:
   flutter_test:
@@ -59,3 +62,13 @@ flutter:
   assets:
     - assets/images/
     - assets/i18n/
+    - assets/logo/
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/icon/trainlog_icon.png"
+  min_sdk_android: 21
+  windows:
+    generate: true
+    icon_size: 256 # min:48, max:256, default: 48
