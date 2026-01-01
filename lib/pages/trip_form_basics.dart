@@ -42,7 +42,7 @@ class TripFormBasics extends StatelessWidget {
               labelText: loc.addTripTransportationMode,
               border: const OutlineInputBorder(),
             ),
-            value: model.vehicleType,
+            initialValue: model.vehicleType,
             items: VehicleType.values
                 .where((v) => v != VehicleType.unknown && v != VehicleType.poi)
                 .map(

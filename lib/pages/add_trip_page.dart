@@ -9,7 +9,8 @@ import 'package:trainlog_app/pages/trip_form_details.dart';
 import 'package:trainlog_app/pages/trip_form_path.dart';
 
 class AddTripPage extends StatefulWidget {
-  const AddTripPage({super.key});
+  final List<int>? preRecorderIdsToDelete;
+  const AddTripPage({super.key, this.preRecorderIdsToDelete});
 
   @override
   State<AddTripPage> createState() => _AddTripPageState();

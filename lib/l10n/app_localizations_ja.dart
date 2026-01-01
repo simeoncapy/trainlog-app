@@ -813,6 +813,9 @@ class AppLocalizationsJa extends AppLocalizations {
       'ココログツールは、スマートな事前記録ツールです。記録ボタンをクリックすると、現在の座標と日時が自動的に保存されます。その後、2つのログを選択して、保存したデータを使って新しい旅程を作成できます。';
 
   @override
+  String get prerecorderExplanationDelete => '旅行が作成されると、2つのログは自動的に削除されます。';
+
+  @override
   String get prerecorderExplanationPrivacy => 'データはデバイスにのみ保存されます。';
 
   @override

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/data/models/pre_record_model.dart';
+import 'package:trainlog_app/data/models/trip_form_model.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'package:trainlog_app/l10n/app_localizations.dart';
+import 'package:trainlog_app/pages/add_trip_page.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
@@ -193,6 +195,45 @@ class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
     );
   }
 
+  TripFormModel _createTripFormModel()
+  {
+    final model = TripFormModel();
+    final departurePrerecord = _records.where(
+      (r) => r.id == _selectedIds[0]
+    ).first;
+    final arrivalPrerecord = _records.where(
+      (r) => r.id == _selectedIds[1]
+    ).first;
+
+    // Departure
+    model.departureDate = departurePrerecord.dateTime; 
+    model.departureLat = departurePrerecord.lat;
+    model.departureLong = departurePrerecord.long;  
+    if (departurePrerecord.stationName?.trim().isEmpty ?? true) {  // geo mode
+      model.departureGeoMode = true;
+    }
+    else { // name mode
+      model.departureStationName = departurePrerecord.stationName;
+      model.departureAddress = departurePrerecord.address;
+      model.departureGeoMode = false;
+    }
+
+    // Arrival
+    model.arrivalDate = arrivalPrerecord.dateTime;
+    model.arrivalLat = arrivalPrerecord.lat;
+    model.arrivalLong = arrivalPrerecord.long;
+    if (arrivalPrerecord.stationName?.trim().isEmpty ?? true) {  // geo mode
+      model.arrivalGeoMode = true;
+    }
+    else { // name mode
+      model.arrivalStationName = arrivalPrerecord.stationName;
+      model.arrivalAddress = arrivalPrerecord.address;
+      model.arrivalGeoMode = false;
+    }
+
+    return model;
+  }
+
   // UI
   @override
   Widget build(BuildContext context) {
@@ -251,6 +292,7 @@ class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
           expandedCrossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(loc.prerecorderExplanation),
+            Text(loc.prerecorderExplanationDelete),
             SizedBox(height: 8,),
             Text(loc.prerecorderExplanationPrivacy)
           ],
@@ -263,7 +305,16 @@ class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
         SizedBox(
           width: double.infinity,
           child: ElevatedButton.icon(
-            onPressed: selectedIds.length != 2 ? null : () {} ,
+            onPressed: selectedIds.length != 2 ? null : () {
+              Navigator.of(context).push(PageRouteBuilder(
+                pageBuilder: (_, __, ___) => ChangeNotifierProvider(
+                  create: (_) => _createTripFormModel(),
+                  child: AddTripPage(preRecorderIdsToDelete: _selectedIds,),
+                ),
+                transitionDuration: Duration.zero,
+                reverseTransitionDuration: Duration.zero,
+              ));
+            } ,
             label: Text(
               loc.prerecorderCreateTripButton,
               style: TextStyle(

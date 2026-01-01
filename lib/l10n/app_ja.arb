@@ -241,6 +241,7 @@
 
   "prerecorderExplanationTitle": "ココログとは",
   "prerecorderExplanation": "ココログツールは、スマートな事前記録ツールです。記録ボタンをクリックすると、現在の座標と日時が自動的に保存されます。その後、2つのログを選択して、保存したデータを使って新しい旅程を作成できます。",
+  "prerecorderExplanationDelete": "旅行が作成されると、2つのログは自動的に削除されます。",
   "prerecorderExplanationPrivacy": "データはデバイスにのみ保存されます。",
   "prerecorderRecordButton": "記録",
   "prerecorderCreateTripButton": "旅行を作成する",

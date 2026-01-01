@@ -816,7 +816,11 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get prerecorderExplanation =>
-      'L\'outil Géomémo est un pré-enregistreur intelligent. Lorsque vous cliquez sur le bouton d\'enregistrement, il sauvegarde automatiquement vos coordonnées actuelles, ainsi que la date et l\'heure. Vous pourrez ensuite sélectionner deux points de repère et les utiliser pour créer un nouveau parcours à partir des données enregistrées.';
+      'L\'outil Géomémo est un pré-enregistreur intelligent. Lorsque vous cliquez sur le bouton d\'enregistrement, il sauvegarde automatiquement vos coordonnées actuelles, ainsi que la date et l\'heure. Vous pourrez ensuite sélectionner deux géomémo et les utiliser pour créer un nouveau parcours à partir des données enregistrées.';
+
+  @override
+  String get prerecorderExplanationDelete =>
+      'Après la création du trajets, les deux géomémo sont automatiquement supprimés.';
 
   @override
   String get prerecorderExplanationPrivacy =>
