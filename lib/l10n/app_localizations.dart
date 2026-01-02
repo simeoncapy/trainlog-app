@@ -1462,6 +1462,12 @@ abstract class AppLocalizations {
   /// **'The WayStamp tool is a smart pre-recorder. When you click on the record button, it will automatically save your current coordinate with the date and time. Later on, you could select two stamps and use them to create a new trip with the saved data.'**
   String get prerecorderExplanation;
 
+  /// No description provided for @prerecorderExplanationStation.
+  ///
+  /// In en, this message translates to:
+  /// **'This tool will automatically look for the station name and display it if found (this works only for rail, bus, and ferry). The closest station to you will be used.'**
+  String get prerecorderExplanationStation;
+
   /// No description provided for @prerecorderExplanationDelete.
   ///
   /// In en, this message translates to:

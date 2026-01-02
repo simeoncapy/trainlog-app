@@ -564,11 +564,16 @@ class TrainlogService {
     double long,
   ) async {
     String path = "/reverse?lon=$long&lat=$lat&lang=en";
+    final argRails = "&osm_tag=railway:halt&osm_tag=railway:station";
+    final argTram = "&osm_tag=railway:tram_stop";
+    final argBus = "&osm_tag=amenity:bus_station&osm_tag=highway:bus_stop";
+    final argFerry = "&osm_tag=amenity:ferry_terminal";
+    //final argAirport = "&osm_tag=aeroway:aerodrome";
     const nullReturn = (null, null, VehicleType.unknown);
 
     final dio = Dio(
       BaseOptions(
-        baseUrl: "https://photon.komoot.io",
+        baseUrl: "https://photon.chiel.uk",
         followRedirects: false,
         validateStatus: (s) => s != null && s >= 200 && s < 400, // general
         headers: {'User-Agent': _userAgent},
@@ -576,7 +581,7 @@ class TrainlogService {
     );
 
     final res = await dio.get<Map<String, dynamic>>(
-      path,
+      "$path$argRails$argTram$argBus$argFerry",
       options: Options(
         followRedirects: true,
         maxRedirects: 5,

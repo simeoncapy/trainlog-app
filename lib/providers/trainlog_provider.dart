@@ -441,4 +441,11 @@ class TrainlogProvider extends ChangeNotifier {
       type: type,
     );
   }
+
+  Future<(String?, String?, VehicleType)> resolveStation(
+    double lat,
+    double long,
+  ) {
+    return _service.findStationFromCoordinate(lat, long);
+  }
 }

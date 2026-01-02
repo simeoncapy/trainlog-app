@@ -14,6 +14,7 @@ import 'package:trainlog_app/utils/map_color_palette.dart';
 import 'package:trainlog_app/utils/style_utils.dart';
 import 'package:trainlog_app/utils/cached_data_utils.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:trainlog_app/widgets/shimmer_box.dart';
 
 class SmartPrerecorderPage extends StatefulWidget {
   final void Function(FloatingActionButton? fab) onFabReady;
@@ -98,6 +99,14 @@ class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
 
     await file.writeAsString(
       jsonEncode(data),
+      flush: true,
+    );
+  }
+
+  Future<void> _saveAll() async {
+    final file = File(AppCacheFilePath.preRecord);
+    await file.writeAsString(
+      jsonEncode(_records.map((e) => e.toJson()).toList()),
       flush: true,
     );
   }
@@ -295,7 +304,8 @@ class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
           expandedCrossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(loc.prerecorderExplanation),
-            Text(loc.prerecorderExplanationDelete),
+            Text(loc.prerecorderExplanationStation),
+            Text(loc.prerecorderExplanationDelete),            
             SizedBox(height: 8,),
             Text(loc.prerecorderExplanationPrivacy)
           ],
@@ -397,6 +407,7 @@ class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
         record.address!.trim().isNotEmpty;
     final settings = context.read<SettingsProvider>();
     final palette = MapColorPaletteHelper.getPalette(settings.mapColorPalette);
+    final unknownLocationIcon = Icon( Icons.not_listed_location, color: theme.colorScheme.primary, size: 32, );
 
     return Card(
       color: selected
@@ -404,24 +415,30 @@ class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
           : null,
       child: ListTile(
         titleAlignment: ListTileTitleAlignment.center,
-        leading: hasStation ? IconTheme(
+        leading: record.loaded
+          ?  (hasStation ? IconTheme(
               data: IconThemeData(
                 color: palette[record.type],
-                size: 32
+                size: 32,
               ),
               child: record.type.icon(),
-            ) 
-          : Icon(
-          Icons.not_listed_location,
-          color: theme.colorScheme.primary,
-          size: 32,
-        ),
-        title: Text(
-          hasStation ? record.stationName! : loc.prerecorderUnknownStation,
-          style: theme.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+            ) : unknownLocationIcon)
+          : const SizedBox(
+              width: 32,
+              height: 32,
+              child: CircularProgressIndicator(strokeWidth: 3),
+            ),
+        title: record.loaded
+          ? Text(
+              record.stationName ?? loc.prerecorderUnknownStation,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            )
+          : const ShimmerBox(
+              width: 180,
+              height: 18,
+            ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -452,23 +469,51 @@ class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
   FloatingActionButton? buildFloatingActionButton(BuildContext context) {
     final trainlog = Provider.of<TrainlogProvider>(context, listen: false);
     final loc = AppLocalizations.of(context)!;
+    final scaffMsg = ScaffoldMessenger.of(context);
+
     return FloatingActionButton.extended(
       onPressed: () async {
         try {
           final position = await _getCurrentPosition(loc);
 
-          final record = await trainlog.findStationFromCoordinate(position.latitude, position.longitude);
-          await _savePreRecord(record);
+          final id = DateTime.now().millisecondsSinceEpoch;
+
+          // Create record immediately
+          final pendingRecord = PreRecordModel(
+            id: id,
+            lat: position.latitude,
+            long: position.longitude,
+            dateTime: DateTime.now(),
+            loaded: false,
+          );
 
           setState(() {
-            _records.add(record);
+            _records.add(pendingRecord);
             _sortRecords();
           });
 
+          await _saveAll(); // save pending state
+
+          // Resolve station asynchronously
+          final (name, address, type) =
+              await trainlog.resolveStation(position.latitude, position.longitude);
+
+          // Update same record
+          final index = _records.indexWhere((r) => r.id == id);
+          if (index == -1) return;
+
+          setState(() {
+            _records[index] = _records[index].copyWith(
+              stationName: name,
+              address: address,
+              type: type,
+              loaded: true,
+            );
+          });
+
+          await _saveAll(); // persist resolved data
         } catch (e) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(e.toString())),
-          );
+          scaffMsg.showSnackBar(SnackBar(content: Text(e.toString())));
         }
       },
       icon: const Icon(Icons.edit),

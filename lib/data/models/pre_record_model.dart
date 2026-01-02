@@ -8,6 +8,7 @@ class PreRecordModel {
   final double long;
   final DateTime dateTime;
   final VehicleType type;
+  final bool loaded;
 
   PreRecordModel({
     required this.id,
@@ -16,8 +17,27 @@ class PreRecordModel {
     required this.lat,
     required this.long,
     required this.dateTime,
+    this.type = VehicleType.unknown,
+    this.loaded = false,
+  });
+
+  PreRecordModel copyWith({
+    String? stationName,
+    String? address,
     VehicleType? type,
-  }) : type = type ?? VehicleType.unknown;
+    bool? loaded,
+  }) {
+    return PreRecordModel(
+      id: id,
+      stationName: stationName ?? this.stationName,
+      address: address ?? this.address,
+      lat: lat,
+      long: long,
+      dateTime: dateTime,
+      type: type ?? this.type,
+      loaded: loaded ?? this.loaded,
+    );
+  }
 
   factory PreRecordModel.fromJson(Map<String, dynamic> json) {
     return PreRecordModel(
@@ -28,6 +48,7 @@ class PreRecordModel {
       long: _toDouble(json['long']),
       dateTime: DateTime.parse(json['date_time']),
       type: VehicleType.fromString(json['type']),
+      loaded: json['loaded'] ?? true,
     );
   }
 
@@ -40,6 +61,7 @@ class PreRecordModel {
       'long': long,
       'date_time': dateTime.toIso8601String(),
       'type': type.toShortString(),
+      'loaded': loaded,
     };
   }
 

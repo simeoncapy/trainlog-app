@@ -819,6 +819,10 @@ class AppLocalizationsFr extends AppLocalizations {
       'L\'outil Géomémo est un pré-enregistreur intelligent. Lorsque vous cliquez sur le bouton d\'enregistrement, il sauvegarde automatiquement vos coordonnées actuelles, ainsi que la date et l\'heure. Vous pourrez ensuite sélectionner deux géomémo et les utiliser pour créer un nouveau parcours à partir des données enregistrées.';
 
   @override
+  String get prerecorderExplanationStation =>
+      'Cet outil recherchera automatiquement le nom de la gare et l’affichera s’il est trouvé (cela ne fonctionne que pour le rail, les bus et les ferry). La gare la plus proche de vous sera utilisée.';
+
+  @override
   String get prerecorderExplanationDelete =>
       'Après la création du trajets, les deux géomémo sont automatiquement supprimés.';
 
