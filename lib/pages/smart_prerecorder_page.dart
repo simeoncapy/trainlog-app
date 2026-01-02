@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/data/models/pre_record_model.dart';
 import 'package:trainlog_app/data/models/trip_form_model.dart';
+import 'package:trainlog_app/data/models/trips.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'package:trainlog_app/l10n/app_localizations.dart';
@@ -214,6 +215,13 @@ class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
       (r) => r.id == _selectedIds[1]
     ).first;
 
+    VehicleType? firstKnown(VehicleType a, VehicleType b) {
+      if (a != VehicleType.unknown) return a;
+      if (b != VehicleType.unknown) return b;
+      return null;
+    }
+
+    model.vehicleType = firstKnown(departurePrerecord.type, arrivalPrerecord.type);
     // Departure
     model.departureDate = departurePrerecord.dateTime; 
     model.departureLat = departurePrerecord.lat;
