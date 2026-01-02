@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
 
 import 'package:trainlog_app/data/models/trips.dart';
@@ -39,8 +40,11 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
   static const LatLng _greenwich = LatLng(51.476852, -0.0005);
   LatLng _center = _greenwich;
   double _zoom = 13.0;
+  double _rotation = 0.0;
   LatLng? _userPosition;
   final LayerHitNotifier<int> hitNotifier = ValueNotifier(null);
+  StreamSubscription<Position>? _posSub;
+  bool _followUser = false; // optional: auto-move map with the user
 
   // --- Data/state
   List<PolylineEntry> _polylines = [];
@@ -182,6 +186,9 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
 
     _initCenterAndMarker(settings);
 
+    // Start continuous updates
+    _startUserLocationUpdates(settings);
+
     _trips = context.read<TripsProvider>();
     _trips.addListener(_onTripsChanged);
 
@@ -197,6 +204,7 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
   @override
   void dispose() {
     _futureFlipTimer?.cancel();
+    _stopUserLocationUpdates();
     WidgetsBinding.instance.removeObserver(this);
     _trips.removeListener(_onTripsChanged);
     super.dispose();
@@ -207,6 +215,9 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
     if (state == AppLifecycleState.resumed) {
       _refreshTemporalStyles(force: true);
       _scheduleNextFlip();
+      _startUserLocationUpdates(context.read<SettingsProvider>());
+    } else if (state == AppLifecycleState.paused) {
+      _stopUserLocationUpdates();
     }
   }
 
@@ -251,6 +262,49 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
     if (!await Geolocator.isLocationServiceEnabled()) return null;
     final pos = await Geolocator.getCurrentPosition(locationSettings: platformLocationSettings());
     return LatLng(pos.latitude, pos.longitude);
+  }
+
+  Future<void> _startUserLocationUpdates(SettingsProvider settings) async {
+    // Ensure permission / services are ok (reuse your existing flow)
+    final current = await _maybeUseLocationWithSystemPrompt(settings);
+    if (current == null) return;
+
+    // Optional: set initial marker immediately
+    if (!mounted) return;
+    setState(() => _userPosition = current);
+
+    // (Re)start stream
+    await _posSub?.cancel();
+
+    _posSub = Geolocator.getPositionStream(
+      locationSettings: platformLocationSettings().copyWith(
+        distanceFilter: 10, // meters between updates (battery friendly)
+      ),
+    ).listen(
+      (pos) {
+        final p = LatLng(pos.latitude, pos.longitude);
+
+        if (!mounted) return;
+        setState(() => _userPosition = p);
+
+        settings.setLastUserPosition(p);
+
+        // Optional: keep the map centered on the user
+        if (_followUser) {
+          _mapController.move(p, _zoom);
+          // also keep your _center in sync if you want:
+          setState(() => _center = p);
+        }
+      },
+      onError: (e) {
+        debugPrint('Location stream error: $e');
+      },
+    );
+  }
+
+  Future<void> _stopUserLocationUpdates() async {
+    await _posSub?.cancel();
+    _posSub = null;
   }
 
   // --- Trips provider hook ----------------------------------------------------
@@ -459,6 +513,7 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
                 setState(() {
                   _center = pos.center;
                   _zoom = pos.zoom;
+                  _rotation = pos.rotation;
                 });
               }
             },
@@ -500,7 +555,7 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
                 //debugPrint('📍 Touch at map coordinate: ${result.coordinate}');
               },
               child: PolylineLayer<int>(
-                hitNotifier: hitNotifier, // 👈 Enable tap hit detection
+                hitNotifier: hitNotifier,
                 polylines: toDraw,
               ),
             ),
@@ -517,59 +572,115 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
               ),
           ],
         ),
+        // --- two independent buttons above the Scaffold FAB (bottom-right)
+        if (!_showFilterModal)
+          _mapButtonHelper(),
         if (_showFilterModal)
-          Positioned(
-            bottom: 16,
-            left: 16,
-            right: 16,
-            child: Material(
-              elevation: 4,
-              borderRadius: BorderRadius.circular(16),
-              color: Theme.of(context).cardColor,
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(appLocalizations.yearTitle,
-                        style: Theme.of(context).textTheme.titleLarge),
-                    const SizedBox(height: 8),
-                    _yearFilterBuilder(context.watch<TripsProvider>().years),
-                    const SizedBox(height: 16),
-                    Text(appLocalizations.typeTitle,
-                        style: Theme.of(context).textTheme.titleLarge),
-                    const SizedBox(height: 8),
-                    VehicleTypeFilterChips(
-                      availableTypes: context.watch<TripsProvider>().vehicleTypes,
-                      selectedTypes: _selectedTypes,
-                      onTypeToggle: (type, selected) {
+          _filerModalHelper(context, appLocalizations),
+      ],
+    );
+  }
+
+  Positioned _filerModalHelper(BuildContext context, AppLocalizations appLocalizations) {
+    return Positioned(
+          bottom: 16,
+          left: 16,
+          right: 16,
+          child: Material(
+            elevation: 4,
+            borderRadius: BorderRadius.circular(16),
+            color: Theme.of(context).cardColor,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(appLocalizations.yearTitle,
+                      style: Theme.of(context).textTheme.titleLarge),
+                  const SizedBox(height: 8),
+                  _yearFilterBuilder(context.watch<TripsProvider>().years),
+                  const SizedBox(height: 16),
+                  Text(appLocalizations.typeTitle,
+                      style: Theme.of(context).textTheme.titleLarge),
+                  const SizedBox(height: 8),
+                  VehicleTypeFilterChips(
+                    availableTypes: context.watch<TripsProvider>().vehicleTypes,
+                    selectedTypes: _selectedTypes,
+                    onTypeToggle: (type, selected) {
+                      setState(() {
+                        selected ? _selectedTypes.add(type) : _selectedTypes.remove(type);
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: ElevatedButton.icon(
+                      onPressed: () {
                         setState(() {
-                          selected ? _selectedTypes.add(type) : _selectedTypes.remove(type);
+                          _showFilterModal = false;
+                          widget.onFabReady(buildFloatingActionButton(context)!);
                         });
                       },
+                      icon: const Icon(Icons.close),
+                      label: Text(MaterialLocalizations.of(context).closeButtonLabel),
                     ),
-                    const SizedBox(height: 16),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: ElevatedButton.icon(
-                        onPressed: () {
-                          setState(() {
-                            _showFilterModal = false;
-                            widget.onFabReady(buildFloatingActionButton(context)!);
-                          });
-                        },
-                        icon: const Icon(Icons.close),
-                        label: Text(MaterialLocalizations.of(context).closeButtonLabel),
-                      ),
-                    )
-                  ],
-                ),
+                  )
+                ],
               ),
             ),
           ),
-      ],
-    );
+        );
+  }
+
+  Positioned _mapButtonHelper() {
+    final bkg = Theme.of(context).colorScheme.tertiaryContainer;
+    final forg = Theme.of(context).colorScheme.onTertiaryContainer;
+    return Positioned(
+          right: 16,
+          // 16 (margin) + 56 (normal FAB height) + 12 (gap)
+          bottom: 16 + 56 + 12,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              FloatingActionButton.small(
+                heroTag: 'map_btn_my_location',
+                backgroundColor: bkg,
+                foregroundColor: forg,
+                onPressed: () {
+                  final p = _userPosition;
+                  if (p == null) return;
+                  _mapController.move(p, _zoom);
+                  setState(() => _center = p);
+                },
+                child: const Icon(Icons.my_location),
+              ),
+              const SizedBox(height: 8),
+              FloatingActionButton.small(
+                heroTag: 'map_btn_follow',
+                backgroundColor: bkg,
+                foregroundColor: forg,
+                onPressed: () => setState(() => _followUser = !_followUser),
+                child: Icon(_followUser ? Symbols.frame_person_off : Symbols.frame_person),
+              ),
+              const SizedBox(height: 8),
+              FloatingActionButton.small(
+                heroTag: 'map_btn_compass',
+                backgroundColor: bkg,
+                foregroundColor: forg,
+                onPressed: () {
+                  _mapController.rotate(0);
+                  setState(() => _rotation = 0);
+                },
+                child: Transform.rotate(
+                  angle: -(_rotation + 45.0) * (math.pi / 180.0), // show current rotation
+                  child: const Icon(Icons.explore), // or Icons.compass_calibration
+                ),
+              ),
+            ],
+          ),
+        );
   }
 
   DropdownRadioList _yearFilterBuilder(List<int> years) {
