@@ -629,15 +629,27 @@ class TrainlogService {
 
     VehicleType type = VehicleType.unknown;
 
-    if (osmKey == 'railway' && osmValue == 'station') {
+    if (osmKey == 'railway' && (osmValue == 'station' || osmValue == 'halt')) {
       type = VehicleType.train;
     }
     else if (osmKey == 'highway' && osmValue == 'bus_stop') {
       type = VehicleType.bus;
     }
-    // else if (osmKey == 'aeroway' && osmValue == 'aerodrome') {
-    //   type = VehicleType.plane;
-    // }
+    else if (osmKey == 'railway' && osmValue == 'tram_stop') {
+      type = VehicleType.tram;
+    }
+    else if (osmKey == 'railway' && (osmValue == 'stop' || osmValue == 'subway_entrance')) {
+      type = VehicleType.metro;
+    }
+    else if (osmKey == 'amenity' && osmValue == 'ferry_terminal') {
+      type = VehicleType.ferry;
+    }
+    else if (osmKey == 'aerialway' && osmValue == 'station') {
+      type = VehicleType.plane;
+    }
+    else if (osmKey == 'aeroway' && (osmValue == 'helipad' || osmValue == 'heliport')) {
+      type = VehicleType.helicopter;
+    }
     else {
       name = null; // if no station detected, the name is not saved
     }
