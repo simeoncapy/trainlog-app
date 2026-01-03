@@ -387,8 +387,9 @@ class _TripFormDateState extends State<TripFormDate> {
       TextFormField(
         readOnly: true,
         controller: TextEditingController(
-          text: MaterialLocalizations.of(context)
-              .formatMediumDate(_departureDateOnly ?? DateTime.now()),
+          text: formatDateTime(context, _departureDateOnly ?? DateTime.now(), hasTime: false),
+          // MaterialLocalizations.of(context)
+          //     .formatMediumDate(_departureDateOnly ?? DateTime.now()),
         ),
         decoration: InputDecoration(
           border: const OutlineInputBorder(),

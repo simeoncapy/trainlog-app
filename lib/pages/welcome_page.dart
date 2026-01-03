@@ -38,33 +38,52 @@ class WelcomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Trainlog.me App'),
-        centerTitle: true,
-      ),
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
+    return SafeArea(
+      child: Scaffold(
+        // appBar: AppBar(
+        //   title:null,
+        //   centerTitle: true,
+        // ),
+        body: Center(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                loc.loginToYourAccount, // restore when ready
-                style: Theme.of(context).textTheme.headlineSmall,
+              Padding(
+                padding: const EdgeInsets.only(left: 30, right: 30, bottom: 10, top: 24),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 320),
+                  child: Image.asset(
+                    'assets/logo/wide_cutted.png',
+                    fit: BoxFit.contain,
+                  ),
+                ),
               ),
-              const SizedBox(height: 24),
-              AuthForm(
-                type: AuthFormType.login,
-                onSubmitted: (result) => _onLogin(context, result),
-                // showSubmitButton: true (default) -> tap to submit
+              //Spacer(),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        loc.loginToYourAccount,
+                        style: Theme.of(context).textTheme.headlineSmall,
+                      ),
+                      const SizedBox(height: 24),
+                      AuthForm(
+                        type: AuthFormType.login,
+                        onSubmitted: (result) => _onLogin(context, result),
+                        // showSubmitButton: true (default) -> tap to submit
+                      ),
+                      SizedBox(height: 24,),
+                      ElevatedButton.icon(
+                        onPressed: null, // TODO
+                        label: Text(loc.createAccountButton),
+                        icon: Icon(Icons.person_add_alt),
+                      )
+                    ],
+                  ),
+                ),
               ),
-              SizedBox(height: 24,),
-              ElevatedButton.icon(
-                onPressed: null, 
-                label: Text(loc.createAccountButton),
-                icon: Icon(Icons.person_add_alt),
-              )
             ],
           ),
         ),
