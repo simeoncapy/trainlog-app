@@ -190,10 +190,11 @@ class _LogoBarChartState extends State<LogoBarChart> {
         Text(_unitLabel),
         const SizedBox(width: 8),
         Tooltip(
+          triggerMode: TooltipTriggerMode.tap,
           richMessage: TextSpan(children: [widget.unitHelpTooltip!]),
           decoration: BoxDecoration(color: Theme.of(context).colorScheme.primaryContainer),
           waitDuration: const Duration(milliseconds: 0),
-          showDuration: const Duration(seconds: 3),
+          showDuration: const Duration(seconds: 4),
           preferBelow: false,
           child: const Icon(Icons.help),
         ),
@@ -298,7 +299,7 @@ class _LogoBarChartState extends State<LogoBarChart> {
         titlesData: FlTitlesData(
           topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
           rightTitles: AxisTitles(
-            // 🟩 keep axis title orientation unchanged
+            // keep axis title orientation unchanged
             axisNameWidget: _horizontalAxisTitleBuilder(),
             axisNameSize: 20,
             sideTitles: SideTitles(
@@ -308,7 +309,7 @@ class _LogoBarChartState extends State<LogoBarChart> {
                 // hide the last number to prevent overlap
                 if ((value - meta.max).abs() < 1e-6) return const SizedBox.shrink();
 
-                // 🟦 only rotate the numeric labels if the chart is rotated
+                // only rotate the numeric labels if the chart is rotated
                 final label = Text(meta.formattedValue);
                 if (widget.rotationQuarterTurns % 2 == 1) {
                   return RotatedBox(quarterTurns: 3, child: label);

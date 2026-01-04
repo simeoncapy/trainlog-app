@@ -112,6 +112,12 @@ abstract class AppLocalizations {
   /// **'English'**
   String get language;
 
+  /// No description provided for @appVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'App version:'**
+  String get appVersion;
+
   /// No description provided for @mainMenuButtonTooltip.
   ///
   /// In en, this message translates to:
@@ -423,6 +429,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Location permission denied'**
   String get locationPermissionDenied;
+
+  /// No description provided for @duplicateBtnLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Duplicate'**
+  String get duplicateBtnLabel;
 
   /// No description provided for @settingsAppCategory.
   ///
@@ -1119,6 +1131,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No data'**
   String get statisticsNoDataLabel;
+
+  /// No description provided for @statisticsPieWip.
+  ///
+  /// In en, this message translates to:
+  /// **'The pie chart is WIP'**
+  String get statisticsPieWip;
 
   /// No description provided for @internationalWaters.
   ///

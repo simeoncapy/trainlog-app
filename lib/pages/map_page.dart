@@ -39,7 +39,8 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
   final MapController _mapController = MapController();
   static const LatLng _greenwich = LatLng(51.476852, -0.0005);
   LatLng _center = _greenwich;
-  double _zoom = 13.0;
+  static const double _defaultZoom = 13.0;
+  double _zoom = _defaultZoom;
   double _rotation = 0.0;
   LatLng? _userPosition;
   final LayerHitNotifier<int> hitNotifier = ValueNotifier(null);
@@ -344,7 +345,7 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
     // 2) Load from DB
     if (repo == null) return;
 
-    final pathData = await repo.getPathExtendedData(context.read<SettingsProvider>().pathDisplayOrder);
+    final pathData = await repo.getPathExtendedData(settings.pathDisplayOrder);
     final decoded = await compute(
       decodePolylinesBatch,
       {'entries': pathData, 'colors': _colours},
@@ -650,9 +651,18 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
                 foregroundColor: forg,
                 onPressed: () {
                   final p = _userPosition;
+                  double z = _zoom;
                   if (p == null) return;
-                  _mapController.move(p, _zoom);
-                  setState(() => _center = p);
+                  if(_center == p) {
+                    _mapController.move(p, _defaultZoom);
+                    z = _defaultZoom;
+                  } else {
+                    _mapController.move(p, _zoom);
+                  }
+                  setState(() {
+                    _center = p;
+                    _zoom = z;
+                  });
                 },
                 child: const Icon(Icons.my_location),
               ),

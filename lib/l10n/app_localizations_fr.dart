@@ -15,6 +15,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get language => 'Français';
 
   @override
+  String get appVersion => 'Version de l\'application :';
+
+  @override
   String get mainMenuButtonTooltip => 'Ouvrir le menu';
 
   @override
@@ -173,6 +176,9 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get locationPermissionDenied => 'Partage de la localisation refusé';
+
+  @override
+  String get duplicateBtnLabel => 'Dupliquer';
 
   @override
   String get settingsAppCategory => 'Paramètres de l\'application';
@@ -638,6 +644,9 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get statisticsNoDataLabel => 'Pas de données';
+
+  @override
+  String get statisticsPieWip => 'Le camembert est en cours de construction';
 
   @override
   String get internationalWaters => 'Eaux internationales';

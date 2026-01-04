@@ -267,7 +267,7 @@ class _AddTripPageState extends State<AddTripPage> {
               child: isLastStep ? _bottomButtonHelper(isLastStep) 
                     : SizedBox(
                       width: double.infinity,
-                      height: 40,
+                      //height: 40,
                       child: _bottomButtonHelper(isLastStep),
               ),
             ),

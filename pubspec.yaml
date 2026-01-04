@@ -51,6 +51,8 @@ dependencies:
   #dotted_line_flutter: ^2.1.8 # not used anymore, delete?
   #dotted_border: ^3.1.0
   shimmer: ^3.0.0
+  share_plus: ^12.0.1
+  package_info_plus: ^8.0.0
 
 dev_dependencies:
   flutter_test:

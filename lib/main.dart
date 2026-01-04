@@ -302,7 +302,6 @@ class _MyAppState extends State<MyApp> {
         drawer: isDrawerPage
             ? null
             : Drawer(
-                //shape: ShapeBorder.lerp(a, b, t),
                 child: Column(
                   children: [
                     Container(

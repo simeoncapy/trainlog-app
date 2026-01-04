@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
@@ -62,7 +63,11 @@ class TripDetailsBottomSheet extends StatelessWidget {
             runSpacing: 8,
             children: [
               ElevatedButton.icon(
-                onPressed: null, 
+                onPressed: () async {
+                  final url = Uri.parse("https://trainlog.me/public/trip/${trip.uid}");
+                  final params = ShareParams(uri: url);
+                  await SharePlus.instance.share(params); // opens OS share sheet
+                },
                 label: Text(MaterialLocalizations.of(context).shareButtonLabel),
                 icon: Icon(Icons.share),
                 style: buttonStyleHelper(Theme.of(context).colorScheme.tertiary, Theme.of(context).colorScheme.onTertiary)
@@ -75,7 +80,8 @@ class TripDetailsBottomSheet extends StatelessWidget {
               ),
               ElevatedButton.icon(
                 onPressed: null, 
-                label: Text(MaterialLocalizations.of(context).copyButtonLabel),
+                label: Text(appLocalization.duplicateBtnLabel),
+                //label: Text(MaterialLocalizations.of(context).copyButtonLabel),
                 icon: Icon(Icons.copy),
                 style: buttonStyleHelper(Theme.of(context).colorScheme.secondary, Theme.of(context).colorScheme.onSecondary)
               ),

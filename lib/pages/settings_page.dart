@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:currency_picker/currency_picker.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
+import 'package:trainlog_app/utils/app_info_utils.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -39,11 +40,8 @@ class _SettingsPageState extends State<SettingsPage> {
   double _totalCacheSize = 0.0;
 
   void _refreshCacheSize() {
-    final sizeDb = computeCacheFileSize(AppCacheFilePath.database);
-    final sizePolylines = computeCacheFileSize(AppCacheFilePath.polylines);
-    final sizePreRecord = computeCacheFileSize(AppCacheFilePath.preRecord);
     setState(() {
-      _totalCacheSize = sizeDb + sizePolylines + sizePreRecord;
+      _totalCacheSize = AppCacheFilePath.computeAllCacheFileSize();
     });
   }
 
@@ -58,6 +56,7 @@ class _SettingsPageState extends State<SettingsPage> {
     final repo = context.read<TripsProvider>().repository;
     final trainLogDeleteAccountEmail = 'admin@trainlog.me';
     final trainlog = Provider.of<TrainlogProvider>(context, listen: false);
+    final scaffMsg = ScaffoldMessenger.of(context);
 
     final List<Language> languages = [
       Language('English', 'en'),
@@ -323,18 +322,14 @@ class _SettingsPageState extends State<SettingsPage> {
                       if (confirmed == true) {
                         if(repo != null) await repo.clearAllTrips();
 
-                        await File(AppCacheFilePath.polylines)
-                              .delete()
-                              .catchError((e) {
-                                debugPrint('Failed to delete polylines: $e');
-                                return File(AppCacheFilePath.polylines);
-                              });
+                        await AppCacheFilePath.deleteFile(AppCacheFilePath.polylines);
+                        await AppCacheFilePath.deleteFile(AppCacheFilePath.preRecord);
 
                         if (!mounted) return;
                         _refreshCacheSize();
                         settings.setShouldReloadPolylines(true);
                         // ignore: use_build_context_synchronously
-                        ScaffoldMessenger.of(context).showSnackBar(
+                        scaffMsg.showSnackBar(
                           SnackBar(content: Text(appLocalization.settingsCacheClearedMessage)),
                         );
                       }
@@ -372,14 +367,25 @@ class _SettingsPageState extends State<SettingsPage> {
                     await launchUrl(uri);
                   } else {
                     // Optional: show error snackbar
-                    ScaffoldMessenger.of(context).showSnackBar(
+                    scaffMsg.showSnackBar(
                       SnackBar(content: Text(appLocalization.settingsDeleteAccountError(trainLogDeleteAccountEmail))),
                     );
                   }
                 },
               ),
             ),
-            SizedBox(height: 12,)
+            ListTile(
+              //leading: Icon(Icons.my_location),
+              title: Text(appLocalization.appVersion),
+              trailing: FutureBuilder<String>(
+                future: getAppVersionString(),
+                builder: (context, snap) {
+                  if (!snap.hasData) return const SizedBox.shrink();
+                  return Text('v${snap.data}');
+                },
+              ),
+            ),
+            SizedBox(height: 12,),
           ],
         );
       },

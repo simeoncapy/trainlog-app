@@ -15,6 +15,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get language => '日本語';
 
   @override
+  String get appVersion => 'アプリバージョン:';
+
+  @override
   String get mainMenuButtonTooltip => 'メニューを開く';
 
   @override
@@ -172,6 +175,9 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get locationPermissionDenied => '位置情報の許可が拒否されました';
+
+  @override
+  String get duplicateBtnLabel => '複製';
 
   @override
   String get settingsAppCategory => 'アプリ設定';
@@ -634,6 +640,9 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get statisticsNoDataLabel => 'データがありません';
+
+  @override
+  String get statisticsPieWip => '円グラフは仕掛品です';
 
   @override
   String get internationalWaters => '公海';

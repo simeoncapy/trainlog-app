@@ -2,6 +2,7 @@
   "@@locale": "en",
   "appTitle": "Trainlog",
   "language": "English",
+  "appVersion": "App version:",
   "mainMenuButtonTooltip": "Open menu",
   "filterButton": "Filter",
   "descendingOrder": "Descending order",
@@ -63,6 +64,7 @@
   "arrivalSingleCharacter": "A",
   "locationServicesDisabled": "Location services are disabled",
   "locationPermissionDenied": "Location permission denied",
+  "duplicateBtnLabel": "Duplicate",
   
   "settingsAppCategory": "App Settings",
   "settingsMapCategory": "Map Settings",
@@ -261,6 +263,7 @@
   "statisticsTotalLabel": "Total",
   "statisticsUnitLabel": "Unit:",
   "statisticsNoDataLabel": "No data",
+  "statisticsPieWip": "The pie chart is WIP",
   "internationalWaters": "International waters",
 
   "addTripPageTitle": "Add a Trip",

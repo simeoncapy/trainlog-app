@@ -15,6 +15,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get language => 'English';
 
   @override
+  String get appVersion => 'App version:';
+
+  @override
   String get mainMenuButtonTooltip => 'Open menu';
 
   @override
@@ -172,6 +175,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get locationPermissionDenied => 'Location permission denied';
+
+  @override
+  String get duplicateBtnLabel => 'Duplicate';
 
   @override
   String get settingsAppCategory => 'App Settings';
@@ -636,6 +642,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get statisticsNoDataLabel => 'No data';
+
+  @override
+  String get statisticsPieWip => 'The pie chart is WIP';
 
   @override
   String get internationalWaters => 'International waters';

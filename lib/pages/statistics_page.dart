@@ -15,6 +15,7 @@ import 'package:trainlog_app/providers/statistics_provider.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
 import 'package:trainlog_app/utils/number_formatter.dart';
 import 'package:trainlog_app/utils/text_utils.dart';
+import 'package:trainlog_app/widgets/error_banner.dart';
 
 import 'package:trainlog_app/widgets/logo_bar_chart.dart';
 import 'package:trainlog_app/widgets/min_height_scrollable.dart';
@@ -88,6 +89,13 @@ class _StatisticsPageState extends State<StatisticsPage> {
                 ],
               ),
               const SizedBox(height: 16),
+              if(_selectedStatistics == StatisticsType.pie)
+              ErrorBanner(
+                  severity: ErrorSeverity.info,
+                  compact: true,
+                  message: loc.statisticsPieWip,
+                ),
+              const SizedBox(height: 8),
               _filtersPanel(context, statsProv),
               const SizedBox(height: 16),
 

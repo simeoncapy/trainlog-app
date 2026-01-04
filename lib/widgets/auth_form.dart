@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
+import 'package:trainlog_app/providers/settings_provider.dart';
 
 enum AuthFormType { login, createAccount }
 
@@ -48,6 +50,17 @@ class AuthFormState extends State<AuthForm> {
   final _passwordCtrl = TextEditingController();
   final _passwordFocus = FocusNode();
   bool _obscure = true;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final settings = context.read<SettingsProvider>();
+
+    // prefill with last used username (only if empty)
+    if (_usernameCtrl.text.isEmpty) {
+      _usernameCtrl.text = settings.authUsername ?? '';
+    }
+  }
 
   @override
   void dispose() {

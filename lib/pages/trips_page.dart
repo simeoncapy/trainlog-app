@@ -10,7 +10,6 @@ import 'package:trainlog_app/pages/add_trip_page.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
-import 'package:trainlog_app/services/trainlog_service.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
 import 'package:trainlog_app/widgets/past_future_selector.dart';
@@ -58,6 +57,8 @@ class _TripsPageState extends State<TripsPage> {
   @override
   Widget build(BuildContext context) {
     final tripsProvider = Provider.of<TripsProvider>(context);
+    final scaffMsg = ScaffoldMessenger.of(context);
+    final loc = AppLocalizations.of(context)!;
 
     if (tripsProvider.isLoading) {
       return const Center(child: CircularProgressIndicator());
@@ -87,7 +88,7 @@ class _TripsPageState extends State<TripsPage> {
       onRefresh: () async {
         final settings = context.read<SettingsProvider>();        
         // Force reloading data from repository
-        await tripsProvider.loadTrips(context: context, loadFromApi: true); // or whatever refresh logic you have
+        await tripsProvider.loadTrips(context: context, loadFromApi: true);
         settings.setShouldReloadPolylines(true);
         setState(() {
           _dataSource = null; // rebuild data source
@@ -95,8 +96,8 @@ class _TripsPageState extends State<TripsPage> {
         });
 
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('✅ ${AppLocalizations.of(context)!.refreshCompleted}')),
+          scaffMsg.showSnackBar(
+            SnackBar(content: Text('✅ ${loc.refreshCompleted}')),
           );
         }
       },
@@ -113,36 +114,42 @@ class _TripsPageState extends State<TripsPage> {
           // Estimate how many rows fit in the remaining height
           final rowsPerPage = ((availableHeight - headingHeight - footerHeight) ~/ rowHeight).clamp(5, 50);
       
-          return DataTableTheme(
-            data: DataTableTheme.of(context).copyWith(
-              headingRowColor: WidgetStateProperty.resolveWith<Color?>(
-                (Set<WidgetState> states) =>
-                    Theme.of(context).colorScheme.primaryContainer,
-              ),
-              headingTextStyle: Theme.of(context).textTheme.labelLarge?.copyWith(
-                    color: Theme.of(context).colorScheme.onPrimaryContainer,
-                    fontWeight: FontWeight.bold,
+          return SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: DataTableTheme(
+                data: DataTableTheme.of(context).copyWith(
+                  headingRowColor: WidgetStateProperty.resolveWith<Color?>(
+                    (Set<WidgetState> states) =>
+                        Theme.of(context).colorScheme.primaryContainer,
                   ),
-            ),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  minWidth: MediaQuery.of(context).size.width,
-                  maxWidth: MediaQuery.of(context).size.width,
+                  headingTextStyle: Theme.of(context).textTheme.labelLarge?.copyWith(
+                        color: Theme.of(context).colorScheme.onPrimaryContainer,
+                        fontWeight: FontWeight.bold,
+                      ),
                 ),
-                child: PaginatedDataTable(
-                  showCheckboxColumn: false,
-                  key: _tableKey,
-                  header: _tableGeneralHeaderBuilder(tripsProvider),
-                  columns: _buildDataColumns(visibleColumns, width),
-                  source: _dataSource!,
-                  sortColumnIndex: _sortColumnIndex,
-                  sortAscending: _sortAscending,
-                  horizontalMargin: 5,
-                  columnSpacing: 5,
-                  showFirstLastButtons: true,
-                  rowsPerPage: rowsPerPage,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minWidth: MediaQuery.of(context).size.width,
+                      maxWidth: MediaQuery.of(context).size.width,
+                    ),
+                    child: PaginatedDataTable(
+                      showCheckboxColumn: false,
+                      key: _tableKey,
+                      header: _tableGeneralHeaderBuilder(tripsProvider),
+                      columns: _buildDataColumns(visibleColumns, width),
+                      source: _dataSource!,
+                      sortColumnIndex: _sortColumnIndex,
+                      sortAscending: _sortAscending,
+                      horizontalMargin: 5,
+                      columnSpacing: 5,
+                      showFirstLastButtons: true,
+                      rowsPerPage: rowsPerPage,
+                    ),
+                  ),
                 ),
               ),
             ),

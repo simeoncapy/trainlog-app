@@ -1,9 +1,5 @@
-import 'dart:ui';
-import 'dart:io';
-import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:path/path.dart';
 import 'package:trainlog_app/data/models/pre_record_model.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
@@ -55,7 +51,7 @@ class TrainlogProvider extends ChangeNotifier {
       _session = res;
       _isAuthenticated = res.success;
       if (res.success) {
-        _username = username;              // keep what the user typed
+        _username = username; // keep what the user typed
         settings?.setUsername(username);
         _listOperatorsLogoUrl = await _service.fetchAllOperatorLogosUrl(username);
       } else {
@@ -100,7 +96,7 @@ class TrainlogProvider extends ChangeNotifier {
       if (ok) {
         // 1) Load last known username (saved at login)
         _username = settings?.authUsername;
-
+      
         // 2) Optional: if not present, ask the API once (no scraping).
         if (_username == null) {
           final apiName = await _service.fetchUsernameViaApi(); // TODO wire real API
@@ -109,6 +105,7 @@ class TrainlogProvider extends ChangeNotifier {
             settings?.setUsername(apiName);
           }
         }
+        if(_username != null) _listOperatorsLogoUrl = await _service.fetchAllOperatorLogosUrl(_username!);
       } else {
         _username = null;
       }

@@ -2,6 +2,7 @@
   "@@locale": "ja",
   "appTitle": "トレインログ",
   "language": "日本語",
+  "appVersion": "アプリバージョン:",
   "mainMenuButtonTooltip": "メニューを開く",
   "filterButton": "フィルター",
   "descendingOrder": "降順",
@@ -53,6 +54,7 @@
   "arrivalSingleCharacter": "着",
   "locationServicesDisabled": "位置情報サービスが無効になっています",
   "locationPermissionDenied": "位置情報の許可が拒否されました",
+  "duplicateBtnLabel": "複製",
 
   "settingsAppCategory": "アプリ設定",
   "settingsMapCategory": "地図設定",
@@ -180,6 +182,7 @@
   "statisticsTotalLabel": "総計",
   "statisticsUnitLabel": "単位：",
   "statisticsNoDataLabel": "データがありません",
+  "statisticsPieWip": "円グラフは仕掛品です",
   "internationalWaters": "公海",
 
   "addTripPageTitle": "旅行を加える",
