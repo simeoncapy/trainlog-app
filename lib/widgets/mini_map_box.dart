@@ -223,8 +223,8 @@ class FullscreenMapOverlay extends StatefulWidget {
   final Color markerColor;
   final IconData marker;
 
-  final bool isCoordinateMovable;                     // NEW
-  final void Function(double lat, double long)? onCoordinateChanged; // NEW
+  final bool isCoordinateMovable;
+  final void Function(double lat, double long)? onCoordinateChanged;
 
   const FullscreenMapOverlay({
     super.key,

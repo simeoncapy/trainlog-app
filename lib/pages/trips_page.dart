@@ -91,6 +91,7 @@ class _TripsPageState extends State<TripsPage> {
         settings.setShouldReloadPolylines(true);
         await tripsProvider.loadTrips(context: context, loadFromApi: true);
         
+        if (!mounted) return;
         setState(() {
           _dataSource = null; // rebuild data source
           _tableKey = UniqueKey();
