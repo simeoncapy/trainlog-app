@@ -155,16 +155,16 @@ class PolylineEntry {
     'isFuture': isFuture,
     'polyline': {
       'points': polyline.points.map((e) => {'lat': e.latitude, 'lng': e.longitude}).toList(),
-      'color': polyline.color.value,
+      'color': polyline.color.toARGB32(),
       'strokeWidth': polyline.strokeWidth,
       'isDashed': false,
-      'borderColor': polyline.borderColor?.value,
+      'borderColor': polyline.borderColor.toARGB32(),
       'borderStrokeWidth': polyline.borderStrokeWidth,
     },
   };
 
   factory PolylineEntry.fromJson(Map<String, dynamic> json) {
-    DateTime? _parseUtc(dynamic v) =>
+    DateTime? parseUtc(dynamic v) =>
         (v == null) ? null : DateTime.parse(v as String).toUtc();
 
     final base = Polyline(
@@ -185,8 +185,8 @@ class PolylineEntry {
       type: VehicleType.values.firstWhere((e) => e.name == json['type']),
       startDate: json['startDate'] != null ? DateTime.parse(json['startDate']) : null,
       creationDate: json['creationDate'] != null ? DateTime.parse(json['creationDate']) : null,
-      utcStartDate: _parseUtc(json['utcStartDate']),
-      utcEndDate: _parseUtc(json['utcEndDate']),
+      utcStartDate: parseUtc(json['utcStartDate']),
+      utcEndDate: parseUtc(json['utcEndDate']),
       hasTimeRange: json['hasTimeRange'] == true,
       isFuture: json['isFuture'] == true,
       tripId: json['uid'],

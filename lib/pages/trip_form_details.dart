@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:currency_picker/currency_picker.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/data/models/trip_form_model.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';

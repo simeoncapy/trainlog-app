@@ -156,7 +156,6 @@ class _MiniMapBoxState extends State<MiniMapBox> {
         // NEW — notify parent when user moves the map
         onPositionChanged: (pos, _) {
           if (!widget.isCoordinateMovable) return;
-          if (pos.center == null) return;
 
           widget.onCoordinateChanged?.call(
             pos.center.latitude,
@@ -266,11 +265,10 @@ class _FullscreenMapOverlayState extends State<FullscreenMapOverlay> {
               // NEW movable coordinate tracking
               onPositionChanged: (pos, _) {
                 if (!widget.isCoordinateMovable) return;
-                if (pos.center == null) return;
 
                 widget.onCoordinateChanged?.call(
-                  pos.center!.latitude,
-                  pos.center!.longitude,
+                  pos.center.latitude,
+                  pos.center.longitude,
                 );
               },
 

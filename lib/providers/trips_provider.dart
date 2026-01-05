@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/data/trips_repository.dart';
-import 'package:trainlog_app/providers/trainlog_provider.dart';
 
 class TripsProvider extends ChangeNotifier {
   TripsRepository? _repository;
@@ -85,13 +83,13 @@ class TripsProvider extends ChangeNotifier {
   // Optional: keep granular refreshers but ensure repo is loaded
   Future<void> refreshVehicleTypes() async {
     if (_repository == null) { await loadTrips(); return; }
-    _vehicleTypes = await _repository!.fetchListOfTypes() ?? const [VehicleType.unknown];
+    _vehicleTypes = await _repository!.fetchListOfTypes();
     notifyListeners();
   }
 
   Future<void> refreshYears() async {
     if (_repository == null) { await loadTrips(); return; }
-    final yrs = await _repository!.fetchListOfYears() ?? <int>[];
+    final yrs = await _repository!.fetchListOfYears();
     yrs.sort((a, b) => b.compareTo(a)); // descending
     _years = yrs;
     notifyListeners();
@@ -99,19 +97,19 @@ class TripsProvider extends ChangeNotifier {
 
   Future<void> refreshOperators() async {
     if (_repository == null) { await loadTrips(); return; }
-    _operators = await _repository!.fetchListOfOperators() ?? const <String>[];
+    _operators = await _repository!.fetchListOfOperators();
     notifyListeners();
   }
 
   Future<void> refreshCountryCodes() async {
     if (_repository == null) { await loadTrips(); return; }
-    _countryCodes = await _repository!.fetchListOfCountryCode() ?? const <String>[];
+    _countryCodes = await _repository!.fetchListOfCountryCode();
     notifyListeners();
   }
 
   Future<void> refreshMapCountryCodes(BuildContext context) async {
     if (_repository == null) { await loadTrips(context: context); return; }
-    _mapCountryCodes = await _repository!.fetchMapOfCountries(context) ?? const <String, String>{};
+    _mapCountryCodes = await _repository!.fetchMapOfCountries(context);
     notifyListeners();
   }
 

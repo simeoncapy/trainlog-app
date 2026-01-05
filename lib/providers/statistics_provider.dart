@@ -1,8 +1,6 @@
 import 'dart:collection';
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:country_picker/country_picker.dart';
 import 'package:diacritic/diacritic.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';

@@ -87,7 +87,7 @@ class ErrorBanner extends StatelessWidget {
           icon: Icons.info_outline,
         );
       case ErrorSeverity.error:
-      default:
+      //default:
         return _Style(
           background: scheme.errorContainer,
           foreground: scheme.onErrorContainer,
