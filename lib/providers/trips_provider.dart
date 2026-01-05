@@ -58,6 +58,20 @@ class TripsProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> clearAll({bool setLoading = false}) async {
+    if(_repository == null) return;
+    await _repository!.clearAllTrips();
+
+    _vehicleTypes = const [VehicleType.unknown];
+    _years = const [];
+    _operators = const [];
+    _countryCodes = const [];
+    _mapCountryCodes = const {};
+
+    _loading = setLoading;
+    notifyListeners();
+  }
+
   /// Refresh everything (safe to call anytime).
   Future<void> refreshAll({BuildContext? context}) async {
     if (_repository == null) {

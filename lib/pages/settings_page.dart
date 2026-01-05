@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:currency_picker/currency_picker.dart';
+import 'package:flutter/services.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/utils/app_info_utils.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -53,7 +54,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final repo = context.read<TripsProvider>().repository;
+    final repo = context.read<TripsProvider>();
     final trainLogDeleteAccountEmail = 'admin@trainlog.me';
     final trainlog = Provider.of<TrainlogProvider>(context, listen: false);
     final scaffMsg = ScaffoldMessenger.of(context);
@@ -320,7 +321,8 @@ class _SettingsPageState extends State<SettingsPage> {
                       );
 
                       if (confirmed == true) {
-                        if(repo != null) await repo.clearAllTrips();
+                        settings.setShouldReloadPolylines(true);
+                        await repo.clearAll();
 
                         await AppCacheFilePath.deleteFile(AppCacheFilePath.polylines);
                         await AppCacheFilePath.deleteFile(AppCacheFilePath.preRecord);
@@ -375,13 +377,21 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
             ),
             ListTile(
-              //leading: Icon(Icons.my_location),
               title: Text(appLocalization.appVersion),
               trailing: FutureBuilder<String>(
                 future: getAppVersionString(),
                 builder: (context, snap) {
                   if (!snap.hasData) return const SizedBox.shrink();
-                  return Text('v${snap.data}');
+                  final version = 'v${snap.data}';
+                  return GestureDetector(
+                    onTap: () {
+                      Clipboard.setData(ClipboardData(text: version));
+                      scaffMsg.showSnackBar(
+                        SnackBar(content: Text(appLocalization.appVersionCopied)),
+                      );
+                    },
+                    child: Text(version)
+                  );
                 },
               ),
             ),

@@ -88,8 +88,9 @@ class _TripsPageState extends State<TripsPage> {
       onRefresh: () async {
         final settings = context.read<SettingsProvider>();        
         // Force reloading data from repository
-        await tripsProvider.loadTrips(context: context, loadFromApi: true);
         settings.setShouldReloadPolylines(true);
+        await tripsProvider.loadTrips(context: context, loadFromApi: true);
+        
         setState(() {
           _dataSource = null; // rebuild data source
           _tableKey = UniqueKey();
