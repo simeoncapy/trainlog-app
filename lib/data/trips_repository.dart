@@ -3,16 +3,13 @@ import 'dart:collection';
 import 'dart:io';
 import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/data/database_manager.dart';
-import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:diacritic/diacritic.dart';
 import 'dart:convert';
 import 'package:country_picker/country_picker.dart';
-import 'package:trainlog_app/services/trainlog_service.dart';
 import 'package:trainlog_app/widgets/trips_filter_dialog.dart';
 
 // TripsTable defined lower
@@ -53,7 +50,7 @@ class TripsRepository {
   TripsRepository(this._db);
 
   static Future<TripsRepository> loadFromCsv(String csvPathOrContent, {bool replace = false, bool path = true}) async {
-    print("Trip load from CSV");
+    debugPrint("Trip load from CSV");
     String content;
     if(path){
       final csvPath = csvPathOrContent;
@@ -79,20 +76,8 @@ class TripsRepository {
     return repo;
   }
 
-  static Future<TripsRepository> loadFromApi(BuildContext context) async {
-    print("Trip load from API");
-    //throw UnimplementedError('API loading not implemented');
-    final auth = Provider.of<TrainlogProvider>(context, listen: false);
-    final settings = Provider.of<SettingsProvider>(context, listen: false);
-    final service = auth.service;
-    final content = await service.fetchAllTripsData(auth.username ?? "");
-
-    settings.setShouldLoadTripsFromApi(false);
-    return loadFromCsv(content, replace: true, path: false);
-  }
-
   static Future<TripsRepository> loadFromDatabase() async {
-    print("Trip load from DB");
+    debugPrint("Trip load from DB");
     final db = await DatabaseManager.database;
     return TripsRepository(db);
   }
@@ -371,7 +356,7 @@ class TripsRepository {
         final Map<String, dynamic> json = jsonDecode(decoded);
         countryCodes.addAll(json.keys);
       } catch (e) {
-        print('⚠️ Failed to decode country JSON: $decoded');
+        debugPrint('⚠️ Failed to decode country JSON: $decoded');
       }
     }
 
@@ -380,13 +365,13 @@ class TripsRepository {
     return sorted;
   }
 
-  Future<Map<String, String>> fetchMapOfCountries(BuildContext context) async {
-    final details = CountryLocalizations.of(context);
+  Future<Map<String, String>> fetchMapOfCountries(CountryLocalizations details) async {
+    //final details = CountryLocalizations.of(context);
     final listCodes = await fetchListOfCountryCode();
 
     final Map<String, String> map = {
       for (final code in listCodes)
-        code: details?.countryName(countryCode: code) ?? code,
+        code: details.countryName(countryCode: code) ?? code,
     };
 
     final sorted = Map.fromEntries(
@@ -730,9 +715,9 @@ class TripsRepository {
   }
 
   static Future<List<Trips>> parseCsv(String csvContent) async {
-    print('🧪 Inside isolate: parsing CSV...');
+    debugPrint('🧪 Inside isolate: parsing CSV...');
     final rows = const CsvToListConverter(eol: '\n', shouldParseNumbers: false).convert(csvContent);
-    print('📊 Parsed ${rows.length} rows');
+    debugPrint('📊 Parsed ${rows.length} rows');
 
     final header = rows.first.map((e) => e.toString().trim()).toList();
     final dataRows = rows.skip(1);
@@ -751,12 +736,12 @@ class TripsRepository {
         final trip = Trips.fromJson(map);
         trips.add(trip);
       } catch (e, stack) {
-        print('❌ Error parsing row $r: $e');
-        print('🧵 Stack: $stack');
-        print('🔎 Row data: $map');
+        debugPrint('❌ Error parsing row $r: $e');
+        debugPrint('🧵 Stack: $stack');
+        debugPrint('🔎 Row data: $map');
       }
 
-      if (r % 100 == 0) print('➡️ Parsed $r trips');
+      if (r % 100 == 0) debugPrint('➡️ Parsed $r trips');
     }
 
     return trips;

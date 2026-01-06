@@ -89,7 +89,7 @@ class _TripsPageState extends State<TripsPage> {
         final settings = context.read<SettingsProvider>();        
         // Force reloading data from repository
         settings.setShouldReloadPolylines(true);
-        await tripsProvider.loadTrips(context: context, loadFromApi: true);
+        await tripsProvider.loadTrips(locale: Localizations.localeOf(context), loadFromApi: true);
         
         if (!mounted) return;
         setState(() {

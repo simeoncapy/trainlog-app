@@ -1,11 +1,19 @@
+import 'package:country_picker/country_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/data/trips_repository.dart';
+import 'package:trainlog_app/providers/settings_provider.dart';
+import 'package:trainlog_app/services/trainlog_service.dart';
 
 class TripsProvider extends ChangeNotifier {
   TripsRepository? _repository;
-  bool _loading = true;
+  TrainlogService? _service;
+  SettingsProvider? _settings;
+  String? _username;
+  // For localized country names
+  Locale? _locale;
 
+  bool _loading = true;
   bool get isLoading => _loading;
   TripsRepository? get repository => _repository;
 
@@ -24,20 +32,47 @@ class TripsProvider extends ChangeNotifier {
   Map<String, String> _mapCountryCodes = const {};
   Map<String, String> get mapCountryCodes => _mapCountryCodes;
 
+  void updateDeps({
+    required TrainlogService service,
+    required SettingsProvider settings,
+    required String? username,
+  }) {
+    _service = service;
+    _settings = settings;
+    _username = username;
+  }
+
+  /// Update locale from UI when needed (safe).
+  void updateLocale(Locale locale) {
+    _locale = locale;
+  }
+
   // ------------------------
   // Public API
   // ------------------------
 
-  Future<void> loadTrips({String csvPath = "", BuildContext? context, bool loadFromApi = false}) async {
+  Future<void> loadTrips({String csvPath = "", Locale? locale, bool loadFromApi = false}) async {
     _loading = true;
     notifyListeners();
+    if (locale != null) _locale = locale;
 
     try {
-      _repository = (csvPath.isEmpty)
-          ? (loadFromApi ? await TripsRepository.loadFromApi(context!) : await TripsRepository.loadFromDatabase())
-          : await TripsRepository.loadFromCsv(csvPath);
+      if (csvPath.isNotEmpty) {
+        _repository = await TripsRepository.loadFromCsv(csvPath);
+      } else if (loadFromApi) {
+        debugPrint("Loading from API");
+        final content = await _service!.fetchAllTripsData(_username ?? "");
+        _settings!.setShouldLoadTripsFromApi(false);
+        _repository = await TripsRepository.loadFromCsv(
+          content,
+          replace: true,
+          path: false,
+        );
+      } else {
+        _repository = await TripsRepository.loadFromDatabase();
+      }
 
-      await _refreshDerivedLists(context: context);
+      await _refreshDerivedLists();
 
       final count = await _repository!.count();
       debugPrint("✅ Finished loading trips. $count rows");
@@ -71,12 +106,13 @@ class TripsProvider extends ChangeNotifier {
   }
 
   /// Refresh everything (safe to call anytime).
-  Future<void> refreshAll({BuildContext? context}) async {
+  Future<void> refreshAll(Locale? locale) async {
+    if (locale != null) _locale = locale;
     if (_repository == null) {
-      await loadTrips(context: context);
+      await loadTrips(locale: locale);
       return;
     }
-    await _refreshDerivedLists(context: context);
+    await _refreshDerivedLists();
     notifyListeners();
   }
 
@@ -107,9 +143,11 @@ class TripsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> refreshMapCountryCodes(BuildContext context) async {
-    if (_repository == null) { await loadTrips(context: context); return; }
-    _mapCountryCodes = await _repository!.fetchMapOfCountries(context);
+  Future<void> refreshMapCountryCodes({Locale? locale}) async {
+    if (locale != null) _locale = locale;
+    if (_repository == null) { await loadTrips(locale: locale); return; }
+    //_mapCountryCodes = await _repository!.fetchMapOfCountries(context);
+    await _refreshCountryNames();
     notifyListeners();
   }
 
@@ -117,9 +155,11 @@ class TripsProvider extends ChangeNotifier {
   // Internals
   // ------------------------
 
-  Future<void> _refreshDerivedLists({BuildContext? context}) async {
+  Future<void> _refreshDerivedLists() async {
     final repo = _repository;
     if (repo == null) return;
+
+    //final countryLoc = await CountryLocalizations.delegate.load(locale);
 
     // Fetch in parallel
     final futures = await Future.wait([
@@ -127,7 +167,6 @@ class TripsProvider extends ChangeNotifier {
       repo.fetchListOfYears(),               // 1
       repo.fetchListOfOperators(),           // 2
       repo.fetchListOfCountryCode(),         // 3
-      if (context != null) repo.fetchMapOfCountries(context), // 4 (optional, needs context)
     ]);
 
     _vehicleTypes = (futures[0] as List<VehicleType>?) ?? const [VehicleType.unknown];
@@ -139,8 +178,18 @@ class TripsProvider extends ChangeNotifier {
     _operators   = (futures[2] as List<String>?) ?? const <String>[];
     _countryCodes= (futures[3] as List<String>?) ?? const <String>[];
 
-    if (context != null) {
-      _mapCountryCodes = (futures.last as Map<String, String>?) ?? const <String, String>{};
+    await _refreshCountryNames();
+  }
+
+  Future<void> _refreshCountryNames() async {
+    final repo = _repository;
+    final locale = _locale;
+    if (repo == null || locale == null) {
+      _mapCountryCodes = const {};
+      return;
     }
+
+    final details = await CountryLocalizations.delegate.load(locale);
+    _mapCountryCodes = await repo.fetchMapOfCountries(details);
   }
 }

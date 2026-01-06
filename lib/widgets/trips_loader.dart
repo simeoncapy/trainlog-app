@@ -33,7 +33,7 @@ class _TripsLoaderState extends State<TripsLoader> {
   Future<void> _loadTrips() async {
     try {
       await Provider.of<TripsProvider>(context, listen: false)
-          .loadTrips(csvPath: widget.csvPath, context: context, loadFromApi: widget.loadFromApi);
+          .loadTrips(csvPath: widget.csvPath, locale: Localizations.localeOf(context), loadFromApi: widget.loadFromApi);
     } catch (e) {
       Fluttertoast.showToast(
         msg: '⚠️ Failed to load trips.',

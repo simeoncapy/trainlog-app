@@ -54,8 +54,19 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider.value(value: settings),
-        ChangeNotifierProvider(create: (_) => TripsProvider()),
-        ChangeNotifierProvider.value(value: auth)
+        //ChangeNotifierProvider(create: (_) => TripsProvider()),
+        ChangeNotifierProvider.value(value: auth),
+        ChangeNotifierProxyProvider2<TrainlogProvider, SettingsProvider, TripsProvider>(
+          create: (_) => TripsProvider(),
+          update: (_, auth, settings, trips) {
+            trips!.updateDeps(
+              service: auth.service,
+              settings: settings,
+              username: auth.username,
+            );
+            return trips;
+          },
+        ),
       ],
       child: const AppRoot(),
     ),
