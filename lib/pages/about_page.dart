@@ -32,8 +32,11 @@ class AboutPage extends StatelessWidget {
           Expanded(
             child: TabBarView(
               children: [
-                TrainlogProjectDescription(),
-                _ScrollableText(text: 'How To text (placeholder)...'), // How To page
+                TrainlogProjectDescription(), // About Trainlog
+                SingleChildScrollView(
+                  padding: const EdgeInsets.all(16),
+                  child: LocalisedMarkdown(assetBaseName: 'howto', displayToc: false,),
+                ),
                 PrivacyHtmlTab(url: Uri.parse('${TrainlogService.baseUrl}/privacy/$languageCode')),
               ],
             ),
@@ -91,7 +94,7 @@ class TrainlogProjectDescription extends StatelessWidget {
               padding: const EdgeInsets.all(16),
               child: Column(
                 children: [
-                  LocalisedMarkdownV2(assetBaseName: 'about', displayToc: false,),
+                  LocalisedMarkdown(assetBaseName: 'about', displayToc: false,),
                   SizedBox(height: 8,),
                   _buttonHelper(
                     context, 
@@ -155,21 +158,4 @@ class TrainlogProjectDescription extends StatelessWidget {
   }
 }
 
-
-class _ScrollableText extends StatelessWidget {
-  final String text;
-
-  const _ScrollableText({required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Text(
-        text,
-        style: Theme.of(context).textTheme.bodyMedium,
-      ),
-    );
-  }
-}
 

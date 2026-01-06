@@ -18,6 +18,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appVersion => 'App version:';
 
   @override
+  String get appVersionCopied => 'Version number copied';
+
+  @override
   String get mainMenuButtonTooltip => 'Open menu';
 
   @override

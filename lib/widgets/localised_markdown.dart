@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-//import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:trainlog_app/widgets/error_banner.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:markdown_widget/markdown_widget.dart';
+import 'package:markdown/markdown.dart' as md;
 
 class LocalisedMarkdown extends StatefulWidget {
   final String assetBaseName;
@@ -90,7 +90,48 @@ class _LocalisedMarkdownState extends State<LocalisedMarkdown> {
     );
   }
 
+  // ---------------------------------------------------------------------------
+  // Icons
+  // ---------------------------------------------------------------------------
+  SpanNode _iconNode(md.Element e, {required bool isSymbol}) {
+    final name = (e.attributes['name'] ?? '').trim();
+    final iconData = kIcons[name];
 
+    if (iconData == null) {
+      return TextNode(text: ':${isSymbol ? "sym" : "icon"}($name):');
+    }
+
+    // IMPORTANT: use the icon’s fontFamily + fontPackage so the correct glyph is drawn.
+    return TextNode(
+      text: String.fromCharCode(iconData.codePoint),
+      style: TextStyle(
+        fontFamily: iconData.fontFamily,
+        package: iconData.fontPackage,
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Style
+  // ---------------------------------------------------------------------------
+  MarkdownConfig  _markdownStyle(BuildContext context)
+  {
+    final theme = Theme.of(context);
+    final base = theme.brightness == Brightness.dark
+      ? MarkdownConfig.darkConfig
+      : MarkdownConfig.defaultConfig;
+
+    HeadingDivider.h2 = HeadingDivider(space: 0, height: 0, color: Colors.transparent);
+    HeadingDivider.h3 = HeadingDivider(space: 0, height: 0, color: Colors.transparent);
+    
+      return base.copy(configs: [
+      H1Config(
+        style: theme.textTheme.headlineSmall!.copyWith(
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    ]);
+  }
 
   // ---------------------------------------------------------------------------
   // Build
@@ -99,6 +140,19 @@ class _LocalisedMarkdownState extends State<LocalisedMarkdown> {
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
     final hasToc = widget.displayToc;
+    final markdownGeneratorWithIcons = MarkdownGenerator(
+      inlineSyntaxList: [IconOrSymbolSyntax()],
+      generators: [
+        SpanNodeGeneratorWithTag(
+          tag: 'icon',
+          generator: (e, config, visitor) => _iconNode(e, isSymbol: false),
+        ),
+        SpanNodeGeneratorWithTag(
+          tag: 'sym',
+          generator: (e, config, visitor) => _iconNode(e, isSymbol: true),
+        ),
+      ],
+    );
   
     return FutureBuilder<({String data, bool isFallback})>(
       future: _loadMarkdown(context),
@@ -111,7 +165,9 @@ class _LocalisedMarkdownState extends State<LocalisedMarkdown> {
 
         final markdown = MarkdownWidget(
           data: result.data,
+          config: _markdownStyle(context),
           tocController: tocController,
+          markdownGenerator: markdownGeneratorWithIcons,
           shrinkWrap: true,
           physics: hasToc ? null : const NeverScrollableScrollPhysics(),
         );
@@ -138,3 +194,31 @@ class _LocalisedMarkdownState extends State<LocalisedMarkdown> {
   }
 }
 
+class IconOrSymbolSyntax extends md.InlineSyntax {
+  IconOrSymbolSyntax() : super(r':(icon|sym)\(([^)]+)\):');
+
+  @override
+  bool onMatch(md.InlineParser parser, Match match) {
+    final tag = match.group(1)!; // "icon" or "sym"
+    final name = match.group(2)!.trim();
+
+    final el = md.Element.empty(tag);
+    el.attributes['name'] = name;
+
+    parser.addNode(el);
+    return true;
+  }
+}
+
+// Put only what you actually use (you can grow these maps over time).
+final Map<String, IconData> kIcons = {
+  'home': Icons.home,
+  'settings': Icons.settings,
+  'info': Icons.info,
+  'warning': Icons.warning,
+  'menu': Icons.menu,
+  'my_location': Icons.my_location,
+  'explore': Icons.explore,
+  'frame_person_off': Symbols.frame_person_off,
+  'frame_person': Symbols.frame_person,
+};

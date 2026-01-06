@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
+import 'package:markdown/markdown.dart' as md;
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:trainlog_app/widgets/error_banner.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
+import 'package:material_symbols_icons/symbols_map.dart';
 
 class LocalisedMarkdownV2 extends StatefulWidget {
   final String assetBaseName;
@@ -136,7 +139,7 @@ class _LocalisedMarkdownV2State extends State<LocalisedMarkdownV2> {
   Widget _buildMarkdown(String markdown, ThemeData theme) {
     return MarkdownBody(
       data: markdown,
-      styleSheet: MarkdownStyleSheet.fromTheme(theme),
+      selectable: true,
       // builders: {
       //   for (int i = 1; i <= 6; i++)
       //     'h$i': _HeadingBuilder(_headingKeys), // Not working for the moment
@@ -186,9 +189,7 @@ class _LocalisedMarkdownV2State extends State<LocalisedMarkdownV2> {
               if (widget.displayToc)
                 _buildToc(context, headings),
 
-              SelectionArea(
-                child: _buildMarkdown(result.data, theme),
-              ),
+              _buildMarkdown(result.data, theme),
             ],
           ),
         );
@@ -218,5 +219,21 @@ class _HeadingBuilder extends MarkdownElementBuilder {
         style: preferredStyle,
       ),
     );
+  }
+}
+
+/// Matches :icon(name):
+class IconInlineSyntax extends md.InlineSyntax {
+  IconInlineSyntax() : super(r':icon\(([^)]+)\):');
+
+  @override
+  bool onMatch(md.InlineParser parser, Match match) {
+    final name = match.group(1)!.trim();
+
+    final el = md.Element.empty('icon');
+    el.attributes['name'] = name;
+
+    parser.addNode(el);
+    return true;
   }
 }

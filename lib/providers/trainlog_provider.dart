@@ -4,6 +4,7 @@ import 'package:trainlog_app/data/models/pre_record_model.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/utils/text_utils.dart';
+import 'package:trainlog_app/widgets/shimmer_box.dart';
 import '../services/trainlog_service.dart';
 import 'package:latlong2/latlong.dart';
 import "package:unorm_dart/unorm_dart.dart" as unorm;
@@ -176,6 +177,11 @@ class TrainlogProvider extends ChangeNotifier {
           final expected = progress.expectedTotalBytes;
           final loaded = progress.cumulativeBytesLoaded;
           final value = expected != null ? loaded / expected : null;
+
+          // return ShimmerBox(
+          //   width: maxWidth, 
+          //   height: maxHeight
+          // );
 
           return SizedBox(
             width: maxWidth,

@@ -3,6 +3,7 @@
   "appTitle": "トレインログ",
   "language": "日本語",
   "appVersion": "アプリバージョン:",
+  "appVersionCopied": "バージョン番号をコピーしました。",
   "mainMenuButtonTooltip": "メニューを開く",
   "filterButton": "フィルター",
   "descendingOrder": "降順",

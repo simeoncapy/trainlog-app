@@ -118,6 +118,12 @@ abstract class AppLocalizations {
   /// **'App version:'**
   String get appVersion;
 
+  /// No description provided for @appVersionCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Version number copied'**
+  String get appVersionCopied;
+
   /// No description provided for @mainMenuButtonTooltip.
   ///
   /// In en, this message translates to:

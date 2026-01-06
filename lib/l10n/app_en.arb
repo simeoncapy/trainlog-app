@@ -3,6 +3,7 @@
   "appTitle": "Trainlog",
   "language": "English",
   "appVersion": "App version:",
+  "appVersionCopied": "Version number copied",
   "mainMenuButtonTooltip": "Open menu",
   "filterButton": "Filter",
   "descendingOrder": "Descending order",
