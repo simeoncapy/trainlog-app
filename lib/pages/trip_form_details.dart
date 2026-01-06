@@ -28,7 +28,8 @@ class _TripFormDetailsState extends State<TripFormDetails> {
     final model = context.read<TripFormModel>();
     final settings = context.read<SettingsProvider>();
     
-    _currencyCode = model.currencyCode ?? settings.currency; // TODO get user default currency
+    _currencyCode = model.currencyCode ?? settings.currency;
+    model.currencyCode = _currencyCode;
     _selectedPurchaseDate = model.purchaseDate ?? DateTime.now();
   }
 

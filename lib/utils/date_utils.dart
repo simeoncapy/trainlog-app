@@ -4,9 +4,22 @@ import 'package:provider/provider.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 
 enum DateType {
-  precise,
+  precise, // preciseDates
   unknown,
-  date
+  date // onlyDate
+}
+
+extension DateTypeExtension on DateType {
+  String get apiName {
+    switch (this) {
+      case DateType.precise:
+        return 'preciseDates';
+      case DateType.unknown:
+        return 'unknown';
+      case DateType.date:
+        return 'onlyDate';
+    }
+  }
 }
 
 // String formatDateTime(BuildContext context, DateTime dateTime, {bool hasTime = true}) {

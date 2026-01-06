@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
@@ -32,11 +34,13 @@ class TripFormModel extends ChangeNotifier {
   bool dateHasError = false;
   DateType dateType = DateType.precise;
   DateTime? departureDate;
+  DateTime? departureDateLocal;
   ({bool depDate, bool depTime}) hasDepartureDateTime = (
     depDate: false,
     depTime: false,
   );
   DateTime? arrivalDate;
+  DateTime? arrivalDateLocal;
   ({bool arrDate, bool arrTime}) hasArrivalDateTime = (
     arrDate: false,
     arrTime: false,
@@ -62,6 +66,44 @@ class TripFormModel extends ChangeNotifier {
 
   EnergyType energyType = EnergyType.auto;
   TripVisibility tripVisibility = TripVisibility.private;
+
+
+  // -----------------------------
+  // Helpers
+  // -----------------------------
+  String _isoDate(DateTime? dt) =>
+    dt == null ? '' : dt.toIso8601String().split('T').first;
+
+  String _isoTime(DateTime? dt) {
+    if (dt == null) return '';
+    final hh = dt.hour.toString().padLeft(2, '0');
+    final mm = dt.minute.toString().padLeft(2, '0');
+    return '$hh:$mm';
+  }
+
+  String _isoDateUtc(DateTime? dt) =>
+    dt == null ? '' : dt.toUtc().toIso8601String().split('T').first;
+
+  String _isoTimeUtc(DateTime? dt) =>
+      dt == null ? '' : dt.toUtc().toIso8601String().split('T')[1];
+
+  String _when(bool cond, String Function() f) => cond ? f() : '';
+
+  String _s(String? v) => v ?? '';
+
+  String _pastFutureString(bool isPast) => isPast ? 'past' : 'future';
+
+  String _duration(DateType type, {required bool isHour}) {
+    final rec = duration[type] ?? (null, null); // (hour, minute)
+    final v = isHour ? rec.$1 : rec.$2;         // int?
+    return (v ?? 0).toString();//.toStringAsFixed(1);         // "0.0" / "2.0"
+  }
+
+  String _toSeconds(DateType type) {
+    final (h, m) = duration[type] ?? (0, 0); // (hour, minute)
+    final s = (h??0) * 3600 + (m??0) * 60;
+    return s.toString();
+  }
 
   // -----------------------------
   // Getters
@@ -271,6 +313,16 @@ class TripFormModel extends ChangeNotifier {
     return localTzDate.toUtc();
   }
 
+  DateTime _setDateTimeLocal(DateTime date, TimeOfDay time) {
+    return DateTime(
+      date.year,
+      date.month,
+      date.day,
+      time.hour,
+      time.minute,
+    );
+  }
+
   void setDepartureDateTime(DateTime? date, TimeOfDay? time, String timezone)
   {
      hasDepartureDateTime = (
@@ -285,6 +337,7 @@ class TripFormModel extends ChangeNotifier {
       return;
     }
 
+    departureDateLocal = _setDateTimeLocal(date, time);
     departureDate = _setDateTimeWithTimeZone(date, time, timezone);
     notifyListeners();
   }
@@ -303,6 +356,7 @@ class TripFormModel extends ChangeNotifier {
       return;
     }
 
+    arrivalDateLocal = _setDateTimeLocal(date, time);
     arrivalDate = _setDateTimeWithTimeZone(date, time, timezone);
     notifyListeners();
   }
@@ -365,5 +419,72 @@ class TripFormModel extends ChangeNotifier {
   void clearDateError() {
     dateHasError = false;
     notifyListeners();
+  }
+
+
+  // -----------------------------
+  // JSON
+  // -----------------------------
+  String toJson() {
+    final map = <String, dynamic>{};
+
+    // ---- origin ----
+    if (departureGeoMode) {
+      map['originManualName'] = departureStationName;
+      map['originManualLat']  = departureLat?.toString() ?? '';
+      map['originManualLng']  = departureLong?.toString() ?? '';
+    } else {
+      map['originStation'] = [
+        [departureLat, departureLong],
+        departureStationName,
+      ];
+    }
+
+    // ---- destination ----
+    if (arrivalGeoMode) {
+      map['destinationManualName'] = arrivalStationName;
+      map['destinationManualLat']  = arrivalLat?.toString() ?? '';
+      map['destinationManualLng']  = arrivalLong?.toString() ?? '';
+    } else {
+      map['destinationStation'] = [
+        [arrivalLat, arrivalLong],
+        arrivalStationName,
+      ];
+    }
+
+    // ---- rest ----
+    map.addAll({
+      "operator": selectedOperators.join(","),
+      "lineName": _s(line),
+      "material_type": _s(material),
+      "reg": _s(registration),
+      "seat": _s(seat),
+      "notes": _s(notes),
+
+      "price": price?.toString() ?? "",
+      "currency": _when(price != null, () => _s(currencyCode)),
+      "purchasing_date": _when(price != null, () => _isoDate(purchaseDate)),
+
+      "ticket_id": "",
+      "powerType": energyType.name,
+
+      "precision": dateType.apiName,
+      "onlyDate": _when(dateType == DateType.date, () => _isoDate(departureDayDateOnly)),
+      "unknownType": _when(dateType == DateType.unknown, () => _pastFutureString(isPast)),
+      "manDurationHours": _when(dateType != DateType.precise, () => _duration(dateType, isHour: true)),
+      "manDurationMinutes": _when(dateType != DateType.precise, () => _duration(dateType, isHour: false)),
+
+      "newTripStartDate": _when(dateType == DateType.precise, () => _isoDate(departureDateLocal)),
+      "newTripStartTime": _when(dateType == DateType.precise, () => _isoTime(departureDateLocal)),
+      "newTripEndDate": _when(dateType == DateType.precise, () => _isoDate(arrivalDateLocal)),
+      "newTripEndTime": _when(dateType == DateType.precise, () => _isoTime(arrivalDateLocal)),
+
+      "onlyDateDuration": _when(dateType == DateType.date, () => _toSeconds(dateType)),
+      //"newTripEnd": "T",
+      //"newTripStart": "2026-01-05T17:49",
+    });
+
+    debugPrint(jsonEncode(map));
+    return jsonEncode(map);
   }
 }

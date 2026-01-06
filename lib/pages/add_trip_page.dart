@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:step_progress/step_progress.dart';
+import 'package:trainlog_app/data/controllers/trainlog_web_controller.dart';
 import 'package:trainlog_app/data/models/trip_form_model.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/pages/trip_form_basics.dart';
@@ -22,6 +25,13 @@ class _AddTripPageState extends State<AddTripPage> {
   List<String>? stepList;
 
   final PageController _pageController = PageController();
+  late final TrainlogWebPageController _routingWebCtrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _routingWebCtrl = TrainlogWebPageController();
+  }
 
   @override
   void didChangeDependencies() {
@@ -46,6 +56,7 @@ class _AddTripPageState extends State<AddTripPage> {
 
   @override
   void dispose() {
+     _routingWebCtrl.dispose();
     stepProgressController.dispose();
     _pageController.dispose();
     super.dispose();
@@ -102,7 +113,35 @@ class _AddTripPageState extends State<AddTripPage> {
     }
   }
 
-  void _validateTrip() {
+  Future<void> _validateTrip() async {
+    debugPrint("⏳ REQUEST VALIDATION");
+    // Ask the WebView to submit
+    final res = await _routingWebCtrl.submitTrip(timeout: const Duration(seconds: 25));
+
+    if (!mounted) return;
+    final re = RegExp(r'\bstatus\s*:\s*(\d{3})\s*,');
+    final m = re.firstMatch(res.error ?? "");
+    final errorCode = m == null ? null : int.parse(m.group(1)!);
+
+    debugPrint('submitTrip ok=${res.ok} error=$errorCode');
+    debugPrint('payload runtimeType=${res.payload.runtimeType}');
+
+    // Pretty print if it's a Map/List
+    // try {
+    //   final pretty = const JsonEncoder.withIndent('  ').convert(res.payload);
+    //   debugPrint('payload:\n$pretty');
+    // } catch (_) {
+    //   // fallback (string or something non-JSON-encodable)
+    //   debugPrint('payload:\n${res.payload}');
+    // }
+
+    if (!res.ok) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Submit failed: ${errorCode ?? 'unknown'}')),
+      );
+      return;
+    }
+
     // Placeholder for submission logic
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Trip validated! (not implemented yet)')),
@@ -252,11 +291,11 @@ class _AddTripPageState extends State<AddTripPage> {
               child: PageView(
                 controller: _pageController,
                 physics: const NeverScrollableScrollPhysics(),
-                children: const [
+                children: [
                   TripFormBasics(),
                   TripFormDate(),
                   TripFormDetails(),
-                  TripFormPath(),
+                  TripFormPath(routingController: _routingWebCtrl),
                 ],
               ),
             ),

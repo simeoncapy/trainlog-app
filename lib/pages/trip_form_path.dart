@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:trainlog_app/data/controllers/trainlog_web_controller.dart';
 import 'package:trainlog_app/data/models/trip_form_model.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
-import 'package:trainlog_app/widgets/mini_map_box.dart';
+import 'package:trainlog_app/widgets/trainlog_web_page.dart';
 
 
 class TripFormPath extends StatefulWidget {
-  const TripFormPath({super.key});
+  final TrainlogWebPageController routingController;
+
+  const TripFormPath({
+    super.key,
+    required this.routingController,
+  });
 
   @override
   State<TripFormPath> createState() => _TripFormPathState();
@@ -14,6 +20,7 @@ class TripFormPath extends StatefulWidget {
 
 class _TripFormPathState extends State<TripFormPath> {
   bool _isNewRouter = false;
+  String _routeInfo = "";
 
   @override
   void initState() {
@@ -78,6 +85,7 @@ class _TripFormPathState extends State<TripFormPath> {
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
     final model = context.watch<TripFormModel>();
+    final tripData = model.toJson();
 
     return Padding(
       padding: const EdgeInsets.all(0),
@@ -89,9 +97,9 @@ class _TripFormPathState extends State<TripFormPath> {
               children: [
                 Checkbox(
                 value: _isNewRouter,
-                onChanged: (value) {
+                onChanged: _routeInfo.isEmpty ? null : (value) {
                   setState(() {
-                    _isNewRouter = value!;
+                    _isNewRouter = value ?? false;
                   });
                 },
                 ),
@@ -126,21 +134,22 @@ class _TripFormPathState extends State<TripFormPath> {
                     maxLines: 2,
                   )
                 ),
-                Text("(xxx km, 3 h 25)")
+                Text(_routeInfo.isEmpty ? "(...)" : "($_routeInfo)")
               ],
             ),
           ),
           SizedBox(height: 8,),
           Expanded(
-            child: MiniMapBox(
-              lat: model.departureLat,
-              long: model.departureLong,
-              emptyMessage: "", // always display a map here
-              markerColor: Colors.green,
-              isCoordinateMovable: model.departureGeoMode,
-              onCoordinateChanged: (lat, long) {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  model.updateDepartureCoords(lat, long);
+            child: TrainlogWebPage(
+              trainlogPage: 'routing',
+              query: {'type': model.vehicleType?.toShortString() ?? "train"},
+              initialPostForm: {'trip_data': tripData},
+              controller: widget.routingController,
+              routerToggleValue: _isNewRouter,
+              onRouteInfoChanged: (text) {
+                if (!mounted) return;
+                setState(() {
+                  _routeInfo = text;
                 });
               },
             ),

@@ -1,17 +1,10 @@
 import 'dart:io';
-import 'dart:ui';
-import 'package:dropdown_search/dropdown_search.dart';
-import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
-import 'dart:convert';
-import 'dart:math' as math;
 import 'package:latlong2/latlong.dart';
-import 'package:trainlog_app/data/models/pre_record_model.dart';
-
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/utils/text_utils.dart';
 
@@ -33,7 +26,7 @@ class TrainlogLoginResult {
 
 class TrainlogService {
   static const String _baseUrl = 'https://trainlog.me';
-  static const String _loginPath = '/login'; // we'll add ?raw=1 via query
+  static const String _loginPath = '/login';
   static const String _userAgent = 'TrainlogApp/1.0 (+Flutter)';
   static const String _logoPath = "$_baseUrl/static/";
 
@@ -197,6 +190,29 @@ class TrainlogService {
     }
   }
 
+  Future<Response<T>> safePost<T>(
+    String path, {
+    Map<String, dynamic>? query,
+    Object? data,
+    String contentType = Headers.formUrlEncodedContentType,
+    Map<String, dynamic>? headers,
+    bool followRedirects = false,
+    int maxRedirects = 5,
+    ValidateStatus? validateStatus,
+  }) {
+    return _dio.post<T>(
+      path,
+      queryParameters: query,
+      data: data,
+      options: Options(
+        contentType: contentType,
+        headers: headers,
+        followRedirects: followRedirects,
+        maxRedirects: maxRedirects,
+        validateStatus: validateStatus ?? (s) => s != null && s >= 200 && s < 500,
+      ),
+    );
+  }
 
   // (Optional) replace when you have a real endpoint
   Future<String?> fetchUsernameViaApi() async {
