@@ -64,8 +64,8 @@ class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
   void _sortRecords() {
     _records.sort((a, b) =>
         _ascending
-            ? a.dateTime.compareTo(b.dateTime)
-            : b.dateTime.compareTo(a.dateTime));
+            ? a.dateTimeUtc.compareTo(b.dateTimeUtc)
+            : b.dateTimeUtc.compareTo(a.dateTimeUtc));
   }
 
   Future<Position> _getCurrentPosition(AppLocalizations loc) async {

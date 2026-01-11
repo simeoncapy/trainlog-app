@@ -697,7 +697,7 @@ abstract class AppLocalizations {
   /// No description provided for @menuSmartPrerecorderTitle.
   ///
   /// In en, this message translates to:
-  /// **'WayStamp'**
+  /// **'Geolog'**
   String get menuSmartPrerecorderTitle;
 
   /// No description provided for @menuSettingsTitle.
@@ -1483,7 +1483,7 @@ abstract class AppLocalizations {
   /// No description provided for @prerecorderExplanation.
   ///
   /// In en, this message translates to:
-  /// **'The WayStamp tool is a smart pre-recorder. When you click on the record button, it will automatically save your current coordinate with the date and time. Later on, you could select two stamps and use them to create a new trip with the saved data.'**
+  /// **'The Geolog tool is a smart pre-recorder. When you click on the record button, it will automatically save your current coordinate with the date and time. Later on, you could select two geologs and use them to create a new trip with the saved data.'**
   String get prerecorderExplanation;
 
   /// No description provided for @prerecorderExplanationStation.
@@ -1495,7 +1495,7 @@ abstract class AppLocalizations {
   /// No description provided for @prerecorderExplanationDelete.
   ///
   /// In en, this message translates to:
-  /// **'After the trip has been created, the two stamps are automatically deleted.'**
+  /// **'After the trip has been created, the two geologs are automatically deleted.'**
   String get prerecorderExplanationDelete;
 
   /// No description provided for @prerecorderExplanationPrivacy.
@@ -1537,7 +1537,7 @@ abstract class AppLocalizations {
   /// No description provided for @prerecorderDeleteAllConfirm.
   ///
   /// In en, this message translates to:
-  /// **'Are you sure to delete all the recorded stamps? This action is irreversible.'**
+  /// **'Are you sure to delete all the recorded geologs? This action is irreversible.'**
   String get prerecorderDeleteAllConfirm;
 }
 

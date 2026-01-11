@@ -122,7 +122,7 @@
   "menuTagsTitle": "Tags",    
   "menuTicketsTitle": "Tickets", 
   "menuFriendsTitle": "Friends", 
-  "menuSmartPrerecorderTitle": "WayStamp",
+  "menuSmartPrerecorderTitle": "Geolog",
   "menuSettingsTitle": "Settings",
   "menuAboutTitle": "About",
 
@@ -357,14 +357,14 @@
   "tableOfContents": "Table of content",
 
   "prerecorderExplanationTitle": "Explanation",
-  "prerecorderExplanation": "The WayStamp tool is a smart pre-recorder. When you click on the record button, it will automatically save your current coordinate with the date and time. Later on, you could select two stamps and use them to create a new trip with the saved data.",
+  "prerecorderExplanation": "The Geolog tool is a smart pre-recorder. When you click on the record button, it will automatically save your current coordinate with the date and time. Later on, you could select two geologs and use them to create a new trip with the saved data.",
   "prerecorderExplanationStation": "This tool will automatically look for the station name and display it if found (this works only for rail, bus, and ferry). The closest station to you will be used.",
-  "prerecorderExplanationDelete": "After the trip has been created, the two stamps are automatically deleted.",
+  "prerecorderExplanationDelete": "After the trip has been created, the two geologs are automatically deleted.",
   "prerecorderExplanationPrivacy": "The data are saved on your device only.",
   "prerecorderRecordButton": "Record",
   "prerecorderCreateTripButton": "Create a trip",
   "prerecorderNoData": "No data recorded",
   "prerecorderUnknownStation": "Unknown station",
   "prerecorderDeleteSelectionConfirm": "Are you sure to delete the selection? This action is irreversible.",
-  "prerecorderDeleteAllConfirm": "Are you sure to delete all the recorded stamps? This action is irreversible."
+  "prerecorderDeleteAllConfirm": "Are you sure to delete all the recorded geologs? This action is irreversible."
 }

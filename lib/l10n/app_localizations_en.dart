@@ -316,7 +316,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get menuFriendsTitle => 'Friends';
 
   @override
-  String get menuSmartPrerecorderTitle => 'WayStamp';
+  String get menuSmartPrerecorderTitle => 'Geolog';
 
   @override
   String get menuSettingsTitle => 'Settings';
@@ -826,7 +826,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get prerecorderExplanation =>
-      'The WayStamp tool is a smart pre-recorder. When you click on the record button, it will automatically save your current coordinate with the date and time. Later on, you could select two stamps and use them to create a new trip with the saved data.';
+      'The Geolog tool is a smart pre-recorder. When you click on the record button, it will automatically save your current coordinate with the date and time. Later on, you could select two geologs and use them to create a new trip with the saved data.';
 
   @override
   String get prerecorderExplanationStation =>
@@ -834,7 +834,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get prerecorderExplanationDelete =>
-      'After the trip has been created, the two stamps are automatically deleted.';
+      'After the trip has been created, the two geologs are automatically deleted.';
 
   @override
   String get prerecorderExplanationPrivacy =>
@@ -858,5 +858,5 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get prerecorderDeleteAllConfirm =>
-      'Are you sure to delete all the recorded stamps? This action is irreversible.';
+      'Are you sure to delete all the recorded geologs? This action is irreversible.';
 }
