@@ -452,6 +452,11 @@ class TripFormModel extends ChangeNotifier {
       ];
     }
 
+    final departureDate = _when(dateType == DateType.precise, () => _isoDate(departureDateLocal));
+    final departureTime = _when(dateType == DateType.precise, () => _isoTime(departureDateLocal));
+    final arrivalDate = _when(dateType == DateType.precise, () => _isoDate(arrivalDateLocal));
+    final arrivalTime = _when(dateType == DateType.precise, () => _isoTime(arrivalDateLocal));
+
     // ---- rest ----
     map.addAll({
       "operator": selectedOperators.join(","),
@@ -474,14 +479,14 @@ class TripFormModel extends ChangeNotifier {
       "manDurationHours": _when(dateType != DateType.precise, () => _duration(dateType, isHour: true)),
       "manDurationMinutes": _when(dateType != DateType.precise, () => _duration(dateType, isHour: false)),
 
-      "newTripStartDate": _when(dateType == DateType.precise, () => _isoDate(departureDateLocal)),
-      "newTripStartTime": _when(dateType == DateType.precise, () => _isoTime(departureDateLocal)),
-      "newTripEndDate": _when(dateType == DateType.precise, () => _isoDate(arrivalDateLocal)),
-      "newTripEndTime": _when(dateType == DateType.precise, () => _isoTime(arrivalDateLocal)),
+      "newTripStartDate": departureDate,
+      "newTripStartTime": departureTime,
+      "newTripEndDate": arrivalDate,
+      "newTripEndTime": arrivalTime,
 
       "onlyDateDuration": _when(dateType == DateType.date, () => _toSeconds(dateType)),
-      //"newTripEnd": "T",
-      //"newTripStart": "2026-01-05T17:49",
+      "newTripEnd": "${arrivalDate}T$arrivalTime",
+      "newTripStart": "${departureDate}T$departureTime",
     });
 
     debugPrint(jsonEncode(map));
