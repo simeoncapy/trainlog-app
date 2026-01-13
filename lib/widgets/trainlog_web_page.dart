@@ -129,7 +129,7 @@ class _TrainlogWebPageState extends State<TrainlogWebPage> {
       _hideElement(controller, 'nav.navbar.navbar-expand-xl.navbar-light.bg-light');
 
   Future<void> _hideRouterUi(InAppWebViewController controller) async =>
-      _hideElement(controller, 'leaflet-control-container');
+      _hideElement(controller, 'div.leaflet-control-container');
 
   Future<void> _hideElement(
     InAppWebViewController controller,

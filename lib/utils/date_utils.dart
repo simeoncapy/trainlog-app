@@ -75,3 +75,33 @@ String formatDateTime(
   return result;
 }
 
+String formatDurationFixed(Duration d) {
+  final parts = <String>[];
+  const nbsp = '\u00A0';
+
+  final days = d.inDays;
+  final hours = d.inHours % 24;
+  final minutes = d.inMinutes % 60;
+  final seconds = d.inSeconds % 60;
+
+  if (days > 0) {
+    parts.add('$days${nbsp}d');
+  }
+  if (hours > 0) {
+    parts.add('$hours${nbsp}h');
+  }
+  if (minutes > 0) {
+    parts.add('$minutes${nbsp}min');
+  }
+  if (seconds > 0) {
+    parts.add('$seconds${nbsp}s');
+  }
+
+  // Fallback: show 0 min if duration is zero
+  if (parts.isEmpty) {
+    return '0${nbsp}min';
+  }
+
+  return parts.join(' ');
+}
+

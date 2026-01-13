@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:step_progress/step_progress.dart';
@@ -10,6 +8,7 @@ import 'package:trainlog_app/pages/trip_form_basics.dart';
 import 'package:trainlog_app/pages/trip_form_date.dart';
 import 'package:trainlog_app/pages/trip_form_details.dart';
 import 'package:trainlog_app/pages/trip_form_path.dart';
+import 'package:trainlog_app/utils/date_utils.dart';
 
 class AddTripPage extends StatefulWidget {
   final List<int>? preRecorderIdsToDelete;
@@ -113,7 +112,7 @@ class _AddTripPageState extends State<AddTripPage> {
     }
   }
 
-  Future<void> _validateTrip() async {
+  Future<void> _validateTrip({bool continueTrip = false}) async {
     debugPrint("⏳ REQUEST VALIDATION");
     // Ask the WebView to submit
     final res = await _routingWebCtrl.submitTrip(timeout: const Duration(seconds: 25));
@@ -146,6 +145,50 @@ class _AddTripPageState extends State<AddTripPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Trip validated! (not implemented yet)')),
     );
+
+    if(continueTrip) {
+      Navigator.of(context).push(PageRouteBuilder(
+        pageBuilder: (_, __, ___) => ChangeNotifierProvider(
+          create: (_) => _createTripFormModel(),
+          child: AddTripPage(),
+        ),
+        transitionDuration: Duration.zero,
+        reverseTransitionDuration: Duration.zero,
+      )); // Check if the previous works
+    }
+    else {
+      Navigator.pop(context); // Maybe doing more?
+    }
+  }
+
+  TripFormModel _createTripFormModel() {
+    /// Continuing the trip by using the arrivl as a new departure
+    final model = context.read<TripFormModel>();
+    final newModel = TripFormModel();
+
+    newModel.vehicleType = model.vehicleType;
+
+    newModel.departureAddress     = model.arrivalAddress;
+    newModel.departureGeoMode     = model.arrivalGeoMode;
+    newModel.departureLat         = model.arrivalLat;
+    newModel.departureLong        = model.arrivalLong;
+    newModel.departureStationName = model.arrivalStationName;
+
+    newModel.dateType = model.dateType;
+    switch(newModel.dateType) {
+      case DateType.precise:
+        newModel.departureDate = model.arrivalDate;
+        newModel.departureDateLocal = model.arrivalDateLocal;
+        break;
+      case DateType.date:
+        newModel.departureDayDateOnly = model.departureDayDateOnly;
+        break;
+      case DateType.unknown:
+        newModel.isPast = model.isPast;
+        break;
+    }
+
+    return newModel;
   }
 
   Widget _bottomButtonHelper(bool isLastStep)
@@ -180,7 +223,7 @@ class _AddTripPageState extends State<AddTripPage> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: _validateTrip,
+              onPressed:() => _validateTrip(continueTrip: true),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Theme.of(context).colorScheme.secondary,
                 foregroundColor: Theme.of(context).colorScheme.onSecondary,

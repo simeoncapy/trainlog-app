@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/data/controllers/trainlog_web_controller.dart';
 import 'package:trainlog_app/data/models/trip_form_model.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
+import 'package:trainlog_app/widgets/shimmer_box.dart';
 import 'package:trainlog_app/widgets/trainlog_web_page.dart';
 
 
@@ -21,6 +23,7 @@ class TripFormPath extends StatefulWidget {
 class _TripFormPathState extends State<TripFormPath> {
   bool _isNewRouter = false;
   String _routeInfo = "";
+  static const _nbsp = '\u00A0'; // non-breaking space
 
   @override
   void initState() {
@@ -81,11 +84,47 @@ class _TripFormPathState extends State<TripFormPath> {
     );
   }
 
+  String _distanceAndTimeFormatHelper(String input, {String? locale}) {
+    final parts = input.split(',');
+    if (parts.length < 2) return input;
+
+    // ---- distance ----
+    final distanceRaw =
+        parts[0].replaceAll(RegExp(r'[^\d.,]'), '').trim();
+
+    final distance =
+        NumberFormat.decimalPattern(locale).parse(distanceRaw);
+
+    final distanceFormatted =
+        NumberFormat.decimalPattern(locale).format(distance);
+
+    // ---- duration (string-only) ----
+    final durationRaw = parts.sublist(1).join(',').trim();
+    final durationFormatted = _normalizeDuration(durationRaw);
+
+    return '$distanceFormatted km, $durationFormatted';
+  }
+
+  String _normalizeDuration(String input) {
+    return input
+        // normalize minute unit
+        .replaceAllMapped(
+          RegExp(r'(\d+)\s*m\b'),
+          (m) => '${m[1]}${_nbsp}min',
+        )
+        // day / hour / second
+        .replaceAllMapped(
+          RegExp(r'(\d+)\s*([dhs])\b'),
+          (m) => '${m[1]}$_nbsp${m[2]}',
+        );
+  }
+
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
     final model = context.watch<TripFormModel>();
     final tripData = model.toJson();
+    final locale = Localizations.localeOf(context);
 
     return Padding(
       padding: const EdgeInsets.all(0),
@@ -97,7 +136,7 @@ class _TripFormPathState extends State<TripFormPath> {
               children: [
                 Checkbox(
                 value: _isNewRouter,
-                onChanged: _routeInfo.isEmpty ? null : (value) {
+                onChanged: _routeInfo.isEmpty ? null : (value) { // TODO change
                   setState(() {
                     _isNewRouter = value ?? false;
                   });
@@ -134,7 +173,8 @@ class _TripFormPathState extends State<TripFormPath> {
                     maxLines: 2,
                   )
                 ),
-                Text(_routeInfo.isEmpty ? "(...)" : "($_routeInfo)")
+                _routeInfo.isEmpty ? ShimmerBox(width: 50, height: 18) 
+                  : Text("($_routeInfo)")
               ],
             ),
           ),
@@ -149,7 +189,7 @@ class _TripFormPathState extends State<TripFormPath> {
               onRouteInfoChanged: (text) {
                 if (!mounted) return;
                 setState(() {
-                  _routeInfo = text;
+                  _routeInfo = _distanceAndTimeFormatHelper(text, locale: locale.toLanguageTag());
                 });
               },
             ),
