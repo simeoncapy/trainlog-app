@@ -60,9 +60,9 @@ class _SettingsPageState extends State<SettingsPage> {
     final scaffMsg = ScaffoldMessenger.of(context);
 
     final List<Language> languages = [
-      Language('English', 'en'),
-      Language('Français', 'fr'),
-      Language('日本語', 'ja'),
+      Language('🇬🇧 English', 'en'),
+      Language('🇫🇷 Français', 'fr'),
+      Language('🇯🇵 日本語', 'ja'),
     ];
     final List<DateFormat> dateFormats = [
       DateFormat('DD/MM/YYYY', 'dd/MM/yyyy'),
