@@ -492,7 +492,7 @@ class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
             lat: position.latitude,
             long: position.longitude,
             dateTime: DateTime.now(),
-            loaded: false,
+            loaded: false, // tells that the station name and address have to be fetched
           );
 
           setState(() {

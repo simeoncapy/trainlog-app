@@ -17,12 +17,11 @@ class PreRecordModel {
     this.address,
     required this.lat,
     required this.long,
-    required DateTime dateTime,
+    required this.dateTime,
     DateTime? dateTimeUtc,
     this.type = VehicleType.unknown,
     this.loaded = false,
-  })  : dateTime = dateTime,
-        dateTimeUtc = dateTimeUtc ?? dateTime.toUtc();
+  })  : dateTimeUtc = dateTimeUtc ?? dateTime.toUtc();
 
   PreRecordModel copyWith({
     String? stationName,
