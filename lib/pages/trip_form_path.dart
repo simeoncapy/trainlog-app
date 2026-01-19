@@ -10,10 +10,12 @@ import 'package:trainlog_app/widgets/trainlog_web_page.dart';
 
 class TripFormPath extends StatefulWidget {
   final TrainlogWebPageController routingController;
+  final ValueChanged<bool>? onLoading;
 
   const TripFormPath({
     super.key,
     required this.routingController,
+    this.onLoading,
   });
 
   @override
@@ -24,6 +26,7 @@ class _TripFormPathState extends State<TripFormPath> {
   bool _isNewRouter = false;
   String _routeInfo = "";
   static const _nbsp = '\u00A0'; // non-breaking space
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -136,7 +139,7 @@ class _TripFormPathState extends State<TripFormPath> {
               children: [
                 Checkbox(
                 value: _isNewRouter,
-                onChanged: _routeInfo.isEmpty ? null : (value) { // TODO change
+                onChanged: _isLoading ? null : (value) {
                   setState(() {
                     _isNewRouter = value ?? false;
                   });
@@ -180,20 +183,49 @@ class _TripFormPathState extends State<TripFormPath> {
           ),
           SizedBox(height: 8,),
           Expanded(
-            child: TrainlogWebPage(
-              trainlogPage: 'routing',
-              query: {'type': model.vehicleType?.toShortString() ?? "train"},
-              initialPostForm: {'trip_data': tripData},
-              controller: widget.routingController,
-              routerToggleValue: _isNewRouter,
-              onRouteInfoChanged: (text) {
-                if (!mounted) return;
-                setState(() {
-                  _routeInfo = _distanceAndTimeFormatHelper(text, locale: locale.toLanguageTag());
-                });
-              },
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: TrainlogWebPage(
+                    trainlogPage: 'routing',
+                    query: {'type': model.vehicleType?.toShortString() ?? "train"},
+                    initialPostForm: {'trip_data': tripData},
+                    controller: widget.routingController,
+                    routerToggleValue: _isNewRouter,
+                    onRouteInfoChanged: (text) {
+                      if (!mounted) return;
+                      setState(() {
+                        _routeInfo = _distanceAndTimeFormatHelper(
+                          text,
+                          locale: locale.toLanguageTag(),
+                        );
+                      });
+                    },
+                    onLoading: (value) {
+                      if (!mounted) return;
+                      setState(() {
+                        _isLoading = value;
+                      });
+                      widget.onLoading?.call(_isLoading);
+                    },
+                  ),
+                ),
+
+                // Overlay spinner above the web page
+                if (_isLoading)
+                  Positioned.fill(
+                    child: IgnorePointer(
+                      ignoring: true, // allow interaction with the web page while spinner shows
+                      child: Container(
+                        color: Colors.black26, // optional dim background; remove if you don't want it
+                        alignment: Alignment.center,
+                        child: const CircularProgressIndicator(),
+                      ),
+                    ),
+                  ),
+              ],
             ),
-          ),
+          )
         ],
       ),
     );

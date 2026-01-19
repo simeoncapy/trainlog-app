@@ -22,6 +22,7 @@ class _AddTripPageState extends State<AddTripPage> {
   late final StepProgressController stepProgressController;
   int currentStep = 0;
   List<String>? stepList;
+  bool _isRouterLoading = false;
 
   final PageController _pageController = PageController();
   late final TrainlogWebPageController _routingWebCtrl;
@@ -157,7 +158,7 @@ class _AddTripPageState extends State<AddTripPage> {
       )); // Check if the previous works
     }
     else {
-      Navigator.pop(context); // Maybe doing more?
+      Navigator.of(context).pop(true);
     }
   }
 
@@ -207,7 +208,7 @@ class _AddTripPageState extends State<AddTripPage> {
                 loc.validateButton,
                 style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
-              onPressed: _validateTrip,
+              onPressed: _isRouterLoading ? null : _validateTrip,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Theme.of(context).colorScheme.primary,
                 foregroundColor: Theme.of(context).colorScheme.onPrimary,
@@ -223,7 +224,7 @@ class _AddTripPageState extends State<AddTripPage> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed:() => _validateTrip(continueTrip: true),
+              onPressed:() => _isRouterLoading ? null : _validateTrip(continueTrip: true),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Theme.of(context).colorScheme.secondary,
                 foregroundColor: Theme.of(context).colorScheme.onSecondary,
@@ -338,7 +339,15 @@ class _AddTripPageState extends State<AddTripPage> {
                   TripFormBasics(),
                   TripFormDate(),
                   TripFormDetails(),
-                  TripFormPath(routingController: _routingWebCtrl),
+                  TripFormPath(
+                    routingController: _routingWebCtrl,
+                    onLoading: (value) {
+                      if (!mounted) return;
+                      setState(() {
+                        _isRouterLoading = value;
+                      });
+                    },
+                  ),
                 ],
               ),
             ),

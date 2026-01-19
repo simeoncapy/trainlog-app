@@ -15,6 +15,8 @@ class TrainlogWebPage extends StatefulWidget {
   final Map<String, String>? initialPostForm;
   final bool? routerToggleValue;
   final ValueChanged<String>? onRouteInfoChanged;
+  final ValueChanged<bool>? onLoading;
+  final ValueChanged<bool>? onRoutingError;
   final TrainlogWebPageController? controller;
 
   const TrainlogWebPage({
@@ -25,6 +27,8 @@ class TrainlogWebPage extends StatefulWidget {
     this.initialPostForm,
     this.routerToggleValue,
     this.onRouteInfoChanged,
+    this.onLoading,
+    this.onRoutingError,
     this.controller,
   });
 
@@ -42,6 +46,8 @@ class _TrainlogWebPageState extends State<TrainlogWebPage> {
   WebUri? _cookieWebUri; // cache for cookie manager
 
   bool _injecting = false;
+  bool _lastLoadingState = false;
+  bool _lastRoutingErrorState = false;
 
   @override
   void didUpdateWidget(covariant TrainlogWebPage oldWidget) {
@@ -290,26 +296,125 @@ class _TrainlogWebPageState extends State<TrainlogWebPage> {
     """);
   }
 
-  Future<void> _debugHookSaveTrip(InAppWebViewController c) async {
-    await c.evaluateJavascript(source: r"""
-      (function () {
-        if (window.__flutterHookedPost) return;
-        window.__flutterHookedPost = true;
+  void _setLoading(bool v) {
+    if (v == _lastLoadingState) return;
+    _lastLoadingState = v;
+    widget.onLoading?.call(v);
+  }
 
-        const origPost = $.post;
-        $.post = function(opts) {
-          try {
-            if (opts && typeof opts === 'object' && opts.url && opts.url.includes('/saveTrip')) {
-              const data = opts.data || {};
-              window.flutter_inappwebview.callHandler('saveTripDebug', {
-                url: opts.url,
-                jsonPath: data.jsonPath,
-                newTrip: data.newTrip
-              });
-            }
-          } catch (e) {}
-          return origPost.apply(this, arguments);
-        };
+  Future<void> _bindSpinnerObserver(InAppWebViewController controller) async {
+    await controller.evaluateJavascript(source: r"""
+      (function () {
+        if (window.__flutterSpinnerObserverInstalled) return;
+        window.__flutterSpinnerObserverInstalled = true;
+
+        function isSpinnerVisible() {
+          const el = document.querySelector('div.spinner-container');
+          if (!el) return false;
+
+          // visible if it takes space and not display:none/visibility:hidden
+          const style = window.getComputedStyle(el);
+          if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') return false;
+
+          // offsetParent is null for display:none, but also for fixed in some cases;
+          // so combine checks.
+          const hasBox = !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
+          return hasBox;
+        }
+
+        let last = null;
+        let scheduled = false;
+
+        function notifyIfChanged() {
+          const now = isSpinnerVisible();
+          if (last === now) return;
+          last = now;
+          window.flutter_inappwebview.callHandler('spinnerLoadingChanged', now);
+        }
+
+        function scheduleCheck() {
+          if (scheduled) return;
+          scheduled = true;
+          setTimeout(function () {
+            scheduled = false;
+            notifyIfChanged();
+          }, 50);
+        }
+
+        // Initial check
+        notifyIfChanged();
+
+        // Watch DOM changes
+        const obs = new MutationObserver(scheduleCheck);
+        obs.observe(document.documentElement, {
+          childList: true,
+          subtree: true,
+          attributes: true,
+          attributeFilter: ['class', 'style']
+        });
+
+        // Also watch for CSS changes that don't trigger attribute mutation
+        window.addEventListener('load', scheduleCheck);
+        window.addEventListener('resize', scheduleCheck);
+      })();
+    """);
+  }
+
+  void _setRoutingError(bool v) {
+    if (v == _lastRoutingErrorState) return;
+    _lastRoutingErrorState = v;
+    widget.onRoutingError?.call(v);
+  }
+
+  Future<void> _bindRoutingErrorObserver(InAppWebViewController controller) async {
+    await controller.evaluateJavascript(source: r"""
+      (function () {
+        if (window.__flutterRoutingErrorObserverInstalled) return;
+        window.__flutterRoutingErrorObserverInstalled = true;
+
+        function isRoutingErrorVisible() {
+          const el = document.querySelector('h4#routing-error');
+          if (!el) return false;
+
+          const style = window.getComputedStyle(el);
+          if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') return false;
+
+          const hasBox = !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
+          return hasBox;
+        }
+
+        let last = null;
+        let scheduled = false;
+
+        function notifyIfChanged() {
+          const now = isRoutingErrorVisible();
+          if (last === now) return;
+          last = now;
+          window.flutter_inappwebview.callHandler('routingErrorChanged', now);
+        }
+
+        function scheduleCheck() {
+          if (scheduled) return;
+          scheduled = true;
+          setTimeout(function () {
+            scheduled = false;
+            notifyIfChanged();
+          }, 50);
+        }
+
+        // Initial check
+        notifyIfChanged();
+
+        const obs = new MutationObserver(scheduleCheck);
+        obs.observe(document.documentElement, {
+          childList: true,
+          subtree: true,
+          attributes: true,
+          attributeFilter: ['class', 'style']
+        });
+
+        window.addEventListener('load', scheduleCheck);
+        window.addEventListener('resize', scheduleCheck);
       })();
     """);
   }
@@ -344,6 +449,18 @@ class _TrainlogWebPageState extends State<TrainlogWebPage> {
       onConsoleMessage: (controller, msg) {
         debugPrint('🧠 JS console: ${msg.message}');
       },
+      onLoadStart: (controller, url) {
+        // Earliest signal: navigation started (before page is shown)
+        _setLoading(true);
+        _setRoutingError(false);
+      },
+
+      onProgressChanged: (controller, progress) {
+        // Optional: some sites finish loadStop but still render; progress helps.
+        // You can keep it simple, or use it as a fallback.
+        // Example: when progress is 100, don't force false; let spinner observer decide.
+        // If you want: if (progress < 100) _setLoading(true);
+      },
       onWebViewCreated: (controller) {
         _controller = controller;
         widget.controller?.attach(controller);
@@ -370,45 +487,64 @@ class _TrainlogWebPageState extends State<TrainlogWebPage> {
         );
 
         controller.addJavaScriptHandler(
-          handlerName: 'saveTripDebug',
+          handlerName: 'spinnerLoadingChanged',
           callback: (args) {
-            final m = (args.isNotEmpty && args.first is Map) ? Map<String, dynamic>.from(args.first) : {};
-            debugPrint('🚀 saveTrip url=${m['url']}');
+            final isLoading = args.isNotEmpty && args.first == true;
 
-            // Print only heads (avoid giant logs)
-            String head(String? s, [int n = 300]) => (s == null) ? '' : (s.length <= n ? s : '${s.substring(0, n)}...');
-            debugPrint('jsonPath head: ${head(m['jsonPath']?.toString())}');
-            debugPrint('newTrip head:  ${head(m['newTrip']?.toString())}');
+            // prevent spamming Flutter with the same state
+            if (isLoading == _lastLoadingState) return null;
+            _lastLoadingState = isLoading;
 
-            // Try parse and print keys/types
-            try {
-              final newTrip = json.decode(m['newTrip'] as String) as Map<String, dynamic>;
-              debugPrint('newTrip keys: ${newTrip.keys.toList()}');
-              for (final k in ['originStation','originManualLat','originManualLng','destinationStation','destinationManualLat','destinationManualLng','operator','price','currency']) {
-                if (newTrip.containsKey(k)) {
-                  debugPrint('  $k => ${newTrip[k]} (${newTrip[k]?.runtimeType})');
-                }
-              }
-            } catch (e) {
-              debugPrint('❌ newTrip JSON parse failed: $e');
-            }
-
+            widget.onLoading?.call(isLoading);
             return null;
           },
         );
+
+        controller.addJavaScriptHandler(
+          handlerName: 'routingErrorChanged',
+          callback: (args) {
+            final hasError = args.isNotEmpty && args.first == true;
+            _setRoutingError(hasError);
+            return null;
+          },
+        );
+
       },
       onLoadStop: (controller, _) async {
         if (!mounted) return;
+
+        await _bindSpinnerObserver(controller);
 
         if (isRouter) {
           // Bind JS bridge + extract info
           await _bindRouterBridge(controller);
           widget.controller?.markReady();
           await _hideRouterUi(controller);
+          await _bindRoutingErrorObserver(controller);          
         } else {
           await _hideNavbar(controller);
         }
+
+        try {
+          final result = await controller.evaluateJavascript(source: """
+            (function () {
+              const el = document.querySelector('div.spinner-container');
+              if (!el) return false;
+              const style = window.getComputedStyle(el);
+              if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') return false;
+              return !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
+            })();
+          """);
+          final spinnerVisible = result == true;
+          _setLoading(spinnerVisible); // false if spinner not visible
+        } catch (_) {
+          // If we can't evaluate, fall back to "loaded"
+          _setLoading(false);
+        }
       },
+      onReceivedError: (controller, request, error) => _setLoading(false),
+      onReceivedHttpError: (controller, request, errorResponse) => _setLoading(false),
+
       shouldOverrideUrlLoading: (controller, action) async {
         if (!mounted) return NavigationActionPolicy.CANCEL;
 

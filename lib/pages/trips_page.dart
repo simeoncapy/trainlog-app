@@ -285,15 +285,39 @@ class _TripsPageState extends State<TripsPage> {
 
   FloatingActionButton? buildFloatingActionButton(BuildContext context) {
     return FloatingActionButton(
-      onPressed: () {
-        Navigator.of(context).push(PageRouteBuilder(
-          pageBuilder: (_, __, ___) => ChangeNotifierProvider(
-            create: (_) => TripFormModel(),
-            child: const AddTripPage(),
+      onPressed: () async {
+        final didSave = await Navigator.of(context).push<bool>(
+          PageRouteBuilder(
+            pageBuilder: (_, __, ___) => ChangeNotifierProvider(
+              create: (_) => TripFormModel(),
+              child: const AddTripPage(),
+            ),
+            transitionDuration: Duration.zero,
+            reverseTransitionDuration: Duration.zero,
           ),
-          transitionDuration: Duration.zero,
-          reverseTransitionDuration: Duration.zero,
-        ));
+        );
+
+        if (!context.mounted) return;
+
+        if (didSave == true) {
+          // refresh trips after returning
+          final tripsProvider = context.read<TripsProvider>();
+          await tripsProvider.loadTrips(
+            locale: Localizations.localeOf(context),
+            loadFromApi: true, // or false if you want DB-only refresh
+          );
+
+          // force rebuild datasource
+          setState(() {
+            _dataSource = null;
+            _tableKey = UniqueKey();
+          });
+
+          // (optional) re-emit the FAB
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) widget.onFabReady(buildFloatingActionButton(context));
+          });
+        }
       },
       child: const Icon(Icons.add),
     );
