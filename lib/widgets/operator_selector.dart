@@ -9,10 +9,10 @@ class OperatorSelector extends StatefulWidget {
   final ValueChanged<List<String>>? onChanged;
 
   const OperatorSelector({
-    Key? key,
+    super.key,
     this.initialOperators,
     this.onChanged,
-  }) : super(key: key);
+  });
 
   @override
   OperatorSelectorState createState() => OperatorSelectorState();
@@ -33,6 +33,7 @@ class OperatorSelectorState extends State<OperatorSelector> {
   static const double _suggestionsMaxHeight = 220;
 
   OverlayEntry? _overlayEntry;
+  bool _operatorsLoaded = false;
 
   @override
   void initState() {
@@ -45,6 +46,17 @@ class OperatorSelectorState extends State<OperatorSelector> {
     _fieldFocusNode.addListener(() {
       if (_fieldFocusNode.hasFocus) _showOverlay();
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    if (_operatorsLoaded) return;
+    _operatorsLoaded = true;
+
+    final trainlog = context.read<TrainlogProvider>();
+    trainlog.reloadOperatorList();
   }
 
   @override

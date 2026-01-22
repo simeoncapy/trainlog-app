@@ -110,7 +110,7 @@ class AppRoot extends StatelessWidget {
                 return TripsLoader(
                   //csvPath: r'C:\Users\Simeon\Downloads\trainlog_papykpy_2025-08-12_053849.csv',
                   builder: (context) => MyApp(),
-                  loadFromApi: settings.shouldLoadTripsFromApi,
+                  //loadFromApi: settings.shouldLoadTripsFromApi,
                 );
               } else {
                 // User is not authenticated, show the welcome page

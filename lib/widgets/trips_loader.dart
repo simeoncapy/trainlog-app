@@ -5,14 +5,10 @@ import 'package:fluttertoast/fluttertoast.dart';
 
 class TripsLoader extends StatefulWidget {
   final Widget Function(BuildContext) builder;
-  final String csvPath;
-  final bool loadFromApi;
 
   const TripsLoader({
     super.key,
     required this.builder,
-    this.csvPath = "",
-    this.loadFromApi = false,
   });
 
   @override
@@ -20,41 +16,37 @@ class TripsLoader extends StatefulWidget {
 }
 
 class _TripsLoaderState extends State<TripsLoader> {
-  bool _loading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadTrips();
-    });
-  }
-
-  Future<void> _loadTrips() async {
-    try {
-      await Provider.of<TripsProvider>(context, listen: false)
-          .loadTrips(csvPath: widget.csvPath, locale: Localizations.localeOf(context), loadFromApi: widget.loadFromApi);
-    } catch (e) {
-      Fluttertoast.showToast(
-        msg: '⚠️ Failed to load trips.',
-        toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.BOTTOM,
-      );
-    } finally {
-      setState(() {
-        _loading = false;
-      });
-    }
-  }
+  Widget? _child;
 
   @override
   Widget build(BuildContext context) {
-    if (_loading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
-    }
+    return Consumer<TripsProvider>(
+      builder: (context, trips, _) {
+        // Build MyApp only once
+        _child ??= widget.builder(context);
 
-    return widget.builder(context);
+        final showLoader =
+            trips.isLoading || trips.repository == null;
+
+        return Stack(
+          children: [
+            // MyApp always stays mounted
+            Positioned.fill(child: _child!),  
+
+            // Loader is only an overlay
+            if (showLoader)
+              Positioned.fill(
+                child: Container(
+                  color: Colors.black.withValues(alpha: 0.1),
+                  child: const Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                ),
+              ),
+          ],
+        );
+      },
+    );
   }
 }
+

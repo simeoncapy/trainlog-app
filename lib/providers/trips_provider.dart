@@ -10,6 +10,7 @@ class TripsProvider extends ChangeNotifier {
   TrainlogService? _service;
   SettingsProvider? _settings;
   String? _username;
+  bool _hasLoadedForUser = false;
   // For localized country names
   Locale? _locale;
 
@@ -39,12 +40,34 @@ class TripsProvider extends ChangeNotifier {
   }) {
     _service = service;
     _settings = settings;
+
+    final userChanged = username != null && username != _username;
     _username = username;
+
+    if (userChanged) {
+      debugPrint("TripsProvider: user changed → auto loading trips");
+      _hasLoadedForUser = false;
+      _autoLoadForUser();
+    }
   }
 
   /// Update locale from UI when needed (safe).
   void updateLocale(Locale locale) {
     _locale = locale;
+  }
+
+  Future<void> _autoLoadForUser() async {
+    if (_service == null || _username == null || _settings == null) return;
+    if (_hasLoadedForUser) return;
+
+    _hasLoadedForUser = true;
+
+    debugPrint("🚀 TripsProvider auto-loading trips for $_username");
+
+    await loadTrips(
+      locale: _locale,
+      loadFromApi: true,
+    );
   }
 
   // ------------------------

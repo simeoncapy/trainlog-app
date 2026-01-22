@@ -17,6 +17,7 @@ class WelcomePage extends StatelessWidget {
       password: result.password,
       settings: settings,
     );
+    
     if (!success) {
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
