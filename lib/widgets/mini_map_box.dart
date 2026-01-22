@@ -178,6 +178,7 @@ class _MiniMapBoxState extends State<MiniMapBox> {
               width: 40,
               height: 40,
               point: LatLng(widget.lat!, widget.long!),
+              alignment: Alignment.topCenter,
               child: Icon(widget.marker,
                   size: 40, color: widget.markerColor),
             ),
@@ -253,7 +254,7 @@ class _FullscreenMapOverlayState extends State<FullscreenMapOverlay> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black.withOpacity(0.9),
+      backgroundColor: Colors.black.withValues(alpha: 0.9),
       body: Stack(
         children: [
           FlutterMap(
@@ -287,6 +288,7 @@ class _FullscreenMapOverlayState extends State<FullscreenMapOverlay> {
                     width: 40,
                     height: 40,
                     point: LatLng(widget.lat, widget.long),
+                    alignment: Alignment.topCenter,
                     child: Icon(widget.marker,
                         size: 40, color: widget.markerColor),
                   ),
@@ -297,7 +299,14 @@ class _FullscreenMapOverlayState extends State<FullscreenMapOverlay> {
           // NEW center pin when movable
           if (widget.isCoordinateMovable)
             Center(
-              child: Icon(widget.marker, size: 40, color: widget.markerColor),
+              child: Transform.translate(
+                offset: const Offset(0, -20), // half icon height
+                child: Icon(
+                  widget.marker,
+                  size: 40,
+                  color: widget.markerColor,
+                ),
+              ),
             ),
 
           // Exit fullscreen
@@ -306,7 +315,7 @@ class _FullscreenMapOverlayState extends State<FullscreenMapOverlay> {
             right: 20,
             child: ClipOval(
               child: Material(
-                color: Colors.black.withOpacity(0.6),
+                color: Colors.black.withValues(alpha: 0.6),
                 child: InkWell(
                   onTap: () => Navigator.of(context).pop(),
                   child: const Padding(
