@@ -230,6 +230,7 @@
   "addTripPathHelp": "新しいルーターはベータ版で、電化を示しています。\n\nルーター（新旧）は、電車、路面電車、地下鉄で同じです。希望の経路にルートを設定するには、ピンの配置を微調整する必要があるかもしれません。",
   "addTicketPageTitle": "新しい乗車券",
   "addTagPageTitle": "新しいタグ",
+  "addTripPathRoutingErrorBannerMessage": "ルーティングエラーが検出されました。旅行の経路を確認し、必要に応じてピンポイントを調整してください。",
 
   "aboutPageAboutSubPageTitle": "Trainlog",
   "aboutPageHowToSubPageTitle": "使い方",

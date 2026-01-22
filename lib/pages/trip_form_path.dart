@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:trainlog_app/data/controllers/trainlog_web_controller.dart';
 import 'package:trainlog_app/data/models/trip_form_model.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
+import 'package:trainlog_app/widgets/error_banner.dart';
 import 'package:trainlog_app/widgets/shimmer_box.dart';
 import 'package:trainlog_app/widgets/trainlog_web_page.dart';
 
@@ -11,11 +12,13 @@ import 'package:trainlog_app/widgets/trainlog_web_page.dart';
 class TripFormPath extends StatefulWidget {
   final TrainlogWebPageController routingController;
   final ValueChanged<bool>? onLoading;
+  final ValueChanged<bool>? onRoutingError;
 
   const TripFormPath({
     super.key,
     required this.routingController,
     this.onLoading,
+    this.onRoutingError,
   });
 
   @override
@@ -27,6 +30,7 @@ class _TripFormPathState extends State<TripFormPath> {
   String _routeInfo = "";
   static const _nbsp = '\u00A0'; // non-breaking space
   bool _isLoading = false;
+  bool _hasRoutingError = false;
 
   @override
   void initState() {
@@ -139,7 +143,7 @@ class _TripFormPathState extends State<TripFormPath> {
               children: [
                 Checkbox(
                 value: _isNewRouter,
-                onChanged: _isLoading ? null : (value) {
+                onChanged: (_isLoading || _hasRoutingError) ? null : (value) {
                   setState(() {
                     _isNewRouter = value ?? false;
                   });
@@ -184,6 +188,7 @@ class _TripFormPathState extends State<TripFormPath> {
           SizedBox(height: 8,),
           Expanded(
             child: Stack(
+              alignment: Alignment.topCenter,
               children: [
                 Positioned.fill(
                   child: TrainlogWebPage(
@@ -208,8 +213,24 @@ class _TripFormPathState extends State<TripFormPath> {
                       });
                       widget.onLoading?.call(_isLoading);
                     },
+                    onRoutingError: (value) {
+                      setState(() {
+                        _hasRoutingError = value;
+                      });
+                      widget.onRoutingError?.call(_hasRoutingError);
+                    },
                   ),
                 ),
+
+                if(_hasRoutingError)
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: ErrorBanner(
+                      message:  loc.addTripPathRoutingErrorBannerMessage,
+                      severity: ErrorSeverity.error,
+                      compact: false,
+                    ),
+                  ),
 
                 // Overlay spinner above the web page
                 if (_isLoading)

@@ -363,6 +363,7 @@ class _TrainlogWebPageState extends State<TrainlogWebPage> {
   void _setRoutingError(bool v) {
     if (v == _lastRoutingErrorState) return;
     _lastRoutingErrorState = v;
+    debugPrint('🧠 Routing error state changed: $v');
     widget.onRoutingError?.call(v);
   }
 
@@ -372,22 +373,19 @@ class _TrainlogWebPageState extends State<TrainlogWebPage> {
         if (window.__flutterRoutingErrorObserverInstalled) return;
         window.__flutterRoutingErrorObserverInstalled = true;
 
-        function isRoutingErrorVisible() {
+        function isRoutingErrorPresent() {
           const el = document.querySelector('h4#routing-error');
           if (!el) return false;
 
-          const style = window.getComputedStyle(el);
-          if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') return false;
-
-          const hasBox = !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
-          return hasBox;
+          const text = (el.textContent || '').trim();
+          return text.length > 0;
         }
 
         let last = null;
         let scheduled = false;
 
         function notifyIfChanged() {
-          const now = isRoutingErrorVisible();
+          const now = isRoutingErrorPresent();
           if (last === now) return;
           last = now;
           window.flutter_inappwebview.callHandler('routingErrorChanged', now);
@@ -409,12 +407,11 @@ class _TrainlogWebPageState extends State<TrainlogWebPage> {
         obs.observe(document.documentElement, {
           childList: true,
           subtree: true,
-          attributes: true,
-          attributeFilter: ['class', 'style']
+          characterData: true,
+          attributes: true
         });
 
         window.addEventListener('load', scheduleCheck);
-        window.addEventListener('resize', scheduleCheck);
       })();
     """);
   }

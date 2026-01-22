@@ -229,6 +229,7 @@
   "addTripPathHelp": "Le nouveau routeur est en bêta et affiche l'électrification.\n\nLes routeurs (ancien et nouveau) sont les mêmes pour le train, le tramway et le métro. Vous devrez peut-être ajuster la position des marqueurs pour que le trajet suive le parcours souhaité.",
   "addTicketPageTitle": "Nouveau billet",
   "addTagPageTitle": "Nouveau Tag",
+  "addTripPathRoutingErrorBannerMessage": "Erreur de routage détectée. Veuillez vérifier le chemin du trajet et ajuster les points de repère si nécessaire.",
 
   "aboutPageAboutSubPageTitle": "Trainlog",
   "aboutPageHowToSubPageTitle": "Aide",

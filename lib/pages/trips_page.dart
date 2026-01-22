@@ -60,9 +60,9 @@ class _TripsPageState extends State<TripsPage> {
     final scaffMsg = ScaffoldMessenger.of(context);
     final loc = AppLocalizations.of(context)!;
 
-    if (tripsProvider.isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
+    // if (tripsProvider.isLoading) {
+    //   return const Center(child: CircularProgressIndicator());
+    // }
 
     if (_dataSource == null) {
       // Create it synchronously; pass the (currently empty) map

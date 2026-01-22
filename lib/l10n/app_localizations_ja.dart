@@ -790,6 +790,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get addTagPageTitle => '新しいタグ';
 
   @override
+  String get addTripPathRoutingErrorBannerMessage =>
+      'ルーティングエラーが検出されました。旅行の経路を確認し、必要に応じてピンポイントを調整してください。';
+
+  @override
   String get aboutPageAboutSubPageTitle => 'Trainlog';
 
   @override

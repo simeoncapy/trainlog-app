@@ -1420,6 +1420,12 @@ abstract class AppLocalizations {
   /// **'New Tag'**
   String get addTagPageTitle;
 
+  /// No description provided for @addTripPathRoutingErrorBannerMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Routing error detected. Please check the trip path and adjust the peg points if necessary.'**
+  String get addTripPathRoutingErrorBannerMessage;
+
   /// No description provided for @aboutPageAboutSubPageTitle.
   ///
   /// In en, this message translates to:

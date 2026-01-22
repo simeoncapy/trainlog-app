@@ -23,6 +23,7 @@ class _AddTripPageState extends State<AddTripPage> {
   int currentStep = 0;
   List<String>? stepList;
   bool _isRouterLoading = false;
+  bool _hasRoutingError = false;
 
   final PageController _pageController = PageController();
   late final TrainlogWebPageController _routingWebCtrl;
@@ -208,7 +209,7 @@ class _AddTripPageState extends State<AddTripPage> {
                 loc.validateButton,
                 style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
-              onPressed: _isRouterLoading ? null : _validateTrip,
+              onPressed: (_isRouterLoading || _hasRoutingError) ? null : _validateTrip,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Theme.of(context).colorScheme.primary,
                 foregroundColor: Theme.of(context).colorScheme.onPrimary,
@@ -224,7 +225,9 @@ class _AddTripPageState extends State<AddTripPage> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed:() => _isRouterLoading ? null : _validateTrip(continueTrip: true),
+              onPressed: (_isRouterLoading || _hasRoutingError)
+                ? null
+                : () => _validateTrip(continueTrip: true),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Theme.of(context).colorScheme.secondary,
                 foregroundColor: Theme.of(context).colorScheme.onSecondary,
@@ -345,6 +348,12 @@ class _AddTripPageState extends State<AddTripPage> {
                       if (!mounted) return;
                       setState(() {
                         _isRouterLoading = value;
+                      });
+                    },
+                    onRoutingError: (value) {
+                      if (!mounted) return;
+                      setState(() {
+                        _hasRoutingError = value;
                       });
                     },
                   ),

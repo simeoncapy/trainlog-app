@@ -796,6 +796,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get addTagPageTitle => 'Nouveau Tag';
 
   @override
+  String get addTripPathRoutingErrorBannerMessage =>
+      'Erreur de routage détectée. Veuillez vérifier le chemin du trajet et ajuster les points de repère si nécessaire.';
+
+  @override
   String get aboutPageAboutSubPageTitle => 'Trainlog';
 
   @override

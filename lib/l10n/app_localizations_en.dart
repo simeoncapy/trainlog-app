@@ -794,6 +794,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addTagPageTitle => 'New Tag';
 
   @override
+  String get addTripPathRoutingErrorBannerMessage =>
+      'Routing error detected. Please check the trip path and adjust the peg points if necessary.';
+
+  @override
   String get aboutPageAboutSubPageTitle => 'Trainlog';
 
   @override
