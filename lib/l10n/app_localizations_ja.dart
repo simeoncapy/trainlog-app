@@ -794,6 +794,9 @@ class AppLocalizationsJa extends AppLocalizations {
       'ルーティングエラーが検出されました。旅行の経路を確認し、必要に応じてピンポイントを調整してください。';
 
   @override
+  String get addTripRecordingMsg => '旅行が記録されています。お待ちください';
+
+  @override
   String get aboutPageAboutSubPageTitle => 'Trainlog';
 
   @override

@@ -1426,6 +1426,12 @@ abstract class AppLocalizations {
   /// **'Routing error detected. Please check the trip path and adjust the peg points if necessary.'**
   String get addTripPathRoutingErrorBannerMessage;
 
+  /// No description provided for @addTripRecordingMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'Your trip is being recorded, please wait'**
+  String get addTripRecordingMsg;
+
   /// No description provided for @aboutPageAboutSubPageTitle.
   ///
   /// In en, this message translates to:

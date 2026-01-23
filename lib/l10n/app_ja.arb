@@ -231,6 +231,7 @@
   "addTicketPageTitle": "新しい乗車券",
   "addTagPageTitle": "新しいタグ",
   "addTripPathRoutingErrorBannerMessage": "ルーティングエラーが検出されました。旅行の経路を確認し、必要に応じてピンポイントを調整してください。",
+  "addTripRecordingMsg": "旅行が記録されています。お待ちください",
 
   "aboutPageAboutSubPageTitle": "Trainlog",
   "aboutPageHowToSubPageTitle": "使い方",

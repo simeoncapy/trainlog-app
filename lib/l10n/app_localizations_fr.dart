@@ -800,6 +800,10 @@ class AppLocalizationsFr extends AppLocalizations {
       'Erreur de routage détectée. Veuillez vérifier le chemin du trajet et ajuster les points de repère si nécessaire.';
 
   @override
+  String get addTripRecordingMsg =>
+      'Votre trajet est en cours d\'enregistrement, veuillez patienter';
+
+  @override
   String get aboutPageAboutSubPageTitle => 'Trainlog';
 
   @override

@@ -798,6 +798,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Routing error detected. Please check the trip path and adjust the peg points if necessary.';
 
   @override
+  String get addTripRecordingMsg => 'Your trip is being recorded, please wait';
+
+  @override
   String get aboutPageAboutSubPageTitle => 'Trainlog';
 
   @override

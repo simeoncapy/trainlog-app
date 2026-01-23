@@ -341,7 +341,8 @@
   "addTicketPageTitle": "New Ticket",
   "addTagPageTitle": "New Tag",
   "addTripPathRoutingErrorBannerMessage": "Routing error detected. Please check the trip path and adjust the peg points if necessary.",
-
+  "addTripRecordingMsg": "Your trip is being recorded, please wait",
+  
   "aboutPageAboutSubPageTitle": "Trainlog",
   "aboutPageHowToSubPageTitle": "How To",
   "aboutPagePrivacySubPageTitle": "Privacy",

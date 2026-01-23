@@ -24,6 +24,7 @@ class _AddTripPageState extends State<AddTripPage> {
   List<String>? stepList;
   bool _isRouterLoading = false;
   bool _hasRoutingError = false;
+  bool _isSubmitting = false;
 
   final PageController _pageController = PageController();
   late final TrainlogWebPageController _routingWebCtrl;
@@ -115,6 +116,10 @@ class _AddTripPageState extends State<AddTripPage> {
   }
 
   Future<void> _validateTrip({bool continueTrip = false}) async {
+    if (_isSubmitting) return; // Prevent multiple submissions
+    setState(() {
+      _isSubmitting = true;
+    });
     debugPrint("⏳ REQUEST VALIDATION");
     // Ask the WebView to submit
     final res = await _routingWebCtrl.submitTrip(timeout: const Duration(seconds: 25));
@@ -140,6 +145,9 @@ class _AddTripPageState extends State<AddTripPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Submit failed: ${errorCode ?? 'unknown'}')),
       );
+      setState(() {
+        _isSubmitting = false;
+      });
       return;
     }
 
@@ -159,6 +167,9 @@ class _AddTripPageState extends State<AddTripPage> {
       )); // Check if the previous works
     }
     else {
+      // TODO: Load the new trip
+      // TODO: Refresh the trip list
+      // TODO: Refresh the polyline
       Navigator.of(context).pop(true);
     }
   }
@@ -287,6 +298,7 @@ class _AddTripPageState extends State<AddTripPage> {
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
     final isLastStep = currentStep == stepList!.length - 1;
+    final theme = Theme.of(context);
 
     return SafeArea(
       child: Scaffold(
@@ -294,83 +306,112 @@ class _AddTripPageState extends State<AddTripPage> {
           title: Text(loc.addTripPageTitle),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
-            onPressed: _previousStepOrExit,
+            onPressed: _isSubmitting ? null : _previousStepOrExit, // optional
           ),
         ),
-        body: Column(
+        body: Stack(
           children: [
-            StepProgress(
-              totalSteps: stepList!.length,
-              currentStep: currentStep,
-              controller: stepProgressController,
-              nodeTitles: stepList,
-              nodeIconBuilder: (index, _) {
-                switch (index) {
-                  case 0:
-                    return const Icon(Icons.info);
-                  case 1:
-                    return const Icon(Icons.date_range);
-                  case 2:
-                    return const Icon(Icons.subject);
-                  case 3:
-                    return const Icon(Icons.route);
-                  default:
-                    return const Icon(Icons.help);
-                }
-              },
-              theme: StepProgressThemeData(
-                nodeLabelAlignment: StepLabelAlignment.top,
-                stepLineSpacing: 2,
-                stepLineStyle: const StepLineStyle(lineThickness: 2),
-                defaultForegroundColor:
-                    Theme.of(context).colorScheme.surfaceContainerHighest,
-                activeForegroundColor: Theme.of(context).colorScheme.primary,
-                stepNodeStyle: StepNodeStyle(
-                  iconColor: Theme.of(context).colorScheme.onSurface,
-                  activeIconColor: Theme.of(context).colorScheme.onPrimary,
+            // Adding trip UI
+            Column(
+              children: [
+                StepProgress(
+                  totalSteps: stepList!.length,
+                  currentStep: currentStep,
+                  controller: stepProgressController,
+                  nodeTitles: stepList,
+                  nodeIconBuilder: (index, _) {
+                    switch (index) {
+                      case 0:
+                        return const Icon(Icons.info);
+                      case 1:
+                        return const Icon(Icons.date_range);
+                      case 2:
+                        return const Icon(Icons.subject);
+                      case 3:
+                        return const Icon(Icons.route);
+                      default:
+                        return const Icon(Icons.help);
+                    }
+                  },
+                  theme: StepProgressThemeData(
+                    nodeLabelAlignment: StepLabelAlignment.top,
+                    stepLineSpacing: 2,
+                    stepLineStyle: const StepLineStyle(lineThickness: 2),
+                    defaultForegroundColor:
+                        Theme.of(context).colorScheme.surfaceContainerHighest,
+                    activeForegroundColor: Theme.of(context).colorScheme.primary,
+                    stepNodeStyle: StepNodeStyle(
+                      iconColor: Theme.of(context).colorScheme.onSurface,
+                      activeIconColor: Theme.of(context).colorScheme.onPrimary,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                Expanded(
+                  child: PageView(
+                    controller: _pageController,
+                    physics: const NeverScrollableScrollPhysics(),
+                    children: [
+                      TripFormBasics(),
+                      TripFormDate(),
+                      TripFormDetails(),
+                      TripFormPath(
+                        routingController: _routingWebCtrl,
+                        onLoading: (value) {
+                          if (!mounted) return;
+                          setState(() => _isRouterLoading = value);
+                        },
+                        onRoutingError: (value) {
+                          if (!mounted) return;
+                          setState(() => _hasRoutingError = value);
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: _bottomButtonHelper(isLastStep),
+                  ),
+                ),
+              ],
+            ),
+
+            // Overlay shown on top while submitting
+            if (_isSubmitting) ...[
+              ModalBarrier(
+                dismissible: false,
+                //color: Colors.black54,
+                color: theme.colorScheme.surfaceContainer,
+              ),
+              Center(
+                child: Container( // Useless container now but could be useful later
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.surfaceContainer,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CircularProgressIndicator(),
+                      SizedBox(height: 20),
+                      Text(
+                        loc.addTripRecordingMsg,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: theme.colorScheme.onSurface,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 16),
-      
-            // Step content
-            Expanded(
-              child: PageView(
-                controller: _pageController,
-                physics: const NeverScrollableScrollPhysics(),
-                children: [
-                  TripFormBasics(),
-                  TripFormDate(),
-                  TripFormDetails(),
-                  TripFormPath(
-                    routingController: _routingWebCtrl,
-                    onLoading: (value) {
-                      if (!mounted) return;
-                      setState(() {
-                        _isRouterLoading = value;
-                      });
-                    },
-                    onRoutingError: (value) {
-                      if (!mounted) return;
-                      setState(() {
-                        _hasRoutingError = value;
-                      });
-                    },
-                  ),
-                ],
-              ),
-            ),
-      
-            // Bottom button
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              child: isLastStep ? _bottomButtonHelper(isLastStep) 
-                    : SizedBox(
-                      width: double.infinity,
-                      //height: 40,
-                      child: _bottomButtonHelper(isLastStep),
-              ),
-            ),
+            ],
           ],
         ),
       ),

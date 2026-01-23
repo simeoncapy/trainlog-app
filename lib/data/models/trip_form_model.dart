@@ -487,6 +487,8 @@ class TripFormModel extends ChangeNotifier {
       "onlyDateDuration": _when(dateType == DateType.date, () => _toSeconds(dateType)),
       "newTripEnd": "${arrivalDate}T$arrivalTime",
       "newTripStart": "${departureDate}T$departureTime",
+
+      "visibility": tripVisibility.name,
     });
 
     debugPrint(jsonEncode(map));
