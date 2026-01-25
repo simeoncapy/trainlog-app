@@ -447,15 +447,29 @@ class TrainlogProvider extends ChangeNotifier {
 
   Future<(String?, String?, VehicleType, double)> findStationFromCoordinate(
     double lat,
-    double long,
+    double long, {
+    int distanceLimitMeters = 500,
+    bool returnUniqueEvenIfOutOfRange = true,
+    }
   ) {
-    return _service.findStationFromCoordinate(lat, long);
+    return _service.findStationFromCoordinate(lat, long, 
+      distanceLimitMeters: distanceLimitMeters, 
+      returnUniqueEvenIfOutOfRange: returnUniqueEvenIfOutOfRange
+    );
   }
 
   Future<List<(String?, String?, VehicleType, double)>> findStationsFromCoordinate(
     double lat,
-    double long,
+    double long, {
+      int distanceLimitMeters = 500,
+      bool returnUniqueEvenIfOutOfRange = true,
+    }
   ) {
-    return _service.findStationsFromCoordinate(lat, long);
+    return _service.findStationsFromCoordinate(
+      lat, 
+      long, 
+      distanceLimitMeters: distanceLimitMeters, 
+      returnUniqueEvenIfOutOfRange: returnUniqueEvenIfOutOfRange
+    );
   }
 }

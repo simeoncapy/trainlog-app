@@ -577,9 +577,18 @@ class TrainlogService {
 
   Future<(String? name, String? address, VehicleType type, double distance)> findStationFromCoordinate(
     double lat,
-    double long,
+    double long, {
+    int distanceLimitMeters = 500,
+    bool returnUniqueEvenIfOutOfRange = true,
+    }
   ) async {
-    final results = await findStationsFromCoordinate(lat, long);
+    final results = await findStationsFromCoordinate(
+      lat, 
+      long, 
+      distanceLimitMeters: distanceLimitMeters, 
+      returnUniqueEvenIfOutOfRange: returnUniqueEvenIfOutOfRange
+    );
+    
     if (results.isEmpty) {
       return (null, null, VehicleType.unknown, 0.0);
     }
@@ -590,6 +599,7 @@ class TrainlogService {
   Future<List<(String? name, String? address, VehicleType type, double distance)>> findStationsFromCoordinate(
       double lat,
       double long, {
+      int distanceLimitMeters = 500,
       bool returnUniqueEvenIfOutOfRange = true,
   }) async {
     String path = "/reverse?lon=$long&lat=$lat&lang=en&limit=10"; // TODO check limit
@@ -598,7 +608,6 @@ class TrainlogService {
     final argBus = "&osm_tag=amenity:bus_station&osm_tag=highway:bus_stop";
     final argFerry = "&osm_tag=amenity:ferry_terminal";
     const nullReturn = <(String? name, String? address, VehicleType type, double distance)>[];
-    const distanceLimitMeters = 500;
 
     final dio = Dio(
       BaseOptions(

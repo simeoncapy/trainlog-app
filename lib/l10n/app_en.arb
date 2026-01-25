@@ -79,6 +79,7 @@
   "settingsHourFormat12": "12-hour format",
   "settingsExampleShort": "Ex:",
   "settingsCurrency": "Default Currency",
+  "settingsSprRadius": "Maximum radius for station search in Geolog",
   "settingsSystem": "System",
   "settingsMapPathDisplayOrder": "Order of trip paths on the map",
   "settingMapPathDisplayOrderByCreation": "By creation date",
@@ -360,7 +361,7 @@
 
   "prerecorderExplanationTitle": "Explanation",
   "prerecorderExplanation": "The Geolog tool is a smart pre-recorder. When you click on the record button, it will automatically save your current coordinate with the date and time. Later on, you could select two geologs and use them to create a new trip with the saved data.",
-  "prerecorderExplanationStation": "This tool will automatically look for the station name and display it if found (this works only for rail, bus, and ferry). The closest station to you will be used.",
+  "prerecorderExplanationStation": "This tool will automatically look for the station name and display it if found (this works only for rail, bus, and ferry). The closest stations (you can change the radius in settings) will be displayed and you can select the best one.",
   "prerecorderExplanationDelete": "After the trip has been created, the two geologs are automatically deleted.",
   "prerecorderExplanationPrivacy": "The data are saved on your device only.",
   "prerecorderRecordButton": "Record",

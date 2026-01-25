@@ -514,6 +514,12 @@ abstract class AppLocalizations {
   /// **'Default Currency'**
   String get settingsCurrency;
 
+  /// No description provided for @settingsSprRadius.
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum radius for station search in Geolog'**
+  String get settingsSprRadius;
+
   /// No description provided for @settingsSystem.
   ///
   /// In en, this message translates to:
@@ -1501,7 +1507,7 @@ abstract class AppLocalizations {
   /// No description provided for @prerecorderExplanationStation.
   ///
   /// In en, this message translates to:
-  /// **'This tool will automatically look for the station name and display it if found (this works only for rail, bus, and ferry). The closest station to you will be used.'**
+  /// **'This tool will automatically look for the station name and display it if found (this works only for rail, bus, and ferry). The closest stations (you can change the radius in settings) will be displayed and you can select the best one.'**
   String get prerecorderExplanationStation;
 
   /// No description provided for @prerecorderExplanationDelete.

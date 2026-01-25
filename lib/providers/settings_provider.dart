@@ -20,6 +20,7 @@ class SettingsProvider with ChangeNotifier {
   bool _mapDisplayUserLocationMarker = true;
   bool _hideWarningMessage = false;
   String _currency = "EUR";
+  int _sprRadius = 500;
 
   // _SP members are stored in the Shared Preferences only, they cannot be modified by the user in settings
   LatLng? _SP_userPosition;
@@ -44,6 +45,7 @@ class SettingsProvider with ChangeNotifier {
   bool get mapDisplayUserLocationMarker => _mapDisplayUserLocationMarker;
   bool get hideWarningMessage => _hideWarningMessage;
   String get currency => _currency;
+  int get sprRadius => _sprRadius;
 
   LatLng? get userPosition => _SP_userPosition;
   bool get refusedToSharePosition => _SP_refusedToSharePosition;
@@ -64,6 +66,7 @@ class SettingsProvider with ChangeNotifier {
     _loadMapDisplayUserLocationMarker();
     _loadHideWarningMessage();
     _loadCurrency();
+    _loadSprRadius();
 
     // Shared Preference only (_SP) i.e. internal to the app
     _loadLastUserPosition();
@@ -268,6 +271,23 @@ class SettingsProvider with ChangeNotifier {
     _currency = currency;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('currency', currency);
+    notifyListeners();
+  }
+
+  // ------------------------------------------------------------------------------
+
+  void _loadSprRadius() async {
+    final prefs = await SharedPreferences.getInstance();
+    final r = prefs.getInt('spr_radius');
+    _sprRadius = r ?? 500;
+    notifyListeners();
+  }
+
+  void setSprRadius(int sprRadius) async {
+    if (_sprRadius == sprRadius) return;
+    _sprRadius = sprRadius;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('spr_radius', sprRadius);
     notifyListeners();
   }
 

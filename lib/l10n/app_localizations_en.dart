@@ -219,6 +219,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsCurrency => 'Default Currency';
 
   @override
+  String get settingsSprRadius => 'Maximum radius for station search in Geolog';
+
+  @override
   String get settingsSystem => 'System';
 
   @override
@@ -837,7 +840,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get prerecorderExplanationStation =>
-      'This tool will automatically look for the station name and display it if found (this works only for rail, bus, and ferry). The closest station to you will be used.';
+      'This tool will automatically look for the station name and display it if found (this works only for rail, bus, and ferry). The closest stations (you can change the radius in settings) will be displayed and you can select the best one.';
 
   @override
   String get prerecorderExplanationDelete =>

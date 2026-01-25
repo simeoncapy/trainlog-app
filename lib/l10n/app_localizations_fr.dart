@@ -220,6 +220,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get settingsCurrency => 'Devise par défaut';
 
   @override
+  String get settingsSprRadius =>
+      'Rayon maximum pour la recherche de gare dans Géomémo';
+
+  @override
   String get settingsSystem => 'Système';
 
   @override
@@ -840,7 +844,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get prerecorderExplanationStation =>
-      'Cet outil recherchera automatiquement le nom de la gare et l’affichera s’il est trouvé (cela ne fonctionne que pour le rail, les bus et les ferry). La gare la plus proche de vous sera utilisée.';
+      'Cet outil recherchera automatiquement le nom de la gare et l’affichera s’il est trouvé (cela ne fonctionne que pour le rail, les bus et les ferry). Les gares les plus proches de vous seront affichées (vous pouvez modifier le rayon dans les paramètres), et vous pourrez sélectionner celle qui convient le mieux.';
 
   @override
   String get prerecorderExplanationDelete =>

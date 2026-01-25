@@ -578,6 +578,7 @@ class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
     final trainlog = Provider.of<TrainlogProvider>(context, listen: false);
     final loc = AppLocalizations.of(context)!;
     final scaffMsg = ScaffoldMessenger.of(context);
+    final settings = context.read<SettingsProvider>();
 
     return FloatingActionButton.extended(
       onPressed: () async {
@@ -606,6 +607,7 @@ class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
           final stations = await trainlog.findStationsFromCoordinate(
             position.latitude,
             position.longitude,
+            distanceLimitMeters: settings.sprRadius,
           );
 
           // Handle empty results (no station found)

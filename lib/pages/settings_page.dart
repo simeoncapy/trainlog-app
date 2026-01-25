@@ -30,6 +30,13 @@ class DateFormat {
   DateFormat(this.display, this.code);
 }
 
+class Radius {
+  final String display;
+  final int value;
+
+  Radius(this.display, this.value);
+}
+
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
 
@@ -68,6 +75,13 @@ class _SettingsPageState extends State<SettingsPage> {
       DateFormat('DD/MM/YYYY', 'dd/MM/yyyy'),
       DateFormat('YYYY/MM/DD', 'yyyy/MM/dd'),
       DateFormat('MM/DD/YYYY', 'MM/dd/yyyy'),
+    ];
+    final List<Radius> radiusOptions = [
+      Radius('100 m', 100),
+      Radius('250 m', 250),
+      Radius('500 m', 500),
+      Radius('750 m', 750),
+      Radius('1 km', 1000),
     ];
     final trevithickBirth = DateTime(1771, 4, 13);
     final appLocalization = AppLocalizations.of(context)!;
@@ -179,6 +193,26 @@ class _SettingsPageState extends State<SettingsPage> {
                 onChanged: (bool val) {
                   settings.setHideWarningMessage(val);
                 }
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.radar),
+              title: Text(appLocalization.settingsSprRadius),
+              trailing: DropdownButton<int>(
+                value: settings.sprRadius,
+                onChanged: (int? newValue) {
+                  if (newValue != null) {
+                    settings.setSprRadius(newValue);
+                  }
+                },
+                items: radiusOptions
+                    .map<DropdownMenuItem<int>>(
+                      (Radius radius) => DropdownMenuItem<int>(
+                        value: radius.value,
+                        child: Text(radius.display),
+                      ),
+                    )
+                    .toList(),
               ),
             ),
             _SettingsCategory(title: appLocalization.settingsMapCategory), // ---------------------------------------------
