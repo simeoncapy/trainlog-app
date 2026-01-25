@@ -64,33 +64,6 @@ class _TripFormPathState extends State<TripFormPath> {
     );
   }
 
-  void _showHelpBottomSheet(BuildContext context) {
-    final loc = AppLocalizations.of(context)!;
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      showDragHandle: true,
-      builder: (context) {
-        return Padding(
-          padding: const EdgeInsets.all(16),
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(loc.helpTitle,
-                    style: Theme.of(context).textTheme.titleLarge),
-                const SizedBox(height: 12),
-                Text("Bla bla bla"),
-                const SizedBox(height: 24),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
   String _distanceAndTimeFormatHelper(String input, {String? locale}) {
     final parts = input.split(', ');
     if (parts.length < 2) return input;
@@ -132,6 +105,7 @@ class _TripFormPathState extends State<TripFormPath> {
     final model = context.watch<TripFormModel>();
     final tripData = model.toJson();
     final locale = Localizations.localeOf(context);
+    final disabled = _isLoading || _hasRoutingError;
 
     return Padding(
       padding: const EdgeInsets.all(0),
@@ -141,17 +115,21 @@ class _TripFormPathState extends State<TripFormPath> {
             padding: const EdgeInsets.only(left: 8.0, right: 8.0),
             child: Row(
               children: [
-                Checkbox(
-                value: _isNewRouter,
-                onChanged: (_isLoading || _hasRoutingError) ? null : (value) {
-                  setState(() {
-                    _isNewRouter = value ?? false;
-                  });
-                },
+                Opacity(
+                  opacity: disabled ? 0.2 : 1.0,
+                  child: Checkbox(
+                    value: _isNewRouter,
+                    onChanged: disabled
+                        ? null
+                        : (value) => setState(() => _isNewRouter = value ?? false),
+                  ),
                 ),
                 Expanded(
-                  child: Text(
-                    loc.addTripPathUseNewRouter
+                  child: Opacity(
+                    opacity: disabled ? 0.2 : 1.0,
+                    child: Text(
+                      loc.addTripPathUseNewRouter
+                    ),
                   )
                 ),
                 IconButton(

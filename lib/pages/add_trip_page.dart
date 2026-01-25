@@ -308,6 +308,16 @@ class _AddTripPageState extends State<AddTripPage> {
             icon: const Icon(Icons.arrow_back),
             onPressed: _isSubmitting ? null : _previousStepOrExit, // optional
           ),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.cancel),              
+              onPressed: _isSubmitting
+                  ? null
+                  : () {
+                      Navigator.pop(context);
+                    },
+            ),
+          ],
         ),
         body: Stack(
           children: [
