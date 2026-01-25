@@ -254,5 +254,10 @@
   "prerecorderNoData": "Aucune données enregistrées",
   "prerecorderUnknownStation": "Gare inconnue",
   "prerecorderDeleteSelectionConfirm": "Êtes-vous sûr(e) de vouloir supprimer la sélection ? Cette action est irréversible.",
-  "prerecorderDeleteAllConfirm": "Êtes-vous sûr(e) de vouloir supprimer touts les repères enregistrés ? Cette action est irréversible."
+  "prerecorderDeleteAllConfirm": "Êtes-vous sûr(e) de vouloir supprimer touts les repères enregistrés ? Cette action est irréversible.",
+  "prerecorderSelectStation": "Sélectionner une gare",
+  "prerecorderSelectClosest": "Sélectionner la plus proche",
+  "prerecorderNoStationReachable": "Aucune gare à proximité",
+  "prerecorderAway": "à {distance} m",
+  "prerecorderStationsFound": "{count, plural, =0{Aucune gare trouvée} =1{1 gare trouvée} other{{count} gares trouvées}}"
 }

@@ -575,23 +575,36 @@ class TrainlogService {
     return out;
   }
 
-  Future<(String? name, String? address, VehicleType type)> findStationFromCoordinate(
+  Future<(String? name, String? address, VehicleType type, double distance)> findStationFromCoordinate(
     double lat,
     double long,
   ) async {
-    String path = "/reverse?lon=$long&lat=$lat&lang=en";
+    final results = await findStationsFromCoordinate(lat, long);
+    if (results.isEmpty) {
+      return (null, null, VehicleType.unknown, 0.0);
+    }
+    return results.first;
+  }
+
+  //final argAirport = "&osm_tag=aeroway:aerodrome";
+  Future<List<(String? name, String? address, VehicleType type, double distance)>> findStationsFromCoordinate(
+      double lat,
+      double long, {
+      bool returnUniqueEvenIfOutOfRange = true,
+  }) async {
+    String path = "/reverse?lon=$long&lat=$lat&lang=en&limit=10"; // TODO check limit
     final argRails = "&osm_tag=railway:halt&osm_tag=railway:station";
     final argTram = "&osm_tag=railway:tram_stop";
     final argBus = "&osm_tag=amenity:bus_station&osm_tag=highway:bus_stop";
     final argFerry = "&osm_tag=amenity:ferry_terminal";
-    //final argAirport = "&osm_tag=aeroway:aerodrome";
-    const nullReturn = (null, null, VehicleType.unknown);
+    const nullReturn = <(String? name, String? address, VehicleType type, double distance)>[];
+    const distanceLimitMeters = 500;
 
     final dio = Dio(
       BaseOptions(
         baseUrl: "https://photon.chiel.uk",
         followRedirects: false,
-        validateStatus: (s) => s != null && s >= 200 && s < 400, // general
+        validateStatus: (s) => s != null && s >= 200 && s < 400,
         headers: {'User-Agent': _userAgent},
       ),
     );
@@ -616,66 +629,85 @@ class TrainlogService {
       return nullReturn;
     }
 
-    final feature = features.first as Map<String, dynamic>;
-    final properties = feature['properties'] as Map<String, dynamic>?;
+    List<(String? name, String? address, VehicleType type, double distance)> stations = [];
 
-    if (properties == null) {
-      return nullReturn;
+    // Helper function to calculate distance
+    double calculateDistance(double lat1, double long1, double lat2, double long2) {
+      final userLocation = LatLng(lat1, long1);
+      final stationLocation = LatLng(lat2, long2);
+      final distance = Distance();
+      return distance.as(LengthUnit.Meter, userLocation, stationLocation);
     }
 
-    // --- NAME ---
-    final rawName = properties['name']?.toString();
-    final countryCode = properties['countrycode']?.toString() ?? "";
-    final flag = countryCodeToEmoji(countryCode);
-    String? name = rawName != null ? '$flag $rawName' : null;
+    // Loop through the received stations and filter them
+    for (var feature in features) {
+      final properties = feature['properties'] as Map<String, dynamic>?;
+      final geometry = feature['geometry'] as Map<String, dynamic>?;
+      if (properties == null || geometry == null) continue;
 
-    // --- ADDRESS ---
-    final street = properties['street']?.toString() ?? '';
-    final locality = properties['locality']?.toString() ?? '';
-    final district = properties['district']?.toString() ?? '';
-    final city = properties['city']?.toString() ?? '';
+      final coordinates = geometry['coordinates'] as List<dynamic>?;
+      if (coordinates == null || coordinates.length < 2) continue;
 
-    final parts = [
-      street,
-      locality,
-      district,
-      city,
-    ].where((e) => e.trim().isNotEmpty).toList();
+      final stationLat = coordinates[1] as double;
+      final stationLong = coordinates[0] as double;
 
-    final String? address = parts.isNotEmpty ? parts.join(", ") : null;
+      final distance = calculateDistance(lat, long, stationLat, stationLong);
 
-    // --- VEHICLE TYPE ---
+      if (distance > distanceLimitMeters) {
+        // If the distance is too far, skip this station.
+        continue;
+      }
+
+      final rawName = properties['name']?.toString();
+      final countryCode = properties['countrycode']?.toString() ?? "";
+      final flag = countryCodeToEmoji(countryCode);
+      String? name = rawName != null ? '$flag $rawName' : null;
+
+      // Address construction
+      final street = properties['street']?.toString() ?? '';
+      final locality = properties['locality']?.toString() ?? '';
+      final district = properties['district']?.toString() ?? '';
+      final city = properties['city']?.toString() ?? '';
+      final address = [street, locality, district, city].where((e) => e.trim().isNotEmpty).join(", ");
+
+      // Vehicle Type Determination
+      VehicleType type = _getVehicleType(properties);
+
+      if (!stations.any((entry) => entry.$1 == name && entry.$3 == type)) {
+        stations.add((name, address, type, distance));
+      }
+    }
+
+    // TODO
+    // if (returnUniqueEvenIfOutOfRange && stations.isEmpty) {
+    //   stations.add((name, address, type, distance));
+    // }
+
+    stations.sort((a, b) => a.$4.compareTo(b.$4)); // Sorting by distance (item4 is the distance)
+    return stations;
+  }
+
+  // Helper function to determine the vehicle type
+  VehicleType _getVehicleType(Map<String, dynamic> properties) {
     final osmKey = properties['osm_key']?.toString();
     final osmValue = properties['osm_value']?.toString();
-
-    VehicleType type = VehicleType.unknown;
-
     if (osmKey == 'railway' && (osmValue == 'station' || osmValue == 'halt')) {
-      type = VehicleType.train;
+      return VehicleType.train;
+    } else if (osmKey == 'highway' && osmValue == 'bus_stop') {
+      return VehicleType.bus;
+    } else if (osmKey == 'railway' && osmValue == 'tram_stop') {
+      return VehicleType.tram;
+    } else if (osmKey == 'railway' && (osmValue == 'stop' || osmValue == 'subway_entrance')) {
+      return VehicleType.metro;
+    } else if (osmKey == 'amenity' && osmValue == 'ferry_terminal') {
+      return VehicleType.ferry;
+    } else if (osmKey == 'aerialway' && osmValue == 'station') {
+      return VehicleType.plane;
+    } else if (osmKey == 'aeroway' && (osmValue == 'helipad' || osmValue == 'heliport')) {
+      return VehicleType.helicopter;
+    } else {
+      return VehicleType.unknown;
     }
-    else if (osmKey == 'highway' && osmValue == 'bus_stop') {
-      type = VehicleType.bus;
-    }
-    else if (osmKey == 'railway' && osmValue == 'tram_stop') {
-      type = VehicleType.tram;
-    }
-    else if (osmKey == 'railway' && (osmValue == 'stop' || osmValue == 'subway_entrance')) {
-      type = VehicleType.metro;
-    }
-    else if (osmKey == 'amenity' && osmValue == 'ferry_terminal') {
-      type = VehicleType.ferry;
-    }
-    else if (osmKey == 'aerialway' && osmValue == 'station') {
-      type = VehicleType.plane;
-    }
-    else if (osmKey == 'aeroway' && (osmValue == 'helipad' || osmValue == 'heliport')) {
-      type = VehicleType.helicopter;
-    }
-    else {
-      name = null; // if no station detected, the name is not saved
-    }
-
-    return (name, address, type);
   }
 
   int? toInt(dynamic v) {

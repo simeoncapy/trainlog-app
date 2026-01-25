@@ -368,5 +368,25 @@
   "prerecorderNoData": "No data recorded",
   "prerecorderUnknownStation": "Unknown station",
   "prerecorderDeleteSelectionConfirm": "Are you sure to delete the selection? This action is irreversible.",
-  "prerecorderDeleteAllConfirm": "Are you sure to delete all the recorded geologs? This action is irreversible."
+  "prerecorderDeleteAllConfirm": "Are you sure to delete all the recorded geologs? This action is irreversible.",
+  "prerecorderSelectStation": "Select a station",
+  "prerecorderSelectClosest": "Select closest",
+  "prerecorderNoStationReachable": "No station reachable",
+  "prerecorderAway": "{distance} m away",
+  "@prerecorderAway": {
+    "description": "Indicates how far the user is from the station",
+    "placeholders": {
+      "distance": {
+        "type": "String",
+        "description": "The distance in meters"
+      }
+    }
+  },
+  "prerecorderStationsFound": "{count, plural, =0 {No stations found} =1 {# station found} other {# stations found}}",
+  "@prerecorderStationsFound": {
+    "description": "Indicates how many stations were found",
+    "placeholders": {
+      "count": {}
+    }
+  }
 }

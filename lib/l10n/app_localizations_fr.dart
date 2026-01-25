@@ -869,4 +869,30 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get prerecorderDeleteAllConfirm =>
       'Êtes-vous sûr(e) de vouloir supprimer touts les repères enregistrés ? Cette action est irréversible.';
+
+  @override
+  String get prerecorderSelectStation => 'Sélectionner une gare';
+
+  @override
+  String get prerecorderSelectClosest => 'Sélectionner la plus proche';
+
+  @override
+  String get prerecorderNoStationReachable => 'Aucune gare à proximité';
+
+  @override
+  String prerecorderAway(String distance) {
+    return 'à $distance m';
+  }
+
+  @override
+  String prerecorderStationsFound(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count gares trouvées',
+      one: '1 gare trouvée',
+      zero: 'Aucune gare trouvée',
+    );
+    return '$_temp0';
+  }
 }

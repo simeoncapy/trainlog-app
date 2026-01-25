@@ -1551,6 +1551,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Are you sure to delete all the recorded geologs? This action is irreversible.'**
   String get prerecorderDeleteAllConfirm;
+
+  /// No description provided for @prerecorderSelectStation.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a station'**
+  String get prerecorderSelectStation;
+
+  /// No description provided for @prerecorderSelectClosest.
+  ///
+  /// In en, this message translates to:
+  /// **'Select closest'**
+  String get prerecorderSelectClosest;
+
+  /// No description provided for @prerecorderNoStationReachable.
+  ///
+  /// In en, this message translates to:
+  /// **'No station reachable'**
+  String get prerecorderNoStationReachable;
+
+  /// Indicates how far the user is from the station
+  ///
+  /// In en, this message translates to:
+  /// **'{distance} m away'**
+  String prerecorderAway(String distance);
+
+  /// Indicates how many stations were found
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0 {No stations found} =1 {# station found} other {# stations found}}'**
+  String prerecorderStationsFound(num count);
 }
 
 class _AppLocalizationsDelegate

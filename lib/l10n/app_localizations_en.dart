@@ -866,4 +866,30 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get prerecorderDeleteAllConfirm =>
       'Are you sure to delete all the recorded geologs? This action is irreversible.';
+
+  @override
+  String get prerecorderSelectStation => 'Select a station';
+
+  @override
+  String get prerecorderSelectClosest => 'Select closest';
+
+  @override
+  String get prerecorderNoStationReachable => 'No station reachable';
+
+  @override
+  String prerecorderAway(String distance) {
+    return '$distance m away';
+  }
+
+  @override
+  String prerecorderStationsFound(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '# stations found',
+      one: '# station found',
+      zero: 'No stations found',
+    );
+    return '$_temp0';
+  }
 }

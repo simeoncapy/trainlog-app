@@ -12,6 +12,7 @@ import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/utils/location_utils.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
+import 'package:trainlog_app/utils/number_formatter.dart';
 import 'package:trainlog_app/utils/style_utils.dart';
 import 'package:trainlog_app/utils/cached_data_utils.dart';
 import 'package:geolocator/geolocator.dart';
@@ -57,6 +58,9 @@ class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
       _records = decoded
           .map((e) => PreRecordModel.fromJson(e))
           .toList();
+      _records.removeWhere( // remove incomplete records
+        (r) => r.loaded == false,
+      );
       _sortRecords();
     });
   }
@@ -249,6 +253,102 @@ class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
     }
 
     return model;
+  }
+
+  Future<(String?, String?, VehicleType)?> _showStationSelectionDialog(
+    BuildContext context,
+    List<(String?, String?, VehicleType, double)> stations,
+  ) async {
+    final loc = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final settings = context.read<SettingsProvider>();
+    final palette = MapColorPaletteHelper.getPalette(settings.mapColorPalette);
+
+    return await showDialog<(String?, String?, VehicleType)?>(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          child: Container(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.6,
+              maxWidth: 500,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(
+                    loc.prerecorderSelectStation,
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 8.0, right: 8.0, bottom: 4.0),
+                  child: Text(
+                    loc.prerecorderStationsFound(stations.length),                    
+                  ),
+                ),
+                Expanded(
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: stations.length,
+                    itemBuilder: (context, index) {
+                      final (name, address, type, distance) = stations[index];
+                      return ListTile(
+                        leading: IconTheme(
+                          data: IconThemeData(
+                            color: palette[type],
+                            size: 32,
+                          ),
+                          child: type.icon(),
+                        ),
+                        title: Text(
+                          name ?? "",
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        subtitle: Text(
+                          loc.prerecorderAway(formatNumber(context, distance)),
+                          style: theme.textTheme.bodySmall,
+                        ),
+                        onTap: () {
+                          Navigator.of(context).pop((name, address, type));
+                        },
+                      );
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      // onPressed: () {
+                      //   final (name, address, type, _) = stations[0];
+                      //   Navigator.of(context).pop((name, address, type));
+                      // },
+                      onPressed: () {
+                        Navigator.of(context).pop((null, null, VehicleType.unknown));
+                      },
+                      style: buttonStyleHelper(
+                        theme.colorScheme.primary,
+                        theme.colorScheme.onPrimary,
+                      ),
+                      //child: Text(loc.prerecorderSelectClosest),
+                      child: Text(loc.prerecorderUnknownStation),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   // UI
@@ -502,9 +602,61 @@ class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
 
           await _saveAll(); // save pending state
 
-          // Resolve station asynchronously
-          final (name, address, type) =
-              await trainlog.resolveStation(position.latitude, position.longitude);
+          // Resolve stations asynchronously
+          final stations = await trainlog.findStationsFromCoordinate(
+            position.latitude,
+            position.longitude,
+          );
+
+          // Handle empty results (no station found)
+          if (stations.isEmpty) {
+            final index = _records.indexWhere((r) => r.id == id);
+            if (index == -1) return;
+
+            // Remove the pending record
+            // setState(() {
+            //   _records.removeWhere((r) => r.id == id);
+            // });
+            // Unknown station (manual input)
+            setState(() {
+            _records[index] = _records[index].copyWith(
+                stationName: null,
+                address: null,
+                type: VehicleType.unknown,
+                loaded: true,
+              );
+            });
+            await _saveAll();
+            
+            scaffMsg.showSnackBar(
+              SnackBar(content: Text(loc.prerecorderNoStationReachable))
+            );
+            return;
+          }
+
+          // If only one station, use it directly
+          String? name;
+          String? address;
+          VehicleType? type;
+
+          if (stations.length == 1) {
+            (name, address, type, _) = stations[0];
+          } else {
+            if (!mounted) return;
+            // Multiple stations - show selection dialog
+            final result = await _showStationSelectionDialog(context, stations);
+            
+            if (result == null) {
+              // User cancelled - remove pending record
+              setState(() {
+                _records.removeWhere((r) => r.id == id);
+              });
+              await _saveAll();
+              return;
+            }
+            
+            (name, address, type) = result;
+          }
 
           // Update same record
           final index = _records.indexWhere((r) => r.id == id);

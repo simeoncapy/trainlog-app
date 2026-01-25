@@ -427,12 +427,12 @@ class TrainlogProvider extends ChangeNotifier {
     return merged;
   }
 
-  Future<PreRecordModel> findStationFromCoordinate(
+  Future<PreRecordModel> findPreRecordModelFromCoordinate(
     double lat,
     double long,
   ) async {
 
-    final (name, address, type) = await _service.findStationFromCoordinate(lat, long);
+    final (name, address, type, distance) = await _service.findStationFromCoordinate(lat, long);
 
     return PreRecordModel(
       id: DateTime.now().millisecondsSinceEpoch,
@@ -445,10 +445,17 @@ class TrainlogProvider extends ChangeNotifier {
     );
   }
 
-  Future<(String?, String?, VehicleType)> resolveStation(
+  Future<(String?, String?, VehicleType, double)> findStationFromCoordinate(
     double lat,
     double long,
   ) {
     return _service.findStationFromCoordinate(lat, long);
+  }
+
+  Future<List<(String?, String?, VehicleType, double)>> findStationsFromCoordinate(
+    double lat,
+    double long,
+  ) {
+    return _service.findStationsFromCoordinate(lat, long);
   }
 }

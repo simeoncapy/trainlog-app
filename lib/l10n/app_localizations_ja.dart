@@ -860,4 +860,30 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get prerecorderDeleteAllConfirm =>
       '記録されたログをすべて削除してもよろしいですか? この操作は元に戻せません。';
+
+  @override
+  String get prerecorderSelectStation => '駅を選択する';
+
+  @override
+  String get prerecorderSelectClosest => '最も近い駅を選択する';
+
+  @override
+  String get prerecorderNoStationReachable => '近くに駅がありません';
+
+  @override
+  String prerecorderAway(String distance) {
+    return '$distanceメートル離れたところ';
+  }
+
+  @override
+  String prerecorderStationsFound(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countの駅が見つかりました',
+      one: '1つの駅が見つかりました',
+      zero: '駅が見つかりません',
+    );
+    return '$_temp0';
+  }
 }

@@ -255,5 +255,10 @@
   "prerecorderNoData": "データは記録されていません",
   "prerecorderUnknownStation": "不明な駅",
   "prerecorderDeleteSelectionConfirm": "選択内容を削除してもよろしいですか? この操作は元に戻せません。",
-  "prerecorderDeleteAllConfirm": "記録されたログをすべて削除してもよろしいですか? この操作は元に戻せません。"
+  "prerecorderDeleteAllConfirm": "記録されたログをすべて削除してもよろしいですか? この操作は元に戻せません。",
+  "prerecorderSelectStation": "駅を選択する",
+  "prerecorderSelectClosest": "最も近い駅を選択する",
+  "prerecorderNoStationReachable": "近くに駅がありません",
+  "prerecorderAway": "{distance}メートル離れたところ",
+  "prerecorderStationsFound": "{count, plural, =0{駅が見つかりません} =1{1つの駅が見つかりました} other{{count}の駅が見つかりました}}"
 }
