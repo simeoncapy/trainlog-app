@@ -92,7 +92,7 @@ class _TripFormPathState extends State<TripFormPath> {
   }
 
   String _distanceAndTimeFormatHelper(String input, {String? locale}) {
-    final parts = input.split(',');
+    final parts = input.split(', ');
     if (parts.length < 2) return input;
 
     // ---- distance ----
