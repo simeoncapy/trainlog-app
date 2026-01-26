@@ -1,7 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 
-enum TripVisibility { public, friends, private }
+enum TripVisibility {
+  public, friends, private;
+
+  static TripVisibility fromString(String? s) {
+    final v = s?.toLowerCase();
+    return TripVisibility.values.firstWhere(
+      (e) => e.name == v,
+      orElse: () => TripVisibility.private,
+    );
+  }
+}
+
 
 class TripVisibilitySelector extends StatelessWidget {
   final TripVisibility value;
