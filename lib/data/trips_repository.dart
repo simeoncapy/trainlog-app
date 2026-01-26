@@ -46,6 +46,7 @@ LinkedHashMap<K, V> _sortedBySumDesc<K, V>(
 // CLASS -----------------------------------------------------------------------
 class TripsRepository {
   final Database _db;
+  bool _schemaChecked = false;
 
   TripsRepository(this._db);
 
@@ -691,6 +692,11 @@ class TripsRepository {
 
 
   Future<void> insertTrip(Trips trip) async {
+    if (!_schemaChecked) {
+      await _ensureTripsTableSchema();
+      _schemaChecked = true;
+    }
+
     await _db.insert(
       TripsTable.tableName,
       trip.toJson(),
@@ -699,6 +705,11 @@ class TripsRepository {
   }
 
   Future<void> insertTrips(List<Trips> trips) async {
+    if (!_schemaChecked) {
+      await _ensureTripsTableSchema();
+      _schemaChecked = true;
+    }
+
     final batch = _db.batch();
     for (final trip in trips) {
       batch.insert(
@@ -746,39 +757,66 @@ class TripsRepository {
 
     return trips;
   }
+
+  Future<void> _ensureTripsTableSchema() async {
+    final columns = await _db.rawQuery('PRAGMA table_info(${TripsTable.tableName})');
+    final existingColumns = columns.map((col) => col['name'] as String).toSet();
+    
+    // Add missing columns
+    for (final entry in TripsTable.columns.entries) {
+      if (!existingColumns.contains(entry.key)) {
+        // Remove PRIMARY KEY constraint for ALTER TABLE (can't add PK to existing table)
+        final columnType = entry.value.replaceAll('PRIMARY KEY', '').trim();
+        await _db.execute(
+          'ALTER TABLE ${TripsTable.tableName} ADD COLUMN ${entry.key} $columnType'
+        );
+      }
+    }
+  }
 }
 
 class TripsTable {
   static const String tableName = 'trips';
 
-  static const String createTableSql = '''
+  static const columns = {
+    'uid': 'TEXT PRIMARY KEY',
+    'username': 'TEXT',
+    'origin_station': 'TEXT',
+    'destination_station': 'TEXT',
+    'start_datetime': 'TEXT',
+    'end_datetime': 'TEXT',
+    'estimated_trip_duration': 'REAL',
+    'manual_trip_duration': 'REAL',
+    'trip_length': 'REAL',
+    'operator': 'TEXT',
+    'countries': 'TEXT',
+    'utc_start_datetime': 'TEXT',
+    'utc_end_datetime': 'TEXT',
+    'line_name': 'TEXT',
+    'created': 'TEXT',
+    'last_modified': 'TEXT',
+    'type': 'TEXT',
+    'material_type': 'TEXT',
+    'seat': 'TEXT',
+    'reg': 'TEXT',
+    'waypoints': 'TEXT',
+    'notes': 'TEXT',
+    'price': 'REAL',
+    'currency': 'TEXT',
+    'purchasing_date': 'TEXT',
+    'path': 'TEXT',
+    'visibility': 'TEXT',
+  };
+
+  static String get createTableSql {
+    final columnDefs = columns.entries
+        .map((e) => '${e.key} ${e.value}')
+        .join(',\n      ');
+    
+    return '''
     CREATE TABLE IF NOT EXISTS $tableName (
-      uid TEXT PRIMARY KEY,
-      username TEXT,
-      origin_station TEXT,
-      destination_station TEXT,
-      start_datetime TEXT,
-      end_datetime TEXT,
-      estimated_trip_duration REAL,
-      manual_trip_duration REAL,
-      trip_length REAL,
-      operator TEXT,
-      countries TEXT,
-      utc_start_datetime TEXT,
-      utc_end_datetime TEXT,
-      line_name TEXT,
-      created TEXT,
-      last_modified TEXT,
-      type TEXT,
-      material_type TEXT,
-      seat TEXT,
-      reg TEXT,
-      waypoints TEXT,
-      notes TEXT,
-      price REAL,
-      currency TEXT,
-      purchasing_date TEXT,
-      path TEXT
+      $columnDefs
     )
   ''';
+  }
 }

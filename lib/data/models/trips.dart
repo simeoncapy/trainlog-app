@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:trainlog_app/widgets/trip_visibility_selector.dart';
 
 class Trips {
   final String uid;
@@ -29,6 +30,7 @@ class Trips {
   final String? currency;
   final DateTime? purchasingDate;
   final String path;
+  final TripVisibility visibility;
 
   Trips({
     required this.uid,
@@ -57,6 +59,7 @@ class Trips {
     this.currency,
     this.purchasingDate,
     required this.path,
+    required this.visibility,
   });
 
   factory Trips.fromJson(Map<String, dynamic> json) {
@@ -87,6 +90,7 @@ class Trips {
       currency: json['currency']?.toString() ?? '',
       purchasingDate: _toDateTimeOrNull(json['purchasing_date']),
       path: json['path']?.toString() ?? '',
+      visibility: TripVisibility.fromString(json['visibility'])
     );
   }
 
@@ -118,6 +122,7 @@ class Trips {
       'currency': currency,
       'purchasing_date': purchasingDate?.toIso8601String(),
       'path': path,
+      'visibility': visibility.name,
     };
   }
 
