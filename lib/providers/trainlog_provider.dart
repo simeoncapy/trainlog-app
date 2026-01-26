@@ -26,6 +26,7 @@ class TrainlogProvider extends ChangeNotifier {
   TrainlogLoginResult? _session;
   Map<String, String> _listOperatorsLogoUrl = Map();
   Map<String, String> _listOperators = Map();
+  List<String> _availableCurrencies = [];
 
   TrainlogProvider({TrainlogService? service})
       : _service = service ?? TrainlogService();
@@ -37,7 +38,8 @@ class TrainlogProvider extends ChangeNotifier {
   TrainlogLoginResult? get session => _session;
   TrainlogService get service => _service;
   Map<String, String> get listOperators => _listOperators;
-
+  List<String> get availableCurrencies => _availableCurrencies;
+  
   Future<bool> login({
     required String username,
     required String password,
@@ -55,6 +57,7 @@ class TrainlogProvider extends ChangeNotifier {
         _username = username; // keep what the user typed
         settings?.setUsername(username);
         _listOperatorsLogoUrl = await _service.fetchAllOperatorLogosUrl(username);
+        _availableCurrencies = await _service.fetchAvailableCurrencies(username);
       } else {
         _username = null;
         _error = res.failureReason ?? 'Invalid username or password';
@@ -133,6 +136,13 @@ class TrainlogProvider extends ChangeNotifier {
   Future<void> reloadOperatorList() async {
     if (_username == null) return;
     _listOperatorsLogoUrl = await _service.fetchAllOperatorLogosUrl(_username ?? "");
+
+    notifyListeners();
+  }
+
+  Future<void> reloadAvailableCurrencies() async {
+    if (_username == null) return;
+    _availableCurrencies = await _service.fetchAvailableCurrencies(_username ?? "");
 
     notifyListeners();
   }
@@ -471,5 +481,20 @@ class TrainlogProvider extends ChangeNotifier {
       distanceLimitMeters: distanceLimitMeters, 
       returnUniqueEvenIfOutOfRange: returnUniqueEvenIfOutOfRange
     );
+  }
+
+  Future<Map<String, String>> fetchAccountSettings() async {
+    if (_username == null) return {};
+    return await _service.fetchAccountSettings(_username!);
+  }
+
+  Future<void> updateAccountSettings(Map<String, dynamic> settings) async {
+    if (_username == null) return;
+    await _service.updateAccountSettings(_username!, settings);
+  }
+
+  Future<List<String>> fetchAvailableCurrencies() async {
+    if (_username == null) return [];
+    return await _service.fetchAvailableCurrencies(_username!);
   }
 }

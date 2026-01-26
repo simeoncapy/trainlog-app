@@ -161,6 +161,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get visibilityPrivate => '非公開';
 
   @override
+  String get visibilityRestricted => '制限付き';
+
+  @override
   String get helpTitle => '使い方';
 
   @override
@@ -291,6 +294,33 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get settingsHideWarningMessage => '警告メッセージを非表示にする';
+
+  @override
+  String get settingsAccountLeaderboard => '公開ランキングに表示する';
+
+  @override
+  String get settingsAccountFriendSearch => 'フレンド検索に表示する';
+
+  @override
+  String get settingsAccountAppearGlobal => 'グローバルライブマップに表示する';
+
+  @override
+  String get settingsAccountAppearGlobalSubtitle => '(公共交通機関のみ、個人の旅行は除外されます)';
+
+  @override
+  String get settingsAccountVisibility => '他の人への公開範囲';
+
+  @override
+  String get settingsAccountVisibilitPrivateHelper =>
+      'あなたのアカウントは完全に非公開のままです。誰も詳細やコンテンツを見ることはできません。';
+
+  @override
+  String get settingsAccountVisibilitRestrictedHelper =>
+      '個々の旅行は、旅行IDを使用して共有できますが、個人データは非表示になります。ただし、公開プロフィールにはアクセスできません。';
+
+  @override
+  String get settingsAccountVisibilitPublicHelper =>
+      'あなたの公開プロフィールは、あなたのユーザー名を通じてアクセスできます。';
 
   @override
   String get menuMapTitle => '地図';

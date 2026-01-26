@@ -37,6 +37,13 @@ class Radius {
   Radius(this.display, this.value);
 }
 
+class AccountVisibility {
+  final String display;
+  final int value;
+
+  AccountVisibility(this.display, this.value);
+}
+
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
 
@@ -46,6 +53,17 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   double _totalCacheSize = 0.0;
+  Map<String, String> _accountSettings = {};
+  String _accountVisibilityHelperText = "";
+  int? _accountVisibility;
+  bool? _accountLeaderboard;
+  bool? _accountFriendSearch;
+  bool? _accountAppearGlobal;
+
+  static const String accountSettingsKeyLeaderboard = "leaderboard";
+  static const String accountSettingsKeyFriendSearch = "friend_search";
+  static const String accountSettingsKeyAppearGlobal = "appear_on_global";
+  static const String accountSettingsKeyVisibility = "share_level";
 
   void _refreshCacheSize() {
     setState(() {
@@ -57,6 +75,58 @@ class _SettingsPageState extends State<SettingsPage> {
   void initState() {
     super.initState();
     _refreshCacheSize();
+    
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      _loadSettings();
+    });
+  }
+
+  bool? _boolOrNull(Map<String, String> m, String key) {
+    final v = m[key];
+    return v == null ? null : (v == 'true');
+  }
+
+  Future<void> _loadSettings() async {
+    final trainlog = Provider.of<TrainlogProvider>(context, listen: false);
+    _accountSettings = await trainlog.fetchAccountSettings();
+    setState(() {
+      _accountVisibility = _accountSettings[accountSettingsKeyVisibility] != null
+          ? int.tryParse(_accountSettings[accountSettingsKeyVisibility]!)
+          : null;
+      _accountLeaderboard   = _boolOrNull(_accountSettings, accountSettingsKeyLeaderboard);
+      _accountFriendSearch  = _boolOrNull(_accountSettings, accountSettingsKeyFriendSearch);
+      _accountAppearGlobal  = _boolOrNull(_accountSettings, accountSettingsKeyAppearGlobal);
+
+
+      final appLocalization = AppLocalizations.of(context)!;
+      switch (_accountVisibility) {
+        case 0:
+          _accountVisibilityHelperText = appLocalization.settingsAccountVisibilitPrivateHelper;
+          break;
+        case 1:
+          _accountVisibilityHelperText = appLocalization.settingsAccountVisibilitRestrictedHelper;
+          break;
+        case 2:
+          _accountVisibilityHelperText = appLocalization.settingsAccountVisibilitPublicHelper;
+          break;
+        default:
+          _accountVisibilityHelperText = "";
+      }
+    });
+    if (trainlog.availableCurrencies.isEmpty) {
+      await trainlog.reloadAvailableCurrencies();
+    }
+  }
+
+  void _updateAccountSetting() {
+    final trainlog = Provider.of<TrainlogProvider>(context, listen: false);
+    final data = {
+      accountSettingsKeyVisibility: _accountVisibility,
+      accountSettingsKeyLeaderboard: _accountLeaderboard,
+      accountSettingsKeyFriendSearch: _accountFriendSearch,
+      accountSettingsKeyAppearGlobal: _accountAppearGlobal,
+    };
+    trainlog.updateAccountSettings(data);
   }
 
   @override
@@ -85,6 +155,13 @@ class _SettingsPageState extends State<SettingsPage> {
     ];
     final trevithickBirth = DateTime(1771, 4, 13);
     final appLocalization = AppLocalizations.of(context)!;
+
+    final List<AccountVisibility> accountVisibilityOptions = [
+      AccountVisibility(appLocalization.visibilityPrivate, 0),
+      AccountVisibility(appLocalization.visibilityRestricted, 1),
+      AccountVisibility(appLocalization.visibilityPublic, 2),
+    ];
+
     return Consumer<SettingsProvider>(
       builder: (context, settings, child) {
         return ListView(
@@ -176,6 +253,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   showCurrencyPicker(
                     context: context,
                     showFlag: true,
+                    currencyFilter: trainlog.availableCurrencies.isEmpty ? null : trainlog.availableCurrencies,
                     showCurrencyName: true,
                     onSelect: (currency) {
                       settings.setCurrency(currency.code);
@@ -329,6 +407,93 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
             ),
             _SettingsCategory(title: appLocalization.settingsAccountCategory), // ---------------------------------------------
+            ListTile(
+              leading: Icon(Icons.visibility),
+              title: Text(appLocalization.settingsAccountVisibility),
+              enabled: _accountVisibility != null,
+              trailing: DropdownButton<int>(
+                value: _accountVisibility ?? 0,
+                onChanged: (int? newValue) {
+                  if (newValue != null) {                    
+                    setState(() {
+                      _accountVisibility = newValue;
+                      _updateAccountSetting();
+                      switch (newValue) {
+                        case 0:
+                          _accountVisibilityHelperText = appLocalization.settingsAccountVisibilitPrivateHelper;
+                          break;
+                        case 1:
+                          _accountVisibilityHelperText = appLocalization.settingsAccountVisibilitRestrictedHelper;
+                          break;
+                        case 2:
+                          _accountVisibilityHelperText = appLocalization.settingsAccountVisibilitPublicHelper;
+                          break;
+                        default:
+                          _accountVisibilityHelperText = "";
+                      }
+                    });
+                  }
+                },
+                items: accountVisibilityOptions
+                    .map<DropdownMenuItem<int>>(
+                      (AccountVisibility visibility) => DropdownMenuItem<int>(
+                        value: visibility.value,
+                        child: Text(visibility.display),
+                      ),
+                    )
+                    .toList(),
+              ),
+            ),
+            if (_accountVisibilityHelperText.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: Text(
+                  _accountVisibilityHelperText,
+                ),
+              ),
+            ListTile(
+              leading: Icon(Icons.emoji_events),
+              title: Text(appLocalization.settingsAccountLeaderboard),
+              enabled: _accountLeaderboard != null,
+              trailing: Switch(
+                value: _accountLeaderboard ?? false, 
+                onChanged: (bool val) {
+                  setState(() {
+                    _accountLeaderboard = val;
+                    _updateAccountSetting();
+                  });
+                }
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.people),
+              title: Text(appLocalization.settingsAccountFriendSearch),
+              enabled: _accountFriendSearch != null,
+              trailing: Switch(
+                value: _accountFriendSearch ?? false, 
+                onChanged: (bool val) {
+                  setState(() {
+                    _accountFriendSearch = val;
+                    _updateAccountSetting();
+                  });
+                }
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.public),
+              title: Text(appLocalization.settingsAccountAppearGlobal),
+              subtitle: Text(appLocalization.settingsAccountAppearGlobalSubtitle),
+              enabled: _accountAppearGlobal != null,
+              trailing: Switch(
+                value: _accountAppearGlobal ?? false, 
+                onChanged: (bool val) {
+                  setState(() {
+                    _accountAppearGlobal = val;
+                    _updateAccountSetting();
+                  });
+                }
+              ),
+            ),
             _SettingsCategory(title: appLocalization.settingsDangerZoneCategory), // ---------------------------------------------
             ListTile(
               leading: const Icon(Icons.cloud_download),

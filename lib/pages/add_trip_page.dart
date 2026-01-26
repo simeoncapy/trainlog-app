@@ -306,7 +306,7 @@ class _AddTripPageState extends State<AddTripPage> {
           title: Text(loc.addTripPageTitle),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
-            onPressed: _isSubmitting ? null : _previousStepOrExit, // optional
+            onPressed: _isSubmitting ? null : _previousStepOrExit,
           ),
           actions: [
             IconButton(

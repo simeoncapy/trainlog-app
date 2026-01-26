@@ -59,6 +59,7 @@
   "visibilityPublic": "Public",
   "visibilityFriends": "Friends",
   "visibilityPrivate": "Private",
+  "visibilityRestricted": "Restricted",
   "helpTitle": "Help",
   "pageNotImplementedYet": "This page has not been implemented in the application yet. The website version will be displayed instead. The user interface may not be optimal.",
   "departureSingleCharacter": "D",
@@ -114,6 +115,14 @@
     }
   },
   "settingsHideWarningMessage": "Hide warning messages",
+  "settingsAccountLeaderboard": "Appear in the public leaderboard",
+  "settingsAccountFriendSearch": "Appear in friend search",
+  "settingsAccountAppearGlobal": "Appear on the global live map",
+  "settingsAccountAppearGlobalSubtitle": "(public transport only, personal trips are excluded)",
+  "settingsAccountVisibility": "Visibility to others",
+  "settingsAccountVisibilitPrivateHelper": "Your account remains entirely private. No one can view any details or content.",
+  "settingsAccountVisibilitRestrictedHelper": "Individual trips can be shared using trip-IDs, hiding personal data. But the public profile remains inaccessible.",
+  "settingsAccountVisibilitPublicHelper": "Your public profile can be accessed via your username.",
   
   "menuMapTitle": "Map",
   "menuTripsTitle": "Trips",

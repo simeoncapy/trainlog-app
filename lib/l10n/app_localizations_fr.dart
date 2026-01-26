@@ -162,6 +162,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get visibilityPrivate => 'Privé';
 
   @override
+  String get visibilityRestricted => 'Restreint';
+
+  @override
   String get helpTitle => 'Aide';
 
   @override
@@ -295,6 +298,37 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get settingsHideWarningMessage =>
       'Ne plus afficher les messages d\'avertissement';
+
+  @override
+  String get settingsAccountLeaderboard =>
+      'Apparaître dans le classement public';
+
+  @override
+  String get settingsAccountFriendSearch =>
+      'Apparaître dans la recherche d\'amis';
+
+  @override
+  String get settingsAccountAppearGlobal =>
+      'Apparaître sur la carte mondiale en direct';
+
+  @override
+  String get settingsAccountAppearGlobalSubtitle =>
+      '(transports publics uniquement, les trajets personnels sont exclus)';
+
+  @override
+  String get settingsAccountVisibility => 'Visibilité du compte';
+
+  @override
+  String get settingsAccountVisibilitPrivateHelper =>
+      'Votre compte reste entièrement privé. Personne ne peut voir aucun détail ou contenu.';
+
+  @override
+  String get settingsAccountVisibilitRestrictedHelper =>
+      'Les voyages sont visibles via leur identifiant, sans les données personnelles de l\'utilisateur. Le profil public reste inaccessible.';
+
+  @override
+  String get settingsAccountVisibilitPublicHelper =>
+      'Votre profil public est accessible via votre nom d\'utilisateur.';
 
   @override
   String get menuMapTitle => 'Carte';

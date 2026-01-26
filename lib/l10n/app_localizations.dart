@@ -400,6 +400,12 @@ abstract class AppLocalizations {
   /// **'Private'**
   String get visibilityPrivate;
 
+  /// No description provided for @visibilityRestricted.
+  ///
+  /// In en, this message translates to:
+  /// **'Restricted'**
+  String get visibilityRestricted;
+
   /// No description provided for @helpTitle.
   ///
   /// In en, this message translates to:
@@ -651,6 +657,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Hide warning messages'**
   String get settingsHideWarningMessage;
+
+  /// No description provided for @settingsAccountLeaderboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Appear in the public leaderboard'**
+  String get settingsAccountLeaderboard;
+
+  /// No description provided for @settingsAccountFriendSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Appear in friend search'**
+  String get settingsAccountFriendSearch;
+
+  /// No description provided for @settingsAccountAppearGlobal.
+  ///
+  /// In en, this message translates to:
+  /// **'Appear on the global live map'**
+  String get settingsAccountAppearGlobal;
+
+  /// No description provided for @settingsAccountAppearGlobalSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'(public transport only, personal trips are excluded)'**
+  String get settingsAccountAppearGlobalSubtitle;
+
+  /// No description provided for @settingsAccountVisibility.
+  ///
+  /// In en, this message translates to:
+  /// **'Visibility to others'**
+  String get settingsAccountVisibility;
+
+  /// No description provided for @settingsAccountVisibilitPrivateHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account remains entirely private. No one can view any details or content.'**
+  String get settingsAccountVisibilitPrivateHelper;
+
+  /// No description provided for @settingsAccountVisibilitRestrictedHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'Individual trips can be shared using trip-IDs, hiding personal data. But the public profile remains inaccessible.'**
+  String get settingsAccountVisibilitRestrictedHelper;
+
+  /// No description provided for @settingsAccountVisibilitPublicHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'Your public profile can be accessed via your username.'**
+  String get settingsAccountVisibilitPublicHelper;
 
   /// No description provided for @menuMapTitle.
   ///

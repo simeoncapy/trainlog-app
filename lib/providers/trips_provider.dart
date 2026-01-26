@@ -42,6 +42,7 @@ class TripsProvider extends ChangeNotifier {
     _settings = settings;
 
     final userChanged = username != null && username != _username;
+    debugPrint("Old username: $_username, New username: $username");
     _username = username;
 
     if (userChanged) {

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:trainlog_app/data/models/trip_form_model.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
+import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/utils/number_formatter.dart';
 import 'package:trainlog_app/widgets/titled_container.dart';
@@ -31,12 +32,24 @@ class _TripFormDetailsState extends State<TripFormDetails> {
     _currencyCode = model.currencyCode ?? settings.currency;
     model.currencyCode = _currencyCode;
     _selectedPurchaseDate = model.purchaseDate ?? DateTime.now();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      _loadCurrencies();
+    });
+  }
+
+  Future<void> _loadCurrencies() async {
+    final trainlog = Provider.of<TrainlogProvider>(context, listen: false);
+    if (trainlog.availableCurrencies.isEmpty) {
+      await trainlog.reloadAvailableCurrencies();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
     final model = context.watch<TripFormModel>();
+    final trainlog = Provider.of<TrainlogProvider>(context, listen: false);
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -133,6 +146,7 @@ class _TripFormDetailsState extends State<TripFormDetails> {
                           context: context,
                           showFlag: true,
                           showCurrencyName: true,
+                          currencyFilter: trainlog.availableCurrencies.isEmpty ? null : trainlog.availableCurrencies,
                           onSelect: (currency) {
                             setState(() => _currencyCode = currency.code);
                             model.currencyCode = _currencyCode;

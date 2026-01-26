@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
+import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:latlong2/latlong.dart';
@@ -26,6 +27,7 @@ class TrainlogLoginResult {
 
 class TrainlogService {
   static const String _baseUrl = 'https://trainlog.me';
+  //static const String _baseUrl = 'http://localhost:5000';
   static const String _loginPath = '/login';
   static const String _userAgent = 'TrainlogApp/1.0 (+Flutter)';
   static const String _logoPath = "$_baseUrl/static/";
@@ -575,6 +577,73 @@ class TrainlogService {
     return out;
   }
 
+  Future<Map<String, String>> fetchAccountSettings(String username) async {
+    final path = '/u/$username/settings_app';
+
+    try {
+      final res = await _safeGet<Map<String, dynamic>>(path);
+      final data = res.data;
+      if (data == null) return {};
+
+      final out = <String, String>{};
+      data.forEach((k, v) {
+        final key = k.toString().trim();
+        final val = v?.toString().trim();
+        if (key.isNotEmpty && val != null && val.isNotEmpty) {
+          out[key] = val;
+        }
+      });
+      return out;
+    } catch (_) {
+      return {};
+    }
+  }
+
+  Future<void> updateAccountSettings(String username, Map<String, dynamic> settings) async {
+    final path = '/u/$username/settings_app';
+
+    debugPrint("Updating account settings for $username: $settings");
+
+    final r = await safePost(
+      path,
+      data: settings,
+      contentType: Headers.jsonContentType,
+      headers: {'Accept': 'application/json'},
+      followRedirects: false,
+      validateStatus: (s) => s != null && s < 500,
+    );
+    debugPrint(r.statusMessage);
+  }
+
+  Future<List<String>> fetchAvailableCurrencies(String username) async {
+    final path = '/u/$username/settings_app';
+
+    try {
+      final res = await _safeGet<Map<String, dynamic>>(path);
+      final data = res.data;
+      if (data == null) return const [];
+
+      final raw = data['currencyOptions'];
+      if (raw is! List) return const [];
+
+      final out = <String>[];
+      final seen = <String>{};
+
+      for (final item in raw) {
+        if (item is Map) {
+          final currency = item['currency']?.toString().trim();
+          if (currency != null && currency.isNotEmpty && seen.add(currency)) {
+            out.add(currency);
+          }
+        }
+      }
+
+      return out;
+    } catch (_) {
+      return const [];
+    }
+  }
+
   Future<(String? name, String? address, VehicleType type, double distance)> findStationFromCoordinate(
     double lat,
     double long, {
@@ -588,7 +657,7 @@ class TrainlogService {
       distanceLimitMeters: distanceLimitMeters, 
       returnUniqueEvenIfOutOfRange: returnUniqueEvenIfOutOfRange
     );
-    
+
     if (results.isEmpty) {
       return (null, null, VehicleType.unknown, 0.0);
     }
@@ -602,7 +671,8 @@ class TrainlogService {
       int distanceLimitMeters = 500,
       bool returnUniqueEvenIfOutOfRange = true,
   }) async {
-    String path = "/reverse?lon=$long&lat=$lat&lang=en&limit=10"; // TODO check limit
+    final limit = distanceLimitMeters > 500 ? 20 : 10;
+    String path = "/reverse?lon=$long&lat=$lat&lang=en&limit=$limit";
     final argRails = "&osm_tag=railway:halt&osm_tag=railway:station";
     final argTram = "&osm_tag=railway:tram_stop";
     final argBus = "&osm_tag=amenity:bus_station&osm_tag=highway:bus_stop";

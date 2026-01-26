@@ -161,6 +161,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get visibilityPrivate => 'Private';
 
   @override
+  String get visibilityRestricted => 'Restricted';
+
+  @override
   String get helpTitle => 'Help';
 
   @override
@@ -293,6 +296,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsHideWarningMessage => 'Hide warning messages';
+
+  @override
+  String get settingsAccountLeaderboard => 'Appear in the public leaderboard';
+
+  @override
+  String get settingsAccountFriendSearch => 'Appear in friend search';
+
+  @override
+  String get settingsAccountAppearGlobal => 'Appear on the global live map';
+
+  @override
+  String get settingsAccountAppearGlobalSubtitle =>
+      '(public transport only, personal trips are excluded)';
+
+  @override
+  String get settingsAccountVisibility => 'Visibility to others';
+
+  @override
+  String get settingsAccountVisibilitPrivateHelper =>
+      'Your account remains entirely private. No one can view any details or content.';
+
+  @override
+  String get settingsAccountVisibilitRestrictedHelper =>
+      'Individual trips can be shared using trip-IDs, hiding personal data. But the public profile remains inaccessible.';
+
+  @override
+  String get settingsAccountVisibilitPublicHelper =>
+      'Your public profile can be accessed via your username.';
 
   @override
   String get menuMapTitle => 'Map';
