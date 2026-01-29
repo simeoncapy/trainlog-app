@@ -4,8 +4,8 @@ class PreRecordModel {
   final int id;
   final String? stationName;
   final String? address;
-  final double lat;
-  final double long;
+  final double? lat;
+  final double? long;
   final DateTime dateTime;
   final DateTime dateTimeUtc;
   final VehicleType type;
@@ -15,8 +15,8 @@ class PreRecordModel {
     required this.id,
     this.stationName,
     this.address,
-    required this.lat,
-    required this.long,
+    this.lat,
+    this.long,
     required this.dateTime,
     DateTime? dateTimeUtc,
     this.type = VehicleType.unknown,
@@ -24,6 +24,8 @@ class PreRecordModel {
   })  : dateTimeUtc = dateTimeUtc ?? dateTime.toUtc();
 
   PreRecordModel copyWith({
+    double? lat,
+    double? long,
     String? stationName,
     String? address,
     VehicleType? type,
@@ -33,8 +35,8 @@ class PreRecordModel {
       id: id,
       stationName: stationName ?? this.stationName,
       address: address ?? this.address,
-      lat: lat,
-      long: long,
+      lat: lat ?? this.lat,
+      long: long ?? this.long,
       dateTime: dateTime,
       dateTimeUtc: dateTimeUtc,
       type: type ?? this.type,

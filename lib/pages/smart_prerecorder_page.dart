@@ -509,6 +509,7 @@ class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
     AppLocalizations loc, 
     ThemeData theme,
   ) {
+    final hasCoordinates = record.lat != null && record.long != null;
     final hasStation = record.stationName != null &&
         record.stationName!.trim().isNotEmpty;
     final hasAddress = record.address != null &&
@@ -553,8 +554,13 @@ class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
             Text(
               formatDateTime(context, record.dateTime),
             ),
-            Text(
-              hasAddress ? record.address! : '${record.lat.toStringAsFixed(6)}, ${record.long.toStringAsFixed(6)}',
+            hasCoordinates 
+            ? Text(
+              hasAddress ? record.address! : '${record.lat!.toStringAsFixed(6)}, ${record.long!.toStringAsFixed(6)}',
+            )
+            : const ShimmerBox(
+              width: 180,
+              height: 18,
             ),
           ],
         ),
@@ -583,17 +589,13 @@ class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
     return FloatingActionButton.extended(
       onPressed: () async {
         try {
-          final position = await _getCurrentPosition(loc);
-
           final id = DateTime.now().millisecondsSinceEpoch;
 
           // Create record immediately
           final pendingRecord = PreRecordModel(
             id: id,
-            lat: position.latitude,
-            long: position.longitude,
             dateTime: DateTime.now(),
-            loaded: false, // tells that the station name and address have to be fetched
+            loaded: false, // tells that the coordinates, station name and address have to be fetched
           );
 
           setState(() {
@@ -602,6 +604,17 @@ class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
           });
 
           await _saveAll(); // save pending state
+
+          final position = await _getCurrentPosition(loc);
+          final index = _records.indexWhere((r) => r.id == id);
+
+          setState(() {
+            _records[index] = _records[index].copyWith(
+                lat: position.latitude,
+                long: position.longitude,
+              );
+            });
+            await _saveAll();
 
           // Resolve stations asynchronously
           final stations = await trainlog.findStationsFromCoordinate(
@@ -612,7 +625,6 @@ class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
 
           // Handle empty results (no station found)
           if (stations.isEmpty) {
-            final index = _records.indexWhere((r) => r.id == id);
             if (index == -1) return;
 
             // Remove the pending record
@@ -661,7 +673,6 @@ class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
           }
 
           // Update same record
-          final index = _records.indexWhere((r) => r.id == id);
           if (index == -1) return;
 
           setState(() {
