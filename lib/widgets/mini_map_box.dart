@@ -115,8 +115,15 @@ class _MiniMapBoxState extends State<MiniMapBox> {
         // NEW — the centered pin, only when movable
         if (widget.isCoordinateMovable)
           Center(
-            child: Icon(widget.marker, size: 40, color: widget.markerColor),
-          ),
+              child: Transform.translate(
+                offset: const Offset(0, -20), // half icon height
+                child: Icon(
+                  widget.marker,
+                  size: 40,
+                  color: widget.markerColor,
+                ),
+              ),
+            ),
 
         // Maximize button (unchanged)
         Positioned(
