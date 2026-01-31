@@ -68,7 +68,7 @@ class Trips {
       username: json['username']?.toString() ?? '',
       originStation: json['origin_station']?.toString() ?? '',
       destinationStation: json['destination_station']?.toString() ?? '',
-      startDatetime: DateTime.parse(json['start_datetime']),
+      startDatetime: _toDateTimeUnknownPastFuture(json['start_datetime']),
       endDatetime: DateTime.parse(json['end_datetime']),
       estimatedTripDuration: _toDouble(json['estimated_trip_duration']),
       manualTripDuration: _toDoubleOrNull(json['manual_trip_duration']),
@@ -143,6 +143,17 @@ class Trips {
       throw FormatException('Cannot parse empty value as double');
     }
     return double.parse(str);
+  }
+
+  static DateTime _toDateTimeUnknownPastFuture(String? value) {
+    final str = value?.trim();
+    if (str == null || str.isEmpty) {
+      throw FormatException('Cannot parse empty value as DateTime');
+    }
+    if(value == "-1") return DateTime(0, 1, 1, 0, 0, 0);
+    // When reaching year 275760 please update to future
+    if(value == "1") return DateTime(275760, 1, 1, 0, 0, 0); 
+    return DateTime.parse(str);
   }
 }
 
