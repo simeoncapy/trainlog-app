@@ -155,7 +155,6 @@ class TripsRepository {
     final args = <dynamic>[];
 
     // Time filter
-    //clauses.add('start_datetime ${showFutureTrips ? '>' : '<='} ?');
     clauses.add('utc_start_datetime ${showFutureTrips ? '>' : '<='} ?');
     args.add(now);
 

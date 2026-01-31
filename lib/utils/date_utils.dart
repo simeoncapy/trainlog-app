@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
+import 'package:const_date_time/const_date_time.dart';
+
+const unknownPast = ConstDateTime(0, 1, 1, 0, 0, 0);
+const unknownFuture = ConstDateTime(9999, 1, 1, 0, 0, 0); // When reaching year 9999 please update to more future
 
 enum DateType {
   precise, // preciseDates

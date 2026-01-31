@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/widgets/trip_visibility_selector.dart';
 
 class Trips {
@@ -62,20 +65,31 @@ class Trips {
     required this.visibility,
   });
 
+  List<String> get countryList {
+    try {
+      final map = jsonDecode(countries) as Map<String, dynamic>;
+      return map.keys.toList();
+    } catch (_) {
+      return const [];
+    }
+  }
+
   factory Trips.fromJson(Map<String, dynamic> json) {
+    final start = _toDateTimeUnknownPastFuture(json['start_datetime']);
+    final end = _toDateTimeUnknownPastFuture(json['end_datetime']);
     return Trips(
       uid: json['uid']?.toString() ?? '',
       username: json['username']?.toString() ?? '',
       originStation: json['origin_station']?.toString() ?? '',
       destinationStation: json['destination_station']?.toString() ?? '',
-      startDatetime: _toDateTimeUnknownPastFuture(json['start_datetime']),
-      endDatetime: DateTime.parse(json['end_datetime']),
+      startDatetime: start,
+      endDatetime: end,
       estimatedTripDuration: _toDouble(json['estimated_trip_duration']),
       manualTripDuration: _toDoubleOrNull(json['manual_trip_duration']),
       tripLength: _toDouble(json['trip_length']),
       operatorName: json['operator']?.toString() ?? '',
       countries: json['countries']?.toString() ?? '',
-      utcStartDatetime: _toDateTimeOrNull(json['utc_start_datetime']),
+      utcStartDatetime: _toDateTimeOrCopy(json['utc_start_datetime'], start),
       utcEndDatetime: _toDateTimeOrNull(json['utc_end_datetime']),
       lineName: json['line_name']?.toString() ?? '',
       created: DateTime.parse(json['created']),
@@ -137,6 +151,11 @@ class Trips {
     return DateTime.tryParse(value.toString());
   }
 
+  static DateTime? _toDateTimeOrCopy(dynamic value, DateTime? copy) {
+    if (value == null || value.toString().trim().isEmpty) return copy;
+    return DateTime.tryParse(value.toString());
+  }
+
   static double _toDouble(dynamic value) {
     final str = value?.toString().trim();
     if (str == null || str.isEmpty) {
@@ -150,9 +169,8 @@ class Trips {
     if (str == null || str.isEmpty) {
       throw FormatException('Cannot parse empty value as DateTime');
     }
-    if(value == "-1") return DateTime(0, 1, 1, 0, 0, 0);
-    // When reaching year 275760 please update to future
-    if(value == "1") return DateTime(275760, 1, 1, 0, 0, 0); 
+    if(value == "-1") return unknownPast;
+    if(value == "1") return unknownFuture;
     return DateTime.parse(str);
   }
 }
