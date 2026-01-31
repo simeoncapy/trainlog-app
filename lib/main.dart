@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:trainlog_app/pages/about_page.dart';
 import 'package:trainlog_app/pages/smart_prerecorder_page.dart';
 import 'package:trainlog_app/pages/welcome_page.dart';
+import 'package:trainlog_app/providers/polyline_provider.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
 import 'package:trainlog_app/services/trainlog_service.dart';
 import 'package:trainlog_app/utils/cached_data_utils.dart';
@@ -54,7 +55,6 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider.value(value: settings),
-        //ChangeNotifierProvider(create: (_) => TripsProvider()),
         ChangeNotifierProvider.value(value: auth),
         ChangeNotifierProxyProvider2<TrainlogProvider, SettingsProvider, TripsProvider>(
           create: (_) => TripsProvider(),
@@ -65,6 +65,14 @@ void main() async {
               username: auth.username,
             );
             return trips;
+          },
+        ),
+        ChangeNotifierProxyProvider2<TripsProvider, SettingsProvider, PolylineProvider>(
+          create: (_) => PolylineProvider(),
+          update: (_, trips, settings, poly) {
+            poly ??= PolylineProvider();
+            poly.updateDependencies(trips: trips, settings: settings);
+            return poly;
           },
         ),
       ],
