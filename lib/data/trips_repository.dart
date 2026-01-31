@@ -150,12 +150,13 @@ class TripsRepository {
     required bool showFutureTrips,
     TripsFilterResult? filter,
   }) {
-    final now = DateTime.now().toIso8601String();
+    final now = DateTime.now().toUtc().toIso8601String();
     final clauses = <String>[];
     final args = <dynamic>[];
 
     // Time filter
-    clauses.add('start_datetime ${showFutureTrips ? '>' : '<='} ?');
+    //clauses.add('start_datetime ${showFutureTrips ? '>' : '<='} ?');
+    clauses.add('utc_start_datetime ${showFutureTrips ? '>' : '<='} ?');
     args.add(now);
 
     // Keyword
@@ -231,8 +232,8 @@ class TripsRepository {
         'destination_station',
         'start_datetime',
         'end_datetime',
-        'utc_start_datetime',   // <-- added
-        'utc_end_datetime',     // <-- added
+        'utc_start_datetime', 
+        'utc_end_datetime',
         'created',              // Needed for sorting by creationDate
       ],
       where: 'path IS NOT NULL AND path != ""',

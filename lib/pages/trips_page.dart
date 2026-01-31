@@ -7,6 +7,7 @@ import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/data/trips_repository.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/pages/add_trip_page.dart';
+import 'package:trainlog_app/providers/polyline_provider.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
@@ -86,9 +87,9 @@ class _TripsPageState extends State<TripsPage> {
     return RefreshIndicator(
       key: _refreshKey,
       onRefresh: () async {
-        final settings = context.read<SettingsProvider>();        
+        //final settings = context.read<SettingsProvider>();        
         // Force reloading data from repository
-        settings.setShouldReloadPolylines(true);
+        //settings.setShouldReloadPolylines(true);
         await tripsProvider.loadTrips(locale: Localizations.localeOf(context), loadFromApi: true);
         
         if (!mounted) return;

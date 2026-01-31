@@ -30,7 +30,7 @@ class WelcomePage extends StatelessWidget {
     {
       print("DO THINGS HERE");
       // LOAD TRIPS
-      settings.setShouldReloadPolylines(true);
+      //settings.setShouldReloadPolylines(true);
       settings.setShouldLoadTripsFromApi(true);
     }
   }

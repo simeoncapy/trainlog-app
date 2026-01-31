@@ -33,6 +33,9 @@ class TripsProvider extends ChangeNotifier {
   Map<String, String> _mapCountryCodes = const {};
   Map<String, String> get mapCountryCodes => _mapCountryCodes;
 
+  int _revision = 0;
+  int get revision => _revision;
+
   void updateDeps({
     required TrainlogService service,
     required SettingsProvider settings,
@@ -98,6 +101,7 @@ class TripsProvider extends ChangeNotifier {
 
       await _refreshDerivedLists();
 
+      _revision++;
       final count = await _repository!.count();
       debugPrint("✅ Finished loading trips. $count rows");
     } catch (e, stack) {
@@ -124,7 +128,7 @@ class TripsProvider extends ChangeNotifier {
     _operators = const [];
     _countryCodes = const [];
     _mapCountryCodes = const {};
-
+    _revision++;
     _loading = setLoading;
     notifyListeners();
   }
