@@ -13,11 +13,8 @@ class TripTimeline extends StatelessWidget {
 
   @override
 Widget build(BuildContext context) {
-  final isDateOnly = trip.startDatetime == trip.endDatetime;
-  final isUnknownPastFuture = trip.startDatetime == unknownPast || trip.startDatetime == unknownFuture;
-
-  final departureTime = isUnknownPastFuture ? "" : formatDateTime(context, trip.startDatetime, hasTime: !isDateOnly).replaceAll(RegExp(r" "), "\n");
-  final arrivalTime = isUnknownPastFuture ? "" : formatDateTime(context, trip.endDatetime, hasTime: !isDateOnly).replaceAll(RegExp(r" "), "\n");
+  final departureTime = trip.isUnknownPastFuture ? "" : formatDateTime(context, trip.startDatetime, hasTime: !trip.isDateOnly).replaceAll(RegExp(r" "), "\n");
+  final arrivalTime = trip.isUnknownPastFuture ? "" : formatDateTime(context, trip.endDatetime, hasTime: !trip.isDateOnly).replaceAll(RegExp(r" "), "\n");
   final operatorName = Uri.decodeComponent(trip.operatorName);
   final lineName = Uri.decodeComponent(trip.lineName);
   final distance = "${(trip.tripLength / 1000).round()} km";

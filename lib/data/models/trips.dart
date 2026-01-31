@@ -65,6 +65,11 @@ class Trips {
     required this.visibility,
   });
 
+  bool get isDateOnly => startDatetime == endDatetime;
+  bool get isUnknownPastFuture {
+    return (startDatetime == unknownPast || startDatetime == unknownFuture) && utcEndDatetime == null;
+  }
+
   List<String> get countryList {
     try {
       final map = jsonDecode(countries) as Map<String, dynamic>;

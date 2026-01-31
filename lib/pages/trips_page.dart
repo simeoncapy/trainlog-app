@@ -399,8 +399,6 @@ class TripsDataSource extends DataTableSource {
     }
 
     final trip = _cache[index]!;
-    final isDateOnly = trip.startDatetime == trip.endDatetime;
-    final isUnknownPastFuture = trip.startDatetime == unknownPast || trip.startDatetime == unknownFuture;
     final cells = _visibleColumns.map((key) {
       switch (key) {
         case 'type':
@@ -427,13 +425,13 @@ class TripsDataSource extends DataTableSource {
           return DataCell(Text(trip.destinationStation));
         case 'startTime':
           return DataCell(
-            Text(isUnknownPastFuture
+            Text(trip.isUnknownPastFuture
               ? ""
-              : formatDateTime(context, trip.startDatetime, hasTime: !isDateOnly).replaceAll(RegExp(r" "), "\n"))
+              : formatDateTime(context, trip.startDatetime, hasTime: !trip.isDateOnly).replaceAll(RegExp(r" "), "\n"))
             );
         case 'endTime':
           return DataCell(
-            Text(isDateOnly 
+            Text(trip.isDateOnly 
               ? "" 
               : formatDateTime(context, trip.endDatetime).replaceAll(RegExp(r" "), "\n")
             )
