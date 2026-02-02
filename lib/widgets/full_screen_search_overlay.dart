@@ -16,6 +16,9 @@ class FullScreenSearchOverlay<T> extends StatelessWidget {
   /// OPTIONAL: Called whenever the user types in the search field.
   final ValueChanged<String>? onChanged;
 
+  /// OPTIONAL: Called when to user submits
+  final ValueChanged<String>? onSubmitted;
+
   /// OPTIONAL: Shows a spinner instead of the search icon.
   final bool isLoading;
 
@@ -29,8 +32,9 @@ class FullScreenSearchOverlay<T> extends StatelessWidget {
     required this.onClose,
     required this.hintText,
 
-    this.onChanged,          // NEW
-    this.isLoading = false,  // NEW
+    this.onChanged,
+    this.onSubmitted,
+    this.isLoading = false,
     this.dimBackground = true,
   });
 
@@ -92,8 +96,8 @@ class FullScreenSearchOverlay<T> extends StatelessWidget {
                           border: const OutlineInputBorder(),
                         ),
 
-                        // 🔍 For stations only (operators won’t use this)
                         onChanged: onChanged,
+                        onSubmitted: onSubmitted,
                       ),
                     ),
 

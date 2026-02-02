@@ -92,7 +92,7 @@ class OperatorSelectorState extends State<OperatorSelector> {
 
   void _onTextChanged(String value, BuildContext fieldContext) {
     bool committed = false;
-
+    debugPrint("OperatorSelector: text changed: '$value'");
     // Commit parts separated by commas
     if (value.contains(',')) {
       final parts = value.split(',');
@@ -119,6 +119,16 @@ class OperatorSelectorState extends State<OperatorSelector> {
       _updateSuggestions(fieldContext);
     } else {
       _updateSuggestionsOverlay();
+    }
+  }
+
+  void _onOverlayTextChanged(String value) {
+    // Commit parts separated by commas
+    if (value.contains(',')) {
+      final parts = value.split(',');
+
+      _addOperator(parts.first.trim());
+      _closeOverlayAndReset();
     }
   }
 
@@ -248,6 +258,8 @@ class OperatorSelectorState extends State<OperatorSelector> {
         focusNode: _overlayFocusNode,
         items: _suggestions,
         hintText: loc.addTripOperatorHint,
+        onChanged: _onOverlayTextChanged,
+        onSubmitted: _onSubmitted,
         onSelected: (op) {
           _addOperator(op);
           _closeOverlayAndReset();
