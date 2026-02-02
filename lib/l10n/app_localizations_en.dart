@@ -954,4 +954,20 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get prerecorderErrorLessThanTwoSelected =>
+      'Please select two geologs to create a trip';
+
+  @override
+  String get prerecorderErrorMoreThanTwoSelected =>
+      'Please select only two geologs to create a trip';
+
+  @override
+  String get prerecorderErrorDepartureAfterArrival =>
+      'The departure cannot be after the arrival';
+
+  @override
+  String get prerecorderErrorTypeSameForDepartureArrival =>
+      'The departure and arrival must be of the same vehicle type, or unknown type';
 }

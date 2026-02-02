@@ -16,6 +16,7 @@ import 'package:trainlog_app/utils/number_formatter.dart';
 import 'package:trainlog_app/utils/style_utils.dart';
 import 'package:trainlog_app/utils/cached_data_utils.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:trainlog_app/widgets/error_banner.dart';
 import 'package:trainlog_app/widgets/shimmer_box.dart';
 
 class SmartPrerecorderPage extends StatefulWidget {
@@ -421,12 +422,43 @@ class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
   }
 
   Column _buttonBar(List<int> selectedIds, AppLocalizations loc, ThemeData theme) {
+    final errors = <String>[];
+    bool noSelection = false;
+
+    if (selectedIds.isEmpty) {
+      noSelection = true; // No error message for no selection, but still not valid
+    }
+    else if (selectedIds.length < 2) {
+      errors.add(loc.prerecorderErrorLessThanTwoSelected);
+    } 
+    else if (selectedIds.length > 2) {
+      errors.add(loc.prerecorderErrorMoreThanTwoSelected);
+    } else {
+      final a = _records.firstWhere((r) => r.id == selectedIds[0]);
+      final b = _records.firstWhere((r) => r.id == selectedIds[1]);
+
+      // Rule 1: departure must be before arrival
+      if (a.dateTimeUtc.isAfter(b.dateTimeUtc)) {
+        errors.add(loc.prerecorderErrorDepartureAfterArrival);
+      }
+
+      // Rule 2: types must be consistent (ignore unknown)
+      final bothKnown = a.type != VehicleType.unknown && b.type != VehicleType.unknown;
+      if (bothKnown && a.type != b.type) {
+        errors.add(loc.prerecorderErrorTypeSameForDepartureArrival);
+      }
+    }
+
+    final isValidSelection = errors.isEmpty && !noSelection;
+    final String? errorMessage = errors.isEmpty ? null : errors.join('\n');
+    final isWarning = (errorMessage == loc.prerecorderErrorLessThanTwoSelected);
+
     return Column(
       children: [
         SizedBox(
           width: double.infinity,
           child: ElevatedButton.icon(
-            onPressed: selectedIds.length != 2 ? null : () {
+            onPressed: !isValidSelection ? null : () {
               Navigator.of(context).push(PageRouteBuilder(
                 pageBuilder: (_, __, ___) => ChangeNotifierProvider(
                   create: (_) => _createTripFormModel(),
@@ -452,6 +484,14 @@ class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
           ),
         ),
         SizedBox(height: 8,),
+        if(errorMessage != null) ...[
+          ErrorBanner(
+            message: errorMessage,
+            compact: true,
+            severity: isWarning ? ErrorSeverity.warning : ErrorSeverity.error,
+          ),
+          SizedBox(height: 8,),
+        ],
         Row(
           children: [
             IntrinsicWidth(

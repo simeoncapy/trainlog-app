@@ -278,5 +278,9 @@
   "prerecorderSelectClosest": "最も近い駅を選択する",
   "prerecorderNoStationReachable": "近くに駅がありません",
   "prerecorderAway": "{distance}メートル離れたところ",
-  "prerecorderStationsFound": "{count, plural, =0{駅が見つかりません} =1{1つの駅が見つかりました} other{{count}の駅が見つかりました}}"
+  "prerecorderStationsFound": "{count, plural, =0{駅が見つかりません} =1{1つの駅が見つかりました} other{{count}の駅が見つかりました}}",
+  "prerecorderErrorLessThanTwoSelected": "旅行を作成するには、2つのジオログを選択してください",
+  "prerecorderErrorMoreThanTwoSelected": "旅行を作成するには、2つのジオログのみを選択してください",
+  "prerecorderErrorDepartureAfterArrival": "出発は到着の後にできません",
+  "prerecorderErrorTypeSameForDepartureArrival": "出発と到着は同じ乗り物のタイプ、または不明なタイプである必要があります"
 }

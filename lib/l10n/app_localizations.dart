@@ -1689,6 +1689,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =0 {No stations found} =1 {# station found} other {# stations found}}'**
   String prerecorderStationsFound(num count);
+
+  /// No description provided for @prerecorderErrorLessThanTwoSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select two geologs to create a trip'**
+  String get prerecorderErrorLessThanTwoSelected;
+
+  /// No description provided for @prerecorderErrorMoreThanTwoSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select only two geologs to create a trip'**
+  String get prerecorderErrorMoreThanTwoSelected;
+
+  /// No description provided for @prerecorderErrorDepartureAfterArrival.
+  ///
+  /// In en, this message translates to:
+  /// **'The departure cannot be after the arrival'**
+  String get prerecorderErrorDepartureAfterArrival;
+
+  /// No description provided for @prerecorderErrorTypeSameForDepartureArrival.
+  ///
+  /// In en, this message translates to:
+  /// **'The departure and arrival must be of the same vehicle type, or unknown type'**
+  String get prerecorderErrorTypeSameForDepartureArrival;
 }
 
 class _AppLocalizationsDelegate

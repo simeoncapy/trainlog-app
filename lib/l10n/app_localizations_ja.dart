@@ -946,4 +946,19 @@ class AppLocalizationsJa extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get prerecorderErrorLessThanTwoSelected =>
+      '旅行を作成するには、2つのジオログを選択してください';
+
+  @override
+  String get prerecorderErrorMoreThanTwoSelected =>
+      '旅行を作成するには、2つのジオログのみを選択してください';
+
+  @override
+  String get prerecorderErrorDepartureAfterArrival => '出発は到着の後にできません';
+
+  @override
+  String get prerecorderErrorTypeSameForDepartureArrival =>
+      '出発と到着は同じ乗り物のタイプ、または不明なタイプである必要があります';
 }

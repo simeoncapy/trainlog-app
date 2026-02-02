@@ -415,5 +415,9 @@
     "placeholders": {
       "count": {}
     }
-  }
+  },
+  "prerecorderErrorLessThanTwoSelected": "Please select two geologs to create a trip",
+  "prerecorderErrorMoreThanTwoSelected": "Please select only two geologs to create a trip",
+  "prerecorderErrorDepartureAfterArrival": "The departure cannot be after the arrival",
+  "prerecorderErrorTypeSameForDepartureArrival": "The departure and arrival must be of the same vehicle type, or unknown type"
 }

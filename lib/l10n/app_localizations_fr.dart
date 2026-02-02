@@ -961,4 +961,20 @@ class AppLocalizationsFr extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get prerecorderErrorLessThanTwoSelected =>
+      'Veuillez sélectionner deux géomémo pour créer un trajet';
+
+  @override
+  String get prerecorderErrorMoreThanTwoSelected =>
+      'Veuillez sélectionner seulement deux géomémo pour créer un trajet';
+
+  @override
+  String get prerecorderErrorDepartureAfterArrival =>
+      'Le départ ne peut pas être après l\'arrivée';
+
+  @override
+  String get prerecorderErrorTypeSameForDepartureArrival =>
+      'Le départ et l\'arrivée doivent être du même type de véhicule, ou de type inconnu';
 }

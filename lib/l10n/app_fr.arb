@@ -277,5 +277,9 @@
   "prerecorderSelectClosest": "Sélectionner la plus proche",
   "prerecorderNoStationReachable": "Aucune gare à proximité",
   "prerecorderAway": "à {distance} m",
-  "prerecorderStationsFound": "{count, plural, =0{Aucune gare trouvée} =1{1 gare trouvée} other{{count} gares trouvées}}"
+  "prerecorderStationsFound": "{count, plural, =0{Aucune gare trouvée} =1{1 gare trouvée} other{{count} gares trouvées}}",
+  "prerecorderErrorLessThanTwoSelected": "Veuillez sélectionner deux géomémo pour créer un trajet",
+  "prerecorderErrorMoreThanTwoSelected": "Veuillez sélectionner seulement deux géomémo pour créer un trajet",
+  "prerecorderErrorDepartureAfterArrival": "Le départ ne peut pas être après l'arrivée",
+  "prerecorderErrorTypeSameForDepartureArrival": "Le départ et l'arrivée doivent être du même type de véhicule, ou de type inconnu"
 }
