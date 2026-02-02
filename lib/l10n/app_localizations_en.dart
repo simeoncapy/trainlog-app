@@ -471,6 +471,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tripsDetailsDeleteButton => 'Delete';
 
   @override
+  String get tripsDetailsDeleteDialogTitle => 'Delete this trip?';
+
+  @override
+  String get tripsDetailsDeleteDialogMessage =>
+      'Are you sure you want to delete this trip?';
+
+  @override
+  String get tripsDetailsDeleteDialogConfirmButton => 'Delete';
+
+  @override
+  String get tripsDetailsDeleteFailed => 'Failed to delete trip';
+
+  @override
+  String get tripsDetailsDeleteSuccess => 'Trip deleted successfully';
+
+  @override
   String get tripsFilterAllCountry => 'All';
 
   @override

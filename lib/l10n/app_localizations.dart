@@ -988,6 +988,36 @@ abstract class AppLocalizations {
   /// **'Delete'**
   String get tripsDetailsDeleteButton;
 
+  /// No description provided for @tripsDetailsDeleteDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this trip?'**
+  String get tripsDetailsDeleteDialogTitle;
+
+  /// No description provided for @tripsDetailsDeleteDialogMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this trip?'**
+  String get tripsDetailsDeleteDialogMessage;
+
+  /// No description provided for @tripsDetailsDeleteDialogConfirmButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get tripsDetailsDeleteDialogConfirmButton;
+
+  /// No description provided for @tripsDetailsDeleteFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to delete trip'**
+  String get tripsDetailsDeleteFailed;
+
+  /// No description provided for @tripsDetailsDeleteSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip deleted successfully'**
+  String get tripsDetailsDeleteSuccess;
+
   /// No description provided for @tripsFilterAllCountry.
   ///
   /// In en, this message translates to:

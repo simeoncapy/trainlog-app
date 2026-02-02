@@ -497,4 +497,14 @@ class TrainlogProvider extends ChangeNotifier {
     if (_username == null) return [];
     return await _service.fetchAvailableCurrencies(_username!);
   }
+
+  Future<bool> deleteTrip(int tripId) async {
+    if (_username == null) return false;
+    return _service.deleteTrip(_username!, tripId);
+  }
+
+  Future<bool> deleteTrips(List<int> tripIds) async {
+    if (_username == null) return false;
+    return _service.deleteTrips(_username!, tripIds);
+  }
 }

@@ -725,6 +725,14 @@ class TripsRepository {
     await _db.delete(TripsTable.tableName);
   }
 
+  Future<void> deleteTripById(String uid) async {
+    await _db.delete(
+      TripsTable.tableName,
+      where: 'uid = ?',
+      whereArgs: [uid],
+    );
+  }
+
   static Future<List<Trips>> parseCsv(String csvContent) async {
     debugPrint('🧪 Inside isolate: parsing CSV...');
     final rows = const CsvToListConverter(eol: '\n', shouldParseNumbers: false).convert(csvContent);

@@ -477,6 +477,22 @@ class AppLocalizationsFr extends AppLocalizations {
   String get tripsDetailsDeleteButton => 'Supprimer';
 
   @override
+  String get tripsDetailsDeleteDialogTitle => 'Supprimer ce trajet ?';
+
+  @override
+  String get tripsDetailsDeleteDialogMessage =>
+      'Êtes-vous sûr de vouloir supprimer ce trajet ?';
+
+  @override
+  String get tripsDetailsDeleteDialogConfirmButton => 'Supprimer';
+
+  @override
+  String get tripsDetailsDeleteFailed => 'Échec de la suppression du trajet';
+
+  @override
+  String get tripsDetailsDeleteSuccess => 'Trajet supprimé avec succès';
+
+  @override
   String get tripsFilterAllCountry => 'Tous';
 
   @override

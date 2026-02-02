@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:cookie_jar/cookie_jar.dart';
@@ -613,6 +614,43 @@ class TrainlogService {
       validateStatus: (s) => s != null && s < 500,
     );
     debugPrint(r.statusMessage);
+  }
+
+  Future<bool> deleteTrip(String username, int tripId) =>
+    deleteTrips(username, [tripId]);
+
+  Future<bool> deleteTrips(String username, List<int> tripIds) async {
+    if (tripIds.isEmpty) return false;
+    final path = '/u/$username/deleteTrip';
+
+    debugPrint("Deleting trip(s) $tripIds for user $username");
+
+    // Python expects: request.form["tripId"] to be a JSON string
+    // e.g. "123" or "[1,2,3]"
+    final tripIdJson = tripIds.length == 1
+        ? jsonEncode(tripIds.first)
+        : jsonEncode(tripIds);
+
+    final r = await safePost(
+      path,
+      data: {
+        "tripId": tripIdJson,
+      },
+      // Important: send as form, not JSON
+      contentType: Headers.formUrlEncodedContentType,
+      headers: {'Accept': 'application/json'},
+      followRedirects: false,
+      validateStatus: (s) => s != null && s < 500,
+    );
+
+    final code = r.statusCode ?? 0;
+    final ok = code >= 200 && code < 300;
+
+    if (!ok) {
+      debugPrint('deleteTrips failed: $code ${r.statusMessage}');
+    }
+
+    return ok;
   }
 
   Future<List<String>> fetchAvailableCurrencies(String username) async {

@@ -186,6 +186,11 @@
   "tripsDetailsTitleNotes": "Notes: ",
   "tripsDetailsEditButton": "Edit",
   "tripsDetailsDeleteButton": "Delete",
+  "tripsDetailsDeleteDialogTitle": "Delete this trip?",
+  "tripsDetailsDeleteDialogMessage": "Are you sure you want to delete this trip?",
+  "tripsDetailsDeleteDialogConfirmButton": "Delete",
+  "tripsDetailsDeleteFailed": "Failed to delete trip",
+  "tripsDetailsDeleteSuccess": "Trip deleted successfully",
 
   "tripsFilterAllCountry": "All",
   "tripsFilterAllOperator": "All",

@@ -152,6 +152,11 @@
   "tripsDetailsTitleNotes": "メモ: ",
   "tripsDetailsEditButton": "編集",
   "tripsDetailsDeleteButton": "消す",
+  "tripsDetailsDeleteDialogTitle": "この旅行を削除しますか？",
+  "tripsDetailsDeleteDialogMessage": "この旅行を削除してもよろしいですか？",
+  "tripsDetailsDeleteDialogConfirmButton": "削除",
+  "tripsDetailsDeleteFailed": "旅行の削除に失敗しました",
+  "tripsDetailsDeleteSuccess": "旅行が正常に削除されました",
 
   "tripsFilterAllCountry": "全て",
   "tripsFilterAllOperator": "全て",

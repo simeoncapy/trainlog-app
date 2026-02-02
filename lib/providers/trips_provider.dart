@@ -152,6 +152,21 @@ class TripsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> deleteTrip(int tripId) async {
+    if(_repository == null) return;
+    await _repository!.deleteTripById(tripId.toString());
+
+    _vehicleTypes = await _repository!.fetchListOfTypes();
+    final yrs = await _repository!.fetchListOfYears();
+    yrs.sort((a, b) => b.compareTo(a)); // descending
+    _years = yrs;
+    _operators = await _repository!.fetchListOfOperators();
+    _countryCodes = await _repository!.fetchListOfCountryCode();
+    _revision++;
+    _loading = false;
+    notifyListeners();
+  }
+
   /// Refresh everything (safe to call anytime).
   Future<void> refreshAll(Locale? locale) async {
     if (locale != null) _locale = locale;

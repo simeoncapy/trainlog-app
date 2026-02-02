@@ -152,6 +152,11 @@
   "tripsDetailsTitleNotes": "Notes : ",
   "tripsDetailsEditButton": "Modifier",
   "tripsDetailsDeleteButton": "Supprimer",
+  "tripsDetailsDeleteDialogTitle": "Supprimer ce trajet ?",
+  "tripsDetailsDeleteDialogMessage": "Êtes-vous sûr de vouloir supprimer ce trajet ?",
+  "tripsDetailsDeleteDialogConfirmButton": "Supprimer",
+  "tripsDetailsDeleteFailed": "Échec de la suppression du trajet",
+  "tripsDetailsDeleteSuccess": "Trajet supprimé avec succès",
 
   "tripsFilterAllCountry": "Tous",
   "tripsFilterAllOperator": "Tous",

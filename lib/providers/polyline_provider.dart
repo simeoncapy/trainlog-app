@@ -234,6 +234,11 @@ class PolylineProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void removePolylineByTripId(int tripId) {
+    _polylines.removeWhere((e) => e.tripId == tripId);
+    notifyListeners();
+  }
+
   // --- Styling / temporal -----------------------------------------------------
 
   bool _isFutureUtc(DateTime? utcStart) =>

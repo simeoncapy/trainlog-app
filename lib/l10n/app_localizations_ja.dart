@@ -468,6 +468,21 @@ class AppLocalizationsJa extends AppLocalizations {
   String get tripsDetailsDeleteButton => '消す';
 
   @override
+  String get tripsDetailsDeleteDialogTitle => 'この旅行を削除しますか？';
+
+  @override
+  String get tripsDetailsDeleteDialogMessage => 'この旅行を削除してもよろしいですか？';
+
+  @override
+  String get tripsDetailsDeleteDialogConfirmButton => '削除';
+
+  @override
+  String get tripsDetailsDeleteFailed => '旅行の削除に失敗しました';
+
+  @override
+  String get tripsDetailsDeleteSuccess => '旅行が正常に削除されました';
+
+  @override
   String get tripsFilterAllCountry => '全て';
 
   @override
