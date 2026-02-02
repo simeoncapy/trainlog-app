@@ -365,22 +365,27 @@ class OperatorSelectorState extends State<OperatorSelector> {
       // Text badge as "logo" for unknown operator
       content = Tooltip(
         message: op,
-        child: Container(
-          width: 160,
-          height: 48,
-          decoration: BoxDecoration(
-            color: theme.colorScheme.primaryContainer,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          alignment: Alignment.center,
-          padding: const EdgeInsets.symmetric(horizontal: 6),
-          child: Text(
-            op,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              color: theme.colorScheme.onPrimaryContainer,
-              fontWeight: FontWeight.bold,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 160),
+          child: IntrinsicWidth(
+            child: Container(
+              height: 48,
+              decoration: BoxDecoration(
+                color: theme.colorScheme.primaryContainer,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              alignment: Alignment.center,
+              padding: const EdgeInsets.symmetric(horizontal: 6),
+              child: Text(
+                op,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: theme.colorScheme.onPrimaryContainer,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
           ),
         ),
