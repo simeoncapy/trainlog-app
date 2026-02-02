@@ -65,7 +65,20 @@ class Trips {
     required this.visibility,
   });
 
-  bool get isDateOnly => startDatetime == endDatetime;
+  VehicleType get vehicleType => type;
+  DateTime get startDate => startDatetime;
+  DateTime get endDate => endDatetime;
+  DateTime? get utcStartDate => utcStartDatetime;
+  DateTime? get utcEndDate => utcEndDatetime;
+  DateTime get creationDate => created;
+
+
+
+
+  //       hasTimeRange: trip.hasTimeRange,
+
+
+  bool get isDateOnly => (startDatetime == endDatetime) && utcEndDatetime == null;
   bool get isUnknownPastFuture {
     return (startDatetime == unknownPast || startDatetime == unknownFuture) && utcEndDatetime == null;
   }

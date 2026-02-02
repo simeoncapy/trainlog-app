@@ -242,6 +242,9 @@
   "addTagPageTitle": "新しいタグ",
   "addTripPathRoutingErrorBannerMessage": "ルーティングエラーが検出されました。旅行の経路を確認し、必要に応じてピンポイントを調整してください。",
   "addTripRecordingMsg": "旅行が記録されています。お待ちください",
+  "addTripFinishMsg": "旅行が正常に追加されました",
+  "addTripFinishErrorMsg": "旅行の追加中にエラーが発生しました。もう一度お試しください（エラー：{errorCode}）。",
+  "addTripFinishFeedbackWarning": "旅行は追加されましたが、サーバーからのフィードバックが不完全です。旅行をリフレッシュして、詳細を確認してください。",
 
   "aboutPageAboutSubPageTitle": "Trainlog",
   "aboutPageHowToSubPageTitle": "使い方",

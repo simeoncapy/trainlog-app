@@ -1492,6 +1492,24 @@ abstract class AppLocalizations {
   /// **'Your trip is being recorded, please wait'**
   String get addTripRecordingMsg;
 
+  /// No description provided for @addTripFinishMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'Your trip has been added successfully'**
+  String get addTripFinishMsg;
+
+  /// Error message displayed when adding a trip fails
+  ///
+  /// In en, this message translates to:
+  /// **'An error occurred while adding your trip, please try again (error: {errorCode}).'**
+  String addTripFinishErrorMsg(String errorCode);
+
+  /// No description provided for @addTripFinishFeedbackWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'The trip has been added but the feedback from the server is incomplete. Please refresh and verify the trip details.'**
+  String get addTripFinishFeedbackWarning;
+
   /// No description provided for @aboutPageAboutSubPageTitle.
   ///
   /// In en, this message translates to:

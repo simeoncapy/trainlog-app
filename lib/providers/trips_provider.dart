@@ -35,6 +35,8 @@ class TripsProvider extends ChangeNotifier {
 
   int _revision = 0;
   int get revision => _revision;
+  int _polylineRevision = 0;
+  int get polylineRevision => _polylineRevision;
 
   void updateDeps({
     required TrainlogService service,
@@ -102,6 +104,7 @@ class TripsProvider extends ChangeNotifier {
       await _refreshDerivedLists();
 
       _revision++;
+      _polylineRevision++;
       final count = await _repository!.count();
       debugPrint("✅ Finished loading trips. $count rows");
     } catch (e, stack) {
@@ -119,6 +122,21 @@ class TripsProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> insertTrip(Trips trip, {bool setLoading = false}) async {
+    if(_repository == null) return;
+    await _repository!.insertTrip(trip);
+
+    _vehicleTypes = await _repository!.fetchListOfTypes();
+    final yrs = await _repository!.fetchListOfYears();
+    yrs.sort((a, b) => b.compareTo(a)); // descending
+    _years = yrs;
+    _operators = await _repository!.fetchListOfOperators();
+    _countryCodes = await _repository!.fetchListOfCountryCode();
+    _revision++;
+    _loading = setLoading;
+    notifyListeners();
+  }
+
   Future<void> clearAll({bool setLoading = false}) async {
     if(_repository == null) return;
     await _repository!.clearAllTrips();
@@ -129,6 +147,7 @@ class TripsProvider extends ChangeNotifier {
     _countryCodes = const [];
     _mapCountryCodes = const {};
     _revision++;
+    _polylineRevision++;
     _loading = setLoading;
     notifyListeners();
   }

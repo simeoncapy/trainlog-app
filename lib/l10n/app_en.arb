@@ -352,6 +352,18 @@
   "addTagPageTitle": "New Tag",
   "addTripPathRoutingErrorBannerMessage": "Routing error detected. Please check the trip path and adjust the peg points if necessary.",
   "addTripRecordingMsg": "Your trip is being recorded, please wait",
+  "addTripFinishMsg": "Your trip has been added successfully",
+  "addTripFinishErrorMsg": "An error occurred while adding your trip, please try again (error: {errorCode}).",
+  "@addTripFinishErrorMsg": {
+    "description": "Error message displayed when adding a trip fails",
+    "placeholders": {
+      "errorCode": {
+        "type": "String",
+        "description": "The error code returned when the trip addition fails"
+      }
+    }
+  },
+  "addTripFinishFeedbackWarning": "The trip has been added but the feedback from the server is incomplete. Please refresh and verify the trip details.",
   
   "aboutPageAboutSubPageTitle": "Trainlog",
   "aboutPageHowToSubPageTitle": "How To",

@@ -830,6 +830,18 @@ class AppLocalizationsJa extends AppLocalizations {
   String get addTripRecordingMsg => '旅行が記録されています。お待ちください';
 
   @override
+  String get addTripFinishMsg => '旅行が正常に追加されました';
+
+  @override
+  String addTripFinishErrorMsg(String errorCode) {
+    return '旅行の追加中にエラーが発生しました。もう一度お試しください（エラー：$errorCode）。';
+  }
+
+  @override
+  String get addTripFinishFeedbackWarning =>
+      '旅行は追加されましたが、サーバーからのフィードバックが不完全です。旅行をリフレッシュして、詳細を確認してください。';
+
+  @override
   String get aboutPageAboutSubPageTitle => 'Trainlog';
 
   @override

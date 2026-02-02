@@ -13,6 +13,8 @@ import 'package:trainlog_app/providers/trips_provider.dart';
 import 'package:trainlog_app/utils/cached_data_utils.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
 
+import 'package:latlong2/latlong.dart';
+
 class PolylineProvider extends ChangeNotifier {
   TripsProvider? _trips;
   SettingsProvider? _settings;
@@ -24,7 +26,7 @@ class PolylineProvider extends ChangeNotifier {
   Timer? _futureFlipTimer;
   int _loadToken = 0;
 
-  int _lastTripsRevision = -1;
+  int _lastTripsPolylineRevision = -1;
 
   static const Color _ongoingColor = Colors.red;
 
@@ -80,18 +82,19 @@ class PolylineProvider extends ChangeNotifier {
     if (trips == null) return;
 
     if (trips.isLoading || trips.repository == null) return;
+    final pr = trips.polylineRevision;
 
     // First load: allow cache
     if (_polylines.isEmpty) {
-      final ignoreCache = (_lastTripsRevision != -1 && trips.revision != _lastTripsRevision);
+      final ignoreCache = (_lastTripsPolylineRevision != -1 && pr != _lastTripsPolylineRevision);
       unawaited(reload(ignoreCache: ignoreCache));
-      _lastTripsRevision = trips.revision;
+      _lastTripsPolylineRevision = pr;
       return;
     }
 
     // Subsequent: reload only if trips changed
-    if (trips.revision != _lastTripsRevision) {
-      _lastTripsRevision = trips.revision;
+    if (pr != _lastTripsPolylineRevision) {
+      _lastTripsPolylineRevision = pr;
       unawaited(reload(ignoreCache: true));
     }
   }
@@ -145,7 +148,7 @@ class PolylineProvider extends ChangeNotifier {
       // isolate-friendly colors map: typeName -> ARGB int
       final colors = <String, int>{};
       for (final t in VehicleType.values) {
-        colors[t.name] = (palette[t] ?? Colors.black).value;
+        colors[t.name] = (palette[t] ?? Colors.black).toARGB32();
       }
 
       // isolate-friendly entries: convert VehicleType -> String name
@@ -161,7 +164,7 @@ class PolylineProvider extends ChangeNotifier {
       }).toList();
 
       final decoded = await compute(
-        decodePolylinesBatchIsolateFriendly,
+        PolylineTools.decodePolylinesBatchIsolateFriendly,
         {'entries': entries, 'colors': colors},
       );
 
@@ -188,6 +191,48 @@ class PolylineProvider extends ChangeNotifier {
 
   /// Convenient API: call this after you add/remove trips in DB.
   Future<void> refreshFromDb() => reload(ignoreCache: true);
+
+  void upsertPolyline(PolylineEntry entry) {
+    final i = _polylines.indexWhere((e) => e.tripId == entry.tripId);
+    if (i >= 0) {
+      _polylines[i] = entry;
+    } else {
+      _polylines.add(entry);
+    }
+    notifyListeners();
+  }
+
+  void upsertPolylineFromTrip(Trips trip, List<LatLng>? path) {
+    final settings = _settings;
+    if (settings == null) return;
+    final palette = MapColorPaletteHelper.getPalette(settings.mapColorPalette);    
+
+    final polyline = PolylineTools.createPolyline(
+      path ?? PolylineTools.decodePath(trip.path),
+      palette[trip.vehicleType] ?? Colors.black,
+    );
+
+    final entry = PolylineEntry(
+      polyline: polyline,
+      type: trip.vehicleType,
+      startDate: trip.startDate,
+      creationDate: trip.creationDate,
+      utcStartDate: trip.utcStartDate,
+      utcEndDate: trip.utcEndDate,
+      hasTimeRange: PolylineTools.hasClockPart(trip.startDate.toIso8601String()) && PolylineTools.hasClockPart(trip.endDate.toIso8601String()),
+      isFuture: trip.utcStartDate != null && trip.utcStartDate!.isAfter(DateTime.now().toUtc()),
+      tripId: int.parse(trip.uid),
+    );
+
+    final i = _polylines.indexWhere((e) => e.tripId == int.parse(trip.uid));
+    if (i >= 0) {
+      // Update existing
+      _polylines[i] = entry;
+    } else {
+      _polylines.add(entry);
+    }
+    notifyListeners();
+  }
 
   // --- Styling / temporal -----------------------------------------------------
 

@@ -171,7 +171,7 @@ class _TripFormPathState extends State<TripFormPath> {
                 Positioned.fill(
                   child: TrainlogWebPage(
                     trainlogPage: 'routing',
-                    query: {'type': model.vehicleType?.toShortString() ?? "train"},
+                    query: {'type': model.vehicleType?.toShortString() ?? "train", "fromApp": "true"},
                     initialPostForm: {'trip_data': tripData},
                     controller: widget.routingController,
                     routerToggleValue: _isNewRouter,

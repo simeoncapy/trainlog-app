@@ -842,6 +842,18 @@ class AppLocalizationsFr extends AppLocalizations {
       'Votre trajet est en cours d\'enregistrement, veuillez patienter';
 
   @override
+  String get addTripFinishMsg => 'Votre trajet a été ajouté avec succès';
+
+  @override
+  String addTripFinishErrorMsg(String errorCode) {
+    return 'Une erreur est survenue lors de l\'ajout de votre trajet, veuillez réessayer (erreur : $errorCode).';
+  }
+
+  @override
+  String get addTripFinishFeedbackWarning =>
+      'Le trajet a été ajouté mais les retours du serveur sont incomplets. Veuillez actualiser et vérifier les détails du trajet.';
+
+  @override
   String get aboutPageAboutSubPageTitle => 'Trainlog';
 
   @override

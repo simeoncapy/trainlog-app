@@ -1,14 +1,20 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:step_progress/step_progress.dart';
 import 'package:trainlog_app/data/controllers/trainlog_web_controller.dart';
+import 'package:trainlog_app/data/models/polyline_entry.dart';
 import 'package:trainlog_app/data/models/trip_form_model.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/pages/trip_form_basics.dart';
 import 'package:trainlog_app/pages/trip_form_date.dart';
 import 'package:trainlog_app/pages/trip_form_details.dart';
 import 'package:trainlog_app/pages/trip_form_path.dart';
+import 'package:trainlog_app/providers/polyline_provider.dart';
+import 'package:trainlog_app/providers/trips_provider.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
+import 'package:trainlog_app/data/models/trips.dart';
 
 class AddTripPage extends StatefulWidget {
   final List<int>? preRecorderIdsToDelete;
@@ -120,6 +126,9 @@ class _AddTripPageState extends State<AddTripPage> {
     setState(() {
       _isSubmitting = true;
     });
+    final tripsProvider = Provider.of<TripsProvider>(context, listen: false);
+    final polylieProvider = Provider.of<PolylineProvider>(context, listen: false);
+    final loc = AppLocalizations.of(context)!;
     debugPrint("⏳ REQUEST VALIDATION");
     // Ask the WebView to submit
     final res = await _routingWebCtrl.submitTrip(timeout: const Duration(seconds: 25));
@@ -132,18 +141,10 @@ class _AddTripPageState extends State<AddTripPage> {
     debugPrint('submitTrip ok=${res.ok} error=$errorCode');
     debugPrint('payload runtimeType=${res.payload.runtimeType}');
 
-    // Pretty print if it's a Map/List
-    // try {
-    //   final pretty = const JsonEncoder.withIndent('  ').convert(res.payload);
-    //   debugPrint('payload:\n$pretty');
-    // } catch (_) {
-    //   // fallback (string or something non-JSON-encodable)
-    //   debugPrint('payload:\n${res.payload}');
-    // }
-
     if (!res.ok) {
+      final error = errorCode?.toString() ?? 'unknown'; 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Submit failed: ${errorCode ?? 'unknown'}')),
+        SnackBar(content: Text(loc.addTripFinishErrorMsg(error))),
       );
       setState(() {
         _isSubmitting = false;
@@ -151,9 +152,50 @@ class _AddTripPageState extends State<AddTripPage> {
       return;
     }
 
+    final Map<String, dynamic> payload = res.payload as Map<String, dynamic>;
+    final Map<String, dynamic>? newTrip =
+        (payload['response'] as Map<String, dynamic>?)?['newTrip']
+            as Map<String, dynamic>?;
+    if (newTrip == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(loc.addTripFinishFeedbackWarning)),
+      );
+      setState(() {
+        _isSubmitting = false;
+      });
+      Navigator.of(context).pop(true);
+      return;
+    }
+
+    // Pretty print if it's a Map/List
+    // Caution: for long trips this can be very large!
+    // try {
+    //   final pretty = const JsonEncoder.withIndent('  ').convert(res.payload);
+    //   debugPrint('payload:\n$pretty');
+    // } catch (_) {
+    //   // fallback (string or something non-JSON-encodable)
+    //   debugPrint('Error payload:\n${res.payload}');
+    // }
+
+    // TODO: if trip is future change Trip display page to show future trips
+    newTrip["uid"] = newTrip["trip_id"]; // Trips model expects "uid" field
+    final path = PolylineTools.toLatLngList(newTrip["path"]);
+    newTrip["path"] = PolylineTools.encodePath(path); // Store encoded path
+    final trip = Trips.fromJson(newTrip);
+    final isFuture = trip.utcStartDate != null && trip.utcStartDate!.isAfter(DateTime.now().toUtc());
+
+    // Insert new trip into providers
+    tripsProvider.insertTrip(trip);
+    polylieProvider.upsertPolylineFromTrip(trip, path);
+
+    debugPrint("✅ TRIP VALIDATED"); 
+    setState(() {
+      _isSubmitting = false;
+    });
+
     // Placeholder for submission logic
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Trip validated! (not implemented yet)')),
+      SnackBar(content: Text(loc.addTripFinishMsg)),
     );
 
     if(continueTrip) {
@@ -166,10 +208,7 @@ class _AddTripPageState extends State<AddTripPage> {
         reverseTransitionDuration: Duration.zero,
       )); // Check if the previous works
     }
-    else {
-      // TODO: Load the new trip
-      // TODO: Refresh the trip list
-      // TODO: Refresh the polyline
+    else {      
       Navigator.of(context).pop(true);
     }
   }

@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/data/models/trip_form_model.dart';
@@ -7,7 +8,6 @@ import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/data/trips_repository.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/pages/add_trip_page.dart';
-import 'package:trainlog_app/providers/polyline_provider.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
@@ -26,11 +26,11 @@ class TripsPage extends StatefulWidget {
 }
 
 class _TripsPageState extends State<TripsPage> {
+  int _seenRevision = -1;
   int _sortColumnIndex = 2;
   bool _sortAscending = false;
   TripsDataSource? _dataSource;
   Key _tableKey = UniqueKey();
-  late TripsProvider tripsProvider;
   late TrainlogProvider trainlog;
   TripsFilterResult? _activeFilter;
   final _refreshKey = GlobalKey<RefreshIndicatorState>(); // DELETE ON MOBILE
@@ -50,7 +50,7 @@ class _TripsPageState extends State<TripsPage> {
     if (!_refreshTriggered && Theme.of(context).platform == TargetPlatform.windows) {
       _refreshTriggered = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        _refreshKey.currentState?.show(); // 👈 triggers the refresh
+        //_refreshKey.currentState?.show(); // 👈 triggers the refresh
       });
     }
   }
@@ -60,14 +60,24 @@ class _TripsPageState extends State<TripsPage> {
     final tripsProvider = Provider.of<TripsProvider>(context);
     final scaffMsg = ScaffoldMessenger.of(context);
     final loc = AppLocalizations.of(context)!;
+    final revision = context.select((TripsProvider p) => p.revision);
+    final repo = context.select((TripsProvider p) => p.repository);
+    final isLoading = context.select((TripsProvider p) => p.isLoading);
 
-    // if (tripsProvider.isLoading) {
-    //   return const Center(child: CircularProgressIndicator());
-    // }
+    if (repo == null || isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    // revision changed => provider has new data/repo => rebuild table source
+    if (_seenRevision != revision) {
+      _seenRevision = revision;
+      _dataSource = null;
+      _tableKey = ValueKey(revision); // forces PaginatedDataTable internal reset too
+    }
 
     if (_dataSource == null) {
       // Create it synchronously; pass the (currently empty) map
-      _dataSource = TripsDataSource(context, tripsProvider.repository!, trainlog);
+      _dataSource = TripsDataSource(context, repo, trainlog);
       _dataSource!.sort(_sortColumnIndex, _sortAscending);
 
       // If you need to (re)expose the FAB after first layout:
@@ -358,6 +368,7 @@ class TripsDataSource extends DataTableSource {
   }
 
   void setVisibleColumns(List<String> columns) {
+    if (listEquals(_visibleColumns, columns)) return;
     _visibleColumns = columns;
     notifyListeners();
   }

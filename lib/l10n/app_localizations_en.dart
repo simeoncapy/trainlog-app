@@ -835,6 +835,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addTripRecordingMsg => 'Your trip is being recorded, please wait';
 
   @override
+  String get addTripFinishMsg => 'Your trip has been added successfully';
+
+  @override
+  String addTripFinishErrorMsg(String errorCode) {
+    return 'An error occurred while adding your trip, please try again (error: $errorCode).';
+  }
+
+  @override
+  String get addTripFinishFeedbackWarning =>
+      'The trip has been added but the feedback from the server is incomplete. Please refresh and verify the trip details.';
+
+  @override
   String get aboutPageAboutSubPageTitle => 'Trainlog';
 
   @override
