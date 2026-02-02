@@ -34,8 +34,10 @@ class TripDetailsBottomSheet extends StatelessWidget {
           const SizedBox(height: 16),
           TripTimeline(trip: trip),
           const SizedBox(height: 16),
-          _dataElementBuilder(context, appLocalization.tripsDetailsTitleOperator, Uri.decodeComponent(trip.operatorName).replaceAll("&&", ", ")),
-          const SizedBox(height: 4),
+          if(trip.operatorName.isNotEmpty) ...[
+            _dataElementBuilder(context, appLocalization.tripsDetailsTitleOperator, Uri.decodeComponent(trip.operatorName).replaceAll("&&", ", ")),
+            const SizedBox(height: 4),
+          ],
           if (vehicle.isNotEmpty) ...[
             _dataElementBuilder(context, appLocalization.tripsDetailsTitleVehicle, vehicle),
             const SizedBox(height: 4),

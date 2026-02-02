@@ -448,6 +448,9 @@ class TripsDataSource extends DataTableSource {
             )
           );
         case 'operator':
+          if(trip.operatorName.isEmpty) {
+            return const DataCell(SizedBox.shrink());
+          }
           final raw = Uri.decodeComponent(trip.operatorName);
           final operators = raw.split('&&').map((s) => s.trim()).where((s) => s.isNotEmpty).toList();
           final count = operators.length;

@@ -87,7 +87,9 @@ Widget build(BuildContext context) {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SingleChildScrollView(
+                  operatorName.isEmpty
+                  ? const SizedBox.shrink()
+                  : SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
                       children: trainlog
