@@ -710,31 +710,14 @@ class TrainlogService {
       bool returnUniqueEvenIfOutOfRange = true,
   }) async {
     final limit = distanceLimitMeters > 500 ? 20 : 10;
-    String path = "/reverse?lon=$long&lat=$lat&lang=en&limit=$limit";
+    String path = "/stationAutocomplete?lon=$long&lat=$lat&limit=$limit";
     final argRails = "&osm_tag=railway:halt&osm_tag=railway:station";
     final argTram = "&osm_tag=railway:tram_stop";
     final argBus = "&osm_tag=amenity:bus_station&osm_tag=highway:bus_stop";
     final argFerry = "&osm_tag=amenity:ferry_terminal";
     const nullReturn = <(String? name, String? address, VehicleType type, double distance)>[];
 
-    final dio = Dio(
-      BaseOptions(
-        baseUrl: "https://photon.chiel.uk",
-        followRedirects: false,
-        validateStatus: (s) => s != null && s >= 200 && s < 400,
-        headers: {'User-Agent': _userAgent},
-      ),
-    );
-
-    final res = await dio.get<Map<String, dynamic>>(
-      "$path$argRails$argTram$argBus$argFerry",
-      options: Options(
-        followRedirects: true,
-        maxRedirects: 5,
-        responseType: ResponseType.json,
-        validateStatus: (s) => s != null && s >= 200 && s < 400,
-      ),
-    );
+    final res = await _safeGet<Map<String, dynamic>>("$path$argRails$argTram$argBus$argFerry");
 
     final data = res.data;
     if (data == null) {
