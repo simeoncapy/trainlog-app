@@ -10,6 +10,7 @@ import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:diacritic/diacritic.dart';
 import 'dart:convert';
 import 'package:country_picker/country_picker.dart';
+import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/widgets/trips_filter_dialog.dart';
 
 // TripsTable defined lower
@@ -336,6 +337,9 @@ class TripsRepository {
         .toSet()
         .toList()
         ..sort();
+
+    dates.remove(unknownPast.year);
+    dates.remove(unknownFuture.year);
 
     return dates;
   }

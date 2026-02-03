@@ -125,13 +125,8 @@ class TripsProvider extends ChangeNotifier {
   Future<void> insertTrip(Trips trip, {bool setLoading = false}) async {
     if(_repository == null) return;
     await _repository!.insertTrip(trip);
-
-    _vehicleTypes = await _repository!.fetchListOfTypes();
-    final yrs = await _repository!.fetchListOfYears();
-    yrs.sort((a, b) => b.compareTo(a)); // descending
-    _years = yrs;
-    _operators = await _repository!.fetchListOfOperators();
-    _countryCodes = await _repository!.fetchListOfCountryCode();
+    await _refreshDerivedLists();
+    
     _revision++;
     _loading = setLoading;
     notifyListeners();
@@ -155,13 +150,8 @@ class TripsProvider extends ChangeNotifier {
   Future<void> deleteTrip(int tripId) async {
     if(_repository == null) return;
     await _repository!.deleteTripById(tripId.toString());
+    await _refreshDerivedLists();
 
-    _vehicleTypes = await _repository!.fetchListOfTypes();
-    final yrs = await _repository!.fetchListOfYears();
-    yrs.sort((a, b) => b.compareTo(a)); // descending
-    _years = yrs;
-    _operators = await _repository!.fetchListOfOperators();
-    _countryCodes = await _repository!.fetchListOfCountryCode();
     _revision++;
     _loading = false;
     notifyListeners();
