@@ -92,7 +92,6 @@ class OperatorSelectorState extends State<OperatorSelector> {
 
   void _onTextChanged(String value, BuildContext fieldContext) {
     bool committed = false;
-    debugPrint("OperatorSelector: text changed: '$value'");
     // Commit parts separated by commas
     if (value.contains(',')) {
       final parts = value.split(',');
