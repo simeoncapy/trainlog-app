@@ -409,7 +409,7 @@
       }
     }
   },
-  "prerecorderStationsFound": "{count, plural, =0 {No stations found} =1 {# station found} other {# stations found}}",
+  "prerecorderStationsFound": "{count, plural, =0 {No stations found} =1 {1 station found} other {{count} stations found}}",
   "@prerecorderStationsFound": {
     "description": "Indicates how many stations were found",
     "placeholders": {

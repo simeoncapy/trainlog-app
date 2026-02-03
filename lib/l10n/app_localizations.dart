@@ -1687,7 +1687,7 @@ abstract class AppLocalizations {
   /// Indicates how many stations were found
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, =0 {No stations found} =1 {# station found} other {# stations found}}'**
+  /// **'{count, plural, =0 {No stations found} =1 {1 station found} other {{count} stations found}}'**
   String prerecorderStationsFound(num count);
 
   /// No description provided for @prerecorderErrorLessThanTwoSelected.

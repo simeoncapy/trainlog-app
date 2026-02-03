@@ -948,8 +948,8 @@ class AppLocalizationsEn extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '# stations found',
-      one: '# station found',
+      other: '$count stations found',
+      one: '1 station found',
       zero: 'No stations found',
     );
     return '$_temp0';
