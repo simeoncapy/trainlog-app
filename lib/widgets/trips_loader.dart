@@ -34,15 +34,15 @@ class _TripsLoaderState extends State<TripsLoader> {
             Positioned.fill(child: _child!),  
 
             // Loader is only an overlay
-            if (showLoader)
-              Positioned.fill(
-                child: Container(
-                  color: Colors.black.withValues(alpha: 0.1),
-                  child: const Center(
-                    child: CircularProgressIndicator(),
-                  ),
-                ),
-              ),
+            // if (showLoader)
+            //   Positioned.fill(
+            //     child: Container(
+            //       color: Colors.black.withValues(alpha: 0.1),
+            //       child: const Center(
+            //         child: CircularProgressIndicator(),
+            //       ),
+            //     ),
+            //   ),
           ],
         );
       },
