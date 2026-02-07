@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:latlong2/latlong.dart';
+import 'package:trainlog_app/data/models/news_model.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/utils/text_utils.dart';
 
@@ -786,6 +787,40 @@ class TrainlogService {
     stations.sort((a, b) => a.$4.compareTo(b.$4)); // Sorting by distance (item4 is the distance)
     return stations;
   }
+
+  Future<int> fetchNewsCount(DateTime lastVisit) async {
+    final path = '/api/news/count/app/${lastVisit.toIso8601String()}';
+
+    try {
+      final res = await _safeGet<Map<String, dynamic>>(path);
+      final data = res.data;
+      if (data == null) return 0;
+     
+      final count = data["count"] is int ? data["count"] : int.tryParse(data["count"].toString()) ?? 0;
+
+      return count;
+    } catch (_) {
+      return 0;
+    }
+  }
+
+  Future<List<NewsModel>> fetchNews(DateTime lastVisit) async {
+    final path = '/api/news/app/';
+
+    try {
+      final res = await _safeGet<List<dynamic>>(path);
+      final data = res.data;
+      if (data == null || data.isEmpty) return [];
+
+      return data
+        .map((json) => NewsModel.fromJson(json as Map<String, dynamic>, lastVisit: lastVisit))
+        .toList();
+
+    } catch (_) {
+      return [];
+    }
+  }
+
 
   // Helper function to determine the vehicle type
   VehicleType _getVehicleType(Map<String, dynamic> properties) {

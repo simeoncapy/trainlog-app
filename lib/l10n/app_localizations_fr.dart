@@ -187,6 +187,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get duplicateBtnLabel => 'Dupliquer';
 
   @override
+  String get newBadge => 'NOUVEAU';
+
+  @override
   String get settingsAppCategory => 'Paramètres de l\'application';
 
   @override
@@ -977,4 +980,23 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get prerecorderErrorTypeSameForDepartureArrival =>
       'Le départ et l\'arrivée doivent être du même type de véhicule, ou de type inconnu';
+
+  @override
+  String get inboxPageTitle => 'Messages';
+
+  @override
+  String inboxAuthor(String author) {
+    return 'Par $author';
+  }
+
+  @override
+  String get inboxModified => '(modifié)';
+
+  @override
+  String inboxModifiedIndication(String date) {
+    return '(modifié le $date)';
+  }
+
+  @override
+  String get trainglogStatusPageTitle => 'État de Trainlog';
 }

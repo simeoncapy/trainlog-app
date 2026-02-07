@@ -57,6 +57,7 @@
   "locationServicesDisabled": "位置情報サービスが無効になっています",
   "locationPermissionDenied": "位置情報の許可が拒否されました",
   "duplicateBtnLabel": "複製",
+  "newBadge": "新しい",
 
   "settingsAppCategory": "アプリ設定",
   "settingsMapCategory": "地図設定",
@@ -282,5 +283,13 @@
   "prerecorderErrorLessThanTwoSelected": "旅行を作成するには、2つのジオログを選択してください",
   "prerecorderErrorMoreThanTwoSelected": "旅行を作成するには、2つのジオログのみを選択してください",
   "prerecorderErrorDepartureAfterArrival": "出発は到着の後にできません",
-  "prerecorderErrorTypeSameForDepartureArrival": "出発と到着は同じ乗り物のタイプ、または不明なタイプである必要があります"
+  "prerecorderErrorTypeSameForDepartureArrival": "出発と到着は同じ乗り物のタイプ、または不明なタイプである必要があります",
+
+  "inboxPageTitle": "お知らせ",
+  "inboxAuthor": "{author}さん",
+  "inboxModified": "(変更)",
+  "inboxModifiedIndication": "({date}に変更)",
+
+
+  "trainglogStatusPageTitle": "Trainlogの状態"
 }

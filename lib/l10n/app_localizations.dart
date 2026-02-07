@@ -448,6 +448,12 @@ abstract class AppLocalizations {
   /// **'Duplicate'**
   String get duplicateBtnLabel;
 
+  /// No description provided for @newBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'NEW'**
+  String get newBadge;
+
   /// No description provided for @settingsAppCategory.
   ///
   /// In en, this message translates to:
@@ -1713,6 +1719,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The departure and arrival must be of the same vehicle type, or unknown type'**
   String get prerecorderErrorTypeSameForDepartureArrival;
+
+  /// No description provided for @inboxPageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'News & Updates'**
+  String get inboxPageTitle;
+
+  /// The author of a message
+  ///
+  /// In en, this message translates to:
+  /// **'By {author}'**
+  String inboxAuthor(String author);
+
+  /// No description provided for @inboxModified.
+  ///
+  /// In en, this message translates to:
+  /// **'(modified)'**
+  String get inboxModified;
+
+  /// The date of modification of a message
+  ///
+  /// In en, this message translates to:
+  /// **'(modified on {date})'**
+  String inboxModifiedIndication(String date);
+
+  /// No description provided for @trainglogStatusPageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Trainlog Status'**
+  String get trainglogStatusPageTitle;
 }
 
 class _AppLocalizationsDelegate

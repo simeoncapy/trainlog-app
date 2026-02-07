@@ -67,6 +67,7 @@
   "locationServicesDisabled": "Location services are disabled",
   "locationPermissionDenied": "Location permission denied",
   "duplicateBtnLabel": "Duplicate",
+  "newBadge": "NEW",
   
   "settingsAppCategory": "App Settings",
   "settingsMapCategory": "Map Settings",
@@ -419,5 +420,30 @@
   "prerecorderErrorLessThanTwoSelected": "Please select two geologs to create a trip",
   "prerecorderErrorMoreThanTwoSelected": "Please select only two geologs to create a trip",
   "prerecorderErrorDepartureAfterArrival": "The departure cannot be after the arrival",
-  "prerecorderErrorTypeSameForDepartureArrival": "The departure and arrival must be of the same vehicle type, or unknown type"
+  "prerecorderErrorTypeSameForDepartureArrival": "The departure and arrival must be of the same vehicle type, or unknown type",
+
+  "inboxPageTitle": "News & Updates",
+  "inboxAuthor": "By {author}",
+  "@inboxAuthor": {
+    "description": "The author of a message",
+    "placeholders": {
+      "author": {
+        "type": "String",
+        "description": "The name of the author"
+      }
+    }
+  },
+  "inboxModified": "(modified)",
+  "inboxModifiedIndication": "(modified on {date})",
+  "@inboxModifiedIndication": {
+    "description": "The date of modification of a message",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "description": "The date of modification of a message"
+      }
+    }
+  },
+
+  "trainglogStatusPageTitle": "Trainlog Status"
 }

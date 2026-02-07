@@ -29,6 +29,7 @@ class SettingsProvider with ChangeNotifier {
   bool _SP_shouldLoadTripsFromApi = true;
   DateTime? _SP_mostRecentFutureTripOnMap;
   bool _SP_isSmartPrerecorderExplanationExpanded = true;
+  DateTime _SP_lastNewsVisit = DateTime.now().toUtc();
 
   static const _kLastUserLat = 'last_user_lat';
   static const _kLastUserLng = 'last_user_lng';
@@ -53,6 +54,7 @@ class SettingsProvider with ChangeNotifier {
   bool get shouldLoadTripsFromApi => _SP_shouldLoadTripsFromApi;
   DateTime? get mostRecentFutureTripOnMap => _SP_mostRecentFutureTripOnMap;
   bool get isSmartPrerecorderExplanationExpanded => _SP_isSmartPrerecorderExplanationExpanded;
+  DateTime get lastNewsVisit => _SP_lastNewsVisit;
 
   SettingsProvider() {
     // Shared Preference in settings
@@ -74,6 +76,7 @@ class SettingsProvider with ChangeNotifier {
     _loadUsername();
     _loadShouldLoadTripsFromApi();
     _loadIsSmartPrerecorderExplanationExpanded();
+    _loadLastNewsVisit();
   }
 
   void _loadTheme() async {
@@ -391,6 +394,32 @@ class SettingsProvider with ChangeNotifier {
     _SP_isSmartPrerecorderExplanationExpanded = p;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('is_spr_explanation_expanded', p);
+    notifyListeners();
+  }
+
+  // ------------------------------------------------------------------------------
+
+  void _loadLastNewsVisit() async {
+    final prefs = await SharedPreferences.getInstance();
+    final p = prefs.getString('last_news_visit');
+    _SP_lastNewsVisit = DateTime.parse(p ?? DateTime.now().toUtc().toIso8601String());
+    notifyListeners();
+  }
+
+  void setLastNewsVisit(DateTime p) async {
+    if (_SP_lastNewsVisit == p) return;
+    _SP_lastNewsVisit = p;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('last_news_visit', p.toIso8601String());
+    notifyListeners();
+  }
+
+  void setLastNewsVisitNowUtc() async {
+    final p = DateTime.now().toUtc();
+    if (_SP_lastNewsVisit == p) return;
+    _SP_lastNewsVisit = p;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('last_news_visit', p.toIso8601String());
     notifyListeners();
   }
 }

@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:trainlog_app/data/models/news_model.dart';
 import 'package:trainlog_app/data/models/pre_record_model.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
@@ -506,5 +507,15 @@ class TrainlogProvider extends ChangeNotifier {
   Future<bool> deleteTrips(List<int> tripIds) async {
     if (_username == null) return false;
     return _service.deleteTrips(_username!, tripIds);
+  }
+
+  Future<int> fetchNewsCount(SettingsProvider settings) {
+    return _service.fetchNewsCount(settings.lastNewsVisit);
+  }
+
+  Future<List<NewsModel>> fetchNews(SettingsProvider settings) async {    
+    final out = _service.fetchNews(settings.lastNewsVisit);
+    settings.setLastNewsVisitNowUtc();
+    return out;
   }
 }

@@ -186,6 +186,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get duplicateBtnLabel => '複製';
 
   @override
+  String get newBadge => '新しい';
+
+  @override
   String get settingsAppCategory => 'アプリ設定';
 
   @override
@@ -961,4 +964,23 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get prerecorderErrorTypeSameForDepartureArrival =>
       '出発と到着は同じ乗り物のタイプ、または不明なタイプである必要があります';
+
+  @override
+  String get inboxPageTitle => 'お知らせ';
+
+  @override
+  String inboxAuthor(String author) {
+    return '$authorさん';
+  }
+
+  @override
+  String get inboxModified => '(変更)';
+
+  @override
+  String inboxModifiedIndication(String date) {
+    return '($dateに変更)';
+  }
+
+  @override
+  String get trainglogStatusPageTitle => 'Trainlogの状態';
 }

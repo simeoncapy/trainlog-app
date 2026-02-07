@@ -57,6 +57,7 @@
   "locationServicesDisabled": "Services de location désactivés",
   "locationPermissionDenied": "Partage de la localisation refusé",
   "duplicateBtnLabel": "Dupliquer",
+  "newBadge": "NOUVEAU",
 
   "settingsAppCategory": "Paramètres de l'application",
   "settingsMapCategory": "Paramètres de la carte",
@@ -281,5 +282,12 @@
   "prerecorderErrorLessThanTwoSelected": "Veuillez sélectionner deux géomémo pour créer un trajet",
   "prerecorderErrorMoreThanTwoSelected": "Veuillez sélectionner seulement deux géomémo pour créer un trajet",
   "prerecorderErrorDepartureAfterArrival": "Le départ ne peut pas être après l'arrivée",
-  "prerecorderErrorTypeSameForDepartureArrival": "Le départ et l'arrivée doivent être du même type de véhicule, ou de type inconnu"
+  "prerecorderErrorTypeSameForDepartureArrival": "Le départ et l'arrivée doivent être du même type de véhicule, ou de type inconnu",
+
+  "inboxPageTitle": "Messages",
+  "inboxAuthor": "Par {author}",
+  "inboxModified": "(modifié)",
+  "inboxModifiedIndication": "(modifié le {date})",
+
+  "trainglogStatusPageTitle": "État de Trainlog"
 }
