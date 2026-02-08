@@ -30,6 +30,7 @@ class SettingsProvider with ChangeNotifier {
   DateTime? _SP_mostRecentFutureTripOnMap;
   bool _SP_isSmartPrerecorderExplanationExpanded = true;
   DateTime _SP_lastNewsVisit = DateTime.now().toUtc();
+  DateTime? _SP_lastFetchingTrips;
 
   static const _kLastUserLat = 'last_user_lat';
   static const _kLastUserLng = 'last_user_lng';
@@ -55,6 +56,7 @@ class SettingsProvider with ChangeNotifier {
   DateTime? get mostRecentFutureTripOnMap => _SP_mostRecentFutureTripOnMap;
   bool get isSmartPrerecorderExplanationExpanded => _SP_isSmartPrerecorderExplanationExpanded;
   DateTime get lastNewsVisit => _SP_lastNewsVisit;
+  DateTime? get lastFetchingTrips => _SP_lastFetchingTrips;
 
   SettingsProvider() {
     // Shared Preference in settings
@@ -77,6 +79,7 @@ class SettingsProvider with ChangeNotifier {
     _loadShouldLoadTripsFromApi();
     _loadIsSmartPrerecorderExplanationExpanded();
     _loadLastNewsVisit();
+    _loadLastFetchingTrips();
   }
 
   void _loadTheme() async {
@@ -415,11 +418,27 @@ class SettingsProvider with ChangeNotifier {
   }
 
   void setLastNewsVisitNowUtc() async {
-    final p = DateTime.now().toUtc();
-    if (_SP_lastNewsVisit == p) return;
-    _SP_lastNewsVisit = p;
+    setLastNewsVisit(DateTime.now().toUtc());
+  }
+
+  // ------------------------------------------------------------------------------
+
+  void _loadLastFetchingTrips() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('last_news_visit', p.toIso8601String());
+    final p = prefs.getString('last_fetching_trips');
+    _SP_lastFetchingTrips = p == null ? null : DateTime.parse(p);
     notifyListeners();
+  }
+
+  void setLastFetchingTrips(DateTime p) async {
+    if (_SP_lastFetchingTrips == p) return;
+    _SP_lastFetchingTrips = p;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('last_fetching_trips', p.toIso8601String());
+    notifyListeners();
+  }
+
+  void setLastFetchingTripsNowUtc() async {
+    setLastFetchingTrips(DateTime.now().toUtc());
   }
 }

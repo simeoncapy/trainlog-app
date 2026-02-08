@@ -1,10 +1,12 @@
 import 'dart:convert';
-
+import 'package:google_polyline_algorithm/google_polyline_algorithm.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:flutter/material.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/widgets/trip_visibility_selector.dart';
+import 'package:trainlog_app/data/models/polyline_entry.dart';
 
 class Trips {
   final String uid;
@@ -33,6 +35,7 @@ class Trips {
   final String? currency;
   final DateTime? purchasingDate;
   final String path;
+  final List<LatLng>? pathPoints;
   final TripVisibility visibility;
 
   Trips({
@@ -62,6 +65,7 @@ class Trips {
     this.currency,
     this.purchasingDate,
     required this.path,
+    this.pathPoints,
     required this.visibility,
   });
 
@@ -72,11 +76,7 @@ class Trips {
   DateTime? get utcEndDate => utcEndDatetime;
   DateTime get creationDate => created;
 
-
-
-
   //       hasTimeRange: trip.hasTimeRange,
-
 
   bool get isDateOnly => (startDatetime == endDatetime) && utcEndDatetime == null;
   bool get isUnknownPastFuture {
@@ -92,7 +92,7 @@ class Trips {
     }
   }
 
-  factory Trips.fromJson(Map<String, dynamic> json) {
+  factory Trips.fromJson(Map<String, dynamic> json, {bool pathAsGooglePolyline = true, bool decodePolyline = false}) {
     final start = _toDateTimeUnknownPastFuture(json['start_datetime']);
     final end = _toDateTimeUnknownPastFuture(json['end_datetime']);
     return Trips(
@@ -121,7 +121,10 @@ class Trips {
       price: _toDoubleOrNull(json['price']),
       currency: json['currency']?.toString() ?? '',
       purchasingDate: _toDateTimeOrNull(json['purchasing_date']),
-      path: json['path']?.toString() ?? '',
+      path: pathAsGooglePolyline ? (json['path']?.toString() ?? '') : PolylineTools.encodePath(json['path']),
+      pathPoints: pathAsGooglePolyline 
+                  ? (decodePolyline ? PolylineTools.decodePath(json['path']?.toString() ?? '') : null) 
+                  : PolylineTools.toLatLngList(json['path']),
       visibility: TripVisibility.fromString(json['visibility'])
     );
   }
@@ -164,14 +167,46 @@ class Trips {
     return double.tryParse(value.toString());
   }
 
-  static DateTime? _toDateTimeOrNull(dynamic value) {
+  static DateTime? _toDateTimeOrNull(dynamic value, {bool forceUtc = true}) {
     if (value == null || value.toString().trim().isEmpty) return null;
-    return DateTime.tryParse(value.toString());
+    final str = value.toString();
+    final dateStr = forceUtc && !str.endsWith('Z') ? '${str}Z' : str;
+    
+    return DateTime.tryParse(dateStr);
   }
 
-  static DateTime? _toDateTimeOrCopy(dynamic value, DateTime? copy) {
-    if (value == null || value.toString().trim().isEmpty) return copy;
-    return DateTime.tryParse(value.toString());
+  static DateTime? _toDateTimeOrCopy(dynamic value, DateTime? copy, {bool forceUtc = true}) {
+    if (value == null || value.toString().trim().isEmpty) {
+      if (copy == null || !forceUtc || copy.isUtc) return copy;
+      
+      // Convert copy to UTC
+      return DateTime.utc(
+        copy.year,
+        copy.month,
+        copy.day,
+        copy.hour,
+        copy.minute,
+        copy.second,
+        copy.millisecond,
+        copy.microsecond,
+      );
+    }
+    
+    final parsed = DateTime.tryParse(value.toString());
+    
+    if (parsed == null || !forceUtc || parsed.isUtc) return parsed;
+    
+    // Convert parsed to UTC
+    return DateTime.utc(
+      parsed.year,
+      parsed.month,
+      parsed.day,
+      parsed.hour,
+      parsed.minute,
+      parsed.second,
+      parsed.millisecond,
+      parsed.microsecond,
+    );
   }
 
   static double _toDouble(dynamic value) {

@@ -127,7 +127,6 @@ class _AddTripPageState extends State<AddTripPage> {
       _isSubmitting = true;
     });
     final tripsProvider = Provider.of<TripsProvider>(context, listen: false);
-    final polylieProvider = Provider.of<PolylineProvider>(context, listen: false);
     final loc = AppLocalizations.of(context)!;
     debugPrint("⏳ REQUEST VALIDATION");
     // Ask the WebView to submit
@@ -186,7 +185,6 @@ class _AddTripPageState extends State<AddTripPage> {
 
     // Insert new trip into providers
     tripsProvider.insertTrip(trip);
-    polylieProvider.upsertPolylineFromTrip(trip, path);
 
     debugPrint("✅ TRIP VALIDATED"); 
     setState(() {

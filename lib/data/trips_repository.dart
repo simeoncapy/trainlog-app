@@ -84,6 +84,20 @@ class TripsRepository {
     return TripsRepository(db);
   }
 
+  static Future<TripsRepository> loadFromTripsList(List<Trips> trips, {bool clearTableFirst = false}) async {
+    debugPrint("Load from trip list");
+    final db = await DatabaseManager.database;
+    final repo = TripsRepository(db);
+
+    if (clearTableFirst) {
+      await repo.clearAllTrips();
+    }
+
+    await repo.insertTrips(trips);
+
+    return repo;
+  }
+
   Future<Trips?> getTripById(int id) async {
     // Query the database for a single trip with the matching ID.
     final maps = await _db.query(
@@ -326,6 +340,15 @@ class TripsRepository {
 
 
   Future<List<int>> fetchListOfYears() async {
+    final dates = await fetchListOfYearsWithUnknown();
+
+    dates.remove(unknownPast.year);
+    dates.remove(unknownFuture.year);
+
+    return dates;
+  }
+
+  Future<List<int>> fetchListOfYearsWithUnknown() async {
     final maps = await _db.query(
       TripsTable.tableName,
       columns: ['start_datetime'],
@@ -337,9 +360,6 @@ class TripsRepository {
         .toSet()
         .toList()
         ..sort();
-
-    dates.remove(unknownPast.year);
-    dates.remove(unknownFuture.year);
 
     return dates;
   }

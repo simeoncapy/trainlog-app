@@ -475,7 +475,6 @@ class _TrainlogWebPageState extends State<TrainlogWebPage> {
         controller.addJavaScriptHandler(
           handlerName: 'saveTripDone',
           callback: (args) {
-            // args: [ok(bool), payload(any)]
             final ok = args.isNotEmpty && args.first == true;
             final payload = args.length >= 2 ? args[1] : null;
             widget.controller?.onSaveTripDone(ok, payload);

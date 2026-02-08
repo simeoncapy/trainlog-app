@@ -242,21 +242,52 @@ class TrainlogService {
       if (res.statusCode != null && res.statusCode! >= 300 && res.statusCode! < 400) {
         final loc = res.headers['location']?.first ?? '';
         if (loc.contains('/login')) {
-          print('Not conected: redirected to login → not authenticated');
+          debugPrint('Not conected: redirected to login → not authenticated');
           return "";
         }
       }
 
       final csv = res.data ?? '';
       if (csv.isEmpty) {
-        print('debugPrintFirstTrips: (empty response)');
+        debugPrint('debugPrintFirstTrips: (empty response)');
         return "";
       }
       return csv;
     } catch (e) {
-      print('debugPrintFirstTrips: error fetching $path: $e');
+      debugPrint('debugPrintFirstTrips: error fetching $path: $e');
     }
     return '';
+  }
+
+  Future<List<Trips>> fetchLastUpdatedTripsData(String username, DateTime? lastUpdate) async {
+    final path = '/u/$username/getTripsPaths/${lastUpdate?.toIso8601String() ?? "all"}';
+    try {
+      final res = await _safeGet<Map<String, dynamic>>(path);
+
+      final data = res.data; // already decoded JSON
+      if (data == null) return [];
+
+      final rawTrips = data["trips"];
+      if (rawTrips is! List) return [];
+
+      return rawTrips
+        .map((json) {
+          debugPrint('json type: ${json.runtimeType}');
+          final tripData = json['trip'] as Map<String, dynamic>;
+          final path = json['path'];
+
+          // Merge trip data with path at the same level
+          return Trips.fromJson(
+            {...tripData, 'path': path},
+            pathAsGooglePolyline: false
+          );
+        })
+        .toList();
+      
+    } catch (e) {
+      debugPrint('debugPrintFirstTrips: error fetching $path: $e');
+    }
+    return [];
   }
 
   Future<Map<String, String>> fetchAllOperatorLogosUrl(String username) async {

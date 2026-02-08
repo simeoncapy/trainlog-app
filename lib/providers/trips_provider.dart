@@ -4,6 +4,7 @@ import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/data/trips_repository.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/services/trainlog_service.dart';
+import 'package:trainlog_app/utils/date_utils.dart';
 
 class TripsProvider extends ChangeNotifier {
   TripsRepository? _repository;
@@ -23,6 +24,12 @@ class TripsProvider extends ChangeNotifier {
 
   List<int> _years = const [];
   List<int> get years => _years;
+  List<int> get yearsWithUnknown {
+    final y = _years;
+    y.add(unknownPast.year);
+    y.add(unknownFuture.year);
+    return y;
+  }
 
   List<String> _operators = const [];
   List<String> get operators => _operators;
@@ -32,6 +39,13 @@ class TripsProvider extends ChangeNotifier {
 
   Map<String, String> _mapCountryCodes = const {};
   Map<String, String> get mapCountryCodes => _mapCountryCodes;
+
+  List<Trips>? _modificatedTrips;
+  List<Trips>? get modificatedTrips {
+    final data = _modificatedTrips;
+    _modificatedTrips = null;
+    return data;
+  }
 
   int _revision = 0;
   int get revision => _revision;
@@ -70,45 +84,100 @@ class TripsProvider extends ChangeNotifier {
 
     debugPrint("🚀 TripsProvider auto-loading trips for $_username");
 
-    await loadTrips(
-      locale: _locale,
-      loadFromApi: true,
-    );
+    // await loadTrips(
+    //   locale: _locale,
+    //   loadFromApi: true,
+    // );
+    await loadNecessaryTripsData(locale: _locale, hardRefresh: true);
   }
 
   // ------------------------
   // Public API
   // ------------------------
 
-  Future<void> loadTrips({String csvPath = "", Locale? locale, bool loadFromApi = false}) async {
+  // Future<void> loadTrips({String csvPath = "", Locale? locale, bool loadFromApi = false}) async {
+  //   debugPrint("Deprecated loading function usage");
+  //   _loading = true;
+  //   notifyListeners();
+  //   if (locale != null) _locale = locale;
+
+  //   try {
+  //     if (csvPath.isNotEmpty) {
+  //       _repository = await TripsRepository.loadFromCsv(csvPath);
+  //     } else if (loadFromApi) {
+  //       debugPrint("Loading from API");
+  //       final content = await _service!.fetchAllTripsData(_username ?? "");
+  //       _settings!.setShouldLoadTripsFromApi(false);
+  //       _repository = await TripsRepository.loadFromCsv(
+  //         content,
+  //         replace: true,
+  //         path: false,
+  //       );
+  //     } else {
+  //       _repository = await TripsRepository.loadFromDatabase();
+  //     }
+
+  //     await _refreshDerivedLists();
+
+  //     _revision++;
+  //     _polylineRevision++;
+  //     final count = await _repository!.count();
+  //     debugPrint("✅ Finished loading trips. $count rows");
+  //   } catch (e, stack) {
+  //     debugPrint("loadTrips failed: $e");
+  //     debugPrintStack(stackTrace: stack);
+  //     // keep safe fallbacks
+  //     _vehicleTypes = const [VehicleType.unknown];
+  //     _years = const [];
+  //     _operators = const [];
+  //     _countryCodes = const [];
+  //     _mapCountryCodes = const {};
+  //   } finally {
+  //     _loading = false;
+  //     notifyListeners(); // single notify after all data ready
+  //   }
+  // }
+
+  Future<void> loadNecessaryTripsData({Locale? locale, bool hardRefresh = false}) async {
     _loading = true;
     notifyListeners();
     if (locale != null) _locale = locale;
 
+    DateTime? lastRefresh = hardRefresh ? null : _settings!.lastFetchingTrips;
+
     try {
-      if (csvPath.isNotEmpty) {
-        _repository = await TripsRepository.loadFromCsv(csvPath);
-      } else if (loadFromApi) {
-        debugPrint("Loading from API");
+      if (lastRefresh == null) {
+        debugPrint("🔄 Hard refreshing all trips data");
         final content = await _service!.fetchAllTripsData(_username ?? "");
         _settings!.setShouldLoadTripsFromApi(false);
         _repository = await TripsRepository.loadFromCsv(
           content,
           replace: true,
           path: false,
-        );
+        );        
       } else {
-        _repository = await TripsRepository.loadFromDatabase();
+        debugPrint("🔄 Refreshing only necessary $_username's trips from ${lastRefresh.toIso8601String()}");
+        final trips = await _service!.fetchLastUpdatedTripsData(_username??"", lastRefresh);
+        if (trips.isEmpty) {
+          debugPrint("✅ Nothing to update.");
+          _loading = false;
+          notifyListeners();
+          return;
+        }
+        _repository = await TripsRepository.loadFromTripsList(trips);
+        _modificatedTrips = [...?_modificatedTrips, ...trips];
+        debugPrint("✅ Finished updating ${trips.length} trips");
       }
 
       await _refreshDerivedLists();
 
-      _revision++;
       _polylineRevision++;
+      _revision++;      
       final count = await _repository!.count();
-      debugPrint("✅ Finished loading trips. $count rows");
+      debugPrint("✅ Finished loading trips. Total $count rows");
+      _settings!.setLastFetchingTripsNowUtc();
     } catch (e, stack) {
-      debugPrint("loadTrips failed: $e");
+      debugPrint("🛑 loadTrips failed: $e");
       debugPrintStack(stackTrace: stack);
       // keep safe fallbacks
       _vehicleTypes = const [VehicleType.unknown];
@@ -126,7 +195,10 @@ class TripsProvider extends ChangeNotifier {
     if(_repository == null) return;
     await _repository!.insertTrip(trip);
     await _refreshDerivedLists();
+
+    _modificatedTrips = [...?_modificatedTrips, trip];
     
+    _polylineRevision++;
     _revision++;
     _loading = setLoading;
     notifyListeners();
@@ -161,7 +233,8 @@ class TripsProvider extends ChangeNotifier {
   Future<void> refreshAll(Locale? locale) async {
     if (locale != null) _locale = locale;
     if (_repository == null) {
-      await loadTrips(locale: locale);
+      // await loadTrips(locale: locale);
+      await loadNecessaryTripsData(locale: locale, hardRefresh: true);
       return;
     }
     await _refreshDerivedLists();
@@ -170,13 +243,15 @@ class TripsProvider extends ChangeNotifier {
 
   // Optional: keep granular refreshers but ensure repo is loaded
   Future<void> refreshVehicleTypes() async {
-    if (_repository == null) { await loadTrips(); return; }
+    // if (_repository == null) { await loadTrips(); return; }
+    if (_repository == null) { await loadNecessaryTripsData(hardRefresh: true); return; }
     _vehicleTypes = await _repository!.fetchListOfTypes();
     notifyListeners();
   }
 
   Future<void> refreshYears() async {
-    if (_repository == null) { await loadTrips(); return; }
+    // if (_repository == null) { await loadTrips(); return; }
+    if (_repository == null) { await loadNecessaryTripsData(hardRefresh: true); return; }
     final yrs = await _repository!.fetchListOfYears();
     yrs.sort((a, b) => b.compareTo(a)); // descending
     _years = yrs;
@@ -184,20 +259,23 @@ class TripsProvider extends ChangeNotifier {
   }
 
   Future<void> refreshOperators() async {
-    if (_repository == null) { await loadTrips(); return; }
+    // if (_repository == null) { await loadTrips(); return; }
+    if (_repository == null) { await loadNecessaryTripsData(hardRefresh: true); return; }
     _operators = await _repository!.fetchListOfOperators();
     notifyListeners();
   }
 
   Future<void> refreshCountryCodes() async {
-    if (_repository == null) { await loadTrips(); return; }
+    // if (_repository == null) { await loadTrips(); return; }
+    if (_repository == null) { await loadNecessaryTripsData(hardRefresh: true); return; }
     _countryCodes = await _repository!.fetchListOfCountryCode();
     notifyListeners();
   }
 
   Future<void> refreshMapCountryCodes({Locale? locale}) async {
     if (locale != null) _locale = locale;
-    if (_repository == null) { await loadTrips(locale: locale); return; }
+    // if (_repository == null) { await loadTrips(locale: locale); return; }
+    if (_repository == null) { await loadNecessaryTripsData(locale: locale, hardRefresh: true); return; }
     //_mapCountryCodes = await _repository!.fetchMapOfCountries(context);
     await _refreshCountryNames();
     notifyListeners();

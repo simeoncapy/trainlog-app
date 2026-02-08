@@ -93,6 +93,7 @@ class _TripsPageState extends State<TripsPage> {
 
     final visibleColumns = _getVisibleColumns(width);
     _dataSource!.setVisibleColumns(visibleColumns);
+    final locale = Localizations.localeOf(context);
 
     return RefreshIndicator(
       key: _refreshKey,
@@ -100,7 +101,8 @@ class _TripsPageState extends State<TripsPage> {
         //final settings = context.read<SettingsProvider>();        
         // Force reloading data from repository
         //settings.setShouldReloadPolylines(true);
-        await tripsProvider.loadTrips(locale: Localizations.localeOf(context), loadFromApi: true);
+        //await tripsProvider.loadTrips(locale: Localizations.localeOf(context), loadFromApi: true);
+        await tripsProvider.loadNecessaryTripsData(locale: locale, hardRefresh: false);
         
         if (!mounted) return;
         setState(() {
@@ -312,11 +314,11 @@ class _TripsPageState extends State<TripsPage> {
 
         if (didSave == true) {
           // refresh trips after returning
-          final tripsProvider = context.read<TripsProvider>();
-          await tripsProvider.loadTrips(
-            locale: Localizations.localeOf(context),
-            loadFromApi: true, // or false if you want DB-only refresh
-          );
+          // final tripsProvider = context.read<TripsProvider>();
+          // await tripsProvider.loadTrips(
+          //   locale: Localizations.localeOf(context),
+          //   loadFromApi: true, // or false if you want DB-only refresh
+          // );
 
           // force rebuild datasource
           setState(() {

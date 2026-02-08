@@ -16,6 +16,7 @@ import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/providers/polyline_provider.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
+import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/utils/location_utils.dart';
 import 'package:trainlog_app/widgets/dropdown_radio_list.dart';
 import 'package:trainlog_app/widgets/trip_details_bottom_sheet.dart';
@@ -206,8 +207,11 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver, Automati
 
       case YearFilter.all:
       case YearFilter.years:
+        final y = _selectedYears;
+        y.add(unknownPast.year);
+        y.add(unknownFuture.year);
         return polylines.where((e) =>
-          (_selectedYears.isEmpty || _selectedYears.contains(e.startDate?.year)) &&
+          (y.isEmpty || y.contains(e.startDate?.year)) &&
           (_selectedTypes.isEmpty || _selectedTypes.contains(e.type))
         ).toList();
     }
@@ -314,6 +318,7 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver, Automati
 
       // Future: overlay dashed white
       final isFuture = !_isOngoing(e) && _isFutureUtc(e.utcStartDate);
+      //debugPrint("${e.tripId} future:$isFuture (${e.utcStartDate}, now:$_nowUtc)");
       if (isFuture) {
         final overlay = Polyline<int>(
           points: e.polyline.points,
@@ -472,6 +477,7 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver, Automati
   }
 
   Positioned _filterModalHelper(BuildContext context, AppLocalizations appLocalizations) {
+    final tripsProvider = context.watch<TripsProvider>();
     return Positioned(
       bottom: 16,
       left: 16,
@@ -488,12 +494,12 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver, Automati
             children: [
               Text(appLocalizations.yearTitle, style: Theme.of(context).textTheme.titleLarge),
               const SizedBox(height: 8),
-              _yearFilterBuilder(context.watch<TripsProvider>().years),
+              _yearFilterBuilder(tripsProvider.years),
               const SizedBox(height: 16),
               Text(appLocalizations.typeTitle, style: Theme.of(context).textTheme.titleLarge),
               const SizedBox(height: 8),
               VehicleTypeFilterChips(
-                availableTypes: context.watch<TripsProvider>().vehicleTypes,
+                availableTypes: tripsProvider.vehicleTypes,
                 selectedTypes: _selectedTypes,
                 onTypeToggle: (type, selected) {
                   setState(() {

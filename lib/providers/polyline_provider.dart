@@ -202,16 +202,36 @@ class PolylineProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void upsertPolylineFromTrip(Trips trip, List<LatLng>? path) {
+  void upsertPolylineFromTrip(Trips trip, {List<LatLng>? path}) {
     final settings = _settings;
     if (settings == null) return;
     final palette = MapColorPaletteHelper.getPalette(settings.mapColorPalette);    
 
+    Polyline<Object> polyline = _createPolylineHelper(path, trip, palette);
+
+    PolylineEntry entry = _createPolylineEntryHelper(polyline, trip);
+
+    final i = _polylines.indexWhere((e) => e.tripId == int.parse(trip.uid));
+    if (i >= 0) {
+      // Update existing
+      _polylines[i] = entry;
+    } else {
+      _polylines.add(entry);
+    }
+    notifyListeners();
+    // Save to cache after modification
+    unawaited(saveToCache());
+  }
+
+  Polyline<Object> _createPolylineHelper(List<LatLng>? path, Trips trip, Map<VehicleType, Color> palette) {
     final polyline = PolylineTools.createPolyline(
-      path ?? PolylineTools.decodePath(trip.path),
+      path ?? trip.pathPoints ?? PolylineTools.decodePath(trip.path),
       palette[trip.vehicleType] ?? Colors.black,
     );
+    return polyline;
+  }
 
+  PolylineEntry _createPolylineEntryHelper(Polyline<Object> polyline, Trips trip) {
     final entry = PolylineEntry(
       polyline: polyline,
       type: trip.vehicleType,
@@ -223,16 +243,36 @@ class PolylineProvider extends ChangeNotifier {
       isFuture: trip.utcStartDate != null && trip.utcStartDate!.isAfter(DateTime.now().toUtc()),
       tripId: int.parse(trip.uid),
     );
+    return entry;
+  }  
 
-    final i = _polylines.indexWhere((e) => e.tripId == int.parse(trip.uid));
-    if (i >= 0) {
-      // Update existing
-      _polylines[i] = entry;
-    } else {
-      _polylines.add(entry);
-    }
+  void upsertPolylinesFromTrips(List<Trips> trips, {List<List<LatLng>>? paths}) {
+    final settings = _settings;
+    if (settings == null) return;
+    final palette = MapColorPaletteHelper.getPalette(settings.mapColorPalette);
+
+    if(paths != null && trips.length != paths.length) throw Exception("Trip and path length different");
+
+    for (int tripIndex = 0; tripIndex < trips.length; tripIndex++) {
+      final trip = trips[tripIndex];
+      final path = paths?[tripIndex];
+      
+      Polyline<Object> polyline = _createPolylineHelper(path, trip, palette);
+      PolylineEntry entry = _createPolylineEntryHelper(polyline, trip);
+
+      final i = _polylines.indexWhere((e) => e.tripId == int.parse(trip.uid));
+      if (i >= 0) {
+        // Update existing
+        _polylines[i] = entry;
+      } else {
+        _polylines.add(entry);
+      }
+    }    
     notifyListeners();
+    // Save to cache after modification
+    unawaited(saveToCache());
   }
+
 
   void removePolylineByTripId(int tripId) {
     _polylines.removeWhere((e) => e.tripId == tripId);
@@ -350,7 +390,15 @@ class PolylineProvider extends ChangeNotifier {
   // --- Listeners --------------------------------------------------------------
 
   void _onTripsChanged() {
-    _syncWithTrips();
+    final partialUpdate = _trips!.modificatedTrips;
+    debugPrint("Trips changed (${partialUpdate?.length ?? -1})");
+    if(partialUpdate == null) {
+      _syncWithTrips();
+    }
+    else {
+      upsertPolylinesFromTrips(partialUpdate);
+      _lastTripsPolylineRevision = _trips!.polylineRevision;
+    }
   }
 
   void _onSettingsChanged() {
@@ -366,6 +414,20 @@ class PolylineProvider extends ChangeNotifier {
     // if (settings.shouldReloadPolylines) {
     //   unawaited(reload(ignoreCache: true));
     // }
+  }
+
+  /// Save current polylines to cache file
+  Future<void> saveToCache() async {
+    final settings = _settings;
+    if (settings == null) return;
+    
+    if (_polylines.isEmpty) {
+      debugPrint('⚠️ No polylines to cache');
+      return;
+    }
+
+    await _writeCache(_polylines, settings);
+    debugPrint('💾 Saved ${_polylines.length} polylines to cache');
   }
 
   Future<void> _writeCache(List<PolylineEntry> list, SettingsProvider settings) async {

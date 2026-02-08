@@ -46,7 +46,8 @@ class _StatisticsPageState extends State<StatisticsPage> {
       // Ensure Trips repo (for year list) is loaded
       final tripsProvider = Provider.of<TripsProvider>(context, listen: false);
       if (tripsProvider.repository == null) {
-        await tripsProvider.loadTrips();
+        // await tripsProvider.loadTrips();
+        await tripsProvider.loadNecessaryTripsData(hardRefresh: true);
       }
       final years = await tripsProvider.repository?.fetchListOfYears()
         ?..sort((a, b) => b.compareTo(a));

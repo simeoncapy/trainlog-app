@@ -31,12 +31,26 @@ class PolylineTools {
     }
 
     if (points is List) {
-      // Expect: [{ "lat": 35.7, "lng": 139.8 }, ...]
       return points.map<LatLng>((e) {
-        final m = e as Map<String, dynamic>;
-        final lat = (m['lat'] as num).toDouble();
-        final lng = (m['lng'] as num).toDouble();
-        return LatLng(lat, lng);
+        // Handle [lat, lng] array format
+        if (e is List) {
+          if (e.length != 2) {
+            throw ArgumentError('Expected [lat, lng] but got list of length ${e.length}');
+          }
+          final lat = (e[0] as num).toDouble();
+          final lng = (e[1] as num).toDouble();
+          return LatLng(lat, lng);
+        }
+        
+        // Handle {"lat": ..., "lng": ...} object format
+        if (e is Map) {
+          final m = e as Map<String, dynamic>;
+          final lat = (m['lat'] as num).toDouble();
+          final lng = (m['lng'] as num).toDouble();
+          return LatLng(lat, lng);
+        }
+        
+        throw ArgumentError('Unsupported point format: ${e.runtimeType}');
       }).toList();
     }
 
