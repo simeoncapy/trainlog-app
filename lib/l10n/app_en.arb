@@ -68,6 +68,13 @@
   "locationPermissionDenied": "Location permission denied",
   "duplicateBtnLabel": "Duplicate",
   "newBadge": "NEW",
+  "nbrPassengers": "{count, plural, =0 {{count} passengers} =1 {1 passenger} other {{count} passengers}}",
+  "@nbrPassengers": {
+    "description": "Number of passengers",
+    "placeholders": {
+      "count": {}
+    }
+  },
   
   "settingsAppCategory": "App Settings",
   "settingsMapCategory": "Map Settings",

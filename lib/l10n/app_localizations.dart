@@ -454,6 +454,12 @@ abstract class AppLocalizations {
   /// **'NEW'**
   String get newBadge;
 
+  /// Number of passengers
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0 {{count} passengers} =1 {1 passenger} other {{count} passengers}}'**
+  String nbrPassengers(num count);
+
   /// No description provided for @settingsAppCategory.
   ///
   /// In en, this message translates to:

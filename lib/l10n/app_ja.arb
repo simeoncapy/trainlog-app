@@ -58,6 +58,7 @@
   "locationPermissionDenied": "位置情報の許可が拒否されました",
   "duplicateBtnLabel": "複製",
   "newBadge": "新しい",
+  "nbrPassengers": "乗客{count}名",
 
   "settingsAppCategory": "アプリ設定",
   "settingsMapCategory": "地図設定",

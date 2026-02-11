@@ -58,6 +58,7 @@
   "locationPermissionDenied": "Partage de la localisation refusé",
   "duplicateBtnLabel": "Dupliquer",
   "newBadge": "NOUVEAU",
+  "nbrPassengers": "{count, plural, =0 {{count} passager} =1 {1 passager} other {{count} passagers}}",
 
   "settingsAppCategory": "Paramètres de l'application",
   "settingsMapCategory": "Paramètres de la carte",

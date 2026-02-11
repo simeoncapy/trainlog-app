@@ -189,6 +189,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get newBadge => 'NEW';
 
   @override
+  String nbrPassengers(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count passengers',
+      one: '1 passenger',
+      zero: '$count passengers',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get settingsAppCategory => 'App Settings';
 
   @override

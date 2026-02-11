@@ -59,6 +59,7 @@ class _SettingsPageState extends State<SettingsPage> {
   bool? _accountLeaderboard;
   bool? _accountFriendSearch;
   bool? _accountAppearGlobal;
+  int _tapOnVersion = 0;
 
   static const String accountSettingsKeyLeaderboard = "leaderboard";
   static const String accountSettingsKeyFriendSearch = "friend_search";
@@ -585,9 +586,12 @@ class _SettingsPageState extends State<SettingsPage> {
                   return GestureDetector(
                     onTap: () {
                       Clipboard.setData(ClipboardData(text: version));
-                      scaffMsg.showSnackBar(
-                        SnackBar(content: Text(appLocalization.appVersionCopied)),
-                      );
+                      if(_tapOnVersion == 0){ // Avoid multiple Snackbar if multiple tap                        
+                        scaffMsg.showSnackBar(
+                          SnackBar(content: Text(appLocalization.appVersionCopied)),
+                        );
+                      }
+                      _tapOnVersion++;
                     },
                     child: Text(version)
                   );

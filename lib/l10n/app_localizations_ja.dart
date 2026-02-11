@@ -189,6 +189,11 @@ class AppLocalizationsJa extends AppLocalizations {
   String get newBadge => '新しい';
 
   @override
+  String nbrPassengers(num count) {
+    return '乗客$count名';
+  }
+
+  @override
   String get settingsAppCategory => 'アプリ設定';
 
   @override
