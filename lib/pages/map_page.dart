@@ -13,11 +13,13 @@ import 'package:provider/provider.dart';
 import 'package:trainlog_app/data/models/polyline_entry.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
+import 'package:trainlog_app/navigation/nav_models.dart';
 import 'package:trainlog_app/providers/polyline_provider.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/utils/location_utils.dart';
+import 'package:trainlog_app/utils/platform_utils.dart';
 import 'package:trainlog_app/widgets/dropdown_radio_list.dart';
 import 'package:trainlog_app/widgets/trip_details_bottom_sheet.dart';
 import 'package:trainlog_app/widgets/vehicle_type_filter_chips.dart';
@@ -25,9 +27,9 @@ import 'package:trainlog_app/widgets/vehicle_type_filter_chips.dart';
 enum YearFilter { all, past, future, years }
 
 class MapPage extends StatefulWidget {
-  final void Function(FloatingActionButton? fab) onFabReady;
+  final void Function(AppPrimaryAction? action) onPrimaryActionReady;
 
-  const MapPage({super.key, required this.onFabReady});
+  const MapPage({super.key, required this.onPrimaryActionReady});
 
   @override
   State<MapPage> createState() => _MapPageState();
@@ -93,7 +95,7 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver, Automati
     // kick loading once providers exist
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<PolylineProvider>().ensureLoaded();
-      widget.onFabReady(buildFloatingActionButton(context));
+      widget.onPrimaryActionReady(_buildPrimaryAction(context));
     });
   }
 
@@ -371,7 +373,7 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver, Automati
       // While loading, don’t show FAB
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
-        widget.onFabReady(null);
+        widget.onPrimaryActionReady(null);
       });
 
       return Center(
@@ -390,7 +392,7 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver, Automati
     // After loading, show FAB if filter modal is closed
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      widget.onFabReady(buildFloatingActionButton(context));
+      widget.onPrimaryActionReady(_buildPrimaryAction(context));
     });
 
     final filtered = _filterBySelection(poly.polylines);
@@ -519,7 +521,7 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver, Automati
                 child: ElevatedButton.icon(
                   onPressed: () {
                     setState(() => _showFilterModal = false);
-                    widget.onFabReady(buildFloatingActionButton(context));
+                    widget.onPrimaryActionReady(_buildPrimaryAction(context));
                   },
                   icon: const Icon(Icons.close),
                   label: Text(MaterialLocalizations.of(context).closeButtonLabel),
@@ -627,14 +629,15 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver, Automati
     );
   }
 
-  FloatingActionButton? buildFloatingActionButton(BuildContext context) {
+  AppPrimaryAction? _buildPrimaryAction(BuildContext context) {
     if (_showFilterModal) return null;
-    return FloatingActionButton(
+    return AppPrimaryAction(
+      icon: AdaptiveIcons.filter, // add if missing
+      tooltip: AppLocalizations.of(context)!.filterButton,
       onPressed: () {
         setState(() => _showFilterModal = true);
-        widget.onFabReady(null);
+        widget.onPrimaryActionReady(null);
       },
-      child: const Icon(Icons.filter_alt),
     );
   }
 }

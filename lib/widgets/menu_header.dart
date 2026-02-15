@@ -6,6 +6,7 @@ import 'package:trainlog_app/pages/inbox_page.dart';
 import 'package:trainlog_app/pages/trainlog_status_page.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
+import 'package:trainlog_app/utils/platform_utils.dart';
 import 'package:trainlog_app/widgets/auth_dialog.dart';
 import 'package:trainlog_app/widgets/auth_form.dart';
 
@@ -37,11 +38,11 @@ enum TrainlogStatus {
   Icon toIcon(double? size) {
     switch(this) {
       case ok:
-        return Icon( Icons.check_circle, size: size, color: ok.toColor(),);
+        return Icon( AdaptiveIcons.ok, size: size, color: ok.toColor(),);
       case trouble:
-        return Icon( Icons.warning, size: size, color: trouble.toColor(),);
+        return Icon( AdaptiveIcons.warning, size: size, color: trouble.toColor(),);
       case down:
-        return Icon( Icons.error, size: size, color: down.toColor(),);
+        return Icon( AdaptiveIcons.error, size: size, color: down.toColor(),);
     }
   }
 }
@@ -148,7 +149,7 @@ class _MenuHeaderState extends State<MenuHeader> {
 
   ElevatedButton _logoutButtonHelper(AppLocalizations loc, BuildContext context, SettingsProvider settings, ScaffoldMessengerState scaffMsg) {
     return ElevatedButton.icon(
-      icon: const Icon(Icons.logout),
+      icon: Icon(AdaptiveIcons.logout),
       label: Text(loc.logoutButton),
       onPressed: () async {
         await context.read<TrainlogProvider>().logout(settings: settings);
@@ -212,7 +213,7 @@ class _MenuHeaderState extends State<MenuHeader> {
       label: Text(badgeLabel),
       textColor: Colors.white,
       child: IconButton(
-        icon: const Icon(Icons.inbox),
+        icon: Icon(AdaptiveIcons.inbox),
         style: IconButton.styleFrom(
           backgroundColor: theme.colorScheme.secondaryContainer,
           foregroundColor: theme.colorScheme.onSecondaryContainer,

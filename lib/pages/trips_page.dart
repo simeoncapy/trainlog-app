@@ -7,19 +7,21 @@ import 'package:trainlog_app/data/models/trip_form_model.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/data/trips_repository.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
+import 'package:trainlog_app/navigation/nav_models.dart';
 import 'package:trainlog_app/pages/add_trip_page.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
+import 'package:trainlog_app/utils/platform_utils.dart';
 import 'package:trainlog_app/widgets/past_future_selector.dart';
 import 'package:trainlog_app/widgets/trip_details_bottom_sheet.dart';
 import 'package:trainlog_app/widgets/trips_filter_dialog.dart';
 
 class TripsPage extends StatefulWidget {
-  final void Function(FloatingActionButton? fab) onFabReady;
-  const TripsPage({super.key, required this.onFabReady});  
+  final void Function(AppPrimaryAction? action) onPrimaryActionReady;
+  const TripsPage({super.key, required this.onPrimaryActionReady});  
 
   @override
   State<TripsPage> createState() => _TripsPageState();
@@ -82,7 +84,7 @@ class _TripsPageState extends State<TripsPage> {
 
       // If you need to (re)expose the FAB after first layout:
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) widget.onFabReady(buildFloatingActionButton(context)!);
+        if (mounted) widget.onPrimaryActionReady(_buildPrimaryAction(context));
       });
     }
 
@@ -296,8 +298,8 @@ class _TripsPageState extends State<TripsPage> {
     }
   }
 
-  FloatingActionButton? buildFloatingActionButton(BuildContext context) {
-    return FloatingActionButton(
+  AppPrimaryAction _buildPrimaryAction(BuildContext context) {
+    return AppPrimaryAction(
       onPressed: () async {
         final didSave = await Navigator.of(context).push<bool>(
           PageRouteBuilder(
@@ -328,11 +330,11 @@ class _TripsPageState extends State<TripsPage> {
 
           // (optional) re-emit the FAB
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) widget.onFabReady(buildFloatingActionButton(context));
+            if (mounted) widget.onPrimaryActionReady(_buildPrimaryAction(context));
           });
         }
       },
-      child: const Icon(Icons.add),
+      icon: AdaptiveIcons.add,
     );
   }
 }

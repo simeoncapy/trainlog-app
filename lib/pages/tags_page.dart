@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:trainlog_app/navigation/nav_models.dart';
 import 'package:trainlog_app/pages/add_tag_page.dart';
+import 'package:trainlog_app/utils/platform_utils.dart';
 import 'package:trainlog_app/widgets/dismissible_error_banner_block.dart';
 import 'package:trainlog_app/widgets/error_banner.dart';
 import 'package:trainlog_app/widgets/trainlog_web_page.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 
 class TagsPage extends StatefulWidget {
-  final void Function(FloatingActionButton? fab) onFabReady;
-  const TagsPage({super.key, required this.onFabReady});
+  final void Function(AppPrimaryAction? action) onPrimaryActionReady;
+  const TagsPage({super.key, required this.onPrimaryActionReady});
 
   @override
   State<TagsPage> createState() => _TagsPageState();
@@ -20,7 +22,7 @@ class _TagsPageState extends State<TagsPage> {
     final loc = AppLocalizations.of(context)!;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) widget.onFabReady(buildFloatingActionButton(context)!);
+        if (mounted) widget.onPrimaryActionReady(_buildPrimaryAction(context));
       });
     
     return Column(
@@ -38,8 +40,8 @@ class _TagsPageState extends State<TagsPage> {
     );
   }
 
-  FloatingActionButton? buildFloatingActionButton(BuildContext context) {
-    return FloatingActionButton(
+  AppPrimaryAction _buildPrimaryAction(BuildContext context) {
+    return AppPrimaryAction(
       onPressed: () {
         Navigator.of(context).push(PageRouteBuilder(
           pageBuilder: (_, __, ___) => ChangeNotifierProvider(
@@ -50,7 +52,7 @@ class _TagsPageState extends State<TagsPage> {
           reverseTransitionDuration: Duration.zero,
         ));
       },
-      child: const Icon(Icons.add),
+      icon: AdaptiveIcons.add,
     );
   }
 }

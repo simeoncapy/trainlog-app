@@ -1,8 +1,10 @@
-import 'dart:io';
 import 'package:currency_picker/currency_picker.dart';
 import 'package:flutter/services.dart';
+import 'package:trainlog_app/pages/snake_game.dart';
+import 'package:trainlog_app/platform/adaptive_information_message.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/utils/app_info_utils.dart';
+import 'package:trainlog_app/utils/platform_utils.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -265,7 +267,7 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
             ),            
             ListTile(
-              leading: Icon(Icons.warning),
+              leading: Icon(AdaptiveIcons.warning),
               title: Text(appLocalization.settingsHideWarningMessage),
               trailing: Switch(
                 value: settings.hideWarningMessage, 
@@ -590,6 +592,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         scaffMsg.showSnackBar(
                           SnackBar(content: Text(appLocalization.appVersionCopied)),
                         );
+                        AdaptiveInformationMessage.show(context, appLocalization.appVersionCopied);
                       }
                       _tapOnVersion++;
                     },

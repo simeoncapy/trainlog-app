@@ -6,6 +6,7 @@ import 'package:trainlog_app/data/models/trips.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'package:trainlog_app/l10n/app_localizations.dart';
+import 'package:trainlog_app/navigation/nav_models.dart';
 import 'package:trainlog_app/pages/add_trip_page.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
@@ -13,6 +14,7 @@ import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/utils/location_utils.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
 import 'package:trainlog_app/utils/number_formatter.dart';
+import 'package:trainlog_app/utils/platform_utils.dart';
 import 'package:trainlog_app/utils/style_utils.dart';
 import 'package:trainlog_app/utils/cached_data_utils.dart';
 import 'package:geolocator/geolocator.dart';
@@ -20,8 +22,8 @@ import 'package:trainlog_app/widgets/error_banner.dart';
 import 'package:trainlog_app/widgets/shimmer_box.dart';
 
 class SmartPrerecorderPage extends StatefulWidget {
-  final void Function(FloatingActionButton? fab) onFabReady;
-  const SmartPrerecorderPage({super.key, required this.onFabReady});
+  final void Function(AppPrimaryAction? action) onPrimaryActionReady;
+  const SmartPrerecorderPage({super.key, required this.onPrimaryActionReady});
 
   @override
   State<SmartPrerecorderPage> createState() => _SmartPrerecorderPageState();
@@ -359,7 +361,7 @@ class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
     final theme = Theme.of(context);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) widget.onFabReady(buildFloatingActionButton(context)!);
+        if (mounted) widget.onPrimaryActionReady(_buildPrimaryAction(context));
       });
 
     return Padding(
@@ -620,13 +622,13 @@ class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
     );
   }
 
-  FloatingActionButton? buildFloatingActionButton(BuildContext context) {
+  AppPrimaryAction _buildPrimaryAction(BuildContext context) {
     final trainlog = Provider.of<TrainlogProvider>(context, listen: false);
     final loc = AppLocalizations.of(context)!;
     final scaffMsg = ScaffoldMessenger.of(context);
     final settings = context.read<SettingsProvider>();
 
-    return FloatingActionButton.extended(
+    return AppPrimaryAction(
       onPressed: () async {
         try {
           final id = DateTime.now().millisecondsSinceEpoch;
@@ -729,8 +731,8 @@ class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
           scaffMsg.showSnackBar(SnackBar(content: Text(e.toString())));
         }
       },
-      icon: const Icon(Icons.edit),
-      label: Text(loc.prerecorderRecordButton)
+      icon: AdaptiveIcons.edit,
+      label: loc.prerecorderRecordButton
     );
   }
 }
