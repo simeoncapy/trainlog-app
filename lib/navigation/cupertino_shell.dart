@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' show Icon;
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/navigation/nav_models.dart';
+import 'package:trainlog_app/pages/settings/settings_cupertino_page.dart';
+import 'package:trainlog_app/platform/cupertino_fab.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 
 import 'package:trainlog_app/pages/about_page.dart';
@@ -9,7 +11,6 @@ import 'package:trainlog_app/pages/coverage_page.dart';
 import 'package:trainlog_app/pages/friends_page.dart';
 import 'package:trainlog_app/pages/map_page.dart';
 import 'package:trainlog_app/pages/ranking_page.dart';
-import 'package:trainlog_app/pages/settings_page.dart';
 import 'package:trainlog_app/pages/smart_prerecorder_page.dart';
 import 'package:trainlog_app/pages/statistics_page.dart';
 import 'package:trainlog_app/pages/tags_page.dart';
@@ -25,6 +26,7 @@ class CupertinoShell extends StatefulWidget {
 
 class _CupertinoShellState extends State<CupertinoShell> {
   late final CupertinoTabController _controller;
+  static const double _tabBarHeight = 50.0; // keep consistent with CupertinoTabBar default
 
   @override
   void initState() {
@@ -50,7 +52,7 @@ class _CupertinoShellState extends State<CupertinoShell> {
           BottomNavigationBarItem(icon: Icon(AdaptiveIcons.trips), label: l10n.menuTripsTitle),
           BottomNavigationBarItem(icon: Icon(AdaptiveIcons.ranking), label: l10n.menuRankingTitle),
           BottomNavigationBarItem(icon: Icon(AdaptiveIcons.statistics), label: l10n.menuStatisticsTitle),
-          BottomNavigationBarItem(icon: Icon(AdaptiveIcons.other), label: 'More'),
+          BottomNavigationBarItem(icon: Icon(AdaptiveIcons.other), label: l10n.menuIosMore),
         ],
       ),
       tabBuilder: (context, index) {
@@ -59,21 +61,26 @@ class _CupertinoShellState extends State<CupertinoShell> {
             switch (index) {
               case 0:
                 return _CupertinoRootPage(
+                  key: ValueKey(AppPageId.map.name),
                   title: l10n.menuMapTitle,
+                  hasNavBar: false,
                   builder: (ctx, setAction) => MapPage(onPrimaryActionReady: setAction),
                 );
               case 1:
                 return _CupertinoRootPage(
+                  key: ValueKey(AppPageId.trips.name),
                   title: l10n.menuTripsTitle,
                   builder: (ctx, setAction) => TripsPage(onPrimaryActionReady: setAction),
                 );
               case 2:
                 return _CupertinoRootPage(
+                  key: ValueKey(AppPageId.ranking.name),
                   title: l10n.menuRankingTitle,
                   builder: (_, __) => const RankingPage(),
                 );
               case 3:
                 return _CupertinoRootPage(
+                  key: ValueKey(AppPageId.statistics.name),
                   title: l10n.menuStatisticsTitle,
                   builder: (_, __) => const StatisticsPage(),
                 );
@@ -90,10 +97,13 @@ class _CupertinoShellState extends State<CupertinoShell> {
 class _CupertinoRootPage extends StatefulWidget {
   final String title;
   final Widget Function(BuildContext context, ValueChanged<AppPrimaryAction?> setAction) builder;
+  final bool hasNavBar;
 
   const _CupertinoRootPage({
+    super.key,
     required this.title,
     required this.builder,
+    this.hasNavBar = true,
   });
 
   @override
@@ -115,13 +125,10 @@ class _CupertinoRootPageState extends State<_CupertinoRootPage> {
 
     // Reserve: tab bar height + home indicator safe area
     final bottomPadding = mq.padding.bottom;
-
-    // IMPORTANT: make the nav bar opaque so CupertinoPageScaffold treats it as "obstructing"
-    // and positions the body BELOW it (no content hidden behind).
     final navBg = CupertinoTheme.of(context).scaffoldBackgroundColor;
 
     return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
+      navigationBar: widget.hasNavBar ? CupertinoNavigationBar(
         backgroundColor: navBg,
         middle: Text(widget.title),
         trailing: ValueListenableBuilder<AppPrimaryAction?>(
@@ -135,12 +142,45 @@ class _CupertinoRootPageState extends State<_CupertinoRootPage> {
             );
           },
         ),
-      ),
-      child: Padding(
+      ) : null,
+      child: widget.hasNavBar 
+            ? _childWithNavBar(bottomPadding)
+            : _childWithoutNavBar(mq),
+    );
+  }
+
+  Widget _childWithNavBar(double bottomPadding) {
+    return  Padding(
         padding: EdgeInsets.only(bottom: bottomPadding),
         child: widget.builder(context, (a) => _action.value = a),
-      ),
-    );
+      );
+  }
+
+  Widget _childWithoutNavBar(MediaQueryData mq) {
+    return Stack(
+        children: [
+          // Map content
+          Positioned.fill(
+            child: Padding(
+              padding: EdgeInsets.only(bottom: mq.padding.bottom),
+              child: widget.builder(context, (a) => _action.value = a),
+            ),
+          ),
+
+          // Top-right floating primary action (replaces nav bar trailing)
+          Positioned(
+            top: mq.padding.top + 8,
+            right: 12,
+            child: ValueListenableBuilder<AppPrimaryAction?>(
+              valueListenable: _action,
+              builder: (_, action, __) {
+                if (action == null) return const SizedBox.shrink();
+                return CupertinoFloatingActionButton(action: action);
+              },
+            ),
+          ),
+        ],
+      );
   }
 }
 
@@ -158,7 +198,7 @@ class _MorePage extends StatelessWidget {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
         backgroundColor: navBg,
-        middle: const Text('More'),
+        middle: Text(l10n.menuIosMore),
       ),
       child: Padding(
         padding: EdgeInsets.only(bottom: bottomPadding),
@@ -212,7 +252,7 @@ class _MorePage extends StatelessWidget {
               context,
               icon: AdaptiveIcons.settings,
               title: l10n.menuSettingsTitle,
-              push: () => _pushSimple(context, l10n.menuSettingsTitle, const SettingsPage()),
+              push: () => _pushSimple(context, l10n.menuSettingsTitle, const SettingsCupertinoPage()),
             ),
             _moreTile(
               context,

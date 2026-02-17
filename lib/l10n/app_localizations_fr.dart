@@ -379,6 +379,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get menuAboutTitle => 'À propos';
 
   @override
+  String get menuIosMore => 'Plus';
+
+  @override
   String get tripPathLoading =>
       'Chemin des trajets en cours de chargement, veuillez patienter';
 

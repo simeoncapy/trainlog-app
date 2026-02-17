@@ -784,6 +784,12 @@ abstract class AppLocalizations {
   /// **'About'**
   String get menuAboutTitle;
 
+  /// No description provided for @menuIosMore.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get menuIosMore;
+
   /// No description provided for @tripPathLoading.
   ///
   /// In en, this message translates to:

@@ -374,6 +374,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get menuAboutTitle => 'About';
 
   @override
+  String get menuIosMore => 'More';
+
+  @override
   String get tripPathLoading => 'Trips\' path loading, please wait';
 
   @override

@@ -364,6 +364,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get menuAboutTitle => 'ついて';
 
   @override
+  String get menuIosMore => 'もっと';
+
+  @override
   String get tripPathLoading => '旅行のパスを読み込んでいます。お待ちください';
 
   @override

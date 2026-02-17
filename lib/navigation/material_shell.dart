@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/navigation/nav_models.dart';
+import 'package:trainlog_app/pages/settings/settings_material_page.dart';
 import 'package:trainlog_app/platform/adaptive_app_bar.dart';
 import 'package:trainlog_app/platform/adaptive_bottom_navbar.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
@@ -112,7 +113,8 @@ class _MaterialShellState extends State<MaterialShell> {
       ),
       AppPage(
         id: AppPageId.settings,
-        view: const SettingsPage(),
+        //view: const SettingsPage(),
+        view: const SettingsMaterialPage(),
         titleBuilder: (c) => AppLocalizations.of(c)!.menuSettingsTitle,
         icon: AdaptiveIcons.settings,
       ),
