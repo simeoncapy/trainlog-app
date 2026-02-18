@@ -115,7 +115,7 @@ abstract class AppLocalizations {
   /// No description provided for @appVersion.
   ///
   /// In en, this message translates to:
-  /// **'App version:'**
+  /// **'App version'**
   String get appVersion;
 
   /// No description provided for @appVersionCopied.
@@ -460,6 +460,12 @@ abstract class AppLocalizations {
   /// **'{count, plural, =0 {{count} passengers} =1 {1 passenger} other {{count} passengers}}'**
   String nbrPassengers(num count);
 
+  /// No description provided for @dialogueDefaultInfoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Information'**
+  String get dialogueDefaultInfoTitle;
+
   /// No description provided for @settingsAppCategory.
   ///
   /// In en, this message translates to:
@@ -717,6 +723,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your public profile can be accessed via your username.'**
   String get settingsAccountVisibilitPublicHelper;
+
+  /// No description provided for @settingsInstanceUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'Trainlog instance'**
+  String get settingsInstanceUrl;
+
+  /// No description provided for @settingsInstanceMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'You can change the path of the Trainlog instance used by the application on the login page.'**
+  String get settingsInstanceMsg;
 
   /// No description provided for @menuMapTitle.
   ///

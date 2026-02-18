@@ -7,8 +7,6 @@ import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
-import 'package:trainlog_app/utils/style_utils.dart';
-import 'package:trainlog_app/utils/number_formatter.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
 
@@ -75,7 +73,7 @@ class _SettingsMaterialPageState extends State<SettingsMaterialPage> {
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text(MaterialLocalizations.of(context).okButtonLabel),
+            child: Text(l10n.settingsCacheClearButton),
           ),
         ],
       ),
@@ -108,14 +106,6 @@ class _SettingsMaterialPageState extends State<SettingsMaterialPage> {
     }
   }
 
-
-  void _showCopiedInfo() {
-    final l10n = AppLocalizations.of(context)!;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(l10n.appVersionCopied)),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -134,7 +124,6 @@ class _SettingsMaterialPageState extends State<SettingsMaterialPage> {
             trainlog: trainlog,
             vm: _vm,
             l10n: l10n,
-            showCopiedInfo: _showCopiedInfo,
             showCurrencyPickerMaterialOrCupertino: _showCurrencyPickerMaterial,
             confirmAndClearCache: _confirmAndClearCache,
             requestDeleteAccountMail: _requestDeleteAccountMail,
@@ -244,35 +233,11 @@ class _SettingsMaterialPageState extends State<SettingsMaterialPage> {
       );
     }
 
-    if (item is SettingsDangerActionSpec) {
-      final l10n = AppLocalizations.of(context)!;
-      final scheme = Theme.of(context).colorScheme;
-
-      if (item.style == DangerActionStyle.clearCache) {
-        return ListTile(
-          leading: Icon(item.icon),
-          title: Text(
-            // same as before: show human cache size string
-            l10n.settingsCache(formatNumber(context, _vm.totalCacheSize)),
-          ),
-          trailing: ElevatedButton.icon(
-            onPressed: item.enabled ? item.onPressed : null,
-            icon: const Icon(Icons.delete),
-            label: Text(l10n.settingsCacheClearButton),
-            style: buttonStyleHelper(scheme.error, scheme.onError),
-          ),
-        );
-      }
-
-      // delete account
+    if (item is SettingsButtonActionSpec) {
       return ListTile(
         leading: Icon(item.icon),
         title: Text(item.title),
-        trailing: ElevatedButton.icon(
-          icon: const Icon(Icons.mail),
-          label: Text(l10n.settingsDeleteAccountRequest),
-          onPressed: item.onPressed,
-        ),
+        trailing: item.button,
       );
     }
 
@@ -289,6 +254,17 @@ class _SettingsMaterialPageState extends State<SettingsMaterialPage> {
               child: Text(snap.data!),
             );
           },
+        ),
+      );
+    }
+
+    if (item is SettingsStringSpec) {
+      return ListTile(
+        leading: Icon(item.icon),
+        title: Text(item.title),
+        trailing: GestureDetector(
+          onTap: item.onTap,
+          child: Text(item.value)
         ),
       );
     }

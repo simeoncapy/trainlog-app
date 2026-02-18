@@ -137,12 +137,6 @@ class _SettingsCupertinoPageState extends State<SettingsCupertinoPage> {
     }
   }
 
-
-  void _showCopiedInfo() {
-    final l10n = AppLocalizations.of(context)!;
-    AdaptiveInformationMessage.show(context, l10n.appVersionCopied);
-  }
-
   Future<void> _showCurrencyPickerCupertino() async {
     final settings = context.read<SettingsProvider>();
     final trainlog = context.read<TrainlogProvider>();
@@ -192,7 +186,6 @@ class _SettingsCupertinoPageState extends State<SettingsCupertinoPage> {
           trainlog: trainlog,
           vm: _vm,
           l10n: l10n,
-          showCopiedInfo: _showCopiedInfo,
           showCurrencyPickerMaterialOrCupertino: _showCurrencyPickerCupertino,
           confirmAndClearCache: _confirmAndClearCache,
           requestDeleteAccountMail: _requestDeleteAccountMail,
@@ -296,38 +289,11 @@ class _SettingsCupertinoPageState extends State<SettingsCupertinoPage> {
     }
 
     // --- Danger actions ---
-    if (item is SettingsDangerActionSpec) {
-      final titleWidget = Text(item.title,);
-
-      Widget? trailing;
-      if (item.style == DangerActionStyle.clearCache) {
-        final l10n = AppLocalizations.of(context)!;
-        trailing = CupertinoButton(
-          padding: EdgeInsets.zero,
-          onPressed: item.enabled ? item.onPressed : null,
-          child: Text(
-            l10n.settingsCacheClearButton,
-            style: TextStyle(
-              color: item.enabled
-                  ? CupertinoColors.systemRed.resolveFrom(context)
-                  : CupertinoColors.secondaryLabel.resolveFrom(context),
-            ),
-          ),
-        );
-      }
-      if(item.style == DangerActionStyle.deleteAccount) {
-        trailing = CupertinoButton(
-          padding: EdgeInsets.zero,
-          onPressed: () => item.enabled ? item.onPressed : null,
-          child: const Icon(CupertinoIcons.mail),
-        );
-      }
-
+    if (item is SettingsButtonActionSpec) {
       return CupertinoListTile(
         leading: Icon(item.icon),
-        title: titleWidget,
-        trailing: trailing,
-        //onTap: item.enabled ? item.onPressed : null,
+        title: Text(item.title,),
+        trailing: item.button,
       );
     }
 
@@ -345,6 +311,15 @@ class _SettingsCupertinoPageState extends State<SettingsCupertinoPage> {
             onTap: item.onTap,
           );
         },
+      );
+    }
+
+    if (item is SettingsStringSpec) {
+      return CupertinoListTile(
+        leading: Icon(item.icon),
+        title: Text(item.title),
+        additionalInfo: Text(item.value),
+        onTap: item.onTap,
       );
     }
 

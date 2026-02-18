@@ -2,7 +2,7 @@
   "@@locale": "en",
   "appTitle": "Trainlog",
   "language": "English",
-  "appVersion": "App version:",
+  "appVersion": "App version",
   "appVersionCopied": "Version number copied",
   "mainMenuButtonTooltip": "Open menu",
   "filterButton": "Filter",
@@ -75,6 +75,7 @@
       "count": {}
     }
   },
+  "dialogueDefaultInfoTitle": "Information",
   
   "settingsAppCategory": "App Settings",
   "settingsMapCategory": "Map Settings",
@@ -131,6 +132,8 @@
   "settingsAccountVisibilitPrivateHelper": "Your account remains entirely private. No one can view any details or content.",
   "settingsAccountVisibilitRestrictedHelper": "Individual trips can be shared using trip-IDs, hiding personal data. But the public profile remains inaccessible.",
   "settingsAccountVisibilitPublicHelper": "Your public profile can be accessed via your username.",
+  "settingsInstanceUrl": "Trainlog instance",
+  "settingsInstanceMsg": "You can change the path of the Trainlog instance used by the application on the login page.",
   
   "menuMapTitle": "Map",
   "menuTripsTitle": "Trips",

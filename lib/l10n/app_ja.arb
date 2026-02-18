@@ -2,7 +2,7 @@
   "@@locale": "ja",
   "appTitle": "トレインログ",
   "language": "日本語",
-  "appVersion": "アプリバージョン:",
+  "appVersion": "アプリバージョン",
   "appVersionCopied": "バージョン番号をコピーしました。",
   "mainMenuButtonTooltip": "メニューを開く",
   "filterButton": "フィルター",
@@ -59,6 +59,7 @@
   "duplicateBtnLabel": "複製",
   "newBadge": "新しい",
   "nbrPassengers": "乗客{count}名",
+  "dialogueDefaultInfoTitle": "お知らせ",
 
   "settingsAppCategory": "アプリ設定",
   "settingsMapCategory": "地図設定",
@@ -103,6 +104,8 @@
   "settingsAccountVisibilitPrivateHelper": "あなたのアカウントは完全に非公開のままです。誰も詳細やコンテンツを見ることはできません。",
   "settingsAccountVisibilitRestrictedHelper": "個々の旅行は、旅行IDを使用して共有できますが、個人データは非表示になります。ただし、公開プロフィールにはアクセスできません。",
   "settingsAccountVisibilitPublicHelper": "あなたの公開プロフィールは、あなたのユーザー名を通じてアクセスできます。",
+  "settingsInstanceUrl": "Trainlogのインスタンス",
+  "settingsInstanceMsg": "ログインページで、アプリケーションで使用されるTrainlogのインスタンスのパスを変更できます。",
 
   "menuMapTitle": "地図",
   "menuTripsTitle": "旅行",

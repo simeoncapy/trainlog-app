@@ -1,9 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:trainlog_app/app/app_globals.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 
 class AdaptiveInformationMessage {
+
+  static void _showMaterialDialog(
+    BuildContext context,
+    String message,
+    String? title,
+  ) {
+    if (Navigator.of(context, rootNavigator: true).canPop()) return;
+
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text(
+          title ?? AppLocalizations.of(context)!.dialogueDefaultInfoTitle,
+        ),
+        content: Text(message),
+        actions: [
+          TextButton(
+            child: Text(MaterialLocalizations.of(context).okButtonLabel),
+            onPressed: () =>
+                Navigator.of(context, rootNavigator: true).pop(),
+          ),
+        ],
+      ),
+    );
+  }
+
 
   static void _showMaterialSnackBar(BuildContext context, String message) {
     rootScaffoldMessengerKey.currentState?.showSnackBar(
@@ -11,13 +38,14 @@ class AdaptiveInformationMessage {
                       );
   }
 
-  static void _showCupertinoDialog(BuildContext context, String message) {
+  static void _showCupertinoDialog(BuildContext context, String message, String? title) {
     if (Navigator.of(context, rootNavigator: true).canPop()) return;
 
     showCupertinoDialog(
       context: context,
       builder: (_) => CupertinoAlertDialog(
-        title: Text(message),
+        title: Text(title ?? AppLocalizations.of(context)!.dialogueDefaultInfoTitle),
+        content: Text(message),
         actions: [
           CupertinoDialogAction(
             child: Text(MaterialLocalizations.of(context).okButtonLabel),
@@ -81,11 +109,11 @@ class AdaptiveInformationMessage {
 }
 
 
-  static void show(BuildContext context, String message, {bool isImportant = false}) {
+  static void show(BuildContext context, String message, {bool isImportant = false, String? title}) {
     if (AppPlatform.isApple) {
-      isImportant ? _showCupertinoDialog(context, message) : _showCupertinoSnackBar(context, message);
+      isImportant ? _showCupertinoDialog(context, message, title) : _showCupertinoSnackBar(context, message);
     } else {
-      _showMaterialSnackBar(context, message);
+      isImportant ? _showMaterialDialog(context, message, title) : _showMaterialSnackBar(context, message);
     }
   }
 }

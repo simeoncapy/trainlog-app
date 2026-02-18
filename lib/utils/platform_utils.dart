@@ -61,6 +61,7 @@ class AdaptiveIcons {
   static final IconData cache =       isA ? CupertinoIcons.cloud_download : Icons.cloud_download;
   static final IconData deleteAccount =isA ? CupertinoIcons.person_crop_circle_badge_xmark : Icons.no_accounts;
   static final IconData version =     isA ? CupertinoIcons.info_circle : Icons.info_outline;
+  static final IconData instance =    isA ? CupertinoIcons.link : Icons.http;
 
   // Pages
   static final IconData add = isA ? CupertinoIcons.add : Icons.add;

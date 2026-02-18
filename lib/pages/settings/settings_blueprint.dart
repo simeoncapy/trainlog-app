@@ -3,8 +3,12 @@ import 'package:flutter/widgets.dart';
 
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
+import 'package:trainlog_app/platform/adaptive_button.dart';
+import 'package:trainlog_app/platform/adaptive_information_message.dart';
+import 'package:trainlog_app/platform/adaptive_page_route.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
+import 'package:trainlog_app/services/trainlog_service.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
 import 'package:trainlog_app/utils/number_formatter.dart';
@@ -95,22 +99,15 @@ class SettingsCurrencySpec extends SettingsItemSpec {
   });
 }
 
-enum DangerActionStyle {
-  clearCache,
-  deleteAccount,
-}
+class SettingsButtonActionSpec extends SettingsItemSpec {
+  final Widget button;
 
-class SettingsDangerActionSpec extends SettingsItemSpec {
-  final DangerActionStyle style;
-  final VoidCallback onPressed;
-
-  const SettingsDangerActionSpec({
+  const SettingsButtonActionSpec({
     required super.icon,
     required super.title,
     super.subtitle,
     super.enabled,
-    required this.style,
-    required this.onPressed,
+    required this.button,
   });
 }
 
@@ -125,6 +122,20 @@ class SettingsVersionSpec extends SettingsItemSpec {
     super.enabled,
     required this.versionFuture,
     required this.onTap,
+  });
+}
+
+class SettingsStringSpec extends SettingsItemSpec {
+  final String value;
+  final VoidCallback? onTap;
+
+  const SettingsStringSpec({
+    required super.icon,
+    required super.title,
+    super.subtitle,
+    super.enabled,
+    required this.value,
+    this.onTap,
   });
 }
 
@@ -147,7 +158,6 @@ List<SettingsSectionSpec> buildSettingsBlueprint({
   required TrainlogProvider trainlog,
   required SettingsVm vm,
   required AppLocalizations l10n,
-  required VoidCallback showCopiedInfo,
   required Future<void> Function() showCurrencyPickerMaterialOrCupertino,
   required Future<void> Function() confirmAndClearCache,
   required Future<void> Function() requestDeleteAccountMail,
@@ -223,6 +233,7 @@ List<SettingsSectionSpec> buildSettingsBlueprint({
   final iconCache = AdaptiveIcons.cache;
   final iconDelete = AdaptiveIcons.deleteAccount;
   final iconVersion = AdaptiveIcons.info;
+  final iconInstance = AdaptiveIcons.instance;
 
   final cacheLabel = l10n.settingsCache(formatNumber(context, vm.totalCacheSize));
 
@@ -391,22 +402,29 @@ List<SettingsSectionSpec> buildSettingsBlueprint({
     SettingsSectionSpec(
       header: l10n.settingsDangerZoneCategory,
       items: [
-        SettingsDangerActionSpec(
+        SettingsButtonActionSpec(
           icon: iconCache,
           title: cacheLabel,
           enabled: vm.totalCacheSize > 0,
-          style: DangerActionStyle.clearCache,
-          onPressed: () {
-            confirmAndClearCache();
-          },
+          button: AdaptiveButton.build(
+            context: context,
+            icon: AdaptiveIcons.delete,
+            destructive: true,
+            size: AdaptiveButton.small,
+            child: Text(l10n.settingsCacheClearButton),
+            onPressed: vm.totalCacheSize > 0 ? () => confirmAndClearCache() : null
+          )
         ),
-        SettingsDangerActionSpec(
+        SettingsButtonActionSpec(
           icon: iconDelete,
           title: l10n.settingsDeleteAccount,
-          style: DangerActionStyle.deleteAccount,
-          onPressed: () {
-            requestDeleteAccountMail();
-          },
+          button: AdaptiveButton.build(
+            context: context,
+            icon: AdaptiveIcons.mail,
+            size: AdaptiveButton.small,
+            child: Text(l10n.settingsDeleteAccountRequest),
+            onPressed: () => requestDeleteAccountMail()
+          )
         ),
       ],
     ),
@@ -414,6 +432,18 @@ List<SettingsSectionSpec> buildSettingsBlueprint({
     SettingsSectionSpec(
       header: l10n.menuAboutTitle,
       items: [
+        SettingsStringSpec(
+          icon: iconInstance,
+          title: l10n.settingsInstanceUrl,
+          value: TrainlogService.baseUrl,
+          onTap: () {
+            AdaptiveInformationMessage.show(
+              context, 
+              l10n.settingsInstanceMsg, 
+              isImportant: true
+            );
+          },
+        ),
         SettingsVersionSpec(
           icon: iconVersion,
           title: l10n.appVersion,
@@ -421,7 +451,12 @@ List<SettingsSectionSpec> buildSettingsBlueprint({
           onTap: () {
             vm.onVersionTapped(
               l10n: l10n,
-              showCopiedInfo: showCopiedInfo,
+              showCopiedInfo: () {
+                AdaptiveInformationMessage.show(
+                  context, 
+                  l10n.appVersionCopied, 
+                );
+              },
             );
           },
         ),

@@ -15,7 +15,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get language => '日本語';
 
   @override
-  String get appVersion => 'アプリバージョン:';
+  String get appVersion => 'アプリバージョン';
 
   @override
   String get appVersionCopied => 'バージョン番号をコピーしました。';
@@ -194,6 +194,9 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
+  String get dialogueDefaultInfoTitle => 'お知らせ';
+
+  @override
   String get settingsAppCategory => 'アプリ設定';
 
   @override
@@ -329,6 +332,13 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get settingsAccountVisibilitPublicHelper =>
       'あなたの公開プロフィールは、あなたのユーザー名を通じてアクセスできます。';
+
+  @override
+  String get settingsInstanceUrl => 'Trainlogのインスタンス';
+
+  @override
+  String get settingsInstanceMsg =>
+      'ログインページで、アプリケーションで使用されるTrainlogのインスタンスのパスを変更できます。';
 
   @override
   String get menuMapTitle => '地図';

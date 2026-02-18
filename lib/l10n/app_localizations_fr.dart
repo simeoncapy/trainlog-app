@@ -15,7 +15,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get language => 'Français';
 
   @override
-  String get appVersion => 'Version de l\'application :';
+  String get appVersion => 'Version de l\'application';
 
   @override
   String get appVersionCopied => 'Numéro de version copié';
@@ -202,6 +202,9 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String get dialogueDefaultInfoTitle => 'Information';
+
+  @override
   String get settingsAppCategory => 'Paramètres de l\'application';
 
   @override
@@ -344,6 +347,13 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get settingsAccountVisibilitPublicHelper =>
       'Votre profil public est accessible via votre nom d\'utilisateur.';
+
+  @override
+  String get settingsInstanceUrl => 'Instance Trainlog';
+
+  @override
+  String get settingsInstanceMsg =>
+      'Vous pouvez modifier le chemin d\'accès à l\'instance Trainlog utilisée par l\'application sur la page de connexion.';
 
   @override
   String get menuMapTitle => 'Carte';

@@ -2,7 +2,7 @@
   "@@locale": "fr",
   "appTitle": "Trainlog",  
   "language": "Français",
-  "appVersion": "Version de l'application :",
+  "appVersion": "Version de l'application",
   "appVersionCopied": "Numéro de version copié",
   "mainMenuButtonTooltip": "Ouvrir le menu",
   "filterButton": "Filtrer",
@@ -59,6 +59,7 @@
   "duplicateBtnLabel": "Dupliquer",
   "newBadge": "NOUVEAU",
   "nbrPassengers": "{count, plural, =0 {{count} passager} =1 {1 passager} other {{count} passagers}}",
+  "dialogueDefaultInfoTitle": "Information",
 
   "settingsAppCategory": "Paramètres de l'application",
   "settingsMapCategory": "Paramètres de la carte",
@@ -103,6 +104,8 @@
   "settingsAccountVisibilitPrivateHelper": "Votre compte reste entièrement privé. Personne ne peut voir aucun détail ou contenu.",
   "settingsAccountVisibilitRestrictedHelper": "Les voyages sont visibles via leur identifiant, sans les données personnelles de l'utilisateur. Le profil public reste inaccessible.",
   "settingsAccountVisibilitPublicHelper": "Votre profil public est accessible via votre nom d'utilisateur.",
+  "settingsInstanceUrl": "Instance Trainlog",
+  "settingsInstanceMsg": "Vous pouvez modifier le chemin d'accès à l'instance Trainlog utilisée par l'application sur la page de connexion.",
 
   "menuMapTitle": "Carte",
   "menuTripsTitle": "Trajets",
