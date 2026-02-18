@@ -70,12 +70,17 @@ class _SettingsCupertinoPageState extends State<SettingsCupertinoPage> {
               CupertinoActionSheetAction(
                 onPressed: () {
                   Navigator.of(ctx).pop();
-                  // dyn.onChanged expects (T?) in your blueprint, but here we pass the value.
+                  // dyn.onChanged expects (T?) in blueprint, but here we pass the value.
                   if (dyn.onChanged != null) {
                     dyn.onChanged((o as dynamic).value);
                   }
                 },
-                child: Text((o as dynamic).label as String),
+                child: Text(
+                  style: TextStyle(
+                    fontWeight: dyn.value == (o as dynamic).value ? FontWeight.bold : null
+                  ),
+                  (o as dynamic).label as String
+                ),
               ),
           ],
           cancelButton: CupertinoActionSheetAction(
