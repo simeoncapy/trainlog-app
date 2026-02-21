@@ -36,7 +36,13 @@ class AppLocalizationsJa extends AppLocalizations {
   String get deleteAll => 'すべて削除';
 
   @override
+  String get deleteAllShort => '全て';
+
+  @override
   String get deleteSelection => '選択を削除';
+
+  @override
+  String get deleteSelectionShort => '選択';
 
   @override
   String get loginButton => 'ログイン';
@@ -982,6 +988,9 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get prerecorderErrorTypeSameForDepartureArrival =>
       '出発と到着は同じ乗り物のタイプ、または不明なタイプである必要があります';
+
+  @override
+  String get prerecorderErrorFetchingStation => '駅の取得中にエラーが発生しました';
 
   @override
   String get inboxPageTitle => 'お知らせ';

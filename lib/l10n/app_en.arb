@@ -9,7 +9,9 @@
   "descendingOrder": "Descending order",
   "ascendingOrder": "Ascending order",
   "deleteAll": "Delete all",
+  "deleteAllShort": "All",
   "deleteSelection": "Delete selection",
+  "deleteSelectionShort": "Selection",
   "loginButton": "Log in",
   "logoutButton": "Log out",
   "loggedOut": "Logged out",
@@ -432,6 +434,7 @@
   "prerecorderErrorMoreThanTwoSelected": "Please select only two geologs to create a trip",
   "prerecorderErrorDepartureAfterArrival": "The departure cannot be after the arrival",
   "prerecorderErrorTypeSameForDepartureArrival": "The departure and arrival must be of the same vehicle type, or unknown type",
+  "prerecorderErrorFetchingStation": "Error while fetching the stations",
 
   "inboxPageTitle": "News & Updates",
   "inboxAuthor": "By {author}",

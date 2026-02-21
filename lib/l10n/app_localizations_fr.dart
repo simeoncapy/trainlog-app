@@ -36,7 +36,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String get deleteAll => 'Tout supprimer';
 
   @override
+  String get deleteAllShort => 'Tout';
+
+  @override
   String get deleteSelection => 'Supprimer la sélection';
+
+  @override
+  String get deleteSelectionShort => 'Sélection';
 
   @override
   String get loginButton => 'Connexion';
@@ -353,7 +359,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get settingsInstanceMsg =>
-      'Vous pouvez modifier le chemin d\'accès à l\'instance Trainlog utilisée par l\'application sur la page de connexion.';
+      'Vous pouvez modifier l\'URL de l\'instance Trainlog utilisée par l\'application sur la page de connexion.';
 
   @override
   String get menuMapTitle => 'Carte';
@@ -1005,6 +1011,10 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get prerecorderErrorTypeSameForDepartureArrival =>
       'Le départ et l\'arrivée doivent être du même type de véhicule, ou de type inconnu';
+
+  @override
+  String get prerecorderErrorFetchingStation =>
+      'Erreur lors de la recherche de gares';
 
   @override
   String get inboxPageTitle => 'Messages';

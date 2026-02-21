@@ -1,3 +1,4 @@
+// material_shell.dart
 import 'package:flutter/material.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/navigation/nav_models.dart';
@@ -12,12 +13,86 @@ import 'package:trainlog_app/pages/coverage_page.dart';
 import 'package:trainlog_app/pages/friends_page.dart';
 import 'package:trainlog_app/pages/map_page.dart';
 import 'package:trainlog_app/pages/ranking_page.dart';
-import 'package:trainlog_app/pages/settings_page.dart';
 import 'package:trainlog_app/pages/smart_prerecorder_page.dart';
 import 'package:trainlog_app/pages/statistics_page.dart';
 import 'package:trainlog_app/pages/tags_page.dart';
 import 'package:trainlog_app/pages/tickets_page.dart';
 import 'package:trainlog_app/pages/trips_page.dart';
+
+typedef SetPrimaryActions = void Function(List<AppPrimaryAction> actions);
+
+class MaterialPrimaryActionsFabStack extends StatelessWidget {
+  final List<AppPrimaryAction> actions;
+
+  const MaterialPrimaryActionsFabStack({super.key, required this.actions});
+
+  @override
+  Widget build(BuildContext context) {
+    if (actions.isEmpty) return const SizedBox.shrink();
+
+    // Preserve current behaviour for a single action.
+    if (actions.length == 1) {
+      final a = actions.first;
+
+      if (a.isExtended) {
+        return FloatingActionButton.extended(
+          heroTag: 'fab_single',
+          onPressed: a.onPressed,
+          tooltip: a.tooltip,
+          icon: Icon(a.icon),
+          label: Text(a.label!),
+        );
+      }
+
+      return FloatingActionButton(
+        heroTag: 'fab_single',
+        onPressed: a.onPressed,
+        tooltip: a.tooltip,
+        child: Icon(a.icon),
+      );
+    }
+
+    // Multiple actions: FIRST action should be on the bottom.
+    // Build a vertical stack where bottom-most is the first action.
+    final reversed = actions.reversed.toList();
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        for (int i = 0; i < reversed.length; i++) ...[
+          _buildFabFor(reversed[i], index: i),
+          if (i != reversed.length - 1) const SizedBox(height: 12),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildFabFor(AppPrimaryAction a, {required int index}) {
+    // index 0 == bottom-most (original first action)
+    final hero = 'fab_$index';
+
+    // Only the bottom-most action may be extended (to keep the UI sane).
+    if (index == 0 && a.isExtended) {
+      return FloatingActionButton.extended(
+        heroTag: hero,
+        onPressed: a.onPressed,
+        tooltip: a.tooltip,
+        icon: Icon(a.icon),
+        label: Text(a.label!),
+      );
+    }
+
+    // Secondary actions: icon-only mini FABs.
+    return FloatingActionButton(
+      heroTag: hero,
+      mini: index != 0,
+      onPressed: a.onPressed,
+      tooltip: a.tooltip,
+      child: Icon(a.icon),
+    );
+  }
+}
 
 class MaterialShell extends StatefulWidget {
   const MaterialShell({super.key});
@@ -33,9 +108,12 @@ class _MaterialShellState extends State<MaterialShell> {
   int _previousBottomIndex = 0;
 
   late final List<AppPage> _pages;
-  late final List<AppPrimaryAction?> _actions;
 
-  final ValueNotifier<AppPrimaryAction?> _actionNotifier = ValueNotifier(null);
+  // NEW: list-of-actions per page
+  late final List<List<AppPrimaryAction>> _actions;
+
+  // NEW: notifier emits the current page list-of-actions
+  final ValueNotifier<List<AppPrimaryAction>> _actionsNotifier = ValueNotifier(const []);
 
   bool get _isDrawerPage => _selectedIndex >= 4;
 
@@ -48,7 +126,7 @@ class _MaterialShellState extends State<MaterialShell> {
       AppPage(
         id: AppPageId.map,
         view: MapPage(
-          onPrimaryActionReady: (a) => _updateActionForPage(AppPageId.map, a),
+          onPrimaryActionsReady: (actions) => _updateActionsForPage(AppPageId.map, actions),
         ),
         titleBuilder: (c) => AppLocalizations.of(c)!.menuMapTitle,
         icon: AdaptiveIcons.map,
@@ -56,7 +134,7 @@ class _MaterialShellState extends State<MaterialShell> {
       AppPage(
         id: AppPageId.trips,
         view: TripsPage(
-          onPrimaryActionReady: (a) => _updateActionForPage(AppPageId.trips, a),
+          onPrimaryActionsReady: (actions) => _updateActionsForPage(AppPageId.trips, actions),
         ),
         titleBuilder: (c) => AppLocalizations.of(c)!.menuTripsTitle,
         icon: AdaptiveIcons.trips,
@@ -84,7 +162,7 @@ class _MaterialShellState extends State<MaterialShell> {
       AppPage(
         id: AppPageId.tags,
         view: TagsPage(
-          onPrimaryActionReady: (a) => _updateActionForPage(AppPageId.tags, a),
+          onPrimaryActionsReady: (actions) => _updateActionsForPage(AppPageId.tags, actions),
         ),
         titleBuilder: (c) => AppLocalizations.of(c)!.menuTagsTitle,
         icon: AdaptiveIcons.tags,
@@ -92,7 +170,7 @@ class _MaterialShellState extends State<MaterialShell> {
       AppPage(
         id: AppPageId.tickets,
         view: TicketsPage(
-          onPrimaryActionReady: (a) => _updateActionForPage(AppPageId.tickets, a),
+          onPrimaryActionsReady: (actions) => _updateActionsForPage(AppPageId.tickets, actions),
         ),
         titleBuilder: (c) => AppLocalizations.of(c)!.menuTicketsTitle,
         icon: AdaptiveIcons.tickets,
@@ -106,14 +184,13 @@ class _MaterialShellState extends State<MaterialShell> {
       AppPage(
         id: AppPageId.smartPrerecorder,
         view: SmartPrerecorderPage(
-          onPrimaryActionReady: (a) => _updateActionForPage(AppPageId.smartPrerecorder, a),
+          onPrimaryActionsReady: (actions) => _updateActionsForPage(AppPageId.smartPrerecorder, actions),
         ),
         titleBuilder: (c) => AppLocalizations.of(c)!.menuSmartPrerecorderTitle,
         icon: AdaptiveIcons.smartPrerecorder,
       ),
       AppPage(
         id: AppPageId.settings,
-        //view: const SettingsPage(),
         view: const SettingsMaterialPage(),
         titleBuilder: (c) => AppLocalizations.of(c)!.menuSettingsTitle,
         icon: AdaptiveIcons.settings,
@@ -126,28 +203,30 @@ class _MaterialShellState extends State<MaterialShell> {
       ),
     ];
 
-    _actions = List<AppPrimaryAction?>.filled(_pages.length, null);
+    _actions = List<List<AppPrimaryAction>>.filled(_pages.length, const [], growable: false);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _actionNotifier.value = _actions[_selectedIndex];
+      _actionsNotifier.value = _actions[_selectedIndex];
     });
   }
 
   @override
   void dispose() {
     _pageController.dispose();
-    _actionNotifier.dispose();
+    _actionsNotifier.dispose();
     super.dispose();
   }
 
   int _indexOf(AppPageId id) => _pages.indexWhere((p) => p.id == id);
 
-  void _updateActionForPage(AppPageId id, AppPrimaryAction? action) {
+  void _updateActionsForPage(AppPageId id, List<AppPrimaryAction> actions) {
     final index = _indexOf(id);
     if (index == -1) return;
-    _actions[index] = action;
+
+    _actions[index] = actions;
+
     if (_selectedIndex == index) {
-      _actionNotifier.value = action;
+      _actionsNotifier.value = actions;
     }
   }
 
@@ -156,7 +235,7 @@ class _MaterialShellState extends State<MaterialShell> {
 
     setState(() => _selectedIndex = index);
     _pageController.jumpToPage(index);
-    _actionNotifier.value = _actions[index];
+    _actionsNotifier.value = _actions[index];
   }
 
   void _goBackToBottomNavPage() => _onItemTapped(_previousBottomIndex);
@@ -174,26 +253,9 @@ class _MaterialShellState extends State<MaterialShell> {
               )
             : null,
 
-        floatingActionButton: ValueListenableBuilder<AppPrimaryAction?>(
-          valueListenable: _actionNotifier,
-          builder: (_, action, __) {
-            if (action == null) return const SizedBox.shrink();
-
-            if (action.isExtended) {
-              return FloatingActionButton.extended(
-                onPressed: action.onPressed,
-                tooltip: action.tooltip,
-                icon: Icon(action.icon),
-                label: Text(action.label!),
-              );
-            }
-
-            return FloatingActionButton(
-              onPressed: action.onPressed,
-              tooltip: action.tooltip,
-              child: Icon(action.icon),
-            );
-          },
+        floatingActionButton: ValueListenableBuilder<List<AppPrimaryAction>>(
+          valueListenable: _actionsNotifier,
+          builder: (_, actions, __) => MaterialPrimaryActionsFabStack(actions: actions),
         ),
 
         drawer: _isDrawerPage

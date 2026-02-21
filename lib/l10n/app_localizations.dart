@@ -154,11 +154,23 @@ abstract class AppLocalizations {
   /// **'Delete all'**
   String get deleteAll;
 
+  /// No description provided for @deleteAllShort.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get deleteAllShort;
+
   /// No description provided for @deleteSelection.
   ///
   /// In en, this message translates to:
   /// **'Delete selection'**
   String get deleteSelection;
+
+  /// No description provided for @deleteSelectionShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Selection'**
+  String get deleteSelectionShort;
 
   /// No description provided for @loginButton.
   ///
@@ -1749,6 +1761,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The departure and arrival must be of the same vehicle type, or unknown type'**
   String get prerecorderErrorTypeSameForDepartureArrival;
+
+  /// No description provided for @prerecorderErrorFetchingStation.
+  ///
+  /// In en, this message translates to:
+  /// **'Error while fetching the stations'**
+  String get prerecorderErrorFetchingStation;
 
   /// No description provided for @inboxPageTitle.
   ///

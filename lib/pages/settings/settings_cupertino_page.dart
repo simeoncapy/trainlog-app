@@ -251,7 +251,14 @@ class _SettingsCupertinoPageState extends State<SettingsCupertinoPage> {
         leading: Icon(item.icon),
         title: Text(item.title),
         subtitle: item.subtitle == null ? null : Text(item.subtitle!),
-        additionalInfo: Text(trailingValue),
+        additionalInfo: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 120),
+          child: Text(
+            trailingValue,
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+            ),
+        ),
         trailing: const CupertinoListTileChevron(),
         onTap: item.enabled ? () => _showChoiceSheet(item) : null,
       );

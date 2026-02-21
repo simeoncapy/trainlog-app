@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:math' as math;
+import 'dart:ui';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -27,9 +29,9 @@ import 'package:trainlog_app/widgets/vehicle_type_filter_chips.dart';
 enum YearFilter { all, past, future, years }
 
 class MapPage extends StatefulWidget {
-  final void Function(AppPrimaryAction? action) onPrimaryActionReady;
+  final SetPrimaryActions onPrimaryActionsReady;
 
-  const MapPage({super.key, required this.onPrimaryActionReady});
+  const MapPage({super.key, required this.onPrimaryActionsReady});
 
   @override
   State<MapPage> createState() => _MapPageState();
@@ -95,7 +97,8 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver, Automati
     // kick loading once providers exist
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<PolylineProvider>().ensureLoaded();
-      widget.onPrimaryActionReady(_buildPrimaryAction(context));
+      final action = _buildPrimaryAction(context);
+      widget.onPrimaryActionsReady(action == null ? const [] : [action]);
     });
   }
 
@@ -373,7 +376,7 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver, Automati
       // While loading, don’t show FAB
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
-        widget.onPrimaryActionReady(null);
+        widget.onPrimaryActionsReady(const []);
       });
 
       return Center(
@@ -392,7 +395,8 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver, Automati
     // After loading, show FAB if filter modal is closed
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      widget.onPrimaryActionReady(_buildPrimaryAction(context));
+      final action = _buildPrimaryAction(context);
+      widget.onPrimaryActionsReady(action == null ? const [] : [action]);
     });
 
     final filtered = _filterBySelection(poly.polylines);
@@ -472,7 +476,7 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver, Automati
               ),
           ],
         ),
-        if (!_showFilterModal) _mapButtonHelper(),
+        if (!_showFilterModal || AppPlatform.isApple) _mapButtonHelper(),
         if (_showFilterModal) _filterModalHelper(context, appLocalizations),
       ],
     );
@@ -521,7 +525,8 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver, Automati
                 child: ElevatedButton.icon(
                   onPressed: () {
                     setState(() => _showFilterModal = false);
-                    widget.onPrimaryActionReady(_buildPrimaryAction(context));
+                    final action = _buildPrimaryAction(context);
+                    widget.onPrimaryActionsReady(action == null ? const [] : [action]);
                   },
                   icon: const Icon(Icons.close),
                   label: Text(MaterialLocalizations.of(context).closeButtonLabel),
@@ -534,10 +539,99 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver, Automati
     );
   }
 
-  Positioned _mapButtonHelper() {
+  Positioned _mapButtonHelper() { 
+    final Icon recenterUserIcon = Icon(AdaptiveIcons.position);
+    final Icon followUserIcon = Icon(_followUser ? Symbols.frame_person_off : Symbols.frame_person);
+    final Widget orientationIcon = Transform.rotate(
+              angle: -(_rotation + 45.0) * (math.pi / 180.0),
+              child: Icon(AdaptiveIcons.compass),
+            );
+
+    void recenterFct () {
+      final p = _userPosition;
+      double z = _zoom;
+      if (p == null) return;
+      if (_center == p) {
+        _mapController.move(p, _defaultZoom);
+        z = _defaultZoom;
+      } else {
+        _mapController.move(p, _zoom);
+      }
+      setState(() {
+        _center = p;
+        _zoom = z;
+      });
+    }
+    void followUserFct () => setState(() => _followUser = !_followUser);
+    void resetMapOrientationFct () {
+      _mapController.rotate(0);
+      setState(() => _rotation = 0);
+    };
+
+    if(AppPlatform.isApple) {
+      return Positioned(
+        top: 70,
+        right: 12,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(14),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+            child: Container(
+              decoration: BoxDecoration(
+                color: CupertinoColors.systemGrey6.withValues(alpha: 0.7),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Recenter user
+                  CupertinoButton(
+                    padding: const EdgeInsets.all(10),
+                    onPressed: recenterFct,
+                    child: recenterUserIcon,
+                  ),
+                  // Follow user
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      border: Border(
+                        top: BorderSide(
+                          color: CupertinoColors.separator.resolveFrom(context),
+                          width: 0.5,
+                        ),
+                      ),
+                    ),
+                    child: CupertinoButton(
+                      padding: const EdgeInsets.all(10),
+                      onPressed: followUserFct,
+                      child: followUserIcon,
+                    ),
+                  ),
+                  // Reorientation of the map
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      border: Border(
+                        top: BorderSide(
+                          color: CupertinoColors.separator.resolveFrom(context),
+                          width: 0.5,
+                        ),
+                      ),
+                    ),
+                    child: CupertinoButton(
+                      padding: const EdgeInsets.all(10),
+                      onPressed: resetMapOrientationFct,
+                      child: orientationIcon,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
     final bkg = Theme.of(context).colorScheme.tertiaryContainer;
     final forg = Theme.of(context).colorScheme.onTertiaryContainer;
-
     return Positioned(
       right: 16,
       bottom: 16 + 56 + 12,
@@ -548,44 +642,24 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver, Automati
             heroTag: 'map_btn_my_location',
             backgroundColor: bkg,
             foregroundColor: forg,
-            onPressed: () {
-              final p = _userPosition;
-              double z = _zoom;
-              if (p == null) return;
-              if (_center == p) {
-                _mapController.move(p, _defaultZoom);
-                z = _defaultZoom;
-              } else {
-                _mapController.move(p, _zoom);
-              }
-              setState(() {
-                _center = p;
-                _zoom = z;
-              });
-            },
-            child: const Icon(Icons.my_location),
+            onPressed: recenterFct,
+            child: recenterUserIcon,
           ),
           const SizedBox(height: 8),
           FloatingActionButton.small(
             heroTag: 'map_btn_follow',
             backgroundColor: bkg,
             foregroundColor: forg,
-            onPressed: () => setState(() => _followUser = !_followUser),
-            child: Icon(_followUser ? Symbols.frame_person_off : Symbols.frame_person),
+            onPressed: followUserFct,
+            child: followUserIcon,
           ),
           const SizedBox(height: 8),
           FloatingActionButton.small(
             heroTag: 'map_btn_compass',
             backgroundColor: bkg,
             foregroundColor: forg,
-            onPressed: () {
-              _mapController.rotate(0);
-              setState(() => _rotation = 0);
-            },
-            child: Transform.rotate(
-              angle: -(_rotation + 45.0) * (math.pi / 180.0),
-              child: const Icon(Icons.explore),
-            ),
+            onPressed: resetMapOrientationFct,
+            child: orientationIcon,
           ),
         ],
       ),
@@ -636,7 +710,7 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver, Automati
       tooltip: AppLocalizations.of(context)!.filterButton,
       onPressed: () {
         setState(() => _showFilterModal = true);
-        widget.onPrimaryActionReady(null);
+        widget.onPrimaryActionsReady(const []);
       },
     );
   }

@@ -4,6 +4,8 @@ import 'package:trainlog_app/data/models/news_model.dart';
 import 'package:trainlog_app/data/models/pre_record_model.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
+import 'package:trainlog_app/providers/trips_provider.dart';
+import 'package:trainlog_app/utils/cached_data_utils.dart';
 import 'package:trainlog_app/utils/text_utils.dart';
 import 'package:trainlog_app/widgets/shimmer_box.dart';
 import '../services/trainlog_service.dart';
@@ -74,13 +76,17 @@ class TrainlogProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> logout({SettingsProvider? settings}) async {
+  Future<void> logout(SettingsProvider settings, TripsProvider trips) async {
     _loading = true;
     _error = null;
     notifyListeners();
     try {
       await _service.clearSession();
-      settings?.clearUsername();
+      settings.clearUsername();
+      settings.setShouldReloadPolylines(true);
+      await trips.clearAll();
+      await AppCacheFilePath.deleteFile(AppCacheFilePath.polylines);
+      //await AppCacheFilePath.deleteFile(AppCacheFilePath.preRecord);
     } finally {
       _session = null;
       _isAuthenticated = false;

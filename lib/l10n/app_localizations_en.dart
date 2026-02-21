@@ -36,7 +36,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deleteAll => 'Delete all';
 
   @override
+  String get deleteAllShort => 'All';
+
+  @override
   String get deleteSelection => 'Delete selection';
+
+  @override
+  String get deleteSelectionShort => 'Selection';
 
   @override
   String get loginButton => 'Log in';
@@ -998,6 +1004,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get prerecorderErrorTypeSameForDepartureArrival =>
       'The departure and arrival must be of the same vehicle type, or unknown type';
+
+  @override
+  String get prerecorderErrorFetchingStation =>
+      'Error while fetching the stations';
 
   @override
   String get inboxPageTitle => 'News & Updates';

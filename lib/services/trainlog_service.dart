@@ -187,6 +187,7 @@ class TrainlogService {
       return await request();
     } on DioException catch (e) {
       if (e.response?.statusCode == 500) {
+        debugPrint("Error - retry $e");
         await Future.delayed(const Duration(milliseconds: 300));
         return await request(); // retry once
       }

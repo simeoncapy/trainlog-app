@@ -20,8 +20,8 @@ import 'package:trainlog_app/widgets/trip_details_bottom_sheet.dart';
 import 'package:trainlog_app/widgets/trips_filter_dialog.dart';
 
 class TripsPage extends StatefulWidget {
-  final void Function(AppPrimaryAction? action) onPrimaryActionReady;
-  const TripsPage({super.key, required this.onPrimaryActionReady});  
+  final SetPrimaryActions onPrimaryActionsReady;
+  const TripsPage({super.key, required this.onPrimaryActionsReady});  
 
   @override
   State<TripsPage> createState() => _TripsPageState();
@@ -84,7 +84,7 @@ class _TripsPageState extends State<TripsPage> {
 
       // If you need to (re)expose the FAB after first layout:
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) widget.onPrimaryActionReady(_buildPrimaryAction(context));
+        if (mounted) widget.onPrimaryActionsReady([_buildPrimaryAction(context)]);
       });
     }
 
@@ -120,13 +120,14 @@ class _TripsPageState extends State<TripsPage> {
       },
       child: LayoutBuilder(
         builder: (context, constraints) {
+          final btmPad = MediaQuery.of(context).padding.bottom;
           final visibleColumns = _getVisibleColumns(width);
           _dataSource!.setVisibleColumns(visibleColumns);
       
           final double availableHeight = constraints.maxHeight;
           const double headingHeight = 56.0;
           const double rowHeight = 48.0;
-          const double footerHeight = 180.0;
+          final double footerHeight = AppPlatform.isApple ? btmPad + 50 : 180.0; // On Material, keep space for the FAB
       
           // Estimate how many rows fit in the remaining height
           final rowsPerPage = ((availableHeight - headingHeight - footerHeight) ~/ rowHeight).clamp(5, 50);
@@ -330,7 +331,7 @@ class _TripsPageState extends State<TripsPage> {
 
           // (optional) re-emit the FAB
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) widget.onPrimaryActionReady(_buildPrimaryAction(context));
+            if (mounted) widget.onPrimaryActionsReady([_buildPrimaryAction(context)]);
           });
         }
       },

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
+import 'package:trainlog_app/utils/platform_utils.dart';
 import 'package:trainlog_app/widgets/dismissible_error_banner_block.dart';
 import 'package:trainlog_app/widgets/error_banner.dart';
 import 'package:trainlog_app/widgets/trainlog_web_page.dart';
@@ -24,7 +25,7 @@ class _RankingPageState extends State<RankingPage>
           message: loc.pageNotImplementedYet,
           severity: ErrorSeverity.warning,
           padding: EdgeInsets.only(
-            left: 80,
+            left: AppPlatform.isApple ? 8 : 80, // For Material, keep space for the burger menu
             top: 12,
             right: 8,
             bottom: 12,

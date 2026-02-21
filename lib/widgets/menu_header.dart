@@ -6,6 +6,7 @@ import 'package:trainlog_app/pages/inbox_page.dart';
 import 'package:trainlog_app/pages/trainlog_status_page.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
+import 'package:trainlog_app/providers/trips_provider.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 import 'package:trainlog_app/widgets/auth_dialog.dart';
 import 'package:trainlog_app/widgets/auth_form.dart';
@@ -86,6 +87,7 @@ class _MenuHeaderState extends State<MenuHeader> {
     final auth = context.watch<TrainlogProvider>();
     final isConnected = auth.isAuthenticated;
     final settings = context.read<SettingsProvider>();
+    final trips = context.read<TripsProvider>();
     final scaffMsg = ScaffoldMessenger.of(context);
     final trainlog = context.read<TrainlogProvider>();
     final theme = Theme.of(context);    
@@ -133,7 +135,7 @@ class _MenuHeaderState extends State<MenuHeader> {
           ] else if (isConnected) ...[
             Row(
               children: [
-                _logoutButtonHelper(loc, context, settings, scaffMsg),
+                _logoutButtonHelper(loc, context, settings, trips, scaffMsg),
                 const Spacer(),
                 //_statusButtonHelper(loc, context, theme),
                 _statusIconButtonHelper(theme),
@@ -147,12 +149,12 @@ class _MenuHeaderState extends State<MenuHeader> {
     );
   }
 
-  ElevatedButton _logoutButtonHelper(AppLocalizations loc, BuildContext context, SettingsProvider settings, ScaffoldMessengerState scaffMsg) {
+  ElevatedButton _logoutButtonHelper(AppLocalizations loc, BuildContext context, SettingsProvider settings, TripsProvider trips, ScaffoldMessengerState scaffMsg) {
     return ElevatedButton.icon(
       icon: Icon(AdaptiveIcons.logout),
       label: Text(loc.logoutButton),
       onPressed: () async {
-        await context.read<TrainlogProvider>().logout(settings: settings);
+        await context.read<TrainlogProvider>().logout(settings, trips);
         scaffMsg.showSnackBar(
           SnackBar(content: Text(loc.loggedOut)),
         );

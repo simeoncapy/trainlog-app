@@ -3,6 +3,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/pages/privacy_tab.dart';
 import 'package:trainlog_app/services/trainlog_service.dart';
+import 'package:trainlog_app/utils/platform_utils.dart';
 import 'package:trainlog_app/widgets/localised_markdown.dart';
 import 'package:trainlog_app/widgets/localised_markdown_v2.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -15,6 +16,8 @@ class AboutPage extends StatelessWidget {
     final loc = AppLocalizations.of(context)!;
     final locale = Localizations.localeOf(context);
     final languageCode = locale.languageCode;
+    final mq = MediaQuery.of(context);
+    final bottomPadding = mq.padding.bottom;
 
     return DefaultTabController(
       length: 3,
@@ -41,6 +44,8 @@ class AboutPage extends StatelessWidget {
               ],
             ),
           ),
+          if(AppPlatform.isApple)
+            SizedBox(height: bottomPadding,)
         ],
       ),
     );

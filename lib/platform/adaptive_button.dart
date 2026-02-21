@@ -2,6 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 
+enum AdaptiveButtonType {
+  normal,
+  destructive,
+  primary,
+  secondary,
+  tertiary
+}
+
 class AdaptiveButton {
   static CupertinoButtonSize get large => CupertinoButtonSize.large;
   static CupertinoButtonSize get medium => CupertinoButtonSize.medium;
@@ -15,7 +23,7 @@ class AdaptiveButton {
     required Widget child,
     required VoidCallback? onPressed,
     IconData? icon,
-    bool destructive = false,
+    AdaptiveButtonType type = AdaptiveButtonType.normal,
     Color? backgroundColor,
     Color? foregroundColor,
     EdgeInsetsGeometry? padding,
@@ -23,21 +31,16 @@ class AdaptiveButton {
     double? elevation,
     BorderRadius? borderRadius,
   }) {
-    final Color? bgColor = backgroundColor ??
-        (destructive ? Theme.of(context).colorScheme.error : null);
-
-    final Color? fgColor = foregroundColor ??
-        (destructive ? Theme.of(context).colorScheme.onError : null);
 
     final style = ElevatedButton.styleFrom(
-      backgroundColor: bgColor,
-      foregroundColor: fgColor,
+      backgroundColor: backgroundColor,
+      foregroundColor: foregroundColor,
       padding: padding,
       minimumSize: minimumSize,
-      elevation: elevation ?? (destructive ? 1 : null),
-      shape: RoundedRectangleBorder(
-        borderRadius: borderRadius ?? BorderRadius.circular(8),
-      ),
+      elevation: elevation ?? (type == AdaptiveButtonType.destructive ? 1 : null),
+      // shape: RoundedRectangleBorder(
+      //   borderRadius: borderRadius ?? BorderRadius.circular(8),
+      // ),
     );
 
     if (icon != null) {
@@ -64,41 +67,102 @@ class AdaptiveButton {
     required Widget child,
     required VoidCallback? onPressed,
     IconData? icon,
-    bool destructive = false,
+    AdaptiveButtonType type = AdaptiveButtonType.normal,
     Color? foregroundColor,
     Color? backgroundColor,
     EdgeInsetsGeometry? padding,
     BorderRadius? borderRadius,
     CupertinoButtonSize? size,
   }) {
-    final Color? bgColor =
-        backgroundColor ?? (destructive ? CupertinoColors.systemRed.resolveFrom(context) : null);
-    final Color? fgColor = foregroundColor ??
-        (destructive ? CupertinoColors.white : null);
 
     Widget content = child;
+
+    final bool isDisabled = onPressed == null;
+
+    final Color? effectiveBg = isDisabled
+        ? CupertinoColors.tertiarySystemFill.resolveFrom(context)
+        : backgroundColor;
+
+    final Color? effectiveFg = isDisabled
+        ? CupertinoColors.secondaryLabel.resolveFrom(context)
+        : foregroundColor;
 
     if (icon != null) {
       content = Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, color: fgColor,),
+          Icon(
+            icon, 
+            color: effectiveFg,
+            size: size == CupertinoButtonSize.large ? 24 : null,
+          ),
           const SizedBox(width: 8),
           child,
         ],
       );
-    }
+    }    
 
-    return CupertinoButton(
+    return CupertinoButton.filled(
       onPressed: onPressed,
       sizeStyle: size ?? CupertinoButtonSize.medium,
-      padding:
-          padding,// ?? const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
-      color: bgColor,
-      foregroundColor: fgColor,
+      padding: padding,
+      color: effectiveBg,
+      foregroundColor: effectiveFg,
       borderRadius: borderRadius ?? BorderRadius.circular(8),
       child: content,
     );
+  }
+
+  static Color? _bgColorHelper(Color? user, AdaptiveButtonType type, BuildContext context) {
+    Color? bgColor;
+    if (user != null) {
+      bgColor = user;
+    } else {
+      switch (type) {
+        case AdaptiveButtonType.destructive:
+          bgColor = AdaptiveThemeColor.errorContainer(context);
+          break;
+        case AdaptiveButtonType.primary:
+          bgColor = AdaptiveThemeColor.primaryContainer(context);
+          break;
+        case AdaptiveButtonType.secondary:
+          bgColor = AdaptiveThemeColor.secondaryContainer(context);
+          break;
+        case AdaptiveButtonType.tertiary:
+          bgColor = AdaptiveThemeColor.tertiary(context);
+          break;
+        default:
+          bgColor = null;
+      }
+    }
+
+    return bgColor;
+  }
+
+  static Color? _fgColorHelper(Color? user, AdaptiveButtonType type, BuildContext context) {
+    Color? bgColor;
+    if (user != null) {
+      bgColor = user;
+    } else {
+      switch (type) {
+        case AdaptiveButtonType.destructive:
+          bgColor = AdaptiveThemeColor.onErrorContainer(context);
+          break;
+        case AdaptiveButtonType.primary:
+          bgColor = AdaptiveThemeColor.onPrimaryContainer(context);
+          break;
+        case AdaptiveButtonType.secondary:
+          bgColor = AdaptiveThemeColor.onSecondaryContainer(context);
+          break;
+        case AdaptiveButtonType.tertiary:
+          bgColor = AdaptiveThemeColor.onTertiaryContainer(context);
+          break;
+        default:
+          bgColor = null;
+      }
+    }
+
+    return bgColor;
   }
 
   // ------------------------------------------------------------
@@ -109,7 +173,7 @@ class AdaptiveButton {
     required Widget child,
     required VoidCallback? onPressed,
     IconData? icon,
-    bool destructive = false,
+    AdaptiveButtonType type = AdaptiveButtonType.normal,
     Color? backgroundColor,
     Color? foregroundColor,
     EdgeInsetsGeometry? padding,
@@ -124,9 +188,9 @@ class AdaptiveButton {
         child: child,
         onPressed: onPressed,
         icon: icon,
-        destructive: destructive,
-        backgroundColor: backgroundColor,
-        foregroundColor: foregroundColor,
+        type: type,
+        backgroundColor: _bgColorHelper(backgroundColor, type, context),
+        foregroundColor: _fgColorHelper(foregroundColor, type, context),
         padding: padding,
         borderRadius: borderRadius,
         size: size,
@@ -137,9 +201,9 @@ class AdaptiveButton {
         child: child,
         onPressed: onPressed,
         icon: icon,
-        destructive: destructive,
-        backgroundColor: backgroundColor,
-        foregroundColor: foregroundColor,
+        type: type,
+        backgroundColor: _bgColorHelper(backgroundColor, type, context),
+        foregroundColor: _fgColorHelper(foregroundColor, type, context),
         padding: padding,
         minimumSize: minimumSize,
         elevation: elevation,

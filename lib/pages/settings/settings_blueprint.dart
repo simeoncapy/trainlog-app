@@ -409,7 +409,7 @@ List<SettingsSectionSpec> buildSettingsBlueprint({
           button: AdaptiveButton.build(
             context: context,
             icon: AdaptiveIcons.delete,
-            destructive: true,
+            type: AdaptiveButtonType.destructive,
             size: AdaptiveButton.small,
             child: Text(l10n.settingsCacheClearButton),
             onPressed: vm.totalCacheSize > 0 ? () => confirmAndClearCache() : null

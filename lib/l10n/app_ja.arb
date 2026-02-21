@@ -9,7 +9,9 @@
   "descendingOrder": "降順",
   "ascendingOrder": "昇順",
   "deleteAll": "すべて削除",
+  "deleteAllShort": "全て",
   "deleteSelection": "選択を削除",
+  "deleteSelectionShort": "選択",
   "loginButton": "ログイン",
   "logoutButton": "ログアウト",
   "loggedOut": "ログアウトしました",
@@ -289,6 +291,7 @@
   "prerecorderErrorMoreThanTwoSelected": "旅行を作成するには、2つのジオログのみを選択してください",
   "prerecorderErrorDepartureAfterArrival": "出発は到着の後にできません",
   "prerecorderErrorTypeSameForDepartureArrival": "出発と到着は同じ乗り物のタイプ、または不明なタイプである必要があります",
+  "prerecorderErrorFetchingStation": "駅の取得中にエラーが発生しました",
 
   "inboxPageTitle": "お知らせ",
   "inboxAuthor": "{author}さん",

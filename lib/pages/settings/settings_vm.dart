@@ -67,7 +67,7 @@ class SettingsVm extends ChangeNotifier {
     }
 
     _isInitDone = true;
-    notifyListeners();
+    notifyListeners(); // TODO check FlutterError (A SettingsVm was used after being disposed. Once you have called dispose() on a SettingsVm, it can no longer be used.)
   }
 
   String _visibilityHelperText(AppLocalizations l10n, int? v) {

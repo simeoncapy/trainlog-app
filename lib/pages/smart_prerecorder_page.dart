@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/data/models/pre_record_model.dart';
 import 'package:trainlog_app/data/models/trip_form_model.dart';
@@ -8,6 +10,12 @@ import 'dart:io';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/navigation/nav_models.dart';
 import 'package:trainlog_app/pages/add_trip_page.dart';
+import 'package:trainlog_app/platform/adaptive_button.dart';
+import 'package:trainlog_app/platform/adaptive_dialog.dart';
+import 'package:trainlog_app/platform/adaptive_expansion_title.dart';
+import 'package:trainlog_app/platform/adaptive_information_message.dart';
+import 'package:trainlog_app/platform/adaptive_list_container.dart';
+import 'package:trainlog_app/platform/adaptive_record_tile.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
@@ -22,8 +30,8 @@ import 'package:trainlog_app/widgets/error_banner.dart';
 import 'package:trainlog_app/widgets/shimmer_box.dart';
 
 class SmartPrerecorderPage extends StatefulWidget {
-  final void Function(AppPrimaryAction? action) onPrimaryActionReady;
-  const SmartPrerecorderPage({super.key, required this.onPrimaryActionReady});
+  final SetPrimaryActions onPrimaryActionsReady;
+  const SmartPrerecorderPage({super.key, required this.onPrimaryActionsReady});
 
   @override
   State<SmartPrerecorderPage> createState() => _SmartPrerecorderPageState();
@@ -33,7 +41,16 @@ class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
   List<PreRecordModel> _records = [];
   final List<int> _selectedIds = [];
   bool _ascending = false; // default: newest first
-
+  IconData get sortIcon => _ascending ? AdaptiveIcons.sortAscending : AdaptiveIcons.sortDescending;
+  String sortTooltip(AppLocalizations loc) => _ascending ? loc.ascendingOrder : loc.descendingOrder;
+  String deleteButtonLabel(AppLocalizations loc, {bool short = false}) {
+    if (_selectedIds.isNotEmpty) {
+      return short ? loc.deleteSelectionShort : loc.deleteSelection;
+    }
+    else {
+      return short ? loc.deleteAllShort : loc.deleteAll;
+    }    
+  }
 
   @override
   void initState() {
@@ -96,21 +113,6 @@ class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
     );
   }
 
-  Future<void> _savePreRecord(PreRecordModel record) async {
-    final file = File(AppCacheFilePath.preRecord);
-
-    final content = await file.readAsString();
-    final List data =
-        content.trim().isEmpty ? [] : jsonDecode(content);
-
-    data.add(record.toJson());
-
-    await file.writeAsString(
-      jsonEncode(data),
-      flush: true,
-    );
-  }
-
   Future<void> _saveAll() async {
     final file = File(AppCacheFilePath.preRecord);
     await file.writeAsString(
@@ -150,45 +152,6 @@ class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
     }
 
     return null;
-  }
-
-  Future<bool> _confirmDelete({
-    required BuildContext context,
-    required AppLocalizations loc,
-    required bool deleteSelection,
-  }) async {
-    return await showDialog<bool>(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              title: Text(
-                deleteSelection
-                    ? loc.deleteSelection
-                    : loc.deleteAll,
-              ),
-              content: Text(
-                deleteSelection
-                    ? loc.prerecorderDeleteSelectionConfirm
-                    : loc.prerecorderDeleteAllConfirm,
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(false),
-                  child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
-                ),
-                ElevatedButton(
-                  style: buttonStyleHelper(
-                    Theme.of(context).colorScheme.error,
-                    Theme.of(context).colorScheme.onError,
-                  ),
-                  onPressed: () => Navigator.of(context).pop(true),
-                  child: Text(MaterialLocalizations.of(context).deleteButtonTooltip),
-                ),
-              ],
-            );
-          },
-        ) ??
-        false;
   }
 
   Future<void> _deleteRecords({
@@ -263,92 +226,81 @@ class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
     List<(String?, String?, VehicleType, double)> stations,
   ) async {
     final loc = AppLocalizations.of(context)!;
-    final theme = Theme.of(context);
     final settings = context.read<SettingsProvider>();
     final palette = MapColorPaletteHelper.getPalette(settings.mapColorPalette);
 
-    return await showDialog<(String?, String?, VehicleType)?>(
+    return AdaptiveDialog.showCustom<(String?, String?, VehicleType)>(
       context: context,
-      builder: (context) {
-        return Dialog(
-          child: Container(
-            constraints: BoxConstraints(
-              maxHeight: MediaQuery.of(context).size.height * 0.6,
-              maxWidth: 500,
+      maxWidth: 500,
+      maxHeightFactor: 0.6,
+      barrierDismissible: true, // tap outside => null
+      builder: (ctx) {
+        final theme = Theme.of(ctx); // ok even in Cupertino pages
+
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Text(
+                loc.prerecorderSelectStation,
+                style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Text(
-                    loc.prerecorderSelectStation,
-                    style: theme.textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
+            Padding(
+              padding: const EdgeInsets.only(left: 8, right: 8, bottom: 4),
+              child: Text(loc.prerecorderStationsFound(stations.length)),
+            ),
+
+            Expanded(
+              child: ListView.builder(
+                itemCount: stations.length,
+                itemBuilder: (ctx, index) {
+                  final (name, address, type, distance) = stations[index];
+
+                  return AdaptiveRecordTile(
+                    materialUseCard: false,        // IMPORTANT: remove Card separation on Material
+                    cupertinoUseBackground: false, // IMPORTANT: remove per-row rounded blocks on iOS
+                    leading: IconTheme(
+                      data: IconThemeData(
+                        color: palette[type],
+                        size: 32,
+                      ),
+                      child: type.icon(),
                     ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 8.0, right: 8.0, bottom: 4.0),
-                  child: Text(
-                    loc.prerecorderStationsFound(stations.length),                    
-                  ),
-                ),
-                Expanded(
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: stations.length,
-                    itemBuilder: (context, index) {
-                      final (name, address, type, distance) = stations[index];
-                      return ListTile(
-                        leading: IconTheme(
-                          data: IconThemeData(
-                            color: palette[type],
-                            size: 32,
-                          ),
-                          child: type.icon(),
-                        ),
-                        title: Text(
+                    title: Text(
                           name ?? "",
                           style: theme.textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        subtitle: Text(
-                          loc.prerecorderAway(formatNumber(context, distance)),
-                          style: theme.textTheme.bodySmall,
-                        ),
-                        onTap: () {
-                          Navigator.of(context).pop((name, address, type));
-                        },
-                      );
-                    },
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      // onPressed: () {
-                      //   final (name, address, type, _) = stations[0];
-                      //   Navigator.of(context).pop((name, address, type));
-                      // },
-                      onPressed: () {
-                        Navigator.of(context).pop((null, null, VehicleType.unknown));
-                      },
-                      style: buttonStyleHelper(
-                        theme.colorScheme.primary,
-                        theme.colorScheme.onPrimary,
-                      ),
-                      //child: Text(loc.prerecorderSelectClosest),
-                      child: Text(loc.prerecorderUnknownStation),
+                          )
                     ),
-                  ),
-                ),
-              ],
+                    subtitle: Text(
+                      loc.prerecorderAway(formatNumber(ctx, distance)),
+                      style: theme.textTheme.bodySmall,
+                    ),
+                    onTap: () => AdaptiveDialog.pop(ctx, (name, address, type)),
+                  );
+                },
+              ),
             ),
-          ),
+
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: SizedBox(
+                width: double.infinity,
+                child: AdaptiveButton.build(
+                  context: ctx,
+                  type: AdaptiveButtonType.primary,
+                  onPressed: () => AdaptiveDialog.pop(
+                    ctx,
+                    (null, null, VehicleType.unknown),
+                  ),
+                  child: Text(loc.prerecorderUnknownStation),
+                ),
+              ),
+            ),
+          ],
         );
       },
     );
@@ -356,71 +308,108 @@ class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
 
   // UI
   @override
-  Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context)!;
-    final theme = Theme.of(context);
+Widget build(BuildContext context) {
+  final loc = AppLocalizations.of(context)!;
+  final theme = Theme.of(context);
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) widget.onPrimaryActionReady(_buildPrimaryAction(context));
-      });
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    if (!mounted) return;
+    widget.onPrimaryActionsReady(_buildPrimaryAction(context));
+  });
 
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Column(
-        children: [
-          _explanationTile(loc, theme),
-          SizedBox(height: 16,),
-          _buttonBar(_selectedIds, loc, theme),
-          SizedBox(height: 8,),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 80), // Avoid the last item to be hidden by the FAB
-              child: _records.isEmpty
-                ? Center(
+  return Padding(
+    padding: const EdgeInsets.all(8.0),
+    child: Column(
+      children: [
+        // Scrollable area (explanation + list + optional top controls)
+        Expanded(
+          child: CustomScrollView(
+            slivers: [
+              SliverToBoxAdapter(
+                child: _explanationTile(loc, theme),
+              ),
+              const SliverToBoxAdapter(
+                child: SizedBox(height: 16),
+              ),
+
+              // Android controls (if you still want them in-page)
+              if (!AppPlatform.isApple) ...[
+                SliverToBoxAdapter(
+                  child: _buttonBar(_selectedIds, loc, theme),
+                ),
+                const SliverToBoxAdapter(
+                  child: SizedBox(height: 8),
+                ),
+              ],
+
+              // Records
+              if (_records.isEmpty)
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Center(
                     child: Text(
                       loc.prerecorderNoData,
                       style: theme.textTheme.bodyLarge,
                     ),
-                  )
-                : ListView.builder(
-                    //padding: const EdgeInsets.only(bottom: 80), // Avoid the last item to be hidden by the FAB
-                    itemCount: _records.length,
-                    itemBuilder: (context, index) {
+                  ),
+                )
+              else
+                SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
                       final record = _records[index];
                       final selected = _selectedIds.contains(record.id);
 
-                      return _preRecordTile(record, selected, loc, theme);
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: _preRecordTile(record, selected, loc, theme),
+                      );
                     },
+                    childCount: _records.length,
                   ),
-            ),
-          )
-        ],
-      ),
-    );
-  }
+                ),
 
-  ExpansionTile _explanationTile(AppLocalizations loc, ThemeData theme) {
-    final settings = context.read<SettingsProvider>();
-    return ExpansionTile(
-          initiallyExpanded: settings.isSmartPrerecorderExplanationExpanded,
-          onExpansionChanged: (p) => settings.setIsSmartPrerecorderExplanationExpanded(p),
-          tilePadding: const EdgeInsets.symmetric(horizontal: 16),
-          childrenPadding: const EdgeInsets.only(bottom: 8),
-          leading: Icon(Icons.info),
-          title: Text(
-            loc.prerecorderExplanationTitle,
-            textAlign: TextAlign.left,
-            style: theme.textTheme.titleLarge,
+              // Bottom padding:
+              // - Android: keep room for FAB overlay
+              // - iOS: small visual spacing above fixed bar
+              SliverToBoxAdapter(
+                child: SizedBox(height: AppPlatform.isApple ? 8 : 88),
+              ),
+            ],
           ),
-          expandedCrossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(loc.prerecorderExplanation),
-            Text(loc.prerecorderExplanationStation),
-            Text(loc.prerecorderExplanationDelete),            
-            SizedBox(height: 8,),
-            Text(loc.prerecorderExplanationPrivacy)
-          ],
-        );
+        ),
+
+        // iOS fixed bottom action bar (always visible)
+        if (AppPlatform.isApple)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: _buttonBar(_selectedIds, loc, theme),
+          ),
+      ],
+    ),
+  );
+}
+
+  Widget _explanationTile(AppLocalizations loc, ThemeData theme) {
+    final settings = context.read<SettingsProvider>();
+
+    return AdaptiveExpansionTile(
+      initiallyExpanded: settings.isSmartPrerecorderExplanationExpanded,
+      onExpansionChanged: settings.setIsSmartPrerecorderExplanationExpanded,
+      leading: Icon(AdaptiveIcons.info),
+      title: Text(
+        loc.prerecorderExplanationTitle,
+        textAlign: TextAlign.left,
+        style: AdaptiveTextStyle.title(context),
+      ),
+      children: [
+        Text(loc.prerecorderExplanation),
+        Text(loc.prerecorderExplanationStation),
+        Text(loc.prerecorderExplanationDelete),
+        const SizedBox(height: 8),
+        Text(loc.prerecorderExplanationPrivacy),
+      ],
+    );
   }
 
   Column _buttonBar(List<int> selectedIds, AppLocalizations loc, ThemeData theme) {
@@ -455,12 +444,16 @@ class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
     final String? errorMessage = errors.isEmpty ? null : errors.join('\n');
     final isWarning = (errorMessage == loc.prerecorderErrorLessThanTwoSelected);
 
-    return Column(
-      children: [
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton.icon(
-            onPressed: !isValidSelection ? null : () {
+    final errorBanner = errorMessage != null ? [
+          ErrorBanner(
+            message: errorMessage,
+            compact: true,
+            severity: isWarning ? ErrorSeverity.warning : ErrorSeverity.error,
+          ),
+          SizedBox(height: 8,),
+        ]: [];
+
+    final createTripCaller = !isValidSelection ? null : () {
               Navigator.of(context).push(PageRouteBuilder(
                 pageBuilder: (_, __, ___) => ChangeNotifierProvider(
                   create: (_) => _createTripFormModel(),
@@ -469,7 +462,47 @@ class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
                 transitionDuration: Duration.zero,
                 reverseTransitionDuration: Duration.zero,
               ));
-            } ,
+            };
+
+    if(AppPlatform.isApple) {
+      return Column(
+        children: [
+          ...errorBanner,
+          Row(
+            children: [
+              Expanded(
+                child: AdaptiveButton.build(
+                  context: context,
+                  child: Text(loc.prerecorderCreateTripButton,), 
+                  icon: AdaptiveIcons.add,
+                  onPressed: createTripCaller,
+                  size: AdaptiveButton.large,
+                  type: AdaptiveButtonType.secondary
+                ),
+              ),
+              const SizedBox(width: 8,),
+              Expanded(
+                child: AdaptiveButton.build(
+                  context: context,
+                  child: Text(loc.prerecorderRecordButton,), 
+                  icon: AdaptiveIcons.edit,
+                  onPressed: _recordNewLog,
+                  size: AdaptiveButton.large,
+                  type: AdaptiveButtonType.primary
+                ),
+              ),
+            ],
+          )
+        ],
+      );
+    }
+
+    return Column(
+      children: [
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton.icon(
+            onPressed: createTripCaller,
             label: Text(
               loc.prerecorderCreateTripButton,
               style: TextStyle(
@@ -486,36 +519,20 @@ class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
           ),
         ),
         SizedBox(height: 8,),
-        if(errorMessage != null) ...[
-          ErrorBanner(
-            message: errorMessage,
-            compact: true,
-            severity: isWarning ? ErrorSeverity.warning : ErrorSeverity.error,
-          ),
-          SizedBox(height: 8,),
-        ],
+        ...errorBanner,
+        if(!AppPlatform.isApple)
         Row(
           children: [
             IntrinsicWidth(
-              child: ElevatedButton.icon(
+              child: AdaptiveButton.build(
+                context: context,
+                child: Text(deleteButtonLabel(loc)), 
+                icon: AdaptiveIcons.delete,
+                type: AdaptiveButtonType.destructive,
+                size: AdaptiveButton.small,
                 onPressed: () async {
-                  final deleteSelection = selectedIds.isNotEmpty;
-
-                  final confirmed = await _confirmDelete(
-                    context: context,
-                    loc: loc,
-                    deleteSelection: deleteSelection,
-                  );
-
-                  if (!confirmed) return;
-
-                  setState(() {
-                    _deleteRecords(deleteSelection: deleteSelection);
-                  });
-                },
-                label: Text(selectedIds.isNotEmpty ? loc.deleteSelection : loc.deleteAll),
-                icon: Icon(Icons.delete),
-                style: buttonStyleHelper(theme.colorScheme.error, theme.colorScheme.onError)
+                    _askForDelete(loc);
+                  }
               ),
             ),
             const Spacer(),
@@ -524,25 +541,43 @@ class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
               shape: const CircleBorder(),
               color: theme.colorScheme.secondaryContainer,
               child: IconButton(
-                onPressed: () {
-                  setState(() {
-                    _ascending = !_ascending;
-                    _sortRecords();
-                  });
-                },
-                icon: Icon(
-                  _ascending ? Icons.arrow_upward : Icons.arrow_downward,
-                ),
+                onPressed: _changeSortOder,
+                icon: Icon(sortIcon),
                 color: theme.colorScheme.onSecondaryContainer,
-                tooltip: _ascending
-                    ? loc.ascendingOrder
-                    : loc.descendingOrder,
+                tooltip: sortTooltip(loc),
               ),
             ),
           ],
         ),
       ],
     );
+  }
+
+  void _changeSortOder() {
+    setState(() {
+      _ascending = !_ascending;
+      _sortRecords();
+    });
+  }
+
+  Future<void> _askForDelete(AppLocalizations loc) async {
+    final deleteSelection = _selectedIds.isNotEmpty;
+
+    final confirmed = await AdaptiveDialog.confirm(
+      context: context,
+      title: deleteSelection ? loc.deleteSelection : loc.deleteAll,
+      message: deleteSelection
+          ? loc.prerecorderDeleteSelectionConfirm
+          : loc.prerecorderDeleteAllConfirm,
+      confirmLabel: MaterialLocalizations.of(context).deleteButtonTooltip,
+      destructive: true,
+    );
+
+    if (!confirmed) return;
+
+    setState(() {
+      _deleteRecords(deleteSelection: deleteSelection);
+    });
   }
 
   Widget _preRecordTile(
@@ -560,179 +595,198 @@ class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
     final palette = MapColorPaletteHelper.getPalette(settings.mapColorPalette);
     final unknownLocationIcon = Icon( Icons.not_listed_location, color: theme.colorScheme.primary, size: 32, );
 
-    return Card(
-      color: selected
-          ? theme.colorScheme.primaryContainer
-          : null,
-      child: ListTile(
-        titleAlignment: ListTileTitleAlignment.center,
-        leading: record.loaded
-          ?  (hasStation ? IconTheme(
+    return AdaptiveRecordTile(
+      selected: selected,
+      leading: record.loaded
+          ? (hasStation ? IconTheme(
               data: IconThemeData(
                 color: palette[record.type],
                 size: 32,
               ),
               child: record.type.icon(),
             ) : unknownLocationIcon)
-          : const SizedBox(
-              width: 32,
-              height: 32,
-              child: CircularProgressIndicator(strokeWidth: 3),
-            ),
-        title: record.loaded
+          : (AppPlatform.isApple
+              ? const CupertinoActivityIndicator()
+              : const SizedBox(
+                  width: 32,
+                  height: 32,
+                  child: CircularProgressIndicator(strokeWidth: 3),
+                )),
+      title: record.loaded
           ? Text(
               record.stationName ?? loc.prerecorderUnknownStation,
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: AppPlatform.isApple
+                  ? null
+                  : theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             )
-          : const ShimmerBox(
-              width: 180,
-              height: 18,
-            ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              formatDateTime(context, record.dateTime),
-            ),
-            hasCoordinates 
-            ? Text(
-              hasAddress ? record.address! : '${record.lat!.toStringAsFixed(6)}, ${record.long!.toStringAsFixed(6)}',
-            )
-            : const ShimmerBox(
-              width: 180,
-              height: 18,
-            ),
-          ],
-        ),
-        isThreeLine: true,
-        selected: selected,
-        trailing: _selectionTrailing(record.id, loc, theme),
-        onTap: () {
-          setState(() {
-            if (selected) {
-              _selectedIds.remove(record.id);
-            } else {
-              _selectedIds.add(record.id);
-            }
-          });
-        },
+          : const ShimmerBox(width: 180, height: 18),
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(formatDateTime(context, record.dateTime)),
+          hasCoordinates
+              ? Text(
+                  hasAddress
+                      ? record.address!
+                      : '${record.lat!.toStringAsFixed(6)}, ${record.long!.toStringAsFixed(6)}',
+                )
+              : const ShimmerBox(width: 180, height: 18),
+        ],
       ),
+      trailing: _selectionTrailing(record.id, loc, theme),
+      onTap: () {
+        // iOS feels nicer if tap gives a little haptic:
+        if (AppPlatform.isApple) HapticFeedback.selectionClick();
+        setState(() {
+          if (selected) {
+            _selectedIds.remove(record.id);
+          } else {
+            _selectedIds.add(record.id);
+          }
+        });
+      },
     );
   }
 
-  AppPrimaryAction _buildPrimaryAction(BuildContext context) {
+  Future<void> _recordNewLog() async {
     final trainlog = Provider.of<TrainlogProvider>(context, listen: false);
     final loc = AppLocalizations.of(context)!;
-    final scaffMsg = ScaffoldMessenger.of(context);
     final settings = context.read<SettingsProvider>();
 
-    return AppPrimaryAction(
-      onPressed: () async {
-        try {
-          final id = DateTime.now().millisecondsSinceEpoch;
+    try {
+      final id = DateTime.now().millisecondsSinceEpoch;
 
-          // Create record immediately
-          final pendingRecord = PreRecordModel(
-            id: id,
-            dateTime: DateTime.now(),
-            loaded: false, // tells that the coordinates, station name and address have to be fetched
+      // Create record immediately
+      final pendingRecord = PreRecordModel(
+        id: id,
+        dateTime: DateTime.now(),
+        loaded: false, // tells that the coordinates, station name and address have to be fetched
+      );
+
+      setState(() {
+        _records.add(pendingRecord);
+        _sortRecords();
+      });
+
+      await _saveAll(); // save pending state
+
+      final position = await _getCurrentPosition(loc);
+      final index = _records.indexWhere((r) => r.id == id);
+
+      setState(() {
+        _records[index] = _records[index].copyWith(
+            lat: position.latitude,
+            long: position.longitude,
           );
+        });
+        await _saveAll();
 
-          setState(() {
-            _records.add(pendingRecord);
-            _sortRecords();
-          });
+      // Resolve stations asynchronously
+      final stations = await trainlog.findStationsFromCoordinate(
+        position.latitude,
+        position.longitude,
+        distanceLimitMeters: settings.sprRadius,
+      );
 
-          await _saveAll(); // save pending state
+      // Handle empty results (no station found)
+      if (stations.isEmpty) {
+        if (index == -1) return;
 
-          final position = await _getCurrentPosition(loc);
-          final index = _records.indexWhere((r) => r.id == id);
-
-          setState(() {
-            _records[index] = _records[index].copyWith(
-                lat: position.latitude,
-                long: position.longitude,
-              );
-            });
-            await _saveAll();
-
-          // Resolve stations asynchronously
-          final stations = await trainlog.findStationsFromCoordinate(
-            position.latitude,
-            position.longitude,
-            distanceLimitMeters: settings.sprRadius,
+        // Remove the pending record
+        // setState(() {
+        //   _records.removeWhere((r) => r.id == id);
+        // });
+        // Unknown station (manual input)
+        setState(() {
+        _records[index] = _records[index].copyWith(
+            stationName: null,
+            address: null,
+            type: VehicleType.unknown,
+            loaded: true,
           );
+        });
+        await _saveAll();
+        
+        // scaffMsg.showSnackBar(
+        //   SnackBar(content: Text(loc.prerecorderNoStationReachable))
+        // );
+        if(!mounted) return;
+        AdaptiveInformationMessage.show(context, loc.prerecorderNoStationReachable);
+        return;
+      }
 
-          // Handle empty results (no station found)
-          if (stations.isEmpty) {
-            if (index == -1) return;
+      // If only one station, use it directly
+      String? name;
+      String? address;
+      VehicleType? type;
 
-            // Remove the pending record
-            // setState(() {
-            //   _records.removeWhere((r) => r.id == id);
-            // });
-            // Unknown station (manual input)
-            setState(() {
-            _records[index] = _records[index].copyWith(
-                stationName: null,
-                address: null,
-                type: VehicleType.unknown,
-                loaded: true,
-              );
-            });
-            await _saveAll();
-            
-            scaffMsg.showSnackBar(
-              SnackBar(content: Text(loc.prerecorderNoStationReachable))
-            );
-            return;
-          }
-
-          // If only one station, use it directly
-          String? name;
-          String? address;
-          VehicleType? type;
-
-          if (stations.length == 1) {
-            (name, address, type, _) = stations[0];
-          } else {
-            if (!mounted) return;
-            // Multiple stations - show selection dialog
-            final result = await _showStationSelectionDialog(context, stations);
-            
-            if (result == null) {
-              // User cancelled - remove pending record
-              setState(() {
-                _records.removeWhere((r) => r.id == id);
-              });
-              await _saveAll();
-              return;
-            }
-            
-            (name, address, type) = result;
-          }
-
-          // Update same record
-          if (index == -1) return;
-
+      if (stations.length == 1) {
+        (name, address, type, _) = stations[0];
+      } else {
+        if (!mounted) return;
+        // Multiple stations - show selection dialog
+        final result = await _showStationSelectionDialog(context, stations);
+        
+        if (result == null) {
+          // User cancelled - remove pending record
           setState(() {
-            _records[index] = _records[index].copyWith(
-              stationName: name,
-              address: address,
-              type: type,
-              loaded: true,
-            );
+            _records.removeWhere((r) => r.id == id);
           });
-
-          await _saveAll(); // persist resolved data
-        } catch (e) {
-          scaffMsg.showSnackBar(SnackBar(content: Text(e.toString())));
+          await _saveAll();
+          return;
         }
-      },
+        
+        (name, address, type) = result;
+      }
+
+      // Update same record
+      if (index == -1) return;
+
+      setState(() {
+        _records[index] = _records[index].copyWith(
+          stationName: name,
+          address: address,
+          type: type,
+          loaded: true,
+        );
+      });
+
+      await _saveAll(); // persist resolved data
+    } catch (e) {          
+      setState(() {
+        _records.removeWhere((r) => r.loaded == false);
+      });
+      await _saveAll();
+      if(!mounted) return;
+      debugPrint(e.toString());
+      AdaptiveInformationMessage.show(context, loc.prerecorderErrorFetchingStation);
+      return;
+    }
+  }
+
+  List<AppPrimaryAction> _buildPrimaryAction(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+
+    if(AppPlatform.isApple) {
+      return [
+        AppPrimaryAction(
+          onPressed: _changeSortOder,
+          icon: sortIcon,
+          tooltip: sortTooltip(loc),
+        ),
+        AppPrimaryAction(
+          onPressed: () => _askForDelete(loc),
+          icon: AdaptiveIcons.delete,
+          label: deleteButtonLabel(loc, short: true),
+          isDestructive: true,
+        ),
+      ];
+    }
+
+    return [AppPrimaryAction(
+      onPressed: _recordNewLog,
       icon: AdaptiveIcons.edit,
       label: loc.prerecorderRecordButton
-    );
+    )];
   }
 }

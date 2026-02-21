@@ -1,16 +1,20 @@
 import 'package:flutter/widgets.dart';
 
+typedef SetPrimaryActions = void Function(List<AppPrimaryAction> actions);
+
 class AppPrimaryAction {
   final IconData icon;
   final String? tooltip;
   final String? label;
   final VoidCallback onPressed;
+  final bool isDestructive;
 
   const AppPrimaryAction({
     required this.icon,
     required this.onPressed,
     this.tooltip,
     this.label,
+    this.isDestructive = false
   });
 
   bool get isExtended => label != null && label!.trim().isNotEmpty;

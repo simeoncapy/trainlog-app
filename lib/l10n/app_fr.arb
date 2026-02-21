@@ -9,7 +9,9 @@
   "descendingOrder": "Ordre décroissant",
   "ascendingOrder": "Ordre croissant",
   "deleteAll": "Tout supprimer",
+  "deleteAllShort": "Tout",
   "deleteSelection": "Supprimer la sélection",
+  "deleteSelectionShort": "Sélection",
   "loginButton": "Connexion",
   "logoutButton": "Déconnexion",
   "loggedOut": "Déconnecté",
@@ -105,7 +107,7 @@
   "settingsAccountVisibilitRestrictedHelper": "Les voyages sont visibles via leur identifiant, sans les données personnelles de l'utilisateur. Le profil public reste inaccessible.",
   "settingsAccountVisibilitPublicHelper": "Votre profil public est accessible via votre nom d'utilisateur.",
   "settingsInstanceUrl": "Instance Trainlog",
-  "settingsInstanceMsg": "Vous pouvez modifier le chemin d'accès à l'instance Trainlog utilisée par l'application sur la page de connexion.",
+  "settingsInstanceMsg": "Vous pouvez modifier l'URL de l'instance Trainlog utilisée par l'application sur la page de connexion.",
 
   "menuMapTitle": "Carte",
   "menuTripsTitle": "Trajets",
@@ -288,6 +290,7 @@
   "prerecorderErrorMoreThanTwoSelected": "Veuillez sélectionner seulement deux géomémo pour créer un trajet",
   "prerecorderErrorDepartureAfterArrival": "Le départ ne peut pas être après l'arrivée",
   "prerecorderErrorTypeSameForDepartureArrival": "Le départ et l'arrivée doivent être du même type de véhicule, ou de type inconnu",
+  "prerecorderErrorFetchingStation": "Erreur lors de la recherche de gares",
 
   "inboxPageTitle": "Messages",
   "inboxAuthor": "Par {author}",

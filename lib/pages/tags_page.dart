@@ -9,8 +9,8 @@ import 'package:trainlog_app/widgets/trainlog_web_page.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 
 class TagsPage extends StatefulWidget {
-  final void Function(AppPrimaryAction? action) onPrimaryActionReady;
-  const TagsPage({super.key, required this.onPrimaryActionReady});
+  final SetPrimaryActions onPrimaryActionsReady;
+  const TagsPage({super.key, required this.onPrimaryActionsReady});
 
   @override
   State<TagsPage> createState() => _TagsPageState();
@@ -22,7 +22,7 @@ class _TagsPageState extends State<TagsPage> {
     final loc = AppLocalizations.of(context)!;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) widget.onPrimaryActionReady(_buildPrimaryAction(context));
+        if (mounted) widget.onPrimaryActionsReady([_buildPrimaryAction(context)]);
       });
     
     return Column(
