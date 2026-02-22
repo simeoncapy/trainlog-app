@@ -16,8 +16,6 @@ class AboutPage extends StatelessWidget {
     final loc = AppLocalizations.of(context)!;
     final locale = Localizations.localeOf(context);
     final languageCode = locale.languageCode;
-    final mq = MediaQuery.of(context);
-    final bottomPadding = mq.padding.bottom;
 
     return DefaultTabController(
       length: 3,
@@ -44,8 +42,7 @@ class AboutPage extends StatelessWidget {
               ],
             ),
           ),
-          if(AppPlatform.isApple)
-            SizedBox(height: bottomPadding,)
+          AppPlatform.bottomPadding(context),
         ],
       ),
     );

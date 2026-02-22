@@ -16,6 +16,7 @@ import 'package:trainlog_app/data/models/polyline_entry.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/navigation/nav_models.dart';
+import 'package:trainlog_app/platform/adaptive_trip_card.dart';
 import 'package:trainlog_app/providers/polyline_provider.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
@@ -441,19 +442,8 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver, Automati
                 for (final hit in result.hitValues) {
                   final tappedTrip = await repo.getTripById(hit);
                   if (tappedTrip != null) {
-                    showModalBottomSheet(
-                      context: context,
-                      useSafeArea: true,
-                      isScrollControlled: true,
-                      builder: (ctx) {
-                        final mq = MediaQuery.of(ctx);
-                        final bottom = math.max(mq.viewPadding.bottom, mq.viewInsets.bottom);
-                        return Padding(
-                          padding: EdgeInsets.only(bottom: bottom),
-                          child: TripDetailsBottomSheet(trip: tappedTrip),
-                        );
-                      },
-                    );
+                    if(!context.mounted) return;
+                    await showAdaptiveTripBottomSheet(context, trip: tappedTrip);
                     break;
                   }
                 }

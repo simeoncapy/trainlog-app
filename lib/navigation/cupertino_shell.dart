@@ -17,6 +17,7 @@ import 'package:trainlog_app/pages/statistics_page.dart';
 import 'package:trainlog_app/pages/tags_page.dart';
 import 'package:trainlog_app/pages/tickets_page.dart';
 import 'package:trainlog_app/pages/trips_page.dart';
+import 'package:trainlog_app/widgets/menu_header.dart';
 
 typedef SetPrimaryActions = void Function(List<AppPrimaryAction> actions);
 
@@ -236,72 +237,96 @@ class _MorePage extends StatelessWidget {
     final mq = MediaQuery.of(context);
     final bottomPadding = mq.padding.bottom;
 
-    final navBg = CupertinoTheme.of(context).scaffoldBackgroundColor;
+    //final navBg = CupertinoTheme.of(context).scaffoldBackgroundColor;
 
     return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        backgroundColor: navBg,
-        middle: Text(l10n.menuIosMore),
-      ),
+      // navigationBar: CupertinoNavigationBar(
+      //   backgroundColor: navBg,
+      //   middle: Text(l10n.menuIosMore),
+      // ),
       child: Padding(
         padding: EdgeInsets.only(bottom: bottomPadding),
-        child: ListView(
+        child: Column(
           children: [
-            _sectionHeader('Pages'),
-            _moreTile(
-              context,
-              icon: AdaptiveIcons.coverage,
-              title: l10n.menuCoverageTitle,
-              push: () => _pushSimple(context, l10n.menuCoverageTitle, const CoveragePage()),
-            ),
-            _moreTile(
-              context,
-              icon: AdaptiveIcons.tags,
-              title: l10n.menuTagsTitle,
-              push: () => _pushWithActions(
-                context,
-                l10n.menuTagsTitle,
-                (setActions) => TagsPage(onPrimaryActionsReady: setActions),
+            ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: 170,
+              ),
+              child: Container(
+                decoration: const BoxDecoration(
+                  border: Border.symmetric(
+                    horizontal: BorderSide(color: Color(0xFF3772FF), width: 20),
+                  ),
+                ),
+                child: Container(
+                  margin: EdgeInsets.all(0),
+                  padding: EdgeInsets.all(8),
+                  decoration: BoxDecoration(color: Color(0xFF14213D)),
+                  child: MenuHeader(),
+                ),
               ),
             ),
-            _moreTile(
-              context,
-              icon: AdaptiveIcons.tickets,
-              title: l10n.menuTicketsTitle,
-              push: () => _pushWithActions(
-                context,
-                l10n.menuTicketsTitle,
-                (setActions) => TicketsPage(onPrimaryActionsReady: setActions),
+            Expanded(
+              child: ListView(
+                children: [
+                  //_sectionHeader('Pages'),
+                  _moreTile(
+                    context,
+                    icon: AdaptiveIcons.coverage,
+                    title: l10n.menuCoverageTitle,
+                    push: () => _pushSimple(context, l10n.menuCoverageTitle, const CoveragePage()),
+                  ),
+                  _moreTile(
+                    context,
+                    icon: AdaptiveIcons.tags,
+                    title: l10n.menuTagsTitle,
+                    push: () => _pushWithActions(
+                      context,
+                      l10n.menuTagsTitle,
+                      (setActions) => TagsPage(onPrimaryActionsReady: setActions),
+                    ),
+                  ),
+                  _moreTile(
+                    context,
+                    icon: AdaptiveIcons.tickets,
+                    title: l10n.menuTicketsTitle,
+                    push: () => _pushWithActions(
+                      context,
+                      l10n.menuTicketsTitle,
+                      (setActions) => TicketsPage(onPrimaryActionsReady: setActions),
+                    ),
+                  ),
+                  _moreTile(
+                    context,
+                    icon: AdaptiveIcons.friends,
+                    title: l10n.menuFriendsTitle,
+                    push: () => _pushSimple(context, l10n.menuFriendsTitle, const FriendsPage()),
+                  ),
+                  _moreTile(
+                    context,
+                    icon: AdaptiveIcons.smartPrerecorder,
+                    title: l10n.menuSmartPrerecorderTitle,
+                    push: () => _pushWithActions(
+                      context,
+                      l10n.menuSmartPrerecorderTitle,
+                      (setActions) => SmartPrerecorderPage(onPrimaryActionsReady: setActions),
+                    ),
+                  ),
+                  _sectionHeader(''),
+                  _moreTile(
+                    context,
+                    icon: AdaptiveIcons.settings,
+                    title: l10n.menuSettingsTitle,
+                    push: () => _pushSimple(context, l10n.menuSettingsTitle, const SettingsCupertinoPage()),
+                  ),
+                  _moreTile(
+                    context,
+                    icon: AdaptiveIcons.info,
+                    title: l10n.menuAboutTitle,
+                    push: () => _pushSimple(context, l10n.menuAboutTitle, const AboutPage()),
+                  ),
+                ],
               ),
-            ),
-            _moreTile(
-              context,
-              icon: AdaptiveIcons.friends,
-              title: l10n.menuFriendsTitle,
-              push: () => _pushSimple(context, l10n.menuFriendsTitle, const FriendsPage()),
-            ),
-            _moreTile(
-              context,
-              icon: AdaptiveIcons.smartPrerecorder,
-              title: l10n.menuSmartPrerecorderTitle,
-              push: () => _pushWithActions(
-                context,
-                l10n.menuSmartPrerecorderTitle,
-                (setActions) => SmartPrerecorderPage(onPrimaryActionsReady: setActions),
-              ),
-            ),
-            _sectionHeader('App'),
-            _moreTile(
-              context,
-              icon: AdaptiveIcons.settings,
-              title: l10n.menuSettingsTitle,
-              push: () => _pushSimple(context, l10n.menuSettingsTitle, const SettingsCupertinoPage()),
-            ),
-            _moreTile(
-              context,
-              icon: AdaptiveIcons.info,
-              title: l10n.menuAboutTitle,
-              push: () => _pushSimple(context, l10n.menuAboutTitle, const AboutPage()),
             ),
           ],
         ),

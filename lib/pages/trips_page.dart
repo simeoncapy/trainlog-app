@@ -9,6 +9,7 @@ import 'package:trainlog_app/data/trips_repository.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/navigation/nav_models.dart';
 import 'package:trainlog_app/pages/add_trip_page.dart';
+import 'package:trainlog_app/platform/adaptive_trip_card.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
@@ -497,21 +498,7 @@ class TripsDataSource extends DataTableSource {
     return DataRow(
       color: bkgColor, 
       onSelectChanged: (_) {
-        showModalBottomSheet(
-          useSafeArea: true,
-          context: context,
-          builder: (ctx) {
-            final mq = MediaQuery.of(ctx);
-            final bottom = math.max(mq.viewPadding.bottom, mq.viewInsets.bottom);
-
-            return Padding(
-              padding: EdgeInsets.only(bottom: bottom),
-              child: TripDetailsBottomSheet(trip: trip),
-            );
-          },
-          //builder: (ctx) => TripDetailsBottomSheet(trip: trip),
-          isScrollControlled: true,
-        );
+        showAdaptiveTripBottomSheet(context, trip: trip);
       },
       cells: cells,
     );

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:trainlog_app/app/app_globals.dart';
 import 'package:flutter/cupertino.dart';
@@ -32,7 +34,7 @@ class AdaptiveInformationMessage {
   }
 
 
-  static void _showMaterialSnackBar(BuildContext context, String message) {
+  static void _showMaterialSnackBar(String message) {
     rootScaffoldMessengerKey.currentState?.showSnackBar(
                         SnackBar(content: Text(message)),
                       );
@@ -57,63 +59,83 @@ class AdaptiveInformationMessage {
   }
 
   static void _showCupertinoSnackBar(
-  BuildContext context,
-  String message, {
-  int durationMillis = 3000,
-}) {
-  final overlay = Overlay.of(context, rootOverlay: true);
+    String message, {
+    int durationMillis = 3000,
+  }) {
+    final navigatorState = rootNavigatorKey.currentState;
+    final overlayState = navigatorState?.overlay;
 
-  final overlayEntry = OverlayEntry(
-    builder: (_) => Positioned(
-      bottom: 24,
-      left: 16,
-      right: 16,
-      child: SafeArea(
-        child: Material( // Needed for shadow rendering reliability
-          color: Colors.transparent,
-          child: Container(
-            decoration: BoxDecoration(
-              color: CupertinoColors.systemBackground.resolveFrom(context),
-              borderRadius: BorderRadius.circular(14),
-              boxShadow: const [
-                BoxShadow(
-                  color: Color(0x33000000), // subtle iOS shadow
-                  blurRadius: 20,
-                  offset: Offset(0, 8),
+    if (overlayState == null) return;
+
+    // Use root navigator context for theming if available.
+    final themeContext = navigatorState!.context;
+
+    final entry = OverlayEntry(
+      builder: (_) => Positioned(
+        bottom: 24,
+        left: 16,
+        right: 16,
+        child: SafeArea(
+          child: Material(
+            color: Colors.transparent,
+            child: Container(
+              decoration: BoxDecoration(
+                color: CupertinoColors.systemBackground.resolveFrom(themeContext),
+                borderRadius: BorderRadius.circular(14),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0x33000000),
+                    blurRadius: 20,
+                    offset: Offset(0, 8),
+                  ),
+                ],
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: DefaultTextStyle(
+                style: CupertinoTheme.of(themeContext).textTheme.textStyle.copyWith(fontSize: 14),
+                child: Text(
+                  message,
+                  textAlign: TextAlign.center,
                 ),
-              ],
-            ),
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 12,
-            ),
-            child: Text(
-              message,
-              textAlign: TextAlign.center,
-              style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
-                fontSize: 14,
               ),
             ),
           ),
         ),
       ),
-    ),
-  );
+    );
 
-  overlay.insert(overlayEntry);
-
-  Future.delayed(
-    Duration(milliseconds: durationMillis),
-    overlayEntry.remove,
-  );
-}
+    overlayState.insert(entry);
+    Timer(Duration(milliseconds: durationMillis), entry.remove);
+  }
 
 
-  static void show(BuildContext context, String message, {bool isImportant = false, String? title}) {
+  static void show(
+    BuildContext context,
+    String message, {
+    bool isImportant = false,
+    String? title,
+  }) {
     if (AppPlatform.isApple) {
-      isImportant ? _showCupertinoDialog(context, message, title) : _showCupertinoSnackBar(context, message);
+      if (isImportant) {
+        _showCupertinoDialog(context, message, title);
+      } else {
+        _showCupertinoSnackBar(message);
+      }
     } else {
-      isImportant ? _showMaterialDialog(context, message, title) : _showMaterialSnackBar(context, message);
+      if (isImportant) {
+        _showMaterialDialog(context, message, title);
+      } else {
+        _showMaterialSnackBar(message);
+      }
+    }
+  }
+
+  /// Optional: if you *want* a fully context-free API for non-important messages:
+  static void showInfo(String message) {
+    if (AppPlatform.isApple) {
+      _showCupertinoSnackBar(message);
+    } else {
+      _showMaterialSnackBar(message);
     }
   }
 }

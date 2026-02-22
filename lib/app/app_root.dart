@@ -32,6 +32,7 @@ class AppRoot extends StatelessWidget {
   Widget _buildMaterialApp(SettingsProvider settings) {
     return MaterialApp(
       scaffoldMessengerKey: rootScaffoldMessengerKey,
+      navigatorKey: rootNavigatorKey,
       locale: settings.locale,
       localizationsDelegates: [
         ...AppLocalizations.localizationsDelegates,
@@ -62,6 +63,7 @@ class AppRoot extends StatelessWidget {
         settings.themeMode == ThemeMode.dark ? Brightness.dark : Brightness.light;
 
     return CupertinoApp(
+      navigatorKey: rootNavigatorKey,
       locale: settings.locale,
       localizationsDelegates: [
         ...AppLocalizations.localizationsDelegates,

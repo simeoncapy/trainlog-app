@@ -1,9 +1,11 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/pages/inbox_page.dart';
 import 'package:trainlog_app/pages/trainlog_status_page.dart';
+import 'package:trainlog_app/platform/adaptive_button.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
@@ -140,7 +142,7 @@ class _MenuHeaderState extends State<MenuHeader> {
                 //_statusButtonHelper(loc, context, theme),
                 _statusIconButtonHelper(theme),
                 const SizedBox(width: 10,),
-                _mailboxButtonHelper(theme),
+                _mailboxButtonHelper(loc, theme),
               ],
             ),
           ],
@@ -149,9 +151,11 @@ class _MenuHeaderState extends State<MenuHeader> {
     );
   }
 
-  ElevatedButton _logoutButtonHelper(AppLocalizations loc, BuildContext context, SettingsProvider settings, TripsProvider trips, ScaffoldMessengerState scaffMsg) {
-    return ElevatedButton.icon(
-      icon: Icon(AdaptiveIcons.logout),
+  Widget _logoutButtonHelper(AppLocalizations loc, BuildContext context, SettingsProvider settings, TripsProvider trips, ScaffoldMessengerState scaffMsg) {
+    return AdaptiveButton.build(
+      context: context,
+      size: AdaptiveButton.small,
+      icon: AdaptiveIcons.logout,
       label: Text(loc.logoutButton),
       onPressed: () async {
         await context.read<TrainlogProvider>().logout(settings, trips);
@@ -160,6 +164,17 @@ class _MenuHeaderState extends State<MenuHeader> {
         );
       },
     );
+    
+    // return ElevatedButton.icon(
+    //   icon: Icon(AdaptiveIcons.logout),
+    //   label: Text(loc.logoutButton),
+    //   onPressed: () async {
+    //     await context.read<TrainlogProvider>().logout(settings, trips);
+    //     scaffMsg.showSnackBar(
+    //       SnackBar(content: Text(loc.loggedOut)),
+    //     );
+    //   },
+    // );
   }
 
   // ElevatedButton _statusButtonHelper(AppLocalizations loc, BuildContext context, ThemeData theme) {
@@ -190,20 +205,12 @@ class _MenuHeaderState extends State<MenuHeader> {
             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
           ),
           onPressed: () {
-            Navigator.pop(context); // close the menu before opening the page
-            Navigator.of(context).push(PageRouteBuilder(
-              pageBuilder: (_, __, ___) => ChangeNotifierProvider(
-                create: (_) => null,
-                child: const TrainlogStatusPage(),
-              ),
-              transitionDuration: Duration.zero,
-              reverseTransitionDuration: Duration.zero,
-            ));
+            _openPage(TrainlogStatusPage.pageTitle(context), const TrainlogStatusPage());
           },
         );
   }
 
-  Widget _mailboxButtonHelper(ThemeData theme) {
+  Widget _mailboxButtonHelper(AppLocalizations loc, ThemeData theme) {
     bool isNewMessage = (_newMessage != null && _newMessage! > 0);
     String badgeLabel = isNewMessage ? (_newMessage! > 9 ? "9+" : _newMessage.toString()) 
                                      : "";
@@ -221,18 +228,37 @@ class _MenuHeaderState extends State<MenuHeader> {
           foregroundColor: theme.colorScheme.onSecondaryContainer,
         ),
         onPressed: () {
-          Navigator.pop(context); // close the menu before opening the page
-          Navigator.of(context).push(PageRouteBuilder(
-            pageBuilder: (_, __, ___) => ChangeNotifierProvider(
-              create: (_) => null,
-              child: const InboxPage(),
-            ),
-            transitionDuration: Duration.zero,
-            reverseTransitionDuration: Duration.zero,
-          ));
+          _openPage(InboxPage.pageTitle(context), const InboxPage());
         },
       ),
     );
+  }
+
+  void _openPage(String title, Widget page) {
+    if(AppPlatform.isApple) {
+      final navBg = CupertinoTheme.of(context).scaffoldBackgroundColor;
+      Navigator.of(context).push(
+        CupertinoPageRoute(
+          builder: (_) => CupertinoPageScaffold(
+            navigationBar: CupertinoNavigationBar(
+              backgroundColor: navBg,
+              middle: Text(title),
+            ),
+            child: page,
+          ),
+        ),
+      );
+    } else {
+      Navigator.pop(context); // close the menu before opening the page
+      Navigator.of(context).push(PageRouteBuilder(
+        pageBuilder: (_, __, ___) => ChangeNotifierProvider(
+          create: (_) => null,
+          child: page,
+        ),
+        transitionDuration: Duration.zero,
+        reverseTransitionDuration: Duration.zero,
+      ));
+    }
   }
 
   ElevatedButton _createAccountButtonHelper(AppLocalizations loc, BuildContext context, ScaffoldMessengerState scaffMsg) {

@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
@@ -5,11 +6,14 @@ import 'package:trainlog_app/data/models/news_model.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
+import 'package:trainlog_app/utils/platform_utils.dart';
 import 'package:trainlog_app/widgets/error_banner.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 
 class InboxPage extends StatefulWidget {
   const InboxPage({super.key});
+
+  static String pageTitle(BuildContext context) => AppLocalizations.of(context)!.inboxPageTitle;
 
   @override
   State<InboxPage> createState() => _InboxPageState();
@@ -217,6 +221,10 @@ class _InboxPageState extends State<InboxPage> {
     final locale = Localizations.localeOf(context).languageCode;
     final theme = Theme.of(context);
 
+    if(AppPlatform.isApple) {
+      return _bodyHelper(locale, loc, theme);
+    }
+
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
@@ -228,35 +236,39 @@ class _InboxPageState extends State<InboxPage> {
             },
           ),
         ),
-        body: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            children: [
-              if (locale != "en") ...[
-                ErrorBanner(
-                  severity: ErrorSeverity.info,
-                  compact: true,
-                  message: loc.pageNotAvailableInUserLanguage,
-                ),
-                SizedBox(height: 8,)
-              ],
-              Expanded(
-                child: _isLoading
-                    ? const Center(child: CircularProgressIndicator())
-                    : ListView.builder(
-                      //padding: const EdgeInsets.only(bottom: 80), // Avoid the last item to be hidden by the FAB
-                      itemCount: _newsList.length,
-                      itemBuilder: (context, index) {
-                        final record = _newsList[index];
-
-                        return _newsTile(record, loc, theme);
-                      },
-                    ),
-              ),
-            ],
-          ),
-        ),
+        body: _bodyHelper(locale, loc, theme),
       ),
     );
+  }
+
+  Padding _bodyHelper(String locale, AppLocalizations loc, ThemeData theme) {
+    return Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            if (locale != "en") ...[
+              ErrorBanner(
+                severity: ErrorSeverity.info,
+                compact: true,
+                message: loc.pageNotAvailableInUserLanguage,
+              ),
+              SizedBox(height: 8,)
+            ],
+            Expanded(
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : ListView.builder(
+                    //padding: const EdgeInsets.only(bottom: 80), // Avoid the last item to be hidden by the FAB
+                    itemCount: _newsList.length,
+                    itemBuilder: (context, index) {
+                      final record = _newsList[index];
+
+                      return _newsTile(record, loc, theme);
+                    },
+                  ),
+            ),
+          ],
+        ),
+      );
   }
 }

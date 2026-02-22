@@ -11,6 +11,15 @@ class AppPlatform {
       !kIsWeb && (Platform.isIOS || Platform.isMacOS);
 
   static final bool isMaterial = !isApple;
+
+  static Widget bottomPadding(BuildContext context, {double? offset}) {
+    if(AppPlatform.isApple) {
+      final mq = MediaQuery.of(context);
+      final p = mq.padding.bottom;
+      return SizedBox(height: p + (offset ?? 0.0),);
+    }
+      return const SizedBox.shrink();
+  }
 }
 
 class AdaptiveIcons {
@@ -126,6 +135,12 @@ class AdaptiveThemeColor {
 
   // ---- Core (Material-like) roles ----
 
+  static Color? normal(BuildContext context) =>
+      isA ? CupertinoColors.systemFill.resolveFrom(context) : null;
+
+  static Color? onNormal(BuildContext context) =>
+      isA ? CupertinoTheme.of(context).primaryColor : null;
+
   static Color primary(BuildContext context) =>
       isA ? CupertinoTheme.of(context).primaryColor : Theme.of(context).colorScheme.primary;
 
@@ -142,7 +157,7 @@ class AdaptiveThemeColor {
       isA ? CupertinoColors.systemTeal.resolveFrom(context) : Theme.of(context).colorScheme.tertiary;
 
   static Color onTertiary(BuildContext context) =>
-      isA ? CupertinoColors.white : Theme.of(context).colorScheme.onTertiary;
+      isA ? CupertinoColors.darkBackgroundGray : Theme.of(context).colorScheme.onTertiary;
 
   static Color error(BuildContext context) =>
       isA ? CupertinoColors.systemRed.resolveFrom(context) : Theme.of(context).colorScheme.error;

@@ -296,7 +296,7 @@ class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
                     ctx,
                     (null, null, VehicleType.unknown),
                   ),
-                  child: Text(loc.prerecorderUnknownStation),
+                  label: Text(loc.prerecorderUnknownStation),
                 ),
               ),
             ),
@@ -473,7 +473,7 @@ Widget build(BuildContext context) {
               Expanded(
                 child: AdaptiveButton.build(
                   context: context,
-                  child: Text(loc.prerecorderCreateTripButton,), 
+                  label: Text(loc.prerecorderCreateTripButton,), 
                   icon: AdaptiveIcons.add,
                   onPressed: createTripCaller,
                   size: AdaptiveButton.large,
@@ -484,7 +484,7 @@ Widget build(BuildContext context) {
               Expanded(
                 child: AdaptiveButton.build(
                   context: context,
-                  child: Text(loc.prerecorderRecordButton,), 
+                  label: Text(loc.prerecorderRecordButton,), 
                   icon: AdaptiveIcons.edit,
                   onPressed: _recordNewLog,
                   size: AdaptiveButton.large,
@@ -526,7 +526,7 @@ Widget build(BuildContext context) {
             IntrinsicWidth(
               child: AdaptiveButton.build(
                 context: context,
-                child: Text(deleteButtonLabel(loc)), 
+                label: Text(deleteButtonLabel(loc)), 
                 icon: AdaptiveIcons.delete,
                 type: AdaptiveButtonType.destructive,
                 size: AdaptiveButton.small,

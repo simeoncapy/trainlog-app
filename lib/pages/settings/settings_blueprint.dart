@@ -411,7 +411,7 @@ List<SettingsSectionSpec> buildSettingsBlueprint({
             icon: AdaptiveIcons.delete,
             type: AdaptiveButtonType.destructive,
             size: AdaptiveButton.small,
-            child: Text(l10n.settingsCacheClearButton),
+            label: Text(l10n.settingsCacheClearButton),
             onPressed: vm.totalCacheSize > 0 ? () => confirmAndClearCache() : null
           )
         ),
@@ -422,7 +422,7 @@ List<SettingsSectionSpec> buildSettingsBlueprint({
             context: context,
             icon: AdaptiveIcons.mail,
             size: AdaptiveButton.small,
-            child: Text(l10n.settingsDeleteAccountRequest),
+            label: Text(l10n.settingsDeleteAccountRequest),
             onPressed: () => requestDeleteAccountMail()
           )
         ),
@@ -452,10 +452,7 @@ List<SettingsSectionSpec> buildSettingsBlueprint({
             vm.onVersionTapped(
               l10n: l10n,
               showCopiedInfo: () {
-                AdaptiveInformationMessage.show(
-                  context, 
-                  l10n.appVersionCopied, 
-                );
+                AdaptiveInformationMessage.showInfo(l10n.appVersionCopied);
               },
             );
           },
