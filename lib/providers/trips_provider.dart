@@ -144,6 +144,7 @@ class TripsProvider extends ChangeNotifier {
     if (locale != null) _locale = locale;
 
     DateTime? lastRefresh = hardRefresh ? null : _settings!.lastFetchingTrips;
+    if(lastRefresh == forceRefreshDate.toUtc()) lastRefresh = null; // treat forceRefreshDate as hard refresh
 
     try {
       if (lastRefresh == null) {

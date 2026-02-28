@@ -111,7 +111,11 @@ class _AddTripPageState extends State<AddTripPage> {
     if (currentStep == 0) {
       Navigator.pop(context);
     } else {
-      setState(() => currentStep--);
+      setState(() {
+        currentStep--;
+        _hasRoutingError = false; // Reset routing error when going back
+        _isRouterLoading = false; // Reset loading state when going back
+      });
       stepProgressController.previousStep();
       _pageController.animateToPage(
         currentStep,
@@ -152,9 +156,7 @@ class _AddTripPageState extends State<AddTripPage> {
     }
 
     final Map<String, dynamic> payload = res.payload as Map<String, dynamic>;
-    final Map<String, dynamic>? newTrip =
-        (payload['response'] as Map<String, dynamic>?)?['newTrip']
-            as Map<String, dynamic>?;
+    final Map<String, dynamic>? newTrip = payload['newTrip'] as Map<String, dynamic>?;
     if (newTrip == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(loc.addTripFinishFeedbackWarning)),

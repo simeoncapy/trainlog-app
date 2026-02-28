@@ -335,6 +335,13 @@ class _SettingsCupertinoPageState extends State<SettingsCupertinoPage> {
       );
     }
 
+    if (item is SettingsTextSpec) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        child: Text(item.title),
+      );
+    }
+
     return const SizedBox.shrink();
   }
 }

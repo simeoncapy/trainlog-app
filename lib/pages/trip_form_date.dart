@@ -171,6 +171,10 @@ class _TripFormDateState extends State<TripFormDate> {
                     if (picked != null) {
                       setState(() => _departureDate = picked);
                       model.setDepartureDateTime(_departureDate, _departureTime, departureTimezone);
+                      if(_arrivalDate == null) {
+                        setState(() => _arrivalDate = _departureDate);
+                        model.setArrivalDateTime(_arrivalDate, _arrivalTime, arrivalTimezone);
+                      }
                     }
                   },
                 ),

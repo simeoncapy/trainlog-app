@@ -30,6 +30,9 @@ class AdaptiveIcons {
   static final IconData copy =        isA ? CupertinoIcons.doc_on_doc : Icons.copy;
   static final IconData share =       isA ? CupertinoIcons.share : Icons.share;
   static final IconData mail =        isA ? CupertinoIcons.mail : Icons.mail;
+  static final IconData add =         isA ? CupertinoIcons.add : Icons.add;
+  static final IconData filter =      isA ? CupertinoIcons.line_horizontal_3_decrease : Icons.filter_alt;
+  static final IconData edit =        isA ? CupertinoIcons.square_pencil : Icons.edit;
   
   // Sort
   static final IconData sortAscending = isA ? CupertinoIcons.sort_up : Icons.arrow_upward;
@@ -76,10 +79,7 @@ class AdaptiveIcons {
   static final IconData version =     isA ? CupertinoIcons.info_circle : Icons.info_outline;
   static final IconData instance =    isA ? CupertinoIcons.link : Icons.http;
 
-  // Pages
-  static final IconData add = isA ? CupertinoIcons.add : Icons.add;
-  static final IconData filter = isA ? CupertinoIcons.line_horizontal_3_decrease : Icons.filter_alt;
-  static final IconData edit = isA ? CupertinoIcons.pen : Icons.edit;
+  // Pages  
   static final IconData compass = isA ? CupertinoIcons.compass :  Icons.explore;
 }
 

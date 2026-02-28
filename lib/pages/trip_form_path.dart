@@ -3,9 +3,12 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/data/controllers/trainlog_web_controller.dart';
 import 'package:trainlog_app/data/models/trip_form_model.dart';
+import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
+import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/widgets/error_banner.dart';
 import 'package:trainlog_app/widgets/shimmer_box.dart';
+import 'package:trainlog_app/widgets/trainlog_router_page.dart';
 import 'package:trainlog_app/widgets/trainlog_web_page.dart';
 
 
@@ -64,39 +67,12 @@ class _TripFormPathState extends State<TripFormPath> {
     );
   }
 
-  String _distanceAndTimeFormatHelper(String input, {String? locale}) {
-    final parts = input.split(', ');
-    if (parts.length < 2) return input;
-
-    // ---- distance ----
-    final distanceRaw =
-        parts[0].replaceAll(RegExp(r'[^\d.,]'), '').trim();
-
-    final distance =
-        NumberFormat.decimalPattern(locale).parse(distanceRaw);
-
+  String _distanceAndTimeFormatHelper(double distanceM, double durationS, {String? locale}) {
     final distanceFormatted =
-        NumberFormat.decimalPattern(locale).format(distance);
-
-    // ---- duration (string-only) ----
-    final durationRaw = parts.sublist(1).join(',').trim();
-    final durationFormatted = _normalizeDuration(durationRaw);
+      NumberFormat('#,##0.0', locale).format(distanceM / 1000);
+    final durationFormatted = formatDurationFixed(Duration(seconds: durationS.toInt()));
 
     return '$distanceFormatted km, $durationFormatted';
-  }
-
-  String _normalizeDuration(String input) {
-    return input
-        // normalize minute unit
-        .replaceAllMapped(
-          RegExp(r'(\d+)\s*m\b'),
-          (m) => '${m[1]}${_nbsp}min',
-        )
-        // day / hour / second
-        .replaceAllMapped(
-          RegExp(r'(\d+)\s*([dhs])\b'),
-          (m) => '${m[1]}$_nbsp${m[2]}',
-        );
   }
 
   @override
@@ -106,6 +82,7 @@ class _TripFormPathState extends State<TripFormPath> {
     final tripData = model.toJson();
     final locale = Localizations.localeOf(context);
     final disabled = _isLoading || _hasRoutingError;
+    final isAir = model.vehicleType == VehicleType.helicopter ||  model.vehicleType == VehicleType.plane;
 
     return Padding(
       padding: const EdgeInsets.all(0),
@@ -169,19 +146,20 @@ class _TripFormPathState extends State<TripFormPath> {
               alignment: Alignment.topCenter,
               children: [
                 Positioned.fill(
-                  child: TrainlogWebPage(
-                    trainlogPage: 'routing',
-                    query: {'type': model.vehicleType?.toShortString() ?? "train", "fromApp": "true"},
-                    initialPostForm: {'trip_data': tripData},
+                  child: TrainlogRouterPage (
+                    tripData: tripData,
+                    vehicleType: model.vehicleType ?? VehicleType.train,
+                    isNewRouter: _isNewRouter,
                     controller: widget.routingController,
-                    routerToggleValue: _isNewRouter,
-                    onRouteInfoChanged: (text) {
+                    onRouteInfoChanged: (tripData) {
                       if (!mounted) return;
                       setState(() {
+                        debugPrint("${tripData.distanceM} m, ${tripData.durationS} s");
                         _routeInfo = _distanceAndTimeFormatHelper(
-                          text,
+                          tripData.distanceM ?? 0,
+                          tripData.durationS ?? 0,
                           locale: locale.toLanguageTag(),
-                        );
+                        );                        
                       });
                     },
                     onLoading: (value) {

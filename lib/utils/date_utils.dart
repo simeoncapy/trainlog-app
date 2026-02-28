@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:const_date_time/const_date_time.dart';
 
+const forceRefreshDate = ConstDateTime(1970, 1, 1, 0, 0, 0);
 const unknownPast = ConstDateTime(0, 1, 1, 0, 0, 0);
 const unknownFuture = ConstDateTime(9999, 1, 1, 0, 0, 0); // When reaching year 9999 please update to more future
 
@@ -97,7 +98,7 @@ String formatDurationFixed(Duration d) {
   if (minutes > 0) {
     parts.add('$minutes${nbsp}min');
   }
-  if (seconds > 0) {
+  if (seconds > 0 && d.inHours < 1) { // Only show seconds for durations less than 1 hour
     parts.add('$seconds${nbsp}s');
   }
 

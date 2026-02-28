@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart' show ThemeMode; // only for ThemeMode type
+import 'package:flutter/material.dart' show Icons, ThemeMode; // only for ThemeMode type
 import 'package:flutter/widgets.dart';
 
 import 'package:trainlog_app/data/models/trips.dart';
@@ -151,6 +151,16 @@ class SettingsPaletteLegendSpec extends SettingsItemSpec {
         );
 }
 
+class SettingsTextSpec extends SettingsItemSpec {
+
+  SettingsTextSpec({
+    required super.title,
+  }) : super(
+          // icon are not used by the renderer for this spec
+          icon: Icons.info,
+        );
+}
+
 /// This returns the full structure (shared by Material + Cupertino).
 List<SettingsSectionSpec> buildSettingsBlueprint({
   required BuildContext context,
@@ -236,6 +246,7 @@ List<SettingsSectionSpec> buildSettingsBlueprint({
   final iconInstance = AdaptiveIcons.instance;
 
   final cacheLabel = l10n.settingsCache(formatNumber(context, vm.totalCacheSize));
+  vm.setVisibilityHelperText(l10n); // Refresh helper text if the language has changed
 
   return [
     SettingsSectionSpec(
@@ -258,7 +269,9 @@ List<SettingsSectionSpec> buildSettingsBlueprint({
           value: settings.locale.languageCode,
           options: languages,
           onChanged: (v) {
-            if (v != null) settings.setLocale(Locale(v));
+            if (v != null) {
+              settings.setLocale(Locale(v));              
+            }
           },
           materialLayout: MaterialChoiceLayout.trailingDropdown,
           valueLabel: (v) => v,
@@ -357,7 +370,7 @@ List<SettingsSectionSpec> buildSettingsBlueprint({
         SettingsChoiceSpec<int>(
           icon: iconVisibility,
           title: l10n.settingsAccountVisibility,
-          subtitle: vm.accountVisibilityHelperText.isEmpty ? null : vm.accountVisibilityHelperText,
+          //subtitle: vm.accountVisibilityHelperText.isEmpty ? null : vm.accountVisibilityHelperText,
           enabled: vm.accountVisibility != null,
           value: vm.accountVisibility ?? 0,
           options: visibilityOptions,
@@ -368,6 +381,7 @@ List<SettingsSectionSpec> buildSettingsBlueprint({
           materialLayout: MaterialChoiceLayout.trailingDropdown,
           valueLabel: (v) => '$v',
         ),
+        SettingsTextSpec(title: vm.accountVisibilityHelperText.isEmpty ? "" : vm.accountVisibilityHelperText),
         SettingsToggleSpec(
           icon: iconLeaderboard,
           title: l10n.settingsAccountLeaderboard,
@@ -404,7 +418,7 @@ List<SettingsSectionSpec> buildSettingsBlueprint({
       items: [
         SettingsButtonActionSpec(
           icon: iconCache,
-          title: cacheLabel,
+          title: vm.cacheSizeLabel(l10n, context),
           enabled: vm.totalCacheSize > 0,
           button: AdaptiveButton.build(
             context: context,

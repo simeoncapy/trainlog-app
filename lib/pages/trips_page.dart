@@ -53,7 +53,7 @@ class _TripsPageState extends State<TripsPage> {
     if (!_refreshTriggered && Theme.of(context).platform == TargetPlatform.windows) {
       _refreshTriggered = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        //_refreshKey.currentState?.show(); // 👈 triggers the refresh
+        //_refreshKey.currentState?.show(); // 👈 triggers the refresh on Windows
       });
     }
   }

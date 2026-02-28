@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
@@ -7,6 +8,8 @@ import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
 import 'package:trainlog_app/utils/app_info_utils.dart';
 import 'package:trainlog_app/utils/cached_data_utils.dart';
+import 'package:trainlog_app/utils/date_utils.dart';
+import 'package:trainlog_app/utils/number_formatter.dart';
 
 class SettingsVm extends ChangeNotifier {
   // Cache
@@ -35,6 +38,7 @@ class SettingsVm extends ChangeNotifier {
 
   void refreshCacheSize() {
     totalCacheSize = AppCacheFilePath.computeAllCacheFileSize();
+    debugPrint('Cache size refreshed: $totalCacheSize bytes');
     notifyListeners();
   }
 
@@ -81,6 +85,19 @@ class SettingsVm extends ChangeNotifier {
       default:
         return "";
     }
+  }
+
+  void setVisibilityHelperText(AppLocalizations l10n, {int? v}) {
+    v ??= accountVisibility;
+    final newHelperText = _visibilityHelperText(l10n, v);
+    if (accountVisibilityHelperText != newHelperText) {
+      accountVisibilityHelperText = newHelperText;
+      notifyListeners();
+    }
+  }
+
+  String cacheSizeLabel(AppLocalizations l10n, BuildContext context) {
+    return l10n.settingsCache(formatNumber(context, totalCacheSize));
   }
 
   void updateAccountSetting(TrainlogProvider trainlog) {
@@ -136,6 +153,7 @@ class SettingsVm extends ChangeNotifier {
     required TripsProvider tripsProvider,
   }) async {
     settings.setShouldReloadPolylines(true);
+    settings.setLastFetchingTrips(forceRefreshDate.toUtc());
     await tripsProvider.clearAll();
 
     await AppCacheFilePath.deleteFile(AppCacheFilePath.polylines);
