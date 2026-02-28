@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:lat_lng_to_timezone/lat_lng_to_timezone.dart' as tzmap;
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/data/models/pre_record_model.dart';
 import 'package:trainlog_app/data/models/trip_form_model.dart';
@@ -35,6 +36,37 @@ class SmartPrerecorderPage extends StatefulWidget {
 
   @override
   State<SmartPrerecorderPage> createState() => _SmartPrerecorderPageState();
+
+  static Future<void> deleteSelection(
+    List<int> preRecorderIdsToDelete,
+  ) async {
+    final file = File(AppCacheFilePath.preRecord);
+
+    // Return if missing
+    if (!await file.exists()) {
+      return;
+    }
+
+    final content = await file.readAsString();
+    if (content.trim().isEmpty) {
+      return;
+    }
+
+    final List decoded = jsonDecode(content);
+
+    final records = decoded
+        .map((e) => PreRecordModel.fromJson(e))
+        .toList();
+
+    records.removeWhere(
+      (r) => preRecorderIdsToDelete.contains(r.id),
+    );
+
+    await file.writeAsString(
+      jsonEncode(records.map((e) => e.toJson()).toList()),
+      flush: true,
+    );
+  }
 }
 
 class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
@@ -174,7 +206,7 @@ class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
       flush: true,
     );
   }
-
+  
   TripFormModel _createTripFormModel()
   {
     final model = TripFormModel();
@@ -191,9 +223,17 @@ class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
       return null;
     }
 
+    String departureTimezone = tzmap.latLngToTimezoneString(departurePrerecord.lat!, departurePrerecord.long!);
+    DateTime departureDateOnly = DateTime(
+      departurePrerecord.dateTime.year,
+      departurePrerecord.dateTime.month,
+      departurePrerecord.dateTime.day,
+    );
+    TimeOfDay departureTimeOnly = TimeOfDay.fromDateTime(departurePrerecord.dateTime);
+
     model.vehicleType = firstKnown(departurePrerecord.type, arrivalPrerecord.type);
     // Departure
-    model.departureDate = departurePrerecord.dateTime; 
+    model.setDepartureDateTime(departureDateOnly, departureTimeOnly, departureTimezone);
     model.departureLat = departurePrerecord.lat;
     model.departureLong = departurePrerecord.long;  
     if (departurePrerecord.stationName?.trim().isEmpty ?? true) {  // geo mode
@@ -206,7 +246,15 @@ class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
     }
 
     // Arrival
-    model.arrivalDate = arrivalPrerecord.dateTime;
+    String arrivalTimezone = tzmap.latLngToTimezoneString(arrivalPrerecord.lat!, arrivalPrerecord.long!);
+    DateTime arrivalDateOnly = DateTime(
+      arrivalPrerecord.dateTime.year,
+      arrivalPrerecord.dateTime.month,
+      arrivalPrerecord.dateTime.day,
+    );
+    TimeOfDay arrivalTimeOnly = TimeOfDay.fromDateTime(arrivalPrerecord.dateTime);
+
+    model.setArrivalDateTime(arrivalDateOnly, arrivalTimeOnly, arrivalTimezone);
     model.arrivalLat = arrivalPrerecord.lat;
     model.arrivalLong = arrivalPrerecord.long;
     if (arrivalPrerecord.stationName?.trim().isEmpty ?? true) {  // geo mode
@@ -461,7 +509,16 @@ Widget build(BuildContext context) {
                 ),
                 transitionDuration: Duration.zero,
                 reverseTransitionDuration: Duration.zero,
-              ));
+              )).then((result) {
+              if (!context.mounted) return;
+              if (result == true) {
+                setState(() {
+                  debugPrint("Trip creation successful, deleting prerecords with ids: $_selectedIds");
+                  _selectedIds.clear();
+                  _loadPreRecords();
+                });
+              }
+            });
             };
 
     if(AppPlatform.isApple) {

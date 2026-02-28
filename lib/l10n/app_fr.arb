@@ -150,6 +150,7 @@
   "tripsTableHeaderOperator": "Transporteur",
   "tripsTableHeaderLineName": "Ligne",
   "tripsTableHeaderTripLength": "Distance",
+  "tripsTableHeaderVisibility": "Visi.",
 
   "tripsDetailTitle": "Trajet en {vehicle}",
   "tripsDetailsTitleOperator": "Transporteur : ",

@@ -7,6 +7,7 @@ import 'package:trainlog_app/data/controllers/trainlog_web_controller.dart';
 import 'package:trainlog_app/data/models/polyline_entry.dart';
 import 'package:trainlog_app/data/models/trip_form_model.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
+import 'package:trainlog_app/pages/smart_prerecorder_page.dart';
 import 'package:trainlog_app/pages/trip_form_basics.dart';
 import 'package:trainlog_app/pages/trip_form_date.dart';
 import 'package:trainlog_app/pages/trip_form_details.dart';
@@ -161,6 +162,7 @@ class _AddTripPageState extends State<AddTripPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(loc.addTripFinishFeedbackWarning)),
       );
+      if(widget.preRecorderIdsToDelete != null) await SmartPrerecorderPage.deleteSelection(widget.preRecorderIdsToDelete!);
       setState(() {
         _isSubmitting = false;
       });
@@ -198,10 +200,14 @@ class _AddTripPageState extends State<AddTripPage> {
       SnackBar(content: Text(loc.addTripFinishMsg)),
     );
 
-    if(continueTrip) {
-      Navigator.of(context).push(PageRouteBuilder(
+    if(widget.preRecorderIdsToDelete != null) await SmartPrerecorderPage.deleteSelection(widget.preRecorderIdsToDelete!);
+    
+    if(!context.mounted) return;
+    final model = _createTripFormModel();
+    if(continueTrip) {      
+      Navigator.of(context).pushReplacement(PageRouteBuilder(
         pageBuilder: (_, __, ___) => ChangeNotifierProvider(
-          create: (_) => _createTripFormModel(),
+          create: (_) => model,
           child: AddTripPage(),
         ),
         transitionDuration: Duration.zero,

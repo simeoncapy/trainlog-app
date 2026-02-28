@@ -982,6 +982,12 @@ abstract class AppLocalizations {
   /// **'Length'**
   String get tripsTableHeaderTripLength;
 
+  /// No description provided for @tripsTableHeaderVisibility.
+  ///
+  /// In en, this message translates to:
+  /// **'Visi.'**
+  String get tripsTableHeaderVisibility;
+
   /// Transportation method
   ///
   /// In en, this message translates to:

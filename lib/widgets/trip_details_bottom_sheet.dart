@@ -131,6 +131,14 @@ class _TripDetailsContent extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        Row(
+          children: [
+            Icon(trip.visibility.icon(), size: 16,),
+            const SizedBox(width: 4),
+            Text(trip.visibility.label(context)),
+          ],
+        ), 
+        const SizedBox(height: 8),
         if(AppPlatform.isApple) ... [          
           Center(
             child: Wrap(
@@ -178,7 +186,7 @@ class _TripDetailsContent extends StatelessWidget {
         if ((trip.notes ?? '').isNotEmpty) ...[
           _dataElement(context, l10n.tripsDetailsTitleNotes, trip.notes!),
           const SizedBox(height: 4),
-        ],        
+        ],       
 
         if(AppPlatform.isMaterial) ... [
           const SizedBox(height: 8),

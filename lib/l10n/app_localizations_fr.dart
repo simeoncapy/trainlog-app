@@ -480,6 +480,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get tripsTableHeaderTripLength => 'Distance';
 
   @override
+  String get tripsTableHeaderVisibility => 'Visi.';
+
+  @override
   String tripsDetailTitle(Object vehicle) {
     return 'Trajet en $vehicle';
   }

@@ -150,6 +150,7 @@
   "tripsTableHeaderOperator": "事業者",
   "tripsTableHeaderLineName": "路線",
   "tripsTableHeaderTripLength": "距離",
+  "tripsTableHeaderVisibility": "可視性",
 
   "tripsDetailTitle": "{vehicle}での旅行",
   "tripsDetailsTitleOperator": "事業者: ",

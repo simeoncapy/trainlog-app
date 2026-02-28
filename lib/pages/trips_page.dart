@@ -256,6 +256,7 @@ class _TripsPageState extends State<TripsPage> {
     if (width > 800) columns.add('operator');
     if (width > 1000) columns.add('lineName');
     if (width > 1200) columns.add('tripLength');
+    if (width > 1100) columns.add('visibility');
     return columns;
   }
 
@@ -295,6 +296,8 @@ class _TripsPageState extends State<TripsPage> {
         return appLocalizations.tripsTableHeaderLineName;
       case 'tripLength':
         return appLocalizations.tripsTableHeaderTripLength;
+      case 'visibility':
+        return appLocalizations.tripsTableHeaderVisibility;
       default:
         return key;
     }
@@ -477,9 +480,15 @@ class TripsDataSource extends DataTableSource {
           //return DataCell(_operatorLogos[Uri.decodeComponent(trip.operatorName)] ?? Text(Uri.decodeComponent(trip.operatorName))); // _operatorLogos
           //return DataCell(Text(Uri.decodeComponent(trip.operatorName))); // _operatorLogos
         case 'lineName':
-          return DataCell(Text(Uri.decodeComponent(trip.lineName)));
+          return DataCell(Text(
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            Uri.decodeComponent(trip.lineName))
+          );
         case 'tripLength':
           return DataCell(Text("${(trip.tripLength/1000).round()} km", textAlign: TextAlign.end,));
+        case 'visibility':
+          return DataCell(Icon(trip.visibility.icon()));
         default:
           return const DataCell(SizedBox.shrink());
       }
@@ -563,6 +572,8 @@ class TripsDataSource extends DataTableSource {
         return 'line_name';
       case 'tripLength':
         return 'trip_length';
+      case 'visibility':
+        return 'visibility';
       default:
         return 'start_datetime';
     }

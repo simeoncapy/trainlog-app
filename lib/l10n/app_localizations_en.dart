@@ -474,6 +474,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tripsTableHeaderTripLength => 'Length';
 
   @override
+  String get tripsTableHeaderVisibility => 'Visi.';
+
+  @override
   String tripsDetailTitle(Object vehicle) {
     return 'Trip in $vehicle';
   }

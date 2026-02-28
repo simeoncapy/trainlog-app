@@ -178,6 +178,7 @@
   "tripsTableHeaderOperator": "Operator",
   "tripsTableHeaderLineName": "Line",
   "tripsTableHeaderTripLength": "Length",
+  "tripsTableHeaderVisibility": "Visi.",
 
   "tripsDetailTitle": "Trip in {vehicle}",
   "@tripsDetailTitle" :{
