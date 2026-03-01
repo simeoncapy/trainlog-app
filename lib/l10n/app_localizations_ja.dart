@@ -15,6 +15,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get language => '日本語';
 
   @override
+  String get languageWithEmoji => '🇯🇵 日本語';
+
+  @override
   String get appVersion => 'アプリバージョン';
 
   @override
@@ -161,13 +164,25 @@ class AppLocalizationsJa extends AppLocalizations {
   String get visibilityPublic => '公開';
 
   @override
+  String get visibilityPublicLong => '公開の旅行';
+
+  @override
   String get visibilityFriends => 'フレンドのみ';
+
+  @override
+  String get visibilityFriendsLong => 'フレンドのみが見える旅行';
 
   @override
   String get visibilityPrivate => '非公開';
 
   @override
+  String get visibilityPrivateLong => '非公開の旅行';
+
+  @override
   String get visibilityRestricted => '制限付き';
+
+  @override
+  String get visibilityRestrictedLong => '制限付きの旅行';
 
   @override
   String get helpTitle => '使い方';
@@ -885,6 +900,12 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get addTripFinishFeedbackWarning =>
       '旅行は追加されましたが、サーバーからのフィードバックが不完全です。旅行をリフレッシュして、詳細を確認してください。';
+
+  @override
+  String get addTripPathGeodesic => '測地線経路';
+
+  @override
+  String get addTripPathFr24 => 'FR24経路';
 
   @override
   String get aboutPageAboutSubPageTitle => 'Trainlog';

@@ -15,6 +15,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get language => 'English';
 
   @override
+  String get languageWithEmoji => '🇬🇧 English';
+
+  @override
   String get appVersion => 'App version';
 
   @override
@@ -161,13 +164,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get visibilityPublic => 'Public';
 
   @override
+  String get visibilityPublicLong => 'Public trip';
+
+  @override
   String get visibilityFriends => 'Friends';
+
+  @override
+  String get visibilityFriendsLong => 'Trip visible to friends only';
 
   @override
   String get visibilityPrivate => 'Private';
 
   @override
+  String get visibilityPrivateLong => 'Private trip';
+
+  @override
   String get visibilityRestricted => 'Restricted';
+
+  @override
+  String get visibilityRestrictedLong => 'Restricted trip';
 
   @override
   String get helpTitle => 'Help';
@@ -860,7 +875,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addTripPurchaseDate => 'Purchase date';
 
   @override
-  String get continueTripButton => 'Validate and continue the trip';
+  String get continueTripButton => 'Validate and continue the journey';
 
   @override
   String get addTripPathUseNewRouter => 'Use the new router';
@@ -898,6 +913,12 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get addTripFinishFeedbackWarning =>
       'The trip has been added but the feedback from the server is incomplete. Please refresh and verify the trip details.';
+
+  @override
+  String get addTripPathGeodesic => 'Geodesic path';
+
+  @override
+  String get addTripPathFr24 => 'FR24 path';
 
   @override
   String get aboutPageAboutSubPageTitle => 'Trainlog';

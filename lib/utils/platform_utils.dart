@@ -81,6 +81,11 @@ class AdaptiveIcons {
 
   // Pages  
   static final IconData compass = isA ? CupertinoIcons.compass :  Icons.explore;
+
+  // Visibility
+  static final IconData visibilityPublic = isA ? CupertinoIcons.globe : Icons.public;
+  static final IconData visibilityFriends = isA ? CupertinoIcons.person_2 : Icons.people;
+  static final IconData visibilityPrivate = isA ? CupertinoIcons.lock : Icons.lock;
 }
 
 class AdaptiveTextStyle {

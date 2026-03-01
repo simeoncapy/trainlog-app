@@ -182,6 +182,13 @@ class _AddTripPageState extends State<AddTripPage> {
 
     // TODO: if trip is future change Trip display page to show future trips
     newTrip["uid"] = newTrip["trip_id"]; // Trips model expects "uid" field
+    final model = context.read<TripFormModel>();
+    if(model.dateType == DateType.unknown){
+       // For unknown date, set start/end_datetime to -1 for past trips and 1 for future trips (Trips.fromJson will interpret this correctly)
+      newTrip["start_datetime"] = model.isPast ? "-1" : "1";
+      newTrip["end_datetime"] = model.isPast ? "-1" : "1";
+    }
+
     final path = PolylineTools.toLatLngList(newTrip["path"]);
     newTrip["path"] = PolylineTools.encodePath(path); // Store encoded path
     final trip = Trips.fromJson(newTrip);
@@ -203,11 +210,10 @@ class _AddTripPageState extends State<AddTripPage> {
     if(widget.preRecorderIdsToDelete != null) await SmartPrerecorderPage.deleteSelection(widget.preRecorderIdsToDelete!);
     
     if(!context.mounted) return;
-    final model = _createTripFormModel();
     if(continueTrip) {      
       Navigator.of(context).pushReplacement(PageRouteBuilder(
         pageBuilder: (_, __, ___) => ChangeNotifierProvider(
-          create: (_) => model,
+          create: (_) => _createTripFormModel(model: model),
           child: AddTripPage(),
         ),
         transitionDuration: Duration.zero,
@@ -219,9 +225,8 @@ class _AddTripPageState extends State<AddTripPage> {
     }
   }
 
-  TripFormModel _createTripFormModel() {
+  TripFormModel _createTripFormModel({required TripFormModel model}) {
     /// Continuing the trip by using the arrivl as a new departure
-    final model = context.read<TripFormModel>();
     final newModel = TripFormModel();
 
     newModel.vehicleType = model.vehicleType;

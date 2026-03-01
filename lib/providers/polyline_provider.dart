@@ -275,6 +275,7 @@ class PolylineProvider extends ChangeNotifier {
 
 
   void removePolylineByTripId(int tripId) {
+    debugPrint("Removing polyline for tripId $tripId");
     _polylines.removeWhere((e) => e.tripId == tripId);
     notifyListeners();
   }

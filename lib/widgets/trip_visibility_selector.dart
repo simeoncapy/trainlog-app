@@ -13,8 +13,7 @@ enum TripVisibility {
     );
   }
 
-  String label(BuildContext context) {
-    final loc = AppLocalizations.of(context)!;
+  String label(AppLocalizations loc) {
     switch (this) {
       case TripVisibility.public:
         return loc.visibilityPublic;
@@ -22,6 +21,17 @@ enum TripVisibility {
         return loc.visibilityFriends;
       case TripVisibility.private:
         return loc.visibilityPrivate;
+    }
+  }
+
+  String longLabel(AppLocalizations loc) {
+    switch (this) {
+      case TripVisibility.public:
+        return loc.visibilityPublicLong;
+      case TripVisibility.friends:
+        return loc.visibilityFriendsLong;
+      case TripVisibility.private:
+        return loc.visibilityPrivateLong;
     }
   }
 

@@ -112,6 +112,12 @@ abstract class AppLocalizations {
   /// **'English'**
   String get language;
 
+  /// No description provided for @languageWithEmoji.
+  ///
+  /// In en, this message translates to:
+  /// **'🇬🇧 English'**
+  String get languageWithEmoji;
+
   /// No description provided for @appVersion.
   ///
   /// In en, this message translates to:
@@ -400,11 +406,23 @@ abstract class AppLocalizations {
   /// **'Public'**
   String get visibilityPublic;
 
+  /// No description provided for @visibilityPublicLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Public trip'**
+  String get visibilityPublicLong;
+
   /// No description provided for @visibilityFriends.
   ///
   /// In en, this message translates to:
   /// **'Friends'**
   String get visibilityFriends;
+
+  /// No description provided for @visibilityFriendsLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip visible to friends only'**
+  String get visibilityFriendsLong;
 
   /// No description provided for @visibilityPrivate.
   ///
@@ -412,11 +430,23 @@ abstract class AppLocalizations {
   /// **'Private'**
   String get visibilityPrivate;
 
+  /// No description provided for @visibilityPrivateLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Private trip'**
+  String get visibilityPrivateLong;
+
   /// No description provided for @visibilityRestricted.
   ///
   /// In en, this message translates to:
   /// **'Restricted'**
   String get visibilityRestricted;
+
+  /// No description provided for @visibilityRestrictedLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Restricted trip'**
+  String get visibilityRestrictedLong;
 
   /// No description provided for @helpTitle.
   ///
@@ -1531,7 +1561,7 @@ abstract class AppLocalizations {
   /// No description provided for @continueTripButton.
   ///
   /// In en, this message translates to:
-  /// **'Validate and continue the trip'**
+  /// **'Validate and continue the journey'**
   String get continueTripButton;
 
   /// No description provided for @addTripPathUseNewRouter.
@@ -1593,6 +1623,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The trip has been added but the feedback from the server is incomplete. Please refresh and verify the trip details.'**
   String get addTripFinishFeedbackWarning;
+
+  /// No description provided for @addTripPathGeodesic.
+  ///
+  /// In en, this message translates to:
+  /// **'Geodesic path'**
+  String get addTripPathGeodesic;
+
+  /// No description provided for @addTripPathFr24.
+  ///
+  /// In en, this message translates to:
+  /// **'FR24 path'**
+  String get addTripPathFr24;
 
   /// No description provided for @aboutPageAboutSubPageTitle.
   ///

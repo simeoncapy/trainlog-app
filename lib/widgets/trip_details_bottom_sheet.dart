@@ -135,7 +135,7 @@ class _TripDetailsContent extends StatelessWidget {
           children: [
             Icon(trip.visibility.icon(), size: 16,),
             const SizedBox(width: 4),
-            Text(trip.visibility.label(context)),
+            Text(trip.visibility.longLabel(l10n)),
           ],
         ), 
         const SizedBox(height: 8),
@@ -207,7 +207,7 @@ class _TripDetailsContent extends StatelessWidget {
             context: context, 
             label: isA ? null : Text(MaterialLocalizations.of(context).shareButtonLabel),
             icon: AdaptiveIcons.share,
-            //type: AdaptiveButtonType.tertiary,
+            type: AdaptiveButtonType.primary,
             onPressed: () async {
               final url = Uri.parse("${TrainlogService.baseUrl}/public/trip/${trip.uid}");
               final params = ShareParams(uri: url);
@@ -262,6 +262,7 @@ class _TripDetailsContent extends StatelessWidget {
 
               final success = await trainlog.deleteTrip(tripId);
               if (success) {
+                debugPrint("Trip $tripId deleted successfully");
                 tripsProvider.deleteTrip(tripId);
                 polylineProvider.removePolylineByTripId(tripId);
                 AppNavigator.pop();

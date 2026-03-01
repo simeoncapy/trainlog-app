@@ -72,7 +72,51 @@ class _TripFormPathState extends State<TripFormPath> {
       NumberFormat('#,##0.0', locale).format(distanceM / 1000);
     final durationFormatted = formatDurationFixed(Duration(seconds: durationS.toInt()));
 
-    return '$distanceFormatted km, $durationFormatted';
+    return '$distanceFormatted${_nbsp}km, $durationFormatted';
+  }
+
+  List<Widget> _mapCommandHelper(VehicleType vehicleType, bool disabled, AppLocalizations loc) {
+    switch (vehicleType) {
+      case VehicleType.train:        
+      case VehicleType.metro:
+      case VehicleType.tram:
+        return [
+          Opacity(
+            opacity: disabled ? 0.2 : 1.0,
+            child: Checkbox(
+              value: _isNewRouter,
+              onChanged: disabled
+                  ? null
+                  : (value) => setState(() => _isNewRouter = value ?? false),
+            ),
+          ),
+          Expanded(
+            child: Opacity(
+              opacity: disabled ? 0.2 : 1.0,
+              child: Text(
+                loc.addTripPathUseNewRouter
+              ),
+            )
+          ),
+          IconButton(
+            onPressed: () {
+              _showHelpDialog(context);
+            },
+            icon: const Icon(Icons.help_outline),
+            style: IconButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
+              foregroundColor: Theme.of(context).colorScheme.onSecondaryContainer,
+              shape: const CircleBorder(),
+            ),
+          ),
+        ];
+      case VehicleType.plane:
+      case VehicleType.helicopter:
+        return [SizedBox.shrink()]; // TODO: Put FR24 options here
+      default:
+        return [SizedBox.shrink()];
+    }
+
   }
 
   @override
@@ -92,35 +136,7 @@ class _TripFormPathState extends State<TripFormPath> {
             padding: const EdgeInsets.only(left: 8.0, right: 8.0),
             child: Row(
               children: [
-                Opacity(
-                  opacity: disabled ? 0.2 : 1.0,
-                  child: Checkbox(
-                    value: _isNewRouter,
-                    onChanged: disabled
-                        ? null
-                        : (value) => setState(() => _isNewRouter = value ?? false),
-                  ),
-                ),
-                Expanded(
-                  child: Opacity(
-                    opacity: disabled ? 0.2 : 1.0,
-                    child: Text(
-                      loc.addTripPathUseNewRouter
-                    ),
-                  )
-                ),
-                IconButton(
-                  onPressed: () {
-                    _showHelpDialog(context);
-                    //_showHelpBottomSheet(context); TODO Choose the best option
-                  },
-                  icon: const Icon(Icons.help_outline),
-                  style: IconButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
-                    foregroundColor: Theme.of(context).colorScheme.onSecondaryContainer,
-                    shape: const CircleBorder(),
-                  ),
-                ),
+                ..._mapCommandHelper(model.vehicleType ?? VehicleType.train, disabled, loc),
               ],
             ),
           ),

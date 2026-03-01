@@ -15,6 +15,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get language => 'Français';
 
   @override
+  String get languageWithEmoji => '🇫🇷 Français';
+
+  @override
   String get appVersion => 'Version de l\'application';
 
   @override
@@ -162,13 +165,25 @@ class AppLocalizationsFr extends AppLocalizations {
   String get visibilityPublic => 'Public';
 
   @override
+  String get visibilityPublicLong => 'Trajet public';
+
+  @override
   String get visibilityFriends => 'Amis';
+
+  @override
+  String get visibilityFriendsLong => 'Trajet visible par les amis uniquement';
 
   @override
   String get visibilityPrivate => 'Privé';
 
   @override
+  String get visibilityPrivateLong => 'Trajet privé';
+
+  @override
   String get visibilityRestricted => 'Restreint';
+
+  @override
+  String get visibilityRestrictedLong => 'Trajet restreint';
 
   @override
   String get helpTitle => 'Aide';
@@ -905,6 +920,12 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get addTripFinishFeedbackWarning =>
       'Le trajet a été ajouté mais les retours du serveur sont incomplets. Veuillez actualiser et vérifier les détails du trajet.';
+
+  @override
+  String get addTripPathGeodesic => 'Trajet géodésique';
+
+  @override
+  String get addTripPathFr24 => 'Trajet FR24';
 
   @override
   String get aboutPageAboutSubPageTitle => 'Trainlog';
