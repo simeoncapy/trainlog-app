@@ -178,7 +178,8 @@ class _TripDetailsContent extends StatelessWidget {
             l10n.tripsDetailsTitlePrice,
             "${formatCurrency(context, trip.price!, trip.price! % 1 != 0)} ${trip.currency}",
             suffix:
-                "(${l10n.tripsDetailPurchasedDate(formatDateTime(context, trip.purchasingDate!, hasTime: false))})",
+                trip.purchasingDate == null ? null 
+                  : "(${l10n.tripsDetailPurchasedDate(formatDateTime(context, trip.purchasingDate!, hasTime: false))})",
           ),
           const SizedBox(height: 4),
         ],
