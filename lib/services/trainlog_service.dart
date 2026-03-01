@@ -28,24 +28,29 @@ class TrainlogLoginResult {
 }
 
 class TrainlogService {
-  static const String _baseUrl = 'https://trainlog.me';
-  //static const String _baseUrl = 'http://localhost:5000';
+  static const String urlLocalhost = 'http://localhost:5000';
+  static const String urlLegacy = 'https://trainlog.me';
+  static const String urlDev = 'https://dev.trainlog.me';
   static const String _loginPath = '/login';
   static const String _userAgent = 'TrainlogApp/1.0 (+Flutter)';
-  static const String _logoPath = "$_baseUrl/static/";
+  //static const String _logoPath = "$_baseUrl/static/";
 
   final Dio _dio;
   final CookieJar _cookieJar;
 
   TrainlogService._(this._dio, this._cookieJar);
 
-  static String get baseUrl => _baseUrl;
+  String get baseUrl => _dio.options.baseUrl;
+  set baseUrl(String url) {
+    _dio.options.baseUrl = url;
+  }
+  String get _logoPath => '$baseUrl/static/';
 
   /// Non-persistent cookies (useful for tests)
-  factory TrainlogService() {
+  factory TrainlogService({String baseUrl = TrainlogService.urlLegacy}) {
     final dio = Dio(
       BaseOptions(
-        baseUrl: _baseUrl,
+        baseUrl: baseUrl,
         followRedirects: false,
         validateStatus: (s) => s != null && s >= 200 && s < 400, // general
         headers: {'User-Agent': _userAgent},
@@ -57,7 +62,7 @@ class TrainlogService {
   }
 
   /// Persistent cookies (survive app restarts)
-  static Future<TrainlogService> persistent() async {
+  static Future<TrainlogService> persistent({String baseUrl = TrainlogService.urlLegacy}) async {
     final dir = await getApplicationSupportDirectory();
     final cookieDir = p.join(dir.path, 'cookies');
     final jar = PersistCookieJar(
@@ -66,7 +71,7 @@ class TrainlogService {
     );
     final dio = Dio(
       BaseOptions(
-        baseUrl: _baseUrl,
+        baseUrl: baseUrl,
         followRedirects: false,
         validateStatus: (s) => s != null && s >= 200 && s < 400,
         headers: {'User-Agent': _userAgent},
@@ -115,8 +120,8 @@ class TrainlogService {
       options: Options(
         contentType: Headers.formUrlEncodedContentType,
         headers: {
-          'Origin': _baseUrl,
-          'Referer': '$_baseUrl$_loginPath',
+          'Origin': baseUrl,
+          'Referer': '$baseUrl$_loginPath',
         },
         // allow 40x so we can inspect failure
         validateStatus: (s) => s != null && s >= 200 && s < 500,
@@ -127,7 +132,7 @@ class TrainlogService {
     final success = resp.statusCode == 200;
 
     // Grab current cookies (session should now be set on success)
-    final cookies = await _cookieJar.loadForRequest(Uri.parse('$_baseUrl/'));
+    final cookies = await _cookieJar.loadForRequest(Uri.parse('$baseUrl/'));
     final sessionCookie = _findSessionCookie(cookies);
 
     return TrainlogLoginResult(
@@ -141,7 +146,7 @@ class TrainlogService {
   }
 
   Future<List<Cookie>> getCookiesForWebView() async {
-    return _cookieJar.loadForRequest(Uri.parse(_baseUrl));
+    return _cookieJar.loadForRequest(Uri.parse(baseUrl));
   }
 
   // Expose authenticated requests
@@ -750,6 +755,7 @@ class TrainlogService {
     final argFerry = "&osm_tag=amenity:ferry_terminal";
     const nullReturn = <(String? name, String? address, VehicleType type, double distance)>[];
 
+    debugPrint("$path$argRails$argTram$argBus$argFerry");
     final res = await _safeGet<Map<String, dynamic>>("$path$argRails$argTram$argBus$argFerry");
 
     final data = res.data;

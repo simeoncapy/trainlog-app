@@ -226,6 +226,15 @@ class AppLocalizationsFr extends AppLocalizations {
   String get dialogueDefaultInfoTitle => 'Information';
 
   @override
+  String get dialogueChangeInstanceTitle => 'Changer d\'instance Trainlog';
+
+  @override
+  String get dialogueChangeInstanceButton => 'Changer';
+
+  @override
+  String get dialogueChangeInstanceCustomLabel => 'Instance personnalisée';
+
+  @override
   String get settingsAppCategory => 'Paramètres de l\'application';
 
   @override
@@ -352,7 +361,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get settingsAccountAppearGlobalSubtitle =>
-      '(transports publics uniquement, les trajets personnels sont exclus)';
+      '(trajets publics uniquement)';
 
   @override
   String get settingsAccountVisibility => 'Visibilité du compte';

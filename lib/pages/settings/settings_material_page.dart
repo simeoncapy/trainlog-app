@@ -264,7 +264,11 @@ class _SettingsMaterialPageState extends State<SettingsMaterialPage> {
         title: Text(item.title),
         trailing: GestureDetector(
           onTap: item.onTap,
-          child: Text(item.value)
+          child: Text(
+            item.value,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          )
         ),
       );
     }

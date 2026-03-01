@@ -21,6 +21,7 @@ class SettingsProvider with ChangeNotifier {
   bool _hideWarningMessage = false;
   String _currency = "EUR";
   int _sprRadius = 500;
+  String _userInstanceUrl = ""; // Cannot be changed in settings, only on welcome page before login, and only if not authenticated yet.
 
   // _SP members are stored in the Shared Preferences only, they cannot be modified by the user in settings
   LatLng? _SP_userPosition;
@@ -31,6 +32,7 @@ class SettingsProvider with ChangeNotifier {
   bool _SP_isSmartPrerecorderExplanationExpanded = true;
   DateTime _SP_lastNewsVisit = DateTime.now().toUtc();
   DateTime? _SP_lastFetchingTrips;
+  String? _SP_lastUsedInstanceUrl;
 
   static const _kLastUserLat = 'last_user_lat';
   static const _kLastUserLng = 'last_user_lng';
@@ -48,6 +50,7 @@ class SettingsProvider with ChangeNotifier {
   bool get hideWarningMessage => _hideWarningMessage;
   String get currency => _currency;
   int get sprRadius => _sprRadius;
+  String get userInstanceUrl => _userInstanceUrl;
 
   LatLng? get userPosition => _SP_userPosition;
   bool get refusedToSharePosition => _SP_refusedToSharePosition;
@@ -57,6 +60,7 @@ class SettingsProvider with ChangeNotifier {
   bool get isSmartPrerecorderExplanationExpanded => _SP_isSmartPrerecorderExplanationExpanded;
   DateTime get lastNewsVisit => _SP_lastNewsVisit;
   DateTime? get lastFetchingTrips => _SP_lastFetchingTrips;
+  String? get lastUsedInstanceUrl => _SP_lastUsedInstanceUrl;
 
   SettingsProvider() {
     // Shared Preference in settings
@@ -71,6 +75,7 @@ class SettingsProvider with ChangeNotifier {
     _loadHideWarningMessage();
     _loadCurrency();
     _loadSprRadius();
+    _loadUserInstanceUrl();
 
     // Shared Preference only (_SP) i.e. internal to the app
     _loadLastUserPosition();
@@ -80,6 +85,7 @@ class SettingsProvider with ChangeNotifier {
     _loadIsSmartPrerecorderExplanationExpanded();
     _loadLastNewsVisit();
     _loadLastFetchingTrips();
+    _loadLastUsedInstanceUrl();
   }
 
   void _loadTheme() async {
@@ -298,6 +304,23 @@ class SettingsProvider with ChangeNotifier {
   }
 
   // ------------------------------------------------------------------------------
+
+  void _loadUserInstanceUrl() async {
+    final prefs = await SharedPreferences.getInstance();
+    final u = prefs.getString('user_instance_url');
+    _userInstanceUrl = u ?? '';
+    notifyListeners();
+  }
+
+  void setUserInstanceUrl(String url) async {
+    if (_userInstanceUrl == url) return;
+    _userInstanceUrl = url;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('user_instance_url', url);
+    notifyListeners();
+  }
+
+  // ------------------------------------------------------------------------------
   // ------- SHARED PREFERENCES NOT IN SETTINGS MENU ------------------------------
   // ------------------------------------------------------------------------------
 
@@ -440,5 +463,26 @@ class SettingsProvider with ChangeNotifier {
 
   void setLastFetchingTripsNowUtc() async {
     setLastFetchingTrips(DateTime.now().toUtc());
+  }
+
+  // ------------------------------------------------------------------------------
+  
+  void _loadLastUsedInstanceUrl() async {
+    final prefs = await SharedPreferences.getInstance();
+    final u = prefs.getString('last_used_instance_url');
+    _SP_lastUsedInstanceUrl = u;
+    notifyListeners();
+  }
+
+  void setLastUsedInstanceUrl(String? url) async {
+    if (_SP_lastUsedInstanceUrl == url) return;
+    _SP_lastUsedInstanceUrl = url;
+    final prefs = await SharedPreferences.getInstance();
+    if (url != null) {
+      await prefs.setString('last_used_instance_url', url);
+    } else {
+      await prefs.remove('last_used_instance_url');
+    }
+    notifyListeners();
   }
 }

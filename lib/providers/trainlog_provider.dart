@@ -19,8 +19,10 @@ typedef StationInfo = (
   bool isManual
 );
 
+enum InstanceType {legacy, dev, localhost, user}
+
 class TrainlogProvider extends ChangeNotifier {
-  final TrainlogService _service;
+  TrainlogService _service;
 
   bool _loading = false;
   bool _isAuthenticated = false;
@@ -42,6 +44,8 @@ class TrainlogProvider extends ChangeNotifier {
   TrainlogService get service => _service;
   Map<String, String> get listOperators => _listOperators;
   List<String> get availableCurrencies => _availableCurrencies;
+
+  String get instanceUrl => _service.baseUrl;
   
   Future<bool> login({
     required String username,
@@ -96,6 +100,25 @@ class TrainlogProvider extends ChangeNotifier {
     }
   }
 
+  Future<bool> setInstanceUrl(String url) async {
+    if(isAuthenticated) return false;
+    if(url == instanceUrl) return true; // no change
+    _service = await TrainlogService.persistent(baseUrl: url);
+    notifyListeners();
+    return true;
+  }
+
+  Map<InstanceType, String> getListOfInstances({SettingsProvider? settings}) {
+    Map<InstanceType, String> instances = {};
+    instances[InstanceType.legacy] = TrainlogService.urlLegacy;
+    instances[InstanceType.dev] = TrainlogService.urlDev;
+    instances[InstanceType.localhost] = TrainlogService.urlLocalhost;
+    if(settings != null) {
+      instances[InstanceType.user] = settings.userInstanceUrl;
+    }
+    return instances;
+  }
+
   Future<void> tryRestoreSession({SettingsProvider? settings}) async {
     _loading = true;
     _error = null;
@@ -130,7 +153,7 @@ class TrainlogProvider extends ChangeNotifier {
   }
 
   String generateUserUrl(String? suffix, {bool publicPage = false}) {
-    return publicPage ? "${TrainlogService.baseUrl}/$suffix" : "${TrainlogService.baseUrl}/u/$username/$suffix";
+    return publicPage ? "$instanceUrl/$suffix" : "$instanceUrl/u/$username/$suffix";
   }
 
   // Expose authenticated requests for the rest of the app.

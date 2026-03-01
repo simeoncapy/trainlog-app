@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:provider/provider.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/pages/privacy_tab.dart';
+import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/services/trainlog_service.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 import 'package:trainlog_app/widgets/localised_markdown.dart';
@@ -16,6 +18,7 @@ class AboutPage extends StatelessWidget {
     final loc = AppLocalizations.of(context)!;
     final locale = Localizations.localeOf(context);
     final languageCode = locale.languageCode;
+    final trainlog = Provider.of<TrainlogProvider>(context, listen: false);
 
     return DefaultTabController(
       length: 3,
@@ -38,7 +41,7 @@ class AboutPage extends StatelessWidget {
                   padding: const EdgeInsets.all(16),
                   child: LocalisedMarkdown(assetBaseName: 'howto', displayToc: false,),
                 ),
-                PrivacyHtmlTab(url: Uri.parse('${TrainlogService.baseUrl}/privacy/$languageCode')),
+                PrivacyHtmlTab(url: Uri.parse('${trainlog.instanceUrl}/privacy/$languageCode')),
               ],
             ),
           ),

@@ -449,7 +449,7 @@ List<SettingsSectionSpec> buildSettingsBlueprint({
         SettingsStringSpec(
           icon: iconInstance,
           title: l10n.settingsInstanceUrl,
-          value: TrainlogService.baseUrl,
+          value: trainlog.instanceUrl,
           onTap: () {
             AdaptiveInformationMessage.show(
               context, 

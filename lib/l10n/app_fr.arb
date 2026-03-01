@@ -67,6 +67,9 @@
   "newBadge": "NOUVEAU",
   "nbrPassengers": "{count, plural, =0 {{count} passager} =1 {1 passager} other {{count} passagers}}",
   "dialogueDefaultInfoTitle": "Information",
+  "dialogueChangeInstanceTitle": "Changer d'instance Trainlog",
+  "dialogueChangeInstanceButton": "Changer",
+  "dialogueChangeInstanceCustomLabel": "Instance personnalisée",
 
   "settingsAppCategory": "Paramètres de l'application",
   "settingsMapCategory": "Paramètres de la carte",
@@ -106,7 +109,7 @@
   "settingsAccountLeaderboard": "Apparaître dans le classement public",
   "settingsAccountFriendSearch": "Apparaître dans la recherche d'amis",
   "settingsAccountAppearGlobal": "Apparaître sur la carte mondiale en direct",
-  "settingsAccountAppearGlobalSubtitle": "(transports publics uniquement, les trajets personnels sont exclus)",
+  "settingsAccountAppearGlobalSubtitle": "(trajets publics uniquement)",
   "settingsAccountVisibility": "Visibilité du compte",
   "settingsAccountVisibilitPrivateHelper": "Votre compte reste entièrement privé. Personne ne peut voir aucun détail ou contenu.",
   "settingsAccountVisibilitRestrictedHelper": "Les voyages sont visibles via leur identifiant, sans les données personnelles de l'utilisateur. Le profil public reste inaccessible.",

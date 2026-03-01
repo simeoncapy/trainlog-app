@@ -209,7 +209,7 @@ class _TripDetailsContent extends StatelessWidget {
             icon: AdaptiveIcons.share,
             type: AdaptiveButtonType.primary,
             onPressed: () async {
-              final url = Uri.parse("${TrainlogService.baseUrl}/public/trip/${trip.uid}");
+              final url = Uri.parse("${trainlog.instanceUrl}/public/trip/${trip.uid}");
               final params = ShareParams(uri: url);
               await SharePlus.instance.share(params);
             },

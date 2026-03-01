@@ -35,6 +35,7 @@ class AdaptiveExpansionTile extends StatelessWidget {
         title: title,
         tilePadding: tilePadding,
         childrenPadding: childrenPadding,
+        expandedCrossAxisAlignment: CrossAxisAlignment.start,
         children: children,
       );
     }

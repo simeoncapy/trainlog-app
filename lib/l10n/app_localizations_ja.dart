@@ -218,6 +218,15 @@ class AppLocalizationsJa extends AppLocalizations {
   String get dialogueDefaultInfoTitle => 'お知らせ';
 
   @override
+  String get dialogueChangeInstanceTitle => 'Trainlogのインスタンスを変更';
+
+  @override
+  String get dialogueChangeInstanceButton => '変更';
+
+  @override
+  String get dialogueChangeInstanceCustomLabel => 'カスタムインスタンス';
+
+  @override
   String get settingsAppCategory => 'アプリ設定';
 
   @override
@@ -337,7 +346,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get settingsAccountAppearGlobal => 'グローバルライブマップに表示する';
 
   @override
-  String get settingsAccountAppearGlobalSubtitle => '(公共交通機関のみ、個人の旅行は除外されます)';
+  String get settingsAccountAppearGlobalSubtitle => '(公開の旅行のみ)';
 
   @override
   String get settingsAccountVisibility => '他の人への公開範囲';

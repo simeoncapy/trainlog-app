@@ -508,6 +508,24 @@ abstract class AppLocalizations {
   /// **'Information'**
   String get dialogueDefaultInfoTitle;
 
+  /// No description provided for @dialogueChangeInstanceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Trainlog instance'**
+  String get dialogueChangeInstanceTitle;
+
+  /// No description provided for @dialogueChangeInstanceButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get dialogueChangeInstanceButton;
+
+  /// No description provided for @dialogueChangeInstanceCustomLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom instance'**
+  String get dialogueChangeInstanceCustomLabel;
+
   /// No description provided for @settingsAppCategory.
   ///
   /// In en, this message translates to:
@@ -739,7 +757,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsAccountAppearGlobalSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'(public transport only, personal trips are excluded)'**
+  /// **'(public trips only)'**
   String get settingsAccountAppearGlobalSubtitle;
 
   /// No description provided for @settingsAccountVisibility.
