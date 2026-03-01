@@ -76,6 +76,8 @@ class _StationFieldsSwitcherState extends State<StationFieldsSwitcher>
 
   bool _updatingFromSelf = false;
 
+  Timer? _debounceTimer;
+
   // ------------------------------
   // INIT: restore values properly
   // ------------------------------
@@ -141,6 +143,13 @@ class _StationFieldsSwitcherState extends State<StationFieldsSwitcher>
     setState(() {});
   }
 
+  @override
+  void dispose() {
+    _debounceTimer?.cancel();
+    // ... your existing dispose calls
+    super.dispose();
+  }
+
   // ------------------------------
   // Emit updated values to parent
   // ------------------------------
@@ -187,12 +196,17 @@ class _StationFieldsSwitcherState extends State<StationFieldsSwitcher>
           isLoading: _isSearching,
           hintText: loc.searchStationHint(widget.vehicleType.toString()),
 
-          onChanged: _performStationSearch,
+          onChanged: (query) {
+            _debounceTimer?.cancel();
+            _debounceTimer = Timer(const Duration(milliseconds: 400), () {
+              _performStationSearch(query);
+            });
+          },
 
           itemBuilder: (context, station) {
             final (label, coords, address, isManual) = station;
             return ListTile(
-              tileColor: isManual ? Colors.red.withOpacity(0.1) : null,
+              tileColor: isManual ? Colors.red.withValues(alpha: 0.1) : null,
               title: Text(label),
               trailing: isManual
                   ? Text(loc.manual, style: const TextStyle(color: Colors.red))
