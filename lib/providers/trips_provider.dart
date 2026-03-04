@@ -21,6 +21,7 @@ class TripsProvider extends ChangeNotifier {
 
   List<VehicleType> _vehicleTypes = const [VehicleType.unknown];
   List<VehicleType> get vehicleTypes => _vehicleTypes;
+  List<VehicleType> get vehicleTypesWithoutPoi => _vehicleTypes.where((v) => v != VehicleType.poi).toList();
 
   List<int> _years = const [];
   List<int> get years => _years;

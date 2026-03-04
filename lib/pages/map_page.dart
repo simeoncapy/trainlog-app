@@ -495,7 +495,7 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver, Automati
               Text(appLocalizations.typeTitle, style: Theme.of(context).textTheme.titleLarge),
               const SizedBox(height: 8),
               VehicleTypeFilterChips(
-                availableTypes: tripsProvider.vehicleTypes,
+                availableTypes: tripsProvider.vehicleTypesWithoutPoi,
                 selectedTypes: _selectedTypes,
                 onTypeToggle: (type, selected) {
                   setState(() {

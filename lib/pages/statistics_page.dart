@@ -298,7 +298,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                 children: [
                   Expanded(
                     child: buildDropdown<VehicleType>(
-                      items: tripsProv.vehicleTypes,
+                      items: tripsProv.vehicleTypesWithoutPoi,
                       selectedValue: p.vehicle,
                       onChanged: (v) => p.vehicle = v ?? VehicleType.train,
                       labelOf: (v) => VehicleType.labelOf(v, context),
