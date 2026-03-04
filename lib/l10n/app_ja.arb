@@ -269,6 +269,9 @@
   "addTripFinishFeedbackWarning": "旅行は追加されましたが、サーバーからのフィードバックが不完全です。旅行をリフレッシュして、詳細を確認してください。",
   "addTripPathGeodesic": "測地線経路",
   "addTripPathFr24": "FR24経路",
+  "addTripDelayMinuteDelay": "つまり{delay}遅れ",
+  "addTripDelayMinuteAdvance": "つまり{advance}早め",
+  "addTripDelayTime": "つまり{time}に",
   
   "aboutPageAboutSubPageTitle": "Trainlog",
   "aboutPageHowToSubPageTitle": "使い方",

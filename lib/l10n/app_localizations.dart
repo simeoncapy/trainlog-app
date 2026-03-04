@@ -1654,6 +1654,24 @@ abstract class AppLocalizations {
   /// **'FR24 path'**
   String get addTripPathFr24;
 
+  /// Indicates the delay for a trip
+  ///
+  /// In en, this message translates to:
+  /// **'i.e. {delay} late'**
+  String addTripDelayMinuteDelay(String delay);
+
+  /// Indicates the advance  for a trip
+  ///
+  /// In en, this message translates to:
+  /// **'i.e. {advance} early'**
+  String addTripDelayMinuteAdvance(String advance);
+
+  /// Indicates the new time for a trip after a delay or advance
+  ///
+  /// In en, this message translates to:
+  /// **'i.e. at {time}'**
+  String addTripDelayTime(String time);
+
   /// No description provided for @aboutPageAboutSubPageTitle.
   ///
   /// In en, this message translates to:

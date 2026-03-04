@@ -394,6 +394,36 @@
   "addTripFinishFeedbackWarning": "The trip has been added but the feedback from the server is incomplete. Please refresh and verify the trip details.",
   "addTripPathGeodesic": "Geodesic path",
   "addTripPathFr24": "FR24 path",
+  "addTripDelayMinuteDelay": "i.e. {delay} late",
+  "@addTripDelayMinuteDelay": {
+    "description": "Indicates the delay for a trip",
+    "placeholders": {
+      "delay": {
+        "type": "String",
+        "description": "The delay (duration formatted already)"
+      }
+    }
+  },
+  "addTripDelayMinuteAdvance": "i.e. {advance} early",
+  "@addTripDelayMinuteAdvance": {
+    "description": "Indicates the advance  for a trip",
+    "placeholders": {
+      "advance": {
+        "type": "String",
+        "description": "The advance (duration formatted already)"
+      }
+    }
+  },
+  "addTripDelayTime": "i.e. at {time}",
+  "@addTripDelayTime": {
+    "description": "Indicates the new time for a trip after a delay or advance",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "description": "The new time for a trip after a delay or advance"
+      }
+    }
+  },
   
   "aboutPageAboutSubPageTitle": "Trainlog",
   "aboutPageHowToSubPageTitle": "How To",

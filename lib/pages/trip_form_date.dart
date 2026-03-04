@@ -7,7 +7,9 @@ import 'package:trainlog_app/data/models/trip_form_model.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:lat_lng_to_timezone/lat_lng_to_timezone.dart' as tzmap;
 import 'package:trainlog_app/utils/date_utils.dart';
+import 'package:trainlog_app/widgets/delay_fields_switcher.dart';
 import 'package:trainlog_app/widgets/error_banner.dart';
+import 'package:trainlog_app/widgets/titled_container.dart';
 
 class TripFormDate extends StatefulWidget {
   const TripFormDate({super.key});
@@ -53,6 +55,7 @@ class _TripFormDateState extends State<TripFormDate> {
         _departureDate = DateTime(now.year, now.month, now.day);
         _departureTime = TimeOfDay(hour: now.hour, minute: now.minute);
         _isDepartureFilledFromNow = true;
+        model.initDepartureDateTime(_departureDate!, _departureTime!, departureTimezone);
       }
       else {
         final local = _convertUtcToTimezone(
@@ -296,6 +299,54 @@ class _TripFormDateState extends State<TripFormDate> {
             message: loc.addTripDepartureAfterArrival,
           )
         ],
+      const SizedBox(height: 16,),
+      TitledContainer(
+        title: "Delays", 
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(loc.addTripStartDate),
+            const SizedBox(height: 4),
+            DelayFieldsSwitcher(
+              key: ValueKey('departure_delay'),
+              originalTime: model.departureDate,
+              initialMinuteMode: model.delayDepartureMinuteMode,
+              initialMinuteDelay: model.delayDepartureMinute,
+              initialTimeDelay: model.delayDepartureTime,
+              onChanged: (values) {
+                debugPrint("DelayFieldsSwitcher Departure values: $values");
+                final minuteMode = values["mode"] == "minute";
+                final delayMinute = int.tryParse(values["minute"] ?? "");
+                final extractedTime = values["time"]?.split(":").map((e) => int.tryParse(e)).toList();
+                final isNull = (extractedTime == null || extractedTime.length != 2 || 
+                                extractedTime[0] == null || extractedTime[1] == null);
+                final delayTime = isNull ? null : TimeOfDay(hour: extractedTime[0]!, minute: extractedTime[1]!);
+                model.setDepartureDelay(minuteMode, delayTime, delayMinute);
+              },
+            ),
+            const SizedBox(height: 4,),
+            Text(loc.addTripEndDate),
+            const SizedBox(height: 4),
+            DelayFieldsSwitcher(
+              key: ValueKey('arrival_delay'),
+              originalTime: model.arrivalDate,
+              initialMinuteMode: model.delayArrivalMinuteMode,
+              initialMinuteDelay: model.delayArrivalMinute,
+              initialTimeDelay: model.delayArrivalTime,
+              onChanged: (values) {
+                debugPrint("DelayFieldsSwitcher Arrival values: $values");
+                final minuteMode = values["mode"] == "minute";
+                final delayMinute = int.tryParse(values["minute"] ?? "");
+                final extractedTime = values["time"]?.split(":").map((e) => int.tryParse(e)).toList();
+                final isNull = (extractedTime == null || extractedTime.length != 2 || 
+                                extractedTime[0] == null || extractedTime[1] == null);
+                final delayTime = isNull ? null : TimeOfDay(hour: extractedTime[0]!, minute: extractedTime[1]!);
+                model.setArrivalDelay(minuteMode, delayTime, delayMinute);
+              },
+            ),
+          ],
+        )
+      )
     ];
   }
   

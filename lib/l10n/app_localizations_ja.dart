@@ -917,6 +917,21 @@ class AppLocalizationsJa extends AppLocalizations {
   String get addTripPathFr24 => 'FR24経路';
 
   @override
+  String addTripDelayMinuteDelay(String delay) {
+    return 'つまり$delay遅れ';
+  }
+
+  @override
+  String addTripDelayMinuteAdvance(String advance) {
+    return 'つまり$advance早め';
+  }
+
+  @override
+  String addTripDelayTime(String time) {
+    return 'つまり$timeに';
+  }
+
+  @override
   String get aboutPageAboutSubPageTitle => 'Trainlog';
 
   @override

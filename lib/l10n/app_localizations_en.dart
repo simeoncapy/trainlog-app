@@ -929,6 +929,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addTripPathFr24 => 'FR24 path';
 
   @override
+  String addTripDelayMinuteDelay(String delay) {
+    return 'i.e. $delay late';
+  }
+
+  @override
+  String addTripDelayMinuteAdvance(String advance) {
+    return 'i.e. $advance early';
+  }
+
+  @override
+  String addTripDelayTime(String time) {
+    return 'i.e. at $time';
+  }
+
+  @override
   String get aboutPageAboutSubPageTitle => 'Trainlog';
 
   @override

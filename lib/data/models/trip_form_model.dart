@@ -53,6 +53,14 @@ class TripFormModel extends ChangeNotifier {
   };
   DateTime? departureDayDateOnly;
 
+  bool delayDepartureMinuteMode = false;
+  TimeOfDay? delayDepartureTime;
+  int? delayDepartureMinute;
+
+  bool delayArrivalMinuteMode = false;
+  TimeOfDay? delayArrivalTime;
+  int? delayArrivalMinute;
+
   // STEP 3 — Details
   String? line;
   String? material;
@@ -342,6 +350,12 @@ class TripFormModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void initDepartureDateTime(DateTime date, TimeOfDay time, String timezone)
+  {
+    departureDateLocal = _setDateTimeLocal(date, time);
+    departureDate = _setDateTimeWithTimeZone(date, time, timezone);
+  }
+
   void setArrivalDateTime(DateTime? date, TimeOfDay? time, String timezone)
   {
      hasArrivalDateTime = (
@@ -376,6 +390,18 @@ class TripFormModel extends ChangeNotifier {
     final (hour, _) = duration[type] ?? (null, null);
     duration[type] = (hour, minute);
     notifyListeners();
+  }
+
+  void setDepartureDelay(bool minuteMode, TimeOfDay? delayTime, int? delayMinute) {
+    delayDepartureMinuteMode = minuteMode;
+    delayDepartureTime = delayTime;
+    delayDepartureMinute = delayMinute;
+  }
+
+  void setArrivalDelay(bool minuteMode, TimeOfDay? delayTime, int? delayMinute) {
+    delayArrivalMinuteMode = minuteMode;
+    delayArrivalTime = delayTime;
+    delayArrivalMinute = delayMinute;
   }
 
   // Page 3
