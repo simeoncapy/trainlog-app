@@ -407,6 +407,18 @@ class AppLocalizationsJa extends AppLocalizations {
   String get menuIosMore => 'もっと';
 
   @override
+  String get mapFilterYearsAllBtn => '全て';
+
+  @override
+  String get mapFilterYearsNoneBtn => 'なし';
+
+  @override
+  String get mapFilterVehicleTypeAllBtn => '全て';
+
+  @override
+  String get mapFilterVehicleTypeNoneBtn => 'なし';
+
+  @override
   String get tripPathLoading => '旅行のパスを読み込んでいます。お待ちください';
 
   @override

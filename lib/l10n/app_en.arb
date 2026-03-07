@@ -158,6 +158,11 @@
   "menuAboutTitle": "About",
   "menuIosMore": "More",
 
+  "mapFilterYearsAllBtn": "All",
+  "mapFilterYearsNoneBtn": "None",
+  "mapFilterVehicleTypeAllBtn": "All",
+  "mapFilterVehicleTypeNoneBtn": "None",
+
   "tripPathLoading": "Trips' path loading, please wait",
   "yearTitle": "Years",
   "yearAllList": "All",

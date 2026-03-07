@@ -868,6 +868,30 @@ abstract class AppLocalizations {
   /// **'More'**
   String get menuIosMore;
 
+  /// No description provided for @mapFilterYearsAllBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get mapFilterYearsAllBtn;
+
+  /// No description provided for @mapFilterYearsNoneBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get mapFilterYearsNoneBtn;
+
+  /// No description provided for @mapFilterVehicleTypeAllBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get mapFilterVehicleTypeAllBtn;
+
+  /// No description provided for @mapFilterVehicleTypeNoneBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get mapFilterVehicleTypeNoneBtn;
+
   /// No description provided for @tripPathLoading.
   ///
   /// In en, this message translates to:

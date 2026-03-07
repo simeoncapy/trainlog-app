@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:geodesy/geodesy.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:trainlog_app/data/models/polyline_filter_state.dart';
+import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
 
 enum PathDisplayOrder {
@@ -34,9 +36,20 @@ class SettingsProvider with ChangeNotifier {
   DateTime? _SP_lastFetchingTrips;
   String? _SP_lastUsedInstanceUrl;
 
+  // Map filters
+  PolylineYearFilter _SP_mapPolylineYearFilter = PolylineYearFilter.all;
+  Set<int> _SP_mapPolylineSelectedYears = {};
+  Set<VehicleType> _SP_mapPolylineDeselectedTypes = {};
+  int _SP_mapPolylineYearFilterOption = 0;
+
   static const _kLastUserLat = 'last_user_lat';
   static const _kLastUserLng = 'last_user_lng';
   static const _kUsernameKey = 'auth.username';
+
+  static const _kMapPolylineYearFilter = 'map_polyline_year_filter';
+  static const _kMapPolylineSelectedYears = 'map_polyline_selected_years';
+  static const _kMapPolylineDeselectedTypes = 'map_polyline_deselected_types';
+  static const _kMapPolylineYearFilterOption = 'map_polyline_year_filter_option';
 
   // Getters
   ThemeMode get themeMode => _themeMode;
@@ -62,6 +75,11 @@ class SettingsProvider with ChangeNotifier {
   DateTime? get lastFetchingTrips => _SP_lastFetchingTrips;
   String? get lastUsedInstanceUrl => _SP_lastUsedInstanceUrl;
 
+  PolylineYearFilter get mapPolylineYearFilter => _SP_mapPolylineYearFilter;
+  Set<int> get mapPolylineSelectedYears => Set.unmodifiable(_SP_mapPolylineSelectedYears);
+  Set<VehicleType> get mapPolylineDeselectedTypes => Set.unmodifiable(_SP_mapPolylineDeselectedTypes);
+  int get mapPolylineYearFilterOption => _SP_mapPolylineYearFilterOption;
+
   SettingsProvider() {
     // Shared Preference in settings
     _loadTheme();
@@ -86,6 +104,7 @@ class SettingsProvider with ChangeNotifier {
     _loadLastNewsVisit();
     _loadLastFetchingTrips();
     _loadLastUsedInstanceUrl();
+    _loadMapPolylineFilterState();
   }
 
   void _loadTheme() async {
@@ -483,6 +502,57 @@ class SettingsProvider with ChangeNotifier {
     } else {
       await prefs.remove('last_used_instance_url');
     }
+    notifyListeners();
+  }
+
+  // ------------------------------------------------------------------------------
+  
+  void _loadMapPolylineFilterState() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    _SP_mapPolylineYearFilter = PolylineYearFilter.values[
+        prefs.getInt(_kMapPolylineYearFilter) ?? 0];
+
+    _SP_mapPolylineSelectedYears =
+        (prefs.getStringList(_kMapPolylineSelectedYears) ?? [])
+            .map(int.parse)
+            .toSet();
+
+    _SP_mapPolylineDeselectedTypes =
+        (prefs.getStringList(_kMapPolylineDeselectedTypes) ?? [])
+            .map((name) => VehicleType.values.firstWhere((e) => e.name == name))
+            .toSet();
+
+    _SP_mapPolylineYearFilterOption =
+        prefs.getInt(_kMapPolylineYearFilterOption) ?? 0;
+
+    notifyListeners();
+  }
+
+  Future<void> setMapPolylineFilterState({
+    required PolylineYearFilter yearFilter,
+    required Set<int> selectedYears,
+    required Set<VehicleType> deselectedTypes,
+    required int yearFilterOption,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+
+    _SP_mapPolylineYearFilter = yearFilter;
+    _SP_mapPolylineSelectedYears = {...selectedYears};
+    _SP_mapPolylineDeselectedTypes = {...deselectedTypes};
+    _SP_mapPolylineYearFilterOption = yearFilterOption;
+
+    await prefs.setInt(_kMapPolylineYearFilter, yearFilter.index);
+    await prefs.setStringList(
+      _kMapPolylineSelectedYears,
+      selectedYears.map((e) => e.toString()).toList(),
+    );
+    await prefs.setStringList(
+      _kMapPolylineDeselectedTypes,
+      deselectedTypes.map((e) => e.name).toList(),
+    );
+    await prefs.setInt(_kMapPolylineYearFilterOption, yearFilterOption);
+
     notifyListeners();
   }
 }

@@ -416,6 +416,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get menuIosMore => 'More';
 
   @override
+  String get mapFilterYearsAllBtn => 'All';
+
+  @override
+  String get mapFilterYearsNoneBtn => 'None';
+
+  @override
+  String get mapFilterVehicleTypeAllBtn => 'All';
+
+  @override
+  String get mapFilterVehicleTypeNoneBtn => 'None';
+
+  @override
   String get tripPathLoading => 'Trips\' path loading, please wait';
 
   @override

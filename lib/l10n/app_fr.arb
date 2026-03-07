@@ -130,6 +130,11 @@
   "menuAboutTitle": "À propos",
   "menuIosMore": "Plus",
 
+  "mapFilterYearsAllBtn": "Toutes",
+  "mapFilterYearsNoneBtn": "Aucune",
+  "mapFilterVehicleTypeAllBtn": "Tous",
+  "mapFilterVehicleTypeNoneBtn": "Aucun",
+
   "tripPathLoading": "Chemin des trajets en cours de chargement, veuillez patienter",
   "yearTitle": "Années",
   "yearAllList": "Tout",

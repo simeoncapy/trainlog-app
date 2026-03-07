@@ -422,6 +422,18 @@ class AppLocalizationsFr extends AppLocalizations {
   String get menuIosMore => 'Plus';
 
   @override
+  String get mapFilterYearsAllBtn => 'Toutes';
+
+  @override
+  String get mapFilterYearsNoneBtn => 'Aucune';
+
+  @override
+  String get mapFilterVehicleTypeAllBtn => 'Tous';
+
+  @override
+  String get mapFilterVehicleTypeNoneBtn => 'Aucun';
+
+  @override
   String get tripPathLoading =>
       'Chemin des trajets en cours de chargement, veuillez patienter';
 

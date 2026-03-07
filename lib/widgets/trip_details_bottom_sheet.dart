@@ -11,11 +11,9 @@ import 'package:trainlog_app/platform/adaptive_information_message.dart';
 import 'package:trainlog_app/providers/polyline_provider.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
-import 'package:trainlog_app/services/trainlog_service.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/utils/number_formatter.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
-import 'package:trainlog_app/utils/style_utils.dart';
 import 'package:trainlog_app/widgets/trip_time_line.dart';
 
 class TripDetailsBottomSheet extends StatefulWidget {
