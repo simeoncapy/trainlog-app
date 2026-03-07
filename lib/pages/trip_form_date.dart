@@ -312,16 +312,13 @@ class _TripFormDateState extends State<TripFormDate> {
               originalTime: model.departureDate,
               initialMinuteMode: model.delayDepartureMinuteMode,
               initialMinuteDelay: model.delayDepartureMinute,
-              initialTimeDelay: model.delayDepartureTime,
+              initialDateTimeDelay: model.delayDepartureTime,
               onChanged: (values) {
                 debugPrint("DelayFieldsSwitcher Departure values: $values");
                 final minuteMode = values["mode"] == "minute";
                 final delayMinute = int.tryParse(values["minute"] ?? "");
-                final extractedTime = values["time"]?.split(":").map((e) => int.tryParse(e)).toList();
-                final isNull = (extractedTime == null || extractedTime.length != 2 || 
-                                extractedTime[0] == null || extractedTime[1] == null);
-                final delayTime = isNull ? null : TimeOfDay(hour: extractedTime[0]!, minute: extractedTime[1]!);
-                model.setDepartureDelay(minuteMode, delayTime, delayMinute);
+                final delayDateTime = DateTime.tryParse(values["dateTime"] ?? "");
+                model.setDepartureDelay(minuteMode, delayDateTime, delayMinute);
               },
             ),
             const SizedBox(height: 4,),
@@ -332,16 +329,13 @@ class _TripFormDateState extends State<TripFormDate> {
               originalTime: model.arrivalDate,
               initialMinuteMode: model.delayArrivalMinuteMode,
               initialMinuteDelay: model.delayArrivalMinute,
-              initialTimeDelay: model.delayArrivalTime,
+              initialDateTimeDelay: model.delayArrivalTime,
               onChanged: (values) {
                 debugPrint("DelayFieldsSwitcher Arrival values: $values");
                 final minuteMode = values["mode"] == "minute";
                 final delayMinute = int.tryParse(values["minute"] ?? "");
-                final extractedTime = values["time"]?.split(":").map((e) => int.tryParse(e)).toList();
-                final isNull = (extractedTime == null || extractedTime.length != 2 || 
-                                extractedTime[0] == null || extractedTime[1] == null);
-                final delayTime = isNull ? null : TimeOfDay(hour: extractedTime[0]!, minute: extractedTime[1]!);
-                model.setArrivalDelay(minuteMode, delayTime, delayMinute);
+                final delayDateTime = DateTime.tryParse(values["dateTime"] ?? "");
+                model.setArrivalDelay(minuteMode, delayDateTime, delayMinute);
               },
             ),
           ],

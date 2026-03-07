@@ -54,11 +54,11 @@ class TripFormModel extends ChangeNotifier {
   DateTime? departureDayDateOnly;
 
   bool delayDepartureMinuteMode = false;
-  TimeOfDay? delayDepartureTime;
+  DateTime? delayDepartureTime;
   int? delayDepartureMinute;
 
   bool delayArrivalMinuteMode = false;
-  TimeOfDay? delayArrivalTime;
+  DateTime? delayArrivalTime;
   int? delayArrivalMinute;
 
   // STEP 3 — Details
@@ -392,13 +392,13 @@ class TripFormModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setDepartureDelay(bool minuteMode, TimeOfDay? delayTime, int? delayMinute) {
+  void setDepartureDelay(bool minuteMode, DateTime? delayTime, int? delayMinute) {
     delayDepartureMinuteMode = minuteMode;
     delayDepartureTime = delayTime;
     delayDepartureMinute = delayMinute;
   }
 
-  void setArrivalDelay(bool minuteMode, TimeOfDay? delayTime, int? delayMinute) {
+  void setArrivalDelay(bool minuteMode, DateTime? delayTime, int? delayMinute) {
     delayArrivalMinuteMode = minuteMode;
     delayArrivalTime = delayTime;
     delayArrivalMinute = delayMinute;
