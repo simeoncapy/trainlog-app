@@ -179,6 +179,7 @@ class _TripsPageState extends State<TripsPage> {
   }
 
   Widget _tableGeneralHeaderBuilder(TripsProvider tripsProvider) {
+    final locale = Localizations.localeOf(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
@@ -221,9 +222,10 @@ class _TripsPageState extends State<TripsPage> {
           child: IconButton(
             onPressed: () async {
               final operators = tripsProvider.operators;
-              final countries = tripsProvider.mapCountryCodes;
+              final countries = await tripsProvider.getMapCountryCodesSafe(locale: locale);//mapCountryCodes;
               final types = tripsProvider.vehicleTypes;
 
+              if(!context.mounted) return;
               final result = await showDialog<TripsFilterResult>(
                 context: context,
                 builder: (context) => TripsFilterDialog(

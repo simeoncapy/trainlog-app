@@ -37,9 +37,25 @@ class TripsProvider extends ChangeNotifier {
 
   List<String> _countryCodes = const [];
   List<String> get countryCodes => _countryCodes;
+  Future<List<String>> getCountryCodesSafe() async {
+    final repo = _repository;
+    if(_countryCodes.isNotEmpty) return _countryCodes;
+    if(repo == null || await repo.count() == 0) return _countryCodes;
+
+    await refreshCountryCodes();
+    return _countryCodes;
+  }
 
   Map<String, String> _mapCountryCodes = const {};
   Map<String, String> get mapCountryCodes => _mapCountryCodes;
+  Future<Map<String, String>> getMapCountryCodesSafe({Locale? locale}) async {
+    final repo = _repository;
+    if(_mapCountryCodes.isNotEmpty) return _mapCountryCodes;
+    if(repo == null || await repo.count() == 0) return _mapCountryCodes;
+
+    await refreshMapCountryCodes(locale: locale);
+    return _mapCountryCodes;
+  }
 
   List<Trips>? _modificatedTrips;
   List<Trips>? get modificatedTrips {
