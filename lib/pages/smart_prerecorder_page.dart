@@ -30,6 +30,20 @@ import 'package:geolocator/geolocator.dart';
 import 'package:trainlog_app/widgets/error_banner.dart';
 import 'package:trainlog_app/widgets/shimmer_box.dart';
 
+class _TripSelectionUiState {
+  final bool isValidSelection;
+  final String? errorMessage;
+  final List<Widget> errorBanner;
+  final VoidCallback? createTripCaller;
+
+  const _TripSelectionUiState({
+    required this.isValidSelection,
+    required this.errorMessage,
+    required this.errorBanner,
+    required this.createTripCaller,
+  });
+}
+
 class SmartPrerecorderPage extends StatefulWidget {
   final SetPrimaryActions onPrimaryActionsReady;
   const SmartPrerecorderPage({super.key, required this.onPrimaryActionsReady});
@@ -266,6 +280,7 @@ class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
       model.arrivalGeoMode = false;
     }
 
+    model.initState(); // Toggle hasBeenModified
     return model;
   }
 
@@ -460,17 +475,18 @@ Widget build(BuildContext context) {
     );
   }
 
-  Column _buttonBar(List<int> selectedIds, AppLocalizations loc, ThemeData theme) {
+  _TripSelectionUiState _buildTripSelectionUiState(
+    List<int> selectedIds,
+    AppLocalizations loc,
+  ) {
     final errors = <String>[];
     bool noSelection = false;
 
     if (selectedIds.isEmpty) {
-      noSelection = true; // No error message for no selection, but still not valid
-    }
-    else if (selectedIds.length < 2) {
+      noSelection = true;
+    } else if (selectedIds.length < 2) {
       errors.add(loc.prerecorderErrorLessThanTwoSelected);
-    } 
-    else if (selectedIds.length > 2) {
+    } else if (selectedIds.length > 2) {
       errors.add(loc.prerecorderErrorMoreThanTwoSelected);
     } else {
       final a = _records.firstWhere((r) => r.id == selectedIds[0]);
@@ -482,7 +498,8 @@ Widget build(BuildContext context) {
       }
 
       // Rule 2: types must be consistent (ignore unknown)
-      final bothKnown = a.type != VehicleType.unknown && b.type != VehicleType.unknown;
+      final bothKnown =
+          a.type != VehicleType.unknown && b.type != VehicleType.unknown;
       if (bothKnown && a.type != b.type) {
         errors.add(loc.prerecorderErrorTypeSameForDepartureArrival);
       }
@@ -490,106 +507,110 @@ Widget build(BuildContext context) {
 
     final isValidSelection = errors.isEmpty && !noSelection;
     final String? errorMessage = errors.isEmpty ? null : errors.join('\n');
-    final isWarning = (errorMessage == loc.prerecorderErrorLessThanTwoSelected);
+    final isWarning =
+        errorMessage == loc.prerecorderErrorLessThanTwoSelected;
 
-    final errorBanner = errorMessage != null ? [
-          ErrorBanner(
-            message: errorMessage,
-            compact: true,
-            severity: isWarning ? ErrorSeverity.warning : ErrorSeverity.error,
-          ),
-          SizedBox(height: 8,),
-        ]: [];
+    final errorBanner = errorMessage != null
+        ? <Widget>[
+            ErrorBanner(
+              message: errorMessage,
+              compact: true,
+              severity:
+                  isWarning ? ErrorSeverity.warning : ErrorSeverity.error,
+            ),
+            const SizedBox(height: 8),
+          ]
+        : <Widget>[];
 
-    final createTripCaller = !isValidSelection ? null : () {
-              Navigator.of(context).push(PageRouteBuilder(
+    final createTripCaller = !isValidSelection
+        ? null
+        : () {
+            Navigator.of(context)
+                .push(
+              PageRouteBuilder(
                 pageBuilder: (_, __, ___) => ChangeNotifierProvider(
                   create: (_) => _createTripFormModel(),
-                  child: AddTripPage(preRecorderIdsToDelete: _selectedIds,),
+                  child: AddTripPage(
+                    preRecorderIdsToDelete: _selectedIds,
+                  ),
                 ),
                 transitionDuration: Duration.zero,
                 reverseTransitionDuration: Duration.zero,
-              )).then((result) {
+              ),
+            )
+                .then((result) {
               if (!context.mounted) return;
               if (result == true) {
                 setState(() {
-                  debugPrint("Trip creation successful, deleting prerecords with ids: $_selectedIds");
+                  debugPrint(
+                    "Trip creation successful, deleting prerecords with ids: $_selectedIds",
+                  );
                   _selectedIds.clear();
                   _loadPreRecords();
                 });
               }
             });
-            };
+          };
 
-    if(AppPlatform.isApple) {
+    return _TripSelectionUiState(
+      isValidSelection: isValidSelection,
+      errorMessage: errorMessage,
+      errorBanner: errorBanner,
+      createTripCaller: createTripCaller,
+    );
+  }
+
+  Column _buttonBar(List<int> selectedIds, AppLocalizations loc, ThemeData theme) {
+    final tripSelectionUi = _buildTripSelectionUiState(selectedIds, loc);
+
+    if (AppPlatform.isApple) {
       return Column(
         children: [
-          ...errorBanner,
+          ...tripSelectionUi.errorBanner,
           Row(
             children: [
               Expanded(
                 child: AdaptiveButton.build(
                   context: context,
-                  label: Text(loc.prerecorderCreateTripButton,), 
+                  label: Text(loc.prerecorderCreateTripButton),
                   icon: AdaptiveIcons.add,
-                  onPressed: createTripCaller,
+                  onPressed: tripSelectionUi.createTripCaller,
                   size: AdaptiveButton.large,
-                  type: AdaptiveButtonType.secondary
+                  type: AdaptiveButtonType.secondary,
                 ),
               ),
-              const SizedBox(width: 8,),
+              const SizedBox(width: 8),
               Expanded(
                 child: AdaptiveButton.build(
                   context: context,
-                  label: Text(loc.prerecorderRecordButton,), 
+                  label: Text(loc.prerecorderRecordButton),
                   icon: AdaptiveIcons.edit,
                   onPressed: _recordNewLog,
                   size: AdaptiveButton.large,
-                  type: AdaptiveButtonType.primary
+                  type: AdaptiveButtonType.primary,
                 ),
               ),
             ],
-          )
+          ),
         ],
       );
     }
 
     return Column(
       children: [
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton.icon(
-            onPressed: createTripCaller,
-            label: Text(
-              loc.prerecorderCreateTripButton,
-              style: TextStyle(
-                fontSize: theme.textTheme.titleMedium?.fontSize,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            icon: const Icon(Icons.add, size: 24),
-            style: buttonStyleHelper(theme.colorScheme.primary, theme.colorScheme.onPrimary).copyWith(
-              padding: WidgetStateProperty.all(
-                const EdgeInsets.symmetric(vertical: 16),
-              ),
-            ),
-          ),
-        ),
-        SizedBox(height: 8,),
-        ...errorBanner,
-        if(!AppPlatform.isApple)
+        ...tripSelectionUi.errorBanner,
         Row(
           children: [
             IntrinsicWidth(
               child: AdaptiveButton.build(
                 context: context,
-                label: Text(deleteButtonLabel(loc)), 
+                label: Text(deleteButtonLabel(loc)),
                 icon: AdaptiveIcons.delete,
                 type: AdaptiveButtonType.destructive,
                 size: AdaptiveButton.small,
                 onPressed: () async {
-                    _askForDelete(loc);
-                  }
+                  _askForDelete(loc);
+                },
               ),
             ),
             const Spacer(),
@@ -840,10 +861,11 @@ Widget build(BuildContext context) {
       ];
     }
 
+    final tripSelectionUi = _buildTripSelectionUiState(_selectedIds, loc);
     return [AppPrimaryAction(
-      onPressed: _recordNewLog,
-      icon: AdaptiveIcons.edit,
-      label: loc.prerecorderRecordButton
+      onPressed: tripSelectionUi.isValidSelection ? tripSelectionUi.createTripCaller! : _recordNewLog,
+      icon: tripSelectionUi.isValidSelection ? AdaptiveIcons.add : AdaptiveIcons.edit,
+      label: tripSelectionUi.isValidSelection ? loc.prerecorderCreateTripButton : loc.prerecorderRecordButton
     )];
   }
 }
