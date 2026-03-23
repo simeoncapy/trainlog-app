@@ -8,6 +8,7 @@ import 'package:trainlog_app/widgets/trip_visibility_selector.dart';
 import 'package:trainlog_app/widgets/vehicle_energy_selector.dart';
 
 class TripFormModel extends ChangeNotifier {
+  bool _hasBeenChanged = false;
   // STEP 1 — Basic info
   bool highlightBasicsErrors = false;
   bool basicsHasError = false;
@@ -116,6 +117,8 @@ class TripFormModel extends ChangeNotifier {
   // -----------------------------
   // Getters
   // -----------------------------
+  bool get hasBeenChanged => _hasBeenChanged;
+
   bool get departureHasError =>
     (departureStationName?.isEmpty ?? true) ||
     departureLat == null ||
@@ -168,6 +171,9 @@ class TripFormModel extends ChangeNotifier {
     return durationByType(type).$2;
   }
 
+  // Init
+  void initState() => _hasBeenChanged = false;
+
   // -----------------------------
   // Validation
   // -----------------------------
@@ -218,8 +224,11 @@ class TripFormModel extends ChangeNotifier {
   // -----------------------------
   // Setters
   // -----------------------------
+  void formDataChanged() => _hasBeenChanged = true;
+
   void setVehicleType(VehicleType type) {
     vehicleType = type;
+    formDataChanged();
     notifyListeners();
   }
   
@@ -235,12 +244,14 @@ class TripFormModel extends ChangeNotifier {
     departureLong = long;
     departureAddress = address;
     departureGeoMode = geoMode ?? false;
+    formDataChanged();
     notifyListeners();
   }
 
   void updateDepartureCoords(double lat, double long) {
     departureLat = lat;
     departureLong = long;
+    formDataChanged();
     notifyListeners();
   }
 
@@ -256,12 +267,14 @@ class TripFormModel extends ChangeNotifier {
     arrivalLong = long;
     arrivalAddress = address;
     arrivalGeoMode = geoMode ?? false;
+    formDataChanged();
     notifyListeners();
   }
 
   void updateArrivalCoords(double lat, double long) {
     arrivalLat = lat;
     arrivalLong = long;
+    formDataChanged();
     notifyListeners();
   }
 
@@ -299,6 +312,7 @@ class TripFormModel extends ChangeNotifier {
 
   void setOperators(List<String> ops) {
     selectedOperators = ops;
+    formDataChanged();
     notifyListeners();
   }
 
@@ -347,6 +361,7 @@ class TripFormModel extends ChangeNotifier {
 
     departureDateLocal = _setDateTimeLocal(date, time);
     departureDate = _setDateTimeWithTimeZone(date, time, timezone);
+    formDataChanged();
     notifyListeners();
   }
 
@@ -372,6 +387,7 @@ class TripFormModel extends ChangeNotifier {
 
     arrivalDateLocal = _setDateTimeLocal(date, time);
     arrivalDate = _setDateTimeWithTimeZone(date, time, timezone);
+    formDataChanged();
     notifyListeners();
   }
 
@@ -383,12 +399,14 @@ class TripFormModel extends ChangeNotifier {
   void setDurationHour(DateType type, int? hour) {
     final (_, minute) = duration[type] ?? (null, null);
     duration[type] = (hour, minute);
+    formDataChanged();
     notifyListeners();
   }
 
   void setDurationMinute(DateType type, int? minute) {
     final (hour, _) = duration[type] ?? (null, null);
     duration[type] = (hour, minute);
+    formDataChanged();
     notifyListeners();
   }
 
@@ -409,12 +427,14 @@ class TripFormModel extends ChangeNotifier {
   void setenergyType(EnergyType value) {
     if (energyType == value) return; // avoids extra rebuilds
     energyType = value;
+    formDataChanged();
     notifyListeners();
   }
 
   void setVisibility(TripVisibility value) {
     if (tripVisibility == value) return; // avoids extra rebuilds
     tripVisibility = value;
+    formDataChanged();
     notifyListeners();
   }
 

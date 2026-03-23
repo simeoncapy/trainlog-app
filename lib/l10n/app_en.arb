@@ -331,9 +331,10 @@
   "@addTripStepValidate": {
     "description": "Label for the last step when adding a trip. Choose a short word if possible"
   },
+  "addTripExitConfirmationDialogueTitle": "Do you want to exit?",
+  "addTripExitConfirmationDialogueContent": "The trip data have been modified, they will be lost. Do you really want to exit the creation of the trip?",
   "addTripTransportationMode": "Transportation mode",
   "addTripImportFr24": "Import flight data from FR24",
-  "addTipSearchStation": "Search ",
   "addTripManualDeparture": "Manual departure",
   "addTripManualArrival": "Manual arrival",
   "addTripDeparture": "Departure",

@@ -793,13 +793,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addTripStepValidate => 'Validate';
 
   @override
+  String get addTripExitConfirmationDialogueTitle => 'Do you want to exit?';
+
+  @override
+  String get addTripExitConfirmationDialogueContent =>
+      'The trip data have been modified, they will be lost. Do you really want to exit the creation of the trip?';
+
+  @override
   String get addTripTransportationMode => 'Transportation mode';
 
   @override
   String get addTripImportFr24 => 'Import flight data from FR24';
-
-  @override
-  String get addTipSearchStation => 'Search ';
 
   @override
   String get addTripManualDeparture => 'Manual departure';

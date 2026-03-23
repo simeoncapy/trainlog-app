@@ -1402,6 +1402,18 @@ abstract class AppLocalizations {
   /// **'Validate'**
   String get addTripStepValidate;
 
+  /// No description provided for @addTripExitConfirmationDialogueTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you want to exit?'**
+  String get addTripExitConfirmationDialogueTitle;
+
+  /// No description provided for @addTripExitConfirmationDialogueContent.
+  ///
+  /// In en, this message translates to:
+  /// **'The trip data have been modified, they will be lost. Do you really want to exit the creation of the trip?'**
+  String get addTripExitConfirmationDialogueContent;
+
   /// No description provided for @addTripTransportationMode.
   ///
   /// In en, this message translates to:
@@ -1413,12 +1425,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Import flight data from FR24'**
   String get addTripImportFr24;
-
-  /// No description provided for @addTipSearchStation.
-  ///
-  /// In en, this message translates to:
-  /// **'Search '**
-  String get addTipSearchStation;
 
   /// No description provided for @addTripManualDeparture.
   ///

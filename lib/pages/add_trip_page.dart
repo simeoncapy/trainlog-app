@@ -108,9 +108,17 @@ class _AddTripPageState extends State<AddTripPage> {
     }
   }
 
-  void _previousStepOrExit() {
+  void _previousStepOrExit() async {
+    final model = context.read<TripFormModel>();
     if (currentStep == 0) {
-      Navigator.pop(context);
+      if (!model.hasBeenChanged) {
+        Navigator.pop(context);
+        return;
+      }
+      final bool? confirmed = await _showExitConfirmationDialog(context);
+      if(context.mounted) {
+        if (confirmed == true) Navigator.pop(context);
+      }
     } else {
       setState(() {
         currentStep--;
@@ -251,6 +259,7 @@ class _AddTripPageState extends State<AddTripPage> {
         break;
     }
 
+    newModel.initState(); // Toggle hasBeenModified 
     return newModel;
   }
 
@@ -344,11 +353,41 @@ class _AddTripPageState extends State<AddTripPage> {
     }    
   }
 
+  Future<bool?> _showExitConfirmationDialog(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+    return showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(loc.addTripExitConfirmationDialogueTitle),
+          content: Text(loc.addTripExitConfirmationDialogueContent),
+          actions: <Widget>[
+            // The "Cancel" button
+            TextButton(
+              child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+            ),
+            // The "CONFIRM" button
+            TextButton(
+              child: Text(MaterialLocalizations.of(context).okButtonLabel),
+              onPressed: () {
+                Navigator.of(context).pop(true);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
     final isLastStep = currentStep == stepList!.length - 1;
     final theme = Theme.of(context);
+    final model = context.read<TripFormModel>();
 
     return SafeArea(
       child: Scaffold(
@@ -363,8 +402,15 @@ class _AddTripPageState extends State<AddTripPage> {
               icon: Icon(Icons.cancel),              
               onPressed: _isSubmitting
                   ? null
-                  : () {
-                      Navigator.pop(context);
+                  : () async {
+                      if (!model.hasBeenChanged) {
+                        Navigator.pop(context);
+                      } else {
+                        final bool? confirmed = await _showExitConfirmationDialog(context);
+                        if(context.mounted) {
+                          if (confirmed == true) Navigator.pop(context);
+                        }
+                      }
                     },
             ),
           ],

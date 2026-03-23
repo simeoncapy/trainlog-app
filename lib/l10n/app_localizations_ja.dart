@@ -783,13 +783,17 @@ class AppLocalizationsJa extends AppLocalizations {
   String get addTripStepValidate => '確認';
 
   @override
+  String get addTripExitConfirmationDialogueTitle => '終了しますか？';
+
+  @override
+  String get addTripExitConfirmationDialogueContent =>
+      '旅行データが変更されました。データは失われます。旅行の作成を本当に終了しますか？';
+
+  @override
   String get addTripTransportationMode => '交通手段';
 
   @override
   String get addTripImportFr24 => 'FR24からフライトデータをインポートする';
-
-  @override
-  String get addTipSearchStation => 'Search ';
 
   @override
   String get addTripManualDeparture => '出発地を手動で設定';

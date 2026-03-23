@@ -229,6 +229,8 @@
   "addTripStepDetails": "詳細",
   "addTripStepPath": "道筋",
   "addTripStepValidate": "確認",
+  "addTripExitConfirmationDialogueTitle": "終了しますか？",
+  "addTripExitConfirmationDialogueContent": "旅行データが変更されました。データは失われます。旅行の作成を本当に終了しますか？",
   "addTripTransportationMode": "交通手段",
   "addTripImportFr24": "FR24からフライトデータをインポートする",
   "addTripManualDeparture": "出発地を手動で設定",

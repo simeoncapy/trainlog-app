@@ -800,13 +800,17 @@ class AppLocalizationsFr extends AppLocalizations {
   String get addTripStepValidate => 'Valider';
 
   @override
+  String get addTripExitConfirmationDialogueTitle => 'Arrêter la création ?';
+
+  @override
+  String get addTripExitConfirmationDialogueContent =>
+      'Les données du trajet ont été modifiées et seront perdues. Voulez-vous vraiment quitter la création du trajet ?';
+
+  @override
   String get addTripTransportationMode => 'Moyen de transport';
 
   @override
   String get addTripImportFr24 => 'Importer les données du vol de FR24';
-
-  @override
-  String get addTipSearchStation => 'Search ';
 
   @override
   String get addTripManualDeparture => 'Départ manuel';

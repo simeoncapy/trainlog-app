@@ -228,6 +228,8 @@
   "addTripStepDetails": "Détails",
   "addTripStepPath": "Trajet",
   "addTripStepValidate": "Valider",
+  "addTripExitConfirmationDialogueTitle": "Arrêter la création ?",
+  "addTripExitConfirmationDialogueContent": "Les données du trajet ont été modifiées et seront perdues. Voulez-vous vraiment quitter la création du trajet ?",
   "addTripTransportationMode": "Moyen de transport",
   "addTripImportFr24": "Importer les données du vol de FR24",
   "addTripManualDeparture": "Départ manuel",
