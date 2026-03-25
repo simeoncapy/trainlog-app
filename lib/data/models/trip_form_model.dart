@@ -414,12 +414,14 @@ class TripFormModel extends ChangeNotifier {
     delayDepartureMinuteMode = minuteMode;
     delayDepartureTime = delayTime;
     delayDepartureMinute = delayMinute;
+    formDataChanged();
   }
 
   void setArrivalDelay(bool minuteMode, DateTime? delayTime, int? delayMinute) {
     delayArrivalMinuteMode = minuteMode;
     delayArrivalTime = delayTime;
     delayArrivalMinute = delayMinute;
+    formDataChanged();
   }
 
   // Page 3
@@ -536,6 +538,12 @@ class TripFormModel extends ChangeNotifier {
 
       "visibility": tripVisibility.name,
     });
+    if (delayDepartureMinute != null) {
+      map["departure_delay"] = delayDepartureMinute! * 60; // Trainlog uses delays in seconds
+    }
+    if (delayArrivalMinute != null) {
+      map["arrival_delay"] = delayArrivalMinute! * 60; // Trainlog uses delays in seconds
+    }
 
     debugPrint(jsonEncode(map));
     return jsonEncode(map);

@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -9,12 +11,9 @@ class DelayFieldsSwitcher extends StatefulWidget {
   const DelayFieldsSwitcher({
     super.key,
     required this.originalTime,
-
-    // Initial values
     this.initialMinuteMode = false,
     this.initialDateTimeDelay,
     this.initialMinuteDelay,
-
     this.onChanged,
     this.minuteIcon,
     this.timeIcon,
@@ -37,37 +36,31 @@ class DelayFieldsSwitcher extends StatefulWidget {
   State<DelayFieldsSwitcher> createState() => _DelayFieldsSwitcherState();
 }
 
-class _DelayFieldsSwitcherState extends State<DelayFieldsSwitcher>
-    with TickerProviderStateMixin {
-  late final TextEditingController _dateDelayCtl = TextEditingController();
+class _DelayFieldsSwitcherState extends State<DelayFieldsSwitcher> {
   late final TextEditingController _timeDelayCtl = TextEditingController();
   late final TextEditingController _minuteDelayCtl = TextEditingController();
 
-  late DateTime? _originalTime = widget.originalTime;
-  late bool _minuteMode = widget.initialMinuteMode;
+  late DateTime? _originalTime;
+  late bool _minuteMode;
 
-  DateTime? _savedDateTimeDelay;
-  TimeOfDay? _savedTimeOnly;
+  late DateTime _selectedDate;
+  TimeOfDay? _selectedTime;
   int? _savedDelayMinutes;
+  int? _computedDelayMinutes;
 
+  String _delayHint = '';
   int _direction = -1;
-  String _delayHint = "";
   bool _updatingFromSelf = false;
 
   @override
   void initState() {
     super.initState();
-
-    _minuteMode = widget.initialMinuteMode;
-    _savedDateTimeDelay = widget.initialDateTimeDelay ?? widget.originalTime;
-    _savedTimeOnly = widget.initialDateTimeDelay != null
-        ? TimeOfDay.fromDateTime(widget.initialDateTimeDelay!)
-        : (widget.originalTime != null ? TimeOfDay.fromDateTime(widget.originalTime!) : null);
-    _savedDelayMinutes = widget.initialMinuteDelay;
+    _loadFromWidget(resetDateWhenEmpty: true);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _syncControllersFromState(context);
-      _helperGenerator(context);
+      if (!mounted) return;
+      _syncControllersFromState();
+      _updateHelper();
     });
   }
 
@@ -77,67 +70,62 @@ class _DelayFieldsSwitcherState extends State<DelayFieldsSwitcher>
 
     if (_updatingFromSelf) return;
 
-    final shouldUpdate =
+    final externalSelectionChanged =
         widget.initialMinuteMode != oldWidget.initialMinuteMode ||
         widget.initialDateTimeDelay != oldWidget.initialDateTimeDelay ||
-        widget.initialMinuteDelay != oldWidget.initialMinuteDelay ||
-        widget.originalTime != oldWidget.originalTime;
+        widget.initialMinuteDelay != oldWidget.initialMinuteDelay;
 
-    if (!shouldUpdate) return;
+    final originalTimeChanged = widget.originalTime != oldWidget.originalTime;
 
-    _originalTime = widget.originalTime;
-    _minuteMode = widget.initialMinuteMode;
-    _savedDateTimeDelay = widget.initialDateTimeDelay ?? widget.originalTime;
-    _savedTimeOnly = widget.initialDateTimeDelay != null
-        ? TimeOfDay.fromDateTime(widget.initialDateTimeDelay!)
-        : (widget.originalTime != null ? TimeOfDay.fromDateTime(widget.originalTime!) : null);
-    _savedDelayMinutes = widget.initialMinuteDelay;
+    if (!externalSelectionChanged && !originalTimeChanged) return;
 
-    _syncControllersFromState(context);
-    _helperGenerator(context);
+    if (externalSelectionChanged) {
+      _loadFromWidget(resetDateWhenEmpty: true);
+    } else {
+      _originalTime = widget.originalTime;
+
+      // If there is no selected time yet, keep the widget in the "empty delay"
+      // state and re-anchor the day shift to 0.
+      if (_selectedTime == null && widget.initialDateTimeDelay == null) {
+        _selectedDate = _anchorDate();
+      }
+    }
+
+    _syncControllersFromState();
+    _updateHelper();
     setState(() {});
   }
 
   @override
   void dispose() {
-    _dateDelayCtl.dispose();
     _timeDelayCtl.dispose();
     _minuteDelayCtl.dispose();
     super.dispose();
   }
 
-  DateTime _dateOnly(DateTime value) {
-    return DateTime(value.year, value.month, value.day);
-  }
+  void _loadFromWidget({required bool resetDateWhenEmpty}) {
+    _originalTime = widget.originalTime;
+    _minuteMode = widget.initialMinuteMode;
+    _savedDelayMinutes = widget.initialMinuteDelay;
 
-  int _dayOffsetFromOriginal() {
-    if (_originalTime == null || _savedDateTimeDelay == null) return 0;
-
-    final originalDate = _dateOnly(_originalTime!);
-    final savedDate = _dateOnly(_savedDateTimeDelay!);
-    return savedDate.difference(originalDate).inDays;
-  }
-
-  void _syncControllersFromState(BuildContext context) {
-    if (_minuteMode) {
-      _minuteDelayCtl.text = _savedDelayMinutes?.toString() ?? "";
-      _dateDelayCtl.text = "";
-      _timeDelayCtl.text = "";
+    if (widget.initialDateTimeDelay != null) {
+      final delay = widget.initialDateTimeDelay!;
+      _selectedDate = _dateOnly(delay);
+      _selectedTime = TimeOfDay.fromDateTime(delay);
     } else {
-      _minuteDelayCtl.text = "";
-
-      final offset = _dayOffsetFromOriginal();
-      _dateDelayCtl.text = offset >= 0 ? "+$offset" : "$offset";
-
-      _timeDelayCtl.text = _savedTimeOnly == null
-          ? ""
-          : _savedTimeOnly!.format(context);
+      if (resetDateWhenEmpty) {
+        _selectedDate = _anchorDate();
+      }
+      _selectedTime = null;
     }
   }
 
-  DateTime? _effectiveDateTime() {
-    if (_savedDateTimeDelay == null || _savedTimeOnly == null) return null;
-    return _combineDateAndTime(datePart: _savedDateTimeDelay!, timePart: _savedTimeOnly!);
+  DateTime _anchorDate() {
+    return _dateOnly(_originalTime ?? DateTime.now());
+  }
+
+  DateTime _dateOnly(DateTime value) {
+    return DateTime(value.year, value.month, value.day);
   }
 
   DateTime _combineDateAndTime({
@@ -157,13 +145,51 @@ class _DelayFieldsSwitcherState extends State<DelayFieldsSwitcher>
     return DateTime(dt.year, dt.month, dt.day, dt.hour, dt.minute);
   }
 
+  int _dayOffsetFromOriginal() {
+    if (_originalTime == null) return 0;
+    return _dateOnly(_selectedDate).difference(_dateOnly(_originalTime!)).inDays;
+  }
+
+  String _formatDayShift(int value) {
+    if (value == 0) return '0';
+    return value > 0 ? '+$value' : '$value';
+  }
+
+  DateTime? _effectiveDateTime() {
+    if (_selectedTime == null) return null;
+
+    return _combineDateAndTime(
+      datePart: _selectedDate,
+      timePart: _selectedTime!,
+    );
+  }
+
+  void _syncControllersFromState() {
+    if (_minuteMode) {
+      _minuteDelayCtl.text = _savedDelayMinutes?.toString() ?? '';
+      _timeDelayCtl.text = '';
+      return;
+    }
+
+    _minuteDelayCtl.text = '';
+    _timeDelayCtl.text = _selectedTime?.format(context) ?? '';
+  }
+
   void _emitValues() {
     _updatingFromSelf = true;
 
+    final effectiveDateTime = _effectiveDateTime();
+    final hasMinuteDelay = _minuteMode && _savedDelayMinutes != null;
+    final hasTimeDelay = !_minuteMode && effectiveDateTime != null; // _computedDelayMinutes
+
     widget.onChanged?.call({
-      'mode': _minuteMode ? "minute" : "time",
-      'minute': _minuteMode ? _minuteDelayCtl.text : null,
-      'dateTime': _minuteMode ? null : _effectiveDateTime()?.toIso8601String(),
+      'mode': hasMinuteDelay
+          ? 'minute'
+          : hasTimeDelay
+              ? 'time'
+              : null,
+      'minute': _minuteMode ? _savedDelayMinutes?.toString() : _computedDelayMinutes?.toString(),
+      'dateTime': hasTimeDelay ? effectiveDateTime!.toIso8601String() : null,
     });
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -171,62 +197,60 @@ class _DelayFieldsSwitcherState extends State<DelayFieldsSwitcher>
     });
   }
 
-  void _toggleMode(BuildContext context) {
+  void _toggleMode() {
     setState(() {
       _minuteMode = !_minuteMode;
       _direction = _minuteMode ? -1 : 1;
-
-      if (!_minuteMode && _savedDateTimeDelay == null) {
-        _savedDateTimeDelay = _originalTime ?? DateTime.now();
-      }
-
-      _syncControllersFromState(context);
-      _helperGenerator(context);
+      _syncControllersFromState();
+      _updateHelper();
     });
+
     _emitValues();
   }
 
-  void _helperGenerator(BuildContext context) {
+  void _updateHelper() {
     final loc = AppLocalizations.of(context)!;
 
     if (_originalTime == null) {
-      _delayHint = "";
+      _delayHint = '';
       return;
     }
 
     if (_minuteMode) {
       if (_savedDelayMinutes == null) {
-        _delayHint = "";
+        _delayHint = '';
         return;
       }
 
-      final delayedTime =
-          _originalTime!.add(Duration(minutes: _savedDelayMinutes!));
-
-      _delayHint =
-          loc.addTripDelayTime(formatDateTime(context, delayedTime, timeOnly: true));
-    } else {
-      final effective = _effectiveDateTime();
-      if (effective == null) {
-        _delayHint = "";
-        return;
-      }
-
-      final minuteDifference =
-          _withoutTimezone(effective).difference(_withoutTimezone(_originalTime!)).inMinutes;
-      final delayDuration = Duration(minutes: minuteDifference.abs());
-
-      final deltaText = minuteDifference >= 0
-          ? loc.addTripDelayMinuteDelay(formatDurationFixed(delayDuration))
-          : loc.addTripDelayMinuteAdvance(formatDurationFixed(delayDuration));
-
-      _delayHint = deltaText;
+      final delayedTime = _originalTime!.add(Duration(minutes: _savedDelayMinutes!));
+      _delayHint = loc.addTripDelayTime(
+        formatDateTime(context, delayedTime, timeOnly: true),
+      );
+      return;
     }
+
+    final effective = _effectiveDateTime();
+    if (effective == null) {
+      _delayHint = '';
+      return;
+    }
+
+    final minuteDifference =
+        _withoutTimezone(effective).difference(_withoutTimezone(_originalTime!)).inMinutes;
+
+    final delayDuration = Duration(minutes: minuteDifference.abs());
+    _computedDelayMinutes = minuteDifference;
+
+    _delayHint = minuteDifference >= 0
+        ? loc.addTripDelayMinuteDelay(formatDurationFixed(delayDuration))
+        : loc.addTripDelayMinuteAdvance(formatDurationFixed(delayDuration));
   }
 
-  Future<void> _pickTime(BuildContext context) async {
-    final initialTime = _savedTimeOnly ??
-        (_originalTime != null ? TimeOfDay.fromDateTime(_originalTime!) : TimeOfDay.now());
+  Future<void> _pickTime() async {
+    final initialTime = _selectedTime ??
+        (_originalTime != null
+            ? TimeOfDay.fromDateTime(_originalTime!)
+            : TimeOfDay.now());
 
     final picked = await showTimePicker(
       context: context,
@@ -236,31 +260,142 @@ class _DelayFieldsSwitcherState extends State<DelayFieldsSwitcher>
     if (picked == null) return;
 
     setState(() {
-      _savedTimeOnly = picked;
-      _savedDateTimeDelay ??= _originalTime ?? DateTime.now();
-      _syncControllersFromState(context);
-      _helperGenerator(context);
+      _selectedTime = picked;
+      _syncControllersFromState();
+      _updateHelper();
     });
 
     _emitValues();
   }
 
-  void _changeDay(BuildContext context, int dayOffset) {
-    final base = _savedDateTimeDelay ?? _originalTime ?? DateTime.now();
-
+  void _changeDay(int delta) {
     setState(() {
-      _savedDateTimeDelay = DateTime(
-        base.year,
-        base.month,
-        base.day + dayOffset,
-        base.hour,
-        base.minute,
-      );
-      _syncControllersFromState(context);
-      _helperGenerator(context);
+      _selectedDate = _selectedDate.add(Duration(days: delta));
+      _updateHelper();
     });
 
     _emitValues();
+  }
+
+  void _resetDay() {
+    setState(() {
+      _selectedDate = _anchorDate();
+      _updateHelper();
+    });
+
+    _emitValues();
+  }
+
+  void _clearTime() {
+    setState(() {
+      _selectedTime = null;
+      _timeDelayCtl.clear();
+      _updateHelper();
+    });
+
+    _emitValues();
+  }
+
+  void _clearMinuteDelay() {
+    setState(() {
+      _savedDelayMinutes = null;
+      _minuteDelayCtl.clear();
+      _updateHelper();
+    });
+
+    _emitValues();
+  }
+
+  Widget _buildModeButton(IconData icon, VoidCallback onTap) {
+    final theme = Theme.of(context);
+
+    return IconButton(
+      onPressed: onTap,
+      icon: Icon(icon),
+      style: IconButton.styleFrom(
+        backgroundColor: theme.colorScheme.primary,
+        foregroundColor: theme.colorScheme.onPrimary,
+        fixedSize: const Size(44, 44),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSegmentDivider(Color color) {
+    return SizedBox(
+      width: 1,
+      child: ColoredBox(color: color),
+    );
+  }
+
+  Widget _buildSegment({
+    required Widget child,
+    required VoidCallback onTap,
+    int flex = 1,
+  }) {
+    return Expanded(
+      flex: flex,
+      child: InkWell(
+        onTap: onTap,
+        child: Center(child: child),
+      ),
+    );
+  }
+
+  Widget _buildDayShiftControl() {
+    final theme = Theme.of(context);
+    final borderColor = theme.colorScheme.outline;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          height: DelayFieldsSwitcher.extraFieldHeight,
+          child: Material(
+            color: theme.colorScheme.surface,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(4),
+              side: BorderSide(color: borderColor),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: Row(
+              children: [
+                _buildSegment(
+                  onTap: () => _changeDay(-1),
+                  child: Transform.rotate(
+                    angle: math.pi,
+                    child: const Icon(Icons.play_arrow_rounded),
+                  ),
+                ),
+                _buildSegmentDivider(borderColor),
+                _buildSegment(
+                  flex: 2,
+                  onTap: _resetDay,
+                  child: Text(
+                    _formatDayShift(_dayOffsetFromOriginal()),
+                    style: theme.textTheme.titleMedium,
+                  ),
+                ),
+                _buildSegmentDivider(borderColor),
+                _buildSegment(
+                  onTap: () => _changeDay(1),
+                  child: const Icon(Icons.play_arrow_rounded),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          _originalTime == null
+              ? ''
+              : formatDateTime(context, _selectedDate, hasTime: false),
+          style: theme.textTheme.bodySmall,
+        ),
+      ],
+    );
   }
 
   @override
@@ -268,73 +403,33 @@ class _DelayFieldsSwitcherState extends State<DelayFieldsSwitcher>
     final minuteIcon = widget.minuteIcon ?? Icons.hourglass_bottom;
     final timeIcon = widget.timeIcon ?? Symbols.watch_later;
 
-    Widget actionButton(IconData icon, VoidCallback onTap) {
-      final theme = Theme.of(context);
-
-      return IconButton(
-        onPressed: onTap,
-        icon: Icon(icon),
-        style: IconButton.styleFrom(
-          backgroundColor: theme.colorScheme.primary,
-          foregroundColor: theme.colorScheme.onPrimary,
-          fixedSize: const Size(44, 44),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-      );
-    }
-
     final timeMode = Column(
       key: const ValueKey('time-mode'),
       children: [
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              child: TextFormField(
-                readOnly: true,
-                controller: _dateDelayCtl,
-                decoration: InputDecoration(
-                  labelText: "Day offset",
-                  border: const OutlineInputBorder(),
-                  helperText: _savedDateTimeDelay == null
-                      ? ""
-                      : formatDateTime(context, _savedDateTimeDelay!, hasTime: false),
-                  prefixIcon: IconButton(
-                    onPressed: () => _changeDay(context, -1),
-                    icon: const Icon(Icons.exposure_minus_1),
-                  ),
-                  suffixIcon: IconButton(
-                    onPressed: () => _changeDay(context, 1),
-                    icon: const Icon(Icons.plus_one),
-                  ),
-                ),
-              ),
+            Flexible(
+              flex: 4,
+              child: _buildDayShiftControl(),
             ),
             const SizedBox(width: 8),
             Expanded(
+              flex: 5,
               child: TextFormField(
                 readOnly: true,
                 controller: _timeDelayCtl,
                 decoration: InputDecoration(
-                  labelText: "Real time",
+                  labelText: 'Real time',
                   border: const OutlineInputBorder(),
                   helperText: _delayHint,
                   prefixIcon: IconButton(
-                    onPressed: () {
-                      setState(() {
-                        _savedTimeOnly = null;
-                        _timeDelayCtl.text = "";
-                        _helperGenerator(context);
-                      });
-                      _emitValues();
-                    },
+                    onPressed: _clearTime,
                     icon: const Icon(Icons.close),
                   ),
                   suffixIcon: IconButton(
+                    onPressed: _pickTime,
                     icon: const Icon(Icons.access_time),
-                    onPressed: () => _pickTime(context),
                   ),
                 ),
               ),
@@ -343,7 +438,7 @@ class _DelayFieldsSwitcherState extends State<DelayFieldsSwitcher>
             SizedBox(
               height: DelayFieldsSwitcher.extraFieldHeight,
               child: Center(
-                child: actionButton(minuteIcon, () => _toggleMode(context)),
+                child: _buildModeButton(minuteIcon, _toggleMode),
               ),
             ),
           ],
@@ -360,7 +455,7 @@ class _DelayFieldsSwitcherState extends State<DelayFieldsSwitcher>
             SizedBox(
               height: DelayFieldsSwitcher.extraFieldHeight,
               child: Center(
-                child: actionButton(timeIcon, () => _toggleMode(context)),
+                child: _buildModeButton(timeIcon, _toggleMode),
               ),
             ),
             const SizedBox(width: 8),
@@ -373,19 +468,12 @@ class _DelayFieldsSwitcherState extends State<DelayFieldsSwitcher>
                   signed: true,
                 ),
                 decoration: InputDecoration(
-                  labelText: "Delay/advance in minute",
+                  labelText: 'Delay/advance in minute',
                   helperText: _delayHint,
                   border: const OutlineInputBorder(),
-                  suffix: const Text(" min"),
+                  suffix: const Text(' min'),
                   prefixIcon: IconButton(
-                    onPressed: () {
-                      setState(() {
-                        _savedDelayMinutes = null;
-                        _minuteDelayCtl.text = "";
-                        _helperGenerator(context);
-                      });
-                      _emitValues();
-                    },
+                    onPressed: _clearMinuteDelay,
                     icon: const Icon(Icons.close),
                   ),
                 ),
@@ -393,11 +481,13 @@ class _DelayFieldsSwitcherState extends State<DelayFieldsSwitcher>
                   FilteringTextInputFormatter.allow(RegExp(r'^[+-]?\d*$')),
                   SignedIntFormatter(),
                 ],
-                onChanged: (v) {
-                  _savedDelayMinutes = int.tryParse(v);
+                onChanged: (value) {
+                  _savedDelayMinutes = int.tryParse(value);
+
                   setState(() {
-                    _helperGenerator(context);
+                    _updateHelper();
                   });
+
                   _emitValues();
                 },
               ),
@@ -411,7 +501,7 @@ class _DelayFieldsSwitcherState extends State<DelayFieldsSwitcher>
       duration: const Duration(milliseconds: 250),
       transitionBuilder: (child, animation) {
         return SlideTransition(
-          position: Tween(
+          position: Tween<Offset>(
             begin: Offset(_direction * 0.15, 0),
             end: Offset.zero,
           ).animate(animation),

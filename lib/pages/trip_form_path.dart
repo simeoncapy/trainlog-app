@@ -40,6 +40,9 @@ class _TripFormPathState extends State<TripFormPath> {
     super.initState();
 
     //final model = context.read<TripFormModel>();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      FocusManager.instance.primaryFocus?.unfocus();
+    });
   }
 
   void _showHelpDialog(BuildContext context) {

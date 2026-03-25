@@ -306,10 +306,10 @@ class _TripFormDateState extends State<TripFormDate> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(loc.addTripStartDate),
-            const SizedBox(height: 4),
+            const SizedBox(height: 8),
             DelayFieldsSwitcher(
               key: ValueKey('departure_delay'),
-              originalTime: model.departureDate,
+              originalTime: model.departureDateLocal,
               initialMinuteMode: model.delayDepartureMinuteMode,
               initialMinuteDelay: model.delayDepartureMinute,
               initialDateTimeDelay: model.delayDepartureTime,
@@ -323,10 +323,10 @@ class _TripFormDateState extends State<TripFormDate> {
             ),
             const SizedBox(height: 4,),
             Text(loc.addTripEndDate),
-            const SizedBox(height: 4),
+            const SizedBox(height: 8),
             DelayFieldsSwitcher(
               key: ValueKey('arrival_delay'),
-              originalTime: model.arrivalDate,
+              originalTime: model.arrivalDateLocal,
               initialMinuteMode: model.delayArrivalMinuteMode,
               initialMinuteDelay: model.delayArrivalMinute,
               initialDateTimeDelay: model.delayArrivalTime,
