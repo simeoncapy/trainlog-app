@@ -854,10 +854,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get addTripEndDate => '到着日';
 
   @override
-  String get addTripDelay => '遅れ';
+  String get addTripDelay => '遅延';
 
   @override
-  String get addTripRealTime => '本当時刻';
+  String get addTripRealTime => '調整時刻';
 
   @override
   String get addTripOriginDayLabel => '予定日';

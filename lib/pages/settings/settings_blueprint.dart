@@ -183,7 +183,8 @@ List<SettingsSectionSpec> buildSettingsBlueprint({
 
   final languages = <SettingsOption<String>>[
     const SettingsOption('🇬🇧 English', 'en'),
-    const SettingsOption('🇫🇷 Français', 'fr'),
+    const SettingsOption('🇫🇷 Français', 'fr'),    
+    const SettingsOption('🇵🇭 Tagalog', 'tl'),
     const SettingsOption('🇯🇵 日本語', 'ja'),
   ];
 

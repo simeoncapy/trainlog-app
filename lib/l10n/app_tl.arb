@@ -1,0 +1,505 @@
+{
+  "@@locale": "tl",
+  "appTitle": "Trainlog",
+  "language": "Tagalog",
+  "languageWithEmoji": "🇵🇭 Tagalog",
+  "appVersion": "App version",
+  "appVersionCopied": "Nakopya na ang version number",
+  "mainMenuButtonTooltip": "Ibukas ang menu",
+  "filterButton": "Filter",
+  "descendingOrder": "I-ayos Pababa",
+  "ascendingOrder": "I-ayos Paakyat",
+  "deleteAll": "Ibura lahat",
+  "deleteAllShort": "Lahat",
+  "deleteSelection": "Ibura ang selection",
+  "deleteSelectionShort": "Selection",
+  "loginButton": "Login",
+  "logoutButton": "Logout",
+  "loggedOut": "Na log out na",
+  "createAccountButton": "Gumawa ng account",
+  "emailLabel": "Email",
+  "emailHint": "ikaw@example.com",
+  "emailHelper": "Kung sakali nakalimutan ang password",
+  "emailRequiredLabel": "Kailangan ang email",
+  "emailValidLabel": "Gumamit ng tamang email",
+  "usernameLabel": "Username",
+  "usernameRequiredLabel": "Kailangan ang username",
+  "passwordLabel": "Password",
+  "passwordShowLabel": "Ipakita ang password",
+  "passwordHideLabel": "Itago ang password",
+  "passwordRequiredLabel": "Kailangan ang password",
+  "createAccountButtonShort": "Gumawa",
+  "loginToYourAccount": "Mag login sa account ",
+  "menuHello": "Kamusta {username}",
+  "@menuHello": {
+    "description": "The username",
+    "placeholders": {
+      "username": {}
+    }
+  },
+  "connectionError": "May mali sa credentials mo",
+  "refreshCompleted": "Na refresh na",
+  "nextButton": "Sunod",
+  "previousButton": "Balik",
+  "validateButton": "Validate",
+  "continueButton": "Tumuloy",
+  "nameField": "Pangalan",
+  "auto": "Auto",
+  "energy": "Enerhiya",
+  "energyElectric": "Kuryente",
+  "energyElectricShort": "Elec. ",
+  "energyThermic": "Langis",
+  "energyThermicShort": "Langis",
+  "energyHydrogen": "Hydrogen",
+  "energyHydrogenShort": "H2",
+  "manual": "manual",
+  "@manual": {
+    "description": "manual (opposed as automatic). Should be gender and number neutral."
+  },
+  "fillRequiredFields": "Ipasok ang lahat ng bagay",
+  "facultative": "hindi kailangan",
+  "visibility": "Visibility",
+  "visibilityPublic": "Pampubliko",
+  "visibilityPublicLong": "Lakbay pampubiklo",
+  "visibilityFriends": "Kaibigan",
+  "visibilityFriendsLong": "Ipakita sa kaibigan lamang",
+  "visibilityPrivate": "Pribado",
+  "visibilityPrivateLong": "Lakbay pribado ",
+  "visibilityRestricted": "Tago",
+  "visibilityRestrictedLong": "Tagong lakbay",
+  "helpTitle": "Tulong",
+  "pageNotImplementedYet": "Hindi pa nagagawa ang page. Maipapakita lamang ang website version. Hindi optimized ang user interface ",
+  "departureSingleCharacter": "D",
+  "arrivalSingleCharacter": "A",
+  "locationServicesDisabled": "Hindi available ang location services",
+  "locationPermissionDenied": "Bawal pumasok",
+  "duplicateBtnLabel": "Idoble ",
+  "newBadge": "BAGO",
+  "nbrPassengers": "{count, plural, =0 {{count} pasahero} =1 {{count} pasahero} one {{count} pasahero} other {{count} pasahero}}",
+  "@nbrPassengers": {
+    "description": "Number of passengers",
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "dialogueDefaultInfoTitle": "Impormasyon",
+  "dialogueChangeInstanceTitle": "Ibago ang trainlog instance",
+  "dialogueChangeInstanceButton": "Ibago",
+  "dialogueChangeInstanceCustomLabel": "Custom instance ",
+  "settingsAppCategory": "App Settings",
+  "settingsMapCategory": "Map Settings",
+  "settingsAccountCategory": "Account Settings",
+  "settingsDangerZoneCategory": "Mapanganib na lugar",
+  "settingsLanguage": "Lengwahe",
+  "settingsThemeMode": "Thema ",
+  "settingsDark": "Madilim",
+  "settingsLight": "Maliwanag",
+  "settingsDateFormat": "Petsa",
+  "settingsHourFormat12": "12 oras",
+  "settingsExampleShort": "Hal:",
+  "settingsCurrency": "Default currency",
+  "settingsSprRadius": "Pinakamalaking radius para sa paghahanap ng istasyon sa Geolog",
+  "settingsSystem": "Sistema",
+  "settingsMapPathDisplayOrder": "Ayos ng mga ruta ng biyahe sa mapa",
+  "settingMapPathDisplayOrderByCreation": "Ayusin ayon sa petsa ng paglikha",
+  "settingMapPathDisplayOrderByTrip": "Ayusin ayon sa petsa ng lakbay",
+  "settingMapPathDisplayOrderByTripAndPlane": "Ayusin ayon sa petsa ng lakbay (kasama ang flights)",
+  "settingsMapColorPalette": "Kulay ng trip",
+  "settingsMapColorPaletteTrainlogWeb": "Trainlog Web",
+  "settingsMapColorPaletteColourBlind": "Kulay para sa colorblind",
+  "settingsMapColorPaletteTrainlogRed": "Pula",
+  "settingsMapColorPaletteTrainlogGreen": "Berde",
+  "settingsMapColorPaletteTrainlogBlue": "Asul",
+  "settingsMapColorPaletteVibrantTones": "Matingkad na kulay",
+  "settingsCache": "Cached data ({size} MiB)",
+  "@settingsCache": {
+    "description": "Size in mebibytes (MiB)",
+    "placeholders": {
+      "size": {}
+    }
+  },
+  "settingsCacheClearButton": "Ibura",
+  "settingsCacheClearConfirmTitle": "Ibura ang cache?",
+  "settingsCacheClearConfirmMessage": "Sigurado ka bang gusto mong tanggalin ang naka-cache na data? Hindi na ito maibabalik. Maaaring mas matagal ang susunod na pag-load ng app.",
+  "settingsCacheClearedMessage": "Nabura ang cache",
+  "settingsDisplayUserMarker": "Ipakita ang kasalukurang lugar",
+  "settingsDeleteAccount": "Ibura ang account",
+  "settingsDeleteAccountRequest": "Request",
+  "settingsDeleteAccountError": "Hindi kaya ibukas ang email client, request sa {email}",
+  "@settingsDeleteAccountError": {
+    "description": "email address to request the account deletion",
+    "placeholders": {
+      "email": {}
+    }
+  },
+  "settingsHideWarningMessage": "Itago ang babala",
+  "settingsAccountLeaderboard": "Lumabas sa pampublikong leaderboard",
+  "settingsAccountFriendSearch": "Lumabas sa friend search",
+  "settingsAccountAppearGlobal": "Lumabas sa global live map",
+  "settingsAccountAppearGlobalSubtitle": "(byaheng pamubliko lamang)",
+  "settingsAccountVisibility": "Visibility sa iba",
+  "settingsAccountVisibilitPrivateHelper": "Ang iyong account ay nananatiling ganap na pribado. Walang sinuman ang maaaring tumingin sa anumang detalye o nilalaman.",
+  "settingsAccountVisibilitRestrictedHelper": "Maaaring ibahagi ang mga indibidwal na biyahe gamit ang mga trip-ID, na nagtatago ng personal na data. Ngunit ang pampublikong profile ay nananatiling hindi maa-access.",
+  "settingsAccountVisibilitPublicHelper": "Ang public profile mo ay maa-access gamit ang username mo.",
+  "settingsInstanceUrl": "Trainlog instance",
+  "settingsInstanceMsg": "Maari mo ibago ang path ng Trainlog instance gamit ang application sa login page",
+  "menuMapTitle": "Mapa",
+  "menuTripsTitle": "Byahe",
+  "menuRankingTitle": "Ranking",
+  "menuStatisticsTitle": "Istatistika",
+  "menuCoverageTitle": "Sakop",
+  "menuTagsTitle": "Tags",
+  "menuTicketsTitle": "Tiket",
+  "menuFriendsTitle": "Friends",
+  "menuSmartPrerecorderTitle": "Geolog",
+  "menuSettingsTitle": "Settings",
+  "menuAboutTitle": "Tungkol sa app",
+  "menuIosMore": "More",
+  "mapFilterYearsAllBtn": "Lahat",
+  "mapFilterYearsNoneBtn": "Wala",
+  "mapFilterVehicleTypeAllBtn": "Lahat",
+  "mapFilterVehicleTypeNoneBtn": "Wala",
+  "tripPathLoading": "Ang byahe mo ay nag loload, mag hintay ng saglit",
+  "yearTitle": "Taon",
+  "yearAllList": "Lahat",
+  "yearPastList": "Nakaraan",
+  "yearFutureList": "Kinabukasan",
+  "yearYearList": "Taon...",
+  "typeTitle": "Uri ng sasakyan",
+  "typeTrain": "Tren",
+  "typeTram": "Tramway",
+  "typeMetro": "Subway",
+  "typeBus": "Bus",
+  "typeCar": "Kotse",
+  "typePlane": "Eroplano",
+  "typeFerry": "Ferry",
+  "typeAerialway": "Cable car",
+  "typeWalk": "Lakad",
+  "typePoi": "Lugar na pinuntahan",
+  "typeCycle": "Bisikleta",
+  "typeHelicopter": "Helikopter",
+  "tripsTableHeaderOriginDestination": "Pinagmulan/Patutunguhan",
+  "tripsTableHeaderOrigin": "Pinagmulan",
+  "tripsTableHeaderDestination": "Patutunguhan",
+  "tripsTableHeaderStartTime": "Oras ng pag alis",
+  "tripsTableHeaderEndTime": "Oras ng pagdating",
+  "tripsTableHeaderOperator": "Operator",
+  "tripsTableHeaderLineName": "Linya",
+  "tripsTableHeaderTripLength": "Haba",
+  "tripsTableHeaderVisibility": "Bisi.",
+  "tripsDetailTitle": "Ang byahe sa {vehicle}",
+  "@tripsDetailTitle": {
+    "description": "Transportation method",
+    "placeholders": {
+      "vehicle": {}
+    }
+  },
+  "tripsDetailsTitleOperator": "Operator: ",
+  "tripsDetailsTitleVehicle": "Sasakyan: ",
+  "tripsDetailsTitleSeat": "Upuan: ",
+  "tripsDetailsTitlePrice": "Presyo: ",
+  "tripsDetailPurchasedDate": "binili sa {date}",
+  "@tripsDetailPurchasedDate": {
+    "description": "date of the ticket purchase",
+    "placeholders": {
+      "date": {}
+    }
+  },
+  "tripsDetailsTitleNotes": "Notes: ",
+  "tripsDetailsEditButton": "Edit",
+  "tripsDetailsDeleteButton": "Ibura",
+  "tripsDetailsDeleteDialogTitle": "Ibura ang byahe?",
+  "tripsDetailsDeleteDialogMessage": "SIgurado ka na gusto mo ibura ang byahe?",
+  "tripsDetailsDeleteDialogConfirmButton": "Ibura",
+  "tripsDetailsDeleteFailed": "Hindi mabura ang byahe",
+  "tripsDetailsDeleteSuccess": "Nabura ang byahe",
+  "tripsFilterAllCountry": "Lahat",
+  "tripsFilterAllOperator": "Lahat",
+  "tripsFilterAllYears": "Lahat ng Taon",
+  "tripsFilterKeyword": "Keyword",
+  "tripsFilterDateFrom": "Sa",
+  "tripsFilterDateTo": "Sa (opsyonal)",
+  "tripsFilterCountry": "Bansa",
+  "tripsFilterOperator": "Operator",
+  "tripsFilterType": "Uri ng sasakyan",
+  "filterClearButton": "Ibura ang filter",
+  "graphTypeOperator": "Operator",
+  "graphTypeCountry": "Bansa",
+  "graphTypeYears": "Taon",
+  "graphTypeMaterial": "Materyal",
+  "graphTypeItinerary": "Itinerary",
+  "typeStation": "{type, select, train{Station} plane{Airport} bus{Hintuan} tram{Station} metro{Station} ferry{Port} helicopter{Heliport} aerialway{Station} other{Location}}",
+  "@typeStation": {
+    "description": "Label for station based on vehicle type (singular)",
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "typeStations": "{type, select, train{Station} plane{Airport} bus{Hintuan} tram{Station} metro{Station} ferry{Port} helicopter{Heliport} aerialway{Station} other{Location}}",
+  "@typeStations": {
+    "description": "Label for stations based on vehicle type (plural)",
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "typeStationAddress": "{type, select, train{Address of the station} plane{Address of the airport} bus{Address of the stop} tram{Address of the station} metro{Address of the station} ferry{Address of the port} helicopter{Address of the heliport} aerialway{Address of the station} other{Address of the location}}",
+  "@typeStationAddress": {
+    "description": "Label for stations address based on vehicle type",
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "enterStation": "{direction, select, departure{{type, select, train{Please enter the departure station} plane{Please enter the departure airport} bus{Please enter the departure stop} tram{Please enter the departure station} metro{Please enter the departure station} ferry{Please enter the departure port} helicopter{Please enter the departure heliport} aerialway{Please enter the departure station} other{Please enter the departure location}}} arrival{{type, select, train{Please enter the arrival station} plane{Please enter the arrival airport} bus{Please enter the arrival stop} tram{Please enter the arrival station} metro{Please enter the arrival station} ferry{Please enter the arrival port} helicopter{Please enter the arrival heliport} aerialway{Please enter the arrival station} other{Please enter the arrival location}}} other{{type, select, train{Please enter the station} plane{Please enter the airport} bus{Please enter the stop} tram{Please enter the station} metro{Please enter the station} ferry{Please enter the port} helicopter{Please enter the heliport} aerialway{Please enter the station} other{Please enter the location}}}}",
+  "@enterStation": {
+    "description": "Prompts the user to enter a departure or arrival station, airport, port, stop, etc., depending on the vehicle type.",
+    "placeholders": {
+      "direction": {
+        "type": "String",
+        "description": "Either 'departure' or 'arrival'. Determines which phrasing to use."
+      },
+      "type": {
+        "type": "String",
+        "description": "Vehicle type (train, plane, bus, tram, metro, ferry, helicopter, aerialway, other). Determines which facility name is used."
+      }
+    }
+  },
+  "manualNameStation": "{type, select, train{Manual name of the station} plane{Manual name of the airport} bus{Manual name of the stop} tram{Manual name of the station} metro{Manual name of the station} ferry{Manual name of the port} helicopter{Manual name of the heliport} aerialway{Manual name of the station} other{Manual name of the location}}",
+  "@manualNameStation": {
+    "description": "Label asking for the manual/custom name of the station (airport, port, stop, heliport, etc.) depending on the vehicle type.",
+    "placeholders": {
+      "type": {
+        "type": "String",
+        "description": "Vehicle type determining the facility name. Expected values: train, plane, bus, tram, metro, ferry, helicopter, aerialway, other."
+      }
+    }
+  },
+  "searchStationHint": "{type, select, train{Search station...} plane{Search airport...} bus{Search stop...} tram{Search station...} metro{Search station...} ferry{Search port...} helicopter{Search heliport...} aerialway{Search station...} other{Search location...}}",
+  "@searchStationHint": {
+    "description": "Hint for the search field for stations",
+    "placeholders": {
+      "type": {
+        "type": "String",
+        "description": "Vehicle type determining the facility name. Expected values: train, plane, bus, tram, metro, ferry, helicopter, aerialway, other."
+      }
+    }
+  },
+  "statisticsGraphUnitTrips": "Byahe",
+  "statisticsGraphUnitDistance": "Layo",
+  "statisticsGraphUnitDuration": "Haba ng byahe",
+  "statisticsGraphUnitCo2": "CO2",
+  "statisticsDisplayFilters": "Ipakita ang filters",
+  "statisticsHideFilters": "Itago ang filter",
+  "statisticsTripsUnitBase": "byahe",
+  "statisticsTripsUnitKilo": "isang libong byahe",
+  "statisticsTripsUnitMega": "isang milyong byahe",
+  "statisticsTripsUnitGiga": "isang bilyong byahe",
+  "statisticsOtherLabel": "Other",
+  "statisticsTotalLabel": "Lahat",
+  "statisticsUnitLabel": "Unit:",
+  "statisticsNoDataLabel": "Walang data",
+  "statisticsPieWip": "Ang pie chart ay WIP",
+  "internationalWaters": "Tubig international",
+  "addTripPageTitle": "Magdagdag ng byahe",
+  "addTripStepBasics": "Basics",
+  "@addTripStepBasics": {
+    "description": "Label for the first step when adding a trip. Choose a short word if possible"
+  },
+  "addTripStepDate": "Petsa",
+  "@addTripStepDate": {
+    "description": "Label for the second step when adding a trip. Choose a short word if possible"
+  },
+  "addTripStepDetails": "Detalye",
+  "@addTripStepDetails": {
+    "description": "Label for the third step when adding a trip. Choose a short word if possible"
+  },
+  "addTripStepPath": "Path",
+  "@addTripStepPath": {
+    "description": "Label for the fourth step when adding a trip. Choose a short word if possible"
+  },
+  "addTripStepValidate": "Ivalidate",
+  "@addTripStepValidate": {
+    "description": "Label for the last step when adding a trip. Choose a short word if possible"
+  },
+  "addTripTransportationMode": "Byahe mode",
+  "addTripImportFr24": "Import ang flight data sa FR24",
+  "addTripManualDeparture": "I set ang pag depart manually",
+  "addTripManualArrival": "I set ang pag arrive manually",
+  "addTripDeparture": "Departure",
+  "addTripArrival": "Arrival",
+  "addTripLatitudeShort": "Lat",
+  "addTripLongitudeShort": "Long",
+  "addTripMapUsageHelper": "Sa manual mode, maari mong i pasok ang coordinates o i galaw ang marker sa tamang lugar sa mapa.",
+  "addTripOperator": "Operator",
+  "addTripOperatorHelper": "Gumamit ng comma o enter button para ivalidate ang operator kahit hindi mo alam",
+  "addTripOperatorHint": "Hanapin ang operator...",
+  "addTripOperatorPlaceholderLogo": "Piliin ang operator",
+  "addTripLine": "Linya",
+  "addTripDateTypePrecise": "Tumpak",
+  "addTripDateTypeUnknown": "Hindi alam",
+  "addTripDateTypeDate": "Petsa",
+  "addTripStartDate": "Simula ng byahe",
+  "addTripEndDate": "Katapusan ng byahe",
+  "addTripDuration": "Haba ng byahe",
+  "addTripPast": "Nakaraan",
+  "addTripFuture": "HInaharap",
+  "timezoneInformation": "Ang time zone ay base sa coordinates ng departure at ng arrival",
+  "addTripDepartureAfterArrival": "Departure pagkatapos ng arrival!",
+  "addTripFacultative": "Optional fields",
+  "addTripMaterial": "Materyal",
+  "addTripRegistration": "Rehistrasyon",
+  "addTripSeat": "Upuan",
+  "addTripNotes": "Note",
+  "addTripTicketTitle": "Tiket",
+  "addTripTicketPrice": "Presyo ng tiket",
+  "addTripPurchaseDate": "Petsa ng pagbili",
+  "continueTripButton": "Validate at ituloy ang byahe",
+  "addTripPathUseNewRouter": "Gamitin ang bagong router",
+  "addTripNameEnd": "{departure} hanggang {arrival}",
+  "@addTripNameEnd": {
+    "description": "The trip name (departure station to arrival station)",
+    "placeholders": {
+      "departure": {
+        "type": "String",
+        "description": "The name of the departure station/aiport/stop..."
+      },
+      "arrival": {
+        "type": "String",
+        "description": "The name of the arrival station/aiport/stop..."
+      }
+    }
+  },
+  "addTripPathHelp": "Ang bagong router ay nasa beta mode at mukang electric ang sasakyan.\n\nAng mga router (luma at bago) ay pareho para sa tren, tram, at subway. Pwede mo i fine-tune ang peg para i tama ang ruta sa ikagugusto mo.",
+  "addTicketPageTitle": "Bagong tiket",
+  "addTagPageTitle": "Bagong tag",
+  "addTripPathRoutingErrorBannerMessage": "May mali sa ruta. Paki check ang byahe at i adjust ang peg points kung kailangan.",
+  "addTripRecordingMsg": "Ang byahe mo ay rinerecord, maghintay ng saglit",
+  "addTripFinishMsg": "Na record ang byahe mo",
+  "addTripFinishErrorMsg": "Nagka error habang rinerecord ang byahe, pakiulit ulit (error: {errorCode}).",
+  "@addTripFinishErrorMsg": {
+    "description": "Error message displayed when adding a trip fails",
+    "placeholders": {
+      "errorCode": {
+        "type": "String",
+        "description": "The error code returned when the trip addition fails"
+      }
+    }
+  },
+  "addTripFinishFeedbackWarning": "Na record ang byahe pero ang feedback galing sa server ay hindi kumpleto. Paki refresh at i check ang detalye ng byahe.",
+  "addTripPathGeodesic": "Geodesic path",
+  "addTripPathFr24": "FR24 path",
+  "addTripDelayMinuteDelay": "i.e. {delay} late",
+  "@addTripDelayMinuteDelay": {
+    "description": "Indicates the delay for a trip",
+    "placeholders": {
+      "delay": {
+        "type": "String",
+        "description": "The delay (duration formatted already)"
+      }
+    }
+  },
+  "addTripDelayMinuteAdvance": "i.e. {advance} early",
+  "@addTripDelayMinuteAdvance": {
+    "description": "Indicates the advance  for a trip",
+    "placeholders": {
+      "advance": {
+        "type": "String",
+        "description": "The advance (duration formatted already)"
+      }
+    }
+  },
+  "addTripDelayTime": "i.e. sa {time}",
+  "@addTripDelayTime": {
+    "description": "Indicates the new time for a trip after a delay or advance",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "description": "The new time for a trip after a delay or advance"
+      }
+    }
+  },
+  "aboutPageAboutSubPageTitle": "Trainlog",
+  "aboutPageHowToSubPageTitle": "Paano gamitin",
+  "aboutPagePrivacySubPageTitle": "Privacy",
+  "supportTrainlogButton": "Isupport ang Trainlog",
+  "joinDiscordButton": "Sumali sa discord community",
+  "websiteRepoButton": "Repositoryo ng website",
+  "applicationRepoButton": "Repositoryo ng application",
+  "pageNotAvailableInUserLanguage": "Ang page na ito ay naka display sa English kasi hindi pa sya available sa Tagalog.",
+  "@pageNotAvailableInUserLanguage": {
+    "description": "Text displayed if a page file doesn't exist in the user langue. Please replace '**your language**' by the name of the language."
+  },
+  "tableOfContents": "Talaan ng mga nilalaman",
+  "prerecorderExplanationTitle": "Paliwanag",
+  "prerecorderExplanation": "Ang Geolog tool ay isang matalinong pre-recorder. Kapag pinindot mo ang record button, awtomatiko nitong ise-save ang iyong kasalukuyang coordinate kasama ang petsa at oras. Sa susunod, maaari kang pumili ng dalawang geolog at gamitin ang mga ito upang lumikha ng isang bagong biyahe gamit ang naka-save na data.",
+  "prerecorderExplanationStation": "Awtomatikong hahanapin ng tool na ito ang pangalan ng istasyon at ipapakita ito kung makita (gumagana lamang ito para sa tren, bus, at ferry). Ipapakita ang pinakamalapit na mga istasyon (maaari mong baguhin ang radius sa mga setting) at maaari mong piliin ang pinakamahusay.",
+  "prerecorderExplanationDelete": "Pagkatapos malikha ang biyahe, awtomatikong mabubura ang dalawang geolog.",
+  "prerecorderExplanationPrivacy": "Ang data ay naka-save lamang sa iyong device.",
+  "prerecorderRecordButton": "Record",
+  "prerecorderCreateTripButton": "Gumawa ng byahe",
+  "prerecorderNoData": "Walang data",
+  "prerecorderUnknownStation": "Hindi kilalang station",
+  "prerecorderDeleteSelectionConfirm": "SIgurado ka na gusto mo ibura ang selection? Hindi ito reversible.",
+  "prerecorderDeleteAllConfirm": "Sigurado ka na gusto mo ibura ang lahat ng recorded gelogs? Hindi ito reversible.",
+  "prerecorderSelectStation": "Pumili ng station",
+  "prerecorderSelectClosest": "Pumili ng pinkamalapit",
+  "prerecorderNoStationReachable": "Walang station na malapit",
+  "prerecorderAway": "{distance} m layo",
+  "@prerecorderAway": {
+    "description": "Indicates how far the user is from the station",
+    "placeholders": {
+      "distance": {
+        "type": "String",
+        "description": "The distance in meters"
+      }
+    }
+  },
+  "prerecorderStationsFound": "{count, plural, =0 {Walang nakitang station} other {{count} station ang natagpuan}}",
+  "@prerecorderStationsFound": {
+    "description": "Indicates how many stations were found",
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "prerecorderErrorLessThanTwoSelected": "Pumili ng dalawang geologs para gumawa ng byahe",
+  "prerecorderErrorMoreThanTwoSelected": "Pumili ng dalawang geologs lamang para gumawa ng byahe",
+  "prerecorderErrorDepartureAfterArrival": "Hindi maaaring ang departure ay pagkatapos ng arrival.",
+  "prerecorderErrorTypeSameForDepartureArrival": "Ang departure at arrival ay dapat parehas ng sasakyan, o unknown type",
+  "prerecorderErrorFetchingStation": "Nagka error sa pagkuha ng data ng station",
+  "inboxPageTitle": "Mga balita at update",
+  "inboxAuthor": "Gawa ni {author}",
+  "@inboxAuthor": {
+    "description": "The author of a message",
+    "placeholders": {
+      "author": {
+        "type": "String",
+        "description": "The name of the author"
+      }
+    }
+  },
+  "inboxModified": "(naibago)",
+  "inboxModifiedIndication": "(naibago sa {date})",
+  "@inboxModifiedIndication": {
+    "description": "The date of modification of a message",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "description": "The date of modification of a message"
+      }
+    }
+  },
+  "trainglogStatusPageTitle": "Trainlog Status",
+  "daySingleCharacter": "D",
+  "setBtnLabel": "Iset",
+  "addTripExitConfirmationDialogueTitle": "Gusto mo umexit?",
+  "addTripExitConfirmationDialogueContent": "Naibago ang data ng byahe, kung umexit ka ng hindi nag sasave mawawala ang data",
+  "addTripDelay": "Delay",
+  "addTripRealTime": "Tamang oras",
+  "addTripOriginDayLabel": "Araw ng byahe",
+  "addTripResetToScheduled": "Ireset sa scheduled time"
+}
