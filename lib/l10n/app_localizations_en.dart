@@ -234,6 +234,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dialogueChangeInstanceCustomLabel => 'Custom instance';
 
   @override
+  String get daySingleCharacter => 'D';
+
+  @override
+  String get setBtnLabel => 'Set';
+
+  @override
   String get settingsAppCategory => 'App Settings';
 
   @override
@@ -857,6 +863,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get addTripEndDate => 'End of the trip';
+
+  @override
+  String get addTripDelay => 'Delay';
+
+  @override
+  String get addTripRealTime => 'Real time';
+
+  @override
+  String get addTripOriginDayLabel => 'Scheduled day';
+
+  @override
+  String get addTripResetToScheduled => 'Reset to scheduled time';
 
   @override
   String get addTripDuration => 'Duration';

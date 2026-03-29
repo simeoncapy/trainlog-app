@@ -526,6 +526,18 @@ abstract class AppLocalizations {
   /// **'Custom instance'**
   String get dialogueChangeInstanceCustomLabel;
 
+  /// No description provided for @daySingleCharacter.
+  ///
+  /// In en, this message translates to:
+  /// **'D'**
+  String get daySingleCharacter;
+
+  /// No description provided for @setBtnLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Set'**
+  String get setBtnLabel;
+
   /// No description provided for @settingsAppCategory.
   ///
   /// In en, this message translates to:
@@ -1527,6 +1539,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'End of the trip'**
   String get addTripEndDate;
+
+  /// No description provided for @addTripDelay.
+  ///
+  /// In en, this message translates to:
+  /// **'Delay'**
+  String get addTripDelay;
+
+  /// No description provided for @addTripRealTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Real time'**
+  String get addTripRealTime;
+
+  /// No description provided for @addTripOriginDayLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled day'**
+  String get addTripOriginDayLabel;
+
+  /// No description provided for @addTripResetToScheduled.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset to scheduled time'**
+  String get addTripResetToScheduled;
 
   /// No description provided for @addTripDuration.
   ///

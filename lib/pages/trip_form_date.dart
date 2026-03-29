@@ -301,7 +301,7 @@ class _TripFormDateState extends State<TripFormDate> {
         ],
       const SizedBox(height: 16,),
       TitledContainer(
-        title: "Delays", 
+        title: loc.addTripDelay, 
         content: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

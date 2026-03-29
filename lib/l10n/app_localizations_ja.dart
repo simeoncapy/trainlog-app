@@ -227,6 +227,12 @@ class AppLocalizationsJa extends AppLocalizations {
   String get dialogueChangeInstanceCustomLabel => 'カスタムインスタンス';
 
   @override
+  String get daySingleCharacter => '日';
+
+  @override
+  String get setBtnLabel => '設定';
+
+  @override
   String get settingsAppCategory => 'アプリ設定';
 
   @override
@@ -846,6 +852,18 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get addTripEndDate => '到着日';
+
+  @override
+  String get addTripDelay => '遅れ';
+
+  @override
+  String get addTripRealTime => '本当時刻';
+
+  @override
+  String get addTripOriginDayLabel => '予定日';
+
+  @override
+  String get addTripResetToScheduled => '予定時刻にリセット';
 
   @override
   String get addTripDuration => '時間';

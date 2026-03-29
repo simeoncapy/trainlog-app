@@ -235,6 +235,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get dialogueChangeInstanceCustomLabel => 'Instance personnalisée';
 
   @override
+  String get daySingleCharacter => 'J';
+
+  @override
+  String get setBtnLabel => 'Valider';
+
+  @override
   String get settingsAppCategory => 'Paramètres de l\'application';
 
   @override
@@ -864,6 +870,18 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get addTripEndDate => 'Fin du trajet';
+
+  @override
+  String get addTripDelay => 'Retard';
+
+  @override
+  String get addTripRealTime => 'Horaire réel';
+
+  @override
+  String get addTripOriginDayLabel => 'Jour prévu';
+
+  @override
+  String get addTripResetToScheduled => 'Réinitialiser à l\'horaire prévu';
 
   @override
   String get addTripDuration => 'Durée';

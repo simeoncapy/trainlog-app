@@ -1,11 +1,10 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/utils/signed_int_formatter.dart';
+import 'package:trainlog_app/widgets/relative_date_time_picker_dialog.dart';
 
 class DelayFieldsSwitcher extends StatefulWidget {
   const DelayFieldsSwitcher({
@@ -43,8 +42,7 @@ class _DelayFieldsSwitcherState extends State<DelayFieldsSwitcher> {
   late DateTime? _originalTime;
   late bool _minuteMode;
 
-  late DateTime _selectedDate;
-  TimeOfDay? _selectedTime;
+  DateTime? _selectedDateTime;
   int? _savedDelayMinutes;
   int? _computedDelayMinutes;
 
@@ -86,8 +84,8 @@ class _DelayFieldsSwitcherState extends State<DelayFieldsSwitcher> {
 
       // If there is no selected time yet, keep the widget in the "empty delay"
       // state and re-anchor the day shift to 0.
-      if (_selectedTime == null && widget.initialDateTimeDelay == null) {
-        _selectedDate = _anchorDate();
+      if (_selectedDateTime == null && widget.initialDateTimeDelay == null) {
+        _selectedDateTime = null;
       }
     }
 
@@ -107,61 +105,44 @@ class _DelayFieldsSwitcherState extends State<DelayFieldsSwitcher> {
     _originalTime = widget.originalTime;
     _minuteMode = widget.initialMinuteMode;
     _savedDelayMinutes = widget.initialMinuteDelay;
+    _computedDelayMinutes = null;
 
     if (widget.initialDateTimeDelay != null) {
-      final delay = widget.initialDateTimeDelay!;
-      _selectedDate = _dateOnly(delay);
-      _selectedTime = TimeOfDay.fromDateTime(delay);
+      _selectedDateTime = widget.initialDateTimeDelay;
     } else {
-      if (resetDateWhenEmpty) {
-        _selectedDate = _anchorDate();
-      }
-      _selectedTime = null;
+      _selectedDateTime = null;
     }
-  }
-
-  DateTime _anchorDate() {
-    return _dateOnly(_originalTime ?? DateTime.now());
   }
 
   DateTime _dateOnly(DateTime value) {
     return DateTime(value.year, value.month, value.day);
   }
 
-  DateTime _combineDateAndTime({
-    required DateTime datePart,
-    required TimeOfDay timePart,
-  }) {
-    return DateTime(
-      datePart.year,
-      datePart.month,
-      datePart.day,
-      timePart.hour,
-      timePart.minute,
-    );
-  }
-
   DateTime _withoutTimezone(DateTime dt) {
     return DateTime(dt.year, dt.month, dt.day, dt.hour, dt.minute);
   }
 
-  int _dayOffsetFromOriginal() {
-    if (_originalTime == null) return 0;
-    return _dateOnly(_selectedDate).difference(_dateOnly(_originalTime!)).inDays;
-  }
-
-  String _formatDayShift(int value) {
-    if (value == 0) return '0';
-    return value > 0 ? '+$value' : '$value';
-  }
-
   DateTime? _effectiveDateTime() {
-    if (_selectedTime == null) return null;
+    return _selectedDateTime;
+  }
 
-    return _combineDateAndTime(
-      datePart: _selectedDate,
-      timePart: _selectedTime!,
-    );
+  String _formatRealTimeFieldText(DateTime? value) {
+    if (value == null) return '';
+
+    final timeText = formatDateTime(context, value, timeOnly: true);
+
+    if (_originalTime == null) {
+      return timeText;
+    }
+
+    final dayShift = _dateOnly(value).difference(_dateOnly(_originalTime!)).inDays;
+
+    if (dayShift == 0) {
+      return timeText;
+    }
+
+    final sign = dayShift > 0 ? '+' : '-';
+    return '${AppLocalizations.of(context)!.daySingleCharacter}$sign${dayShift.abs()}\t$timeText';
   }
 
   void _syncControllersFromState() {
@@ -172,7 +153,7 @@ class _DelayFieldsSwitcherState extends State<DelayFieldsSwitcher> {
     }
 
     _minuteDelayCtl.text = '';
-    _timeDelayCtl.text = _selectedTime?.format(context) ?? '';
+    _timeDelayCtl.text = _formatRealTimeFieldText(_selectedDateTime);
   }
 
   void _emitValues() {
@@ -180,7 +161,7 @@ class _DelayFieldsSwitcherState extends State<DelayFieldsSwitcher> {
 
     final effectiveDateTime = _effectiveDateTime();
     final hasMinuteDelay = _minuteMode && _savedDelayMinutes != null;
-    final hasTimeDelay = !_minuteMode && effectiveDateTime != null; // _computedDelayMinutes
+    final hasTimeDelay = !_minuteMode && effectiveDateTime != null;
 
     widget.onChanged?.call({
       'mode': hasMinuteDelay
@@ -188,7 +169,9 @@ class _DelayFieldsSwitcherState extends State<DelayFieldsSwitcher> {
           : hasTimeDelay
               ? 'time'
               : null,
-      'minute': _minuteMode ? _savedDelayMinutes?.toString() : _computedDelayMinutes?.toString(),
+      'minute': _minuteMode
+          ? _savedDelayMinutes?.toString()
+          : _computedDelayMinutes?.toString(),
       'dateTime': hasTimeDelay ? effectiveDateTime!.toIso8601String() : null,
     });
 
@@ -212,6 +195,7 @@ class _DelayFieldsSwitcherState extends State<DelayFieldsSwitcher> {
     final loc = AppLocalizations.of(context)!;
 
     if (_originalTime == null) {
+      _computedDelayMinutes = null;
       _delayHint = '';
       return;
     }
@@ -223,14 +207,21 @@ class _DelayFieldsSwitcherState extends State<DelayFieldsSwitcher> {
       }
 
       final delayedTime = _originalTime!.add(Duration(minutes: _savedDelayMinutes!));
-      _delayHint = loc.addTripDelayTime(
-        formatDateTime(context, delayedTime, timeOnly: true),
-      );
+      final dayShift =
+        _dateOnly(delayedTime).difference(_dateOnly(_originalTime!)).inDays;
+
+      final delayedDisplay = dayShift == 0
+          ? formatDateTime(context, delayedTime, timeOnly: true)
+          : '${loc.daySingleCharacter}${dayShift > 0 ? '+' : '-'}${dayShift.abs()} '
+              '${formatDateTime(context, delayedTime, timeOnly: true)}';
+
+      _delayHint = loc.addTripDelayTime(delayedDisplay);
       return;
     }
 
     final effective = _effectiveDateTime();
     if (effective == null) {
+      _computedDelayMinutes = null;
       _delayHint = '';
       return;
     }
@@ -238,8 +229,9 @@ class _DelayFieldsSwitcherState extends State<DelayFieldsSwitcher> {
     final minuteDifference =
         _withoutTimezone(effective).difference(_withoutTimezone(_originalTime!)).inMinutes;
 
-    final delayDuration = Duration(minutes: minuteDifference.abs());
     _computedDelayMinutes = minuteDifference;
+
+    final delayDuration = Duration(minutes: minuteDifference.abs());
 
     _delayHint = minuteDifference >= 0
         ? loc.addTripDelayMinuteDelay(formatDurationFixed(delayDuration))
@@ -247,39 +239,33 @@ class _DelayFieldsSwitcherState extends State<DelayFieldsSwitcher> {
   }
 
   Future<void> _pickTime() async {
-    final initialTime = _selectedTime ??
-        (_originalTime != null
-            ? TimeOfDay.fromDateTime(_originalTime!)
-            : TimeOfDay.now());
+    final loc = AppLocalizations.of(context)!;
+    if (_originalTime == null) {
+      final messenger = ScaffoldMessenger.maybeOf(context);
+      messenger
+        ?..clearSnackBars()
+        ..showSnackBar(
+          const SnackBar(
+            content: Text('Select the scheduled time before'),
+          ),
+        );
+      return;
+    }
 
-    final picked = await showTimePicker(
+    final picked = await showRelativeDateTimePickerDialog(
       context: context,
-      initialTime: initialTime,
+      title: loc.addTripRealTime,
+      origin: _originalTime!,
+      initialDateTime: _selectedDateTime,
+      originDateLabel: loc.addTripOriginDayLabel,
+      resetLabel: loc.addTripResetToScheduled,
     );
 
     if (picked == null) return;
 
     setState(() {
-      _selectedTime = picked;
+      _selectedDateTime = picked;
       _syncControllersFromState();
-      _updateHelper();
-    });
-
-    _emitValues();
-  }
-
-  void _changeDay(int delta) {
-    setState(() {
-      _selectedDate = _selectedDate.add(Duration(days: delta));
-      _updateHelper();
-    });
-
-    _emitValues();
-  }
-
-  void _resetDay() {
-    setState(() {
-      _selectedDate = _anchorDate();
       _updateHelper();
     });
 
@@ -288,7 +274,8 @@ class _DelayFieldsSwitcherState extends State<DelayFieldsSwitcher> {
 
   void _clearTime() {
     setState(() {
-      _selectedTime = null;
+      _selectedDateTime = null;
+      _computedDelayMinutes = null;
       _timeDelayCtl.clear();
       _updateHelper();
     });
@@ -323,85 +310,11 @@ class _DelayFieldsSwitcherState extends State<DelayFieldsSwitcher> {
     );
   }
 
-  Widget _buildSegmentDivider(Color color) {
-    return SizedBox(
-      width: 1,
-      child: ColoredBox(color: color),
-    );
-  }
-
-  Widget _buildSegment({
-    required Widget child,
-    required VoidCallback onTap,
-    int flex = 1,
-  }) {
-    return Expanded(
-      flex: flex,
-      child: InkWell(
-        onTap: onTap,
-        child: Center(child: child),
-      ),
-    );
-  }
-
-  Widget _buildDayShiftControl() {
-    final theme = Theme.of(context);
-    final borderColor = theme.colorScheme.outline;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(
-          height: DelayFieldsSwitcher.extraFieldHeight,
-          child: Material(
-            color: theme.colorScheme.surface,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(4),
-              side: BorderSide(color: borderColor),
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: Row(
-              children: [
-                _buildSegment(
-                  onTap: () => _changeDay(-1),
-                  child: Transform.rotate(
-                    angle: math.pi,
-                    child: const Icon(Icons.play_arrow_rounded),
-                  ),
-                ),
-                _buildSegmentDivider(borderColor),
-                _buildSegment(
-                  flex: 2,
-                  onTap: _resetDay,
-                  child: Text(
-                    _formatDayShift(_dayOffsetFromOriginal()),
-                    style: theme.textTheme.titleMedium,
-                  ),
-                ),
-                _buildSegmentDivider(borderColor),
-                _buildSegment(
-                  onTap: () => _changeDay(1),
-                  child: const Icon(Icons.play_arrow_rounded),
-                ),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          _originalTime == null
-              ? ''
-              : formatDateTime(context, _selectedDate, hasTime: false),
-          style: theme.textTheme.bodySmall,
-        ),
-      ],
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final minuteIcon = widget.minuteIcon ?? Icons.hourglass_bottom;
     final timeIcon = widget.timeIcon ?? Symbols.watch_later;
+    final loc = AppLocalizations.of(context)!;
 
     final timeMode = Column(
       key: const ValueKey('time-mode'),
@@ -409,29 +322,26 @@ class _DelayFieldsSwitcherState extends State<DelayFieldsSwitcher> {
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Flexible(
-              flex: 4,
-              child: _buildDayShiftControl(),
-            ),
-            const SizedBox(width: 8),
             Expanded(
-              flex: 5,
               child: TextFormField(
                 readOnly: true,
+                textAlign: TextAlign.right,
+                enabled: _originalTime != null,
                 controller: _timeDelayCtl,
                 decoration: InputDecoration(
-                  labelText: 'Real time',
+                  labelText: loc.addTripRealTime,
                   border: const OutlineInputBorder(),
                   helperText: _delayHint,
-                  prefixIcon: IconButton(
-                    onPressed: _clearTime,
-                    icon: const Icon(Icons.close),
-                  ),
                   suffixIcon: IconButton(
                     onPressed: _pickTime,
                     icon: const Icon(Icons.access_time),
                   ),
+                  prefixIcon: IconButton(
+                    onPressed: _selectedDateTime == null ? null : _clearTime,
+                    icon: const Icon(Icons.close),
+                  ),
                 ),
+                onTap: _pickTime,
               ),
             ),
             const SizedBox(width: 8),
