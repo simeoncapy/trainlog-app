@@ -771,19 +771,19 @@ class AppLocalizationsJa extends AppLocalizations {
   String get internationalWaters => '公海';
 
   @override
-  String get addTripPageTitle => '旅行を加える';
+  String get addTripPageTitle => '旅行を追加';
 
   @override
-  String get addTripStepBasics => '基本';
+  String get addTripStepBasics => '概要';
 
   @override
-  String get addTripStepDate => '日付';
+  String get addTripStepDate => '日時';
 
   @override
   String get addTripStepDetails => '詳細';
 
   @override
-  String get addTripStepPath => '道筋';
+  String get addTripStepPath => '経路';
 
   @override
   String get addTripStepValidate => '確認';
@@ -848,16 +848,16 @@ class AppLocalizationsJa extends AppLocalizations {
   String get addTripDateTypeDate => '日付';
 
   @override
-  String get addTripStartDate => '出発日';
+  String get addTripStartDate => '出発日時';
 
   @override
-  String get addTripEndDate => '到着日';
+  String get addTripEndDate => '到着日時';
 
   @override
-  String get addTripDelay => '遅延';
+  String get addTripDelay => '遅延情報';
 
   @override
-  String get addTripRealTime => '調整時刻';
+  String get addTripRealTime => '遅延後の時刻';
 
   @override
   String get addTripOriginDayLabel => '予定日';
