@@ -1530,6 +1530,12 @@ abstract class AppLocalizations {
   /// **'Date'**
   String get addTripDateTypeDate;
 
+  /// No description provided for @addTripScheduledTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled time'**
+  String get addTripScheduledTime;
+
   /// No description provided for @addTripStartDate.
   ///
   /// In en, this message translates to:

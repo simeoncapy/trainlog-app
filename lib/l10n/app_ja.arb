@@ -250,6 +250,7 @@
   "addTripDateTypePrecise": "精密",
   "addTripDateTypeUnknown": "不明",
   "addTripDateTypeDate": "日付",
+  "addTripScheduledTime": "予定時刻",
   "addTripStartDate": "出発日時",
   "addTripEndDate": "到着日時",
   "addTripDelay": "遅延情報",

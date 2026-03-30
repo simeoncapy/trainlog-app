@@ -866,6 +866,9 @@ class AppLocalizationsTl extends AppLocalizations {
   String get addTripDateTypeDate => 'Petsa';
 
   @override
+  String get addTripScheduledTime => 'Scheduled time';
+
+  @override
   String get addTripStartDate => 'Simula ng byahe';
 
   @override

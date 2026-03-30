@@ -352,6 +352,7 @@
   "addTripDateTypePrecise": "Precise",
   "addTripDateTypeUnknown": "Unknown",
   "addTripDateTypeDate": "Date",
+  "addTripScheduledTime": "Scheduled time",
   "addTripStartDate": "Start of the trip",
   "addTripEndDate": "End of the trip",
   "addTripDelay": "Delay",

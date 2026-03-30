@@ -859,6 +859,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addTripDateTypeDate => 'Date';
 
   @override
+  String get addTripScheduledTime => 'Scheduled time';
+
+  @override
   String get addTripStartDate => 'Start of the trip';
 
   @override

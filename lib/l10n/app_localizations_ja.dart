@@ -848,6 +848,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get addTripDateTypeDate => '日付';
 
   @override
+  String get addTripScheduledTime => '予定時刻';
+
+  @override
   String get addTripStartDate => '出発日時';
 
   @override

@@ -249,6 +249,7 @@
   "addTripDateTypePrecise": "Précise",
   "addTripDateTypeUnknown": "Inconnue",
   "addTripDateTypeDate": "Date",
+  "addTripScheduledTime": "Horaire prévu",
   "addTripStartDate": "Début du trajet",
   "addTripEndDate": "Fin du trajet",
   "addTripDelay": "Retard",

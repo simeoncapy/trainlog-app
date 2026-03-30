@@ -145,160 +145,168 @@ class _TripFormDateState extends State<TripFormDate> {
     String arrivalTimezone = tzmap.latLngToTimezoneString(model.arrivalLat!, model.arrivalLong!);
 
     return [
-      Text(loc.addTripStartDate),
-      const SizedBox(height: 4),
-      Row(
-        children: [
-          Expanded(
-            child: TextFormField(
-              readOnly: true,
-              controller: TextEditingController(
-                text: _departureDate != null
-                    ? formatDateTime(context, _departureDate!, hasTime: false)
-                    //? MaterialLocalizations.of(context).formatCompactDate(_departureDate!)
-                        //.formatMediumDate(_departureDate!)
-                    : '',
-              ),
-              decoration: InputDecoration(
-                border: const OutlineInputBorder(),
-                helperText: "",
-                suffixIcon: IconButton(
-                  icon: const Icon(Icons.calendar_today),
-                  onPressed: () async {
-                    final picked = await showDatePicker(
-                      context: context,
-                      initialDate: _departureDate ?? DateTime.now(),
-                      firstDate: DateTime(1900),
-                      lastDate: DateTime(DateTime.now().year+200),
-                    );
-                    if (picked != null) {
-                      setState(() => _departureDate = picked);
-                      model.setDepartureDateTime(_departureDate, _departureTime, departureTimezone);
-                      if(_arrivalDate == null) {
-                        setState(() => _arrivalDate = _departureDate);
-                        model.setArrivalDateTime(_arrivalDate, _arrivalTime, arrivalTimezone);
-                      }
-                    }
-                  },
+      TitledContainer(
+        title: loc.addTripScheduledTime,
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(loc.addTripStartDate),
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    readOnly: true,
+                    controller: TextEditingController(
+                      text: _departureDate != null
+                          ? formatDateTime(context, _departureDate!, hasTime: false)
+                          //? MaterialLocalizations.of(context).formatCompactDate(_departureDate!)
+                              //.formatMediumDate(_departureDate!)
+                          : '',
+                    ),
+                    decoration: InputDecoration(
+                      border: const OutlineInputBorder(),
+                      helperText: "",
+                      suffixIcon: IconButton(
+                        icon: const Icon(Icons.calendar_today),
+                        onPressed: () async {
+                          final picked = await showDatePicker(
+                            context: context,
+                            initialDate: _departureDate ?? DateTime.now(),
+                            firstDate: DateTime(1900),
+                            lastDate: DateTime(DateTime.now().year+200),
+                          );
+                          if (picked != null) {
+                            setState(() => _departureDate = picked);
+                            model.setDepartureDateTime(_departureDate, _departureTime, departureTimezone);
+                            if(_arrivalDate == null) {
+                              setState(() => _arrivalDate = _departureDate);
+                              model.setArrivalDateTime(_arrivalDate, _arrivalTime, arrivalTimezone);
+                            }
+                          }
+                        },
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: TextFormField(
-              readOnly: true,
-              controller: TextEditingController(
-                text: _departureTime != null
-                    ? _departureTime!.format(context)
-                    : '',
-              ),     
-              decoration: InputDecoration(
-                border: const OutlineInputBorder(),
-                helperText: departureTimezone,
-                suffixIcon: IconButton(
-                  icon: const Icon(Icons.access_time),
-                  onPressed: () async {
-                    final picked = await showTimePicker(
-                      context: context,
-                      initialTime: _departureTime ?? TimeOfDay.now(),
-                    );
-                    if (picked != null) {
-                      setState(() => _departureTime = picked);
-                      model.setDepartureDateTime(_departureDate, _departureTime, departureTimezone);
-                    }
-                  },
+                const SizedBox(width: 8),
+                Expanded(
+                  child: TextFormField(
+                    readOnly: true,
+                    controller: TextEditingController(
+                      text: _departureTime != null
+                          ? _departureTime!.format(context)
+                          : '',
+                    ),     
+                    decoration: InputDecoration(
+                      border: const OutlineInputBorder(),
+                      helperText: departureTimezone,
+                      suffixIcon: IconButton(
+                        icon: const Icon(Icons.access_time),
+                        onPressed: () async {
+                          final picked = await showTimePicker(
+                            context: context,
+                            initialTime: _departureTime ?? TimeOfDay.now(),
+                          );
+                          if (picked != null) {
+                            setState(() => _departureTime = picked);
+                            model.setDepartureDateTime(_departureDate, _departureTime, departureTimezone);
+                          }
+                        },
+                      ),
+                    ),
+                  ),
                 ),
-              ),
+              ],
             ),
-          ),
-        ],
+            const SizedBox(height: 16),
+            Text(loc.addTripEndDate),
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    readOnly: true,
+                    controller: TextEditingController(
+                      text: _arrivalDate != null
+                          ? formatDateTime(context, _arrivalDate!, hasTime: false)
+                              //.formatMediumDate(_arrivalDate!)
+                          : '',
+                    ),
+                    decoration: InputDecoration(
+                      border: const OutlineInputBorder(),
+                      helperText: "",
+                      suffixIcon: IconButton(
+                        icon: const Icon(Icons.calendar_today),
+                        onPressed: () async {
+                          final picked = await showDatePicker(
+                            context: context,
+                            initialDate: _arrivalDate ?? DateTime.now(),
+                            firstDate: DateTime(1900),
+                            lastDate: DateTime(DateTime.now().year+200),
+                          );
+                          if (picked != null) {
+                            setState(() => _arrivalDate = picked);
+                            model.setArrivalDateTime(_arrivalDate, _arrivalTime, arrivalTimezone);
+                            if(_isDepartureFilledFromNow) {
+                              model.setDepartureDateTime(_departureDate, _departureTime, departureTimezone);
+                              _isDepartureFilledFromNow = false;
+                            }
+                          }
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: TextFormField(
+                    readOnly: true,
+                    controller: TextEditingController(
+                      text: _arrivalTime != null
+                          ? _arrivalTime!.format(context)
+                          : '',
+                    ),
+                    decoration: InputDecoration(
+                      border: const OutlineInputBorder(),
+                      helperText: arrivalTimezone,
+                      suffixIcon: IconButton(
+                        icon: const Icon(Icons.access_time),
+                        onPressed: () async {
+                          final picked = await showTimePicker(
+                            context: context,
+                            initialTime: _arrivalTime ?? TimeOfDay.now(),
+                          );
+                          if (picked != null) {
+                            setState(() => _arrivalTime = picked);
+                            model.setArrivalDateTime(_arrivalDate, _arrivalTime, arrivalTimezone);
+                            if(_isDepartureFilledFromNow) {
+                              model.setDepartureDateTime(_departureDate, _departureTime, departureTimezone);
+                              _isDepartureFilledFromNow = false;
+                            }
+                          }
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8,),
+            Text(
+              loc.timezoneInformation,
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            if(model.hasDepartureAndArrivalDates() && !model.arrivalIsAfterDeparture())
+              ...[
+                SizedBox(height: 12,),
+                ErrorBanner(
+                  message: loc.addTripDepartureAfterArrival,
+                )
+              ],
+          ],
+        ),
       ),
-      const SizedBox(height: 16),
-      Text(loc.addTripEndDate),
-      const SizedBox(height: 4),
-      Row(
-        children: [
-          Expanded(
-            child: TextFormField(
-              readOnly: true,
-              controller: TextEditingController(
-                text: _arrivalDate != null
-                    ? formatDateTime(context, _arrivalDate!, hasTime: false)
-                        //.formatMediumDate(_arrivalDate!)
-                    : '',
-              ),
-              decoration: InputDecoration(
-                border: const OutlineInputBorder(),
-                helperText: "",
-                suffixIcon: IconButton(
-                  icon: const Icon(Icons.calendar_today),
-                  onPressed: () async {
-                    final picked = await showDatePicker(
-                      context: context,
-                      initialDate: _arrivalDate ?? DateTime.now(),
-                      firstDate: DateTime(1900),
-                      lastDate: DateTime(DateTime.now().year+200),
-                    );
-                    if (picked != null) {
-                      setState(() => _arrivalDate = picked);
-                      model.setArrivalDateTime(_arrivalDate, _arrivalTime, arrivalTimezone);
-                      if(_isDepartureFilledFromNow) {
-                        model.setDepartureDateTime(_departureDate, _departureTime, departureTimezone);
-                        _isDepartureFilledFromNow = false;
-                      }
-                    }
-                  },
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: TextFormField(
-              readOnly: true,
-              controller: TextEditingController(
-                text: _arrivalTime != null
-                    ? _arrivalTime!.format(context)
-                    : '',
-              ),
-              decoration: InputDecoration(
-                border: const OutlineInputBorder(),
-                helperText: arrivalTimezone,
-                suffixIcon: IconButton(
-                  icon: const Icon(Icons.access_time),
-                  onPressed: () async {
-                    final picked = await showTimePicker(
-                      context: context,
-                      initialTime: _arrivalTime ?? TimeOfDay.now(),
-                    );
-                    if (picked != null) {
-                      setState(() => _arrivalTime = picked);
-                      model.setArrivalDateTime(_arrivalDate, _arrivalTime, arrivalTimezone);
-                      if(_isDepartureFilledFromNow) {
-                        model.setDepartureDateTime(_departureDate, _departureTime, departureTimezone);
-                        _isDepartureFilledFromNow = false;
-                      }
-                    }
-                  },
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-      const SizedBox(height: 8,),
-      Text(
-        loc.timezoneInformation,
-        style: Theme.of(context).textTheme.bodySmall,
-      ),
-      if(model.hasDepartureAndArrivalDates() && !model.arrivalIsAfterDeparture())
-        ...[
-          SizedBox(height: 12,),
-          ErrorBanner(
-            message: loc.addTripDepartureAfterArrival,
-          )
-        ],
       const SizedBox(height: 16,),
       TitledContainer(
         title: loc.addTripDelay, 

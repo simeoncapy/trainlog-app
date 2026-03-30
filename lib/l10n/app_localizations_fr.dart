@@ -866,6 +866,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get addTripDateTypeDate => 'Date';
 
   @override
+  String get addTripScheduledTime => 'Horaire prévu';
+
+  @override
   String get addTripStartDate => 'Début du trajet';
 
   @override
