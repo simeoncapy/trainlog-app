@@ -11,128 +11,177 @@ class TripTimeline extends StatelessWidget {
 
   const TripTimeline({super.key, required this.trip});
 
+  String _formatDateTimeHelper(BuildContext context, DateTime dateTime, {bool hasTime = true}) {
+    return formatDateTime(context, dateTime, hasTime: hasTime).replaceAll(RegExp(r" "), "\n");
+  }
+
   @override
-Widget build(BuildContext context) {
-  final departureTime = trip.isUnknownPastFuture ? "" : formatDateTime(context, trip.startDatetime, hasTime: !trip.isDateOnly).replaceAll(RegExp(r" "), "\n");
-  final arrivalTime = trip.isUnknownPastFuture ? "" : formatDateTime(context, trip.endDatetime, hasTime: !trip.isDateOnly).replaceAll(RegExp(r" "), "\n");
-  final operatorName = Uri.decodeComponent(trip.operatorName);
-  final lineName = Uri.decodeComponent(trip.lineName);
-  final distance = "${(trip.tripLength / 1000).round()} km";
-  final duration = trip.utcEndDatetime?.difference(trip.utcStartDatetime ?? trip.startDatetime); // UTC start shouldn't be NULL if UTC end is not NULL, so startDatetime shouldn't be used (placed here to avoid NULL error)
-  final durationStr = formatSecondsToHMS((trip.manualTripDuration ?? duration?.inSeconds ?? trip.estimatedTripDuration).round().toInt());
+  Widget build(BuildContext context) {
+    final departureTime = trip.isUnknownPastFuture ? "" : _formatDateTimeHelper(context, trip.startDatetime, hasTime: !trip.isDateOnly);
+    final arrivalTime = trip.isUnknownPastFuture ? "" : _formatDateTimeHelper(context, trip.endDatetime, hasTime: !trip.isDateOnly);
+    final departureDelay = trip.departureDelay != null ? _formatDateTimeHelper(context, trip.realStartDate, hasTime: !trip.isDateOnly) : null;
+    final arrivalDelay = trip.arrivalDelay != null ? _formatDateTimeHelper(context, trip.realEndDate, hasTime: !trip.isDateOnly) : null;
+    
+    final operatorName = Uri.decodeComponent(trip.operatorName);
+    final lineName = Uri.decodeComponent(trip.lineName);
+    final distance = "${(trip.tripLength / 1000).round()} km";
+    final duration = trip.utcEndDatetime?.difference(trip.utcStartDatetime ?? trip.startDatetime); // UTC start shouldn't be NULL if UTC end is not NULL, so startDatetime shouldn't be used (placed here to avoid NULL error)
+    final durationStr = formatSecondsToHMS((trip.manualTripDuration ?? duration?.inSeconds ?? trip.estimatedTripDuration).round().toInt());
 
-  final settings = context.read<SettingsProvider>();
-  final palette = MapColorPaletteHelper.getPalette(settings.mapColorPalette);
-  final color = palette[trip.type] ?? Colors.black;
-  final trainlog = Provider.of<TrainlogProvider>(context, listen: false);
+    final settings = context.read<SettingsProvider>();
+    final palette = MapColorPaletteHelper.getPalette(settings.mapColorPalette);
+    final color = palette[trip.type] ?? Colors.black;
+    final trainlog = Provider.of<TrainlogProvider>(context, listen: false);
 
-  const double timelineHeight = 250;
+    const double timelineHeight = 250;
 
-  return SizedBox(
-    height: timelineHeight,
-    child: Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // LEFT: departure and arrival time
-        SizedBox(
-          width: 65,
-          child: Stack(
-            children: [
-              Positioned(
-                top: 0,
-                child: Text(
-                  departureTime,
-                  style: const TextStyle(fontSize: 12),
-                  textAlign: TextAlign.right,
-                ),
-              ),
-              Positioned(
-                bottom: 0,
-                child: Text(
-                  arrivalTime,
-                  style: const TextStyle(fontSize: 12),
-                  textAlign: TextAlign.right,
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(width: 12),
-
-        // CENTER: timeline dots + line
-        Column(
-          children: [
-            _buildDot(context, trip.type.icon(), color),
-            Expanded(child: _buildLine(color)),
-            _buildDot(context, trip.type.icon(), color),
-          ],
-        ),
-        const SizedBox(width: 8),
-
-        // RIGHT: trip information
-        Expanded(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Top: origin station
-              Text(
-                trip.originStation,
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-                softWrap: true,
-                overflow: TextOverflow.visible,
-              ),
-
-              // Middle: line info
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  operatorName.isEmpty
-                  ? const SizedBox.shrink()
-                  : SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: trainlog
-                          .getOperatorImages(operatorName, maxWidth: 96, maxHeight: 96)
-                          .expand((img) => [img, const SizedBox(width: 4)])
-                          .toList()
-                        ..removeLast(),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  //Expanded(
-                    /*child:*/ Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          lineName,
-                          style: const TextStyle(fontWeight: FontWeight.bold),
+    return SizedBox(
+      height: timelineHeight,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // LEFT: departure and arrival time
+          SizedBox(
+            width: 65,
+            child: Stack(
+              children: [
+                Positioned(
+                  top: 0,
+                  child: Column(
+                    children: [
+                      Text(
+                        departureTime,
+                        style: TextStyle(
+                          fontSize: 12,
+                          decoration: trip.hasDepartureDelay ? TextDecoration.lineThrough : null,
+                          //color: trip.hasDepartureDelay ? Theme.of(context).colorScheme.error : null 
                         ),
+                        textAlign: TextAlign.right,
+                      ),
+                      if (departureDelay != null) ...[
                         const SizedBox(height: 4),
                         Text(
-                          '$durationStr - $distance',
-                          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+                          departureDelay,
+                          style: TextStyle(
+                            fontSize: 12, 
+                            color: trip.departureDelay! > 0
+                              ? Colors.red
+                              : Colors.green,
+                          ),
+                          textAlign: TextAlign.right,
                         ),
                       ],
-                    ),
-                  //),
-                ],
-              ),
+                    ],
+                  ),
+                ),
+                Positioned(
+                  bottom: 0,
+                  child: Column(
+                    children: [
+                      Text(
+                        arrivalTime,
+                        style: TextStyle(
+                          fontSize: 12,
+                          decoration: trip.hasArrivalDelay ? TextDecoration.lineThrough : null,
+                          //color: trip.hasArrivalDelay ? Theme.of(context).colorScheme.error :
+                        ),
+                        textAlign: TextAlign.right,
+                      ),
+                      if (arrivalDelay != null) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          arrivalDelay,
+                          style: TextStyle(
+                            fontSize: 12, 
+                            color: trip.arrivalDelay! > 0
+                              ? Colors.red
+                              : Colors.green,
+                          ),
+                          textAlign: TextAlign.right,
+                        ),
+                      ],
+                    ],
+                  ),                  
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
 
-              // Bottom: destination station
-              Text(
-                trip.destinationStation,
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-                softWrap: true,
-                overflow: TextOverflow.visible,
-              ),
+          // CENTER: timeline dots + line
+          Column(
+            children: [
+              _buildDot(context, trip.type.icon(), color),
+              Expanded(child: _buildLine(color)),
+              _buildDot(context, trip.type.icon(), color),
             ],
           ),
-        ),
-      ],
-    ),
-  );
-}
+          const SizedBox(width: 8),
+
+          // RIGHT: trip information
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Top: origin station
+                Text(
+                  trip.originStation,
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                  softWrap: true,
+                  overflow: TextOverflow.visible,
+                ),
+
+                // Middle: line info
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    operatorName.isEmpty
+                    ? const SizedBox.shrink()
+                    : SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: trainlog
+                            .getOperatorImages(operatorName, maxWidth: 96, maxHeight: 96)
+                            .expand((img) => [img, const SizedBox(width: 4)])
+                            .toList()
+                          ..removeLast(),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    //Expanded(
+                      /*child:*/ Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            lineName,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '$durationStr - $distance',
+                            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+                          ),
+                        ],
+                      ),
+                    //),
+                  ],
+                ),
+
+                // Bottom: destination station
+                Text(
+                  trip.destinationStation,
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                  softWrap: true,
+                  overflow: TextOverflow.visible,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
 
 

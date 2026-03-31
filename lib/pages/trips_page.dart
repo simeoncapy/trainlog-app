@@ -393,6 +393,42 @@ class TripsDataSource extends DataTableSource {
     notifyListeners();
   }
 
+  Widget _timeDisplayHelper({
+    required DateTime datetime,
+    int? delay,
+    String? delayFormatted,
+    bool noTime = false,
+    bool shrinkCondition = false
+  }) {
+    if (shrinkCondition) return const SizedBox.shrink();
+
+    final date = formatDateTime(context, datetime, hasTime: false);
+    final time = formatDateTime(context, datetime, hasTime: true, timeOnly: true).trim();
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(date),
+        if(!noTime)
+        Row(
+          children: [
+            Text(time),
+            if(delay != null && delayFormatted != null)
+              Text(" ($delayFormatted)", 
+                  style: TextStyle(
+                  color: delay > 0
+                      ? Colors.red
+                      : Colors.green,
+                  //fontSize: 12,
+                ),
+              ),
+          ],
+        ),        
+      ],
+    );
+  }
+
   @override
   DataRow getRow(int index) {
     final bkgColor = WidgetStateProperty.resolveWith<Color?>(
@@ -421,6 +457,20 @@ class TripsDataSource extends DataTableSource {
     }
 
     final trip = _cache[index]!;
+    // String startTimeStr = trip.isUnknownPastFuture
+    //     ? ""
+    //     : formatDateTime(context, trip.startDatetime, hasTime: !trip.isDateOnly).replaceAll(RegExp(r" "), "\n");
+    // if(trip.hasDepartureDelay) {
+    //   startTimeStr += " (${trip.departureDelayFormatted})";
+    // }
+
+    // String endTimeStr = trip.isDateOnly 
+    //     ? "" 
+    //     : formatDateTime(context, trip.endDatetime).replaceAll(RegExp(r" "), "\n");
+    // if(trip.hasArrivalDelay) {
+    //   endTimeStr += " (${trip.arrivalDelayFormatted})";
+    // }
+
     final cells = _visibleColumns.map((key) {
       switch (key) {
         case 'type':
@@ -447,16 +497,25 @@ class TripsDataSource extends DataTableSource {
           return DataCell(Text(trip.destinationStation));
         case 'startTime':
           return DataCell(
-            Text(trip.isUnknownPastFuture
-              ? ""
-              : formatDateTime(context, trip.startDatetime, hasTime: !trip.isDateOnly).replaceAll(RegExp(r" "), "\n"))
-            );
+            //Text(startTimeStr)
+            _timeDisplayHelper(
+              datetime: trip.startDatetime, 
+              delay: trip.departureDelayInMinutes, 
+              delayFormatted: trip.departureDelayFormatted, 
+              noTime: trip.isDateOnly, 
+              shrinkCondition: trip.isUnknownPastFuture
+            ),
+          );
         case 'endTime':
           return DataCell(
-            Text(trip.isDateOnly 
-              ? "" 
-              : formatDateTime(context, trip.endDatetime).replaceAll(RegExp(r" "), "\n")
-            )
+            //Text(endTimeStr)
+            _timeDisplayHelper(
+              datetime: trip.endDatetime, 
+              delay: trip.arrivalDelayInMinutes, 
+              delayFormatted: trip.arrivalDelayFormatted, 
+              noTime: trip.isDateOnly, 
+              shrinkCondition: trip.isDateOnly
+            ),
           );
         case 'operator':
           if(trip.operatorName.isEmpty) {

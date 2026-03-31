@@ -838,6 +838,8 @@ class TripsTable {
     'purchasing_date': 'TEXT',
     'path': 'TEXT',
     'visibility': 'TEXT',
+    'departure_delay': 'REAL',
+    'arrival_delay': 'REAL',
   };
 
   static String get createTableSql {

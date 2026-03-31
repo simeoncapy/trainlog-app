@@ -37,6 +37,8 @@ class Trips {
   final String path;
   final List<LatLng>? pathPoints;
   final TripVisibility visibility;
+  final int? departureDelay; // in seconds
+  final int? arrivalDelay; // in seconds
 
   Trips({
     required this.uid,
@@ -67,6 +69,8 @@ class Trips {
     required this.path,
     this.pathPoints,
     required this.visibility,
+    this.departureDelay,
+    this.arrivalDelay,
   });
 
   VehicleType get vehicleType => type;
@@ -75,6 +79,54 @@ class Trips {
   DateTime? get utcStartDate => utcStartDatetime;
   DateTime? get utcEndDate => utcEndDatetime;
   DateTime get creationDate => created;
+
+  int? get departureDelayInMinutes => Trips.formatDelayInMinutes(departureDelay);
+  String? get departureDelayFormatted {
+    return Trips.formatDelay(departureDelay);
+  }
+  int? get arrivalDelayInMinutes => Trips.formatDelayInMinutes(arrivalDelay);
+  String? get arrivalDelayFormatted {
+    return Trips.formatDelay(arrivalDelay);
+  }
+
+  static int? formatDelayInMinutes(int? delayInSeconds) {
+    if (delayInSeconds == null) return null;
+    return (delayInSeconds / 60).round();
+  }
+
+  static String? formatDelay(int? delayInSeconds) {
+    final minutes = formatDelayInMinutes(delayInSeconds);
+    if (minutes == null) return null;
+    final sign = minutes >= 0 ? '+' : '-';
+    return '$sign${minutes.abs()} min';
+  }
+
+  bool get hasDelay => departureDelay != null || arrivalDelay != null;
+  bool get hasDepartureDelay => departureDelay != null;
+  bool get hasArrivalDelay => arrivalDelay != null;
+
+  // Real start and end dates getters
+  DateTime? get departureDelayDate {
+    if (departureDelay != null) {
+      return startDatetime.add(Duration(seconds: departureDelay!));
+    }
+    return null;
+  }
+
+  DateTime get realStartDate {
+    return departureDelayDate ?? startDatetime;
+  }
+
+  DateTime? get arrivalDelayDate {
+    if (arrivalDelay != null) {
+      return endDatetime.add(Duration(seconds: arrivalDelay!));
+    }
+    return null;
+  }
+
+  DateTime get realEndDate {
+    return arrivalDelayDate ?? endDatetime;
+  }
 
   //       hasTimeRange: trip.hasTimeRange,
 
@@ -125,7 +177,9 @@ class Trips {
       pathPoints: pathAsGooglePolyline 
                   ? (decodePolyline ? PolylineTools.decodePath(json['path']?.toString() ?? '') : null) 
                   : PolylineTools.toLatLngList(json['path']),
-      visibility: TripVisibility.fromString(json['visibility'])
+      visibility: TripVisibility.fromString(json['visibility']),
+      departureDelay: _toIntOrNull(json['departure_delay']),
+      arrivalDelay: _toIntOrNull(json['arrival_delay']),
     );
   }
 
@@ -158,6 +212,8 @@ class Trips {
       'purchasing_date': purchasingDate?.toIso8601String(),
       'path': path,
       'visibility': visibility.name,
+      'departure_delay': departureDelay,
+      'arrival_delay': arrivalDelay,
     };
   }
 
@@ -165,6 +221,11 @@ class Trips {
   static double? _toDoubleOrNull(dynamic value) {
     if (value == null || value.toString().trim().isEmpty) return null;
     return double.tryParse(value.toString());
+  }
+
+  static int? _toIntOrNull(dynamic value) {
+    if (value == null || value.toString().trim().isEmpty) return null;
+    return double.tryParse(value.toString())?.toInt();
   }
 
   static DateTime? _toDateTimeOrNull(dynamic value, {bool forceUtc = true}) {
