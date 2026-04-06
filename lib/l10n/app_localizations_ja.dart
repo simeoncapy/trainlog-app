@@ -482,6 +482,18 @@ class AppLocalizationsJa extends AppLocalizations {
   String get typeHelicopter => 'ヘリコプター';
 
   @override
+  String get typeEScooter => '電動スクーター';
+
+  @override
+  String get typeFunicular => 'ケーブルカー';
+
+  @override
+  String get typeSki => 'スキー';
+
+  @override
+  String get typeRail => '鉄道（その他）';
+
+  @override
   String get tripsTableHeaderOriginDestination => '出発・到着駅';
 
   @override
@@ -610,6 +622,8 @@ class AppLocalizationsJa extends AppLocalizations {
       'ferry': '港',
       'helicopter': 'ヘリポート',
       'aerialway': '駅',
+      'funicular': '駅',
+      'rail': '駅',
       'other': '場所',
     });
     return '$_temp0';
@@ -626,6 +640,8 @@ class AppLocalizationsJa extends AppLocalizations {
       'ferry': '港',
       'helicopter': 'ヘリポート',
       'aerialway': '駅',
+      'funicular': '駅',
+      'rail': '駅',
       'other': '場所',
     });
     return '$_temp0';
@@ -642,6 +658,8 @@ class AppLocalizationsJa extends AppLocalizations {
       'ferry': '港の住所',
       'helicopter': 'ヘリポートの住所',
       'aerialway': '駅の住所',
+      'funicular': '駅の住所',
+      'rail': '駅の住所',
       'other': '場所の住所',
     });
     return '$_temp0';
@@ -658,6 +676,8 @@ class AppLocalizationsJa extends AppLocalizations {
       'ferry': '出発港を入力してください',
       'helicopter': '出発ヘリポートを入力してください',
       'aerialway': '出発駅を入力してください',
+      'funicular': '出発駅を入力してください',
+      'rail': '出発駅を入力してください',
       'other': '出発場所を入力してください',
     });
     String _temp1 = intl.Intl.selectLogic(type, {
@@ -669,6 +689,8 @@ class AppLocalizationsJa extends AppLocalizations {
       'ferry': '到着港を入力してください',
       'helicopter': '到着ヘリポートを入力してください',
       'aerialway': '到着駅を入力してください',
+      'funicular': '到着駅を入力してください',
+      'rail': '到着駅を入力してください',
       'other': '到着場所を入力してください',
     });
     String _temp2 = intl.Intl.selectLogic(type, {
@@ -680,6 +702,8 @@ class AppLocalizationsJa extends AppLocalizations {
       'ferry': '港を入力してください',
       'helicopter': 'ヘリポートを入力してください',
       'aerialway': '駅を入力してください',
+      'funicular': '駅を入力してください',
+      'rail': '駅を入力してください',
       'other': '場所を入力してください',
     });
     String _temp3 = intl.Intl.selectLogic(direction, {
@@ -701,6 +725,8 @@ class AppLocalizationsJa extends AppLocalizations {
       'ferry': '港の手動名称',
       'helicopter': 'ヘリポートの手動名称',
       'aerialway': '駅の手動名称',
+      'funicular': '駅の手動名称',
+      'rail': '駅の手動名称',
       'other': '場所の手動名称',
     });
     return '$_temp0';
@@ -717,6 +743,8 @@ class AppLocalizationsJa extends AppLocalizations {
       'ferry': '港を検索...',
       'helicopter': 'ヘリポートを検索...',
       'aerialway': '駅を検索...',
+      'funicular': '駅を検索...',
+      'rail': '駅を検索...',
       'other': '場所を検索...',
     });
     return '$_temp0';
@@ -1076,6 +1104,12 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get prerecorderErrorFetchingStation => '駅の取得中にエラーが発生しました';
+
+  @override
+  String get prerecorderSelectRailType => '鉄道のタイプ';
+
+  @override
+  String get prerecorderSelectVehicleType => '交通機関のタイプ';
 
   @override
   String get inboxPageTitle => 'お知らせ';

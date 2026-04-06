@@ -28,6 +28,10 @@ class MapColorPaletteHelper {
           VehicleType.helicopter: Color(0xFF5771E0),
           VehicleType.walk: Color(0xFFE18B00),
           VehicleType.poi: Colors.black,
+          VehicleType.rail: Color(0xFF7ec8ff),
+          VehicleType.funicular: Color(0xFF6495ed),
+          VehicleType.ski: Color(0xFFb8e6f0),
+          VehicleType.eScooter: Color(0xFF00d084),
           VehicleType.unknown: Colors.grey,
         };
       case MapColorPalette.vibrantTones:
@@ -44,6 +48,10 @@ class MapColorPaletteHelper {
           VehicleType.helicopter: Color(0xFF43AA8B),
           VehicleType.walk: Color(0xFF220901),
           VehicleType.poi: Colors.black,
+          VehicleType.rail: Color(0xFF7ec8ff),
+          VehicleType.funicular: Color(0xFF6495ed),
+          VehicleType.ski: Color(0xFFb8e6f0),
+          VehicleType.eScooter: Color(0xFF00d084),
           VehicleType.unknown: Colors.grey,
         };
       case MapColorPalette.colorBlind:
@@ -60,6 +68,10 @@ class MapColorPaletteHelper {
           VehicleType.helicopter: Color(0xFFE20134),
           VehicleType.walk: Color(0xFFFF6E3A),
           VehicleType.poi: Color(0xFFFFC33B),
+          VehicleType.rail: Color(0xFF7ec8ff),
+          VehicleType.funicular: Color(0xFF6495ed),
+          VehicleType.ski: Color(0xFFb8e6f0),
+          VehicleType.eScooter: Color(0xFF00d084),
           VehicleType.unknown: Colors.grey,
         };
       case MapColorPalette.red:

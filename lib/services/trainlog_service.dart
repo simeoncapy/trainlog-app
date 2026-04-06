@@ -476,6 +476,8 @@ class TrainlogService {
           path += "osm_tag=railway:station&osm_tag=railway:subway_entrance&q=";
           break;
         case VehicleType.train:
+        case VehicleType.rail:
+        case VehicleType.funicular:
           path += "osm_tag=railway:halt&osm_tag=railway:station&q=";
           break;
         case VehicleType.tram:
@@ -865,7 +867,7 @@ class TrainlogService {
     final osmKey = properties['osm_key']?.toString();
     final osmValue = properties['osm_value']?.toString();
     if (osmKey == 'railway' && (osmValue == 'station' || osmValue == 'halt')) {
-      return VehicleType.train;
+      return VehicleType.rail;
     } else if (osmKey == 'highway' && osmValue == 'bus_stop') {
       return VehicleType.bus;
     } else if (osmKey == 'railway' && osmValue == 'tram_stop') {

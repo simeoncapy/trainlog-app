@@ -498,6 +498,18 @@ class AppLocalizationsFr extends AppLocalizations {
   String get typeHelicopter => 'Hélicoptère';
 
   @override
+  String get typeEScooter => 'Trottinette électrique';
+
+  @override
+  String get typeFunicular => 'Funiculaire';
+
+  @override
+  String get typeSki => 'Ski';
+
+  @override
+  String get typeRail => 'Rail (autres)';
+
+  @override
   String get tripsTableHeaderOriginDestination => 'Origine/Destination';
 
   @override
@@ -627,6 +639,8 @@ class AppLocalizationsFr extends AppLocalizations {
       'ferry': 'Port',
       'helicopter': 'Héliport',
       'aerialway': 'Station',
+      'funicular': 'Gare',
+      'rail': 'Gare',
       'other': 'Lieu',
     });
     return '$_temp0';
@@ -643,6 +657,8 @@ class AppLocalizationsFr extends AppLocalizations {
       'ferry': 'Ports',
       'helicopter': 'Héliports',
       'aerialway': 'Stations',
+      'funicular': 'Gares',
+      'rail': 'Gares',
       'other': 'Lieux',
     });
     return '$_temp0';
@@ -659,6 +675,8 @@ class AppLocalizationsFr extends AppLocalizations {
       'ferry': 'Adresse du port',
       'helicopter': 'Adresse de l\'héliport',
       'aerialway': 'Adresse de la station',
+      'funicular': 'Adresse de la gare',
+      'rail': 'Adresse de la gare',
       'other': 'Adresse du lieu',
     });
     return '$_temp0';
@@ -675,6 +693,8 @@ class AppLocalizationsFr extends AppLocalizations {
       'ferry': 'Veuillez saisir le port de départ',
       'helicopter': 'Veuillez saisir l\'héliport de départ',
       'aerialway': 'Veuillez saisir la station de départ',
+      'funicular': 'Veuillez saisir la gare de départ',
+      'rail': 'Veuillez saisir la gare de départ',
       'other': 'Veuillez saisir le lieu de départ',
     });
     String _temp1 = intl.Intl.selectLogic(type, {
@@ -686,6 +706,8 @@ class AppLocalizationsFr extends AppLocalizations {
       'ferry': 'Veuillez saisir le port d\'arrivée',
       'helicopter': 'Veuillez saisir l\'héliport d\'arrivée',
       'aerialway': 'Veuillez saisir la station d\'arrivée',
+      'funicular': 'Veuillez saisir la gare d\'arrivée',
+      'rail': 'Veuillez saisir la gare d\'arrivée',
       'other': 'Veuillez saisir le lieu d\'arrivée',
     });
     String _temp2 = intl.Intl.selectLogic(type, {
@@ -697,6 +719,8 @@ class AppLocalizationsFr extends AppLocalizations {
       'ferry': 'Veuillez saisir le port',
       'helicopter': 'Veuillez saisir l\'héliport',
       'aerialway': 'Veuillez saisir la station',
+      'funicular': 'Veuillez saisir la gare',
+      'rail': 'Veuillez saisir la gare',
       'other': 'Veuillez saisir le lieu',
     });
     String _temp3 = intl.Intl.selectLogic(direction, {
@@ -718,6 +742,8 @@ class AppLocalizationsFr extends AppLocalizations {
       'ferry': 'Nom manuel du port',
       'helicopter': 'Nom manuel de l\'héliport',
       'aerialway': 'Nom manuel de la station',
+      'funicular': 'Nom manuel de la gare',
+      'rail': 'Nom manuel de la gare',
       'other': 'Nom manuel du lieu',
     });
     return '$_temp0';
@@ -734,6 +760,8 @@ class AppLocalizationsFr extends AppLocalizations {
       'ferry': 'Rechercher un port...',
       'helicopter': 'Rechercher un héliport...',
       'aerialway': 'Rechercher une station...',
+      'funicular': 'Rechercher une gare...',
+      'rail': 'Rechercher une gare...',
       'other': 'Rechercher un lieu...',
     });
     return '$_temp0';
@@ -1100,6 +1128,12 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get prerecorderErrorFetchingStation =>
       'Erreur lors de la recherche de gares';
+
+  @override
+  String get prerecorderSelectRailType => 'Type de transport ferroviaire';
+
+  @override
+  String get prerecorderSelectVehicleType => 'Type de transport';
 
   @override
   String get inboxPageTitle => 'Messages';

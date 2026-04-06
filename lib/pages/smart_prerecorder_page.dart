@@ -220,22 +220,137 @@ class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
       flush: true,
     );
   }
-  
-  TripFormModel _createTripFormModel()
-  {
-    final model = TripFormModel();
-    final departurePrerecord = _records.where(
-      (r) => r.id == _selectedIds[0]
-    ).first;
-    final arrivalPrerecord = _records.where(
-      (r) => r.id == _selectedIds[1]
-    ).first;
 
-    VehicleType? firstKnown(VehicleType a, VehicleType b) {
-      if (a != VehicleType.unknown) return a;
-      if (b != VehicleType.unknown) return b;
-      return null;
+  Future<VehicleType?> _showRailDisambiguationDialog(BuildContext context) async {
+    final loc = AppLocalizations.of(context)!;
+
+    return AdaptiveDialog.showCustom<VehicleType>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) {
+        final theme = Theme.of(ctx);
+        return Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                loc.prerecorderSelectRailType, // new l10n key
+                style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              for (final type in [VehicleType.train, VehicleType.metro, VehicleType.rail])
+                ListTile(
+                  leading: type.icon(),
+                  title: Text(type.label(context)),
+                  onTap: () => AdaptiveDialog.pop(ctx, type),
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<VehicleType?> _showVehicleTypePickerDialog(BuildContext context) async {
+    final loc = AppLocalizations.of(context)!;
+    VehicleType? selected;
+
+    return AdaptiveDialog.showCustom<VehicleType>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) {
+        final theme = Theme.of(ctx);
+        return StatefulBuilder(
+          builder: (ctx, setDialogState) => Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  loc.prerecorderSelectVehicleType, // new l10n key
+                  style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                DropdownButtonFormField<VehicleType>(
+                  decoration: InputDecoration(
+                    labelText: loc.addTripTransportationMode,
+                    border: const OutlineInputBorder(),
+                  ),
+                  initialValue: selected,
+                  items: VehicleType.values
+                      .where((v) => v != VehicleType.unknown && v != VehicleType.poi)
+                      .map(
+                        (type) => DropdownMenuItem(
+                          value: type,
+                          child: Row(
+                            children: [
+                              type.icon(),
+                              const SizedBox(width: 8),
+                              Text(type.label(context)),
+                            ],
+                          ),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: (v) => setDialogState(() => selected = v),
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: AdaptiveButton.build(
+                    context: ctx,
+                    type: AdaptiveButtonType.primary,
+                    onPressed: selected != null
+                        ? () => AdaptiveDialog.pop(ctx, selected)
+                        : null,
+                    label: Text(MaterialLocalizations.of(ctx).okButtonLabel),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+  
+  Future<TripFormModel?> _createTripFormModel() async {
+    final model = TripFormModel();
+    final departurePrerecord = _records.firstWhere((r) => r.id == _selectedIds[0]);
+    final arrivalPrerecord   = _records.firstWhere((r) => r.id == _selectedIds[1]);
+
+    const railGroup = {VehicleType.train, VehicleType.metro, VehicleType.rail};
+
+    final depType = departurePrerecord.type;
+    final arrType = arrivalPrerecord.type;
+    final depKnown = depType != VehicleType.unknown;
+    final arrKnown = arrType != VehicleType.unknown;
+
+    VehicleType? resolvedType;
+
+    if (!depKnown && !arrKnown) {
+      // Both unknown → full picker
+      if (!mounted) return null;
+      resolvedType = await _showVehicleTypePickerDialog(context);
+    } else {
+      // At least one is known — pick the known one (or either if both known & equal)
+      final knownType = depKnown ? depType : arrType;
+
+      if (railGroup.contains(knownType)) {
+        // Rail family → let user disambiguate
+        if (!mounted) return null;
+        resolvedType = await _showRailDisambiguationDialog(context);
+      } else {
+        resolvedType = knownType;
+      }
     }
+
+    if (resolvedType == null) return null; // user dismissed
+
+    model.vehicleType = resolvedType;
 
     String departureTimezone = tzmap.latLngToTimezoneString(departurePrerecord.lat!, departurePrerecord.long!);
     DateTime departureDateOnly = DateTime(
@@ -245,7 +360,6 @@ class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
     );
     TimeOfDay departureTimeOnly = TimeOfDay.fromDateTime(departurePrerecord.dateTime);
 
-    model.vehicleType = firstKnown(departurePrerecord.type, arrivalPrerecord.type);
     // Departure
     model.setDepartureDateTime(departureDateOnly, departureTimeOnly, departureTimezone);
     model.departureLat = departurePrerecord.lat;
@@ -524,12 +638,16 @@ Widget build(BuildContext context) {
 
     final createTripCaller = !isValidSelection
         ? null
-        : () {
+        : () async {
+            final tripModel = await _createTripFormModel();
+            if (tripModel == null) return; // user cancelled a dialog
+            if (!context.mounted) return;
+
             Navigator.of(context)
                 .push(
               PageRouteBuilder(
                 pageBuilder: (_, __, ___) => ChangeNotifierProvider(
-                  create: (_) => _createTripFormModel(),
+                  create: (_) => tripModel,
                   child: AddTripPage(
                     preRecorderIdsToDelete: _selectedIds,
                   ),

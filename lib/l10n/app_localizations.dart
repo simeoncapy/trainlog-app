@@ -1020,6 +1020,30 @@ abstract class AppLocalizations {
   /// **'Helicopter'**
   String get typeHelicopter;
 
+  /// No description provided for @typeEScooter.
+  ///
+  /// In en, this message translates to:
+  /// **'E-Scooter'**
+  String get typeEScooter;
+
+  /// No description provided for @typeFunicular.
+  ///
+  /// In en, this message translates to:
+  /// **'Funicular'**
+  String get typeFunicular;
+
+  /// No description provided for @typeSki.
+  ///
+  /// In en, this message translates to:
+  /// **'Ski'**
+  String get typeSki;
+
+  /// No description provided for @typeRail.
+  ///
+  /// In en, this message translates to:
+  /// **'Rail (others)'**
+  String get typeRail;
+
   /// No description provided for @tripsTableHeaderOriginDestination.
   ///
   /// In en, this message translates to:
@@ -1251,37 +1275,37 @@ abstract class AppLocalizations {
   /// Label for station based on vehicle type (singular)
   ///
   /// In en, this message translates to:
-  /// **'{type, select, train{Station} plane{Airport} bus{Stop} tram{Station} metro{Station} ferry{Port} helicopter{Heliport} aerialway{Station} other{Location}}'**
+  /// **'{type, select, train{Station} plane{Airport} bus{Stop} tram{Station} metro{Station} ferry{Port} helicopter{Heliport} aerialway{Station} funicular{Station} rail{Station} other{Location}}'**
   String typeStation(String type);
 
   /// Label for stations based on vehicle type (plural)
   ///
   /// In en, this message translates to:
-  /// **'{type, select, train{Stations} plane{Airports} bus{Stops} tram{Stations} metro{Stations} ferry{Ports} helicopter{Heliports} aerialway{Stations} other{Locations}}'**
+  /// **'{type, select, train{Stations} plane{Airports} bus{Stops} tram{Stations} metro{Stations} ferry{Ports} helicopter{Heliports} aerialway{Stations} funicular{Stations} rail{Stations} other{Locations}}'**
   String typeStations(String type);
 
   /// Label for stations address based on vehicle type
   ///
   /// In en, this message translates to:
-  /// **'{type, select, train{Address of the station} plane{Address of the airport} bus{Address of the stop} tram{Address of the station} metro{Address of the station} ferry{Address of the port} helicopter{Address of the heliport} aerialway{Address of the station} other{Address of the location}}'**
+  /// **'{type, select, train{Address of the station} plane{Address of the airport} bus{Address of the stop} tram{Address of the station} metro{Address of the station} ferry{Address of the port} helicopter{Address of the heliport} aerialway{Address of the station} funicular{Address of the station} rail{Address of the station} other{Address of the location}}'**
   String typeStationAddress(String type);
 
   /// Prompts the user to enter a departure or arrival station, airport, port, stop, etc., depending on the vehicle type.
   ///
   /// In en, this message translates to:
-  /// **'{direction, select, departure{{type, select, train{Please enter the departure station} plane{Please enter the departure airport} bus{Please enter the departure stop} tram{Please enter the departure station} metro{Please enter the departure station} ferry{Please enter the departure port} helicopter{Please enter the departure heliport} aerialway{Please enter the departure station} other{Please enter the departure location}}} arrival{{type, select, train{Please enter the arrival station} plane{Please enter the arrival airport} bus{Please enter the arrival stop} tram{Please enter the arrival station} metro{Please enter the arrival station} ferry{Please enter the arrival port} helicopter{Please enter the arrival heliport} aerialway{Please enter the arrival station} other{Please enter the arrival location}}} other{{type, select, train{Please enter the station} plane{Please enter the airport} bus{Please enter the stop} tram{Please enter the station} metro{Please enter the station} ferry{Please enter the port} helicopter{Please enter the heliport} aerialway{Please enter the station} other{Please enter the location}}}}'**
+  /// **'{direction, select, departure{{type, select, train{Please enter the departure station} plane{Please enter the departure airport} bus{Please enter the departure stop} tram{Please enter the departure station} metro{Please enter the departure station} ferry{Please enter the departure port} helicopter{Please enter the departure heliport} aerialway{Please enter the departure station} funicular{Please enter the departure station} rail{Please enter the departure station} other{Please enter the departure location}}} arrival{{type, select, train{Please enter the arrival station} plane{Please enter the arrival airport} bus{Please enter the arrival stop} tram{Please enter the arrival station} metro{Please enter the arrival station} ferry{Please enter the arrival port} helicopter{Please enter the arrival heliport} aerialway{Please enter the arrival station} funicular{Please enter the arrival station} rail{Please enter the arrival station} other{Please enter the arrival location}}} other{{type, select, train{Please enter the station} plane{Please enter the airport} bus{Please enter the stop} tram{Please enter the station} metro{Please enter the station} ferry{Please enter the port} helicopter{Please enter the heliport} aerialway{Please enter the station} funicular{Please enter the station} rail{Please enter the station} other{Please enter the location}}}}'**
   String enterStation(String direction, String type);
 
   /// Label asking for the manual/custom name of the station (airport, port, stop, heliport, etc.) depending on the vehicle type.
   ///
   /// In en, this message translates to:
-  /// **'{type, select, train{Manual name of the station} plane{Manual name of the airport} bus{Manual name of the stop} tram{Manual name of the station} metro{Manual name of the station} ferry{Manual name of the port} helicopter{Manual name of the heliport} aerialway{Manual name of the station} other{Manual name of the location}}'**
+  /// **'{type, select, train{Manual name of the station} plane{Manual name of the airport} bus{Manual name of the stop} tram{Manual name of the station} metro{Manual name of the station} ferry{Manual name of the port} helicopter{Manual name of the heliport} aerialway{Manual name of the station} funicular{Manual name of the station} rail{Manual name of the station} other{Manual name of the location}}'**
   String manualNameStation(String type);
 
   /// Hint for the search field for stations
   ///
   /// In en, this message translates to:
-  /// **'{type, select, train{Search station...} plane{Search airport...} bus{Search stop...} tram{Search station...} metro{Search station...} ferry{Search port...} helicopter{Search heliport...} aerialway{Search station...} other{Search location...}}'**
+  /// **'{type, select, train{Search station...} plane{Search airport...} bus{Search stop...} tram{Search station...} metro{Search station...} ferry{Search port...} helicopter{Search heliport...} aerialway{Search station...} funicular{Search station...} rail{Search station...} other{Search location...}}'**
   String searchStationHint(String type);
 
   /// No description provided for @statisticsGraphUnitTrips.
@@ -1925,6 +1949,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Error while fetching the stations'**
   String get prerecorderErrorFetchingStation;
+
+  /// No description provided for @prerecorderSelectRailType.
+  ///
+  /// In en, this message translates to:
+  /// **'Type of rail transport'**
+  String get prerecorderSelectRailType;
+
+  /// No description provided for @prerecorderSelectVehicleType.
+  ///
+  /// In en, this message translates to:
+  /// **'Type of transport'**
+  String get prerecorderSelectVehicleType;
 
   /// No description provided for @inboxPageTitle.
   ///

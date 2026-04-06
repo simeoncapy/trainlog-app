@@ -498,6 +498,18 @@ class AppLocalizationsTl extends AppLocalizations {
   String get typeHelicopter => 'Helikopter';
 
   @override
+  String get typeEScooter => 'E-Scooter';
+
+  @override
+  String get typeFunicular => 'Funicular';
+
+  @override
+  String get typeSki => 'Ski';
+
+  @override
+  String get typeRail => 'Rail (others)';
+
+  @override
   String get tripsTableHeaderOriginDestination => 'Pinagmulan/Patutunguhan';
 
   @override
@@ -1099,6 +1111,12 @@ class AppLocalizationsTl extends AppLocalizations {
   @override
   String get prerecorderErrorFetchingStation =>
       'Nagka error sa pagkuha ng data ng station';
+
+  @override
+  String get prerecorderSelectRailType => 'Type of rail transport';
+
+  @override
+  String get prerecorderSelectVehicleType => 'Type of transport';
 
   @override
   String get inboxPageTitle => 'Mga balita at update';

@@ -15,6 +15,9 @@ enum TripPoint { departure, arrival }
 
 class TripFormBasics extends StatelessWidget {
   const TripFormBasics({super.key});
+  static const similarVehicleTypes = [
+    {VehicleType.train, VehicleType.metro, VehicleType.funicular, VehicleType.rail},
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -60,9 +63,9 @@ class TripFormBasics extends StatelessWidget {
             onChanged: (v) {
               if (v == null || v == model.vehicleType) return;
 
-              bool notReset = false;
-              if(v == VehicleType.train && model.vehicleType == VehicleType.metro) notReset = true;
-              if(v == VehicleType.metro && model.vehicleType == VehicleType.train) notReset = true;
+              final notReset = similarVehicleTypes.any(
+                (group) => group.contains(v) && group.contains(model.vehicleType),
+              );
 
               // 1) update type in model
               model.setVehicleType(v);

@@ -295,13 +295,17 @@ enum VehicleType {
   plane,
   tram,
   metro,
+  rail, // for general rail trips without specific type
+  funicular,
   bus,
   car,
   ferry,
   aerialway,
   cycle,
+  eScooter,
   helicopter,
   walk,
+  ski,
   poi, // point of interest
   unknown;
 
@@ -316,6 +320,10 @@ enum VehicleType {
         return VehicleType.tram;
       case 'metro':
         return VehicleType.metro;
+      case 'rail':
+        return VehicleType.rail;
+      case 'funicular':
+        return VehicleType.funicular;
       case 'bus':
         return VehicleType.bus;
       case 'car':
@@ -330,8 +338,13 @@ enum VehicleType {
         return VehicleType.poi;
       case 'cycle':
         return VehicleType.cycle;
+      case 'escooter': // app
+      case 'e_scooter': // web
+        return VehicleType.eScooter;
       case 'helicopter':
         return VehicleType.helicopter;
+      case 'ski':
+        return VehicleType.ski;
       default:
         return VehicleType.unknown;
     }
@@ -347,6 +360,12 @@ enum VehicleType {
         return 'tram';
       case VehicleType.metro:
         return 'metro';
+      case VehicleType.rail:
+        return 'rail';
+      case VehicleType.funicular:
+        return 'funicular';
+      case VehicleType.ski:
+        return 'ski';
       case VehicleType.bus:
         return 'bus';
       case VehicleType.car:
@@ -361,6 +380,8 @@ enum VehicleType {
         return 'poi';
       case VehicleType.cycle:
         return 'cycle';
+      case VehicleType.eScooter:
+        return 'e_scooter';
       case VehicleType.helicopter:
         return 'helicopter';
       case VehicleType.unknown:
@@ -375,35 +396,66 @@ enum VehicleType {
 
   static String labelOf(VehicleType type, BuildContext context)
   {
-    final appLocalizations = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context)!;
     
     switch (type) {
       case VehicleType.train:
-        return appLocalizations.typeTrain;
+        return l10n.typeTrain;
       case VehicleType.plane:
-        return appLocalizations.typePlane;
+        return l10n.typePlane;
       case VehicleType.tram:
-        return appLocalizations.typeTram;
+        return l10n.typeTram;
       case VehicleType.metro:
-        return appLocalizations.typeMetro;
+        return l10n.typeMetro;
+      case VehicleType.rail:
+        return l10n.typeRail;
+      case VehicleType.funicular:
+        return l10n.typeFunicular;
+      case VehicleType.ski:
+        return l10n.typeSki;
+      case VehicleType.eScooter:
+        return l10n.typeEScooter;
       case VehicleType.bus:
-        return appLocalizations.typeBus;
+        return l10n.typeBus;
       case VehicleType.car:
-        return appLocalizations.typeCar;
+        return l10n.typeCar;
       case VehicleType.ferry:
-        return appLocalizations.typeFerry;
+        return l10n.typeFerry;
       case VehicleType.aerialway:
-        return appLocalizations.typeAerialway;
+        return l10n.typeAerialway;
       case VehicleType.walk:
-        return appLocalizations.typeWalk;
+        return l10n.typeWalk;
       case VehicleType.poi:
-        return appLocalizations.typePoi;
+        return l10n.typePoi;
       case VehicleType.cycle:
-        return appLocalizations.typeCycle;
+        return l10n.typeCycle;
       case VehicleType.helicopter:
-        return appLocalizations.typeHelicopter;
+        return l10n.typeHelicopter;
       case VehicleType.unknown:
         return 'unknown';
+    }
+  }
+
+  bool isRail() {
+    switch (this) {
+      case VehicleType.train:
+      case VehicleType.tram:
+      case VehicleType.metro:
+      case VehicleType.rail:
+      case VehicleType.funicular:
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  bool isAir() {
+    switch (this) {
+      case VehicleType.plane:
+      case VehicleType.helicopter:
+        return true;
+      default:
+        return false;
     }
   }
 
@@ -423,6 +475,10 @@ enum VehicleType {
         return Icon(Icons.tram);
       case VehicleType.metro:
         return Icon(Icons.subway);
+      case VehicleType.rail:
+        return Icon(Symbols.directions_railway_2, fill: 1,);
+      case VehicleType.funicular:
+        return Icon(Symbols.funicular, fill: 1,);
       case VehicleType.bus:
         return Icon(Icons.directions_bus);
       case VehicleType.car:
@@ -437,6 +493,10 @@ enum VehicleType {
         return Icon(Icons.flag_circle);
       case VehicleType.cycle:
         return Icon(Icons.pedal_bike);
+      case VehicleType.eScooter:
+        return Icon(Icons.electric_scooter);
+      case VehicleType.ski:
+        return Icon(Icons.downhill_skiing);
       case VehicleType.helicopter:
         return Icon(Symbols.helicopter, fill: 1,);
       case VehicleType.unknown:

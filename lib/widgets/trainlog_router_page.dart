@@ -65,10 +65,9 @@ class _TrainlogRouterPageState extends State<TrainlogRouterPage> {
     if (_provider != null) return;
 
     _provider = context.read<TrainlogProvider>();
-    final isAir = widget.vehicleType == VehicleType.plane || widget.vehicleType == VehicleType.helicopter;
 
     final baseUrl = _provider!.generateUserUrl(
-      isAir ? 'air_routing/${widget.vehicleType.toShortString()}' : 'routing',
+      widget.vehicleType.isAir() ? 'air_routing/${widget.vehicleType.toShortString()}' : 'routing',
       publicPage: false,
     );
 

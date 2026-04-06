@@ -129,7 +129,6 @@ class _TripFormPathState extends State<TripFormPath> {
     final tripData = model.toJson();
     final locale = Localizations.localeOf(context);
     final disabled = _isLoading || _hasRoutingError;
-    final isAir = model.vehicleType == VehicleType.helicopter ||  model.vehicleType == VehicleType.plane;
 
     return Padding(
       padding: const EdgeInsets.all(0),
