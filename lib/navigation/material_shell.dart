@@ -282,7 +282,7 @@ class _MaterialShellState extends State<MaterialShell> {
                           _buildDrawerItem(context, _indexOf(AppPageId.coverage)),
                           _buildDrawerItem(context, _indexOf(AppPageId.tags)),
                           _buildDrawerItem(context, _indexOf(AppPageId.tickets)),
-                          _buildDrawerItem(context, _indexOf(AppPageId.friends)),
+                          //_buildDrawerItem(context, _indexOf(AppPageId.friends)), TODO
                           _buildDrawerItem(context, _indexOf(AppPageId.smartPrerecorder)),
                         ],
                       ),
