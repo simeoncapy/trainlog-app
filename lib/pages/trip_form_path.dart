@@ -78,46 +78,41 @@ class _TripFormPathState extends State<TripFormPath> {
     return '$distanceFormatted${_nbsp}km, $durationFormatted';
   }
 
-  List<Widget> _mapCommandHelper(VehicleType vehicleType, bool disabled, AppLocalizations loc) {
+  Widget _mapCommandHelper(VehicleType vehicleType, bool disabled, AppLocalizations loc) {
     switch (vehicleType) {
       case VehicleType.train:        
       case VehicleType.metro:
       case VehicleType.tram:
-        return [
-          Opacity(
-            opacity: disabled ? 0.2 : 1.0,
-            child: Checkbox(
-              value: _isNewRouter,
-              onChanged: disabled
-                  ? null
-                  : (value) => setState(() => _isNewRouter = value ?? false),
-            ),
-          ),
-          Expanded(
-            child: Opacity(
-              opacity: disabled ? 0.2 : 1.0,
-              child: Text(
-                loc.addTripPathUseNewRouter
+        return 
+          Row(
+            children: [
+              Expanded(
+                child: CheckboxListTile(
+                  value: _isNewRouter,
+                  onChanged: (value) => setState(() => _isNewRouter = value ?? false),
+                  title: Text(loc.addTripPathUseNewRouter),
+                  controlAffinity: ListTileControlAffinity.leading,
+                  contentPadding: EdgeInsets.zero,
+                ),
               ),
-            )
-          ),
-          IconButton(
-            onPressed: () {
-              _showHelpDialog(context);
-            },
-            icon: const Icon(Icons.help_outline),
-            style: IconButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
-              foregroundColor: Theme.of(context).colorScheme.onSecondaryContainer,
-              shape: const CircleBorder(),
-            ),
-          ),
-        ];
+              IconButton(
+                onPressed: () {
+                  _showHelpDialog(context);
+                },
+                icon: const Icon(Icons.help_outline),
+                style: IconButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
+                  foregroundColor: Theme.of(context).colorScheme.onSecondaryContainer,
+                  shape: const CircleBorder(),
+                ),
+              ),
+            ],
+          );
       case VehicleType.plane:
       case VehicleType.helicopter:
-        return [SizedBox.shrink()]; // TODO: Put FR24 options here
+        return SizedBox.shrink(); // TODO: Put FR24 options here
       default:
-        return [SizedBox.shrink()];
+        return SizedBox.shrink();
     }
 
   }
@@ -136,11 +131,7 @@ class _TripFormPathState extends State<TripFormPath> {
         children: [
           Padding(
             padding: const EdgeInsets.only(left: 8.0, right: 8.0),
-            child: Row(
-              children: [
-                ..._mapCommandHelper(model.vehicleType ?? VehicleType.train, disabled, loc),
-              ],
-            ),
+            child: _mapCommandHelper(model.vehicleType ?? VehicleType.train, disabled, loc),
           ),
           SizedBox(height: 8,),
           Padding(

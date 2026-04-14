@@ -246,6 +246,16 @@ class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
                   title: Text(type.label(context)),
                   onTap: () => AdaptiveDialog.pop(ctx, type),
                 ),
+              const SizedBox(height: 8),
+              SizedBox(
+                width: double.infinity,
+                child: AdaptiveButton.build(
+                  context: ctx,
+                  type: AdaptiveButtonType.secondary,
+                  onPressed: () => AdaptiveDialog.pop(ctx, null),
+                  label: Text(MaterialLocalizations.of(ctx).cancelButtonLabel),
+                ),
+              ),
             ],
           ),
         );
@@ -269,7 +279,7 @@ class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  loc.prerecorderSelectVehicleType, // new l10n key
+                  loc.prerecorderSelectVehicleType,
                   style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                   textAlign: TextAlign.center,
                 ),
@@ -307,6 +317,16 @@ class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
                         ? () => AdaptiveDialog.pop(ctx, selected)
                         : null,
                     label: Text(MaterialLocalizations.of(ctx).okButtonLabel),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                SizedBox(
+                  width: double.infinity,
+                  child: AdaptiveButton.build(
+                    context: ctx,
+                    type: AdaptiveButtonType.secondary,
+                    onPressed: () => AdaptiveDialog.pop(ctx, null),
+                    label: Text(MaterialLocalizations.of(ctx).cancelButtonLabel),
                   ),
                 ),
               ],
