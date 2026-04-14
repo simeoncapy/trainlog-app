@@ -307,26 +307,32 @@ class TripsProvider extends ChangeNotifier {
     final repo = _repository;
     if (repo == null) return;
 
-    //final countryLoc = await CountryLocalizations.delegate.load(locale);
+    try {
+      _vehicleTypes = await repo.fetchListOfTypes();
+      debugPrint("✅ fetchListOfTypes OK");
+    } catch (e) { debugPrint("🛑 fetchListOfTypes: $e"); }
 
-    // Fetch in parallel
-    final futures = await Future.wait([
-      repo.fetchListOfTypes(),               // 0
-      repo.fetchListOfYears(),               // 1
-      repo.fetchListOfOperators(),           // 2
-      repo.fetchListOfCountryCode(),         // 3
-    ]);
+    try {
+      final yrs = await repo.fetchListOfYears();
+      yrs.sort((a, b) => b.compareTo(a));
+      _years = yrs;
+      debugPrint("✅ fetchListOfYears OK");
+    } catch (e) { debugPrint("🛑 fetchListOfYears: $e"); }
 
-    _vehicleTypes = (futures[0] as List<VehicleType>?) ?? const [VehicleType.unknown];
+    try {
+      _operators = await repo.fetchListOfOperators();
+      debugPrint("✅ fetchListOfOperators OK");
+    } catch (e) { debugPrint("🛑 fetchListOfOperators: $e"); }
 
-    final yrs = (futures[1] as List<int>?) ?? <int>[];
-    yrs.sort((a, b) => b.compareTo(a)); // descending
-    _years = yrs;
+    try {
+      _countryCodes = await repo.fetchListOfCountryCode();
+      debugPrint("✅ fetchListOfCountryCode OK");
+    } catch (e) { debugPrint("🛑 fetchListOfCountryCode: $e"); }
 
-    _operators   = (futures[2] as List<String>?) ?? const <String>[];
-    _countryCodes= (futures[3] as List<String>?) ?? const <String>[];
-
-    await _refreshCountryNames();
+    try {
+      await _refreshCountryNames();
+      debugPrint("✅ _refreshCountryNames OK");
+    } catch (e) { debugPrint("🛑 _refreshCountryNames: $e"); }
   }
 
   Future<void> _refreshCountryNames() async {

@@ -18,9 +18,13 @@ import 'package:trainlog_app/widgets/trips_filter_dialog.dart';
 // HELPERS --------------------------------------------------------------------
 extension _OpSplitExt on String {
   List<String> _splitOperatorsDecoded() {
-    // Decode once; e.g. "JR%20East%26%26%20JR%20West" -> "JR East&& JR West"
-    final decoded = Uri.decodeComponent(this);
-    // Split on "&&" (or encoded %26%26 just in case), trim parts
+    String decoded;
+    try {
+      decoded = Uri.decodeComponent(this);
+    } catch (_) {
+      decoded = this; // fall back to raw value if not valid percent-encoding
+    }
+
     return decoded
         .split(RegExp(r'\s*(?:&&|%26%26)\s*'))
         .map((s) => s.trim())
@@ -375,7 +379,12 @@ class TripsRepository {
 
     for (final map in maps) {
       final raw = map['countries'] as String;
-      final decoded = Uri.decodeComponent(raw);
+      String decoded;
+      try {
+        decoded = Uri.decodeComponent(raw);
+      } catch (_) {
+        decoded = raw;
+      }
 
       try {
         final Map<String, dynamic> json = jsonDecode(decoded);
@@ -626,7 +635,12 @@ class TripsRepository {
     List<String> _codesFromRaw(String? raw) {
       if (raw == null || raw.trim().isEmpty) return const [];
       try {
-        final decoded = Uri.decodeComponent(raw);
+        String decoded;
+        try {
+          decoded = Uri.decodeComponent(raw);
+        } catch (_) {
+          decoded = raw;
+        }
         final Map<String, dynamic> json = jsonDecode(decoded);
         return json.keys.toList(); // country codes like "JP","FR"
       } catch (_) {
