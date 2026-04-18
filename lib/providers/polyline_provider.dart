@@ -41,7 +41,7 @@ class PolylineProvider extends ChangeNotifier {
   List<PolylineEntry> _polylines = [];
   List<Polyline<int>> _renderedPolylines = const [];
 
-  bool _isLoading = false;
+  bool _isLoading = true;
   Object? _error;
 
   int _renderRevision = 0;
@@ -311,7 +311,15 @@ class PolylineProvider extends ChangeNotifier {
   void _syncWithTrips() {
     final trips = _trips;
     if (trips == null) return;
-    if (trips.isLoading || trips.repository == null) return;
+
+    if (trips.isLoading || trips.repository == null) {
+      // Trips finished loading but failed (no repository) – nothing to show.
+      if (!trips.isLoading && _isLoading) {
+        _isLoading = false;
+        notifyListeners();
+      }
+      return;
+    }
 
     final newRevision = trips.polylineRevision;
 
