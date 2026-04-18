@@ -804,10 +804,17 @@ class TripsRepository {
     return trips;
   }
 
+  static Future<bool> needsSchemaUpdate() async {
+    final db = await DatabaseManager.database;
+    final columns = await db.rawQuery('PRAGMA table_info(${TripsTable.tableName})');
+    final existingColumns = columns.map((col) => col['name'] as String).toSet();
+    return TripsTable.columns.keys.any((key) => !existingColumns.contains(key));
+  }
+
   Future<void> _ensureTripsTableSchema() async {
     final columns = await _db.rawQuery('PRAGMA table_info(${TripsTable.tableName})');
     final existingColumns = columns.map((col) => col['name'] as String).toSet();
-    
+
     // Add missing columns
     for (final entry in TripsTable.columns.entries) {
       if (!existingColumns.contains(entry.key)) {
