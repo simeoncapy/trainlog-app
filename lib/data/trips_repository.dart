@@ -154,6 +154,14 @@ class TripsRepository {
     return Sqflite.firstIntValue(result) ?? 0;
   }
 
+  Future<bool> hasTripsModifiedSince(DateTime since) async {
+    final result = await _db.rawQuery(
+      'SELECT COUNT(*) FROM ${TripsTable.tableName} WHERE last_modified > ?',
+      [since.toUtc().toIso8601String()],
+    );
+    return (Sqflite.firstIntValue(result) ?? 0) > 0;
+  }
+
   Future<int> countFilteredTrips({required bool showFutureTrips, TripsFilterResult? filter,}) async {
     final whereInfo = _buildWhereClause(showFutureTrips: showFutureTrips, filter: filter);
 
