@@ -164,11 +164,10 @@ class TripsProvider extends ChangeNotifier {
     if(lastRefresh == forceRefreshDate.toUtc()) lastRefresh = null; // treat forceRefreshDate as hard refresh
 
     // If doing incremental refresh, check if new DB columns were added - force hard refresh to fill them
-    bool schemaTriggeredHardRefresh = false;
+    DateTime? originalLastRefresh = lastRefresh;
     if (lastRefresh != null && await TripsRepository.needsSchemaUpdate()) {
       debugPrint("🔄 Schema update detected, forcing hard refresh to fill new columns");
       lastRefresh = null;
-      schemaTriggeredHardRefresh = true;
     }
 
     try {
@@ -197,7 +196,11 @@ class TripsProvider extends ChangeNotifier {
 
       await _refreshDerivedLists();
 
-      if (!schemaTriggeredHardRefresh) _polylineRevision++;
+      // Skip polyline refresh for schema-triggered hard refreshes, unless trips were
+      // also modified since the last update (which may include path changes)
+      final hadModifications = originalLastRefresh == null
+          || await _repository!.hasTripsModifiedSince(originalLastRefresh);
+      if (hadModifications) _polylineRevision++;
       _revision++;
       final count = await _repository!.count();
       debugPrint("✅ Finished loading trips. Total $count rows");
