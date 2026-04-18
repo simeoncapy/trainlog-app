@@ -122,12 +122,12 @@ class OperatorSelectorState extends State<OperatorSelector> {
   }
 
   void _onOverlayTextChanged(String value) {
-    // Commit parts separated by commas
     if (value.contains(',')) {
       final parts = value.split(',');
-
       _addOperator(parts.first.trim());
       _closeOverlayAndReset();
+    } else {
+      _updateSuggestionsOverlay();
     }
   }
 
