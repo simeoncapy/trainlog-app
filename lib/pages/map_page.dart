@@ -58,7 +58,7 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver, Automati
 
     final settings = context.read<SettingsProvider>();
     _initCenterAndMarker(settings);
-    _startUserLocationUpdates(settings);
+    _startUserLocationUpdates(settings, requestInitialFix: false);
 
     // kick loading once providers exist
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -123,16 +123,33 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver, Automati
 
   Future<LatLng?> _safeGetPositionOrNull() async {
     if (!await Geolocator.isLocationServiceEnabled()) return null;
-    final pos = await Geolocator.getCurrentPosition(locationSettings: platformLocationSettings());
-    return LatLng(pos.latitude, pos.longitude);
+    try {
+      final pos = await Geolocator.getCurrentPosition(
+        locationSettings: platformLocationSettings().copyWith(
+          timeLimit: const Duration(seconds: 3),
+        ),
+      );
+      return LatLng(pos.latitude, pos.longitude);
+    } catch (_) {
+      final lastKnown = await Geolocator.getLastKnownPosition();
+      if (lastKnown == null) return null;
+      return LatLng(lastKnown.latitude, lastKnown.longitude);
+    }
   }
 
-  Future<void> _startUserLocationUpdates(SettingsProvider settings) async {
-    final current = await _maybeUseLocationWithSystemPrompt(settings);
-    if (current == null) return;
+  Future<void> _startUserLocationUpdates(
+    SettingsProvider settings, {
+    bool requestInitialFix = true,
+  }) async {
+    final granted = await _hasLocationAccess(settings);
+    if (!granted) return;
 
-    if (!mounted) return;
-    setState(() => _userPosition = current);
+    if (requestInitialFix) {
+      final current = await _safeGetPositionOrNull();
+      if (current != null && mounted) {
+        setState(() => _userPosition = current);
+      }
+    }
 
     await _posSub?.cancel();
 
@@ -152,6 +169,27 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver, Automati
       },
       onError: (e) => debugPrint('Location stream error: $e'),
     );
+  }
+
+  Future<bool> _hasLocationAccess(SettingsProvider settings) async {
+    var p = await Geolocator.checkPermission();
+    if (p == LocationPermission.always || p == LocationPermission.whileInUse) {
+      if (settings.refusedToSharePosition) settings.setRefusedToSharePosition(false);
+      return true;
+    }
+
+    if (settings.refusedToSharePosition) return false;
+
+    final canShowSystemPrompt =
+        kIsWeb || Platform.isAndroid || Platform.isIOS || Platform.isMacOS;
+    if (!canShowSystemPrompt) return false;
+
+    p = await Geolocator.requestPermission();
+    final granted = p == LocationPermission.always || p == LocationPermission.whileInUse;
+    if (!granted) {
+      settings.setRefusedToSharePosition(true);
+    }
+    return granted;
   }
 
   Future<void> _stopUserLocationUpdates() async {

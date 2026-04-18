@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:trainlog_app/providers/polyline_provider.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
 class TripsLoader extends StatefulWidget {
   final Widget Function(BuildContext) builder;
@@ -25,8 +25,12 @@ class _TripsLoaderState extends State<TripsLoader> {
         // Build MyApp only once
         _child ??= widget.builder(context);
 
-        final showLoader =
-            trips.isLoading || trips.repository == null;
+        if (!trips.isLoading && trips.repository != null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) return;
+            context.read<PolylineProvider>().ensureLoaded();
+          });
+        }
 
         return Stack(
           children: [
@@ -49,4 +53,3 @@ class _TripsLoaderState extends State<TripsLoader> {
     );
   }
 }
-
