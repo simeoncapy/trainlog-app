@@ -16,17 +16,6 @@ The website is an open-source project (see the following section), it is mainly 
 
 The smartphone application is also an open-source project and is mainly developped by [Siméon Capy](https://cv.scapy.fr).
 
-# How it works?
-
-* All the data used are from [OSM](https://www.openstreetmap.org/).
-* Stations search is provided by [Photon](https://photon.komoot.io/).
-* Paths :
-  * Train and ferry paths are created using a modified version of the [OSRM](https://project-osrm.org/).
-  * Bus paths are stock OSRM routes.
-  * Air paths are simply a [geodesic](https://en.wikipedia.org/wiki/Geodesic) between arrival and departure
-* All maps are displayed on the website using the [Leaflet](https://leafletjs.com/) library
-* Languages other than English, French, Dutch and Japanese are largely machine-generated, feel free to report inaccuracies in the Discord with the link at the bottom of this page
-
 # Support
 
 For support on the website or the application, you can join the Discord with the button at the bottom of this page. If you do not want to use (or have) Discord, you can contact the admin with the following email address: [admin@trainlog.me](admin@trainlog.me).

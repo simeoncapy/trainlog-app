@@ -12,7 +12,7 @@ You can click on any path to display a summary sheet of your trip. From it you c
 
 # Trip list
 
-It will display all your trips, past and future (use the toggle selector at the top), in a paginated view. You can scroll horizontally on the table to display more information about your trips. To display all the details, click on a row to diplay the bottom sheet. If you scroll vertically, it will refresh your trip list with the server.
+It will display all your trips, past and future (use the toggle selector at the top), in a paginated view. You can scroll horizontally on the table to display more information about your trips. To display all the details, click on a row to diplay the bottom sheet. If you drag down the table, it will refresh your trip list with the server.
 
 ## Add a trip - basics
 
