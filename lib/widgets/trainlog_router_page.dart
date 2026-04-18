@@ -59,6 +59,10 @@ class _TrainlogRouterPageState extends State<TrainlogRouterPage> {
   bool _lastLoadingState = false;
   bool _lastRoutingErrorState = false;
 
+  void resetRoutingError() {
+    _lastRoutingErrorState = false;
+  }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -90,6 +94,7 @@ class _TrainlogRouterPageState extends State<TrainlogRouterPage> {
   void didUpdateWidget(covariant TrainlogRouterPage oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.isNewRouter != oldWidget.isNewRouter) {
+      _lastRoutingErrorState = false;
       _setRouterToggle(widget.isNewRouter);
     }
   }

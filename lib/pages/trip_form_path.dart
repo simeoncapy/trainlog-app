@@ -89,7 +89,13 @@ class _TripFormPathState extends State<TripFormPath> {
               Expanded(
                 child: CheckboxListTile(
                   value: _isNewRouter,
-                  onChanged: (value) => setState(() => _isNewRouter = value ?? false),
+                  onChanged: (value) {
+                    setState(() {
+                      _isNewRouter = value ?? false;
+                      _hasRoutingError = false; // reset routing error state when switching router
+                    });
+                    widget.onRoutingError?.call(_hasRoutingError);
+                  },
                   title: Text(loc.addTripPathUseNewRouter),
                   controlAffinity: ListTileControlAffinity.leading,
                   contentPadding: EdgeInsets.zero,
