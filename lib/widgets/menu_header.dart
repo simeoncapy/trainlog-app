@@ -117,10 +117,8 @@ class _MenuHeaderState extends State<MenuHeader> {
                       fontFamily: "Berlin Sans FB"
                     ),
                   ),
-                  const SizedBox(height: 8),
-              
-                  if (auth.loading) const CircularProgressIndicator(),
-              
+                  const SizedBox(height: 8),              
+             
                   if (isConnected) ...[
                     Text(loc.menuHello(auth.username ?? ''),
                         style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white)),
@@ -130,22 +128,16 @@ class _MenuHeaderState extends State<MenuHeader> {
             ],
           ),
           const Spacer(),
-          if (!isConnected && !auth.loading) ...[ // Should not be displayed now, it's done by the welcome page
-            _loginButtonHelper(loc, context, trainlog, settings, scaffMsg),
-            const SizedBox(height: 8),
-            _createAccountButtonHelper(loc, context, scaffMsg),
-          ] else if (isConnected) ...[
-            Row(
-              children: [
-                _logoutButtonHelper(loc, context, settings, trips, scaffMsg),
-                const Spacer(),
-                //_statusButtonHelper(loc, context, theme),
-                _statusIconButtonHelper(theme),
-                const SizedBox(width: 10,),
-                _mailboxButtonHelper(loc, theme),
-              ],
-            ),
-          ],
+          Row(
+            children: [
+              _logoutButtonHelper(loc, context, settings, trips, scaffMsg),
+              const Spacer(),
+              //_statusButtonHelper(loc, context, theme),
+              _statusIconButtonHelper(theme),
+              const SizedBox(width: 10,),
+              _mailboxButtonHelper(loc, theme),
+            ],
+          ),
         ],
       ),
     );
