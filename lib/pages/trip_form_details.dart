@@ -3,6 +3,7 @@ import 'package:currency_picker/currency_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/data/models/trip_form_model.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
+import 'package:trainlog_app/pages/settings/settings_vm.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
@@ -21,6 +22,7 @@ class TripFormDetails extends StatefulWidget {
 class _TripFormDetailsState extends State<TripFormDetails> {
   late String _currencyCode;
   DateTime? _selectedPurchaseDate;
+  int? accountVisibility; // 0/1/2
 
   @override
   void initState() {
@@ -28,13 +30,37 @@ class _TripFormDetailsState extends State<TripFormDetails> {
 
     final model = context.read<TripFormModel>();
     final settings = context.read<SettingsProvider>();
+    final trainlog = context.read<TrainlogProvider>();
     
     _currencyCode = model.currencyCode ?? settings.currency;
     model.currencyCode = _currencyCode;
-    _selectedPurchaseDate = model.purchaseDate ?? DateTime.now();
+    _selectedPurchaseDate = model.purchaseDate ?? DateTime.now();    
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       _loadCurrencies();
+      final accountSettings = await trainlog.fetchAccountSettings();
+
+      if (model.tripVisibility == null) {
+        // If visibility is already set in the model (e.g. when editing an existing trip), use it. 
+        // Otherwise, initialise it based on account settings.        
+        accountVisibility = accountSettings[SettingsVm.accountSettingsKeyVisibility] != null
+            ? int.tryParse(accountSettings[SettingsVm.accountSettingsKeyVisibility]!)
+            : null;
+
+        switch (accountVisibility) {
+          case 0:
+            model.setVisibility(TripVisibility.private, init: true);
+            break;
+          case 1:
+            model.setVisibility(TripVisibility.friends, init: true);
+            break;
+          case 2:
+            model.setVisibility(TripVisibility.public, init: true);
+            break;
+          default:
+            model.setVisibility(TripVisibility.private, init: true);
+        }
+      }
     });
   }
 
@@ -200,7 +226,7 @@ class _TripFormDetailsState extends State<TripFormDetails> {
           TitledContainer(
             title: loc.visibility, 
             content: TripVisibilitySelector(
-              value: model.tripVisibility,
+              value: model.visibility,
               onChanged: model.setVisibility,
             ),
           ),

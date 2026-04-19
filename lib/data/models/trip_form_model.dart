@@ -74,8 +74,10 @@ class TripFormModel extends ChangeNotifier {
   String? currencyCode;
 
   EnergyType energyType = EnergyType.auto;
-  TripVisibility tripVisibility = TripVisibility.private;
+  TripVisibility? tripVisibility;// = TripVisibility.private;
 
+  String get visibilityName => tripVisibility?.name ?? TripVisibility.private.name;
+  TripVisibility get visibility => tripVisibility ?? TripVisibility.private;
 
   // -----------------------------
   // Helpers
@@ -433,10 +435,10 @@ class TripFormModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setVisibility(TripVisibility value) {
+  void setVisibility(TripVisibility value, {bool init = false}) {
     if (tripVisibility == value) return; // avoids extra rebuilds
     tripVisibility = value;
-    formDataChanged();
+    if(!init) formDataChanged();
     notifyListeners();
   }
 
@@ -536,7 +538,7 @@ class TripFormModel extends ChangeNotifier {
       "newTripEnd": "${arrivalDate}T$arrivalTime",
       "newTripStart": "${departureDate}T$departureTime",
 
-      "visibility": tripVisibility.name,
+      "visibility": visibilityName,
     });
     if (delayDepartureMinute != null) {
       map["departure_delay"] = delayDepartureMinute! * 60; // Trainlog uses delays in seconds
