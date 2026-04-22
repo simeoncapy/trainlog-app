@@ -25,6 +25,7 @@ enum AppPageId {
   trips,
   ranking,
   statistics,
+  dashboard,
   coverage,
   tags,
   tickets,

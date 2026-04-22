@@ -834,6 +834,12 @@ abstract class AppLocalizations {
   /// **'Statistics'**
   String get menuStatisticsTitle;
 
+  /// No description provided for @menuDashboardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Dashboard'**
+  String get menuDashboardTitle;
+
   /// No description provided for @menuCoverageTitle.
   ///
   /// In en, this message translates to:

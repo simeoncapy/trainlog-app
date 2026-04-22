@@ -151,6 +151,7 @@
   "menuTripsTitle": "Trips",
   "menuRankingTitle": "Ranking",
   "menuStatisticsTitle": "Statistics",
+  "menuDashboardTitle": "Dashboard",
   "menuCoverageTitle": "Coverage",
   "menuTagsTitle": "Tags",    
   "menuTicketsTitle": "Tickets", 

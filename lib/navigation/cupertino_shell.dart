@@ -8,7 +8,7 @@ import 'package:trainlog_app/platform/cupertino_fab.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 
 import 'package:trainlog_app/pages/about_page.dart';
-import 'package:trainlog_app/pages/coverage_page.dart';
+import 'package:trainlog_app/pages/dashboard_page.dart';
 import 'package:trainlog_app/pages/friends_page.dart';
 import 'package:trainlog_app/pages/map_page.dart';
 import 'package:trainlog_app/pages/ranking_page.dart';
@@ -272,9 +272,9 @@ class _MorePage extends StatelessWidget {
                   //_sectionHeader('Pages'),
                   _moreTile(
                     context,
-                    icon: AdaptiveIcons.coverage,
-                    title: l10n.menuCoverageTitle,
-                    push: () => _pushSimple(context, l10n.menuCoverageTitle, const CoveragePage()),
+                    icon: AdaptiveIcons.dashboard,
+                    title: l10n.menuDashboardTitle,
+                    push: () => _pushSimple(context, l10n.menuDashboardTitle, const DashboardPage()),
                   ),
                   _moreTile(
                     context,

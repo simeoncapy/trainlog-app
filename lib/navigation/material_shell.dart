@@ -10,6 +10,7 @@ import 'package:trainlog_app/widgets/menu_header.dart';
 
 import 'package:trainlog_app/pages/about_page.dart';
 import 'package:trainlog_app/pages/coverage_page.dart';
+import 'package:trainlog_app/pages/dashboard_page.dart';
 import 'package:trainlog_app/pages/friends_page.dart';
 import 'package:trainlog_app/pages/map_page.dart';
 import 'package:trainlog_app/pages/ranking_page.dart';
@@ -154,6 +155,12 @@ class _MaterialShellState extends State<MaterialShell> {
 
       // Drawer pages
       AppPage(
+        id: AppPageId.dashboard,
+        view: const DashboardPage(),
+        titleBuilder: (c) => AppLocalizations.of(c)!.menuDashboardTitle,
+        icon: AdaptiveIcons.dashboard,
+      ),
+      AppPage(
         id: AppPageId.coverage,
         view: const CoveragePage(),
         titleBuilder: (c) => AppLocalizations.of(c)!.menuCoverageTitle,
@@ -279,7 +286,7 @@ class _MaterialShellState extends State<MaterialShell> {
                       child: ListView(
                         padding: EdgeInsets.zero,
                         children: [
-                          _buildDrawerItem(context, _indexOf(AppPageId.coverage)),
+                          _buildDrawerItem(context, _indexOf(AppPageId.dashboard)),
                           _buildDrawerItem(context, _indexOf(AppPageId.tags)),
                           _buildDrawerItem(context, _indexOf(AppPageId.tickets)),
                           //_buildDrawerItem(context, _indexOf(AppPageId.friends)), TODO

@@ -398,6 +398,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get menuStatisticsTitle => 'Statistics';
 
   @override
+  String get menuDashboardTitle => 'Dashboard';
+
+  @override
   String get menuCoverageTitle => 'Coverage';
 
   @override
