@@ -46,6 +46,7 @@ class AdaptiveIcons {
   static final IconData other =       isA ? CupertinoIcons.ellipsis : Icons.more_horiz;
 
   // Drawer menu
+  static final IconData dashboard =   isA ? CupertinoIcons.square_grid_2x2_fill : Icons.dashboard;
   static final IconData coverage =    isA ? CupertinoIcons.percent : Icons.percent;
   static final IconData tags =        isA ? CupertinoIcons.tag_fill : Icons.label;
   static final IconData tickets =     isA ? CupertinoIcons.ticket_fill : Icons.confirmation_number;

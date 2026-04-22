@@ -404,6 +404,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get menuStatisticsTitle => 'Statistiques';
 
   @override
+  String get menuDashboardTitle => 'Tableau de bord';
+
+  @override
   String get menuCoverageTitle => 'Couverture';
 
   @override

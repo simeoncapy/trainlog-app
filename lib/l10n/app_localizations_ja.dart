@@ -389,6 +389,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get menuStatisticsTitle => '統計';
 
   @override
+  String get menuDashboardTitle => 'ダッシュボード';
+
+  @override
   String get menuCoverageTitle => '走破率';
 
   @override

@@ -404,6 +404,9 @@ class AppLocalizationsTl extends AppLocalizations {
   String get menuStatisticsTitle => 'Istatistika';
 
   @override
+  String get menuDashboardTitle => 'Dashboard';
+
+  @override
   String get menuCoverageTitle => 'Sakop';
 
   @override
