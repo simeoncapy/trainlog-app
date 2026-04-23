@@ -162,12 +162,23 @@ class AuthFormState extends State<AuthForm> {
           ),
           if (widget.showSubmitButton) ...[
             const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton(
-                onPressed: _submit,
-                child: Text(buttonText),
-              ),
+            Row(
+              children: [
+                if(isCreate) ... [
+                ElevatedButton.icon(
+                  onPressed: () => Navigator.of(context).pop(), 
+                  icon: Icon(Icons.arrow_back),
+                  label: Text(MaterialLocalizations.of(context).backButtonTooltip)
+                ),
+                const SizedBox(width: 12),
+                ],
+                Expanded(
+                  child: FilledButton(
+                    onPressed: _submit,
+                    child: Text(buttonText),
+                  ),
+                ),
+              ],
             ),
           ],
         ],

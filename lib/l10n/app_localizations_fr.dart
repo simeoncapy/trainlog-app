@@ -60,6 +60,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get createAccountButton => 'Créer un compte';
 
   @override
+  String get createAccountTitle => 'Créez votre compte';
+
+  @override
   String get emailLabel => 'Courriel';
 
   @override
@@ -97,6 +100,9 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get loginToYourAccount => 'Connectez-vous à votre compte';
+
+  @override
+  String get errorCreationAccount => 'Erreur lors de la création du compte.';
 
   @override
   String menuHello(Object username) {

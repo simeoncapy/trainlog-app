@@ -60,6 +60,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get createAccountButton => 'アカウントを作成';
 
   @override
+  String get createAccountTitle => 'アカウントを作成';
+
+  @override
   String get emailLabel => 'メールアドレス';
 
   @override
@@ -97,6 +100,9 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get loginToYourAccount => 'アカウントにログイン';
+
+  @override
+  String get errorCreationAccount => 'アカウントの作成中にエラーが発生しました。';
 
   @override
   String menuHello(Object username) {

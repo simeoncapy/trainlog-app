@@ -60,6 +60,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get createAccountButton => 'Create an account';
 
   @override
+  String get createAccountTitle => 'Create your account';
+
+  @override
   String get emailLabel => 'Email';
 
   @override
@@ -97,6 +100,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get loginToYourAccount => 'Log in to your account';
+
+  @override
+  String get errorCreationAccount => 'Error while creating account.';
 
   @override
   String menuHello(Object username) {

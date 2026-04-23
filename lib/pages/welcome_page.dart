@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
+import 'package:trainlog_app/pages/signup_page.dart';
 import 'package:trainlog_app/platform/adaptive_information_message.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
@@ -206,7 +207,11 @@ class _WelcomePageState extends State<WelcomePage> {
                             ),
                             const SizedBox(height: 24),
                             ElevatedButton.icon(
-                              onPressed: _loggingIn ? null : () {}, // TODO
+                              onPressed: _loggingIn ? null : () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(builder: (_) => const SignupPage()),
+                                );
+                              },
                               label: Text(loc.createAccountButton),
                               icon: const Icon(Icons.person_add_alt),
                             ),

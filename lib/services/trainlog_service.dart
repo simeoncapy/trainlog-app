@@ -32,6 +32,7 @@ class TrainlogService {
   static const String urlLegacy = 'https://trainlog.me';
   static const String urlDev = 'https://dev.trainlog.me';
   static const String _loginPath = '/login';
+  static const String _signupPath = '/signup';
   static const String _userAgent = 'TrainlogApp/1.0 (+Flutter)';
   //static const String _logoPath = "$_baseUrl/static/";
 
@@ -143,6 +144,40 @@ class TrainlogService {
       failureReason:
           success ? null : (resp.statusMessage ?? 'Invalid credentials'),
     );
+  }
+
+  Future<(bool, String?)> signup({
+    required String username,
+    required String password,
+    required String email,
+    required String locale,
+  }) async {
+    final resp = await _dio.post(
+      _signupPath,
+      data: {
+        'username': username,
+        'password': password,
+        'email': email,
+        'fromApp': 'true',
+        'locale': locale,
+      },
+      options: Options(
+        contentType: Headers.formUrlEncodedContentType,
+        headers: {
+          'Origin': baseUrl,
+          'Referer': '$baseUrl$_signupPath',
+        },
+        validateStatus: (s) => s != null && s >= 200 && s <= 503,
+        followRedirects: false,
+      ),
+    );
+
+    debugPrint('Signup response: ${resp.statusCode} ${resp.statusMessage} ${resp.data}');
+    String? message = resp.data is Map<String, dynamic> 
+        ? resp.data["error"] as String? 
+        : null;
+    if ((resp.statusCode ?? 0) >= 500) message = "Server error, please try again later.";
+    return (resp.statusCode == 200, message);
   }
 
   Future<List<Cookie>> getCookiesForWebView() async {

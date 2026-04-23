@@ -17,6 +17,7 @@
   "logoutButton": "Log out",
   "loggedOut": "Logged out",
   "createAccountButton": "Create an account",
+  "createAccountTitle": "Create your account",
   "emailLabel": "Email",
   "emailHint": "you@example.com",
   "emailHelper": "In case you forget your password",
@@ -30,6 +31,7 @@
   "passwordRequiredLabel": "Password is required",
   "createAccountButtonShort": "Create",
   "loginToYourAccount": "Log in to your account",
+  "errorCreationAccount": "Error while creating account.",
   "menuHello": "Hello {username}",
   "@menuHello" :{
     "description": "The username",

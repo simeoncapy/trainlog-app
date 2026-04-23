@@ -204,6 +204,12 @@ abstract class AppLocalizations {
   /// **'Create an account'**
   String get createAccountButton;
 
+  /// No description provided for @createAccountTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create your account'**
+  String get createAccountTitle;
+
   /// No description provided for @emailLabel.
   ///
   /// In en, this message translates to:
@@ -281,6 +287,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Log in to your account'**
   String get loginToYourAccount;
+
+  /// No description provided for @errorCreationAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Error while creating account.'**
+  String get errorCreationAccount;
 
   /// The username
   ///

@@ -60,6 +60,9 @@ class AppLocalizationsTl extends AppLocalizations {
   String get createAccountButton => 'Gumawa ng account';
 
   @override
+  String get createAccountTitle => 'Gumawa ng account';
+
+  @override
   String get emailLabel => 'Email';
 
   @override
@@ -97,6 +100,9 @@ class AppLocalizationsTl extends AppLocalizations {
 
   @override
   String get loginToYourAccount => 'Mag login sa account ';
+
+  @override
+  String get errorCreationAccount => 'May mali sa pag gawa ng account.';
 
   @override
   String menuHello(Object username) {
@@ -212,14 +218,7 @@ class AppLocalizationsTl extends AppLocalizations {
 
   @override
   String nbrPassengers(num count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count pasahero',
-      one: '$count pasahero',
-      zero: '$count pasahero',
-    );
-    return '$_temp0';
+    return '$count pasahero';
   }
 
   @override

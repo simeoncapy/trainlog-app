@@ -100,6 +100,36 @@ class TrainlogProvider extends ChangeNotifier {
     }
   }
 
+  Future<(bool, String?)> signup({
+    required String username,
+    required String password,
+    required String email,
+    SettingsProvider? settings
+  }) async {
+    _loading = true;
+    notifyListeners();
+
+    try {
+      final (res, failureReason) = await _service.signup(
+        username: username, 
+        password: password, 
+        email: email, 
+        locale: settings?.locale.languageCode ?? 'en'
+      );
+      if (res) {
+        // Signup successful, now log in the user
+        return (await login(username: username, password: password, settings: settings), null);
+      } else {
+        return (false, failureReason);
+      }
+    } catch (e) {
+      return (false, '$e');
+    } finally {
+      _loading = false;
+      notifyListeners();
+    }
+  }
+
   Future<bool> setInstanceUrl(String url) async {
     if(isAuthenticated) return false;
     if(url == instanceUrl) return true; // no change

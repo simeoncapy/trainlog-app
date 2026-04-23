@@ -17,6 +17,7 @@
   "logoutButton": "Logout",
   "loggedOut": "Na log out na",
   "createAccountButton": "Gumawa ng account",
+  "createAccountTitle": "Gumawa ng account",
   "emailLabel": "Email",
   "emailHint": "ikaw@example.com",
   "emailHelper": "Kung sakali nakalimutan ang password",
@@ -30,6 +31,7 @@
   "passwordRequiredLabel": "Kailangan ang password",
   "createAccountButtonShort": "Gumawa",
   "loginToYourAccount": "Mag login sa account ",
+  "errorCreationAccount": "May mali sa pag gawa ng account.",
   "menuHello": "Kamusta {username}",
   "@menuHello": {
     "description": "The username",
@@ -75,13 +77,7 @@
   "locationPermissionDenied": "Bawal pumasok",
   "duplicateBtnLabel": "Idoble ",
   "newBadge": "BAGO",
-  "nbrPassengers": "{count, plural, =0 {{count} pasahero} =1 {{count} pasahero} one {{count} pasahero} other {{count} pasahero}}",
-  "@nbrPassengers": {
-    "description": "Number of passengers",
-    "placeholders": {
-      "count": {}
-    }
-  },
+  "nbrPassengers": "{count} pasahero",
   "dialogueDefaultInfoTitle": "Impormasyon",
   "dialogueChangeInstanceTitle": "Ibago ang trainlog instance",
   "dialogueChangeInstanceButton": "Ibago",
