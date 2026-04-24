@@ -877,7 +877,7 @@ class TripsTable {
     final columns = await db.rawQuery('PRAGMA table_info($tableName)');
     final existingColumns = columns.map((col) => col['name'] as String).toSet();
 
-    for (final entry in columns.entries) {
+    for (final entry in TripsTable.columns.entries) {
       if (!existingColumns.contains(entry.key)) {
         // ALTER TABLE cannot add a PRIMARY KEY; strip the constraint.
         final colType = entry.value.replaceAll('PRIMARY KEY', '').trim();
