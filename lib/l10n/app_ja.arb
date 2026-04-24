@@ -20,7 +20,7 @@
   "createAccountTitle": "アカウントを作成",
   "emailLabel": "メールアドレス",
   "emailHint": "you@example.com",
-  "emailHelper": "パスワードを忘れたときのため",
+  "emailHelper": "パスワードを忘れた際に使用します",
   "emailRequiredLabel": "メールアドレスは必須です",
   "emailValidLabel": "有効なメールアドレスを入力してください",
   "usernameLabel": "ユーザー名",

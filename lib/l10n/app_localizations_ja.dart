@@ -69,7 +69,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get emailHint => 'you@example.com';
 
   @override
-  String get emailHelper => 'パスワードを忘れたときのため';
+  String get emailHelper => 'パスワードを忘れた際に使用します';
 
   @override
   String get emailRequiredLabel => 'メールアドレスは必須です';
