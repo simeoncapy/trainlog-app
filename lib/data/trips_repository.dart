@@ -874,11 +874,11 @@ class TripsTable {
   // Adds any columns present in [columns] that are missing from the live table.
   // Called by the migration runner and by TripsRepository as a legacy fallback.
   static Future<void> ensureSchema(Database db) async {
-    final pragma = await db.rawQuery('PRAGMA table_info($tableName)');
-    final existing = pragma.map((row) => row['name'] as String).toSet();
+    final columns = await db.rawQuery('PRAGMA table_info($tableName)');
+    final existingColumns = columns.map((col) => col['name'] as String).toSet();
 
     for (final entry in columns.entries) {
-      if (!existing.contains(entry.key)) {
+      if (!existingColumns.contains(entry.key)) {
         // ALTER TABLE cannot add a PRIMARY KEY; strip the constraint.
         final colType = entry.value.replaceAll('PRIMARY KEY', '').trim();
         await db.execute('ALTER TABLE $tableName ADD COLUMN ${entry.key} $colType');

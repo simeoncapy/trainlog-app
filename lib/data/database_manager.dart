@@ -84,7 +84,7 @@ class DatabaseManager {
   }
 
   static Future<List<_Migration>> _loadPendingMigrations(int lastAppliedId) async {
-    const migrationsAssetPrefix = 'lib/data/migrations/';
+    const migrationsAssetPrefix = 'assets/migrations/';
 
     AssetManifest manifest;
     try {
