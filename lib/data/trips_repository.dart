@@ -820,19 +820,7 @@ class TripsRepository {
   }
 
   Future<void> _ensureTripsTableSchema() async {
-    final columns = await _db.rawQuery('PRAGMA table_info(${TripsTable.tableName})');
-    final existingColumns = columns.map((col) => col['name'] as String).toSet();
-
-    // Add missing columns
-    for (final entry in TripsTable.columns.entries) {
-      if (!existingColumns.contains(entry.key)) {
-        // Remove PRIMARY KEY constraint for ALTER TABLE (can't add PK to existing table)
-        final columnType = entry.value.replaceAll('PRIMARY KEY', '').trim();
-        await _db.execute(
-          'ALTER TABLE ${TripsTable.tableName} ADD COLUMN ${entry.key} $columnType'
-        );
-      }
-    }
+    await TripsTable.ensureSchema(_db);
   }
 }
 
@@ -875,11 +863,26 @@ class TripsTable {
     final columnDefs = columns.entries
         .map((e) => '${e.key} ${e.value}')
         .join(',\n      ');
-    
+
     return '''
     CREATE TABLE IF NOT EXISTS $tableName (
       $columnDefs
     )
   ''';
+  }
+
+  // Adds any columns present in [columns] that are missing from the live table.
+  // Called by the migration runner and by TripsRepository as a legacy fallback.
+  static Future<void> ensureSchema(Database db) async {
+    final columns = await db.rawQuery('PRAGMA table_info($tableName)');
+    final existingColumns = columns.map((col) => col['name'] as String).toSet();
+
+    for (final entry in TripsTable.columns.entries) {
+      if (!existingColumns.contains(entry.key)) {
+        // ALTER TABLE cannot add a PRIMARY KEY; strip the constraint.
+        final colType = entry.value.replaceAll('PRIMARY KEY', '').trim();
+        await db.execute('ALTER TABLE $tableName ADD COLUMN ${entry.key} $colType');
+      }
+    }
   }
 }
