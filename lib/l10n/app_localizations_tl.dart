@@ -1138,4 +1138,35 @@ class AppLocalizationsTl extends AppLocalizations {
 
   @override
   String get trainglogStatusPageTitle => 'Trainlog Status';
+
+  @override
+  String get onboardingGetStarted => 'Magsimula';
+
+  @override
+  String get onboardingPage1Title => 'Biswalisa ang iyong mga paglalakbay';
+
+  @override
+  String get onboardingPage1Subtitle =>
+      'Madaling subaybayan ang iyong mga biyahe. Makita ang lahat ng iyong biyahe sa tren, bus, barko, at eroplano sa isang mapa.';
+
+  @override
+  String get onboardingPage2Title => 'Tuklasin ang iyong mga istatistika';
+
+  @override
+  String get onboardingPage2Subtitle =>
+      'Tingnan ang estadistikang detalye kung paano, kailan, at saan ka naglakbay.\n\nMakakuha ng kapaki-pakinabang na istatistika tungkol sa mga istasyong pinaka-madalas mong binibisita, mga operator na pinaka-madalas mong ginagamit, at kung gaano karami sa riles ng iyong bansa ang iyong nalakbay.';
+
+  @override
+  String get onboardingPage3Title => 'Ibahagi ang iyong mga paglalakbay';
+
+  @override
+  String get onboardingPage3Subtitle =>
+      'Gumawa ng mga link na maaaring ibahagi para sa iyong mga biyahe upang ibahagi ang iyong mga plano sa paglalakbay sa sinuman.';
+
+  @override
+  String get onboardingPage4Title => 'Mga Leaderboard';
+
+  @override
+  String get onboardingPage4Subtitle =>
+      'Ikaw ba ay madalas maglakbay? Tingnan kung paano ang iyong mga paglalakbay kumpara sa ibang mga miyembro sa buong mundo.';
 }
