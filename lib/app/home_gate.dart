@@ -1,7 +1,9 @@
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 
+import 'package:trainlog_app/pages/onboarding_screen.dart';
 import 'package:trainlog_app/pages/welcome_page.dart';
+import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/widgets/trips_loader.dart';
 
@@ -15,8 +17,12 @@ class HomeGate extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<TrainlogProvider>(
-      builder: (_, auth, __) {
+    return Consumer2<SettingsProvider, TrainlogProvider>(
+      builder: (_, settings, auth, __) {
+        if (!settings.onboardingCompleted) {
+          return const OnboardingScreen();
+        }
+
         if (!auth.isAuthenticated) {
           return const WelcomePage();
         }

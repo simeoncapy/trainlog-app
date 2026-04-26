@@ -336,5 +336,15 @@
   "inboxModifiedIndication": "({date}に変更)",
 
 
-  "trainglogStatusPageTitle": "Trainlogの状態"
+  "trainglogStatusPageTitle": "Trainlogの状態",
+
+  "onboardingGetStarted": "はじめる",
+  "onboardingPage1Title": "旅を可視化",
+  "onboardingPage1Subtitle": "旅の記録を簡単に。電車・バス・フェリー・飛行機のすべての移動を地図上で見やすく確認できます。",
+  "onboardingPage2Title": "統計を探索",
+  "onboardingPage2Subtitle": "いつ、どこへ、どのように旅したかを統計で確認できます。\n\n最もよく訪れた駅や最も利用した交通事業者、自国の鉄道網をどれだけ乗ったかなど、役立つ情報が一目でわかります。",
+  "onboardingPage3Title": "旅をシェア",
+  "onboardingPage3Subtitle": "旅のリンクを作成して、移動の計画を誰とでも共有できます。",
+  "onboardingPage4Title": "リーダーボード",
+  "onboardingPage4Subtitle": "よく旅をするあなたへ。世界中のメンバーと旅の記録を比べてみましょう。"
 }
