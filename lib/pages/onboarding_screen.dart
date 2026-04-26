@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 
 class OnboardingScreen extends StatefulWidget {
@@ -35,37 +36,34 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final loc = AppLocalizations.of(context)!;
 
     final pages = [
       _OnboardingPage(
         icon: Icons.travel_explore,
-        title: 'Visualise your travels',
-        subtitle:
-            'Keeping track of your journeys made easy. See all your train, bus, ferry, and aeroplane journeys neatly on a map.',
+        title: loc.onboardingPage1Title,
+        subtitle: loc.onboardingPage1Subtitle,
         color: colorScheme.primaryContainer,
         iconColor: colorScheme.primary,
       ),
       _OnboardingPage(
         icon: Icons.bar_chart_rounded,
-        title: 'Explore your statistics',
-        subtitle:
-            'See a statistical breakdown of how, when, and where you have travelled.\n\nGet useful statistics on your most frequently visited stations, most frequently used operators, and how much of your country\'s railway network you have been on.',
+        title: loc.onboardingPage2Title,
+        subtitle: loc.onboardingPage2Subtitle,
         color: colorScheme.secondaryContainer,
         iconColor: colorScheme.secondary,
       ),
       _OnboardingPage(
         icon: Icons.share,
-        title: 'Share your travels',
-        subtitle:
-            'Create shareable links about your trips to share your travel plans with anyone.',
+        title: loc.onboardingPage3Title,
+        subtitle: loc.onboardingPage3Subtitle,
         color: colorScheme.tertiaryContainer,
         iconColor: colorScheme.tertiary,
       ),
       _OnboardingPage(
         icon: Icons.emoji_events,
-        title: 'Leaderboards',
-        subtitle:
-            'Are you a frequent traveller? See how your travels stack up against other members worldwide.',
+        title: loc.onboardingPage4Title,
+        subtitle: loc.onboardingPage4Subtitle,
         color: colorScheme.errorContainer,
         iconColor: colorScheme.error,
       ),
@@ -88,6 +86,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               pageCount: _pageCount,
               onNext: _next,
               isLast: _currentPage == _pageCount - 1,
+              loc: AppLocalizations.of(context)!,
             ),
           ],
         ),
@@ -150,12 +149,14 @@ class _BottomControls extends StatelessWidget {
   final int pageCount;
   final VoidCallback onNext;
   final bool isLast;
+  final AppLocalizations loc;
 
   const _BottomControls({
     required this.currentPage,
     required this.pageCount,
     required this.onNext,
     required this.isLast,
+    required this.loc,
   });
 
   @override
@@ -193,7 +194,7 @@ class _BottomControls extends StatelessWidget {
               ),
             ),
             child: Text(
-              isLast ? 'Get started' : 'Next',
+              isLast ? loc.onboardingGetStarted : loc.nextButton,
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
           ),
