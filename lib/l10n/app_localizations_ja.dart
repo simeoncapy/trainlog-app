@@ -1138,4 +1138,33 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get trainglogStatusPageTitle => 'Trainlogの状態';
+
+  @override
+  String get onboardingGetStarted => 'はじめる';
+
+  @override
+  String get onboardingPage1Title => '旅を可視化';
+
+  @override
+  String get onboardingPage1Subtitle =>
+      '旅の記録を簡単に。電車・バス・フェリー・飛行機のすべての移動を地図上で見やすく確認できます。';
+
+  @override
+  String get onboardingPage2Title => '統計を探索';
+
+  @override
+  String get onboardingPage2Subtitle =>
+      'いつ、どこへ、どのように旅したかを統計で確認できます。\n\n最もよく訪れた駅や最も利用した交通事業者、自国の鉄道網をどれだけ乗ったかなど、役立つ情報が一目でわかります。';
+
+  @override
+  String get onboardingPage3Title => '旅をシェア';
+
+  @override
+  String get onboardingPage3Subtitle => '旅のリンクを作成して、移動の計画を誰とでも共有できます。';
+
+  @override
+  String get onboardingPage4Title => 'リーダーボード';
+
+  @override
+  String get onboardingPage4Subtitle => 'よく旅をするあなたへ。世界中のメンバーと旅の記録を比べてみましょう。';
 }

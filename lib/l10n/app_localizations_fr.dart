@@ -1162,4 +1162,35 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get trainglogStatusPageTitle => 'État de Trainlog';
+
+  @override
+  String get onboardingGetStarted => 'Commencer';
+
+  @override
+  String get onboardingPage1Title => 'Visualisez vos voyages';
+
+  @override
+  String get onboardingPage1Subtitle =>
+      'Gardez la trace de vos trajets en toute simplicité. Retrouvez tous vos voyages en train, bus, ferry et avion sur une carte.';
+
+  @override
+  String get onboardingPage2Title => 'Explorez vos statistiques';
+
+  @override
+  String get onboardingPage2Subtitle =>
+      'Consultez une analyse détaillée de vos déplacements : comment, quand et où vous avez voyagé.\n\nDécouvrez vos gares les plus fréquentées, vos opérateurs les plus utilisés et la part du réseau ferroviaire de votre pays que vous avez parcourue.';
+
+  @override
+  String get onboardingPage3Title => 'Partagez vos voyages';
+
+  @override
+  String get onboardingPage3Subtitle =>
+      'Créez des liens partageables pour vos trajets et communiquez vos projets de voyage à qui vous voulez.';
+
+  @override
+  String get onboardingPage4Title => 'Classements';
+
+  @override
+  String get onboardingPage4Subtitle =>
+      'Êtes-vous un grand voyageur ? Comparez vos voyages avec ceux des autres membres du monde entier.';
 }

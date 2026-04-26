@@ -2009,6 +2009,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Trainlog Status'**
   String get trainglogStatusPageTitle;
+
+  /// No description provided for @onboardingGetStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Get started'**
+  String get onboardingGetStarted;
+
+  /// No description provided for @onboardingPage1Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Visualise your travels'**
+  String get onboardingPage1Title;
+
+  /// No description provided for @onboardingPage1Subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Keeping track of your journeys made easy. See all your train, bus, ferry, and aeroplane journeys neatly on a map.'**
+  String get onboardingPage1Subtitle;
+
+  /// No description provided for @onboardingPage2Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Explore your statistics'**
+  String get onboardingPage2Title;
+
+  /// No description provided for @onboardingPage2Subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'See a statistical breakdown of how, when, and where you have travelled.\n\nGet useful statistics on your most frequently visited stations, most frequently used operators, and how much of your country\'s railway network you have been on.'**
+  String get onboardingPage2Subtitle;
+
+  /// No description provided for @onboardingPage3Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Share your travels'**
+  String get onboardingPage3Title;
+
+  /// No description provided for @onboardingPage3Subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create shareable links about your trips to share your travel plans with anyone.'**
+  String get onboardingPage3Subtitle;
+
+  /// No description provided for @onboardingPage4Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Leaderboards'**
+  String get onboardingPage4Title;
+
+  /// No description provided for @onboardingPage4Subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you a frequent traveller? See how your travels stack up against other members worldwide.'**
+  String get onboardingPage4Subtitle;
 }
 
 class _AppLocalizationsDelegate

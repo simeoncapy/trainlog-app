@@ -1154,4 +1154,35 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get trainglogStatusPageTitle => 'Trainlog Status';
+
+  @override
+  String get onboardingGetStarted => 'Get started';
+
+  @override
+  String get onboardingPage1Title => 'Visualise your travels';
+
+  @override
+  String get onboardingPage1Subtitle =>
+      'Keeping track of your journeys made easy. See all your train, bus, ferry, and aeroplane journeys neatly on a map.';
+
+  @override
+  String get onboardingPage2Title => 'Explore your statistics';
+
+  @override
+  String get onboardingPage2Subtitle =>
+      'See a statistical breakdown of how, when, and where you have travelled.\n\nGet useful statistics on your most frequently visited stations, most frequently used operators, and how much of your country\'s railway network you have been on.';
+
+  @override
+  String get onboardingPage3Title => 'Share your travels';
+
+  @override
+  String get onboardingPage3Subtitle =>
+      'Create shareable links about your trips to share your travel plans with anyone.';
+
+  @override
+  String get onboardingPage4Title => 'Leaderboards';
+
+  @override
+  String get onboardingPage4Subtitle =>
+      'Are you a frequent traveller? See how your travels stack up against other members worldwide.';
 }
