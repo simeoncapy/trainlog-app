@@ -26,6 +26,7 @@ class SettingsProvider with ChangeNotifier {
   String _userInstanceUrl = ""; // Cannot be changed in settings, only on welcome page before login, and only if not authenticated yet.
 
   // _SP members are stored in the Shared Preferences only, they cannot be modified by the user in settings
+  bool _SP_onboardingCompleted = false;
   LatLng? _SP_userPosition;
   bool _SP_refusedToSharePosition = false;
   String? _SP_authUsername;
@@ -65,6 +66,7 @@ class SettingsProvider with ChangeNotifier {
   int get sprRadius => _sprRadius;
   String get userInstanceUrl => _userInstanceUrl;
 
+  bool get onboardingCompleted => _SP_onboardingCompleted;
   LatLng? get userPosition => _SP_userPosition;
   bool get refusedToSharePosition => _SP_refusedToSharePosition;
   String? get authUsername => _SP_authUsername;
@@ -96,6 +98,7 @@ class SettingsProvider with ChangeNotifier {
     _loadUserInstanceUrl();
 
     // Shared Preference only (_SP) i.e. internal to the app
+    _loadOnboardingCompleted();
     _loadLastUserPosition();
     _loadRefusedToSharePosition();
     _loadUsername();
@@ -506,7 +509,23 @@ class SettingsProvider with ChangeNotifier {
   }
 
   // ------------------------------------------------------------------------------
-  
+
+  void _loadOnboardingCompleted() async {
+    final prefs = await SharedPreferences.getInstance();
+    _SP_onboardingCompleted = prefs.getBool('onboarding_completed') ?? false;
+    notifyListeners();
+  }
+
+  Future<void> completeOnboarding() async {
+    if (_SP_onboardingCompleted) return;
+    _SP_onboardingCompleted = true;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('onboarding_completed', true);
+    notifyListeners();
+  }
+
+  // ------------------------------------------------------------------------------
+
   void _loadMapPolylineFilterState() async {
     final prefs = await SharedPreferences.getInstance();
 
