@@ -33,6 +33,7 @@ class AdaptiveIcons {
   static final IconData add =         isA ? CupertinoIcons.add : Icons.add;
   static final IconData filter =      isA ? CupertinoIcons.line_horizontal_3_decrease : Icons.filter_alt;
   static final IconData edit =        isA ? CupertinoIcons.square_pencil : Icons.edit;
+  static final IconData refresh =     isA ? CupertinoIcons.refresh : Icons.refresh;
   
   // Sort
   static final IconData sortAscending = isA ? CupertinoIcons.sort_up : Icons.arrow_upward;

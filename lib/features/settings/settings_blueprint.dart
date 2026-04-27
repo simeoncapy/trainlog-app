@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' show Icons, ThemeMode; // only for ThemeMode type
 import 'package:flutter/widgets.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
@@ -7,6 +8,7 @@ import 'package:trainlog_app/platform/adaptive_information_message.dart';
 import 'package:trainlog_app/platform/adaptive_page_route.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
+import 'package:trainlog_app/providers/trips_provider.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
@@ -163,6 +165,7 @@ List<SettingsSectionSpec> buildSettingsBlueprint({
   required BuildContext context,
   required SettingsProvider settings,
   required TrainlogProvider trainlog,
+  required TripsProvider tripsProvider,
   required SettingsVm vm,
   required AppLocalizations l10n,
   required Future<void> Function() showCurrencyPickerMaterialOrCupertino,
@@ -242,6 +245,7 @@ List<SettingsSectionSpec> buildSettingsBlueprint({
   final iconDelete = AdaptiveIcons.deleteAccount;
   final iconVersion = AdaptiveIcons.info;
   final iconInstance = AdaptiveIcons.instance;
+  final iconResetOnboarding = AdaptiveIcons.refresh;
 
   //final cacheLabel = l10n.settingsCache(formatNumber(context, vm.totalCacheSize));
   vm.setVisibilityHelperText(l10n); // Refresh helper text if the language has changed
@@ -470,6 +474,19 @@ List<SettingsSectionSpec> buildSettingsBlueprint({
             );
           },
         ),
+        if (kDebugMode)
+          SettingsButtonActionSpec(
+            icon: iconResetOnboarding,
+            title: "Reset Onboarding (debug)",
+            button: AdaptiveButton.build(
+              context: context,
+              label: Text("Reset"),
+              onPressed: () {
+                settings.resetOnboarding(trainlog, tripsProvider);
+                AdaptiveInformationMessage.showInfo("Onboarding reset");
+              }
+            )
+          ),
       ],
     ),
   ];

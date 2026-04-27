@@ -3,6 +3,8 @@ import 'package:geodesy/geodesy.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:trainlog_app/data/models/polyline_filter_state.dart';
 import 'package:trainlog_app/data/models/trips.dart';
+import 'package:trainlog_app/providers/trainlog_provider.dart';
+import 'package:trainlog_app/providers/trips_provider.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
 
 enum PathDisplayOrder {
@@ -23,7 +25,7 @@ class SettingsProvider with ChangeNotifier {
   bool _hideWarningMessage = false;
   String _currency = "EUR";
   int _sprRadius = 500;
-  String _userInstanceUrl = ""; // Cannot be changed in settings, only on welcome page before login, and only if not authenticated yet.
+  String _userInstanceUrl = ""; // Cannot be changed in settings, only on login page before login, and only if not authenticated yet.
 
   // _SP members are stored in the Shared Preferences only, they cannot be modified by the user in settings
   bool _SP_onboardingCompleted = false;
@@ -521,6 +523,14 @@ class SettingsProvider with ChangeNotifier {
     _SP_onboardingCompleted = true;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('onboarding_completed', true);
+    notifyListeners();
+  }
+
+  Future<void> resetOnboarding(TrainlogProvider trainlog, TripsProvider trips) async {
+    _SP_onboardingCompleted = false;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('onboarding_completed');
+    await trainlog.logout(this, trips);
     notifyListeners();
   }
 
