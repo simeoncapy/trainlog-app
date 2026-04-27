@@ -608,13 +608,11 @@ class StatisticsProvider extends ChangeNotifier {
     final out = LinkedHashMap<String, ({double past, double future})>();
     double otherPast = 0, otherFuture = 0;
 
-    int count = 0;
     for (final entry in shortConverted.entries) {
       final k = entry.key;
       if (k == otherLabel) continue; // accumulate at the end
       final r = raw[k];
       out[k] = (past: r?.past ?? 0, future: r?.future ?? 0);
-      count++;
     }
 
     // The original currentStatsShort already aggregated otherLabel’s **converted** values,

@@ -1,8 +1,8 @@
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 
-import 'package:trainlog_app/pages/onboarding_screen.dart';
-import 'package:trainlog_app/pages/welcome_page.dart';
+import 'package:trainlog_app/features/onboarding/onboarding_screen.dart';
+import 'package:trainlog_app/features/user/login_page.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/widgets/trips_loader.dart';
@@ -24,7 +24,7 @@ class HomeGate extends StatelessWidget {
         }
 
         if (!auth.isAuthenticated) {
-          return const WelcomePage();
+          return const LoginPage();
         }
 
         return TripsLoader(

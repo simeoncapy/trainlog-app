@@ -2,12 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
-import 'package:trainlog_app/pages/privacy_tab.dart';
+import 'package:trainlog_app/features/about/privacy_tab.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
-import 'package:trainlog_app/services/trainlog_service.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 import 'package:trainlog_app/widgets/localised_markdown.dart';
-import 'package:trainlog_app/widgets/localised_markdown_v2.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class AboutPage extends StatelessWidget {

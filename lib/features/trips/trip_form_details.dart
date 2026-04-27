@@ -3,7 +3,7 @@ import 'package:currency_picker/currency_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/data/models/trip_form_model.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
-import 'package:trainlog_app/pages/settings/settings_vm.dart';
+import 'package:trainlog_app/features/settings/settings_vm.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/utils/date_utils.dart';

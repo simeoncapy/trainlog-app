@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
-import 'package:trainlog_app/pages/privacy_tab.dart';
+import 'package:trainlog_app/features/about/privacy_tab.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
-import 'package:trainlog_app/utils/app_info_utils.dart';
 import 'package:trainlog_app/widgets/auth_form.dart';
 import 'package:trainlog_app/widgets/error_banner.dart';
 import 'package:trainlog_app/widgets/footer.dart';

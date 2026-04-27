@@ -14,7 +14,7 @@ Trainlog is managed by **Boreal Baguette Studios** and is accessible on the foll
 
 The website is an open-source project (see the following section), it is mainly developed by **Boreal Baguette Studios** as well.
 
-The smartphone application is also an open-source project and is mainly developped by [Siméon Capy](https://cv.scapy.fr).
+The smartphone application is also an open-source project and is mainly developped by [scapy](https://cv.scapy.fr).
 
 # Support
 

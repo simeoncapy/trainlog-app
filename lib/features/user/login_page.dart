@@ -1,22 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
-import 'package:trainlog_app/pages/signup_page.dart';
+import 'package:trainlog_app/features/user/signup_page.dart';
 import 'package:trainlog_app/platform/adaptive_information_message.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
-import 'package:trainlog_app/utils/app_info_utils.dart';
 import 'package:trainlog_app/widgets/auth_form.dart';
 import 'package:trainlog_app/widgets/footer.dart';
 
-class WelcomePage extends StatefulWidget {
-  const WelcomePage({super.key});
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
 
   @override
-  State<WelcomePage> createState() => _WelcomePageState();
+  State<LoginPage> createState() => _LoginPageState();
 }
 
-class _WelcomePageState extends State<WelcomePage> {
+class _LoginPageState extends State<LoginPage> {
   bool _loggingIn = false;
 
   @override

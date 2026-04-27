@@ -1,17 +1,14 @@
 import 'package:flutter/material.dart' show Icons, ThemeMode; // only for ThemeMode type
 import 'package:flutter/widgets.dart';
-
-import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
+import 'package:trainlog_app/features/trainlog/egg.dart';
 import 'package:trainlog_app/platform/adaptive_button.dart';
 import 'package:trainlog_app/platform/adaptive_information_message.dart';
 import 'package:trainlog_app/platform/adaptive_page_route.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
-import 'package:trainlog_app/services/trainlog_service.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
-import 'package:trainlog_app/utils/number_formatter.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 
 import 'settings_vm.dart';
@@ -246,7 +243,7 @@ List<SettingsSectionSpec> buildSettingsBlueprint({
   final iconVersion = AdaptiveIcons.info;
   final iconInstance = AdaptiveIcons.instance;
 
-  final cacheLabel = l10n.settingsCache(formatNumber(context, vm.totalCacheSize));
+  //final cacheLabel = l10n.settingsCache(formatNumber(context, vm.totalCacheSize));
   vm.setVisibilityHelperText(l10n); // Refresh helper text if the language has changed
 
   return [
@@ -469,6 +466,7 @@ List<SettingsSectionSpec> buildSettingsBlueprint({
               showCopiedInfo: () {
                 AdaptiveInformationMessage.showInfo(l10n.appVersionCopied);
               },
+              openSnakeGame: () => AdaptivePageRoute.push(context, (_) => const SnakeGame()),
             );
           },
         ),

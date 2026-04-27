@@ -3,15 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
-import 'package:trainlog_app/pages/inbox_page.dart';
-import 'package:trainlog_app/pages/trainlog_status_page.dart';
+import 'package:trainlog_app/features/trainlog/inbox_page.dart';
+import 'package:trainlog_app/features/trainlog/trainlog_status_page.dart';
 import 'package:trainlog_app/platform/adaptive_button.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
-import 'package:trainlog_app/widgets/auth_dialog.dart';
-import 'package:trainlog_app/widgets/auth_form.dart';
 
 enum TrainlogStatus {
   ok, trouble, down;
@@ -91,7 +89,6 @@ class _MenuHeaderState extends State<MenuHeader> {
     final settings = context.read<SettingsProvider>();
     final trips = context.read<TripsProvider>();
     final scaffMsg = ScaffoldMessenger.of(context);
-    final trainlog = context.read<TrainlogProvider>();
     final theme = Theme.of(context);    
 
     return Align(
@@ -156,35 +153,7 @@ class _MenuHeaderState extends State<MenuHeader> {
         );
       },
     );
-    
-    // return ElevatedButton.icon(
-    //   icon: Icon(AdaptiveIcons.logout),
-    //   label: Text(loc.logoutButton),
-    //   onPressed: () async {
-    //     await context.read<TrainlogProvider>().logout(settings, trips);
-    //     scaffMsg.showSnackBar(
-    //       SnackBar(content: Text(loc.loggedOut)),
-    //     );
-    //   },
-    // );
   }
-
-  // ElevatedButton _statusButtonHelper(AppLocalizations loc, BuildContext context, ThemeData theme) {
-  //   return ElevatedButton.icon(
-  //     icon: _status.toIcon(14),
-  //     label: Text("Status", style: TextStyle(fontSize: 11)),
-  //     style: ElevatedButton.styleFrom(
-  //       backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
-  //       foregroundColor: Theme.of(context).colorScheme.onSecondaryContainer,
-  //       padding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-  //       minimumSize: Size(0, 28),
-  //       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-  //     ),
-  //     onPressed: () async {
-  //       debugPrint("TODO");
-  //     },
-  //   );
-  // }
 
   Widget _statusIconButtonHelper(ThemeData theme) {
     return IconButton(
@@ -251,48 +220,5 @@ class _MenuHeaderState extends State<MenuHeader> {
         reverseTransitionDuration: Duration.zero,
       ));
     }
-  }
-
-  ElevatedButton _createAccountButtonHelper(AppLocalizations loc, BuildContext context, ScaffoldMessengerState scaffMsg) {
-    return ElevatedButton.icon(
-      icon: const Icon(Icons.person_add_alt),
-      label: Text(loc.createAccountButton),
-      onPressed: () async {
-        final result = await AuthDialog.show(
-          context,
-          type: AuthFormType.createAccount,
-        );
-        if (result != null) {
-          // TODO: call your sign-up endpoint when available
-          scaffMsg.showSnackBar(
-            const SnackBar(content: Text('Account creation not implemented yet')),
-          );
-        }
-      },
-    );
-  }
-
-  ElevatedButton _loginButtonHelper(AppLocalizations loc, BuildContext context, TrainlogProvider trainlog, SettingsProvider settings, ScaffoldMessengerState scaffMsg) {
-    return ElevatedButton.icon(
-      icon: const Icon(Icons.login),
-      label: Text(loc.loginButton),
-      onPressed: () async {
-        final result = await AuthDialog.show(
-          context,
-          type: AuthFormType.login,
-        );
-        if (result != null) {
-          final ok = await trainlog.login(
-                username: result.username,
-                password: result.password,
-                settings: settings
-              );
-          final msg = ok
-              ? 'Logged in as ${result.username}'
-              : (trainlog.error ?? loc.connectionError);
-          scaffMsg.showSnackBar(SnackBar(content: Text(msg)));
-        }
-      },
-    );
   }
 }

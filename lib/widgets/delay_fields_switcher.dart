@@ -172,7 +172,7 @@ class _DelayFieldsSwitcherState extends State<DelayFieldsSwitcher> {
       'minute': _minuteMode
           ? _savedDelayMinutes?.toString()
           : _computedDelayMinutes?.toString(),
-      'dateTime': hasTimeDelay ? effectiveDateTime!.toIso8601String() : null,
+      'dateTime': hasTimeDelay ? effectiveDateTime.toIso8601String() : null,
     });
 
     WidgetsBinding.instance.addPostFrameCallback((_) {

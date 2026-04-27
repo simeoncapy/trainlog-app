@@ -171,6 +171,7 @@ class SettingsVm extends ChangeNotifier {
   Future<void> onVersionTapped({
     required AppLocalizations l10n,
     required VoidCallback showCopiedInfo,
+    required VoidCallback openSnakeGame,
   }) async {
     final version = await getVersionString();
     await Clipboard.setData(ClipboardData(text: version));
@@ -180,6 +181,10 @@ class SettingsVm extends ChangeNotifier {
     }
 
     _tapOnVersion++;
+    if (_tapOnVersion == 3) {
+      _tapOnVersion = 0;
+      openSnakeGame();
+    }
 
     notifyListeners();
   }

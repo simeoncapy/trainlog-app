@@ -2,23 +2,23 @@
 import 'package:flutter/material.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/navigation/nav_models.dart';
-import 'package:trainlog_app/pages/settings/settings_material_page.dart';
+import 'package:trainlog_app/features/settings/settings_material_page.dart';
 import 'package:trainlog_app/platform/adaptive_app_bar.dart';
 import 'package:trainlog_app/platform/adaptive_bottom_navbar.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 import 'package:trainlog_app/widgets/menu_header.dart';
 
-import 'package:trainlog_app/pages/about_page.dart';
-import 'package:trainlog_app/pages/coverage_page.dart';
-import 'package:trainlog_app/pages/dashboard_page.dart';
-import 'package:trainlog_app/pages/friends_page.dart';
-import 'package:trainlog_app/pages/map_page.dart';
-import 'package:trainlog_app/pages/ranking_page.dart';
-import 'package:trainlog_app/pages/smart_prerecorder_page.dart';
-import 'package:trainlog_app/pages/statistics_page.dart';
-import 'package:trainlog_app/pages/tags_page.dart';
-import 'package:trainlog_app/pages/tickets_page.dart';
-import 'package:trainlog_app/pages/trips_page.dart';
+import 'package:trainlog_app/features/about/about_page.dart';
+import 'package:trainlog_app/features/user/coverage_page.dart';
+import 'package:trainlog_app/features/user/dashboard_page.dart';
+import 'package:trainlog_app/features/friends/friends_page.dart';
+import 'package:trainlog_app/features/map/map_page.dart';
+import 'package:trainlog_app/features/ranking/ranking_page.dart';
+import 'package:trainlog_app/features/spr/smart_prerecorder_page.dart';
+import 'package:trainlog_app/features/statistics/statistics_page.dart';
+import 'package:trainlog_app/features/tags/tags_page.dart';
+import 'package:trainlog_app/features/tickets/tickets_page.dart';
+import 'package:trainlog_app/features/trips/trips_page.dart';
 
 typedef SetPrimaryActions = void Function(List<AppPrimaryAction> actions);
 

@@ -7,7 +7,6 @@ import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
 import 'package:trainlog_app/utils/cached_data_utils.dart';
 import 'package:trainlog_app/utils/text_utils.dart';
-import 'package:trainlog_app/widgets/shimmer_box.dart';
 import '../services/trainlog_service.dart';
 import 'package:latlong2/latlong.dart';
 import "package:unorm_dart/unorm_dart.dart" as unorm;

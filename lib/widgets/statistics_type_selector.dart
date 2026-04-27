@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:trainlog_app/l10n/app_localizations.dart';
 
 enum StatisticsType { bar, pie, table }
 

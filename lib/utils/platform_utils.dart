@@ -8,7 +8,7 @@ class AppPlatform {
   static const bool isWeb = kIsWeb;
 
   static final bool isApple = 
-      !kIsWeb && (Platform.isIOS || Platform.isMacOS);
+      !kIsWeb && (Platform.isIOS || Platform.isMacOS/* || Platform.isWindows*/);
 
   static final bool isMaterial = !isApple;
 

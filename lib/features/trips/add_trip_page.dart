@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:step_progress/step_progress.dart';
@@ -7,12 +5,11 @@ import 'package:trainlog_app/data/controllers/trainlog_web_controller.dart';
 import 'package:trainlog_app/data/models/polyline_entry.dart';
 import 'package:trainlog_app/data/models/trip_form_model.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
-import 'package:trainlog_app/pages/smart_prerecorder_page.dart';
-import 'package:trainlog_app/pages/trip_form_basics.dart';
-import 'package:trainlog_app/pages/trip_form_date.dart';
-import 'package:trainlog_app/pages/trip_form_details.dart';
-import 'package:trainlog_app/pages/trip_form_path.dart';
-import 'package:trainlog_app/providers/polyline_provider.dart';
+import 'package:trainlog_app/features/spr/smart_prerecorder_page.dart';
+import 'package:trainlog_app/features/trips/trip_form_basics.dart';
+import 'package:trainlog_app/features/trips/trip_form_date.dart';
+import 'package:trainlog_app/features/trips/trip_form_details.dart';
+import 'package:trainlog_app/features/trips/trip_form_path.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/data/models/trips.dart';
@@ -200,7 +197,7 @@ class _AddTripPageState extends State<AddTripPage> {
     final path = PolylineTools.toLatLngList(newTrip["path"]);
     newTrip["path"] = PolylineTools.encodePath(path); // Store encoded path
     final trip = Trips.fromJson(newTrip);
-    final isFuture = trip.utcStartDate != null && trip.utcStartDate!.isAfter(DateTime.now().toUtc());
+    //final isFuture = trip.utcStartDate != null && trip.utcStartDate!.isAfter(DateTime.now().toUtc());
 
     // Insert new trip into providers
     tripsProvider.insertTrip(trip);

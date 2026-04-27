@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:dropdown_search/dropdown_search.dart';
-import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
-import 'package:trainlog_app/utils/map_color_palette.dart';
 import 'package:trainlog_app/utils/text_utils.dart';
 import 'package:trainlog_app/widgets/vehicle_type_filter_chips.dart';
 
@@ -62,7 +59,7 @@ class _TripsFilterDialogState extends State<TripsFilterDialog> {
     super.initState();
     if (widget.initialFilter != null) {
       final f = widget.initialFilter!;
-      _keywordController.text = f.keyword ?? '';
+      _keywordController.text = f.keyword;
       _selectedCountry = f.country ?? 'All';
       _selectedOperator = f.operatorName ?? 'All';
       _selectedTypes = List.from(f.types);

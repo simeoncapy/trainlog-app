@@ -177,7 +177,7 @@ class _SettingsCupertinoPageState extends State<SettingsCupertinoPage> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final mq = MediaQuery.of(context);
+    //final mq = MediaQuery.of(context);
 
     final settings = context.watch<SettingsProvider>();
     final trainlog = context.read<TrainlogProvider>();
