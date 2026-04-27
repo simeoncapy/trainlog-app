@@ -55,6 +55,7 @@ dependencies:
   package_info_plus: ^8.0.0
   const_date_time: ^1.2.1
   cupertino_icons: ^1.0.6
+  lottie: ^3.0.0
 
 dev_dependencies:
   flutter_test:
@@ -68,7 +69,10 @@ flutter:
     - assets/images/
     - assets/i18n/
     - assets/logo/
+    - assets/icon/
     - assets/migrations/
+    - assets/animations/
+    - assets/licenses/
 
 flutter_launcher_icons:
   android: "launcher_icon"

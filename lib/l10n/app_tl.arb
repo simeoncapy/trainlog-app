@@ -79,6 +79,8 @@
   "duplicateBtnLabel": "Idoble ",
   "newBadge": "BAGO",
   "nbrPassengers": "{count} pasahero",
+  "appLoading": "Ina-load ang app, maghintay ng saglit",
+
   "dialogueDefaultInfoTitle": "Impormasyon",
   "dialogueChangeInstanceTitle": "Ibago ang trainlog instance",
   "dialogueChangeInstanceButton": "Ibago",
@@ -140,6 +142,8 @@
   "settingsAccountVisibilitPublicHelper": "Ang public profile mo ay maa-access gamit ang username mo.",
   "settingsInstanceUrl": "Trainlog instance",
   "settingsInstanceMsg": "Maari mo ibago ang path ng Trainlog instance gamit ang application sa login page",
+  "settingsLicenses": "Mga lisensya",
+
   "menuMapTitle": "Mapa",
   "menuTripsTitle": "Byahe",
   "menuRankingTitle": "Ranking",

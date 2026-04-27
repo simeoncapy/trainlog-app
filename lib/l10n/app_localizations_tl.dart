@@ -244,6 +244,9 @@ class AppLocalizationsTl extends AppLocalizations {
   String get setBtnLabel => 'Iset';
 
   @override
+  String get appLoading => 'Ina-load ang app, maghintay ng saglit';
+
+  @override
   String get settingsAppCategory => 'App Settings';
 
   @override
@@ -393,6 +396,9 @@ class AppLocalizationsTl extends AppLocalizations {
   @override
   String get settingsInstanceMsg =>
       'Maari mo ibago ang path ng Trainlog instance gamit ang application sa login page';
+
+  @override
+  String get settingsLicenses => 'Mga lisensya';
 
   @override
   String get menuMapTitle => 'Mapa';

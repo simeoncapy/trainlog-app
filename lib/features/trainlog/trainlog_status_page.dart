@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 
@@ -35,9 +36,10 @@ class TrainlogStatusPage extends StatelessWidget {
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [              
-            Expanded(
-              child: Text("status"),
-            ),
+            Expanded(child: Lottie.asset(
+              'assets/animations/new_trip_cropped.json',
+              alignment: Alignment.topCenter,
+            )),
           ],
         ),
       );

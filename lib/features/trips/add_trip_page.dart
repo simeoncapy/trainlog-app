@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:step_progress/step_progress.dart';
+import 'package:lottie/lottie.dart';
 import 'package:trainlog_app/data/controllers/trainlog_web_controller.dart';
 import 'package:trainlog_app/data/models/polyline_entry.dart';
 import 'package:trainlog_app/data/models/trip_form_model.dart';
@@ -501,7 +502,8 @@ class _AddTripPageState extends State<AddTripPage> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      CircularProgressIndicator(),
+                      //CircularProgressIndicator(),
+                      Expanded(child: Lottie.asset('assets/animations/new_trip_cropped.json')),
                       SizedBox(height: 20),
                       Text(
                         loc.addTripRecordingMsg,

@@ -250,6 +250,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get setBtnLabel => 'Set';
 
   @override
+  String get appLoading => 'Loading the app, please wait';
+
+  @override
   String get settingsAppCategory => 'App Settings';
 
   @override
@@ -394,6 +397,9 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get settingsInstanceMsg =>
       'You can change the path of the Trainlog instance used by the application on the login page.';
+
+  @override
+  String get settingsLicenses => 'Licenses';
 
   @override
   String get menuMapTitle => 'Map';

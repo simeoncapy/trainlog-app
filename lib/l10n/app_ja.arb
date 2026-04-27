@@ -75,6 +75,7 @@
   "dialogueChangeInstanceCustomLabel": "カスタムインスタンス",
   "daySingleCharacter": "日",
   "setBtnLabel": "設定",
+  "appLoading": "アプリを読み込んでいます。しばらくお待ちください",
 
   "settingsAppCategory": "アプリ設定",
   "settingsMapCategory": "地図設定",
@@ -121,6 +122,7 @@
   "settingsAccountVisibilitPublicHelper": "あなたの公開プロフィールは、あなたのユーザー名を通じてアクセスできます。",
   "settingsInstanceUrl": "Trainlogのインスタンス",
   "settingsInstanceMsg": "ログインページで、アプリケーションで使用されるTrainlogのインスタンスのパスを変更できます。",
+  "settingsLicenses": "ライセンス",
 
   "menuMapTitle": "地図",
   "menuTripsTitle": "旅行",

@@ -558,6 +558,12 @@ abstract class AppLocalizations {
   /// **'Set'**
   String get setBtnLabel;
 
+  /// No description provided for @appLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading the app, please wait'**
+  String get appLoading;
+
   /// No description provided for @settingsAppCategory.
   ///
   /// In en, this message translates to:
@@ -827,6 +833,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You can change the path of the Trainlog instance used by the application on the login page.'**
   String get settingsInstanceMsg;
+
+  /// No description provided for @settingsLicenses.
+  ///
+  /// In en, this message translates to:
+  /// **'Licenses'**
+  String get settingsLicenses;
 
   /// No description provided for @menuMapTitle.
   ///

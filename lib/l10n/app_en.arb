@@ -91,6 +91,7 @@
   "dialogueChangeInstanceCustomLabel": "Custom instance",
   "daySingleCharacter": "D",
   "setBtnLabel": "Set",
+  "appLoading": "Loading the app, please wait",
   
   "settingsAppCategory": "App Settings",
   "settingsMapCategory": "Map Settings",
@@ -149,6 +150,7 @@
   "settingsAccountVisibilitPublicHelper": "Your public profile can be accessed via your username.",
   "settingsInstanceUrl": "Trainlog instance",
   "settingsInstanceMsg": "You can change the path of the Trainlog instance used by the application on the login page.",
+  "settingsLicenses": "Licenses",
   
   "menuMapTitle": "Map",
   "menuTripsTitle": "Trips",

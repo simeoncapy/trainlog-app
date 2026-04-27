@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:timezone/data/latest.dart' as tz;
 
@@ -19,6 +21,15 @@ Future<void> main() async {
   final service = await TrainlogService.persistent();
   final auth = TrainlogProvider(service: service);
   await auth.tryRestoreSession(settings: settings);
+
+  LicenseRegistry.addLicense(() async* {
+    final licenseText = await rootBundle.loadString('assets/licenses/lottie_simple.txt');
+    yield LicenseEntryWithLineBreaks(
+      ['LottieFiles (animations)'],
+      'App and Trip Loading animation by LK Jing\n'
+      'New Trip Loading animation by Igor Tcherepoff\n\n$licenseText',
+    );
+  });
 
   runApp(
     AppProviders(

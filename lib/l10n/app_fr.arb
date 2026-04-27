@@ -75,6 +75,7 @@
   "dialogueChangeInstanceCustomLabel": "Instance personnalisée",
   "daySingleCharacter": "J",
   "setBtnLabel": "Valider",
+  "appLoading": "Chargement de l'application, veuillez patienter",
 
   "settingsAppCategory": "Paramètres de l'application",
   "settingsMapCategory": "Paramètres de la carte",
@@ -121,6 +122,7 @@
   "settingsAccountVisibilitPublicHelper": "Votre profil public est accessible via votre nom d'utilisateur.",
   "settingsInstanceUrl": "Instance Trainlog",
   "settingsInstanceMsg": "Vous pouvez modifier l'URL de l'instance Trainlog utilisée par l'application sur la page de connexion.",
+  "settingsLicenses": "Licences",
 
   "menuMapTitle": "Carte",
   "menuTripsTitle": "Trajets",
@@ -141,7 +143,7 @@
   "mapFilterVehicleTypeAllBtn": "Tous",
   "mapFilterVehicleTypeNoneBtn": "Aucun",
 
-  "tripPathLoading": "Chemin des trajets en cours de chargement, veuillez patienter",
+  "tripPathLoading": "Trajets en cours de chargement, veuillez patienter",
   "yearTitle": "Années",
   "yearAllList": "Tout",
   "yearPastList": "Passé",

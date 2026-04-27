@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart' show Icons, ThemeMode; // only for ThemeMode type
+import 'package:flutter/material.dart' show Icons, ThemeMode, MaterialLocalizations, showLicensePage; // only for ThemeMode type
 import 'package:flutter/widgets.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/features/trainlog/egg.dart';
@@ -246,6 +246,7 @@ List<SettingsSectionSpec> buildSettingsBlueprint({
   final iconVersion = AdaptiveIcons.info;
   final iconInstance = AdaptiveIcons.instance;
   final iconResetOnboarding = AdaptiveIcons.refresh;
+  final iconLicenses = AdaptiveIcons.license;
 
   //final cacheLabel = l10n.settingsCache(formatNumber(context, vm.totalCacheSize));
   vm.setVisibilityHelperText(l10n); // Refresh helper text if the language has changed
@@ -473,6 +474,24 @@ List<SettingsSectionSpec> buildSettingsBlueprint({
               openSnakeGame: () => AdaptivePageRoute.push(context, (_) => const SnakeGame()),
             );
           },
+        ),
+        SettingsButtonActionSpec(
+          icon: iconLicenses,
+          title: l10n.settingsLicenses,
+          button: AdaptiveButton.build(
+            context: context,
+            label: Text(MaterialLocalizations.of(context).viewLicensesButtonLabel),
+            onPressed: () async {
+              final version = await vm.getVersionString();
+              if (!context.mounted) return; 
+              showLicensePage(
+                context: context,
+                applicationName: l10n.appTitle,
+                applicationVersion: version,
+                applicationIcon: Image.asset('assets/icon/trainlog_icon.png', width: 64),
+              );
+            }
+          )
         ),
         if (kDebugMode)
           SettingsButtonActionSpec(

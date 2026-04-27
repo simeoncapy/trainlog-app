@@ -243,6 +243,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get setBtnLabel => '設定';
 
   @override
+  String get appLoading => 'アプリを読み込んでいます。しばらくお待ちください';
+
+  @override
   String get settingsAppCategory => 'アプリ設定';
 
   @override
@@ -385,6 +388,9 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get settingsInstanceMsg =>
       'ログインページで、アプリケーションで使用されるTrainlogのインスタンスのパスを変更できます。';
+
+  @override
+  String get settingsLicenses => 'ライセンス';
 
   @override
   String get menuMapTitle => '地図';

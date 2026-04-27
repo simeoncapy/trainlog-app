@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:lottie/lottie.dart' as lt;
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
@@ -212,14 +213,17 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver, Automati
       });
 
       return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const CircularProgressIndicator(),
-            const SizedBox(height: 16),
-            Text(appLocalizations.tripPathLoading,
-                style: const TextStyle(fontWeight: FontWeight.bold)),
-          ],
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(8, 8, 8, 24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Expanded(child: lt.Lottie.asset('assets/animations/loading.json')),
+              const SizedBox(height: 16),
+              Text(appLocalizations.tripPathLoading,
+                  style: const TextStyle(fontWeight: FontWeight.bold)),
+            ],
+          ),
         ),
       );
     }

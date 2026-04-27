@@ -251,6 +251,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get setBtnLabel => 'Valider';
 
   @override
+  String get appLoading => 'Chargement de l\'application, veuillez patienter';
+
+  @override
   String get settingsAppCategory => 'Paramètres de l\'application';
 
   @override
@@ -402,6 +405,9 @@ class AppLocalizationsFr extends AppLocalizations {
       'Vous pouvez modifier l\'URL de l\'instance Trainlog utilisée par l\'application sur la page de connexion.';
 
   @override
+  String get settingsLicenses => 'Licences';
+
+  @override
   String get menuMapTitle => 'Carte';
 
   @override
@@ -454,7 +460,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get tripPathLoading =>
-      'Chemin des trajets en cours de chargement, veuillez patienter';
+      'Trajets en cours de chargement, veuillez patienter';
 
   @override
   String get yearTitle => 'Années';
