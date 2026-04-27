@@ -36,6 +36,14 @@ class SettingsVm extends ChangeNotifier {
   bool _isInitDone = false;
   bool get isInitDone => _isInitDone;
 
+  bool _disposed = false;
+
+  @override
+  void dispose() {
+    _disposed = true;
+    super.dispose();
+  }
+
   void refreshCacheSize() {
     totalCacheSize = AppCacheFilePath.computeAllCacheFileSize();
     debugPrint('Cache size refreshed: $totalCacheSize bytes');
@@ -55,6 +63,7 @@ class SettingsVm extends ChangeNotifier {
     refreshCacheSize();
 
     accountSettings = await trainlog.fetchAccountSettings();
+    if (_disposed) return;
 
     accountVisibility = accountSettings[accountSettingsKeyVisibility] != null
         ? int.tryParse(accountSettings[accountSettingsKeyVisibility]!)
@@ -68,10 +77,11 @@ class SettingsVm extends ChangeNotifier {
 
     if (trainlog.availableCurrencies.isEmpty) {
       await trainlog.reloadAvailableCurrencies();
+      if (_disposed) return;
     }
 
     _isInitDone = true;
-    notifyListeners(); // TODO check FlutterError (A SettingsVm was used after being disposed. Once you have called dispose() on a SettingsVm, it can no longer be used.)
+    notifyListeners();
   }
 
   String _visibilityHelperText(AppLocalizations l10n, int? v) {
