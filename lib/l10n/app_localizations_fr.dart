@@ -99,6 +99,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get createAccountButtonShort => 'Créer';
 
   @override
+  String get createAccountPrivacyPolicy =>
+      'En vous inscrivant, vous acceptez notre Politique de confidentialité.';
+
+  @override
   String get loginToYourAccount => 'Connectez-vous à votre compte';
 
   @override

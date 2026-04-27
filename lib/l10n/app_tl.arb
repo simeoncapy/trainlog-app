@@ -30,6 +30,7 @@
   "passwordHideLabel": "Itago ang password",
   "passwordRequiredLabel": "Kailangan ang password",
   "createAccountButtonShort": "Gumawa",
+  "createAccountPrivacyPolicy": "Sa pag sign up, sumasang-ayon ka sa aming Privacy Policy.",
   "loginToYourAccount": "Mag login sa account ",
   "errorCreationAccount": "May mali sa pag gawa ng account.",
   "menuHello": "Kamusta {username}",

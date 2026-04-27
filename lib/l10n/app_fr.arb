@@ -30,6 +30,7 @@
   "passwordHideLabel": "Masquer le mot de passe",
   "passwordRequiredLabel": "Le mot de passe est obligatoire",
   "createAccountButtonShort": "Créer",
+  "createAccountPrivacyPolicy": "En vous inscrivant, vous acceptez notre Politique de confidentialité.",
   "loginToYourAccount": "Connectez-vous à votre compte",
   "errorCreationAccount": "Erreur lors de la création du compte.",
   "menuHello": "Bonjour {username}",

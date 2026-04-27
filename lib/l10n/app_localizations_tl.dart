@@ -99,6 +99,10 @@ class AppLocalizationsTl extends AppLocalizations {
   String get createAccountButtonShort => 'Gumawa';
 
   @override
+  String get createAccountPrivacyPolicy =>
+      'Sa pag sign up, sumasang-ayon ka sa aming Privacy Policy.';
+
+  @override
   String get loginToYourAccount => 'Mag login sa account ';
 
   @override

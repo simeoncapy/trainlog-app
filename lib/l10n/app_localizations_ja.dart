@@ -99,6 +99,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get createAccountButtonShort => '作成';
 
   @override
+  String get createAccountPrivacyPolicy =>
+      'サインアップすることで、プライバシーポリシーに同意したことになります。';
+
+  @override
   String get loginToYourAccount => 'アカウントにログイン';
 
   @override

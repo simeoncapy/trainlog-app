@@ -30,6 +30,7 @@
   "passwordHideLabel": "パスワードを非表示",
   "passwordRequiredLabel": "パスワードは必須です",
   "createAccountButtonShort": "作成",
+  "createAccountPrivacyPolicy": "サインアップすることで、プライバシーポリシーに同意したことになります。",
   "loginToYourAccount": "アカウントにログイン",
   "errorCreationAccount": "アカウントの作成中にエラーが発生しました。",
   "menuHello": "こんにちは {username}さん",

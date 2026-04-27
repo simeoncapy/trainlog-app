@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
+import 'package:trainlog_app/pages/privacy_tab.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/utils/app_info_utils.dart';
 import 'package:trainlog_app/widgets/auth_form.dart';
 import 'package:trainlog_app/widgets/error_banner.dart';
+import 'package:trainlog_app/widgets/footer.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -64,6 +66,9 @@ class _SignupPageState extends State<SignupPage> {
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
     final auth = context.watch<TrainlogProvider>();
+    final locale = Localizations.localeOf(context);
+    final languageCode = locale.languageCode;
+    final trainlog = Provider.of<TrainlogProvider>(context, listen: false);
 
     return SafeArea(
       child: Scaffold(
@@ -101,6 +106,41 @@ class _SignupPageState extends State<SignupPage> {
                               type: AuthFormType.createAccount,
                               onSubmitted: (result) => _onSignup(context, result, auth, loc),
                             ),
+                            SizedBox(height: 12),
+                            TextButton(
+                              onPressed: () {
+                                // Handle Privacy Policy link press
+                                // PrivacyHtmlTab(url: Uri.parse('${trainlog.instanceUrl}/privacy/$languageCode'))
+                                showDialog<String>(
+                                  context: context,
+                                  builder: (BuildContext context) => Dialog.fullscreen(
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: <Widget>[
+                                        Expanded(
+                                          child: SingleChildScrollView(
+                                            child: Padding(
+                                              padding: const EdgeInsets.all(16.0),
+                                              child: PrivacyHtmlTab(url: Uri.parse('${trainlog.instanceUrl}/privacy/$languageCode')),
+                                            ),
+                                          ),
+                                        ),                                        
+                                        const SizedBox(height: 15),
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
+                                          child: Text(MaterialLocalizations.of(context).closeButtonLabel),
+                                        ),
+                                        const SizedBox(height: 15),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: Text(loc.createAccountPrivacyPolicy),
+                            ),
 
                             if(_error != null) ... [
                               const SizedBox(height: 16),
@@ -130,34 +170,7 @@ class _SignupPageState extends State<SignupPage> {
                 padding: const EdgeInsets.only(bottom: 12, top: 8, left: 16, right: 16),
                 child: Column(
                   children: [                    
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        FutureBuilder<String>(
-                          future: getAppVersionString(),
-                          builder: (context, snap) {
-                            if (!snap.hasData) return const SizedBox.shrink();
-                            final version = 'v${snap.data} • 2026 Trainlog ';
-                            return Text(version);
-                          },
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 4,),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Flexible(
-                          child: Text(
-                            '(${auth.instanceUrl})',
-                            style: Theme.of(context).textTheme.bodySmall,
-                            textAlign: TextAlign.center,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
+                    Footer(),
                   ],
                 ),
               ),

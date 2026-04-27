@@ -282,6 +282,12 @@ abstract class AppLocalizations {
   /// **'Create'**
   String get createAccountButtonShort;
 
+  /// No description provided for @createAccountPrivacyPolicy.
+  ///
+  /// In en, this message translates to:
+  /// **'By signing up, you agree to our Privacy Policy.'**
+  String get createAccountPrivacyPolicy;
+
   /// No description provided for @loginToYourAccount.
   ///
   /// In en, this message translates to:
