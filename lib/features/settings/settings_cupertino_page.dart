@@ -181,6 +181,7 @@ class _SettingsCupertinoPageState extends State<SettingsCupertinoPage> {
 
     final settings = context.watch<SettingsProvider>();
     final trainlog = context.read<TrainlogProvider>();
+    final tripsProvider = context.read<TripsProvider>();
 
     return AnimatedBuilder(
       animation: _vm,
@@ -189,6 +190,7 @@ class _SettingsCupertinoPageState extends State<SettingsCupertinoPage> {
           context: context,
           settings: settings,
           trainlog: trainlog,
+          tripsProvider: tripsProvider,
           vm: _vm,
           l10n: l10n,
           showCurrencyPickerMaterialOrCupertino: _showCurrencyPickerCupertino,

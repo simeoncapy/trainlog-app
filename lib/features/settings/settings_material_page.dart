@@ -111,7 +111,8 @@ class _SettingsMaterialPageState extends State<SettingsMaterialPage> {
     final l10n = AppLocalizations.of(context)!;
 
     final settings = context.watch<SettingsProvider>();
-    final trainlog = context.read<TrainlogProvider>();    
+    final trainlog = context.read<TrainlogProvider>();
+    final tripsProvider = context.read<TripsProvider>();    
 
     return Scaffold(
       //appBar: AppBar(title: Text(l10n.menuSettingsTitle)),
@@ -122,6 +123,7 @@ class _SettingsMaterialPageState extends State<SettingsMaterialPage> {
             context: ctx,
             settings: settings,
             trainlog: trainlog,
+            tripsProvider: tripsProvider,
             vm: _vm,
             l10n: l10n,
             showCurrencyPickerMaterialOrCupertino: _showCurrencyPickerMaterial,
