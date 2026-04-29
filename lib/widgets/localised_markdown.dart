@@ -221,4 +221,6 @@ final Map<String, IconData> kIcons = {
   'explore': Icons.explore,
   'frame_person_off': Symbols.frame_person_off,
   'frame_person': Symbols.frame_person,
+  'fullscreen': Icons.fullscreen,
+  'globe_location_pin': Symbols.globe_location_pin,
 };

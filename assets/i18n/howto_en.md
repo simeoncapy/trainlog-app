@@ -20,7 +20,7 @@ First select the type of vehicle you used, as it as an impact of the station sea
 
 In case the station doesn't exist, you can create a manual station. For this, click on :sym(globe_location_pin): to change the mode. Then enter the name of the station and its coordinates. If you don't know the coordinates, you can also move the pin on the minimap after expanding it.
 
-At the end of the form, you can select one or several operators for the trips. The already existing one will show up. In case the operator doesn't exist, you can validate the field with enter or a comma to create an operator without logo. You can request the logo to be added in the app on the project Discord (check the about tab).
+At the end of the form, you can select one or several operators for the trips. The already existing one will show up. In case the operator doesn't exist, you can validate the field with enter or a comma to create an operator without logo. You can request the logo to be added in the app on the project Discord (check the Trainlog tab).
 
 ## Add a trip - dates
 
@@ -38,7 +38,7 @@ You can fill in the **line** number or name, the **material** (rolling stock mod
 
 The **Ticket** section lets you record the ticket price (with a currency picker) and the purchase date.
 
-The **Energy** section lets you specify the traction type of the vehicle: electric, fuel, or hydrogen.
+The **Energy** section lets you specify the traction type of the vehicle: automatic, electric, or fuel.
 
 The **Visibility** section controls who can see this trip: private (only you), friends only, or public.
 
