@@ -16,7 +16,11 @@ It will display all your trips, past and future (use the toggle selector at the 
 
 ## Add a trip - basics
 
-bla
+First select the type of vehicle you used, as it as an impact of the station search. You can then select the stations by entering its name. A minimap can let you check if the choosen selection is correct or not. This is espically useful when a big station is split in different entity (suffixed with letters). You can expand the minimap by clicking on :icon(fullscreen):.
+
+In case the station doesn't exist, you can create a manual station. For this, click on :sym(globe_location_pin): to change the mode. Then enter the name of the station and its coordinates. If you don't know the coordinates, you can also move the pin on the minimap after expanding it.
+
+At the end of the form, you can select one or several operators for the trips. The already existing one will show up. In case the operator doesn't exist, you can validate the field with enter or a comma to create an operator without logo. You can request the logo to be added in the app on the project Discord (check the about tab).
 
 ## Add a trip - dates
 
