@@ -665,12 +665,12 @@ class _CupertinoTripsFilterState extends State<_CupertinoTripsFilter> {
                       child: Container(
                         padding: const EdgeInsets.all(11),
                         decoration: BoxDecoration(
-                          color: CupertinoColors.secondarySystemFill.resolveFrom(context),
+                          color: CupertinoColors.destructiveRed.resolveFrom(context),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Icon(
                           CupertinoIcons.calendar_badge_minus,
-                          color: CupertinoColors.secondaryLabel.resolveFrom(context),
+                          color: CupertinoColors.white,
                           size: 22,
                         ),
                       ),
