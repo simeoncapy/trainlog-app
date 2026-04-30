@@ -616,6 +616,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get filterClearButton => 'フィルターを消す';
 
   @override
+  String get tripsAddButton => '旅行を追加';
+
+  @override
   String get graphTypeOperator => '事業者';
 
   @override
