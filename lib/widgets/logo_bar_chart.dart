@@ -71,8 +71,6 @@ class LogoBarChart extends StatefulWidget {
 }
 
 class _LogoBarChartState extends State<LogoBarChart> {
-  int touchedGroupIndex = -1;
-
   late List<GlobalKey<TooltipState>> _tooltipKeys;
   late List<Tooltip> _images;
 
@@ -178,7 +176,6 @@ class _LogoBarChartState extends State<LogoBarChart> {
           ],
         ),
       ],
-      showingTooltipIndicators: touchedGroupIndex == x ? [0] : [],
     );
   }
 
@@ -292,19 +289,10 @@ class _LogoBarChartState extends State<LogoBarChart> {
         minY: 0,
         // Optional: add headroom to avoid cramped top
         maxY: _computeMaxY() * 1.1,
-        barGroups: [
-          ...List.generate(
-            n,
-            (i) => _makeGroup(i, _pastScaled[i], colors[i], _futureScaled[i]),
-          ),
-          // Guard against fl_chart off-by-one touch index bug (groupVertically +
-          // rotationQuarterTurns): a zero-width/height invisible group at index n
-          // makes barGroups[n] valid instead of throwing a RangeError.
-          BarChartGroupData(
-            x: n,
-            barRods: [BarChartRodData(toY: 0, width: 0)],
-          ),
-        ],
+        barGroups: List.generate(
+          n,
+          (i) => _makeGroup(i, _pastScaled[i], colors[i], _futureScaled[i]),
+        ),
         titlesData: FlTitlesData(
           topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
           rightTitles: AxisTitles(
@@ -351,27 +339,12 @@ class _LogoBarChartState extends State<LogoBarChart> {
           ),
         ),
         barTouchData: BarTouchData(
-          touchTooltipData: BarTouchTooltipData(
-            fitInsideHorizontally: true,
-            fitInsideVertically: true,
-            maxContentWidth: 200,
-            direction: widget.rotationQuarterTurns == 1
-                ? TooltipDirection.bottom
-                : TooltipDirection.auto,
-            getTooltipItem: (group, groupIndex, rod, rodIndex) {
-              if (groupIndex < 0 || groupIndex >= n) return null;
-              final stack = rod.rodStackItems;
-              final pastColor = colors[groupIndex];
-              final futureColor = _lighten(pastColor);
-
-              return _buildTooltipItem(
-                groupIndex: groupIndex,
-                stack: stack,
-                pastColor: pastColor,
-                futureColor: futureColor,
-              );
-            },
-          ),
+          // Disable fl_chart's built-in pointer tracking to prevent a
+          // RangeError in BarChartPainter.handleTouch: when chart data
+          // changes while a mouse cursor is already over the chart,
+          // fl_chart recomputes the hover index against the new (smaller)
+          // dataset and always lands one past the end of barGroups.
+          enabled: false,
         ),
       ),
     );
