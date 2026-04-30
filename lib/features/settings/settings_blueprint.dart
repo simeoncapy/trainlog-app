@@ -480,6 +480,7 @@ List<SettingsSectionSpec> buildSettingsBlueprint({
           title: l10n.settingsLicenses,
           button: AdaptiveButton.build(
             context: context,
+            size: AdaptiveButton.small,
             label: Text(MaterialLocalizations.of(context).viewLicensesButtonLabel),
             onPressed: () async {
               final version = await vm.getVersionString();
@@ -500,6 +501,7 @@ List<SettingsSectionSpec> buildSettingsBlueprint({
             button: AdaptiveButton.build(
               context: context,
               label: Text("Reset"),
+              size: AdaptiveButton.small,
               onPressed: () {
                 settings.resetOnboarding(trainlog, tripsProvider);
                 AdaptiveInformationMessage.showInfo("Onboarding reset");

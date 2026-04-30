@@ -49,15 +49,17 @@ class _TripsLoaderState extends State<TripsLoader> {
               Positioned.fill(
                 child: Container(
                   color: theme.colorScheme.surfaceContainer,
-                  child: Center(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(8, 8, 8, 24),
-                      child: Column(
-                        children: [
-                          Expanded(child: Lottie.asset('assets/animations/loading.json')),
-                          Text(l10n.appLoading,
-                              style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold)),
-                        ],
+                  child: SafeArea(
+                    child: Center(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(8, 8, 8, 24),
+                        child: Column(
+                          children: [
+                            Expanded(child: Lottie.asset('assets/animations/loading.json')),
+                            Text(l10n.appLoading,
+                                style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold)),
+                          ],
+                        ),
                       ),
                     ),
                   ),

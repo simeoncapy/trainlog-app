@@ -26,8 +26,8 @@ Future<void> main() async {
     final licenseText = await rootBundle.loadString('assets/licenses/lottie_simple.txt');
     yield LicenseEntryWithLineBreaks(
       ['LottieFiles (animations)'],
-      'App and Trip Loading animation by LK Jing\n'
-      'New Trip Loading animation by Igor Tcherepoff\n\n$licenseText',
+      'App and Trip Loading animation by LK Jing.\n'
+      'New Trip Loading animation by Igor Tcherepoff.\n\n$licenseText',
     );
   });
 

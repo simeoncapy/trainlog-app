@@ -130,7 +130,7 @@ class _MenuHeaderState extends State<MenuHeader> {
               _logoutButtonHelper(loc, context, settings, trips, scaffMsg),
               const Spacer(),
               //_statusButtonHelper(loc, context, theme),
-              _statusIconButtonHelper(theme),
+              //_statusIconButtonHelper(theme), TODO
               const SizedBox(width: 10,),
               _mailboxButtonHelper(loc, theme),
             ],
