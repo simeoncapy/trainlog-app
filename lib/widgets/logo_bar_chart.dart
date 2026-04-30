@@ -292,10 +292,19 @@ class _LogoBarChartState extends State<LogoBarChart> {
         minY: 0,
         // Optional: add headroom to avoid cramped top
         maxY: _computeMaxY() * 1.1,
-        barGroups: List.generate(
-          n,
-          (i) => _makeGroup(i, _pastScaled[i], colors[i], _futureScaled[i]),
-        ),
+        barGroups: [
+          ...List.generate(
+            n,
+            (i) => _makeGroup(i, _pastScaled[i], colors[i], _futureScaled[i]),
+          ),
+          // Guard against fl_chart off-by-one touch index bug (groupVertically +
+          // rotationQuarterTurns): a zero-width/height invisible group at index n
+          // makes barGroups[n] valid instead of throwing a RangeError.
+          BarChartGroupData(
+            x: n,
+            barRods: [BarChartRodData(toY: 0, width: 0)],
+          ),
+        ],
         titlesData: FlTitlesData(
           topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
           rightTitles: AxisTitles(
@@ -350,6 +359,7 @@ class _LogoBarChartState extends State<LogoBarChart> {
                 ? TooltipDirection.bottom
                 : TooltipDirection.auto,
             getTooltipItem: (group, groupIndex, rod, rodIndex) {
+              if (groupIndex < 0 || groupIndex >= n) return null;
               final stack = rod.rodStackItems;
               final pastColor = colors[groupIndex];
               final futureColor = _lighten(pastColor);
