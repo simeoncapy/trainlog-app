@@ -398,6 +398,7 @@ class _CupertinoTripsFilterState extends State<_CupertinoTripsFilter> {
 
   _FilterView _view = _FilterView.main;
   final _pickerSearchController = TextEditingController();
+  final _pickerScrollController = ScrollController();
   String _pickerQuery = '';
 
   @override
@@ -436,6 +437,7 @@ class _CupertinoTripsFilterState extends State<_CupertinoTripsFilter> {
   void dispose() {
     _keywordController.dispose();
     _pickerSearchController.dispose();
+    _pickerScrollController.dispose();
     super.dispose();
   }
 
@@ -687,6 +689,9 @@ class _CupertinoTripsFilterState extends State<_CupertinoTripsFilter> {
                     _view = _FilterView.countryPicker;
                     _pickerSearchController.clear();
                     _pickerQuery = '';
+                    if (_pickerScrollController.hasClients) {
+                      _pickerScrollController.jumpTo(0);
+                    }
                   }),
                 ),
                 const SizedBox(height: 16),
@@ -700,6 +705,9 @@ class _CupertinoTripsFilterState extends State<_CupertinoTripsFilter> {
                   onTap: () => setState(() {
                     _view = _FilterView.operatorPicker;
                     _pickerSearchController.clear();
+                    if (_pickerScrollController.hasClients) {
+                      _pickerScrollController.jumpTo(0);
+                    }
                     _pickerQuery = '';
                   }),
                 ),
@@ -909,7 +917,9 @@ class _CupertinoTripsFilterState extends State<_CupertinoTripsFilter> {
         // List
         Expanded(
           child: CupertinoScrollbar(
+            controller: _pickerScrollController,
             child: ListView.builder(
+              controller: _pickerScrollController,
               itemCount: filtered.length,
               itemBuilder: (ctx, i) {
                 final item = filtered[i];
