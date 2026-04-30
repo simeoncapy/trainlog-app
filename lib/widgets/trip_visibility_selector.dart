@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
+import 'package:trainlog_app/platform/adaptive_segmented_button.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 
 enum TripVisibility {
@@ -62,28 +63,27 @@ class TripVisibilitySelector extends StatelessWidget {
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
 
-    return SegmentedButton<TripVisibility>(
+    return AdaptiveSegmentedButton.build<TripVisibility>(
+      context: context,
       segments: [
-        ButtonSegment(
+        AdaptiveSegmentedButtonSegment(
           value: TripVisibility.public,
           label: Text(loc.visibilityPublic),
-          icon: const Icon(Icons.public),
+          icon: Icon(TripVisibility.public.icon()),
         ),
-        ButtonSegment(
+        AdaptiveSegmentedButtonSegment(
           value: TripVisibility.friends,
           label: Text(loc.visibilityFriends),
-          icon: const Icon(Icons.people),
+          icon: Icon(TripVisibility.friends.icon()),
         ),
-        ButtonSegment(
+        AdaptiveSegmentedButtonSegment(
           value: TripVisibility.private,
           label: Text(loc.visibilityPrivate),
-          icon: const Icon(Icons.lock),
+          icon: Icon(TripVisibility.private.icon()),
         ),
       ],
-      selected: {value},
-      onSelectionChanged: (newSelection) {
-        onChanged(newSelection.first);
-      },
+      selectedValue: value,
+      onChanged: onChanged,
       showSelectedIcon: false,
       style: const ButtonStyle(
         visualDensity: VisualDensity(horizontal: -2, vertical: -2),

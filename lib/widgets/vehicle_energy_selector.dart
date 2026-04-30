@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
+import 'package:trainlog_app/platform/adaptive_segmented_button.dart';
 
 enum EnergyType { auto, electric, thermic }
 
@@ -17,28 +18,27 @@ class VehicleEnergySelector extends StatelessWidget {
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
 
-    return SegmentedButton<EnergyType>(
+    return AdaptiveSegmentedButton.build<EnergyType>(
+      context: context,
       segments: [
-        ButtonSegment(
+        AdaptiveSegmentedButtonSegment(
           value: EnergyType.auto,
           label: Text(loc.auto),
           icon: const Icon(Icons.auto_awesome),
         ),
-        ButtonSegment(
+        AdaptiveSegmentedButtonSegment(
           value: EnergyType.electric,
           label: Text(loc.energyElectricShort),
           icon: const Icon(Icons.bolt),
         ),
-        ButtonSegment(
+        AdaptiveSegmentedButtonSegment(
           value: EnergyType.thermic,
           label: Text(loc.energyThermicShort),
           icon: const Icon(Icons.local_fire_department),
         ),
       ],
-      selected: {value},
-      onSelectionChanged: (newSelection) {
-        onChanged(newSelection.first);
-      },
+      selectedValue: value,
+      onChanged: onChanged,
       showSelectedIcon: false,
       style: const ButtonStyle(
         visualDensity: VisualDensity(horizontal: -2, vertical: -2),

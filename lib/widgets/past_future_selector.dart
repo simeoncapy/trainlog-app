@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
+import 'package:trainlog_app/platform/adaptive_segmented_button.dart';
 
 enum TimeMoment { past, future }
 
@@ -24,17 +25,24 @@ class _PastFutureSelectorState extends State<PastFutureSelector> {
 
   @override
   Widget build(BuildContext context) {
-    return SegmentedButton<TimeMoment>(
+    final loc = AppLocalizations.of(context)!;
+    return AdaptiveSegmentedButton.build<TimeMoment>(
+      context: context,
       segments: [
-          ButtonSegment(value: TimeMoment.past, label: Text(AppLocalizations.of(context)!.yearPastList), icon: Icon(Icons.restore)),
-          ButtonSegment(value: TimeMoment.future, label: Text(AppLocalizations.of(context)!.yearFutureList), icon: Icon(Icons.next_plan)),
-        ],
-      selected: <TimeMoment>{timeMomentView},
-      onSelectionChanged: (Set<TimeMoment> newSelection) {
-        final newValue = newSelection.first;
-        setState(() {
-          timeMomentView = newValue;
-        });
+        AdaptiveSegmentedButtonSegment(
+          value: TimeMoment.past,
+          label: Text(loc.yearPastList),
+          icon: const Icon(Icons.restore),
+        ),
+        AdaptiveSegmentedButtonSegment(
+          value: TimeMoment.future,
+          label: Text(loc.yearFutureList),
+          icon: const Icon(Icons.next_plan),
+        ),
+      ],
+      selectedValue: timeMomentView,
+      onChanged: (newValue) {
+        setState(() => timeMomentView = newValue);
         widget.onChanged?.call(newValue);
       },
     );
