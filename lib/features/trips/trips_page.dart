@@ -223,14 +223,12 @@ class _TripsPageState extends State<TripsPage> {
               final types = tripsProvider.vehicleTypes;
 
               if(!context.mounted) return;
-              final result = await showDialog<TripsFilterResult>(
-                context: context,
-                builder: (context) => TripsFilterDialog(
-                  operatorOptions: operators,
-                  countryOptions: countries,
-                  typeOptions: types,
-                  initialFilter: _activeFilter,
-                ),
+              final result = await showAdaptiveTripsFilterDialog(
+                context,
+                operatorOptions: operators,
+                countryOptions: countries,
+                typeOptions: types,
+                initialFilter: _activeFilter,
               );
 
               if (result != null) {
