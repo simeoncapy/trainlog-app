@@ -6,7 +6,7 @@ class AdaptiveExpansionTile extends StatelessWidget {
   final bool initiallyExpanded;
   final ValueChanged<bool>? onExpansionChanged;
 
-  final Widget leading;
+  final Widget? leading;
   final Widget title;
   final List<Widget> children;
 
@@ -18,7 +18,7 @@ class AdaptiveExpansionTile extends StatelessWidget {
     super.key,
     required this.initiallyExpanded,
     this.onExpansionChanged,
-    required this.leading,
+    this.leading,
     required this.title,
     required this.children,
     this.tilePadding,
@@ -47,20 +47,21 @@ class AdaptiveExpansionTile extends StatelessWidget {
       title: title,
       children: children,
     );
+
   }
 }
 
 class _CupertinoExpansionTile extends StatefulWidget {
   final bool initiallyExpanded;
   final ValueChanged<bool>? onChanged;
-  final Widget leading;
+  final Widget? leading;
   final Widget title;
   final List<Widget> children;
 
   const _CupertinoExpansionTile({
     required this.initiallyExpanded,
     this.onChanged,
-    required this.leading,
+    this.leading,
     required this.title,
     required this.children,
   });
@@ -94,8 +95,10 @@ class _CupertinoExpansionTileState extends State<_CupertinoExpansionTile> {
             },
             child: Row(
               children: [
-                widget.leading,
-                const SizedBox(width: 10),
+                if (widget.leading != null) ...[
+                  widget.leading!,
+                  const SizedBox(width: 10),
+                ],
                 Expanded(
                   child: DefaultTextStyle(
                     style: theme.textTheme.textStyle,
