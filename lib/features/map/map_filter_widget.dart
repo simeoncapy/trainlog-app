@@ -303,7 +303,7 @@ class _CupertinoMapFilter extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             onPressed: onClose,
             child: Text(
-              CupertinoLocalizations.of(context).doneButtonLabel,
+              MaterialLocalizations.of(context).closeButtonLabel,
               style: TextStyle(
                 color: CupertinoTheme.of(context).primaryColor,
                 fontWeight: FontWeight.w600,
