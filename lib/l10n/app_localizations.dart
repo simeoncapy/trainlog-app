@@ -1278,6 +1278,12 @@ abstract class AppLocalizations {
   /// **'Clear filter'**
   String get filterClearButton;
 
+  /// No description provided for @tripsAddButton.
+  ///
+  /// In en, this message translates to:
+  /// **'New trip'**
+  String get tripsAddButton;
+
   /// No description provided for @graphTypeOperator.
   ///
   /// In en, this message translates to:

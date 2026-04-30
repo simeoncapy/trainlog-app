@@ -626,6 +626,9 @@ class AppLocalizationsTl extends AppLocalizations {
   String get filterClearButton => 'Ibura ang filter';
 
   @override
+  String get tripsAddButton => 'Bag. biyahe';
+
+  @override
   String get graphTypeOperator => 'Operator';
 
   @override

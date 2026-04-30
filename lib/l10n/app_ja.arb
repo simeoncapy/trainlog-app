@@ -202,6 +202,7 @@
   "tripsFilterOperator": "事業者",
   "tripsFilterType": "乗り物のタイプ",
   "filterClearButton": "フィルターを消す",
+  "tripsAddButton": "旅行を追加",
 
   "graphTypeOperator": "事業者",
   "graphTypeCountry": "国",

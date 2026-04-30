@@ -242,6 +242,7 @@
   "tripsFilterOperator": "Operator",
   "tripsFilterType": "Vehicle Type",
   "filterClearButton": "Clear filter",
+  "tripsAddButton": "New trip",
 
   "graphTypeOperator": "Operator",
   "graphTypeCountry": "Country",

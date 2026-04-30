@@ -225,6 +225,7 @@
   "tripsFilterOperator": "Operator",
   "tripsFilterType": "Uri ng sasakyan",
   "filterClearButton": "Ibura ang filter",
+  "tripsAddButton": "Bag. biyahe",
   "graphTypeOperator": "Operator",
   "graphTypeCountry": "Bansa",
   "graphTypeYears": "Taon",

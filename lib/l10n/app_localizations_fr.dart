@@ -633,6 +633,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get filterClearButton => 'Supprimer les filtres';
 
   @override
+  String get tripsAddButton => 'Nouv. trajet';
+
+  @override
   String get graphTypeOperator => 'Opérateur';
 
   @override
