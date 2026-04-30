@@ -150,10 +150,10 @@ class _CupertinoDropdown<T> extends StatelessWidget {
 
           return CupertinoActionSheetAction(
             isDefaultAction: isSelected,
-            onPressed: () {
+            onPressed: () => Future.microtask(() {
               Navigator.of(modalContext).pop();
               onChanged?.call(item);
-            },
+            }),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
@@ -171,7 +171,7 @@ class _CupertinoDropdown<T> extends StatelessWidget {
           );
         }).toList(),
         cancelButton: CupertinoActionSheetAction(
-          onPressed: () => Navigator.of(modalContext).pop(),
+          onPressed: () => Future.microtask(() => Navigator.of(modalContext).pop()),
           child: Text(cancelLabel),
         ),
       ),
