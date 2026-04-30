@@ -143,7 +143,7 @@ class _CupertinoDropdown<T> extends StatelessWidget {
 
     showCupertinoModalPopup<void>(
       context: context,
-      builder: (_) => CupertinoActionSheet(
+      builder: (modalContext) => CupertinoActionSheet(
         actions: items.map((item) {
           final isSelected = item == selectedValue;
           final itemIcon = iconOf != null ? iconOf!(item) : null;
@@ -151,7 +151,7 @@ class _CupertinoDropdown<T> extends StatelessWidget {
           return CupertinoActionSheetAction(
             isDefaultAction: isSelected,
             onPressed: () {
-              Navigator.of(context).pop();
+              Navigator.of(modalContext).pop();
               onChanged?.call(item);
             },
             child: Row(
@@ -171,7 +171,7 @@ class _CupertinoDropdown<T> extends StatelessWidget {
           );
         }).toList(),
         cancelButton: CupertinoActionSheetAction(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => Navigator.of(modalContext).pop(),
           child: Text(cancelLabel),
         ),
       ),
