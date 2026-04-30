@@ -709,7 +709,15 @@ class _AdaptiveFilterButton extends StatelessWidget {
       return CupertinoButton(
         padding: EdgeInsets.zero,
         onPressed: onPressed,
-        child: Icon(AdaptiveIcons.filter),
+        child: Container(
+          width: 36,
+          height: 36,
+          decoration: BoxDecoration(
+            color: CupertinoColors.systemFill.resolveFrom(context),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(AdaptiveIcons.filter, size: 20),
+        ),
       );
     }
 
