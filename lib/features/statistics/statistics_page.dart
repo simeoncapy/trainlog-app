@@ -1,5 +1,6 @@
 import 'dart:collection';
 import 'dart:math' as math;
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -407,7 +408,10 @@ class _StatisticsPageState extends State<StatisticsPage> {
     return Row(
       children: [
         Icon(iconBefore),
-        Switch.adaptive(value: value, onChanged: disabled ? null : onChanged),
+        if (AppPlatform.isApple)
+          CupertinoSwitch(value: value, onChanged: disabled ? null : onChanged)
+        else
+          Switch(value: value, onChanged: disabled ? null : onChanged),
         Icon(iconAfter),
       ],
     );
