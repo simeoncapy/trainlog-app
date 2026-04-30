@@ -13,6 +13,7 @@ import 'package:lottie/lottie.dart' as lt;
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
+import 'package:trainlog_app/features/map/map_filter_widget.dart';
 import 'package:trainlog_app/navigation/nav_models.dart';
 import 'package:trainlog_app/platform/adaptive_trip_card.dart';
 import 'package:trainlog_app/providers/polyline_provider.dart';
@@ -20,9 +21,7 @@ import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
 import 'package:trainlog_app/utils/location_utils.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
-import 'package:trainlog_app/widgets/dropdown_radio_list.dart';
 import 'package:trainlog_app/widgets/rendered_polyline_layer.dart';
-import 'package:trainlog_app/widgets/vehicle_type_filter_chips.dart';
 
 class MapPage extends StatefulWidget {
   final SetPrimaryActions onPrimaryActionsReady;
@@ -279,124 +278,15 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver, Automati
           ],
         ),
         if (!_showFilterModal || AppPlatform.isApple) _mapButtonHelper(),
-        if (_showFilterModal) _filterModalHelper(context, appLocalizations),
+        if (_showFilterModal)
+          MapFilterWidget(
+            onClose: () {
+              setState(() => _showFilterModal = false);
+              final action = _buildPrimaryAction(context);
+              widget.onPrimaryActionsReady(action == null ? const [] : [action]);
+            },
+          ),
       ],
-    );
-  }
-
-  Widget _vehicleTypeTiltleWithButtonsHelper(AppLocalizations appLocalizations, PolylineProvider polyProvider) {
-    return Row(
-      children: [
-        Expanded(
-          child: Text(
-            appLocalizations.typeTitle,
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-        ),
-        TextButton(
-          onPressed: () {
-            context.read<PolylineProvider>().selectAllVehicleTypes(
-              polyProvider.availableTypesWithoutPoi,
-            );
-          },
-          style: TextButton.styleFrom(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            minimumSize: Size.zero,
-            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            visualDensity: VisualDensity.compact,
-          ),
-          child: Text(appLocalizations.mapFilterVehicleTypeAllBtn),
-        ),
-        const SizedBox(width: 4),
-        TextButton(
-          onPressed: () {
-            context.read<PolylineProvider>().unselectAllVehicleTypes(
-              polyProvider.availableTypesWithoutPoi,
-            );
-          },
-          style: TextButton.styleFrom(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            minimumSize: Size.zero,
-            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            visualDensity: VisualDensity.compact,
-          ),
-          child: Text(appLocalizations.mapFilterVehicleTypeNoneBtn),
-        ),
-      ],
-    );
-  }
-
-  Positioned _filterModalHelper(BuildContext context, AppLocalizations appLocalizations) {
-    final polyProvider = context.watch<PolylineProvider>();
-    final mediaQuery = MediaQuery.of(context);
-    final maxHeight =
-        (mediaQuery.size.height - mediaQuery.padding.top - mediaQuery.padding.bottom) * 0.7;
-
-    return Positioned(
-      bottom: 16,
-      left: 16,
-      right: 16,
-      child: Material(
-        elevation: 4,
-        borderRadius: BorderRadius.circular(16),
-        color: Theme.of(context).cardColor,
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxHeight: maxHeight),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Flexible(
-                fit: FlexFit.loose,
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        appLocalizations.yearTitle,
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
-                      const SizedBox(height: 8),
-                      _yearFilterBuilder(
-                        years: polyProvider.availableYears,
-                        selectedTopIndex: polyProvider.selectedYearFilterOption,
-                        selectedYears: polyProvider.selectedYears,
-                      ),
-                      const SizedBox(height: 16),
-                      _vehicleTypeTiltleWithButtonsHelper(appLocalizations, polyProvider),
-                      const SizedBox(height: 8),
-                      VehicleTypeFilterChips(
-                        availableTypes: polyProvider.availableTypesWithoutPoi,
-                        selectedTypes: polyProvider.selectedTypes,
-                        onTypeToggle: (type, selected) {
-                          context.read<PolylineProvider>().toggleType(type, selected);
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const Divider(height: 1),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-                child: Align(
-                  alignment: Alignment.centerRight,
-                  child: ElevatedButton.icon(
-                    onPressed: () {
-                      setState(() => _showFilterModal = false);
-                      final action = _buildPrimaryAction(context);
-                      widget.onPrimaryActionsReady(action == null ? const [] : [action]);
-                    },
-                    icon: const Icon(Icons.close),
-                    label: Text(MaterialLocalizations.of(context).closeButtonLabel),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 
@@ -532,84 +422,6 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver, Automati
           ),
         ],
       ),
-    );
-  }
-
-  DropdownRadioList _yearFilterBuilder({
-    required List<int> years,
-    required int selectedTopIndex,
-    required Set<int> selectedYears,
-  }) {
-    final l10n = AppLocalizations.of(context)!;
-
-    Widget yearButtons() {
-      return Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TextButton(
-            onPressed: () {
-              context.read<PolylineProvider>().selectAllYears(years);
-            },
-            style: TextButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              minimumSize: Size.zero,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              visualDensity: VisualDensity.compact,
-            ),
-            child: Text(l10n.mapFilterYearsAllBtn),
-          ),
-          const SizedBox(width: 4),
-          TextButton(
-            onPressed: () {
-              context.read<PolylineProvider>().unselectAllYears();
-            },
-            style: TextButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              minimumSize: Size.zero,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              visualDensity: VisualDensity.compact,
-            ),
-            child: Text(l10n.mapFilterYearsNoneBtn),
-          ),
-        ],
-      );
-    }
-
-    return DropdownRadioList(
-      items: [
-        MultiLevelItem(
-          title: Text(l10n.yearAllList),
-          selectedTitle: Text(l10n.yearAllList),
-          subItems: const [],
-        ),
-        MultiLevelItem(
-          title: Text(l10n.yearPastList),
-          selectedTitle: Text(l10n.yearPastList),
-          subItems: const [],
-        ),
-        MultiLevelItem(
-          title: Text(l10n.yearFutureList),
-          selectedTitle: Text(l10n.yearFutureList),
-          subItems: const [],
-        ),
-        MultiLevelItem(
-          title: Text(l10n.yearYearList),
-          selectedTitle: Text(l10n.yearYearList),
-          trailing: yearButtons(),
-          subItems: years.map((e) => e.toString()).toList(),
-        ),
-      ],
-      selectedTopIndex: selectedTopIndex,
-      selectedSubStates: {
-        3: years.map((y) => selectedYears.contains(y)).toList(),
-      },
-      onChanged: (top, sub) {
-        context.read<PolylineProvider>().updateYearFilter(
-          topIndex: top,
-          years: years,
-          subSelection: sub,
-        );
-      },
     );
   }
 
