@@ -202,6 +202,7 @@
   "tripsFilterOperator": "Opérateur",
   "tripsFilterType": "Types de véhicule",
   "filterClearButton": "Supprimer les filtres",
+  "tripsAddButton": "Nouv. trajet",
 
   "graphTypeOperator": "Opérateur",
   "graphTypeCountry": "Pays",

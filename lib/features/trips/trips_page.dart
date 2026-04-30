@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -212,37 +213,30 @@ class _TripsPageState extends State<TripsPage> {
             ),
           ),
         const SizedBox(width: 8),
-        Material(
-          elevation: 4,
-          shape: const CircleBorder(),
-          color: Theme.of(context).colorScheme.primaryContainer,
-          child: IconButton(
-            onPressed: () async {
-              final operators = tripsProvider.operators;
-              final countries = await tripsProvider.getMapCountryCodesSafe(locale: locale);//mapCountryCodes;
-              final types = tripsProvider.vehicleTypes;
+        _AdaptiveFilterButton(
+          onPressed: () async {
+            final operators = tripsProvider.operators;
+            final countries = await tripsProvider.getMapCountryCodesSafe(locale: locale);
+            final types = tripsProvider.vehicleTypes;
 
-              if(!context.mounted) return;
-              final result = await showAdaptiveTripsFilterDialog(
-                context,
-                operatorOptions: operators,
-                countryOptions: countries,
-                typeOptions: types,
-                initialFilter: _activeFilter,
-              );
+            if (!context.mounted) return;
+            final result = await showAdaptiveTripsFilterDialog(
+              context,
+              operatorOptions: operators,
+              countryOptions: countries,
+              typeOptions: types,
+              initialFilter: _activeFilter,
+            );
 
-              if (result != null) {
-                setState(() {
-                  _activeFilter = result;
-                  _dataSource!.setFilter(result);
-                  _tableKey = UniqueKey();
-                });
-              }
-            },
-            icon: const Icon(Icons.filter_alt),
-            color: Theme.of(context).colorScheme.onPrimaryContainer,
-            tooltip: AppLocalizations.of(context)!.filterButton,
-          ),
+            if (result != null) {
+              setState(() {
+                _activeFilter = result;
+                _dataSource!.setFilter(result);
+                _tableKey = UniqueKey();
+              });
+            }
+          },
+          tooltip: AppLocalizations.of(context)!.filterButton,
         ),
       ],
     );
@@ -301,6 +295,7 @@ class _TripsPageState extends State<TripsPage> {
   }
 
   AppPrimaryAction _buildPrimaryAction(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     return AppPrimaryAction(
       onPressed: () async {
         final didSave = await Navigator.of(context).push<bool>(
@@ -337,6 +332,7 @@ class _TripsPageState extends State<TripsPage> {
         }
       },
       icon: AdaptiveIcons.add,
+      label: loc.tripsAddButton,
     );
   }
 }
@@ -693,6 +689,39 @@ class _Badge extends StatelessWidget {
           fontSize: 11,
           fontWeight: FontWeight.bold,
         ),
+      ),
+    );
+  }
+}
+
+class _AdaptiveFilterButton extends StatelessWidget {
+  final VoidCallback onPressed;
+  final String tooltip;
+
+  const _AdaptiveFilterButton({
+    required this.onPressed,
+    required this.tooltip,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (AppPlatform.isApple) {
+      return CupertinoButton(
+        padding: EdgeInsets.zero,
+        onPressed: onPressed,
+        child: Icon(AdaptiveIcons.filter),
+      );
+    }
+
+    return Material(
+      elevation: 4,
+      shape: const CircleBorder(),
+      color: Theme.of(context).colorScheme.primaryContainer,
+      child: IconButton(
+        onPressed: onPressed,
+        icon: const Icon(Icons.filter_alt),
+        color: Theme.of(context).colorScheme.onPrimaryContainer,
+        tooltip: tooltip,
       ),
     );
   }
