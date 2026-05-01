@@ -26,10 +26,11 @@ class AdaptiveButton {
   // MATERIAL
   // ------------------------------------------------------------
   static Widget _materialButton({
-    required BuildContext context,    
+    required BuildContext context,
     required VoidCallback? onPressed,
     Widget? child,
     IconData? icon,
+    Widget? iconWidget,
     AdaptiveButtonType type = AdaptiveButtonType.normal,
     Color? backgroundColor,
     Color? foregroundColor,
@@ -50,10 +51,12 @@ class AdaptiveButton {
       // ),
     );
 
-    if (icon != null) {
+    final Widget? effectiveIcon = iconWidget ?? (icon != null ? Icon(icon) : null);
+
+    if (effectiveIcon != null) {
       if(child == null) {
         return IconButton(
-          icon: Icon(icon),
+          icon: effectiveIcon,
           style: style, //tapTargetSize: MaterialTapTargetSize.shrinkWrap,
           onPressed: onPressed,
         );
@@ -61,7 +64,7 @@ class AdaptiveButton {
 
       return ElevatedButton.icon(
         onPressed: onPressed,
-        icon: Icon(icon),
+        icon: effectiveIcon,
         label: child,
         style: style,
       );
@@ -78,10 +81,11 @@ class AdaptiveButton {
   // CUPERTINO
   // ------------------------------------------------------------
   static Widget _cupertinoButton({
-    required BuildContext context,    
+    required BuildContext context,
     required VoidCallback? onPressed,
     Widget? child,
     IconData? icon,
+    Widget? iconWidget,
     AdaptiveButtonType type = AdaptiveButtonType.normal,
     Color? foregroundColor,
     Color? backgroundColor,
@@ -117,7 +121,7 @@ class AdaptiveButton {
     Widget buildIcon() { // This is done to keep the same height for icon only button
       if(child != null) {
         return Icon(
-            icon, 
+            icon,
             color: effectiveFg,
             size: size == CupertinoButtonSize.large ? 24 : null,
           );
@@ -131,18 +135,18 @@ class AdaptiveButton {
       );
     }
 
-    if (icon != null) {
+    if (icon != null || iconWidget != null) {
       content = Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          buildIcon(),
+          iconWidget ?? buildIcon(),
           if (child != null) ...[
             const SizedBox(width: 8),
             child,
           ]
         ],
       );
-    }    
+    }
 
     return CupertinoButton.filled(
       onPressed: onPressed,
@@ -250,10 +254,11 @@ class AdaptiveButton {
   // PUBLIC API
   // ------------------------------------------------------------
   static Widget build({
-    required BuildContext context,    
+    required BuildContext context,
     required VoidCallback? onPressed,
     Widget? label,
     IconData? icon,
+    Widget? iconWidget,
     AdaptiveButtonType type = AdaptiveButtonType.normal,
     Color? backgroundColor,
     Color? foregroundColor,
@@ -263,7 +268,7 @@ class AdaptiveButton {
     double? elevation,
     BorderRadius? borderRadius,
   }) {
-    if(label == null && icon == null) throw ArgumentError("Icon and label cannot be null together");
+    if(label == null && icon == null && iconWidget == null) throw ArgumentError("Icon and label cannot be null together");
 
     if (AppPlatform.isApple) {
       return _cupertinoButton(
@@ -271,6 +276,7 @@ class AdaptiveButton {
         child: label,
         onPressed: onPressed,
         icon: icon,
+        iconWidget: iconWidget,
         type: type,
         backgroundColor: _bgColorHelper(backgroundColor, type, context),
         foregroundColor: _fgColorHelper(foregroundColor, type, context),
@@ -284,6 +290,7 @@ class AdaptiveButton {
         child: label,
         onPressed: onPressed,
         icon: icon,
+        iconWidget: iconWidget,
         type: type,
         backgroundColor: _bgColorHelper(backgroundColor, type, context),
         foregroundColor: _fgColorHelper(foregroundColor, type, context),
