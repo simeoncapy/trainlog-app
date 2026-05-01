@@ -46,9 +46,9 @@ class AdaptiveButton {
       padding: padding,
       minimumSize: minimumSize,
       elevation: elevation ?? (type == AdaptiveButtonType.destructive ? 1 : null),
-      // shape: RoundedRectangleBorder(
-      //   borderRadius: borderRadius ?? BorderRadius.circular(8),
-      // ),
+      shape: borderRadius != null
+          ? RoundedRectangleBorder(borderRadius: borderRadius)
+          : null,
     );
 
     final Widget? effectiveIcon = iconWidget ?? (icon != null ? Icon(icon) : null);

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:trainlog_app/platform/adaptive_button.dart';
 import 'package:step_progress/step_progress.dart';
 import 'package:lottie/lottie.dart';
 import 'package:trainlog_app/data/controllers/trainlog_web_controller.dart';
@@ -261,94 +262,68 @@ class _AddTripPageState extends State<AddTripPage> {
     return newModel;
   }
 
-  Widget _bottomButtonHelper(bool isLastStep)
-  {
+  Widget _bottomButtonHelper(bool isLastStep) {
     final loc = AppLocalizations.of(context)!;
 
-    if(isLastStep)
-    {
+    if (isLastStep) {
       return Column(
         children: [
           SizedBox(
             width: double.infinity,
-            child: ElevatedButton.icon(
-              icon: Icon(Icons.check, size: 24,),
+            child: AdaptiveButton.build(
+              context: context,
+              icon: Icons.check,
               label: Text(
                 loc.validateButton,
                 style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
               onPressed: (_isRouterLoading || _hasRoutingError) ? null : _validateTrip,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.primary,
-                foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                padding: const EdgeInsets.symmetric(vertical: 18),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(28),
-                ),
-                elevation: 3,
-              ),
+              type: AdaptiveButtonType.primary,
+              padding: const EdgeInsets.symmetric(vertical: 18),
+              borderRadius: BorderRadius.circular(28),
+              elevation: 3,
             ),
           ),
-          SizedBox(height: 8,),
+          const SizedBox(height: 8),
           SizedBox(
             width: double.infinity,
-            child: ElevatedButton(
+            child: AdaptiveButton.build(
+              context: context,
+              icon: Icons.subdirectory_arrow_right,
+              label: Text(
+                loc.continueTripButton,
+                textAlign: TextAlign.center,
+                softWrap: true,
+                maxLines: 2,
+                overflow: TextOverflow.visible,
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              ),
               onPressed: (_isRouterLoading || _hasRoutingError)
-                ? null
-                : () => _validateTrip(continueTrip: true),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.secondary,
-                foregroundColor: Theme.of(context).colorScheme.onSecondary,
-                padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(28),
-                ),
-                elevation: 3,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.subdirectory_arrow_right, size: 24),
-                  const SizedBox(width: 8),
-                  Flexible(
-                    child: Text(
-                      loc.continueTripButton,
-                      textAlign: TextAlign.center,
-                      softWrap: true,
-                      maxLines: 2,
-                      overflow: TextOverflow.visible,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+                  ? null
+                  : () => _validateTrip(continueTrip: true),
+              type: AdaptiveButtonType.secondary,
+              padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
+              borderRadius: BorderRadius.circular(28),
+              elevation: 3,
             ),
-          )
+          ),
         ],
       );
-    }
-    else{
-      return ElevatedButton.icon(
-        icon: Icon(Icons.arrow_forward, size: 24,),
+    } else {
+      return AdaptiveButton.build(
+        context: context,
+        icon: Icons.arrow_forward,
         label: Text(
           loc.nextButton,
           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
         ),
         onPressed: _nextStep,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
-          foregroundColor: Theme.of(context).colorScheme.onSecondaryContainer,
-          padding: const EdgeInsets.symmetric(vertical: 18),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(28),
-          ),
-          elevation: 3,
-        ),
+        type: AdaptiveButtonType.secondaryContainer,
+        padding: const EdgeInsets.symmetric(vertical: 18),
+        borderRadius: BorderRadius.circular(28),
+        elevation: 3,
       );
-    }    
+    }
   }
 
   Future<bool?> _showExitConfirmationDialog(BuildContext context) {
