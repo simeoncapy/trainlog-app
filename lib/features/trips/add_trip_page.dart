@@ -15,6 +15,7 @@ import 'package:trainlog_app/features/trips/trip_form_path.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/data/models/trips.dart';
+import 'package:trainlog_app/utils/platform_utils.dart';
 
 class AddTripPage extends StatefulWidget {
   final List<int>? preRecorderIdsToDelete;
@@ -280,7 +281,7 @@ class _AddTripPageState extends State<AddTripPage> {
               onPressed: (_isRouterLoading || _hasRoutingError) ? null : _validateTrip,
               type: AdaptiveButtonType.primary,
               padding: const EdgeInsets.symmetric(vertical: 18),
-              borderRadius: BorderRadius.circular(28),
+              borderRadius: AppPlatform.isApple ? null : BorderRadius.circular(28),
               elevation: 3,
             ),
           ),
@@ -303,7 +304,7 @@ class _AddTripPageState extends State<AddTripPage> {
                   : () => _validateTrip(continueTrip: true),
               type: AdaptiveButtonType.secondary,
               padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
-              borderRadius: BorderRadius.circular(28),
+              borderRadius: AppPlatform.isApple ? null : BorderRadius.circular(28),
               elevation: 3,
             ),
           ),
@@ -320,7 +321,7 @@ class _AddTripPageState extends State<AddTripPage> {
         onPressed: _nextStep,
         type: AdaptiveButtonType.secondaryContainer,
         padding: const EdgeInsets.symmetric(vertical: 18),
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: AppPlatform.isApple ? null : BorderRadius.circular(28),
         elevation: 3,
       );
     }
