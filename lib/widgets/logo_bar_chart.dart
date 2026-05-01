@@ -174,7 +174,9 @@ class _LogoBarChartState extends State<LogoBarChart> {
           width: 20,
           rodStackItems: [
             BarChartRodStackItem(0, past, color),
-            if (future > 0) BarChartRodStackItem(past, total, _lighten(color)),
+            // Keep a second stack item even when `future == 0` to avoid
+            // fl_chart touch index mismatches while data is being filtered.
+            BarChartRodStackItem(past, total, _lighten(color)),
           ],
         ),
       ],
