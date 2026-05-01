@@ -80,6 +80,7 @@
   "newBadge": "BAGO",
   "nbrPassengers": "{count} pasahero",
   "appLoading": "Ina-load ang app, maghintay ng saglit",
+  "dataLoading": "Ina-load ang data, maghintay ng saglit",
 
   "dialogueDefaultInfoTitle": "Impormasyon",
   "dialogueChangeInstanceTitle": "Ibago ang trainlog instance",

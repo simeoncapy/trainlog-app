@@ -247,6 +247,9 @@ class AppLocalizationsTl extends AppLocalizations {
   String get appLoading => 'Ina-load ang app, maghintay ng saglit';
 
   @override
+  String get dataLoading => 'Ina-load ang data, maghintay ng saglit';
+
+  @override
   String get settingsAppCategory => 'App Settings';
 
   @override

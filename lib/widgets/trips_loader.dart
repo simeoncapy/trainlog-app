@@ -56,7 +56,7 @@ class _TripsLoaderState extends State<TripsLoader> {
                         child: Column(
                           children: [
                             Expanded(child: Lottie.asset('assets/animations/loading.json')),
-                            Text(l10n.appLoading,
+                            Text(l10n.dataLoading,
                                 style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold)),
                           ],
                         ),

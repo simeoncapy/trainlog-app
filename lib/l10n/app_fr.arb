@@ -76,6 +76,7 @@
   "daySingleCharacter": "J",
   "setBtnLabel": "Valider",
   "appLoading": "Chargement de l'application, veuillez patienter",
+  "dataLoading": "Chargement des données, veuillez patienter",
 
   "settingsAppCategory": "Paramètres de l'application",
   "settingsMapCategory": "Paramètres de la carte",
