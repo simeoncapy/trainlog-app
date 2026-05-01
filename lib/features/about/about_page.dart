@@ -3,6 +3,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/features/about/privacy_tab.dart';
+import 'package:trainlog_app/platform/adaptive_button.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 import 'package:trainlog_app/widgets/localised_markdown.dart';
@@ -55,28 +56,28 @@ class TrainlogProjectDescription extends StatelessWidget {
     super.key,
   });
 
-  Widget _buttonHelper(BuildContext context, String label, Widget icon, String url, {Color? background, Color? color})
+  Widget _buttonHelper(BuildContext context, String label, Widget iconWidget, String url, {Color? background, Color? color})
   {
     return SizedBox(
       width: double.infinity,
-      child: ElevatedButton.icon(
-        icon: icon,
+      child: AdaptiveButton.build(
+        context: context,
+        iconWidget: iconWidget,
+        label: Text(label),
         onPressed: () async {
           final uri = Uri.parse(url);
-            if (await canLaunchUrl(uri)) {
-              await launchUrl(
-                uri,
-                mode: LaunchMode.externalApplication,
-              );
-            }
-        }, 
-        label: Text(label),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: background ?? Theme.of(context).colorScheme.primaryContainer,
-          foregroundColor: color ?? Theme.of(context).colorScheme.onPrimaryContainer,
-          padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
-          elevation: 3,
-        ),
+          if (await canLaunchUrl(uri)) {
+            await launchUrl(
+              uri,
+              mode: LaunchMode.externalApplication,
+            );
+          }
+        },
+        backgroundColor: background ?? Theme.of(context).colorScheme.primaryContainer,
+        foregroundColor: color ?? Theme.of(context).colorScheme.onPrimaryContainer,
+        padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
+        elevation: 3,
+        size: AdaptiveButton.large,
       ),
     );
   }

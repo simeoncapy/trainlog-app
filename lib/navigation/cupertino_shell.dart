@@ -296,12 +296,12 @@ class _MorePage extends StatelessWidget {
                       (setActions) => TicketsPage(onPrimaryActionsReady: setActions),
                     ),
                   ),
-                  _moreTile(
-                    context,
-                    icon: AdaptiveIcons.friends,
-                    title: l10n.menuFriendsTitle,
-                    push: () => _pushSimple(context, l10n.menuFriendsTitle, const FriendsPage()),
-                  ),
+                  // _moreTile(
+                  //   context,
+                  //   icon: AdaptiveIcons.friends,
+                  //   title: l10n.menuFriendsTitle,
+                  //   push: () => _pushSimple(context, l10n.menuFriendsTitle, const FriendsPage()),
+                  // ),
                   _moreTile(
                     context,
                     icon: AdaptiveIcons.smartPrerecorder,
