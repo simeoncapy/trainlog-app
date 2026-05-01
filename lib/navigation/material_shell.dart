@@ -5,6 +5,7 @@ import 'package:trainlog_app/navigation/nav_models.dart';
 import 'package:trainlog_app/features/settings/settings_material_page.dart';
 import 'package:trainlog_app/platform/adaptive_app_bar.dart';
 import 'package:trainlog_app/platform/adaptive_bottom_navbar.dart';
+import 'package:trainlog_app/services/android_update_service.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 import 'package:trainlog_app/widgets/menu_header.dart';
 
@@ -214,6 +215,7 @@ class _MaterialShellState extends State<MaterialShell> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _actionsNotifier.value = _actions[_selectedIndex];
+       AndroidUpdateService.checkForUpdate(context);
     });
   }
 
