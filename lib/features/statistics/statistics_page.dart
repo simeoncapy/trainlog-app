@@ -5,6 +5,9 @@ import 'package:provider/provider.dart';
 
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
+import 'package:trainlog_app/platform/adaptive_dropdown.dart';
+import 'package:trainlog_app/platform/adaptive_expansion_title.dart';
+import 'package:trainlog_app/platform/adaptive_switch.dart';
 
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
@@ -279,107 +282,123 @@ class _StatisticsPageState extends State<StatisticsPage> {
       ],
     );
 
-    return ExpansionPanelList(
-      expansionCallback: (i, isExpanded) =>
-          setState(() => _isParametersExpanded = isExpanded),
-      children: [
-        ExpansionPanel(
-          canTapOnHeader: true,
-          isExpanded: _isParametersExpanded,
-          headerBuilder: (context, isExpanded) {
-            return ListTile(
-              title: isExpanded
-                  ? Text(loc.statisticsHideFilters)
-                  : collapsedTitle,
-            );
-          },
-          body: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              children: [ 
-                // Vehicle + Year
-                Row(
-                  children: [
-                    Expanded(
-                      child: buildDropdown<VehicleType>(
-                        items: tripsProv.vehicleTypesWithoutPoi,
-                        selectedValue: p.vehicle,
-                        onChanged: (v) => p.vehicle = v ?? VehicleType.train,
-                        labelOf: (v) => VehicleType.labelOf(v, context),
-                        iconOf: (v) => VehicleType.iconOf(v),
-                        hintText: 'Select vehicle',
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: buildDropdown<int>(
-                        items: [0, ...tripsProv.years], // 0 = All
-                        selectedValue: p.year ?? 0,
-                        onChanged: disabledYears ? null : (y) => p.year = y,
-                        labelOf: (y) => y == 0
-                            ? AppLocalizations.of(context)!.tripsFilterAllYears
-                            : y.toString(),
-                        hintText: 'Select Year',
-                        enabled: !disabledYears,
-                      ),
-                    ),
-                  ],
+    final body = _filterPanelBody(context, p, loc, tripsProv, disabledYears);
+
+      return AdaptiveExpansionTile(
+        initiallyExpanded: _isParametersExpanded,
+        onExpansionChanged: (v) => setState(() => _isParametersExpanded = v),
+        title: _isParametersExpanded
+            ? Text(loc.statisticsHideFilters)
+            : collapsedTitle,
+        children: [body],
+      );
+    
+    
+
+    // return ExpansionPanelList(
+    //   expansionCallback: (i, isExpanded) =>
+    //       setState(() => _isParametersExpanded = isExpanded),
+    //   children: [
+    //     ExpansionPanel(
+    //       canTapOnHeader: true,
+    //       isExpanded: _isParametersExpanded,
+    //       headerBuilder: (context, isExpanded) {
+    //         return ListTile(
+    //           title: isExpanded
+    //               ? Text(loc.statisticsHideFilters)
+    //               : collapsedTitle,
+    //         );
+    //       },
+    //       body: body,
+    //     )
+    //   ],
+    // );
+  }
+
+  Widget _filterPanelBody(
+    BuildContext context,
+    StatisticsProvider p,
+    AppLocalizations loc,
+    TripsProvider tripsProv,
+    bool disabledYears,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        children: [
+          // Vehicle + Year
+          Row(
+            children: [
+              Expanded(
+                child: AdaptiveDropdown<VehicleType>(
+                  items: tripsProv.vehicleTypesWithoutPoi,
+                  selectedValue: p.vehicle,
+                  onChanged: (v) => p.vehicle = v ?? VehicleType.train,
+                  labelOf: (v) => VehicleType.labelOf(v, context),
+                  iconOf: (v) => VehicleType.iconOf(v),
+                  hintText: 'Select vehicle',
                 ),
-                const SizedBox(height: 16),
-            
-                // Graph type
-                buildDropdown<GraphType>(
-                  items: GraphType.values,
-                  selectedValue: p.graph,
-                  onChanged: (g) => p.graph = g ?? GraphType.operator,
-                  labelOf: (t) => t.label(context, p.vehicle),
-                  iconOf: (t) => t.icon(),
-                  hintText: 'Select a graph',
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: AdaptiveDropdown<int>(
+                  items: [0, ...tripsProv.years], // 0 = All
+                  selectedValue: p.year ?? 0,
+                  onChanged: disabledYears ? null : (y) => p.year = y,
+                  labelOf: (y) => y == 0 ? loc.tripsFilterAllYears : y.toString(),
+                  hintText: 'Select Year',
+                  enabled: !disabledYears,
                 ),
-               
-                const SizedBox(height: 16),
-            
-                // right-side switches for rotation / alpha sort
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    // Dropdown takes all available space
-                    Expanded(
-                      child: buildDropdown<GraphUnit>(
-                        items: GraphUnit.values,
-                        selectedValue: p.unit,
-                        onChanged: (u) => p.unit = u ?? GraphUnit.trip,
-                        labelOf: (u) => u.label(context),
-                        iconOf: (u) => u.icon(),
-                        hintText: 'Select a unit',
-                      ),
-                    ),
-            
-                    // Small spacing between dropdown and switches
-                    const SizedBox(width: 8),
-            
-                    // Switches only take as much width as needed
-                    if (_selectedStatistics == StatisticsType.bar)
-                      _iconSwitch(
-                        iconBefore: Icons.sort,
-                        iconAfter: Icons.bar_chart,
-                        value: _rotated,
-                        onChanged: (v) => setState(() => _rotated = v),
-                      ),
-                    if (_selectedStatistics == StatisticsType.table)
-                      _iconSwitch(
-                        iconBefore: Icons.arrow_downward,
-                        iconAfter: Icons.sort_by_alpha,
-                        value: _sortedAlpha,
-                        onChanged: (v) => setState(() => _sortedAlpha = v),
-                      ),
-                  ],
-                ),              
-              ],
-            ),
+              ),
+            ],
           ),
-        )
-      ],
+          const SizedBox(height: 16),
+      
+          // Graph type
+          AdaptiveDropdown<GraphType>(
+            items: GraphType.values,
+            selectedValue: p.graph,
+            onChanged: (g) => p.graph = g ?? GraphType.operator,
+            labelOf: (t) => t.label(context, p.vehicle),
+            iconOf: (t) => t.icon(),
+            hintText: 'Select a graph',
+          ),
+      
+          const SizedBox(height: 16),
+      
+          // Graph unit + optional orientation / sort switch
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Expanded(
+                child: AdaptiveDropdown<GraphUnit>(
+                  items: GraphUnit.values,
+                  selectedValue: p.unit,
+                  onChanged: (u) => p.unit = u ?? GraphUnit.trip,
+                  labelOf: (u) => u.label(context),
+                  iconOf: (u) => u.icon(),
+                  hintText: 'Select a unit',
+                ),
+              ),
+              const SizedBox(width: 8),
+              if (_selectedStatistics == StatisticsType.bar)
+                _iconSwitch(
+                  iconBefore: Icons.sort,
+                  iconAfter: Icons.bar_chart,
+                  value: _rotated,
+                  onChanged: (v) => setState(() => _rotated = v),
+                ),
+              if (_selectedStatistics == StatisticsType.table)
+                _iconSwitch(
+                  iconBefore: Icons.arrow_downward,
+                  iconAfter: Icons.sort_by_alpha,
+                  value: _sortedAlpha,
+                  onChanged: (v) => setState(() => _sortedAlpha = v),
+                ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -395,7 +414,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
     return Row(
       children: [
         Icon(iconBefore),
-        Switch(value: value, onChanged: disabled ? null : onChanged),
+        AdaptiveSwitch(value: value, onChanged: disabled ? null : onChanged),
         Icon(iconAfter),
       ],
     );
