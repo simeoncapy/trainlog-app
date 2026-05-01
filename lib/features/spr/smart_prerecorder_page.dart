@@ -708,7 +708,12 @@ Widget build(BuildContext context) {
               Expanded(
                 child: AdaptiveButton.build(
                   context: context,
-                  label: Text(loc.prerecorderCreateTripButton),
+                  label: Text(
+                    loc.prerecorderCreateTripButton,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                    softWrap: false,
+                  ),
                   icon: AdaptiveIcons.add,
                   onPressed: tripSelectionUi.createTripCaller,
                   size: AdaptiveButton.large,

@@ -142,7 +142,7 @@ class AdaptiveButton {
           iconWidget ?? buildIcon(),
           if (child != null) ...[
             const SizedBox(width: 8),
-            child,
+            Flexible(child: child),
           ]
         ],
       );
