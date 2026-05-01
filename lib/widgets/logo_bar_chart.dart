@@ -288,7 +288,13 @@ class _LogoBarChartState extends State<LogoBarChart> {
     final colors = widget.colors ??
         List.generate(n, (i) => widget.color ?? Colors.blue);
 
+    final chartDataKey = ValueKey<String>(
+      '${widget.rotationQuarterTurns}|${_titles.join('¦')}|'
+      '${_pastScaled.join(',')}|${_futureScaled.join(',')}',
+    );
+
     return BarChart(
+      key: chartDataKey,
       BarChartData(
         rotationQuarterTurns: widget.rotationQuarterTurns,
         minY: 0,
