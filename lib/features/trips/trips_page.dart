@@ -535,7 +535,7 @@ class TripsDataSource extends DataTableSource {
           return DataCell(Text(
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            Uri.decodeComponent(trip.lineName))
+            trip.lineName)
           );
         case 'tripLength':
           return DataCell(Text("${(trip.tripLength/1000).round()} km", textAlign: TextAlign.end,));
