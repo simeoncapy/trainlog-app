@@ -253,7 +253,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appLoading => 'Loading the app, please wait';
 
   @override
-  String get dataLoading => 'Loading data, please wait';
+  String get dataLoading => 'Loading your data, please wait';
 
   @override
   String get settingsAppCategory => 'App Settings';

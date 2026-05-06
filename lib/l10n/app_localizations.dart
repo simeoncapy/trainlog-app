@@ -567,7 +567,7 @@ abstract class AppLocalizations {
   /// No description provided for @dataLoading.
   ///
   /// In en, this message translates to:
-  /// **'Loading data, please wait'**
+  /// **'Loading your data, please wait'**
   String get dataLoading;
 
   /// No description provided for @settingsAppCategory.

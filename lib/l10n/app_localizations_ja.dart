@@ -246,7 +246,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get appLoading => 'アプリを読み込んでいます。しばらくお待ちください';
 
   @override
-  String get dataLoading => 'データを読み込んでいます。しばらくお待ちください';
+  String get dataLoading => 'あなたのデータを読み込んでいます。しばらくお待ちください';
 
   @override
   String get settingsAppCategory => 'アプリ設定';

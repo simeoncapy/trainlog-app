@@ -76,7 +76,7 @@
   "daySingleCharacter": "日",
   "setBtnLabel": "設定",
   "appLoading": "アプリを読み込んでいます。しばらくお待ちください",
-  "dataLoading": "データを読み込んでいます。しばらくお待ちください",
+  "dataLoading": "あなたのデータを読み込んでいます。しばらくお待ちください",
 
   "settingsAppCategory": "アプリ設定",
   "settingsMapCategory": "地図設定",

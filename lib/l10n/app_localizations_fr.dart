@@ -254,7 +254,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get appLoading => 'Chargement de l\'application, veuillez patienter';
 
   @override
-  String get dataLoading => 'Chargement des données, veuillez patienter';
+  String get dataLoading => 'Chargement de vos données, veuillez patienter';
 
   @override
   String get settingsAppCategory => 'Paramètres de l\'application';
