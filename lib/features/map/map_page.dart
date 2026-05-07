@@ -242,6 +242,9 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver, Automati
             initialCenter: _center,
             initialZoom: _zoom,
             keepAlive: true,
+            interactionOptions: const InteractionOptions(
+              rotationThreshold: 20.0,
+            ),
             onPositionChanged: (pos, hasGesture) {
               _center = pos.center;
               _zoom = pos.zoom;

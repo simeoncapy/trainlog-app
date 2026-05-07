@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:provider/provider.dart';
@@ -18,9 +20,11 @@ class RenderedPolylineLayer extends StatefulWidget {
 
 class _RenderedPolylineLayerState extends State<RenderedPolylineLayer> {
   final LayerHitNotifier<int> _hitNotifier = ValueNotifier(null);
+  Timer? _singleTapTimer;
 
   @override
   void dispose() {
+    _singleTapTimer?.cancel();
     _hitNotifier.dispose();
     super.dispose();
   }
@@ -35,15 +39,18 @@ class _RenderedPolylineLayerState extends State<RenderedPolylineLayer> {
       shouldRebuild: (prev, next) => prev.revision != next.revision,
       builder: (context, data, child) {
         return GestureDetector(
-          onTapUp: (_) async {
+          onTapUp: (_) {
             final result = _hitNotifier.value;
             if (result == null) return;
+            final hit = result.hitValues.firstOrNull;
+            if (hit == null) return;
 
-            for (final hit in result.hitValues) {
+            _singleTapTimer?.cancel();
+            _singleTapTimer = Timer(const Duration(milliseconds: 300), () async {
               await widget.onTripTap(hit);
-              break;
-            }
+            });
           },
+          onDoubleTap: () => _singleTapTimer?.cancel(),
           child: PolylineLayer<int>(
             hitNotifier: _hitNotifier,
             polylines: data.polylines,
