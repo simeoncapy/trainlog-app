@@ -104,6 +104,8 @@ class MaterialShell extends StatefulWidget {
 }
 
 class _MaterialShellState extends State<MaterialShell> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   late final PageController _pageController;
 
   int _selectedIndex = 0;
@@ -253,8 +255,22 @@ class _MaterialShellState extends State<MaterialShell> {
   Widget build(BuildContext context) {
     final currentPage = _pages[_selectedIndex];
 
-    return SafeArea(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) return;
+        if (_scaffoldKey.currentState?.isDrawerOpen == true) {
+          _scaffoldKey.currentState!.closeDrawer();
+          return;
+        }
+        if (_isDrawerPage) {
+          _goBackToBottomNavPage();
+        }
+        // On bottom-tab pages: absorb the back press so the app stays open.
+      },
+      child: SafeArea(
       child: Scaffold(
+        key: _scaffoldKey,
         appBar: _isDrawerPage
             ? AdaptiveAppBar(
                 title: currentPage.titleBuilder(context),
@@ -354,6 +370,7 @@ class _MaterialShellState extends State<MaterialShell> {
                     ),
                 ],
               ),
+      ),
       ),
     );
   }
