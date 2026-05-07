@@ -1201,4 +1201,7 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get onboardingPage4Subtitle =>
       'Are you a frequent traveller? See how your travels stack up against other members worldwide.';
+
+  @override
+  String get tapAgainToExit => 'Tap again to exit';
 }

@@ -1,5 +1,6 @@
 // material_shell.dart
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/navigation/nav_models.dart';
 import 'package:trainlog_app/features/settings/settings_material_page.dart';
@@ -104,10 +105,14 @@ class MaterialShell extends StatefulWidget {
 }
 
 class _MaterialShellState extends State<MaterialShell> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   late final PageController _pageController;
 
   int _selectedIndex = 0;
   int _previousBottomIndex = 0;
+
+  DateTime? _lastBackPress;
 
   late final List<AppPage> _pages;
 
@@ -253,8 +258,35 @@ class _MaterialShellState extends State<MaterialShell> {
   Widget build(BuildContext context) {
     final currentPage = _pages[_selectedIndex];
 
-    return SafeArea(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) return;
+        if (_scaffoldKey.currentState?.isDrawerOpen == true) {
+          _scaffoldKey.currentState!.closeDrawer();
+          return;
+        }
+        if (_isDrawerPage) {
+          _goBackToBottomNavPage();
+          return;
+        }
+        // Bottom-tab page: require a second back press within 2 s to exit.
+        final now = DateTime.now();
+        if (_lastBackPress != null && now.difference(_lastBackPress!) < const Duration(seconds: 2)) {
+          SystemNavigator.pop();
+          return;
+        }
+        _lastBackPress = now;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.tapAgainToExit),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      },
+      child: SafeArea(
       child: Scaffold(
+        key: _scaffoldKey,
         appBar: _isDrawerPage
             ? AdaptiveAppBar(
                 title: currentPage.titleBuilder(context),
@@ -354,6 +386,7 @@ class _MaterialShellState extends State<MaterialShell> {
                     ),
                 ],
               ),
+      ),
       ),
     );
   }

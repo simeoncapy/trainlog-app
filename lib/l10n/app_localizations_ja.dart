@@ -1183,4 +1183,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get onboardingPage4Subtitle => 'よく旅をするあなたへ。世界中のメンバーと旅の記録を比べてみましょう。';
+
+  @override
+  String get tapAgainToExit => 'もう一度タップすると終了します';
 }

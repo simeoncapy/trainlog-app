@@ -537,5 +537,7 @@
   "onboardingPage3Title": "Share your travels",
   "onboardingPage3Subtitle": "Create shareable links about your trips to share your travel plans with anyone.",
   "onboardingPage4Title": "Leaderboards",
-  "onboardingPage4Subtitle": "Are you a frequent traveller? See how your travels stack up against other members worldwide."
+  "onboardingPage4Subtitle": "Are you a frequent traveller? See how your travels stack up against other members worldwide.",
+
+  "tapAgainToExit": "Tap again to exit"
 }

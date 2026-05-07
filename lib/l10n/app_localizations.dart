@@ -2093,6 +2093,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Are you a frequent traveller? See how your travels stack up against other members worldwide.'**
   String get onboardingPage4Subtitle;
+
+  /// No description provided for @tapAgainToExit.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap again to exit'**
+  String get tapAgainToExit;
 }
 
 class _AppLocalizationsDelegate

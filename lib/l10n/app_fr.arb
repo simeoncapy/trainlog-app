@@ -349,5 +349,7 @@
   "onboardingPage3Title": "Partagez vos voyages",
   "onboardingPage3Subtitle": "Créez des liens partageables pour vos trajets et communiquez vos projets de voyage à qui vous voulez.",
   "onboardingPage4Title": "Classements",
-  "onboardingPage4Subtitle": "Êtes-vous un grand voyageur ? Comparez vos voyages avec ceux des autres membres du monde entier."
+  "onboardingPage4Subtitle": "Êtes-vous un grand voyageur ? Comparez vos voyages avec ceux des autres membres du monde entier.",
+
+  "tapAgainToExit": "Appuyez à nouveau pour quitter"
 }
