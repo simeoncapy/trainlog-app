@@ -278,7 +278,15 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver, Automati
           ],
         ),
         if (!_showFilterModal || AppPlatform.isApple) _mapButtonHelper(),
-        if (_showFilterModal)
+        if (_showFilterModal) ...[
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () {
+              setState(() => _showFilterModal = false);
+              final action = _buildPrimaryAction(context);
+              widget.onPrimaryActionsReady(action == null ? const [] : [action]);
+            },
+          ),
           MapFilterWidget(
             onClose: () {
               setState(() => _showFilterModal = false);
@@ -286,6 +294,7 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver, Automati
               widget.onPrimaryActionsReady(action == null ? const [] : [action]);
             },
           ),
+        ],
       ],
     );
   }
