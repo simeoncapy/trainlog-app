@@ -46,7 +46,7 @@ class _RenderedPolylineLayerState extends State<RenderedPolylineLayer> {
             if (hit == null) return;
 
             _singleTapTimer?.cancel();
-            _singleTapTimer = Timer(const Duration(milliseconds: 300), () async {
+            _singleTapTimer = Timer(const Duration(milliseconds: 150), () async {
               await widget.onTripTap(hit);
             });
           },
