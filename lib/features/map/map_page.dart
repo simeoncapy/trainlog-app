@@ -244,6 +244,7 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver, Automati
             keepAlive: true,
             interactionOptions: const InteractionOptions(
               rotationThreshold: 20.0,
+              enableMultiFingerGestureRace: true,
             ),
             onPositionChanged: (pos, hasGesture) {
               _center = pos.center;
