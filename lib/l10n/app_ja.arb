@@ -351,5 +351,7 @@
   "onboardingPage3Title": "旅をシェア",
   "onboardingPage3Subtitle": "旅のリンクを作成して、移動の計画を誰とでも共有できます。",
   "onboardingPage4Title": "リーダーボード",
-  "onboardingPage4Subtitle": "よく旅をするあなたへ。世界中のメンバーと旅の記録を比べてみましょう。"
+  "onboardingPage4Subtitle": "よく旅をするあなたへ。世界中のメンバーと旅の記録を比べてみましょう。",
+
+  "tapAgainToExit": "もう一度タップすると終了します"
 }

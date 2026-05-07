@@ -1209,4 +1209,7 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get onboardingPage4Subtitle =>
       'Êtes-vous un grand voyageur ? Comparez vos voyages avec ceux des autres membres du monde entier.';
+
+  @override
+  String get tapAgainToExit => 'Appuyez à nouveau pour quitter';
 }

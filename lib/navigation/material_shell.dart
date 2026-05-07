@@ -1,5 +1,6 @@
 // material_shell.dart
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/navigation/nav_models.dart';
 import 'package:trainlog_app/features/settings/settings_material_page.dart';
@@ -110,6 +111,8 @@ class _MaterialShellState extends State<MaterialShell> {
 
   int _selectedIndex = 0;
   int _previousBottomIndex = 0;
+
+  DateTime? _lastBackPress;
 
   late final List<AppPage> _pages;
 
@@ -265,8 +268,21 @@ class _MaterialShellState extends State<MaterialShell> {
         }
         if (_isDrawerPage) {
           _goBackToBottomNavPage();
+          return;
         }
-        // On bottom-tab pages: absorb the back press so the app stays open.
+        // Bottom-tab page: require a second back press within 2 s to exit.
+        final now = DateTime.now();
+        if (_lastBackPress != null && now.difference(_lastBackPress!) < const Duration(seconds: 2)) {
+          SystemNavigator.pop();
+          return;
+        }
+        _lastBackPress = now;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.tapAgainToExit),
+            duration: const Duration(seconds: 2),
+          ),
+        );
       },
       child: SafeArea(
       child: Scaffold(

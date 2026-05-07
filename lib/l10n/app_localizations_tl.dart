@@ -1185,4 +1185,7 @@ class AppLocalizationsTl extends AppLocalizations {
   @override
   String get onboardingPage4Subtitle =>
       'Ikaw ba ay madalas maglakbay? Tingnan kung paano ang iyong mga paglalakbay kumpara sa ibang mga miyembro sa buong mundo.';
+
+  @override
+  String get tapAgainToExit => 'I-tap muli para lumabas';
 }
