@@ -142,7 +142,7 @@ class TripTimeline extends StatelessWidget {
                       scrollDirection: Axis.horizontal,
                       child: Row(
                         children: trainlog
-                            .getOperatorImages(operatorName, maxWidth: 96, maxHeight: 96)
+                            .getOperatorImages(operatorName, maxWidth: 96, maxHeight: 96, separator: ",")
                             .expand((img) => [img, const SizedBox(width: 4)])
                             .toList()
                           ..removeLast(),
