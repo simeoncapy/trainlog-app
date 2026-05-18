@@ -61,7 +61,7 @@ class AppRoot extends StatelessWidget {
           value: isDark
               ? SystemUiOverlayStyle.light
               : const SystemUiOverlayStyle(
-                  statusBarColor: Colors.white,
+                  statusBarColor: Colors.transparent,
                   statusBarIconBrightness: Brightness.dark,
                   statusBarBrightness: Brightness.light,
                 ),
