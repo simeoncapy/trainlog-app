@@ -284,8 +284,12 @@ class _MaterialShellState extends State<MaterialShell> {
           ),
         );
       },
-      child: SafeArea(
-      child: Scaffold(
+      child: ColoredBox(
+        color: Theme.of(context).brightness == Brightness.dark
+            ? Colors.black
+            : Colors.white,
+        child: SafeArea(
+        child: Scaffold(
         key: _scaffoldKey,
         appBar: _isDrawerPage
             ? AdaptiveAppBar(
@@ -386,6 +390,7 @@ class _MaterialShellState extends State<MaterialShell> {
                     ),
                 ],
               ),
+      ),
       ),
       ),
     );
