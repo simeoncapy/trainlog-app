@@ -512,8 +512,7 @@ class TripsDataSource extends DataTableSource {
           if(trip.operatorName.isEmpty) {
             return const DataCell(SizedBox.shrink());
           }
-          final raw = Uri.decodeComponent(trip.operatorName);
-          final operators = raw.split('&&').map((s) => s.trim()).where((s) => s.isNotEmpty).toList();
+          final operators = trip.operatorName.split(',').map((s) => s.trim()).where((s) => s.isNotEmpty).toList();
           final count = operators.length;
 
           return DataCell(
@@ -521,7 +520,7 @@ class TripsDataSource extends DataTableSource {
               message: operators.join(', '),
               child: _OperatorLogoWithCount(
                 image: _trainlog.getOperatorImage(
-                  raw,
+                  operators.join("&&"),
                   maxWidth: 45,
                   maxHeight: 45,
                 ),
