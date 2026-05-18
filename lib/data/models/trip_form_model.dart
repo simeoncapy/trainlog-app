@@ -483,24 +483,22 @@ class TripFormModel extends ChangeNotifier {
       map['originManualName'] = departureStationName;
       map['originManualLat']  = departureLat?.toString() ?? '';
       map['originManualLng']  = departureLong?.toString() ?? '';
-    } else {
-      map['originStation'] = [
-        [departureLat, departureLong],
-        departureStationName,
-      ];
     }
+    map['originStation'] = [
+      [departureLat, departureLong],
+      departureStationName,
+    ];
 
     // ---- destination ----
     if (arrivalGeoMode) {
       map['destinationManualName'] = arrivalStationName;
       map['destinationManualLat']  = arrivalLat?.toString() ?? '';
       map['destinationManualLng']  = arrivalLong?.toString() ?? '';
-    } else {
-      map['destinationStation'] = [
-        [arrivalLat, arrivalLong],
-        arrivalStationName,
-      ];
     }
+    map['destinationStation'] = [
+      [arrivalLat, arrivalLong],
+      arrivalStationName,
+    ];
 
     final departureDate = _when(dateType == DateType.precise, () => _isoDate(departureDateLocal));
     final departureTime = _when(dateType == DateType.precise, () => _isoTime(departureDateLocal));
