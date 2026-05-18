@@ -508,6 +508,19 @@ List<SettingsSectionSpec> buildSettingsBlueprint({
               }
             )
           ),
+        if (kDebugMode)
+          SettingsButtonActionSpec(
+            icon: iconResetOnboarding,
+            title: "Throw Test Exception",
+            button: AdaptiveButton.build(
+              context: context,
+              label: Text("Throw"),
+              size: AdaptiveButton.small,
+              onPressed: () {
+                throw Exception();
+              }
+            )
+          ),
       ],
     ),
   ];
