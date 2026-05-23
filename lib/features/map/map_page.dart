@@ -256,6 +256,7 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver, Automati
             TileLayer(
               urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
               userAgentPackageName: 'me.trainlog.app',
+              errorTileCallback: (tile, error, stackTrace) {},
             ),
             RenderedPolylineLayer(
               onTripTap: (tripId) async {
