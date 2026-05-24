@@ -3,6 +3,7 @@ import 'package:geodesy/geodesy.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:trainlog_app/data/models/polyline_filter_state.dart';
 import 'package:trainlog_app/data/models/trips.dart';
+import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
@@ -147,7 +148,18 @@ class SettingsProvider with ChangeNotifier {
     if (languageCode != null) {
       _locale = Locale(languageCode);
     } else {
-      _locale = const Locale('en', 'GB'); // Default locale
+      // No saved preference: use the phone's language if the app supports it,
+      // otherwise fall back to English.
+      final supportedLanguageCodes = AppLocalizations.supportedLocales
+          .map((locale) => locale.languageCode)
+          .toSet();
+      final deviceLanguageCode =
+          WidgetsBinding.instance.platformDispatcher.locale.languageCode;
+      if (supportedLanguageCodes.contains(deviceLanguageCode)) {
+        _locale = Locale(deviceLanguageCode);
+      } else {
+        _locale = const Locale('en', 'GB');
+      }
     }
     notifyListeners();
   }
