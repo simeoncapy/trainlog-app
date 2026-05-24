@@ -147,7 +147,16 @@ class SettingsProvider with ChangeNotifier {
     if (languageCode != null) {
       _locale = Locale(languageCode);
     } else {
-      _locale = const Locale('en', 'GB'); // Default locale
+      // No saved preference: use the phone's language if the app supports it,
+      // otherwise fall back to English.
+      const supportedLanguageCodes = ['en', 'fr', 'ja', 'tl'];
+      final deviceLanguageCode =
+          WidgetsBinding.instance.platformDispatcher.locale.languageCode;
+      if (supportedLanguageCodes.contains(deviceLanguageCode)) {
+        _locale = Locale(deviceLanguageCode);
+      } else {
+        _locale = const Locale('en');
+      }
     }
     notifyListeners();
   }
