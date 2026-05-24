@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
+import 'package:trainlog_app/utils/style_utils.dart';
 import 'package:trainlog_app/widgets/full_screen_search_overlay.dart';
 
 class OperatorSelector extends StatefulWidget {
@@ -273,10 +274,14 @@ class OperatorSelectorState extends State<OperatorSelector> {
                 ? SizedBox(
                     width: 32,
                     height: 32,
-                    child: trainlog.getOperatorImage(
-                      op,
-                      maxWidth: 32,
-                      maxHeight: 32,
+                    child: withOperatorLogoBg(
+                      context,
+                      trainlog.getOperatorImage(
+                        op,
+                        maxWidth: 32,
+                        maxHeight: 32,
+                      ),
+                      padding: const EdgeInsets.all(2),
                     ),
                   )
                 : const Icon(Icons.train),
@@ -356,9 +361,13 @@ class OperatorSelectorState extends State<OperatorSelector> {
         maxWidth: 80,
         maxHeight: 48,
       );
-      content = ClipRRect(
-        borderRadius: BorderRadius.circular(8),
-        child: img,
+      content = withOperatorLogoBg(
+        context,
+        ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: img,
+        ),
+        radius: 8,
       );
     } else {
       // Text badge as "logo" for unknown operator

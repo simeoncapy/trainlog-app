@@ -15,6 +15,7 @@ import 'package:trainlog_app/providers/trips_provider.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
+import 'package:trainlog_app/utils/style_utils.dart';
 import 'package:trainlog_app/widgets/past_future_selector.dart';
 import 'package:trainlog_app/widgets/trips_filter_dialog.dart';
 
@@ -519,10 +520,13 @@ class TripsDataSource extends DataTableSource {
             Tooltip(
               message: operators.join(', '),
               child: _OperatorLogoWithCount(
-                image: _trainlog.getOperatorImage(
-                  operators.join("&&"),
-                  maxWidth: 45,
-                  maxHeight: 45,
+                image: withOperatorLogoBg(
+                  context,
+                  _trainlog.getOperatorImage(
+                    operators.join("&&"),
+                    maxWidth: 45,
+                    maxHeight: 45,
+                  ),
                 ),
                 count: count,
               ),
