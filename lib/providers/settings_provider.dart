@@ -158,7 +158,7 @@ class SettingsProvider with ChangeNotifier {
       if (supportedLanguageCodes.contains(deviceLanguageCode)) {
         _locale = Locale(deviceLanguageCode);
       } else {
-        _locale = const Locale('en');
+        _locale = const Locale('en', 'GB');
       }
     }
     notifyListeners();
