@@ -5,6 +5,7 @@ import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
+import 'package:trainlog_app/utils/style_utils.dart';
 
 class TripTimeline extends StatelessWidget {
   final Trips trip;
@@ -143,7 +144,8 @@ class TripTimeline extends StatelessWidget {
                       child: Row(
                         children: trainlog
                             .getOperatorImages(operatorName, maxWidth: 96, maxHeight: 96, separator: ",")
-                            .expand((img) => [img, const SizedBox(width: 4)])
+                            .map((img) => withOperatorLogoBg(context, img))
+                            .expand((w) => [w, const SizedBox(width: 4)])
                             .toList()
                           ..removeLast(),
                       ),
