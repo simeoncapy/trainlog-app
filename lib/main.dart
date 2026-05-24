@@ -14,6 +14,12 @@ import 'package:trainlog_app/utils/cached_data_utils.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
+bool _isOsmTileNetworkError(Object error) {
+  final msg = error.toString();
+  return msg.contains('tile.openstreetmap.org') &&
+      (msg.contains('SocketException') || msg.contains('ClientException'));
+}
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -24,10 +30,12 @@ Future<void> main() async {
 
   // Pass all uncaught "fatal" errors from the framework to Crashlytics
   FlutterError.onError = (errorDetails) {
+    if (_isOsmTileNetworkError(errorDetails.exception)) return;
     FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
   };
   // Pass all uncaught asynchronous errors that aren't handled by the Flutter framework to Crashlytics
   PlatformDispatcher.instance.onError = (error, stack) {
+    if (_isOsmTileNetworkError(error)) return true;
     FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
     return true;
   };

@@ -176,6 +176,7 @@ class _MiniMapBoxState extends State<MiniMapBox> {
         TileLayer(
           urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
           userAgentPackageName: 'me.trainlog.app',
+          errorTileCallback: (tile, error, stackTrace) {},
         ),
 
         // Normal pin only when not movable
@@ -287,6 +288,7 @@ class _FullscreenMapOverlayState extends State<FullscreenMapOverlay> {
                 urlTemplate:
                     "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
                 userAgentPackageName: 'me.trainlog.app',
+                errorTileCallback: (tile, error, stackTrace) {},
               ),
 
               if (!widget.isCoordinateMovable)
