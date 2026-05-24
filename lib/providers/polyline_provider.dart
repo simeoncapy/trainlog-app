@@ -383,6 +383,10 @@ class PolylineProvider extends ChangeNotifier {
           _isLoading = false;
           _scheduleNextFlip();
           notifyListeners();
+
+          // Run integrity check asynchronously: the cache may be stale or
+          // incomplete if a trip was added/updated without flushing the cache.
+          unawaited(_checkAndFixMissingPolylines(myToken));
           return;
         } catch (e) {
           debugPrint('Polyline cache read failed: $e');
@@ -435,12 +439,115 @@ class PolylineProvider extends ChangeNotifier {
       if (styled.isNotEmpty) {
         unawaited(_writeCache(styled));
       }
+
+      // Even after a DB load, some entries may have been silently dropped due
+      // to decode errors.  Verify completeness and patch any gaps.
+      unawaited(_checkAndFixMissingPolylines(myToken));
     } catch (e) {
       if (myToken != _loadToken) return;
 
       _isLoading = false;
       _error = e;
       notifyListeners();
+    }
+  }
+
+  // ============================================================================
+  // Polyline integrity check
+  // ============================================================================
+  //
+  // In rare cases a trip with a path in the DB may not have a corresponding
+  // PolylineEntry in [_polylines] — e.g. after loading from a stale file cache,
+  // after a silent decode error, or when an incremental trip refresh only
+  // updated a subset of trips.
+  //
+  // This method compares the set of trip IDs that have a path in the DB with
+  // the set of IDs currently loaded in [_polylines].  Any mismatch is repaired
+  // by fetching and decoding only the missing entries.
+  //
+  // The [loadToken] argument prevents stale results from being applied if a
+  // newer reload starts while this check is still in progress.
+  // ============================================================================
+
+  Future<void> _checkAndFixMissingPolylines(int loadToken) async {
+    final trips = _trips;
+    final settings = _settings;
+    if (trips == null || settings == null) return;
+
+    final repo = trips.repository;
+    if (repo == null) return;
+
+    try {
+      // Fetch all trip IDs that have a non-empty path in the DB.
+      final dbIds = (await repo.getTripIdsWithPath())
+          .map((id) => int.tryParse(id))
+          .whereType<int>()
+          .toSet();
+
+      // Bail out if another reload has started in the meantime.
+      if (_loadToken != loadToken) return;
+
+      final loadedIds = _polylines.map((e) => e.tripId).toSet();
+      final missingIds = dbIds.difference(loadedIds);
+
+      if (missingIds.isEmpty) return;
+
+      debugPrint(
+        '⚠️ Polyline integrity: ${missingIds.length} trip(s) have a path in the DB '
+        'but no polyline loaded — recovering...',
+      );
+
+      // Fetch path data only for the missing trips.
+      final pathData = await repo.getPathExtendedDataForIds(
+        missingIds.map((id) => id.toString()).toList(),
+      );
+
+      if (pathData.isEmpty) return;
+      if (_loadToken != loadToken) return; // Check again after the async gap.
+
+      // Build isolate-friendly structures.
+      final palette = MapColorPaletteHelper.getPalette(settings.mapColorPalette);
+      final colors = <String, int>{};
+      for (final type in VehicleType.values) {
+        colors[type.name] = (palette[type] ?? Colors.black).toARGB32();
+      }
+
+      final entries = pathData.map<Map<String, dynamic>>((raw) {
+        final m = Map<String, dynamic>.from(raw);
+        final typeVal = m['type'];
+        m['type'] = typeVal is VehicleType ? typeVal.name : (typeVal?.toString() ?? '');
+        return m;
+      }).toList();
+
+      final decoded = await compute(
+        PolylineTools.decodePolylinesBatchIsolateFriendly,
+        {'entries': entries, 'colors': colors},
+      );
+
+      if (_loadToken != loadToken) return; // Check after the heavy compute step.
+
+      final styled = _restyleAll(decoded, palette);
+
+      for (final entry in styled) {
+        final index = _polylines.indexWhere((e) => e.tripId == entry.tripId);
+        if (index >= 0) {
+          _polylines[index] = entry;
+        } else {
+          _polylines.add(entry);
+        }
+      }
+
+      debugPrint('✅ Polyline integrity: recovered ${styled.length} missing polyline(s)');
+
+      _reconcileFiltersWithTrips();
+      _rebuildRenderedPolylines(notify: true);
+
+      // Flush the now-complete polyline list to the cache.
+      if (_polylines.isNotEmpty) {
+        unawaited(_writeCache(_polylines));
+      }
+    } catch (e) {
+      debugPrint('⚠️ Polyline integrity check failed: $e');
     }
   }
 
@@ -850,6 +957,11 @@ class PolylineProvider extends ChangeNotifier {
 
     upsertPolylinesFromTrips(partialUpdate);
     _lastTripsPolylineRevision = trips.polylineRevision;
+
+    // An incremental refresh only updates modified trips, so a polyline that
+    // was missing before the refresh will still be absent.  Run the integrity
+    // check to catch and recover any such gaps.
+    unawaited(_checkAndFixMissingPolylines(_loadToken));
   }
 
   void _onSettingsChanged() {
