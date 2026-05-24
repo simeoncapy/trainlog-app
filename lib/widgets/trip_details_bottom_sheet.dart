@@ -155,7 +155,7 @@ class _TripDetailsContent extends StatelessWidget {
           _dataElement(
             context,
             l10n.tripsDetailsTitleOperator,
-            Uri.decodeComponent(trip.operatorName).replaceAll(",", ", "),
+            trip.operatorName.replaceAll(",", ", "),
           ),
           const SizedBox(height: 4),
         ],
