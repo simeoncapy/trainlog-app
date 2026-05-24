@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:trainlog_app/app/app_globals.dart';
 
 ButtonStyle buttonStyleHelper(Color background, Color foreground)
   {
@@ -18,8 +19,9 @@ ButtonStyle buttonStyleHelper(Color background, Color foreground)
       );
   }
 
-/// Wraps [child] with a white background and rounded corners when in dark mode.
-/// Use this around operator logos so they remain legible on dark backgrounds.
+/// Wraps [child] with the light-theme surface colour and rounded corners when
+/// in dark mode. Use this around operator logos so they remain legible on dark
+/// backgrounds (most logos are designed for light/white backgrounds).
 Widget withOperatorLogoBg(
   BuildContext context,
   Widget child, {
@@ -30,7 +32,7 @@ Widget withOperatorLogoBg(
   if (!isDark) return child;
   return Container(
     decoration: BoxDecoration(
-      color: Colors.white,
+      color: kLightThemeSurface,
       borderRadius: BorderRadius.circular(radius),
     ),
     padding: padding,
