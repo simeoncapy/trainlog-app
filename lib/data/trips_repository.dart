@@ -245,6 +245,50 @@ class TripsRepository {
     return maps.map((m) => m['path'] as String).toList();
   }
 
+  /// Returns all trip UIDs that have a non-empty path stored in the DB.
+  /// Used to verify that the loaded polyline list is complete.
+  Future<List<String>> getTripIdsWithPath() async {
+    final maps = await _db.query(
+      TripsTable.tableName,
+      columns: ['uid'],
+      where: 'path IS NOT NULL AND path != ""',
+    );
+    return maps.map((m) => m['uid'] as String).toList();
+  }
+
+  /// Returns path-related data only for the trips identified by [ids].
+  /// Used to recover polylines that were missing from a previous load.
+  Future<List<Map<String, dynamic>>> getPathExtendedDataForIds(List<String> ids) async {
+    if (ids.isEmpty) return [];
+
+    final placeholders = List.filled(ids.length, '?').join(',');
+    final maps = await _db.query(
+      TripsTable.tableName,
+      columns: [
+        'uid',
+        'path',
+        'type',
+        'origin_station',
+        'destination_station',
+        'start_datetime',
+        'end_datetime',
+        'utc_start_datetime',
+        'utc_end_datetime',
+        'created',
+      ],
+      where: 'uid IN ($placeholders) AND path IS NOT NULL AND path != ""',
+      whereArgs: ids,
+    );
+
+    return maps.map((e) {
+      final typeEnum = VehicleType.fromString(e['type']?.toString());
+      return {
+        ...e,
+        'type': typeEnum,
+      };
+    }).toList();
+  }
+
   Future<List<Map<String, dynamic>>> getPathExtendedData([
     PathDisplayOrder order = PathDisplayOrder.creationDate,
   ]) async {
