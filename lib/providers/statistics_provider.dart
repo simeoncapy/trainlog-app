@@ -396,10 +396,11 @@ class StatisticsProvider extends ChangeNotifier {
       case GraphType.operator:
         return List.generate(
           data.length,
-          (i) => withOperatorLogoBg(
-            context,
-            _trainlog.getOperatorImage(data[i], maxWidth: 48, maxHeight: 48),
-          ),
+          (i) => _trainlog.getOperatorImage(data[i], maxWidth: 48, maxHeight: 48),
+          // (i) => withOperatorLogoBg(
+          //   context,
+          //   _trainlog.getOperatorImage(data[i], maxWidth: 48, maxHeight: 48),
+          // ),
         );
 
       case GraphType.country:
@@ -456,10 +457,11 @@ class StatisticsProvider extends ChangeNotifier {
             );
           }
           // Otherwise display operator logo
-          return withOperatorLogoBg(
-            context,
-            _trainlog.getOperatorImage(name, maxWidth: 48, maxHeight: 48),
-          );
+          return _trainlog.getOperatorImage(name, maxWidth: 48, maxHeight: 48);
+          // return withOperatorLogoBg(
+          //   context,
+          //   _trainlog.getOperatorImage(name, maxWidth: 48, maxHeight: 48),
+          // );
         });
         case GraphType.country:
           return List.generate(
