@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:country_picker/country_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:trainlog_app/data/models/trips.dart';
@@ -17,6 +19,11 @@ class TripsProvider extends ChangeNotifier {
 
   bool _loading = true;
   bool get isLoading => _loading;
+
+  /// True while an incremental background sync with the server is running,
+  /// after the local DB has already been presented to the UI.
+  bool _isSyncing = false;
+  bool get isSyncing => _isSyncing;
   TripsRepository? get repository => _repository;
 
   List<VehicleType> _vehicleTypes = const [VehicleType.unknown];
@@ -99,13 +106,59 @@ class TripsProvider extends ChangeNotifier {
 
     _hasLoadedForUser = true;
 
-    debugPrint("🚀 TripsProvider auto-loading trips for $_username");
+    final lastFetch = _settings!.lastFetchingTrips;
+    final isFirstLoad = lastFetch == null || lastFetch == forceRefreshDate.toUtc();
 
-    // await loadTrips(
-    //   locale: _locale,
-    //   loadFromApi: true,
-    // );
-    await loadNecessaryTripsData(locale: _locale, hardRefresh: true);
+    if (isFirstLoad) {
+      // No prior data: fetch everything from the server (full hard refresh).
+      debugPrint("🚀 TripsProvider: first load for $_username → hard refresh");
+      await loadNecessaryTripsData(locale: _locale, hardRefresh: true);
+    } else {
+      // Returning user: show local DB data immediately, then sync in background.
+      debugPrint("🚀 TripsProvider: returning user $_username → local DB + background sync");
+      await _loadFromLocalDb();
+      unawaited(_backgroundSync());
+    }
+  }
+
+  /// Loads the repository directly from the local SQLite DB and refreshes all
+  /// derived lists.  Fast — no network access.
+  Future<void> _loadFromLocalDb() async {
+    _loading = true;
+    notifyListeners();
+    try {
+      _repository = await TripsRepository.loadFromDatabase();
+      await _refreshDerivedLists();
+      _revision++;
+      _polylineRevision++;
+      final count = await _repository!.count();
+      debugPrint("✅ Loaded $count trips from local DB");
+    } catch (e, stack) {
+      debugPrint("🛑 _loadFromLocalDb failed: $e");
+      debugPrintStack(stackTrace: stack);
+      _vehicleTypes = const [VehicleType.unknown];
+      _years = const [];
+      _operators = const [];
+      _countryCodes = const [];
+      _mapCountryCodes = const {};
+    } finally {
+      _loading = false;
+      notifyListeners();
+    }
+  }
+
+  /// Runs an incremental network sync without touching the loading state
+  /// (the UI is already showing local data).  Sets [isSyncing] = true for
+  /// the duration so the progress bar overlay can react.
+  Future<void> _backgroundSync() async {
+    _isSyncing = true;
+    notifyListeners();
+    try {
+      await loadNecessaryTripsData(locale: _locale, hardRefresh: false, silentSync: true);
+    } finally {
+      _isSyncing = false;
+      notifyListeners();
+    }
   }
 
   // ------------------------
@@ -155,9 +208,19 @@ class TripsProvider extends ChangeNotifier {
   //   }
   // }
 
-  Future<void> loadNecessaryTripsData({Locale? locale, bool hardRefresh = false}) async {
-    _loading = true;
-    notifyListeners();
+  /// Loads (or refreshes) trips data.
+  ///
+  /// [hardRefresh] — if true, re-downloads everything from the server;
+  ///   otherwise only fetches trips modified since [SettingsProvider.lastFetchingTrips].
+  ///
+  /// [silentSync] — if true, the [isLoading] flag is NOT toggled.  Use this
+  ///   when calling from a background context where the UI is already showing
+  ///   data from the local DB (e.g. [_backgroundSync]).
+  Future<void> loadNecessaryTripsData({Locale? locale, bool hardRefresh = false, bool silentSync = false}) async {
+    if (!silentSync) {
+      _loading = true;
+      notifyListeners();
+    }
     if (locale != null) _locale = locale;
 
     DateTime? lastRefresh = hardRefresh ? null : _settings!.lastFetchingTrips;
@@ -185,9 +248,7 @@ class TripsProvider extends ChangeNotifier {
         final trips = await _service!.fetchLastUpdatedTripsData(_username??"", lastRefresh);
         if (trips.isEmpty) {
           debugPrint("✅ Nothing to update.");
-          _loading = false;
-          notifyListeners();
-          return;
+          return; // finally block handles notifyListeners
         }
         _repository = await TripsRepository.loadFromTripsList(trips);
         _modificatedTrips = [...?_modificatedTrips, ...trips];
@@ -215,8 +276,8 @@ class TripsProvider extends ChangeNotifier {
       _countryCodes = const [];
       _mapCountryCodes = const {};
     } finally {
-      _loading = false;
-      notifyListeners(); // single notify after all data ready
+      if (!silentSync) _loading = false;
+      notifyListeners();
     }
   }
 

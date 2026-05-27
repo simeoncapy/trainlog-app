@@ -501,6 +501,14 @@ class SettingsProvider with ChangeNotifier {
     setLastFetchingTrips(DateTime.now().toUtc());
   }
 
+  Future<void> clearLastFetchingTrips() async {
+    if (_SP_lastFetchingTrips == null) return;
+    _SP_lastFetchingTrips = null;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('last_fetching_trips');
+    notifyListeners();
+  }
+
   // ------------------------------------------------------------------------------
   
   void _loadLastUsedInstanceUrl() async {
