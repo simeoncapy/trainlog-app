@@ -37,7 +37,7 @@ class _SyncProgressOverlay extends StatelessWidget {
       left: 0,
       right: 0,
       child: LinearProgressIndicator(
-        minHeight: 2,
+        minHeight: 4,
         backgroundColor: Colors.transparent,
         color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
       ),
