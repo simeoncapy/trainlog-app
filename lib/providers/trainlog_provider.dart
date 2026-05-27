@@ -86,6 +86,7 @@ class TrainlogProvider extends ChangeNotifier {
     try {
       await _service.clearSession();
       settings.clearUsername();
+      settings.clearLastFetchingTrips();
       settings.setShouldReloadPolylines(true);
       await trips.clearAll();
       await AppCacheFilePath.deleteFile(AppCacheFilePath.polylines);

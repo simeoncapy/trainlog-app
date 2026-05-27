@@ -1,5 +1,7 @@
 import 'package:country_picker/country_picker.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -9,6 +11,22 @@ import 'package:trainlog_app/app/home_gate.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
+
+class CrashlyticsNavigationObserver extends NavigatorObserver {
+  @override
+  void didPush(Route route, Route? previousRoute) {
+    FirebaseCrashlytics.instance.log(
+      'Navigated to ${route.settings.name}',
+    );
+  }
+
+  @override
+  void didPop(Route route, Route? previousRoute) {
+    FirebaseCrashlytics.instance.log(
+      'Popped ${route.settings.name}',
+    );
+  }
+}
 
 class AppRoot extends StatelessWidget {
   final WidgetBuilder signedInBuilder;
@@ -34,6 +52,9 @@ class AppRoot extends StatelessWidget {
     return MaterialApp(
       scaffoldMessengerKey: rootScaffoldMessengerKey,
       navigatorKey: rootNavigatorKey,
+      navigatorObservers: kDebugMode ? [] : [
+        CrashlyticsNavigationObserver(),
+      ],
       locale: settings.locale,
       localizationsDelegates: [
         ...AppLocalizations.localizationsDelegates,
