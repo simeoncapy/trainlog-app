@@ -391,7 +391,6 @@ class _LogoBarChartState extends State<LogoBarChart> {
     final rotated = widget.rotationQuarterTurns % 2 == 1;
     return Stack(
       children: [
-        chart,
         Positioned(
           left: rotated ? 0 : null,
           right: rotated ? null : 0,
@@ -399,10 +398,9 @@ class _LogoBarChartState extends State<LogoBarChart> {
           top: rotated ? 0 : null,
           width: rotated ? axisReservedSize : null,
           height: rotated ? null : axisReservedSize,
-          child: IgnorePointer(
-            child: Container(color: kLightThemeSurface),
-          ),
+          child: Container(color: kLightThemeSurface),
         ),
+        chart,
       ],
     );
   }
