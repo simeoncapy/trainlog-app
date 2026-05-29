@@ -125,7 +125,7 @@ class TripTimeline extends StatelessWidget {
                   softWrap: true,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 24),
 
                 // Middle: line info
                 Flexible(
@@ -165,7 +165,7 @@ class TripTimeline extends StatelessWidget {
                   ],
                 ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 24),
 
                 // Bottom: destination station
                 Text(
