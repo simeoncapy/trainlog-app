@@ -12,7 +12,8 @@ import 'package:latlong2/latlong.dart';
 import "package:unorm_dart/unorm_dart.dart" as unorm;
 
 typedef StationInfo = (
-  String label,
+  String name,
+  String displayName,
   LatLng coords,
   String address,
   bool isManual
@@ -380,8 +381,8 @@ class TrainlogProvider extends ChangeNotifier {
     return visits[label] ?? 0;
   }
 
-  String cleanLabel(String label) {
-    return removeFlagPrefix(label).toLowerCase();
+  String cleanLabel(String displayName) {
+    return removeFlagPrefix(displayName).toLowerCase();
   }
 
   Future<List<StationInfo>> fetchStations(
@@ -404,34 +405,14 @@ class TrainlogProvider extends ChangeNotifier {
     final normalizedQuery = _normalize(query);
 
     // ---- Manual stations (filtered by query) ----
-    final manualList = manualMap.entries
-        .map((e) => (
-              e.key,         // label with flag
-              e.value.$1,    // LatLng
-              e.value.$2,    // address
-              true,          // isManual
-            ))
-        .where((entry) {
-          final label   = _normalize(entry.$1);
-          //final address = _normalize(entry.$3);
-          return label.contains(normalizedQuery)/* ||
-                address.contains(normalizedQuery)*/;
-        })
-        .toList();
-
-    // ---- OSM stations (already filtered by query in API) ----
-    final osmList = osmMap.entries
-        .map((e) => (
-              e.key,
-              e.value.$1,
-              e.value.$2,
-              false,
-            ))
+    final manualList = manualMap
+        .where((s) => _normalize(s.displayName).contains(normalizedQuery))
         .toList();
 
     // ---- Combine + attach visit counts ----
-    // (label, coords, address, isManual, visits)
+    // (name, displayName, coords, address, isManual, visits)
     final combined = <(
+      String,
       String,
       LatLng,
       String,
@@ -439,27 +420,27 @@ class TrainlogProvider extends ChangeNotifier {
       int
     )>[];
 
-    int visitCount(String label) => visits[label] ?? 0;
-    String cleanLabel(String label) =>
-        removeFlagPrefix(label).toLowerCase();
+    int visitCount(String displayName) => visits[displayName] ?? 0;
+    String cleanLabel(String displayName) =>
+        removeFlagPrefix(displayName).toLowerCase();
 
     for (final m in manualList) {
-      combined.add((m.$1, m.$2, m.$3, m.$4, visitCount(m.$1)));
+      combined.add((m.name, m.displayName, m.coords, m.address, m.isManual, visitCount(m.displayName)));
     }
-    for (final o in osmList) {
-      combined.add((o.$1, o.$2, o.$3, o.$4, visitCount(o.$1)));
+    for (final o in osmMap) {
+      combined.add((o.name, o.displayName, o.coords, o.address, o.isManual, visitCount(o.displayName)));
     }
 
     // ---- Sort: 1) visits DESC, 2) alphabetical ignoring flag ----
     combined.sort((a, b) {
-      final visitsDiff = b.$5.compareTo(a.$5); // most visited first
+      final visitsDiff = b.$6.compareTo(a.$6); // most visited first
       if (visitsDiff != 0) return visitsDiff;
 
-      return cleanLabel(a.$1).compareTo(cleanLabel(b.$1));
+      return cleanLabel(a.$2).compareTo(cleanLabel(b.$2));
     });
 
-    // ---- Back to StationInfo (label, coords, address, isManual) ----
-    return combined.map((e) => (e.$1, e.$2, e.$3, e.$4)).toList();
+    // ---- Back to StationInfo (name, displayName, coords, address, isManual) ----
+    return combined.map((e) => (e.$1, e.$2, e.$3, e.$4, e.$5)).toList();
   }
 
   List<StationInfo> _mergeStationLists(
@@ -471,11 +452,11 @@ class TrainlogProvider extends ChangeNotifier {
 
     for (final osmItem in osm) {
       final osmKey =
-          removeFlagPrefix(osmItem.$1).toLowerCase(); // key without emoji
+          removeFlagPrefix(osmItem.$2).toLowerCase(); // displayName without emoji
 
       while (i < manual.length) {
         final manualKey =
-            removeFlagPrefix(manual[i].$1).toLowerCase(); // key without emoji
+            removeFlagPrefix(manual[i].$2).toLowerCase(); // displayName without emoji
 
         if (manualKey.compareTo(osmKey) < 0) {
           merged.add(manual[i]);

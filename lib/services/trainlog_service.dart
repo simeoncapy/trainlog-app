@@ -11,6 +11,14 @@ import 'package:trainlog_app/data/models/news_model.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/utils/text_utils.dart';
 
+typedef StationResult = ({
+  String name,
+  String displayName,
+  LatLng coords,
+  String address,
+  bool isManual,
+});
+
 class TrainlogLoginResult {
   final bool success;
   final List<Cookie> cookies;
@@ -446,12 +454,13 @@ class TrainlogService {
     throw Exception("Invalid coordinate type: $v");
   }
 
-  Future<Map<String, (LatLng, String)>> fetchAllManualStationsSuffixed(
+  Future<List<StationResult>> fetchAllManualStationsSuffixed(
     String username,
     VehicleType type,
   ) async {
     final manual = await _fetchRawManualStations(username, type);
-    final result = <String, (LatLng, String)>{};
+    final seen = <String>{};
+    final result = <StationResult>[];
 
     for (final entry in manual.entries) {
       final baseName = entry.key;
@@ -462,29 +471,36 @@ class TrainlogService {
         _toDouble(coords[1]),
       );
 
-      var name = baseName;
+      var displayName = baseName;
 
       // Handle suffixing
-      if (result.containsKey(name)) {
+      if (seen.contains(displayName)) {
         int suffixIndex = 0;
         while (true) {
           final candidate =
               "$baseName (${String.fromCharCode(97 + suffixIndex)})";
-          if (!result.containsKey(candidate)) {
-            name = candidate;
+          if (!seen.contains(candidate)) {
+            displayName = candidate;
             break;
           }
           suffixIndex++;
         }
       }
 
-      result[name] = (latLng, "@manual@");
+      seen.add(displayName);
+      result.add((
+        name: baseName,
+        displayName: displayName,
+        coords: latLng,
+        address: "@manual@",
+        isManual: true,
+      ));
     }
 
     return result;
   }
 
-  Future<Map<String, (LatLng, String)>> fetchStations(
+  Future<List<StationResult>> fetchStations(
     String query,
     VehicleType type,
   ) async {
@@ -532,27 +548,27 @@ class TrainlogService {
 
         final data = res.data;
         if (data == null) {
-          return {};
+          return [];
         }
 
         return _airportListGenerator(data);
       }
-    
+
       final res = await _safeGet<Map<String, dynamic>>(path);
 
       final data = res.data;
       if (data == null) {
-        return {};
+        return [];
       }
 
       return _stationListGenerator(data);
     } on Exception catch (_) {
-      return {};
+      return [];
     }
   }
 
-  Map<String, (LatLng, String)> _airportListGenerator(List<dynamic> airports) {
-    final result = <String, (LatLng, String)>{};
+  List<StationResult> _airportListGenerator(List<dynamic> airports) {
+    final result = <StationResult>[];
 
     for (final raw in airports) {
       final entry = raw as Map<String, dynamic>;
@@ -566,20 +582,25 @@ class TrainlogService {
 
       if (lat == null || lng == null) continue;
 
-      final key = "${countryCodeToEmoji(country)} $name ($iata)";
-      final value = (LatLng(lat.toDouble(), lng.toDouble()), city);
+      final displayName = "${countryCodeToEmoji(country)} $name ($iata)";
 
-      result[key] = value;
+      result.add((
+        name: displayName,
+        displayName: displayName,
+        coords: LatLng(lat.toDouble(), lng.toDouble()),
+        address: city,
+        isManual: false,
+      ));
     }
 
     return result;
   }
 
-  Map<String, (LatLng, String)> _stationListGenerator(
+  List<StationResult> _stationListGenerator(
     Map<String, dynamic> data,
   ) {
     final features = data["features"] as List<dynamic>? ?? [];
-    final result = <String, (LatLng, String)>{};
+    final result = <StationResult>[];
 
     for (final f in features) {
       final feature = f as Map<String, dynamic>;
@@ -595,7 +616,7 @@ class TrainlogService {
       final props = feature["properties"] as Map<String, dynamic>;
 
       final countryCode = props["countrycode"] as String? ?? "";
-      final name = props["name"] as String? ?? "";
+      final stationName = props["name"] as String? ?? "";
       final homonymy = props["homonymy_order"] as String? ?? "";
 
       final street = props["street"] as String? ?? "";
@@ -603,9 +624,9 @@ class TrainlogService {
       final district = props["district"] as String? ?? "";
       final city = props["city"] as String? ?? "";
 
-      // --- Key: "🇯🇵 Tokyo - Kita-Senju (a)" ---
       final emoji = countryCodeToEmoji(countryCode);
-      final key = "$emoji $name$homonymy";
+      final name = "$emoji $stationName";
+      final displayName = "$emoji $stationName$homonymy";
 
       // --- Address string ---
       final parts = [
@@ -617,7 +638,13 @@ class TrainlogService {
 
       final address = parts.join(", ");
 
-      result[key] = (latLng, address);
+      result.add((
+        name: name,
+        displayName: displayName,
+        coords: latLng,
+        address: address,
+        isManual: false,
+      ));
     }
 
     return result;

@@ -15,6 +15,7 @@ class TripFormModel extends ChangeNotifier {
   VehicleType? vehicleType = VehicleType.train;
 
   String? departureStationName;
+  String? departureStationBaseName;
   double? departureLat;
   double? departureLong;
   String? departureAddress;
@@ -22,6 +23,7 @@ class TripFormModel extends ChangeNotifier {
   bool highlightDepartureErrors = false;
 
   String? arrivalStationName;
+  String? arrivalStationBaseName;
   double? arrivalLat;
   double? arrivalLong;
   String? arrivalAddress;
@@ -236,12 +238,14 @@ class TripFormModel extends ChangeNotifier {
   
   void setDeparture({
     String? name,
+    String? baseName,
     double? lat,
     double? long,
     String? address,
     bool? geoMode,
   }) {
     departureStationName = name;
+    departureStationBaseName = baseName;
     departureLat = lat;
     departureLong = long;
     departureAddress = address;
@@ -259,12 +263,14 @@ class TripFormModel extends ChangeNotifier {
 
   void setArrival({
     String? name,
+    String? baseName,
     double? lat,
     double? long,
     String? address,
     bool? geoMode,
   }) {
     arrivalStationName = name;
+    arrivalStationBaseName = baseName;
     arrivalLat = lat;
     arrivalLong = long;
     arrivalAddress = address;
@@ -285,6 +291,10 @@ class TripFormModel extends ChangeNotifier {
     final tmpName = departureStationName;
     departureStationName = arrivalStationName;
     arrivalStationName = tmpName;
+
+    final tmpBaseName = departureStationBaseName;
+    departureStationBaseName = arrivalStationBaseName;
+    arrivalStationBaseName = tmpBaseName;
 
     // --- swap coordinates ---
     final tmpLat = departureLat;
@@ -486,7 +496,7 @@ class TripFormModel extends ChangeNotifier {
     }
     map['originStation'] = [
       [departureLat, departureLong],
-      departureStationName,
+      departureStationBaseName ?? departureStationName,
     ];
 
     // ---- destination ----
@@ -497,7 +507,7 @@ class TripFormModel extends ChangeNotifier {
     }
     map['destinationStation'] = [
       [arrivalLat, arrivalLong],
-      arrivalStationName,
+      arrivalStationBaseName ?? arrivalStationName,
     ];
 
     final departureDate = _when(dateType == DateType.precise, () => _isoDate(departureDateLocal));
