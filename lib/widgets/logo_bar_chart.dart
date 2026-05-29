@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:trainlog_app/app/app_globals.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/utils/number_formatter.dart';
 
@@ -36,6 +37,9 @@ class LogoBarChart extends StatefulWidget {
   final int rotationQuarterTurns;
   final InlineSpan? unitHelpTooltip;
 
+  /// When true, a light background band is drawn behind the logo axis in dark mode.
+  final bool showAxisBackground;
+
     /// Optional: raw (unscaled) values for tooltips, matching the stat order.
   /// If provided with [tooltipValueFormatter], the tooltip will display these
   /// pretty-printed values instead of the scaled ones.
@@ -57,6 +61,7 @@ class LogoBarChart extends StatefulWidget {
     this.color,
     this.rotationQuarterTurns = 0,
     this.unitHelpTooltip,
+    this.showAxisBackground = false,
     this.tooltipRawPast,
     this.tooltipRawFuture,
     this.tooltipValueFormatter,
@@ -293,7 +298,11 @@ class _LogoBarChartState extends State<LogoBarChart> {
       '${_pastScaled.join(',')}|${_futureScaled.join(',')}',
     );
 
-    return BarChart(
+    const double axisReservedSize = 50;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final showBand = widget.showAxisBackground && isDark;
+
+    final chart = BarChart(
       key: chartDataKey,
       BarChartData(
         rotationQuarterTurns: widget.rotationQuarterTurns,
@@ -372,6 +381,29 @@ class _LogoBarChartState extends State<LogoBarChart> {
           ),
         ),
       ),
+    );
+
+    if (!showBand) return chart;
+
+    // In dark mode, draw a light band behind the logo axis area.
+    // rotationQuarterTurns==1 means the chart is rotated so the "bottom" axis
+    // appears on the left side visually.
+    final rotated = widget.rotationQuarterTurns % 2 == 1;
+    return Stack(
+      children: [
+        chart,
+        Positioned(
+          left: rotated ? 0 : null,
+          right: rotated ? null : 0,
+          bottom: 0,
+          top: rotated ? 0 : null,
+          width: rotated ? axisReservedSize : null,
+          height: rotated ? null : axisReservedSize,
+          child: IgnorePointer(
+            child: Container(color: kLightThemeSurface),
+          ),
+        ),
+      ],
     );
   }
 
