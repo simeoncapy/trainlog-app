@@ -179,9 +179,13 @@ class _TripsPageState extends State<TripsPage> {
 
   Widget _tableGeneralHeaderBuilder(TripsProvider tripsProvider) {
     final locale = Localizations.localeOf(context);
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
+    return Align(
+      alignment: Alignment.centerRight,
+      child: SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
         PastFutureSelector(
           initialValue: _dataSource!.timeMoment,
           onChanged: (newMoment) {
@@ -240,6 +244,8 @@ class _TripsPageState extends State<TripsPage> {
           tooltip: AppLocalizations.of(context)!.filterButton,
         ),
       ],
+      ),
+    ),
     );
   }
 

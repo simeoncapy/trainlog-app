@@ -34,75 +34,68 @@ class TripTimeline extends StatelessWidget {
     final color = palette[trip.type] ?? Colors.black;
     final trainlog = Provider.of<TrainlogProvider>(context, listen: false);
 
-    const double timelineHeight = 250;
-
-    return SizedBox(
-      height: timelineHeight,
+    return IntrinsicHeight(
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // LEFT: departure and arrival time
           SizedBox(
-            width: 65,
-            child: Stack(
+            width: 72,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Positioned(
-                  top: 0,
-                  child: Column(
-                    children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      departureTime,
+                      style: TextStyle(
+                        fontSize: 12,
+                        decoration: trip.hasDepartureDelay ? TextDecoration.lineThrough : null,
+                      ),
+                      textAlign: TextAlign.right,
+                      softWrap: false,
+                      overflow: TextOverflow.visible,
+                    ),
+                    if (departureDelay != null) ...[
+                      const SizedBox(height: 4),
                       Text(
-                        departureTime,
+                        departureDelay,
                         style: TextStyle(
                           fontSize: 12,
-                          decoration: trip.hasDepartureDelay ? TextDecoration.lineThrough : null,
-                          //color: trip.hasDepartureDelay ? Theme.of(context).colorScheme.error : null 
+                          color: trip.departureDelay! > 0 ? Colors.red : Colors.green,
                         ),
                         textAlign: TextAlign.right,
                       ),
-                      if (departureDelay != null) ...[
-                        const SizedBox(height: 4),
-                        Text(
-                          departureDelay,
-                          style: TextStyle(
-                            fontSize: 12, 
-                            color: trip.departureDelay! > 0
-                              ? Colors.red
-                              : Colors.green,
-                          ),
-                          textAlign: TextAlign.right,
-                        ),
-                      ],
                     ],
-                  ),
+                  ],
                 ),
-                Positioned(
-                  bottom: 0,
-                  child: Column(
-                    children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      arrivalTime,
+                      style: TextStyle(
+                        fontSize: 12,
+                        decoration: trip.hasArrivalDelay ? TextDecoration.lineThrough : null,
+                      ),
+                      textAlign: TextAlign.right,
+                      softWrap: false,
+                      overflow: TextOverflow.visible,
+                    ),
+                    if (arrivalDelay != null) ...[
+                      const SizedBox(height: 4),
                       Text(
-                        arrivalTime,
+                        arrivalDelay,
                         style: TextStyle(
                           fontSize: 12,
-                          decoration: trip.hasArrivalDelay ? TextDecoration.lineThrough : null,
-                          //color: trip.hasArrivalDelay ? Theme.of(context).colorScheme.error :
+                          color: trip.arrivalDelay! > 0 ? Colors.red : Colors.green,
                         ),
                         textAlign: TextAlign.right,
                       ),
-                      if (arrivalDelay != null) ...[
-                        const SizedBox(height: 4),
-                        Text(
-                          arrivalDelay,
-                          style: TextStyle(
-                            fontSize: 12, 
-                            color: trip.arrivalDelay! > 0
-                              ? Colors.red
-                              : Colors.green,
-                          ),
-                          textAlign: TextAlign.right,
-                        ),
-                      ],
                     ],
-                  ),                  
+                  ],
                 ),
               ],
             ),
@@ -130,11 +123,13 @@ class TripTimeline extends StatelessWidget {
                   trip.originStation,
                   style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                   softWrap: true,
-                  overflow: TextOverflow.visible,
+                  overflow: TextOverflow.ellipsis,
                 ),
+                const SizedBox(height: 24),
 
                 // Middle: line info
-                Column(
+                Flexible(
+                  child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     operatorName.isEmpty
@@ -150,7 +145,7 @@ class TripTimeline extends StatelessWidget {
                           ..removeLast(),
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(height: 8),
                     //Expanded(
                       /*child:*/ Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -169,13 +164,15 @@ class TripTimeline extends StatelessWidget {
                     //),
                   ],
                 ),
+                ),
+                const SizedBox(height: 24),
 
                 // Bottom: destination station
                 Text(
                   trip.destinationStation,
                   style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                   softWrap: true,
-                  overflow: TextOverflow.visible,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
@@ -184,8 +181,6 @@ class TripTimeline extends StatelessWidget {
       ),
     );
   }
-
-
 
   Widget _buildDot(BuildContext context, Icon icon, Color color) => Container(
       width: 40,
@@ -209,7 +204,6 @@ class TripTimeline extends StatelessWidget {
 
   Widget _buildLine(Color color) => Container(
         width: 10,
-        height: 150,
         color: color,
   );
 
