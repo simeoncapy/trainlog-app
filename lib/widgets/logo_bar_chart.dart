@@ -362,6 +362,11 @@ class _LogoBarChartState extends State<LogoBarChart> {
                     padding: const EdgeInsets.only(left: 8),
                     child: child,
                   );
+                } else if (widget.showAxisBackground && !rotated) {
+                  child = RotatedBox(
+                    quarterTurns: 3,
+                    child: SizedBox(width: 32, height: 32, child: child),
+                  );
                 }
                 return SideTitleWidget(meta: meta, child: child);
               },
