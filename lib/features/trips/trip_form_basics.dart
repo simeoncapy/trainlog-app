@@ -233,6 +233,7 @@ class TripFormBasics extends StatelessWidget {
         if (isDeparture) {
           model.setDeparture(
             name: values['name'],
+            baseName: values['baseName'],
             lat: lat,
             long: lng,
             geoMode: values['mode'] == 'geo',
@@ -242,6 +243,7 @@ class TripFormBasics extends StatelessWidget {
         } else {
           model.setArrival(
             name: values['name'],
+            baseName: values['baseName'],
             lat: lat,
             long: lng,
             geoMode: values['mode'] == 'geo',

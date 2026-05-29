@@ -60,6 +60,7 @@ class _StationFieldsSwitcherState extends State<StationFieldsSwitcher>
   late bool _geoMode = widget.initialGeoMode;
   double? _savedLat;
   double? _savedLng;
+  String? _savedBaseName;
 
   static const double _extraFieldHeight = 48;
   int _direction = -1;
@@ -128,6 +129,7 @@ class _StationFieldsSwitcherState extends State<StationFieldsSwitcher>
       _nameCtl.text = "";
       _savedLat = null;
       _savedLng = null;
+      _savedBaseName = null;
     }
     else {
       _nameCtl.text = widget.initialStationName ?? '';
@@ -136,6 +138,7 @@ class _StationFieldsSwitcherState extends State<StationFieldsSwitcher>
       _longCtl.text = "0.0";
       _savedLat = widget.initialLat;
       _savedLng = widget.initialLng;
+      _savedBaseName = null;
     }
 
     _currentAddress = widget.initialAddress ?? '';
@@ -159,6 +162,7 @@ class _StationFieldsSwitcherState extends State<StationFieldsSwitcher>
     widget.onChanged?.call({
       'mode': _geoMode ? "geo" : "name",
       'name': _geoMode ? _manualNameCtl.text : _nameCtl.text,
+      'baseName': _geoMode ? _manualNameCtl.text : (_savedBaseName ?? _nameCtl.text),
       'lat': _geoMode ? _latCtl.text : _savedLat?.toString() ?? "",
       'long': _geoMode ? _longCtl.text : _savedLng?.toString() ?? "",
       'address': _geoMode ? '' : _currentAddress,
@@ -204,10 +208,10 @@ class _StationFieldsSwitcherState extends State<StationFieldsSwitcher>
           },
 
           itemBuilder: (context, station) {
-            final (label, coords, address, isManual) = station;
+            final (name, displayName, coords, address, isManual) = station;
             return ListTile(
               tileColor: isManual ? Colors.red.withValues(alpha: 0.1) : null,
-              title: Text(label),
+              title: Text(displayName),
               trailing: isManual
                   ? Text(loc.manual, style: const TextStyle(color: Colors.red))
                   : null,
@@ -281,9 +285,10 @@ class _StationFieldsSwitcherState extends State<StationFieldsSwitcher>
   // Select station
   // ------------------------------
   void _selectStation(StationInfo station) {
-    final (label, coords, address, isManual) = station;
+    final (name, displayName, coords, address, isManual) = station;
 
-    _nameCtl.text = label;
+    _nameCtl.text = displayName;
+    _savedBaseName = name;
     _savedLat = coords.latitude;
     _savedLng = coords.longitude;
 
