@@ -40,7 +40,7 @@ class TripTimeline extends StatelessWidget {
         children: [
           // LEFT: departure and arrival time
           SizedBox(
-            width: 65,
+            width: 72,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.end,
@@ -55,6 +55,8 @@ class TripTimeline extends StatelessWidget {
                         decoration: trip.hasDepartureDelay ? TextDecoration.lineThrough : null,
                       ),
                       textAlign: TextAlign.right,
+                      softWrap: false,
+                      overflow: TextOverflow.visible,
                     ),
                     if (departureDelay != null) ...[
                       const SizedBox(height: 4),
@@ -79,6 +81,8 @@ class TripTimeline extends StatelessWidget {
                         decoration: trip.hasArrivalDelay ? TextDecoration.lineThrough : null,
                       ),
                       textAlign: TextAlign.right,
+                      softWrap: false,
+                      overflow: TextOverflow.visible,
                     ),
                     if (arrivalDelay != null) ...[
                       const SizedBox(height: 4),
@@ -121,6 +125,7 @@ class TripTimeline extends StatelessWidget {
                   softWrap: true,
                   overflow: TextOverflow.ellipsis,
                 ),
+                const SizedBox(height: 8),
 
                 // Middle: line info
                 Flexible(
@@ -140,7 +145,7 @@ class TripTimeline extends StatelessWidget {
                           ..removeLast(),
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(height: 8),
                     //Expanded(
                       /*child:*/ Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -160,6 +165,7 @@ class TripTimeline extends StatelessWidget {
                   ],
                 ),
                 ),
+                const SizedBox(height: 8),
 
                 // Bottom: destination station
                 Text(
