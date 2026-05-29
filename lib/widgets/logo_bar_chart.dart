@@ -299,8 +299,11 @@ class _LogoBarChartState extends State<LogoBarChart> {
     );
 
     const double axisReservedSize = 50;
+    // rightTitles: reservedSize(30) + axisNameSize(20) = 50px on the right/bottom edge
+    const double rightAxisSize = 50;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final showBand = widget.showAxisBackground && isDark;
+    final rotated = widget.rotationQuarterTurns % 2 == 1;
 
     final chart = BarChart(
       key: chartDataKey,
@@ -353,7 +356,14 @@ class _LogoBarChartState extends State<LogoBarChart> {
               getTitlesWidget: (value, meta) {
                 final i = value.toInt();
                 if (i < 0 || i >= _images.length) return const SizedBox.shrink();
-                return SideTitleWidget(meta: meta, child: _images[i]);
+                Widget child = _images[i];
+                if (widget.showAxisBackground && rotated) {
+                  child = Padding(
+                    padding: const EdgeInsets.only(left: 8),
+                    child: child,
+                  );
+                }
+                return SideTitleWidget(meta: meta, child: child);
               },
             ),
           ),
@@ -386,15 +396,15 @@ class _LogoBarChartState extends State<LogoBarChart> {
     if (!showBand) return chart;
 
     // In dark mode, draw a light band behind the logo axis area.
-    // rotationQuarterTurns==1 means the chart is rotated so the "bottom" axis
-    // appears on the left side visually.
-    final rotated = widget.rotationQuarterTurns % 2 == 1;
+    // rotationQuarterTurns==1 means the "bottom" axis appears on the left visually.
     return Stack(
       children: [
         Positioned(
-          left: rotated ? 0 : null,
-          right: rotated ? null : 0,
-          bottom: 0,
+          // non-rotated: full-width band at the bottom, stopping before the right numeric axis
+          // rotated: full-height band on the left, stopping before the bottom numeric axis
+          left: 0,
+          right: rotated ? null : rightAxisSize,
+          bottom: rotated ? rightAxisSize : 0,
           top: rotated ? 0 : null,
           width: rotated ? axisReservedSize : null,
           height: rotated ? null : axisReservedSize,
