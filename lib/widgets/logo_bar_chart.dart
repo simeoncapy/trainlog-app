@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:trainlog_app/app/app_globals.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/utils/number_formatter.dart';
 
@@ -36,6 +37,9 @@ class LogoBarChart extends StatefulWidget {
   final int rotationQuarterTurns;
   final InlineSpan? unitHelpTooltip;
 
+  /// When true, a light background band is drawn behind the logo axis in dark mode.
+  final bool showAxisBackground;
+
     /// Optional: raw (unscaled) values for tooltips, matching the stat order.
   /// If provided with [tooltipValueFormatter], the tooltip will display these
   /// pretty-printed values instead of the scaled ones.
@@ -57,6 +61,7 @@ class LogoBarChart extends StatefulWidget {
     this.color,
     this.rotationQuarterTurns = 0,
     this.unitHelpTooltip,
+    this.showAxisBackground = false,
     this.tooltipRawPast,
     this.tooltipRawFuture,
     this.tooltipValueFormatter,
@@ -293,7 +298,14 @@ class _LogoBarChartState extends State<LogoBarChart> {
       '${_pastScaled.join(',')}|${_futureScaled.join(',')}',
     );
 
-    return BarChart(
+    const double axisReservedSize = 50;
+    // rightTitles: reservedSize(30) + axisNameSize(20) = 50px on the right/bottom edge
+    const double rightAxisSize = 50;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final showBand = widget.showAxisBackground && isDark;
+    final rotated = widget.rotationQuarterTurns % 2 == 1;
+
+    final chart = BarChart(
       key: chartDataKey,
       BarChartData(
         rotationQuarterTurns: widget.rotationQuarterTurns,
@@ -344,7 +356,19 @@ class _LogoBarChartState extends State<LogoBarChart> {
               getTitlesWidget: (value, meta) {
                 final i = value.toInt();
                 if (i < 0 || i >= _images.length) return const SizedBox.shrink();
-                return SideTitleWidget(meta: meta, child: _images[i]);
+                Widget child = _images[i];
+                if (widget.showAxisBackground && rotated) {
+                  child = Padding(
+                    padding: const EdgeInsets.only(left: 8),
+                    child: child,
+                  );
+                } else if (widget.showAxisBackground && !rotated) {
+                  child = RotatedBox(
+                    quarterTurns: 3,
+                    child: SizedBox(width: 32, height: 32, child: child),
+                  );
+                }
+                return SideTitleWidget(meta: meta, child: child);
               },
             ),
           ),
@@ -372,6 +396,27 @@ class _LogoBarChartState extends State<LogoBarChart> {
           ),
         ),
       ),
+    );
+
+    if (!showBand) return chart;
+
+    // In dark mode, draw a light band behind the logo axis area.
+    // rotationQuarterTurns==1 means the "bottom" axis appears on the left visually.
+    return Stack(
+      children: [
+        Positioned(
+          // non-rotated: full-width band at the bottom, stopping before the right numeric axis
+          // rotated: full-height band on the left, stopping before the bottom numeric axis
+          left: 0,
+          right: rotated ? null : rightAxisSize,
+          bottom: rotated ? rightAxisSize : 0,
+          top: rotated ? 0 : null,
+          width: rotated ? axisReservedSize : null,
+          height: rotated ? null : axisReservedSize,
+          child: Container(color: kLightThemeSurface),
+        ),
+        chart,
+      ],
     );
   }
 

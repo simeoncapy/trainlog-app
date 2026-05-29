@@ -450,10 +450,9 @@ class StatisticsProvider extends ChangeNotifier {
           return List.generate(keys.length, (i) {
           final name = keys[i];
           if (name == AppLocalizations.of(context)!.statisticsOtherLabel) {
-            // Just display text for "Other"
             return Text(
               name,
-              //style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+              style: const TextStyle(color: Colors.black),
             );
           }
           // Otherwise display operator logo

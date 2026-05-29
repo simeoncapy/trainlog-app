@@ -170,6 +170,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                                   baseUnit: baseUnit,
                                   unitsByFactor: unitMap, // null for duration
                                   color: barColor,
+                                  showAxisBackground: statsProv.graph == GraphType.operator,
                                   // Only show tooltip for scalable units (distance/trips/CO2)
                                   unitHelpTooltip: (isDurationOrTrips)
                                       ? null
