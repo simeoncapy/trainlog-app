@@ -130,11 +130,12 @@ class TripTimeline extends StatelessWidget {
                   trip.originStation,
                   style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                   softWrap: true,
-                  overflow: TextOverflow.visible,
+                  overflow: TextOverflow.ellipsis,
                 ),
 
                 // Middle: line info
-                Column(
+                Flexible(
+                  child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     operatorName.isEmpty
@@ -169,13 +170,14 @@ class TripTimeline extends StatelessWidget {
                     //),
                   ],
                 ),
+                ),
 
                 // Bottom: destination station
                 Text(
                   trip.destinationStation,
                   style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                   softWrap: true,
-                  overflow: TextOverflow.visible,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
