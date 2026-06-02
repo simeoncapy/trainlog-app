@@ -687,7 +687,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsMapColorPaletteTrainlogApp.
   ///
   /// In en, this message translates to:
-  /// **'Trainlog'**
+  /// **'Trainlog App'**
   String get settingsMapColorPaletteTrainlogApp;
 
   /// No description provided for @settingsMapColorPaletteTrainlogWeb.

@@ -20,7 +20,7 @@ class SettingsProvider with ChangeNotifier {
   String _dateFormat = 'yyyy/MM/dd';
   bool _hourFormat12 = false;
   PathDisplayOrder _pathDisplayOrder = PathDisplayOrder.creationDate;
-  MapColorPalette _mapColorPalette = MapColorPalette.trainlogApp;
+  MapColorPalette _mapColorPalette = MapColorPalette.trainlogWeb;
   bool _shouldReloadPolylines = true;
   bool _mapDisplayUserLocationMarker = true;
   bool _hideWarningMessage = false;
@@ -238,10 +238,10 @@ class SettingsProvider with ChangeNotifier {
     if (palette != null) {
       _mapColorPalette = MapColorPalette.values.firstWhere(
         (e) => e.name == palette,
-        orElse: () => MapColorPalette.trainlogApp,
+        orElse: () => MapColorPalette.trainlogWeb,
       );
     } else {
-      _mapColorPalette = MapColorPalette.trainlogApp;
+      _mapColorPalette = MapColorPalette.trainlogWeb;
     }
     notifyListeners();
   }

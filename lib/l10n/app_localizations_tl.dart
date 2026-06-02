@@ -312,7 +312,7 @@ class AppLocalizationsTl extends AppLocalizations {
   String get settingsMapColorPalette => 'Kulay ng trip';
 
   @override
-  String get settingsMapColorPaletteTrainlogApp => 'Trainlog';
+  String get settingsMapColorPaletteTrainlogApp => 'Trainlog App';
 
   @override
   String get settingsMapColorPaletteTrainlogWeb => 'Trainlog Web';

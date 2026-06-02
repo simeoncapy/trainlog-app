@@ -113,7 +113,7 @@
   "settingMapPathDisplayOrderByTrip": "By trip date",
   "settingMapPathDisplayOrderByTripAndPlane": "By trip date (with flights above)",
   "settingsMapColorPalette": "Colour palette for trips",
-  "settingsMapColorPaletteTrainlogApp": "Trainlog",
+  "settingsMapColorPaletteTrainlogApp": "Trainlog App",
   "settingsMapColorPaletteTrainlogWeb": "Trainlog Web",
   "settingsMapColorPaletteColourBlind": "Palette for colour blindness",
   "settingsMapColorPaletteTrainlogRed": "Red",
