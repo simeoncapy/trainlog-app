@@ -75,9 +75,8 @@ class _StatisticsPageState extends State<StatisticsPage> {
         final barColor   = palette[statsProv.vehicle] ?? Colors.blue;
         final hasData    = statsProv.currentStats.isNotEmpty && !statsProv.isLoading;
 
-        final navClearance = MediaQuery.of(context).padding.bottom;
         return Padding(
-          padding: EdgeInsets.only(left: 20, top: 20, right: 20, bottom: 20 + navClearance),
+          padding: const EdgeInsets.all(20),
           child: Column(
             children: [
               // Top right: chart type switcher (bar/pie/table)
@@ -106,6 +105,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
               Expanded(
                 child: MinHeightScrollable(
                   minHeight: 350,
+                  padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
                   child: Builder(
                     builder: (_) {
                       if (statsProv.isLoading) {

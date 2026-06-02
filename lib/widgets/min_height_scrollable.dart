@@ -6,16 +6,19 @@ class MinHeightScrollable extends StatelessWidget {
     super.key,
     required this.minHeight,
     required this.child,
+    this.padding,
   });
 
   final double minHeight;
   final Widget child;
+  final EdgeInsetsGeometry? padding;
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
         return SingleChildScrollView(
+          padding: padding,
           // optional: AlwaysScrollable helps on tall screens
           physics: const AlwaysScrollableScrollPhysics(),
           child: ConstrainedBox(
