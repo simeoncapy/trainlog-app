@@ -97,7 +97,9 @@ class _TripsPageState extends State<TripsPage> {
     _dataSource!.setVisibleColumns(visibleColumns);
     final locale = Localizations.localeOf(context);
 
-    return RefreshIndicator(
+    return SafeArea(
+      top: false,
+      child: RefreshIndicator(
       key: _refreshKey,
       onRefresh: () async {
         //final settings = context.read<SettingsProvider>();        
@@ -127,14 +129,13 @@ class _TripsPageState extends State<TripsPage> {
           final double availableHeight = constraints.maxHeight;
           const double headingHeight = 56.0;
           const double rowHeight = 48.0;
-          final double footerHeight = btmPad + 50;
+          final double footerHeight = AppPlatform.isApple ? btmPad + 50 : 180.0; // On Material, keep space for the FAB
 
           // Estimate how many rows fit in the remaining height
           final rowsPerPage = ((availableHeight - headingHeight - footerHeight) ~/ rowHeight).clamp(5, 50);
 
           return SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
-            padding: EdgeInsets.only(bottom: btmPad),
             child: ConstrainedBox(
               constraints: BoxConstraints(minHeight: constraints.maxHeight),
               child: DataTableTheme(
@@ -175,6 +176,7 @@ class _TripsPageState extends State<TripsPage> {
           );
         },
       ),
+    ),
     );
   }
 
