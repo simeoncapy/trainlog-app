@@ -407,7 +407,7 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver, Automati
     final forg = Theme.of(context).colorScheme.onTertiaryContainer;
     return Positioned(
       right: 16,
-      bottom: 16 + 56 + 12,
+      bottom: 16 + MediaQuery.of(context).padding.bottom,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
