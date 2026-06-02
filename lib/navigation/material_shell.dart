@@ -290,6 +290,7 @@ class _MaterialShellState extends State<MaterialShell> {
             : Colors.white,
         child: SafeArea(
         child: Scaffold(
+        extendBody: true,
         key: _scaffoldKey,
         appBar: _isDrawerPage
             ? AdaptiveAppBar(

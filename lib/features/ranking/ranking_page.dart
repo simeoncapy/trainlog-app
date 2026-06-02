@@ -19,6 +19,7 @@ class _RankingPageState extends State<RankingPage>
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
 
+    final navClearance = MediaQuery.of(context).padding.bottom;
     return Column(
       children: [
         DismissibleErrorBannerBlock(
@@ -38,6 +39,7 @@ class _RankingPageState extends State<RankingPage>
             publicPage: true,
           ),
         ),
+        SizedBox(height: navClearance),
       ],
     );
   }

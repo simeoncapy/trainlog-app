@@ -3,7 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' show Icon;
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/navigation/nav_models.dart';
-import 'package:trainlog_app/platform/adaptive_bottom_navbar.dart';
+import 'package:trainlog_app/platform/adaptive_bottom_navbar.dart'
+    show AdaptiveBottomNavBar, kNavBarClearance;
 import 'package:trainlog_app/platform/cupertino_fab.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 
@@ -217,10 +218,17 @@ class _CupertinoRootPageState extends State<_CupertinoRootPage> {
     );
   }
 
-  Widget _childWithNavBar(double bottomPadding) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: bottomPadding),
-      child: widget.builder(context, (actions) => _actions.value = actions),
+  Widget _childWithNavBar(double systemBottomPadding) {
+    // Physical padding handles the system safe area (home indicator etc.).
+    // The MediaQuery override exposes kNavBarClearance as padding.bottom so
+    // scrollable pages can add the right bottom clearance without platform checks.
+    final mq = MediaQuery.of(context);
+    return MediaQuery(
+      data: mq.copyWith(padding: mq.padding.copyWith(bottom: kNavBarClearance)),
+      child: Padding(
+        padding: EdgeInsets.only(bottom: systemBottomPadding),
+        child: widget.builder(context, (actions) => _actions.value = actions),
+      ),
     );
   }
 

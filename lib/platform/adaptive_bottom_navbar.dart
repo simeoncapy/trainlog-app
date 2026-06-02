@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:trainlog_app/app/app_nav_bar_theme.dart';
 
+/// Height of the nav bar pill + its top/bottom padding, excluding the system
+/// safe area. Both shells expose this value as MediaQuery.padding.bottom so
+/// scrollable pages can add the right clearance without knowing about the nav.
+const double kNavBarClearance = 80.0;
+
 class AdaptiveBottomNavBar extends StatelessWidget {
   final int currentIndex;
   final List<BottomNavigationBarItem> items;

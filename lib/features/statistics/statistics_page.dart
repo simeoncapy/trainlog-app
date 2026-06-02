@@ -75,8 +75,9 @@ class _StatisticsPageState extends State<StatisticsPage> {
         final barColor   = palette[statsProv.vehicle] ?? Colors.blue;
         final hasData    = statsProv.currentStats.isNotEmpty && !statsProv.isLoading;
 
+        final navClearance = MediaQuery.of(context).padding.bottom;
         return Padding(
-          padding: const EdgeInsets.all(20),
+          padding: EdgeInsets.only(left: 20, top: 20, right: 20, bottom: 20 + navClearance),
           child: Column(
             children: [
               // Top right: chart type switcher (bar/pie/table)
