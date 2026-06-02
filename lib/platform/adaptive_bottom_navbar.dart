@@ -1,6 +1,5 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:trainlog_app/utils/platform_utils.dart';
+import 'package:trainlog_app/app/app_nav_bar_theme.dart';
 
 class AdaptiveBottomNavBar extends StatelessWidget {
   final int currentIndex;
@@ -16,60 +15,25 @@ class AdaptiveBottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _FloatingNavBar(
-      currentIndex: currentIndex,
-      items: items,
-      onTap: onTap,
-    );
-  }
-}
-
-class _FloatingNavBar extends StatelessWidget {
-  final int currentIndex;
-  final List<BottomNavigationBarItem> items;
-  final ValueChanged<int> onTap;
-
-  const _FloatingNavBar({
-    required this.currentIndex,
-    required this.items,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
+    final navColors = Theme.of(context).extension<AppNavBarColors>()!;
     final mq = MediaQuery.of(context);
-    final bottomPadding = mq.padding.bottom;
-
-    final isDark = AppPlatform.isApple
-        ? CupertinoTheme.of(context).brightness == Brightness.dark
-        : Theme.of(context).brightness == Brightness.dark;
-
-    final activeColor = AppPlatform.isApple
-        ? CupertinoTheme.of(context).primaryColor
-        : Theme.of(context).colorScheme.primary;
-
-    const inactiveColor = Color(0xFF8E8E93);
-
-    final bgColor = isDark
-        ? (AppPlatform.isApple ? const Color(0xFF1C1C1E) : const Color(0xFF1E1E2E))
-        : Colors.white;
 
     return Container(
       color: Colors.transparent,
       padding: EdgeInsets.only(
         left: 16,
         right: 16,
-        bottom: bottomPadding + 8,
+        bottom: mq.padding.bottom + 8,
         top: 8,
       ),
       child: Container(
         height: 64,
         decoration: BoxDecoration(
-          color: bgColor,
+          color: navColors.background,
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(isDark ? 0.4 : 0.12),
+              color: navColors.shadow,
               blurRadius: 20,
               offset: const Offset(0, 4),
             ),
@@ -82,8 +46,8 @@ class _FloatingNavBar extends StatelessWidget {
                 child: _NavBarItem(
                   item: items[i],
                   isSelected: i == currentIndex,
-                  activeColor: activeColor,
-                  inactiveColor: inactiveColor,
+                  activeColor: navColors.active,
+                  inactiveColor: navColors.inactive,
                   onTap: () => onTap(i),
                 ),
               ),

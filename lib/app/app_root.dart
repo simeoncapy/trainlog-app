@@ -104,9 +104,14 @@ class AppRoot extends StatelessWidget {
       ),
 
       builder: (_, child) {
-        return ScaffoldMessenger(
-          key: rootScaffoldMessengerKey,
-          child: child!,
+        final themeData =
+            brightness == Brightness.dark ? AppTheme.dark : AppTheme.light;
+        return Theme(
+          data: themeData,
+          child: ScaffoldMessenger(
+            key: rootScaffoldMessengerKey,
+            child: child!,
+          ),
         );
       },
 

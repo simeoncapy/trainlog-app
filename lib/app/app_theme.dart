@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:trainlog_app/app/app_colors.dart';
+import 'package:trainlog_app/app/app_nav_bar_theme.dart';
 
 /// Trainlog design-system themes and typography.
 abstract final class AppTheme {
@@ -97,6 +98,14 @@ abstract final class AppTheme {
           borderSide: const BorderSide(color: AppColors.blue, width: 2),
         ),
       ),
+      extensions: const [
+        AppNavBarColors(
+          background: AppColors.lightBg,
+          active: AppColors.amber,
+          inactive: AppColors.lightText3,
+          shadow: Color(0x1F14213D), // navy @ 12 %
+        ),
+      ],
     );
   }
 
@@ -182,6 +191,14 @@ abstract final class AppTheme {
           borderSide: const BorderSide(color: AppColors.sky, width: 2),
         ),
       ),
+      extensions: const [
+        AppNavBarColors(
+          background: AppColors.darkElevated,
+          active: AppColors.amber,
+          inactive: AppColors.darkText3,
+          shadow: Color(0x66000000), // black @ 40 %
+        ),
+      ],
     );
   }
 
