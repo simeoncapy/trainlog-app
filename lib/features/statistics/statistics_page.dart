@@ -105,6 +105,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
               Expanded(
                 child: MinHeightScrollable(
                   minHeight: 350,
+                  padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
                   child: Builder(
                     builder: (_) {
                       if (statsProv.isLoading) {
