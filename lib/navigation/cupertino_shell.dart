@@ -3,21 +3,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' show Icon;
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/navigation/nav_models.dart';
-import 'package:trainlog_app/features/settings/settings_cupertino_page.dart';
+import 'package:trainlog_app/platform/adaptive_bottom_navbar.dart';
 import 'package:trainlog_app/platform/cupertino_fab.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 
-import 'package:trainlog_app/features/about/about_page.dart';
-import 'package:trainlog_app/features/user/dashboard_page.dart';
-import 'package:trainlog_app/features/friends/friends_page.dart';
 import 'package:trainlog_app/features/map/map_page.dart';
 import 'package:trainlog_app/features/ranking/ranking_page.dart';
-import 'package:trainlog_app/features/spr/smart_prerecorder_page.dart';
 import 'package:trainlog_app/features/statistics/statistics_page.dart';
-import 'package:trainlog_app/features/tags/tags_page.dart';
-import 'package:trainlog_app/features/tickets/tickets_page.dart';
 import 'package:trainlog_app/features/trips/trips_page.dart';
-import 'package:trainlog_app/widgets/menu_header.dart';
 
 typedef SetPrimaryActions = void Function(List<AppPrimaryAction> actions);
 
@@ -29,71 +22,115 @@ class CupertinoShell extends StatefulWidget {
 }
 
 class _CupertinoShellState extends State<CupertinoShell> {
-  late final CupertinoTabController _controller;
-  static const double _tabBarHeight = 50.0; // keep consistent with CupertinoTabBar default
+  int _currentIndex = 0;
 
-  @override
-  void initState() {
-    super.initState();
-    _controller = CupertinoTabController();
-  }
+  final List<GlobalKey<NavigatorState>> _navigatorKeys = [
+    GlobalKey<NavigatorState>(),
+    GlobalKey<NavigatorState>(),
+    GlobalKey<NavigatorState>(),
+    GlobalKey<NavigatorState>(),
+  ];
 
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
+  void _onTabTapped(int index) {
+    if (index == _currentIndex) {
+      // Pop to root when tapping the active tab
+      _navigatorKeys[index].currentState?.popUntil((r) => r.isFirst);
+    } else {
+      setState(() => _currentIndex = index);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    return CupertinoTabScaffold(
-      controller: _controller,
-      tabBar: CupertinoTabBar(
-        items: [
-          BottomNavigationBarItem(icon: Icon(AdaptiveIcons.map), label: l10n.menuMapTitle),
-          BottomNavigationBarItem(icon: Icon(AdaptiveIcons.trips), label: l10n.menuTripsTitle),
-          BottomNavigationBarItem(icon: Icon(AdaptiveIcons.ranking), label: l10n.menuRankingTitle),
-          BottomNavigationBarItem(icon: Icon(AdaptiveIcons.statistics), label: l10n.menuStatisticsTitle),
-          BottomNavigationBarItem(icon: Icon(AdaptiveIcons.other), label: l10n.menuIosMore),
-        ],
-      ),
-      tabBuilder: (context, index) {
-        return CupertinoTabView(
-          builder: (_) {
-            switch (index) {
-              case 0:
-                return _CupertinoRootPage(
+    final navItems = [
+      BottomNavigationBarItem(icon: Icon(AdaptiveIcons.map), label: l10n.menuMapTitle),
+      BottomNavigationBarItem(icon: Icon(AdaptiveIcons.trips), label: l10n.menuTripsTitle),
+      BottomNavigationBarItem(icon: Icon(AdaptiveIcons.ranking), label: l10n.menuRankingTitle),
+      BottomNavigationBarItem(icon: Icon(AdaptiveIcons.statistics), label: l10n.menuStatisticsTitle),
+    ];
+
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) {
+          _navigatorKeys[_currentIndex].currentState?.maybePop();
+        }
+      },
+      child: Stack(
+        children: [
+          // Tab content — only the active tab's navigator is visible
+          IndexedStack(
+            index: _currentIndex,
+            children: [
+              _TabNavigator(
+                navigatorKey: _navigatorKeys[0],
+                builder: (ctx) => _CupertinoRootPage(
                   key: ValueKey(AppPageId.map.name),
                   title: l10n.menuMapTitle,
                   hasNavBar: false,
-                  builder: (ctx, setActions) => MapPage(onPrimaryActionsReady: setActions),
-                );
-              case 1:
-                return _CupertinoRootPage(
+                  builder: (c, setActions) => MapPage(onPrimaryActionsReady: setActions),
+                ),
+              ),
+              _TabNavigator(
+                navigatorKey: _navigatorKeys[1],
+                builder: (ctx) => _CupertinoRootPage(
                   key: ValueKey(AppPageId.trips.name),
                   title: l10n.menuTripsTitle,
-                  builder: (ctx, setActions) => TripsPage(onPrimaryActionsReady: setActions),
-                );
-              case 2:
-                return _CupertinoRootPage(
+                  builder: (c, setActions) => TripsPage(onPrimaryActionsReady: setActions),
+                ),
+              ),
+              _TabNavigator(
+                navigatorKey: _navigatorKeys[2],
+                builder: (ctx) => _CupertinoRootPage(
                   key: ValueKey(AppPageId.ranking.name),
                   title: l10n.menuRankingTitle,
                   builder: (_, __) => const RankingPage(),
-                );
-              case 3:
-                return _CupertinoRootPage(
+                ),
+              ),
+              _TabNavigator(
+                navigatorKey: _navigatorKeys[3],
+                builder: (ctx) => _CupertinoRootPage(
                   key: ValueKey(AppPageId.statistics.name),
                   title: l10n.menuStatisticsTitle,
                   builder: (_, __) => const StatisticsPage(),
-                );
-              default:
-                return _MorePage();
-            }
-          },
-        );
-      },
+                ),
+              ),
+            ],
+          ),
+
+          // Floating nav bar at bottom
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: AdaptiveBottomNavBar(
+              currentIndex: _currentIndex,
+              items: navItems,
+              onTap: _onTabTapped,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TabNavigator extends StatelessWidget {
+  final GlobalKey<NavigatorState> navigatorKey;
+  final WidgetBuilder builder;
+
+  const _TabNavigator({required this.navigatorKey, required this.builder});
+
+  @override
+  Widget build(BuildContext context) {
+    return Navigator(
+      key: navigatorKey,
+      onGenerateRoute: (settings) => CupertinoPageRoute(
+        settings: settings,
+        builder: builder,
+      ),
     );
   }
 }
@@ -107,7 +144,6 @@ class CupertinoPrimaryActionsRow extends StatelessWidget {
   Widget build(BuildContext context) {
     if (actions.isEmpty) return const SizedBox.shrink();
 
-    // Multiple actions: show in a row with FIRST action on the right.
     final reversed = actions.reversed.toList();
 
     return Row(
@@ -118,15 +154,15 @@ class CupertinoPrimaryActionsRow extends StatelessWidget {
             padding: EdgeInsets.zero,
             onPressed: reversed[i].onPressed,
             foregroundColor: reversed[i].isDestructive ? CupertinoColors.systemRed.resolveFrom(context) : null,
-            child: reversed[i].label == null 
-              ? Icon(reversed[i].icon) 
-              : Row(
-                children: [
-                  Icon(reversed[i].icon),
-                  const SizedBox(width: 4,),
-                  Text(reversed[i].label!)
-                ],
-              ),
+            child: reversed[i].label == null
+                ? Icon(reversed[i].icon)
+                : Row(
+                    children: [
+                      Icon(reversed[i].icon),
+                      const SizedBox(width: 4),
+                      Text(reversed[i].label!),
+                    ],
+                  ),
           ),
           if (i != reversed.length - 1) const SizedBox(width: 6),
         ],
@@ -163,8 +199,6 @@ class _CupertinoRootPageState extends State<_CupertinoRootPage> {
   @override
   Widget build(BuildContext context) {
     final mq = MediaQuery.of(context);
-
-    // Reserve: tab bar height + home indicator safe area
     final bottomPadding = mq.padding.bottom;
     final navBg = CupertinoTheme.of(context).scaffoldBackgroundColor;
 
@@ -193,15 +227,12 @@ class _CupertinoRootPageState extends State<_CupertinoRootPage> {
   Widget _childWithoutNavBar(MediaQueryData mq) {
     return Stack(
       children: [
-        // Map content
         Positioned.fill(
           child: Padding(
             padding: EdgeInsets.only(bottom: mq.padding.bottom),
             child: widget.builder(context, (actions) => _actions.value = actions),
           ),
         ),
-
-        // Top-right floating primary actions (replaces nav bar trailing)
         Positioned(
           top: mq.padding.top + 8,
           right: 12,
@@ -209,10 +240,7 @@ class _CupertinoRootPageState extends State<_CupertinoRootPage> {
             valueListenable: _actions,
             builder: (_, actions, __) {
               if (actions.isEmpty) return const SizedBox.shrink();
-
-              // Multiple: row with FIRST action on the right.
               final reversed = actions.reversed.toList();
-
               return Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -230,211 +258,3 @@ class _CupertinoRootPageState extends State<_CupertinoRootPage> {
   }
 }
 
-class _MorePage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    final mq = MediaQuery.of(context);
-    final bottomPadding = mq.padding.bottom;
-
-    //final navBg = CupertinoTheme.of(context).scaffoldBackgroundColor;
-
-    return CupertinoPageScaffold(
-      // navigationBar: CupertinoNavigationBar(
-      //   backgroundColor: navBg,
-      //   middle: Text(l10n.menuIosMore),
-      // ),
-      child: Padding(
-        padding: EdgeInsets.only(bottom: bottomPadding),
-        child: Column(
-          children: [
-            ConstrainedBox(
-              constraints: BoxConstraints(
-                maxHeight: 170,
-              ),
-              child: Container(
-                decoration: const BoxDecoration(
-                  border: Border.symmetric(
-                    horizontal: BorderSide(color: Color(0xFF3772FF), width: 20),
-                  ),
-                ),
-                child: Container(
-                  margin: EdgeInsets.all(0),
-                  padding: EdgeInsets.all(8),
-                  decoration: BoxDecoration(color: Color(0xFF14213D)),
-                  child: MenuHeader(),
-                ),
-              ),
-            ),
-            Expanded(
-              child: ListView(
-                children: [
-                  //_sectionHeader('Pages'),
-                  _moreTile(
-                    context,
-                    icon: AdaptiveIcons.dashboard,
-                    title: l10n.menuDashboardTitle,
-                    push: () => _pushSimple(context, l10n.menuDashboardTitle, const DashboardPage()),
-                  ),
-                  _moreTile(
-                    context,
-                    icon: AdaptiveIcons.tags,
-                    title: l10n.menuTagsTitle,
-                    push: () => _pushWithActions(
-                      context,
-                      l10n.menuTagsTitle,
-                      (setActions) => TagsPage(onPrimaryActionsReady: setActions),
-                    ),
-                  ),
-                  _moreTile(
-                    context,
-                    icon: AdaptiveIcons.tickets,
-                    title: l10n.menuTicketsTitle,
-                    push: () => _pushWithActions(
-                      context,
-                      l10n.menuTicketsTitle,
-                      (setActions) => TicketsPage(onPrimaryActionsReady: setActions),
-                    ),
-                  ),
-                  // _moreTile(
-                  //   context,
-                  //   icon: AdaptiveIcons.friends,
-                  //   title: l10n.menuFriendsTitle,
-                  //   push: () => _pushSimple(context, l10n.menuFriendsTitle, const FriendsPage()),
-                  // ),
-                  _moreTile(
-                    context,
-                    icon: AdaptiveIcons.smartPrerecorder,
-                    title: l10n.menuSmartPrerecorderTitle,
-                    push: () => _pushWithActions(
-                      context,
-                      l10n.menuSmartPrerecorderTitle,
-                      (setActions) => SmartPrerecorderPage(onPrimaryActionsReady: setActions),
-                    ),
-                  ),
-                  _sectionHeader(''),
-                  _moreTile(
-                    context,
-                    icon: AdaptiveIcons.settings,
-                    title: l10n.menuSettingsTitle,
-                    push: () => _pushSimple(context, l10n.menuSettingsTitle, const SettingsCupertinoPage()),
-                  ),
-                  _moreTile(
-                    context,
-                    icon: AdaptiveIcons.info,
-                    title: l10n.menuAboutTitle,
-                    push: () => _pushSimple(context, l10n.menuAboutTitle, const AboutPage()),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _sectionHeader(String text) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-      child: Text(
-        text,
-        style: const TextStyle(
-          fontSize: 13,
-          color: CupertinoColors.systemGrey,
-        ),
-      ),
-    );
-  }
-
-  Widget _moreTile(
-    BuildContext context, {
-    required IconData icon,
-    required String title,
-    required VoidCallback push,
-  }) {
-    return CupertinoListTile(
-      leading: Icon(icon),
-      title: Text(title),
-      trailing: const CupertinoListTileChevron(),
-      onTap: push,
-    );
-  }
-
-  void _pushSimple(BuildContext context, String title, Widget page) {
-    final navBg = CupertinoTheme.of(context).scaffoldBackgroundColor;
-
-    Navigator.of(context).push(
-      CupertinoPageRoute(
-        builder: (_) => CupertinoPageScaffold(
-          navigationBar: CupertinoNavigationBar(
-            backgroundColor: navBg,
-            middle: Text(title),
-          ),
-          child: page,
-        ),
-      ),
-    );
-  }
-
-  void _pushWithActions(
-    BuildContext context,
-    String title,
-    Widget Function(SetPrimaryActions setActions) builder,
-  ) {
-    Navigator.of(context).push(
-      CupertinoPageRoute(
-        builder: (_) => _CupertinoRoutedPage(
-          title: title,
-          builder: builder,
-        ),
-      ),
-    );
-  }
-}
-
-class _CupertinoRoutedPage extends StatefulWidget {
-  final String title;
-  final Widget Function(SetPrimaryActions setActions) builder;
-
-  const _CupertinoRoutedPage({
-    required this.title,
-    required this.builder,
-  });
-
-  @override
-  State<_CupertinoRoutedPage> createState() => _CupertinoRoutedPageState();
-}
-
-class _CupertinoRoutedPageState extends State<_CupertinoRoutedPage> {
-  final ValueNotifier<List<AppPrimaryAction>> _actions = ValueNotifier(const []);
-
-  @override
-  void dispose() {
-    _actions.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final mq = MediaQuery.of(context);
-    final bottomPadding = mq.padding.bottom;
-
-    final navBg = CupertinoTheme.of(context).scaffoldBackgroundColor;
-
-    return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        backgroundColor: navBg,
-        middle: Text(widget.title),
-        trailing: ValueListenableBuilder<List<AppPrimaryAction>>(
-          valueListenable: _actions,
-          builder: (_, actions, __) => CupertinoPrimaryActionsRow(actions: actions),
-        ),
-      ),
-      child: Padding(
-        padding: EdgeInsets.only(bottom: bottomPadding),
-        child: widget.builder((actions) => _actions.value = actions),
-      ),
-    );
-  }
-}
