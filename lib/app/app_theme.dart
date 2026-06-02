@@ -1,0 +1,191 @@
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:trainlog_app/app/app_colors.dart';
+
+/// Trainlog design-system themes and typography.
+abstract final class AppTheme {
+  // ── Typography ────────────────────────────────────────────────────────────
+
+  /// "Hanken Grotesk" — interface & body copy.
+  static TextTheme get _baseTextTheme => GoogleFonts.hankenGroteskTextTheme();
+
+  /// "Space Grotesk" — display / headings.
+  static TextStyle get displayFont => GoogleFonts.spaceGrotesk();
+
+  /// "Space Mono" — monospaced figures (times, distances).
+  static TextStyle get monoFont => GoogleFonts.spaceMono();
+
+  // ── Light theme ───────────────────────────────────────────────────────────
+
+  static ThemeData get light {
+    const colorScheme = ColorScheme(
+      brightness: Brightness.light,
+      primary: AppColors.amber,
+      onPrimary: Colors.white,
+      primaryContainer: AppColors.amberSoft,
+      onPrimaryContainer: AppColors.navy,
+      secondary: AppColors.blue,
+      onSecondary: Colors.white,
+      secondaryContainer: AppColors.blueSoft,
+      onSecondaryContainer: AppColors.navy,
+      tertiary: AppColors.sky,
+      onTertiary: Colors.white,
+      error: AppColors.errorLight,
+      onError: Colors.white,
+      surface: AppColors.lightSurface,
+      onSurface: AppColors.lightText,
+      onSurfaceVariant: AppColors.lightText2,
+      outline: AppColors.lightLine,
+      outlineVariant: AppColors.lightLine,
+      shadow: AppColors.navy,
+      inverseSurface: AppColors.darkBg,
+      onInverseSurface: AppColors.darkText,
+      inversePrimary: AppColors.amberDk,
+    );
+
+    final textTheme = _baseTextTheme.apply(
+      bodyColor: AppColors.lightText,
+      displayColor: AppColors.lightText,
+    );
+
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: colorScheme,
+      scaffoldBackgroundColor: AppColors.lightBg,
+      cardColor: AppColors.lightSurface,
+      dividerColor: AppColors.lightLine,
+      textTheme: textTheme,
+      appBarTheme: AppBarTheme(
+        backgroundColor: AppColors.lightBg,
+        foregroundColor: AppColors.lightText,
+        elevation: 0,
+        titleTextStyle: GoogleFonts.spaceGrotesk(
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+          color: AppColors.lightText,
+        ),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.amber,
+          foregroundColor: Colors.white,
+        ),
+      ),
+      floatingActionButtonTheme: const FloatingActionButtonThemeData(
+        backgroundColor: AppColors.amber,
+        foregroundColor: Colors.white,
+      ),
+      chipTheme: ChipThemeData(
+        backgroundColor: AppColors.lightSurface,
+        selectedColor: AppColors.amberSoft,
+        labelStyle: TextStyle(color: AppColors.lightText),
+        side: const BorderSide(color: AppColors.lightLine),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: AppColors.lightSunken,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: AppColors.lightLine),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: AppColors.lightLine),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: AppColors.blue, width: 2),
+        ),
+      ),
+    );
+  }
+
+  // ── Dark theme ────────────────────────────────────────────────────────────
+
+  static ThemeData get dark {
+    const colorScheme = ColorScheme(
+      brightness: Brightness.dark,
+      primary: AppColors.amber,
+      onPrimary: AppColors.navy,
+      primaryContainer: AppColors.amberDk,
+      onPrimaryContainer: AppColors.amberSoft,
+      secondary: AppColors.sky,
+      onSecondary: AppColors.navy,
+      secondaryContainer: AppColors.blue,
+      onSecondaryContainer: Colors.white,
+      tertiary: AppColors.blueSoft,
+      onTertiary: AppColors.navy,
+      error: AppColors.errorDark,
+      onError: Colors.white,
+      surface: AppColors.darkSurface,
+      onSurface: AppColors.darkText,
+      onSurfaceVariant: AppColors.darkText2,
+      outline: AppColors.darkLine,
+      outlineVariant: AppColors.darkLine,
+      shadow: Colors.black,
+      inverseSurface: AppColors.lightSurface,
+      onInverseSurface: AppColors.lightText,
+      inversePrimary: AppColors.amberDk,
+    );
+
+    final textTheme = _baseTextTheme.apply(
+      bodyColor: AppColors.darkText,
+      displayColor: AppColors.darkText,
+    );
+
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: colorScheme,
+      scaffoldBackgroundColor: AppColors.darkBg,
+      cardColor: AppColors.darkSurface,
+      dividerColor: AppColors.darkLine,
+      textTheme: textTheme,
+      appBarTheme: AppBarTheme(
+        backgroundColor: AppColors.darkBg,
+        foregroundColor: AppColors.darkText,
+        elevation: 0,
+        titleTextStyle: GoogleFonts.spaceGrotesk(
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+          color: AppColors.darkText,
+        ),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.amber,
+          foregroundColor: AppColors.navy,
+        ),
+      ),
+      floatingActionButtonTheme: const FloatingActionButtonThemeData(
+        backgroundColor: AppColors.amber,
+        foregroundColor: AppColors.navy,
+      ),
+      chipTheme: ChipThemeData(
+        backgroundColor: AppColors.darkSurface,
+        selectedColor: AppColors.darkElevated,
+        labelStyle: TextStyle(color: AppColors.darkText),
+        side: const BorderSide(color: AppColors.darkLine),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: AppColors.darkElevated,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: AppColors.darkLine),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: AppColors.darkLine),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: AppColors.sky, width: 2),
+        ),
+      ),
+    );
+  }
+
+  /// Light-theme surface colour — used as logo background in dark mode so
+  /// operator logos (designed for light backgrounds) remain legible.
+  static const Color operatorLogoBg = AppColors.lightSurface;
+}

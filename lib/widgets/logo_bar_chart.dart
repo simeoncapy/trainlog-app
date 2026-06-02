@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:trainlog_app/app/app_globals.dart';
+import 'package:trainlog_app/app/app_theme.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/utils/number_formatter.dart';
 
@@ -413,7 +413,7 @@ class _LogoBarChartState extends State<LogoBarChart> {
           top: rotated ? 0 : null,
           width: rotated ? axisReservedSize : null,
           height: rotated ? null : axisReservedSize,
-          child: Container(color: kLightThemeSurface),
+          child: Container(color: AppTheme.operatorLogoBg),
         ),
         chart,
       ],

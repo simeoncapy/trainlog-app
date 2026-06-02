@@ -6,7 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import 'package:trainlog_app/app/app_colors.dart';
 import 'package:trainlog_app/app/app_globals.dart';
+import 'package:trainlog_app/app/app_theme.dart';
 import 'package:trainlog_app/app/home_gate.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
@@ -61,20 +63,8 @@ class AppRoot extends StatelessWidget {
         CountryLocalizations.delegate,
       ],
       supportedLocales: AppLocalizations.supportedLocales,
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: kSeedColor,
-          brightness: Brightness.light,
-        ),
-      ),
-      darkTheme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: kSeedColor,
-          brightness: Brightness.dark,
-        ),
-      ),
+      theme: AppTheme.light,
+      darkTheme: AppTheme.dark,
       themeMode: settings.themeMode,
       builder: (context, child) {
         final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -107,10 +97,12 @@ class AppRoot extends StatelessWidget {
       supportedLocales: AppLocalizations.supportedLocales,
       theme: CupertinoThemeData(
         brightness: brightness,
-        primaryColor: CupertinoColors.systemBlue,
+        primaryColor: const CupertinoDynamicColor.withBrightness(
+          color: AppColors.amber,
+          darkColor: AppColors.amber,
+        ),
       ),
 
-      // Keep using the same ScaffoldMessengerKey for both apps.
       builder: (_, child) {
         return ScaffoldMessenger(
           key: rootScaffoldMessengerKey,

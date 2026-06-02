@@ -215,6 +215,7 @@ List<SettingsSectionSpec> buildSettingsBlueprint({
   ];
 
   final paletteOptions = <SettingsOption<MapColorPalette>>[
+    SettingsOption(l10n.settingsMapColorPaletteTrainlogApp, MapColorPalette.trainlogApp),
     SettingsOption(l10n.settingsMapColorPaletteTrainlogWeb, MapColorPalette.trainlogWeb),
     SettingsOption(l10n.settingsMapColorPaletteColourBlind, MapColorPalette.colorBlind),
     SettingsOption(l10n.settingsMapColorPaletteVibrantTones, MapColorPalette.vibrantTones),
