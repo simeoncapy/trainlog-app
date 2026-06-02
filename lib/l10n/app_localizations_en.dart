@@ -314,6 +314,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsMapColorPalette => 'Colour palette for trips';
 
   @override
+  String get settingsMapColorPaletteTrainlogApp => 'Trainlog';
+
+  @override
   String get settingsMapColorPaletteTrainlogWeb => 'Trainlog Web';
 
   @override

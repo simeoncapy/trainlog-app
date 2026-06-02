@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:trainlog_app/app/app_colors.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 
 enum MapColorPalette {
+  trainlogApp,
   trainlogWeb,
   vibrantTones,
   colorBlind,
@@ -14,6 +16,26 @@ enum MapColorPalette {
 class MapColorPaletteHelper {
   static Map<VehicleType, Color> getPalette(MapColorPalette palette, [Map<VehicleType, Color>? custom]) {
     switch (palette) {
+      case MapColorPalette.trainlogApp:
+        return {
+          VehicleType.train: AppColors.modeTrain,
+          VehicleType.metro: AppColors.modeMetro,
+          VehicleType.tram: AppColors.modeTram,
+          VehicleType.bus: AppColors.modeBus,
+          VehicleType.ferry: AppColors.modeFerry,
+          VehicleType.plane: AppColors.modeAir,
+          VehicleType.walk: AppColors.modeWalk,
+          VehicleType.car: Color(0xFF718096),
+          VehicleType.aerialway: AppColors.sky,
+          VehicleType.cycle: AppColors.successLight,
+          VehicleType.helicopter: AppColors.modeAir,
+          VehicleType.poi: AppColors.navy,
+          VehicleType.rail: AppColors.modeTrain,
+          VehicleType.funicular: AppColors.modeTram,
+          VehicleType.ski: AppColors.blueSoft,
+          VehicleType.eScooter: AppColors.successDark,
+          VehicleType.unknown: AppColors.darkText3,
+        };
       case MapColorPalette.trainlogWeb:
         return {
           VehicleType.train: Color(0xFF52B0FE),
@@ -89,10 +111,10 @@ class MapColorPaletteHelper {
   }
 
   static Map<VehicleType, Color> generateShadedPalette(MaterialColor baseColor) {
-  final shades = [100, 200, 300, 400, 500, 600, 700, 800];
-  return {
-    for (int i = 0; i < VehicleType.values.length; i++)
-      VehicleType.values[i]: baseColor[shades[i % shades.length]]!,
-  };
-}
+    final shades = [100, 200, 300, 400, 500, 600, 700, 800];
+    return {
+      for (int i = 0; i < VehicleType.values.length; i++)
+        VehicleType.values[i]: baseColor[shades[i % shades.length]]!,
+    };
+  }
 }

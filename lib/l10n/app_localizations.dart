@@ -684,6 +684,12 @@ abstract class AppLocalizations {
   /// **'Colour palette for trips'**
   String get settingsMapColorPalette;
 
+  /// No description provided for @settingsMapColorPaletteTrainlogApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Trainlog'**
+  String get settingsMapColorPaletteTrainlogApp;
+
   /// No description provided for @settingsMapColorPaletteTrainlogWeb.
   ///
   /// In en, this message translates to:
