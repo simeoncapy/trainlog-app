@@ -104,7 +104,7 @@
   "settingsMapColorPaletteTrainlogBlue": "青",
   "settingsMapColorPaletteVibrantTones": "鮮やかな色合い",
   "settingsCacheTitle": "キャッシュされたデータ",
-  "settingsCache": "キャッシュされたデータ ({size} MiB)",
+  "settingsCache": "{size} MiB",
   "settingsCacheClearButton" : "消す",
   "settingsCacheClearConfirmTitle": "キャッシュを消しますか?",
   "settingsCacheClearConfirmMessage": "キャッシュデータを削除してもよろしいですか？この操作は元に戻せません。次回のアプリの読み込みに時間がかかる可能性があります。",

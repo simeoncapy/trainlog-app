@@ -334,7 +334,7 @@ class AppLocalizationsTl extends AppLocalizations {
 
   @override
   String settingsCache(Object size) {
-    return 'Cached data ($size MiB)';
+    return '$size MiB';
   }
 
   @override

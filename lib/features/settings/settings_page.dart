@@ -2,6 +2,7 @@ import 'package:currency_picker/currency_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:trainlog_app/platform/adaptive_widget.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:trainlog_app/app/app_theme.dart';
@@ -104,6 +105,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 style: Theme.of(ctx).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.w700,
                     ),
+                textAlign: TextAlign.center,
               ),
             ),
             ...options.map((opt) {
@@ -511,14 +513,9 @@ class _SettingsPageState extends State<SettingsPage> {
         title: l10n.settingsCacheTitle,
         subtitle: _vm.cacheSizeLabel(l10n, ctx),
         enabled: _vm.totalCacheSize > 0,
-        trailing: AdaptiveButton.build(
-          context: ctx,
-          icon: AdaptiveIcons.delete,
-          type: AdaptiveButtonType.destructive,
-          size: AdaptiveButton.small,
-          label: Text(l10n.settingsCacheClearButton),
-          onPressed: _vm.totalCacheSize > 0 ? _confirmAndClearCache : null,
-        ),
+        trailing: AdaptiveDestructiveButton(
+                  onPressed: () => _vm.totalCacheSize > 0 ? _confirmAndClearCache : null,
+                ),
       ),
       SettingsTile(
         icon: AdaptiveIcons.deleteAccount,
@@ -593,11 +590,8 @@ class _SettingsPageState extends State<SettingsPage> {
       SettingsTile(
         icon: AdaptiveIcons.license,
         title: l10n.settingsLicenses,
-        trailing: AdaptiveButton.build(
-          context: ctx,
-          size: AdaptiveButton.small,
-          label: Text(MaterialLocalizations.of(ctx).viewLicensesButtonLabel),
-          onPressed: () async {
+        trailing: Icon(Icons.chevron_right, color: cs.onSurfaceVariant, size: 20),
+        onTap: () async {
             final version = await _vm.getVersionString();
             if (!mounted) return;
             showLicensePage(
@@ -610,7 +604,6 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
             );
           },
-        ),
       ),
       if (kDebugMode)
         SettingsTile(
@@ -696,44 +689,47 @@ class _ThemeRow extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           // Segmented control, centred within the tile
-          Container(
-            decoration: BoxDecoration(
-              color: cs.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            padding: const EdgeInsets.all(3),
-            child: Row(
-              children: options.map((entry) {
-                final selectedItem = selected == entry.value;
-                return Expanded(
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    decoration: BoxDecoration(
-                      color: selectedItem ? cs.secondary : Colors.transparent,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(8),
-                      onTap: () => onChanged(entry.value),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        child: Text(
-                          entry.label,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 13,
-                            color:
-                                selectedItem ? cs.onSecondary : cs.onSurface,
-                            fontWeight: selectedItem
-                                ? FontWeight.w600
-                                : FontWeight.normal,
+          Padding(
+            padding: const EdgeInsets.only(left: 52),
+            child: Container(
+              decoration: BoxDecoration(
+                color: cs.secondary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              padding: const EdgeInsets.all(3),
+              child: Row(
+                children: options.map((entry) {
+                  final selectedItem = selected == entry.value;
+                  return Expanded(
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      decoration: BoxDecoration(
+                        color: selectedItem ? cs.secondary : Colors.transparent,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(8),
+                        onTap: () => onChanged(entry.value),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          child: Text(
+                            entry.label,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 13,
+                              color:
+                                  selectedItem ? cs.onSecondary : cs.onSurface,
+                              fontWeight: selectedItem
+                                  ? FontWeight.w600
+                                  : FontWeight.normal,
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                );
-              }).toList(),
+                  );
+                }).toList(),
+              ),
             ),
           ),
         ],

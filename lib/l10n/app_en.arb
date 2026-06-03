@@ -120,7 +120,7 @@
   "settingsMapColorPaletteTrainlogGreen": "Green",
   "settingsMapColorPaletteTrainlogBlue": "Blue",
   "settingsMapColorPaletteVibrantTones": "Vibrant Tones",
-  "settingsCache": "Cached data ({size} MiB)",
+  "settingsCache": "{size} MiB",
   "@settingsCache" :{
     "description": "Size in mebibytes (MiB)",
     "placeholders": {

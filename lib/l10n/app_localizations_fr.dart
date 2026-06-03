@@ -338,7 +338,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String settingsCache(Object size) {
-    return 'Données en cache ($size Mio)';
+    return '$size Mio';
   }
 
   @override

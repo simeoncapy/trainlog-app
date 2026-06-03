@@ -729,7 +729,7 @@ abstract class AppLocalizations {
   /// Size in mebibytes (MiB)
   ///
   /// In en, this message translates to:
-  /// **'Cached data ({size} MiB)'**
+  /// **'{size} MiB'**
   String settingsCache(Object size);
 
   /// No description provided for @settingsCacheClearButton.

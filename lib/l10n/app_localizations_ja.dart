@@ -328,7 +328,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String settingsCache(Object size) {
-    return 'キャッシュされたデータ ($size MiB)';
+    return '$size MiB';
   }
 
   @override
