@@ -11,7 +11,6 @@ import 'package:trainlog_app/platform/adaptive_button.dart';
 import 'package:trainlog_app/platform/adaptive_dialog.dart';
 import 'package:trainlog_app/platform/adaptive_information_message.dart';
 import 'package:trainlog_app/platform/adaptive_page_route.dart';
-import 'package:trainlog_app/platform/adaptive_segmented_button.dart';
 import 'package:trainlog_app/platform/adaptive_switch.dart';
 import 'package:trainlog_app/platform/settings_group.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
@@ -86,6 +85,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Future<void> _showPicker<T>({
     required BuildContext context,
+    required String title,
     required List<({String label, T value})> options,
     required T selected,
     required ValueChanged<T> onChanged,
@@ -95,19 +95,32 @@ class _SettingsPageState extends State<SettingsPage> {
       builder: (ctx) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          children: options.map((opt) {
-            final isSelected = opt.value == selected;
-            return ListTile(
-              title: Text(opt.label),
-              trailing: isSelected
-                  ? Icon(Icons.check_rounded, color: Theme.of(ctx).colorScheme.primary)
-                  : null,
-              onTap: () {
-                Navigator.pop(ctx);
-                onChanged(opt.value);
-              },
-            );
-          }).toList(),
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+              child: Text(
+                title,
+                style: Theme.of(ctx).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+              ),
+            ),
+            ...options.map((opt) {
+              final isSelected = opt.value == selected;
+              return ListTile(
+                title: Text(opt.label),
+                trailing: isSelected
+                    ? Icon(Icons.check_rounded,
+                        color: Theme.of(ctx).colorScheme.primary)
+                    : null,
+                onTap: () {
+                  Navigator.pop(ctx);
+                  onChanged(opt.value);
+                },
+              );
+            }),
+          ],
         ),
       ),
     );
@@ -210,8 +223,8 @@ class _SettingsPageState extends State<SettingsPage> {
 
     final themeOptions = [
       (label: l10n.settingsLight, value: ThemeMode.light),
-      (label: l10n.settingsDark, value: ThemeMode.dark),
       (label: l10n.settingsSystem, value: ThemeMode.system),
+      (label: l10n.settingsDark, value: ThemeMode.dark),
     ];
 
     final languageOptions = [
@@ -264,6 +277,7 @@ class _SettingsPageState extends State<SettingsPage> {
         trailing: _chevronTrailing(ctx, langName),
         onTap: () => _showPicker<String>(
           context: ctx,
+          title: l10n.settingsLanguage,
           options: languageOptions,
           selected: settings.locale.languageCode,
           onChanged: (v) => settings.setLocale(Locale(v)),
@@ -276,6 +290,7 @@ class _SettingsPageState extends State<SettingsPage> {
         trailing: _chevronTrailing(ctx, settings.dateFormat),
         onTap: () => _showPicker<String>(
           context: ctx,
+          title: l10n.settingsDateFormat,
           options: dateFormatOptions,
           selected: settings.dateFormat,
           onChanged: settings.setDateFormat,
@@ -318,6 +333,7 @@ class _SettingsPageState extends State<SettingsPage> {
         trailing: _chevronTrailing(ctx, radiusName),
         onTap: () => _showPicker<int>(
           context: ctx,
+          title: l10n.settingsSprRadius,
           options: radiusOptions,
           selected: settings.sprRadius,
           onChanged: settings.setSprRadius,
@@ -367,6 +383,7 @@ class _SettingsPageState extends State<SettingsPage> {
         trailing: _chevronTrailing(ctx, orderName),
         onTap: () => _showPicker<PathDisplayOrder>(
           context: ctx,
+          title: l10n.settingsMapPathDisplayOrder,
           options: orderOptions,
           selected: settings.pathDisplayOrder,
           onChanged: (v) {
@@ -381,6 +398,7 @@ class _SettingsPageState extends State<SettingsPage> {
         trailing: _chevronTrailing(ctx, paletteName),
         onTap: () => _showPicker<MapColorPalette>(
           context: ctx,
+          title: l10n.settingsMapColorPalette,
           options: paletteOptions,
           selected: settings.mapColorPalette,
           onChanged: (v) {
@@ -434,6 +452,7 @@ class _SettingsPageState extends State<SettingsPage> {
             ? null
             : () => _showPicker<int>(
                   context: ctx,
+                  title: l10n.settingsAccountVisibility,
                   options: visibilityOptions,
                   selected: _vm.accountVisibility!,
                   onChanged: (v) => _vm.setAccountVisibility(
@@ -644,15 +663,17 @@ class _ThemeRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bgColor = isDark ? const Color(0xFF3A3A3C) : const Color(0xFFE5E5EA);
     final fgColor = isDark ? const Color(0xFFEEEEF0) : const Color(0xFF3A3A3C);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
+      padding: const EdgeInsets.fromLTRB(16, 11, 16, 11),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Header row: icon square + label
           Row(
             children: [
               Container(
@@ -674,16 +695,46 @@ class _ThemeRow extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 10),
-          AdaptiveSegmentedButton.build<ThemeMode>(
-            context: context,
-            segments: options
-                .map((o) => AdaptiveSegmentedButtonSegment<ThemeMode>(
-                      value: o.value,
-                      label: Text(o.label),
-                    ))
-                .toList(),
-            selectedValue: selected,
-            onChanged: onChanged,
+          // Segmented control, centred within the tile
+          Container(
+            decoration: BoxDecoration(
+              color: cs.surfaceContainerHighest,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            padding: const EdgeInsets.all(3),
+            child: Row(
+              children: options.map((entry) {
+                final selectedItem = selected == entry.value;
+                return Expanded(
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    decoration: BoxDecoration(
+                      color: selectedItem ? cs.secondary : Colors.transparent,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(8),
+                      onTap: () => onChanged(entry.value),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: Text(
+                          entry.label,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 13,
+                            color:
+                                selectedItem ? cs.onSecondary : cs.onSurface,
+                            fontWeight: selectedItem
+                                ? FontWeight.w600
+                                : FontWeight.normal,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
           ),
         ],
       ),
