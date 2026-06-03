@@ -132,12 +132,14 @@ class _SettingsMaterialPageState extends State<SettingsMaterialPage> {
           );
 
           return ListView(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             children: [
+              const SizedBox(height: 8),
               for (final s in sections) ...[
                 _sectionHeader(ctx, s.header),
-                for (final item in s.items) _buildMaterialItem(ctx, item),
+                _sectionCard(ctx, s.items),
+                const SizedBox(height: 8),
               ],
-              const SizedBox(height: 12),
             ],
           );
         },
@@ -147,13 +149,31 @@ class _SettingsMaterialPageState extends State<SettingsMaterialPage> {
 
   Widget _sectionHeader(BuildContext context, String title) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
+      padding: const EdgeInsets.fromLTRB(4, 20, 4, 6),
       child: Text(
-        title,
-        style: Theme.of(context).textTheme.titleSmall!.copyWith(
+        title.toUpperCase(),
+        style: Theme.of(context).textTheme.labelSmall!.copyWith(
               color: Theme.of(context).colorScheme.primary,
               fontWeight: FontWeight.bold,
+              letterSpacing: 0.8,
             ),
+      ),
+    );
+  }
+
+  Widget _sectionCard(BuildContext context, List<SettingsItemSpec> items) {
+    return Card(
+      margin: EdgeInsets.zero,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        children: [
+          for (int i = 0; i < items.length; i++) ...[
+            _buildMaterialItem(context, items[i]),
+            if (i < items.length - 1)
+              const Divider(height: 1, indent: 56),
+          ],
+        ],
       ),
     );
   }
@@ -278,34 +298,36 @@ class _SettingsMaterialPageState extends State<SettingsMaterialPage> {
     if (item is SettingsPaletteLegendSpec) {
       final palette = MapColorPaletteHelper.getPalette(item.palette);
 
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: VehicleType.values.map((type) {
-                final color = palette[type] ?? Colors.grey;
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(16, 6, 16, 10),
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: VehicleType.values.map((type) {
+              final color = palette[type] ?? Colors.grey;
 
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: Icon(
-                    type.icon().icon,
-                    color: color,
-                  ),
-                );
-              }).toList(),
-            ),
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Icon(
+                  type.icon().icon,
+                  color: color,
+                ),
+              );
+            }).toList(),
           ),
-          const SizedBox(height: 8),
-        ],
+        ),
       );
     }
 
     if (item is SettingsTextSpec) {
       return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8),
-        child: Text(item.title),
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+        child: Text(
+          item.title,
+          style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+              ),
+        ),
       );
     }
 
