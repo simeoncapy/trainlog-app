@@ -57,46 +57,7 @@ class FullScreenMenuPage extends StatelessWidget {
                     const SizedBox(height: 24),
                     _SectionHeader(label: loc.menuMenuSectionTitle),
                     const SizedBox(height: 8),
-                    Builder(builder: (context) {
-                      final cs = Theme.of(context).colorScheme;
-                      return MenuBlock(items: [
-                        MenuItemData(
-                          icon: AdaptiveIcons.inbox,
-                          iconBg: AppColors.amber,
-                          label: loc.menuInboxTitle,
-                          onTap: onInboxTap,
-                        ),
-                        MenuItemData(
-                          icon: AdaptiveIcons.ok,
-                          iconBg: AppColors.blue,
-                          label: loc.trainglogStatusPageTitle,
-                          onTap: onTrainlogStatusTap,
-                        ),
-                        MenuItemData(
-                          icon: AdaptiveIcons.info,
-                          iconBg: AppColors.navy,
-                          label: loc.menuAboutTitle,
-                          onTap: () => onPageTap(AppPageId.about),
-                        ),
-                        MenuItemData(
-                          icon: AdaptiveIcons.logout,
-                          iconBg: cs.error,
-                          label: loc.logoutButton,
-                          labelColor: cs.error,
-                          isDestructive: true,
-                          onTap: () async {
-                            final settings = context.read<SettingsProvider>();
-                            final trips = context.read<TripsProvider>();
-                            final scaffMsg = ScaffoldMessenger.of(context);
-                            onClose();
-                            await context.read<TrainlogProvider>().logout(settings, trips);
-                            scaffMsg.showSnackBar(
-                              SnackBar(content: Text(loc.loggedOut)),
-                            );
-                          },
-                        ),
-                      ]);
-                    }),
+                    _menuBlockBuilder(loc),
                     const SizedBox(height: 32),
                   ],
                 ),
@@ -106,6 +67,49 @@ class FullScreenMenuPage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Builder _menuBlockBuilder(AppLocalizations loc) {
+    return Builder(builder: (context) {
+      final cs = Theme.of(context).colorScheme;
+      return MenuBlock(items: [
+        MenuItemData(
+          icon: AdaptiveIcons.inbox,
+          iconBg: AppColors.amber,
+          label: loc.menuInboxTitle,
+          onTap: onInboxTap,
+        ),
+        MenuItemData(
+          icon: AdaptiveIcons.ok,
+          iconBg: AppColors.blue,
+          label: loc.trainglogStatusPageTitle,
+          onTap: onTrainlogStatusTap,
+        ),
+        MenuItemData(
+          icon: AdaptiveIcons.info,
+          iconBg: AppColors.navy,
+          label: loc.menuAboutTitle,
+          onTap: () => onPageTap(AppPageId.about),
+        ),
+        MenuItemData(
+          icon: AdaptiveIcons.logout,
+          iconBg: cs.error,
+          label: loc.logoutButton,
+          labelColor: cs.error,
+          isDestructive: true,
+          onTap: () async {
+            final settings = context.read<SettingsProvider>();
+            final trips = context.read<TripsProvider>();
+            final scaffMsg = ScaffoldMessenger.of(context);
+            onClose();
+            await context.read<TrainlogProvider>().logout(settings, trips);
+            scaffMsg.showSnackBar(
+              SnackBar(content: Text(loc.loggedOut)),
+            );
+          },
+        ),
+      ]);
+    });
   }
 }
 
