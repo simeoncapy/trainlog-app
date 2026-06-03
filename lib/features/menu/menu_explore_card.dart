@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:trainlog_app/app/app_colors.dart';
 import 'package:trainlog_app/navigation/nav_models.dart';
 
 /// Data model for a card in the Explore grid.
@@ -37,13 +36,12 @@ class ExploreCardSubtitle {
 
 /// A card used in the 2×2 Explore grid on the full-screen menu.
 ///
-/// Visual spec:
-/// - White (light) / dark-surface (dark) background
-/// - Thin border using the theme line colour
-/// - Top-right chevron arrow
-/// - Solid-colour rounded-square icon with a white [icon]
-/// - [label] in Space Mono bold
-/// - Optional coloured [subtitle] number + plain text (Space Mono)
+/// All colours are read directly from [Theme.of(context).colorScheme]:
+/// - background  → [ColorScheme.surface]
+/// - border      → [ColorScheme.outlineVariant]
+/// - arrow icon  → [ColorScheme.onSurfaceVariant]
+/// - title text  → [ColorScheme.onSurface]
+/// - subtitle secondary text → [ColorScheme.onSurfaceVariant]
 class ExploreCard extends StatelessWidget {
   final ExploreCardData data;
   final VoidCallback onTap;
@@ -52,25 +50,21 @@ class ExploreCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardBg = isDark ? AppColors.darkSurface : AppColors.lightBg;
-    final borderColor = isDark ? AppColors.darkLine : AppColors.lightLine;
-    final chevronColor = isDark ? AppColors.darkText3 : AppColors.lightText3;
-    final subtitleTextColor = isDark ? AppColors.darkText2 : AppColors.lightText2;
+    final cs = Theme.of(context).colorScheme;
 
     return GestureDetector(
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: cardBg,
+          color: cs.surface,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: borderColor, width: 1),
+          border: Border.all(color: cs.outlineVariant, width: 1),
         ),
         padding: const EdgeInsets.all(14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Icon + top-right arrow
+            // Solid-colour icon square + top-right arrow
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -84,20 +78,20 @@ class ExploreCard extends StatelessWidget {
                   child: Icon(data.icon, color: Colors.white, size: 20),
                 ),
                 const Spacer(),
-                Icon(Icons.arrow_outward, size: 16, color: chevronColor),
+                Icon(Icons.arrow_outward, size: 16, color: cs.onSurfaceVariant),
               ],
             ),
             const Spacer(),
-            // Title
+            // Title in Space Mono
             Text(
               data.label,
               style: GoogleFonts.spaceMono(
                 fontSize: 15,
                 fontWeight: FontWeight.w700,
-                color: isDark ? AppColors.darkText : AppColors.lightText,
+                color: cs.onSurface,
               ),
             ),
-            // Subtitle (hidden when null)
+            // Optional coloured subtitle (hidden when null)
             if (data.subtitle != null) ...[
               const SizedBox(height: 2),
               RichText(
@@ -115,7 +109,7 @@ class ExploreCard extends StatelessWidget {
                       text: ' ${data.subtitle!.text}',
                       style: GoogleFonts.spaceMono(
                         fontSize: 11,
-                        color: subtitleTextColor,
+                        color: cs.onSurfaceVariant,
                       ),
                     ),
                   ],

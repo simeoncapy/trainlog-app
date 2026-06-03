@@ -33,13 +33,15 @@ abstract final class AppTheme {
       onTertiary: Colors.white,
       error: AppColors.errorLight,
       onError: Colors.white,
-      surface: AppColors.lightSurface,
+      // surface = card / sheet / elevated element (white)
+      surface: AppColors.lightBg,
       onSurface: AppColors.lightText,
       onSurfaceVariant: AppColors.lightText2,
       outline: AppColors.lightLine,
       outlineVariant: AppColors.lightLine,
       shadow: AppColors.navy,
-      inverseSurface: AppColors.darkBg,
+      // inverseSurface = the always-dark branded summary card background
+      inverseSurface: AppColors.navy,
       onInverseSurface: AppColors.darkText,
       inversePrimary: AppColors.amberDk,
     );
@@ -52,12 +54,13 @@ abstract final class AppTheme {
     return ThemeData(
       useMaterial3: true,
       colorScheme: colorScheme,
-      scaffoldBackgroundColor: AppColors.lightBg,
-      cardColor: AppColors.lightSurface,
+      // scaffoldBackgroundColor = page canvas (beige)
+      scaffoldBackgroundColor: AppColors.lightSurface,
+      cardColor: AppColors.lightBg,
       dividerColor: AppColors.lightLine,
       textTheme: textTheme,
       appBarTheme: AppBarTheme(
-        backgroundColor: AppColors.lightBg,
+        backgroundColor: AppColors.lightSurface,
         foregroundColor: AppColors.lightText,
         elevation: 0,
         titleTextStyle: GoogleFonts.spaceGrotesk(
@@ -132,7 +135,8 @@ abstract final class AppTheme {
       outline: AppColors.darkLine,
       outlineVariant: AppColors.darkLine,
       shadow: Colors.black,
-      inverseSurface: AppColors.lightSurface,
+      // inverseSurface = the always-light branded summary card background
+      inverseSurface: AppColors.lightBg,
       onInverseSurface: AppColors.lightText,
       inversePrimary: AppColors.amberDk,
     );

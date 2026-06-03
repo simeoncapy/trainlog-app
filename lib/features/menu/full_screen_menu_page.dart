@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:trainlog_app/app/app_colors.dart';
 import 'package:trainlog_app/features/menu/menu_explore_card.dart';
 import 'package:trainlog_app/features/menu/menu_summary_card.dart';
+import 'package:trainlog_app/app/app_colors.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/navigation/nav_models.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
@@ -11,7 +11,7 @@ import 'package:trainlog_app/providers/trips_provider.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 
 /// Full-screen menu replacing the legacy Drawer on Android.
-/// Provides a clean entry point for iOS too (wire up from the iOS shell when ready).
+/// Provides a clean entry point for iOS (wire up from the iOS shell when ready).
 class FullScreenMenuPage extends StatelessWidget {
   final VoidCallback onClose;
   final VoidCallback onSettingsTap;
@@ -31,24 +31,15 @@ class FullScreenMenuPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    // Reversed from usual: the page background is the "surface" tone (beige in
-    // light, deep dark in dark) so that white/elevated cards pop above it.
-    final scaffoldBg = isDark ? AppColors.darkBg : AppColors.lightSurface;
 
     return Scaffold(
-      backgroundColor: scaffoldBg,
+      // Uses the theme's scaffoldBackgroundColor directly (beige in light,
+      // deep dark in dark — set correctly in AppTheme).
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _TopBar(
-              onClose: onClose,
-              onSettings: onSettingsTap,
-              loc: loc,
-              isDark: isDark,
-            ),
+            _TopBar(onClose: onClose, onSettings: onSettingsTap, loc: loc),
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -58,15 +49,14 @@ class FullScreenMenuPage extends StatelessWidget {
                     const SizedBox(height: 8),
                     const MenuSummaryCard(),
                     const SizedBox(height: 24),
-                    _SectionHeader(label: loc.menuExploreSectionTitle, isDark: isDark),
+                    _SectionHeader(label: loc.menuExploreSectionTitle),
                     const SizedBox(height: 12),
                     _ExploreGrid(onPageTap: onPageTap, loc: loc),
                     const SizedBox(height: 24),
-                    _SectionHeader(label: loc.menuMenuSectionTitle, isDark: isDark),
+                    _SectionHeader(label: loc.menuMenuSectionTitle),
                     const SizedBox(height: 8),
                     _MenuBlock(
                       loc: loc,
-                      isDark: isDark,
                       onInboxTap: onInboxTap,
                       onTrainlogStatusTap: onTrainlogStatusTap,
                       onAboutTap: () => onPageTap(AppPageId.about),
@@ -99,21 +89,17 @@ class _TopBar extends StatelessWidget {
   final VoidCallback onClose;
   final VoidCallback onSettings;
   final AppLocalizations loc;
-  final bool isDark;
 
   const _TopBar({
     required this.onClose,
     required this.onSettings,
     required this.loc,
-    required this.isDark,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final btnBg = isDark ? AppColors.darkSurface : AppColors.lightBg;
-    final btnFg = isDark ? AppColors.darkText : AppColors.lightText;
-    final borderColor = isDark ? AppColors.darkLine : AppColors.lightLine;
+    final cs = theme.colorScheme;
 
     Widget squareBtn({required IconData icon, required VoidCallback onTap, String? tooltip}) {
       return Tooltip(
@@ -125,11 +111,11 @@ class _TopBar extends StatelessWidget {
             width: 38,
             height: 38,
             decoration: BoxDecoration(
-              color: btnBg,
+              color: cs.surface,
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: borderColor, width: 1),
+              border: Border.all(color: cs.outlineVariant, width: 1),
             ),
-            child: Icon(icon, color: btnFg, size: 20),
+            child: Icon(icon, color: cs.onSurface, size: 20),
           ),
         ),
       );
@@ -166,9 +152,8 @@ class _TopBar extends StatelessWidget {
 
 class _SectionHeader extends StatelessWidget {
   final String label;
-  final bool isDark;
 
-  const _SectionHeader({required this.label, required this.isDark});
+  const _SectionHeader({required this.label});
 
   @override
   Widget build(BuildContext context) {
@@ -178,7 +163,7 @@ class _SectionHeader extends StatelessWidget {
         fontSize: 11,
         fontWeight: FontWeight.w700,
         letterSpacing: 1.2,
-        color: isDark ? AppColors.darkText3 : AppColors.lightText3,
+        color: Theme.of(context).colorScheme.onSurfaceVariant,
       ),
     );
   }
@@ -243,7 +228,6 @@ class _ExploreGrid extends StatelessWidget {
 
 class _MenuBlock extends StatelessWidget {
   final AppLocalizations loc;
-  final bool isDark;
   final VoidCallback onInboxTap;
   final VoidCallback onTrainlogStatusTap;
   final VoidCallback onAboutTap;
@@ -251,7 +235,6 @@ class _MenuBlock extends StatelessWidget {
 
   const _MenuBlock({
     required this.loc,
-    required this.isDark,
     required this.onInboxTap,
     required this.onTrainlogStatusTap,
     required this.onAboutTap,
@@ -260,11 +243,7 @@ class _MenuBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final blockBg = isDark ? AppColors.darkSurface : AppColors.lightBg;
-    final borderColor = isDark ? AppColors.darkLine : AppColors.lightLine;
-    final chevronColor = isDark ? AppColors.darkText3 : AppColors.lightText3;
-    final textColor = isDark ? AppColors.darkText : AppColors.lightText;
-    final errorColor = isDark ? AppColors.errorDark : AppColors.errorLight;
+    final cs = Theme.of(context).colorScheme;
 
     final items = <_MenuItemData>[
       _MenuItemData(
@@ -287,9 +266,9 @@ class _MenuBlock extends StatelessWidget {
       ),
       _MenuItemData(
         icon: AdaptiveIcons.logout,
-        iconBg: errorColor,
+        iconBg: cs.error,
         label: loc.logoutButton,
-        labelColor: errorColor,
+        labelColor: cs.error,
         onTap: onLogout,
         isDestructive: true,
       ),
@@ -297,18 +276,15 @@ class _MenuBlock extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: blockBg,
+        color: cs.surface,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: borderColor, width: 1),
+        border: Border.all(color: cs.outlineVariant, width: 1),
       ),
       child: Column(
         children: [
           for (int i = 0; i < items.length; i++) ...[
             _MenuTile(
               data: items[i],
-              isDark: isDark,
-              textColor: textColor,
-              chevronColor: chevronColor,
               isFirst: i == 0,
               isLast: i == items.length - 1,
             ),
@@ -316,9 +292,9 @@ class _MenuBlock extends StatelessWidget {
               Divider(
                 height: 1,
                 thickness: 1,
-                indent: 16 + 36 + 12, // align with label start
+                indent: 16 + 28 + 12, // align with label start
                 endIndent: 0,
-                color: borderColor,
+                color: cs.outlineVariant,
               ),
           ],
         ],
@@ -347,24 +323,19 @@ class _MenuItemData {
 
 class _MenuTile extends StatelessWidget {
   final _MenuItemData data;
-  final bool isDark;
-  final Color textColor;
-  final Color chevronColor;
   final bool isFirst;
   final bool isLast;
 
   const _MenuTile({
     required this.data,
-    required this.isDark,
-    required this.textColor,
-    required this.chevronColor,
     required this.isFirst,
     required this.isLast,
   });
 
   @override
   Widget build(BuildContext context) {
-    final resolvedTextColor = data.labelColor ?? textColor;
+    final cs = Theme.of(context).colorScheme;
+    final resolvedTextColor = data.labelColor ?? cs.onSurface;
 
     return InkWell(
       onTap: data.onTap,
@@ -376,8 +347,6 @@ class _MenuTile extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(
           children: [
-            // Coloured square icon background — deliberately smaller than
-            // the Explore grid icons to match the list-item visual weight.
             Container(
               width: 28,
               height: 28,
@@ -399,7 +368,7 @@ class _MenuTile extends StatelessWidget {
               ),
             ),
             if (!data.isDestructive)
-              Icon(Icons.chevron_right, size: 20, color: chevronColor),
+              Icon(Icons.chevron_right, size: 20, color: cs.onSurfaceVariant),
           ],
         ),
       ),

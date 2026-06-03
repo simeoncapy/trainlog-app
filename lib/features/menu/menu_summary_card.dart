@@ -9,24 +9,21 @@ import 'package:trainlog_app/providers/trips_provider.dart';
 
 /// Hero card at the top of the full-screen menu.
 ///
-/// The background is always the inverse of the current theme — navy in light
-/// mode, an elevated dark surface in dark mode — so it always reads as a
-/// strong, branded element.
+/// The background always uses [ColorScheme.inverseSurface] — navy in light
+/// mode, pure white in dark mode — so it reads as a strong branded element
+/// that inverts with the theme without any manual `isDark` checks.
 class MenuSummaryCard extends StatelessWidget {
   const MenuSummaryCard({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cs = Theme.of(context).colorScheme;
     final auth = context.watch<TrainlogProvider>();
     final trips = context.watch<TripsProvider>();
 
-    // Reverse-of-theme background: navy in light, white/light in dark.
-    final cardBg = isDark ? AppColors.lightBg : AppColors.navy;
-
     return Container(
       decoration: BoxDecoration(
-        color: cardBg,
+        color: cs.inverseSurface,
         borderRadius: BorderRadius.circular(16),
       ),
       padding: const EdgeInsets.all(16),
@@ -55,7 +52,8 @@ class _TrainlogIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Icon colours never change: amber outer circle → navy inner fill → amber icon.
+    // Icon colours NEVER change regardless of theme:
+    // amber outer circle → navy inner fill → amber icon glyph.
     return Container(
       width: 60,
       height: 60,
@@ -94,11 +92,11 @@ class _CardText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    // In dark mode the card is light, so text must be dark. In light mode the
-    // card is navy, so text must be white.
-    final nameColor = isDark ? AppColors.lightText : Colors.white;
-    final urlColor = isDark ? AppColors.lightText2 : const Color(0xFFB0BEC5);
+    final cs = Theme.of(context).colorScheme;
+    // onInverseSurface is the correct readable colour on top of inverseSurface.
+    final nameColor = cs.onInverseSurface;
+    // Subdued secondary text: same hue, lower opacity.
+    final urlColor = cs.onInverseSurface.withOpacity(0.65);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -114,10 +112,7 @@ class _CardText extends StatelessWidget {
         const SizedBox(height: 2),
         Text(
           instanceUrl,
-          style: GoogleFonts.spaceMono(
-            fontSize: 11,
-            color: urlColor,
-          ),
+          style: GoogleFonts.spaceMono(fontSize: 11, color: urlColor),
           overflow: TextOverflow.ellipsis,
         ),
         const SizedBox(height: 6),
@@ -154,14 +149,14 @@ class _TripCountState extends State<_TripCount> {
   Widget build(BuildContext context) {
     if (_count == null) return const SizedBox.shrink();
     final loc = AppLocalizations.of(context)!;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    // Render count in amber, the rest of the label in a subdued tone that
-    // works on both the navy (light) and white (dark) card backgrounds.
-    final subtleColor = isDark ? AppColors.lightText2 : const Color(0xFFB0BEC5);
+    final cs = Theme.of(context).colorScheme;
+    final subtleColor = cs.onInverseSurface.withOpacity(0.65);
     final monoBase = GoogleFonts.spaceMono(fontSize: 12, fontWeight: FontWeight.w600);
+
     return RichText(
       text: TextSpan(
         children: [
+          // Only the number is amber.
           TextSpan(
             text: '$_count',
             style: monoBase.copyWith(color: AppColors.amber),
