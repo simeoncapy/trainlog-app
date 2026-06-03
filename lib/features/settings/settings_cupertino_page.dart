@@ -210,9 +210,9 @@ class _SettingsCupertinoPageState extends State<SettingsCupertinoPage> {
     );
   }
 
-  // Splits items at noDivider SettingsTextSpec boundaries.
-  // Each regular-item group gets its own CupertinoListSection; noDivider items
-  // are rendered as inline notes between groups (the native iOS pattern).
+  // Splits a section into sub-sections at noDividerBefore/noDividerAfter
+  // boundaries. A section break replaces the tile divider with the larger
+  // inset-grouped gap, while items kept in the same group keep their divider.
   Widget _buildCupertinoSection(SettingsSectionSpec section) {
     final widgets = <Widget>[];
     bool firstGroup = true;
@@ -229,22 +229,14 @@ class _SettingsCupertinoPageState extends State<SettingsCupertinoPage> {
     }
 
     for (final item in section.items) {
-      if (item is SettingsTextSpec && item.noDivider) {
+      // Break before this item (no divider connecting it to the previous one).
+      if (item is SettingsTextSpec && item.noDividerBefore) {
         flushBuffer();
-        if (item.title.isNotEmpty) {
-          widgets.add(Padding(
-            padding: const EdgeInsets.fromLTRB(20, 4, 20, 4),
-            child: Text(
-              item.title,
-              style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
-                    fontSize: 13,
-                    color: CupertinoColors.secondaryLabel.resolveFrom(context),
-                  ),
-            ),
-          ));
-        }
-      } else {
-        buffer.add(item);
+      }
+      buffer.add(item);
+      // Break after this item (no divider connecting it to the next one).
+      if (item is SettingsTextSpec && item.noDividerAfter) {
+        flushBuffer();
       }
     }
     flushBuffer();

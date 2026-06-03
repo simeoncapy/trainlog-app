@@ -151,12 +151,16 @@ class SettingsPaletteLegendSpec extends SettingsItemSpec {
 }
 
 class SettingsTextSpec extends SettingsItemSpec {
-  /// When true, no divider is drawn before or after this item.
-  final bool noDivider;
+  /// When true, no divider is drawn directly before this item.
+  final bool noDividerBefore;
+
+  /// When true, no divider is drawn directly after this item.
+  final bool noDividerAfter;
 
   SettingsTextSpec({
     required super.title,
-    this.noDivider = false,
+    this.noDividerBefore = false,
+    this.noDividerAfter = false,
   }) : super(
           icon: Icons.info,
         );
@@ -387,7 +391,7 @@ List<SettingsSectionSpec> buildSettingsBlueprint({
           materialLayout: MaterialChoiceLayout.trailingDropdown,
           valueLabel: (v) => '$v',
         ),
-        SettingsTextSpec(title: vm.accountVisibilityHelperText.isEmpty ? "" : vm.accountVisibilityHelperText, noDivider: true),
+        SettingsTextSpec(title: vm.accountVisibilityHelperText.isEmpty ? "" : vm.accountVisibilityHelperText, noDividerBefore: true),
         SettingsToggleSpec(
           icon: iconLeaderboard,
           title: l10n.settingsAccountLeaderboard,

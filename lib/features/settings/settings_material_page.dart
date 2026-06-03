@@ -184,8 +184,8 @@ class _SettingsMaterialPageState extends State<SettingsMaterialPage> {
   }
 
   bool _showDividerBetween(SettingsItemSpec a, SettingsItemSpec b) {
-    if (a is SettingsTextSpec && a.noDivider) return false;
-    if (b is SettingsTextSpec && b.noDivider) return false;
+    if (a is SettingsTextSpec && a.noDividerAfter) return false;
+    if (b is SettingsTextSpec && b.noDividerBefore) return false;
     return true;
   }
 
