@@ -498,7 +498,8 @@ List<SettingsSectionSpec> buildSettingsBlueprint({
         if (kDebugMode)
           SettingsButtonActionSpec(
             icon: iconResetOnboarding,
-            title: "Reset Onboarding (debug)",
+            title: "Reset Onboarding",
+            subtitle: "debug",
             button: AdaptiveButton.build(
               context: context,
               label: Text("Reset"),
@@ -513,6 +514,7 @@ List<SettingsSectionSpec> buildSettingsBlueprint({
           SettingsButtonActionSpec(
             icon: iconResetOnboarding,
             title: "Throw Test Exception",
+            subtitle: "debug",
             button: AdaptiveButton.build(
               context: context,
               label: Text("Throw"),

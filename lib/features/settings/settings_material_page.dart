@@ -161,18 +161,24 @@ class _SettingsMaterialPageState extends State<SettingsMaterialPage> {
   }
 
   Widget _sectionCard(BuildContext context, List<SettingsItemSpec> items) {
-    return Card(
-      margin: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        children: [
-          for (int i = 0; i < items.length; i++) ...[
-            _buildMaterialItem(context, items[i]),
-            if (i < items.length - 1)
-              const Divider(height: 1, indent: 56),
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant, width: 1),
+      ),
+      child: Card(
+        margin: EdgeInsets.zero,
+        //shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          children: [
+            for (int i = 0; i < items.length; i++) ...[
+              _buildMaterialItem(context, items[i]),
+              if (i < items.length - 1)
+                const Divider(height: 1, indent: 56),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
@@ -182,6 +188,10 @@ class _SettingsMaterialPageState extends State<SettingsMaterialPage> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bg = isDark ? const Color(0xFF3A3A3C) : const Color(0xFFE5E5EA);
     final fg = isDark ? const Color(0xFFEEEEF0) : const Color(0xFF3A3A3C);
+
+    // final cs = Theme.of(context).colorScheme;
+    // final bg = cs.secondaryContainer;
+    // final fg = cs.onSecondaryContainer;
     return Container(
       width: 32,
       height: 32,
