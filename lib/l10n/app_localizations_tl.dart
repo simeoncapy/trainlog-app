@@ -338,6 +338,9 @@ class AppLocalizationsTl extends AppLocalizations {
   }
 
   @override
+  String get settingsCacheTitle => 'Cached data';
+
+  @override
   String get settingsCacheClearButton => 'Ibura';
 
   @override

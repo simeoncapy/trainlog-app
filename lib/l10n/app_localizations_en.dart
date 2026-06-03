@@ -341,6 +341,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get settingsCacheTitle => 'Cached data';
+
+  @override
   String get settingsCacheClearButton => 'Clear';
 
   @override

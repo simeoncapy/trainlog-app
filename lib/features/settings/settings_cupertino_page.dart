@@ -4,6 +4,7 @@ import 'package:currency_picker/currency_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:trainlog_app/app/app_theme.dart';
 import 'package:trainlog_app/platform/adaptive_information_message.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -201,19 +202,54 @@ class _SettingsCupertinoPageState extends State<SettingsCupertinoPage> {
         return ListView(
           children: [
             const SizedBox(height: 8),
-            for (final section in sections) ...[
-              CupertinoListSection.insetGrouped(
-                header: Text(section.header),
-                children: [
-                  for (final item in section.items) _buildCupertinoItem(item),
-                ],
-              ),
-            ],
-            //const SizedBox(height: 12),
+            for (final section in sections)
+              _buildCupertinoSection(section),
           ],
         );
       },
     );
+  }
+
+  // Splits items at noDivider SettingsTextSpec boundaries.
+  // Each regular-item group gets its own CupertinoListSection; noDivider items
+  // are rendered as inline notes between groups (the native iOS pattern).
+  Widget _buildCupertinoSection(SettingsSectionSpec section) {
+    final widgets = <Widget>[];
+    bool firstGroup = true;
+    List<SettingsItemSpec> buffer = [];
+
+    void flushBuffer() {
+      if (buffer.isEmpty) return;
+      widgets.add(CupertinoListSection.insetGrouped(
+        header: firstGroup ? Text(section.header) : null,
+        children: buffer.map(_buildCupertinoItem).toList(),
+      ));
+      firstGroup = false;
+      buffer = [];
+    }
+
+    for (final item in section.items) {
+      if (item is SettingsTextSpec && item.noDivider) {
+        flushBuffer();
+        if (item.title.isNotEmpty) {
+          widgets.add(Padding(
+            padding: const EdgeInsets.fromLTRB(20, 4, 20, 4),
+            child: Text(
+              item.title,
+              style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
+                    fontSize: 13,
+                    color: CupertinoColors.secondaryLabel.resolveFrom(context),
+                  ),
+            ),
+          ));
+        }
+      } else {
+        buffer.add(item);
+      }
+    }
+    flushBuffer();
+
+    return Column(children: widgets);
   }
 
   // Neutral rounded-square icon badge, adapts to light/dark via CupertinoColors.
@@ -286,6 +322,7 @@ class _SettingsCupertinoPageState extends State<SettingsCupertinoPage> {
       return CupertinoListTile(
         leading: _iconSquare(context, item.icon),
         title: Text(item.title),
+        subtitle: item.subtitle == null ? null : Text(item.subtitle!),
         additionalInfo: Text(item.currencyCode),
         trailing: const CupertinoListTileChevron(),
         onTap: item.enabled ? item.onPick : null,
@@ -321,7 +358,8 @@ class _SettingsCupertinoPageState extends State<SettingsCupertinoPage> {
     if (item is SettingsButtonActionSpec) {
       return CupertinoListTile(
         leading: _iconSquare(context, item.icon),
-        title: Text(item.title,),
+        title: Text(item.title),
+        subtitle: item.subtitle == null ? null : Text(item.subtitle!),
         trailing: item.button,
       );
     }
@@ -336,7 +374,14 @@ class _SettingsCupertinoPageState extends State<SettingsCupertinoPage> {
           return CupertinoListTile(
             leading: _iconSquare(context, item.icon),
             title: Text(item.title),
-            additionalInfo: Text(version),
+            subtitle: item.subtitle == null ? null : Text(item.subtitle!),
+            additionalInfo: Text(
+              version,
+              style: AppTheme.monoFont.copyWith(
+                fontSize: 13,
+                color: CupertinoColors.secondaryLabel.resolveFrom(context),
+              ),
+            ),
             onTap: item.onTap,
           );
         },
@@ -347,15 +392,30 @@ class _SettingsCupertinoPageState extends State<SettingsCupertinoPage> {
       return CupertinoListTile(
         leading: _iconSquare(context, item.icon),
         title: Text(item.title),
-        additionalInfo: Text(item.value),
+        subtitle: item.subtitle == null ? null : Text(item.subtitle!),
+        additionalInfo: Text(
+          item.value,
+          style: AppTheme.monoFont.copyWith(
+            fontSize: 13,
+            color: CupertinoTheme.of(context).primaryColor,
+          ),
+        ),
         onTap: item.onTap,
       );
     }
 
     if (item is SettingsTextSpec) {
+      // Non-noDivider SettingsTextSpec items (without suppressed separators)
+      // still appear inline inside the section.
       return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8),
-        child: Text(item.title),
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+        child: Text(
+          item.title,
+          style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
+                fontSize: 13,
+                color: CupertinoColors.secondaryLabel.resolveFrom(context),
+              ),
+        ),
       );
     }
 

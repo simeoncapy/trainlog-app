@@ -151,11 +151,13 @@ class SettingsPaletteLegendSpec extends SettingsItemSpec {
 }
 
 class SettingsTextSpec extends SettingsItemSpec {
+  /// When true, no divider is drawn before or after this item.
+  final bool noDivider;
 
   SettingsTextSpec({
     required super.title,
+    this.noDivider = false,
   }) : super(
-          // icon are not used by the renderer for this spec
           icon: Icons.info,
         );
 }
@@ -385,7 +387,7 @@ List<SettingsSectionSpec> buildSettingsBlueprint({
           materialLayout: MaterialChoiceLayout.trailingDropdown,
           valueLabel: (v) => '$v',
         ),
-        SettingsTextSpec(title: vm.accountVisibilityHelperText.isEmpty ? "" : vm.accountVisibilityHelperText),
+        SettingsTextSpec(title: vm.accountVisibilityHelperText.isEmpty ? "" : vm.accountVisibilityHelperText, noDivider: true),
         SettingsToggleSpec(
           icon: iconLeaderboard,
           title: l10n.settingsAccountLeaderboard,
@@ -422,7 +424,8 @@ List<SettingsSectionSpec> buildSettingsBlueprint({
       items: [
         SettingsButtonActionSpec(
           icon: iconCache,
-          title: vm.cacheSizeLabel(l10n, context),
+          title: l10n.settingsCacheTitle,
+          subtitle: vm.cacheSizeLabel(l10n, context),
           enabled: vm.totalCacheSize > 0,
           button: AdaptiveButton.build(
             context: context,

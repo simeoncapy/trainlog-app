@@ -342,6 +342,9 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String get settingsCacheTitle => 'Données en cache';
+
+  @override
   String get settingsCacheClearButton => 'Vider';
 
   @override

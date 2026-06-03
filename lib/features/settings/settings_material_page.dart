@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'package:trainlog_app/app/app_theme.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
@@ -168,13 +169,12 @@ class _SettingsMaterialPageState extends State<SettingsMaterialPage> {
       ),
       child: Card(
         margin: EdgeInsets.zero,
-        //shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         clipBehavior: Clip.antiAlias,
         child: Column(
           children: [
             for (int i = 0; i < items.length; i++) ...[
               _buildMaterialItem(context, items[i]),
-              if (i < items.length - 1)
+              if (i < items.length - 1 && _showDividerBetween(items[i], items[i + 1]))
                 const Divider(height: 1, indent: 56),
             ],
           ],
@@ -183,15 +183,17 @@ class _SettingsMaterialPageState extends State<SettingsMaterialPage> {
     );
   }
 
+  bool _showDividerBetween(SettingsItemSpec a, SettingsItemSpec b) {
+    if (a is SettingsTextSpec && a.noDivider) return false;
+    if (b is SettingsTextSpec && b.noDivider) return false;
+    return true;
+  }
+
   // Neutral rounded-square icon badge that adapts to light/dark mode.
   Widget _iconSquare(BuildContext context, IconData icon) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bg = isDark ? const Color(0xFF3A3A3C) : const Color(0xFFE5E5EA);
     final fg = isDark ? const Color(0xFFEEEEF0) : const Color(0xFF3A3A3C);
-
-    // final cs = Theme.of(context).colorScheme;
-    // final bg = cs.secondaryContainer;
-    // final fg = cs.onSecondaryContainer;
     return Container(
       width: 32,
       height: 32,
@@ -203,7 +205,7 @@ class _SettingsMaterialPageState extends State<SettingsMaterialPage> {
     );
   }
 
-  // Bordered pill showing the selected value; contains the real DropdownButton.
+  // Bordered pill with a slight themed background showing the selected value.
   Widget _styledDropdown(
     BuildContext context, {
     required dynamic value,
@@ -212,6 +214,8 @@ class _SettingsMaterialPageState extends State<SettingsMaterialPage> {
     bool expanded = false,
   }) {
     final cs = Theme.of(context).colorScheme;
+    final bg = cs.secondaryContainer.withOpacity(0.25);
+
     final dropdown = DropdownButtonHideUnderline(
       child: DropdownButton<dynamic>(
         isDense: true,
@@ -231,7 +235,8 @@ class _SettingsMaterialPageState extends State<SettingsMaterialPage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
       decoration: BoxDecoration(
-        border: Border.all(color: cs.outline.withOpacity(0.5)),
+        color: bg,
+        border: Border.all(color: cs.outline.withOpacity(0.4)),
         borderRadius: BorderRadius.circular(6),
       ),
       child: expanded ? dropdown : IntrinsicWidth(child: dropdown),
@@ -257,6 +262,7 @@ class _SettingsMaterialPageState extends State<SettingsMaterialPage> {
       return ListTile(
         leading: _iconSquare(context, item.icon),
         title: Text(item.title),
+        subtitle: item.subtitle == null ? null : Text(item.subtitle!),
         enabled: item.enabled,
         trailing: OutlinedButton(
           onPressed: item.enabled ? item.onPick : null,
@@ -285,6 +291,8 @@ class _SettingsMaterialPageState extends State<SettingsMaterialPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(item.title, style: Theme.of(context).textTheme.bodyMedium),
+              if (item.subtitle != null)
+                Text(item.subtitle!, style: Theme.of(context).textTheme.bodySmall),
               _styledDropdown(
                 context,
                 value: dyn.value,
@@ -315,6 +323,7 @@ class _SettingsMaterialPageState extends State<SettingsMaterialPage> {
       return ListTile(
         leading: _iconSquare(context, item.icon),
         title: Text(item.title),
+        subtitle: item.subtitle == null ? null : Text(item.subtitle!),
         trailing: item.button,
       );
     }
@@ -323,6 +332,7 @@ class _SettingsMaterialPageState extends State<SettingsMaterialPage> {
       return ListTile(
         leading: _iconSquare(context, item.icon),
         title: Text(item.title),
+        subtitle: item.subtitle == null ? null : Text(item.subtitle!),
         trailing: FutureBuilder<String>(
           future: item.versionFuture(),
           builder: (context, snap) {
@@ -331,7 +341,10 @@ class _SettingsMaterialPageState extends State<SettingsMaterialPage> {
               onTap: item.onTap,
               child: Text(
                 snap.data!,
-                style: const TextStyle(fontFamily: 'monospace'),
+                style: AppTheme.monoFont.copyWith(
+                  fontSize: 13,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
               ),
             );
           },
@@ -343,14 +356,15 @@ class _SettingsMaterialPageState extends State<SettingsMaterialPage> {
       return ListTile(
         leading: _iconSquare(context, item.icon),
         title: Text(item.title),
+        subtitle: item.subtitle == null ? null : Text(item.subtitle!),
         trailing: GestureDetector(
           onTap: item.onTap,
           child: Text(
             item.value,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontFamily: 'monospace',
+            style: AppTheme.monoFont.copyWith(
+              fontSize: 13,
               color: Theme.of(context).colorScheme.primary,
             ),
           ),
@@ -384,7 +398,7 @@ class _SettingsMaterialPageState extends State<SettingsMaterialPage> {
         child: Text(
           item.title,
           style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
         ),
       );

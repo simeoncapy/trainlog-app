@@ -332,6 +332,9 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
+  String get settingsCacheTitle => 'キャッシュされたデータ';
+
+  @override
   String get settingsCacheClearButton => '消す';
 
   @override
