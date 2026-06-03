@@ -216,7 +216,7 @@ class _ExploreGrid extends StatelessWidget {
       physics: const NeverScrollableScrollPhysics(),
       crossAxisSpacing: 12,
       mainAxisSpacing: 12,
-      childAspectRatio: 1.35,
+      childAspectRatio: 1.15,
       children: items
           .map((d) => ExploreCard(data: d, onTap: () => onPageTap(d.id)))
           .toList(),
