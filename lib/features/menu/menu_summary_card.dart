@@ -21,8 +21,8 @@ class MenuSummaryCard extends StatelessWidget {
     final auth = context.watch<TrainlogProvider>();
     final trips = context.watch<TripsProvider>();
 
-    // Reverse-of-theme background: always dark/navy feel.
-    final cardBg = isDark ? AppColors.darkElevated : AppColors.navy;
+    // Reverse-of-theme background: navy in light, white/light in dark.
+    final cardBg = isDark ? AppColors.lightBg : AppColors.navy;
 
     return Container(
       decoration: BoxDecoration(
@@ -55,24 +55,24 @@ class _TrainlogIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Colours never change regardless of theme.
+    // Icon colours never change: amber outer circle → navy inner fill → amber icon.
     return Container(
       width: 60,
       height: 60,
       decoration: const BoxDecoration(
-        color: AppColors.navy,
+        color: AppColors.amber,
         shape: BoxShape.circle,
       ),
       padding: const EdgeInsets.all(5),
       child: Container(
         decoration: const BoxDecoration(
-          color: AppColors.amber,
+          color: AppColors.navy,
           shape: BoxShape.circle,
         ),
         padding: const EdgeInsets.all(8),
         child: SvgPicture.asset(
           'assets/icon/trainlog_icon_foreground_only.svg',
-          colorFilter: const ColorFilter.mode(AppColors.navy, BlendMode.srcIn),
+          colorFilter: const ColorFilter.mode(AppColors.amber, BlendMode.srcIn),
         ),
       ),
     );
@@ -94,16 +94,18 @@ class _CardText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Text is always on a dark/navy background, so always use near-white tones.
-    const nameColor = Colors.white;
-    const urlColor = Color(0xFFB0BEC5); // subdued white
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    // In dark mode the card is light, so text must be dark. In light mode the
+    // card is navy, so text must be white.
+    final nameColor = isDark ? AppColors.lightText : Colors.white;
+    final urlColor = isDark ? AppColors.lightText2 : const Color(0xFFB0BEC5);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           username,
-          style: const TextStyle(
+          style: TextStyle(
             color: nameColor,
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -152,12 +154,23 @@ class _TripCountState extends State<_TripCount> {
   Widget build(BuildContext context) {
     if (_count == null) return const SizedBox.shrink();
     final loc = AppLocalizations.of(context)!;
-    return Text(
-      loc.menuTripCount(_count!),
-      style: GoogleFonts.spaceMono(
-        fontSize: 12,
-        color: AppColors.amber,
-        fontWeight: FontWeight.w600,
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    // Render count in amber, the rest of the label in a subdued tone that
+    // works on both the navy (light) and white (dark) card backgrounds.
+    final subtleColor = isDark ? AppColors.lightText2 : const Color(0xFFB0BEC5);
+    final monoBase = GoogleFonts.spaceMono(fontSize: 12, fontWeight: FontWeight.w600);
+    return RichText(
+      text: TextSpan(
+        children: [
+          TextSpan(
+            text: '$_count',
+            style: monoBase.copyWith(color: AppColors.amber),
+          ),
+          TextSpan(
+            text: ' ${loc.menuTripCountLabel}',
+            style: monoBase.copyWith(color: subtleColor),
+          ),
+        ],
       ),
     );
   }

@@ -376,15 +376,16 @@ class _MenuTile extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(
           children: [
-            // Coloured square icon background
+            // Coloured square icon background — deliberately smaller than
+            // the Explore grid icons to match the list-item visual weight.
             Container(
-              width: 36,
-              height: 36,
+              width: 28,
+              height: 28,
               decoration: BoxDecoration(
                 color: data.iconBg,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(6),
               ),
-              child: Icon(data.icon, color: Colors.white, size: 18),
+              child: Icon(data.icon, color: Colors.white, size: 15),
             ),
             const SizedBox(width: 12),
             Expanded(

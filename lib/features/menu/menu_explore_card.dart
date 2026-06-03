@@ -92,7 +92,7 @@ class ExploreCard extends StatelessWidget {
             Text(
               data.label,
               style: GoogleFonts.spaceMono(
-                fontSize: 13,
+                fontSize: 15,
                 fontWeight: FontWeight.w700,
                 color: isDark ? AppColors.darkText : AppColors.lightText,
               ),
