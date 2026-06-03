@@ -177,9 +177,11 @@ class _SettingsMaterialPageState extends State<SettingsMaterialPage> {
     );
   }
 
-  // Colored rounded-square icon badge, matching the iOS Settings style.
-  Widget _iconSquare(BuildContext context, IconData icon, Color? color) {
-    final bg = color ?? Theme.of(context).colorScheme.primary;
+  // Neutral rounded-square icon badge that adapts to light/dark mode.
+  Widget _iconSquare(BuildContext context, IconData icon) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bg = isDark ? const Color(0xFF3A3A3C) : const Color(0xFFE5E5EA);
+    final fg = isDark ? const Color(0xFFEEEEF0) : const Color(0xFF3A3A3C);
     return Container(
       width: 32,
       height: 32,
@@ -187,46 +189,49 @@ class _SettingsMaterialPageState extends State<SettingsMaterialPage> {
         color: bg,
         borderRadius: BorderRadius.circular(7),
       ),
-      child: Icon(icon, color: Colors.white, size: 18),
+      child: Icon(icon, color: fg, size: 18),
     );
   }
 
-  // Bordered pill showing the currently-selected value, containing a hidden
-  // DropdownButton so the native picker still works.
+  // Bordered pill showing the selected value; contains the real DropdownButton.
   Widget _styledDropdown(
     BuildContext context, {
     required dynamic value,
     required List<dynamic> options,
     required void Function(dynamic)? onChanged,
+    bool expanded = false,
   }) {
     final cs = Theme.of(context).colorScheme;
+    final dropdown = DropdownButtonHideUnderline(
+      child: DropdownButton<dynamic>(
+        isDense: true,
+        isExpanded: expanded,
+        value: value,
+        onChanged: onChanged,
+        items: options.map<DropdownMenuItem<dynamic>>((o) {
+          final opt = o as dynamic;
+          return DropdownMenuItem<dynamic>(
+            value: opt.value,
+            child: Text(opt.label as String),
+          );
+        }).toList(),
+      ),
+    );
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
       decoration: BoxDecoration(
         border: Border.all(color: cs.outline.withOpacity(0.5)),
         borderRadius: BorderRadius.circular(6),
       ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<dynamic>(
-          isDense: true,
-          value: value,
-          onChanged: onChanged,
-          items: options.map<DropdownMenuItem<dynamic>>((o) {
-            final opt = o as dynamic;
-            return DropdownMenuItem<dynamic>(
-              value: opt.value,
-              child: Text(opt.label as String),
-            );
-          }).toList(),
-        ),
-      ),
+      child: expanded ? dropdown : IntrinsicWidth(child: dropdown),
     );
   }
 
   Widget _buildMaterialItem(BuildContext context, SettingsItemSpec item) {
     if (item is SettingsToggleSpec) {
       return ListTile(
-        leading: _iconSquare(context, item.icon, item.iconColor),
+        leading: _iconSquare(context, item.icon),
         title: Text(item.title),
         subtitle: item.subtitle == null ? null : Text(item.subtitle!),
         enabled: item.enabled,
@@ -240,7 +245,7 @@ class _SettingsMaterialPageState extends State<SettingsMaterialPage> {
     if (item is SettingsCurrencySpec) {
       final cs = Theme.of(context).colorScheme;
       return ListTile(
-        leading: _iconSquare(context, item.icon, item.iconColor),
+        leading: _iconSquare(context, item.icon),
         title: Text(item.title),
         enabled: item.enabled,
         trailing: OutlinedButton(
@@ -265,7 +270,7 @@ class _SettingsMaterialPageState extends State<SettingsMaterialPage> {
 
       if (item.materialLayout == MaterialChoiceLayout.inlineDropdown) {
         return ListTile(
-          leading: _iconSquare(context, item.icon, item.iconColor),
+          leading: _iconSquare(context, item.icon),
           title: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -275,6 +280,7 @@ class _SettingsMaterialPageState extends State<SettingsMaterialPage> {
                 value: dyn.value,
                 options: dyn.options as List,
                 onChanged: onChangedDyn,
+                expanded: true,
               ),
             ],
           ),
@@ -282,7 +288,7 @@ class _SettingsMaterialPageState extends State<SettingsMaterialPage> {
       }
 
       return ListTile(
-        leading: _iconSquare(context, item.icon, item.iconColor),
+        leading: _iconSquare(context, item.icon),
         title: Text(item.title),
         subtitle: item.subtitle == null ? null : Text(item.subtitle!),
         enabled: item.enabled,
@@ -297,7 +303,7 @@ class _SettingsMaterialPageState extends State<SettingsMaterialPage> {
 
     if (item is SettingsButtonActionSpec) {
       return ListTile(
-        leading: _iconSquare(context, item.icon, item.iconColor),
+        leading: _iconSquare(context, item.icon),
         title: Text(item.title),
         trailing: item.button,
       );
@@ -305,7 +311,7 @@ class _SettingsMaterialPageState extends State<SettingsMaterialPage> {
 
     if (item is SettingsVersionSpec) {
       return ListTile(
-        leading: _iconSquare(context, item.icon, item.iconColor),
+        leading: _iconSquare(context, item.icon),
         title: Text(item.title),
         trailing: FutureBuilder<String>(
           future: item.versionFuture(),
@@ -325,7 +331,7 @@ class _SettingsMaterialPageState extends State<SettingsMaterialPage> {
 
     if (item is SettingsStringSpec) {
       return ListTile(
-        leading: _iconSquare(context, item.icon, item.iconColor),
+        leading: _iconSquare(context, item.icon),
         title: Text(item.title),
         trailing: GestureDetector(
           onTap: item.onTap,
@@ -352,13 +358,9 @@ class _SettingsMaterialPageState extends State<SettingsMaterialPage> {
           child: Row(
             children: VehicleType.values.map((type) {
               final color = palette[type] ?? Colors.grey;
-
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: Icon(
-                  type.icon().icon,
-                  color: color,
-                ),
+                child: Icon(type.icon().icon, color: color),
               );
             }).toList(),
           ),

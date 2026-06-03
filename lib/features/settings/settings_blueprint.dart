@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart' show Icons, ThemeMode, MaterialLocalizations, showLicensePage, Colors; // only for ThemeMode type
+import 'package:flutter/material.dart' show Icons, ThemeMode, MaterialLocalizations, showLicensePage; // only for ThemeMode type
 import 'package:flutter/widgets.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/features/trainlog/egg.dart';
@@ -29,14 +29,12 @@ class SettingsSectionSpec {
 
 sealed class SettingsItemSpec {
   final IconData icon;
-  final Color? iconColor;
   final String title;
   final String? subtitle;
   final bool enabled;
 
   const SettingsItemSpec({
     required this.icon,
-    this.iconColor,
     required this.title,
     this.subtitle,
     this.enabled = true,
@@ -49,7 +47,6 @@ class SettingsToggleSpec extends SettingsItemSpec {
 
   const SettingsToggleSpec({
     required super.icon,
-    super.iconColor,
     required super.title,
     super.subtitle,
     super.enabled,
@@ -76,7 +73,6 @@ class SettingsChoiceSpec<T> extends SettingsItemSpec {
 
   const SettingsChoiceSpec({
     required super.icon,
-    super.iconColor,
     required super.title,
     super.subtitle,
     super.enabled,
@@ -94,7 +90,6 @@ class SettingsCurrencySpec extends SettingsItemSpec {
 
   const SettingsCurrencySpec({
     required super.icon,
-    super.iconColor,
     required super.title,
     super.subtitle,
     super.enabled,
@@ -108,7 +103,6 @@ class SettingsButtonActionSpec extends SettingsItemSpec {
 
   const SettingsButtonActionSpec({
     required super.icon,
-    super.iconColor,
     required super.title,
     super.subtitle,
     super.enabled,
@@ -122,7 +116,6 @@ class SettingsVersionSpec extends SettingsItemSpec {
 
   const SettingsVersionSpec({
     required super.icon,
-    super.iconColor,
     required super.title,
     super.subtitle,
     super.enabled,
@@ -137,7 +130,6 @@ class SettingsStringSpec extends SettingsItemSpec {
 
   const SettingsStringSpec({
     required super.icon,
-    super.iconColor,
     required super.title,
     super.subtitle,
     super.enabled,
@@ -257,28 +249,6 @@ List<SettingsSectionSpec> buildSettingsBlueprint({
   final iconResetOnboarding = AdaptiveIcons.refresh;
   final iconLicenses = AdaptiveIcons.license;
 
-  // --- ICON COLORS (Material only; Cupertino ignores them) ---
-  const colorTheme = Color(0xFF7C3AED);       // purple
-  const colorLanguage = Color(0xFFEA580C);    // orange
-  const colorDateFormat = Color(0xFF0891B2);  // cyan
-  const colorHourFormat = Color(0xFF6B7280);  // grey
-  const colorCurrency = Color(0xFF16A34A);    // green
-  const colorHideWarning = Color(0xFFD97706); // amber
-  const colorRadius = Color(0xFF2563EB);      // blue
-  const colorPathOrder = Color(0xFF4F46E5);   // indigo
-  const colorPalette = Color(0xFF0D9488);     // teal
-  const colorUserMarker = Color(0xFF2563EB);  // blue
-  const colorVisibility = Color(0xFF2563EB);  // blue
-  const colorLeaderboard = Color(0xFFEA580C); // orange
-  const colorFriendSearch = Color(0xFF7C3AED); // purple
-  const colorAppearGlobal = Color(0xFF0891B2); // cyan
-  const colorCache = Color(0xFFEA580C);       // orange
-  const colorDeleteAccount = Color(0xFFDC2626); // red
-  const colorVersion = Color(0xFF6B7280);     // grey
-  const colorInstance = Color(0xFF0891B2);    // cyan
-  const colorLicenses = Color(0xFF6B7280);    // grey
-  const colorDebug = Color(0xFFD97706);       // amber
-
   //final cacheLabel = l10n.settingsCache(formatNumber(context, vm.totalCacheSize));
   vm.setVisibilityHelperText(l10n); // Refresh helper text if the language has changed
 
@@ -288,7 +258,6 @@ List<SettingsSectionSpec> buildSettingsBlueprint({
       items: [
         SettingsChoiceSpec<ThemeMode>(
           icon: iconTheme,
-          iconColor: colorTheme,
           title: l10n.settingsThemeMode,
           value: settings.themeMode,
           options: themeOptions,
@@ -300,7 +269,6 @@ List<SettingsSectionSpec> buildSettingsBlueprint({
         ),
         SettingsChoiceSpec<String>(
           icon: iconLanguage,
-          iconColor: colorLanguage,
           title: l10n.settingsLanguage,
           value: settings.locale.languageCode,
           options: languages,
@@ -314,7 +282,6 @@ List<SettingsSectionSpec> buildSettingsBlueprint({
         ),
         SettingsChoiceSpec<String>(
           icon: iconDateFormat,
-          iconColor: colorDateFormat,
           title: l10n.settingsDateFormat,
           subtitle: '(${l10n.settingsExampleShort} ${formatDateTime(context, trevithickBirth, hasTime: false)})',
           value: settings.dateFormat,
@@ -327,7 +294,6 @@ List<SettingsSectionSpec> buildSettingsBlueprint({
         ),
         SettingsToggleSpec(
           icon: iconHourFormat,
-          iconColor: colorHourFormat,
           title: l10n.settingsHourFormat12,
           subtitle: '(${l10n.settingsExampleShort} ${formatDateTime(context, DateTime.now(), timeOnly: true)})',
           value: settings.hourFormat12,
@@ -335,7 +301,6 @@ List<SettingsSectionSpec> buildSettingsBlueprint({
         ),
         SettingsCurrencySpec(
           icon: iconCurrency,
-          iconColor: colorCurrency,
           title: l10n.settingsCurrency,
           currencyCode: settings.currency,
           onPick: () {
@@ -344,14 +309,12 @@ List<SettingsSectionSpec> buildSettingsBlueprint({
         ),
         SettingsToggleSpec(
           icon: iconHideWarning,
-          iconColor: colorHideWarning,
           title: l10n.settingsHideWarningMessage,
           value: settings.hideWarningMessage,
           onChanged: settings.setHideWarningMessage,
         ),
         SettingsChoiceSpec<int>(
           icon: iconRadius,
-          iconColor: colorRadius,
           title: l10n.settingsSprRadius,
           value: settings.sprRadius,
           options: radiusOptions,
@@ -369,7 +332,6 @@ List<SettingsSectionSpec> buildSettingsBlueprint({
       items: [
         SettingsChoiceSpec<PathDisplayOrder>(
           icon: iconPathOrder,
-          iconColor: colorPathOrder,
           title: l10n.settingsMapPathDisplayOrder,
           value: settings.pathDisplayOrder,
           options: orderOptions,
@@ -383,7 +345,6 @@ List<SettingsSectionSpec> buildSettingsBlueprint({
         ),
         SettingsChoiceSpec<MapColorPalette>(
           icon: iconPalette,
-          iconColor: colorPalette,
           title: l10n.settingsMapColorPalette,
           value: settings.mapColorPalette,
           options: paletteOptions,
@@ -400,7 +361,6 @@ List<SettingsSectionSpec> buildSettingsBlueprint({
         ),
         SettingsToggleSpec(
           icon: iconUserMarker,
-          iconColor: colorUserMarker,
           title: l10n.settingsDisplayUserMarker,
           value: settings.mapDisplayUserLocationMarker,
           onChanged: settings.setMapDisplayUserLocationMarker,
@@ -413,7 +373,6 @@ List<SettingsSectionSpec> buildSettingsBlueprint({
       items: [
         SettingsChoiceSpec<int>(
           icon: iconVisibility,
-          iconColor: colorVisibility,
           title: l10n.settingsAccountVisibility,
           //subtitle: vm.accountVisibilityHelperText.isEmpty ? null : vm.accountVisibilityHelperText,
           enabled: vm.accountVisibility != null,
@@ -429,7 +388,6 @@ List<SettingsSectionSpec> buildSettingsBlueprint({
         SettingsTextSpec(title: vm.accountVisibilityHelperText.isEmpty ? "" : vm.accountVisibilityHelperText),
         SettingsToggleSpec(
           icon: iconLeaderboard,
-          iconColor: colorLeaderboard,
           title: l10n.settingsAccountLeaderboard,
           enabled: vm.accountLeaderboard != null,
           value: vm.accountLeaderboard ?? false,
@@ -439,7 +397,6 @@ List<SettingsSectionSpec> buildSettingsBlueprint({
         ),
         SettingsToggleSpec(
           icon: iconFriendSearch,
-          iconColor: colorFriendSearch,
           title: l10n.settingsAccountFriendSearch,
           enabled: vm.accountFriendSearch != null,
           value: vm.accountFriendSearch ?? false,
@@ -449,7 +406,6 @@ List<SettingsSectionSpec> buildSettingsBlueprint({
         ),
         SettingsToggleSpec(
           icon: iconAppearGlobal,
-          iconColor: colorAppearGlobal,
           title: l10n.settingsAccountAppearGlobal,
           subtitle: l10n.settingsAccountAppearGlobalSubtitle,
           enabled: vm.accountAppearGlobal != null,
@@ -466,7 +422,6 @@ List<SettingsSectionSpec> buildSettingsBlueprint({
       items: [
         SettingsButtonActionSpec(
           icon: iconCache,
-          iconColor: colorCache,
           title: vm.cacheSizeLabel(l10n, context),
           enabled: vm.totalCacheSize > 0,
           button: AdaptiveButton.build(
@@ -480,7 +435,6 @@ List<SettingsSectionSpec> buildSettingsBlueprint({
         ),
         SettingsButtonActionSpec(
           icon: iconDelete,
-          iconColor: colorDeleteAccount,
           title: l10n.settingsDeleteAccount,
           button: AdaptiveButton.build(
             context: context,
@@ -498,7 +452,6 @@ List<SettingsSectionSpec> buildSettingsBlueprint({
       items: [
         SettingsStringSpec(
           icon: iconInstance,
-          iconColor: colorInstance,
           title: l10n.settingsInstanceUrl,
           value: trainlog.instanceUrl,
           onTap: () {
@@ -511,7 +464,6 @@ List<SettingsSectionSpec> buildSettingsBlueprint({
         ),
         SettingsVersionSpec(
           icon: iconVersion,
-          iconColor: colorVersion,
           title: l10n.appVersion,
           versionFuture: vm.getVersionString,
           onTap: () {
@@ -526,7 +478,6 @@ List<SettingsSectionSpec> buildSettingsBlueprint({
         ),
         SettingsButtonActionSpec(
           icon: iconLicenses,
-          iconColor: colorLicenses,
           title: l10n.settingsLicenses,
           button: AdaptiveButton.build(
             context: context,
@@ -547,7 +498,6 @@ List<SettingsSectionSpec> buildSettingsBlueprint({
         if (kDebugMode)
           SettingsButtonActionSpec(
             icon: iconResetOnboarding,
-            iconColor: colorDebug,
             title: "Reset Onboarding (debug)",
             button: AdaptiveButton.build(
               context: context,
@@ -562,7 +512,6 @@ List<SettingsSectionSpec> buildSettingsBlueprint({
         if (kDebugMode)
           SettingsButtonActionSpec(
             icon: iconResetOnboarding,
-            iconColor: colorDeleteAccount,
             title: "Throw Test Exception",
             button: AdaptiveButton.build(
               context: context,

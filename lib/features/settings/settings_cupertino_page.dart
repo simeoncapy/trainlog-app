@@ -216,13 +216,28 @@ class _SettingsCupertinoPageState extends State<SettingsCupertinoPage> {
     );
   }
 
+  // Neutral rounded-square icon badge, adapts to light/dark via CupertinoColors.
+  Widget _iconSquare(BuildContext context, IconData icon) {
+    final bg = CupertinoColors.systemGrey5.resolveFrom(context);
+    final fg = CupertinoColors.label.resolveFrom(context);
+    return Container(
+      width: 32,
+      height: 32,
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(7),
+      ),
+      child: Icon(icon, color: fg, size: 18),
+    );
+  }
+
   Widget _buildCupertinoItem(SettingsItemSpec item) {
     // --- Toggle ---
     if (item is SettingsToggleSpec) {
       final canChange = item.enabled && item.onChanged != null;
 
       return CupertinoListTile(
-        leading: Icon(item.icon),
+        leading: _iconSquare(context, item.icon),
         title: Text(item.title),
         subtitle: item.subtitle == null ? null : Text(item.subtitle!),
         trailing: CupertinoSwitch(
@@ -250,7 +265,7 @@ class _SettingsCupertinoPageState extends State<SettingsCupertinoPage> {
       }();
 
       return CupertinoListTile(
-        leading: Icon(item.icon),
+        leading: _iconSquare(context, item.icon),
         title: Text(item.title),
         subtitle: item.subtitle == null ? null : Text(item.subtitle!),
         additionalInfo: ConstrainedBox(
@@ -269,7 +284,7 @@ class _SettingsCupertinoPageState extends State<SettingsCupertinoPage> {
     // --- Currency (push iOS currency picker page) ---
     if (item is SettingsCurrencySpec) {
       return CupertinoListTile(
-        leading: Icon(item.icon),
+        leading: _iconSquare(context, item.icon),
         title: Text(item.title),
         additionalInfo: Text(item.currencyCode),
         trailing: const CupertinoListTileChevron(),
@@ -305,7 +320,7 @@ class _SettingsCupertinoPageState extends State<SettingsCupertinoPage> {
     // --- Danger actions ---
     if (item is SettingsButtonActionSpec) {
       return CupertinoListTile(
-        leading: Icon(item.icon),
+        leading: _iconSquare(context, item.icon),
         title: Text(item.title,),
         trailing: item.button,
       );
@@ -319,7 +334,7 @@ class _SettingsCupertinoPageState extends State<SettingsCupertinoPage> {
           final version = snap.data ?? '';
 
           return CupertinoListTile(
-            leading: Icon(item.icon),
+            leading: _iconSquare(context, item.icon),
             title: Text(item.title),
             additionalInfo: Text(version),
             onTap: item.onTap,
@@ -330,7 +345,7 @@ class _SettingsCupertinoPageState extends State<SettingsCupertinoPage> {
 
     if (item is SettingsStringSpec) {
       return CupertinoListTile(
-        leading: Icon(item.icon),
+        leading: _iconSquare(context, item.icon),
         title: Text(item.title),
         additionalInfo: Text(item.value),
         onTap: item.onTap,
