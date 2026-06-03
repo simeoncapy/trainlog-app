@@ -138,6 +138,18 @@
   "menuSettingsTitle": "設定",
   "menuAboutTitle": "ついて",
   "menuIosMore": "もっと",
+  "menuYouTitle": "あなた",
+  "menuExploreSectionTitle": "探索",
+  "menuMenuSectionTitle": "メニュー",
+  "menuInboxTitle": "受信トレイ",
+  "menuTripCountLabel": "件の旅程",
+  "menuTripCount": "{count, plural, =0 {旅程なし} =1 {1件の旅程} other {{count}件の旅程}}",
+  "@menuTripCount": {
+    "description": "メニューのサマリーカードに表示される旅程数",
+    "placeholders": {
+      "count": {}
+    }
+  },
 
   "mapFilterYearsAllBtn": "全て",
   "mapFilterYearsNoneBtn": "なし",

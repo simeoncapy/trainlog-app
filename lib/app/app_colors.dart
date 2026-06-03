@@ -118,4 +118,15 @@ abstract final class AppColors {
 
   /// Walk
   static const Color modeWalk = Color(0xFF9E9E9E);
+
+  // ── Extra accent colours ─────────────────────────────────────────────────
+
+  /// Violet · accent  #7C3AED
+  static const Color violet = Color(0xFF7C3AED);
+
+  /// Violet tint  #EDE9FE
+  static const Color violetSoft = Color(0xFFEDE9FE);
+
+  /// Early / success (shared alias for green)
+  static const Color early = successLight;
 }

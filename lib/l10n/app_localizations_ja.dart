@@ -438,6 +438,33 @@ class AppLocalizationsJa extends AppLocalizations {
   String get menuIosMore => 'もっと';
 
   @override
+  String get menuYouTitle => 'あなた';
+
+  @override
+  String get menuExploreSectionTitle => '探索';
+
+  @override
+  String get menuMenuSectionTitle => 'メニュー';
+
+  @override
+  String get menuInboxTitle => '受信トレイ';
+
+  @override
+  String get menuTripCountLabel => '件の旅程';
+
+  @override
+  String menuTripCount(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count件の旅程',
+      one: '1件の旅程',
+      zero: '旅程なし',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get mapFilterYearsAllBtn => '全て';
 
   @override

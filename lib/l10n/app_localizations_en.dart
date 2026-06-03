@@ -447,6 +447,33 @@ class AppLocalizationsEn extends AppLocalizations {
   String get menuIosMore => 'More';
 
   @override
+  String get menuYouTitle => 'You';
+
+  @override
+  String get menuExploreSectionTitle => 'EXPLORE';
+
+  @override
+  String get menuMenuSectionTitle => 'MENU';
+
+  @override
+  String get menuInboxTitle => 'Inbox';
+
+  @override
+  String get menuTripCountLabel => 'trips';
+
+  @override
+  String menuTripCount(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count trips',
+      one: '1 trip',
+      zero: 'No trips yet',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get mapFilterYearsAllBtn => 'All';
 
   @override

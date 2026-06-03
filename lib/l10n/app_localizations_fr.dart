@@ -453,6 +453,33 @@ class AppLocalizationsFr extends AppLocalizations {
   String get menuIosMore => 'Plus';
 
   @override
+  String get menuYouTitle => 'Vous';
+
+  @override
+  String get menuExploreSectionTitle => 'EXPLORER';
+
+  @override
+  String get menuMenuSectionTitle => 'MENU';
+
+  @override
+  String get menuInboxTitle => 'Boîte de réception';
+
+  @override
+  String get menuTripCountLabel => 'trajets';
+
+  @override
+  String menuTripCount(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count trajets',
+      one: '1 trajet',
+      zero: 'Aucun trajet',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get mapFilterYearsAllBtn => 'Toutes';
 
   @override

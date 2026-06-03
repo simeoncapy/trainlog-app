@@ -8,8 +8,10 @@ import 'package:trainlog_app/platform/adaptive_app_bar.dart';
 import 'package:trainlog_app/platform/adaptive_bottom_navbar.dart';
 import 'package:trainlog_app/services/android_update_service.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
-import 'package:trainlog_app/widgets/menu_header.dart';
 
+import 'package:trainlog_app/features/menu/full_screen_menu_page.dart';
+import 'package:trainlog_app/features/trainlog/inbox_page.dart';
+import 'package:trainlog_app/features/trainlog/trainlog_status_page.dart';
 import 'package:trainlog_app/features/about/about_page.dart';
 import 'package:trainlog_app/features/user/coverage_page.dart';
 import 'package:trainlog_app/features/user/dashboard_page.dart';
@@ -254,6 +256,47 @@ class _MaterialShellState extends State<MaterialShell> {
 
   void _goBackToBottomNavPage() => _onItemTapped(_previousBottomIndex);
 
+  void _openFullScreenMenu(BuildContext context) {
+    Navigator.of(context).push(
+      PageRouteBuilder(
+        opaque: true,
+        pageBuilder: (ctx, _, __) => FullScreenMenuPage(
+          onClose: () => Navigator.of(ctx).pop(),
+          onSettingsTap: () {
+            Navigator.of(ctx).pop();
+            _onItemTapped(_indexOf(AppPageId.settings));
+          },
+          onPageTap: (id) {
+            Navigator.of(ctx).pop();
+            _onItemTapped(_indexOf(id));
+          },
+          onInboxTap: () {
+            Navigator.of(ctx).pop();
+            Navigator.of(context).push(PageRouteBuilder(
+              pageBuilder: (_, __, ___) => const InboxPage(),
+              transitionDuration: Duration.zero,
+              reverseTransitionDuration: Duration.zero,
+            ));
+          },
+          onTrainlogStatusTap: () {
+            Navigator.of(ctx).pop();
+            Navigator.of(context).push(PageRouteBuilder(
+              pageBuilder: (_, __, ___) => const TrainlogStatusPage(),
+              transitionDuration: Duration.zero,
+              reverseTransitionDuration: Duration.zero,
+            ));
+          },
+        ),
+        transitionsBuilder: (_, animation, __, child) => FadeTransition(
+          opacity: animation,
+          child: child,
+        ),
+        transitionDuration: const Duration(milliseconds: 200),
+        reverseTransitionDuration: const Duration(milliseconds: 150),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final currentPage = _pages[_selectedIndex];
@@ -262,10 +305,6 @@ class _MaterialShellState extends State<MaterialShell> {
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
         if (didPop) return;
-        if (_scaffoldKey.currentState?.isDrawerOpen == true) {
-          _scaffoldKey.currentState!.closeDrawer();
-          return;
-        }
         if (_isDrawerPage) {
           _goBackToBottomNavPage();
           return;
@@ -304,41 +343,7 @@ class _MaterialShellState extends State<MaterialShell> {
           builder: (_, actions, __) => MaterialPrimaryActionsFabStack(actions: actions),
         ),
 
-        drawer: _isDrawerPage
-            ? null
-            : Drawer(
-                child: Column(
-                  children: [
-                    Container(
-                      decoration: const BoxDecoration(
-                        border: Border.symmetric(
-                          horizontal: BorderSide(color: Color(0xFF3772FF), width: 20),
-                        ),
-                      ),
-                      child: const DrawerHeader(
-                        margin: EdgeInsets.all(0),
-                        decoration: BoxDecoration(color: Color(0xFF14213D)),
-                        child: MenuHeader(),
-                      ),
-                    ),
-                    Expanded(
-                      child: ListView(
-                        padding: EdgeInsets.zero,
-                        children: [
-                          _buildDrawerItem(context, _indexOf(AppPageId.dashboard)),
-                          _buildDrawerItem(context, _indexOf(AppPageId.tags)),
-                          _buildDrawerItem(context, _indexOf(AppPageId.tickets)),
-                          //_buildDrawerItem(context, _indexOf(AppPageId.friends)), TODO
-                          _buildDrawerItem(context, _indexOf(AppPageId.smartPrerecorder)),
-                        ],
-                      ),
-                    ),
-                    const Divider(),
-                    _buildDrawerItem(context, _indexOf(AppPageId.about)),
-                    _buildDrawerItem(context, _indexOf(AppPageId.settings)),
-                  ],
-                ),
-              ),
+        drawer: null,
 
         body: Stack(
           children: [
@@ -348,30 +353,28 @@ class _MaterialShellState extends State<MaterialShell> {
               children: _pages.map((p) => p.view).toList(),
             ),
 
-            // Your custom hamburger overlay for bottom-tab pages
+            // Hamburger overlay for bottom-tab pages — opens the full-screen menu
             if (!_isDrawerPage)
               Positioned(
                 top: 16,
                 left: 16,
-                child: Builder(
-                  builder: (innerContext) => Container(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surfaceBright,
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: Theme.of(context).colorScheme.primary,
-                        width: 2,
-                      ),
-                      boxShadow: const [
-                        BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(2, 2)),
-                      ],
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surfaceBright,
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Theme.of(context).colorScheme.primary,
+                      width: 2,
                     ),
-                    child: IconButton(
-                      icon: const Icon(Icons.menu),
-                      color: Theme.of(context).colorScheme.onSurface,
-                      tooltip: AppLocalizations.of(context)!.mainMenuButtonTooltip,
-                      onPressed: () => Scaffold.of(innerContext).openDrawer(),
-                    ),
+                    boxShadow: const [
+                      BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(2, 2)),
+                    ],
+                  ),
+                  child: IconButton(
+                    icon: const Icon(Icons.menu),
+                    color: Theme.of(context).colorScheme.onSurface,
+                    tooltip: AppLocalizations.of(context)!.mainMenuButtonTooltip,
+                    onPressed: () => _openFullScreenMenu(context),
                   ),
                 ),
               ),
