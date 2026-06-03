@@ -334,11 +334,14 @@ class AppLocalizationsTl extends AppLocalizations {
 
   @override
   String settingsCache(Object size) {
-    return 'Cached data ($size MiB)';
+    return '$size MiB';
   }
 
   @override
   String get settingsCacheClearButton => 'Ibura';
+
+  @override
+  String get settingsCacheTitle => 'Naka-cache na data';
 
   @override
   String get settingsCacheClearConfirmTitle => 'Ibura ang cache?';

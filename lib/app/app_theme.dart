@@ -22,7 +22,7 @@ abstract final class AppTheme {
     const colorScheme = ColorScheme(
       brightness: Brightness.light,
       primary: AppColors.amber,
-      onPrimary: Colors.white,
+      onPrimary: AppColors.navy,
       primaryContainer: AppColors.amberSoft,
       onPrimaryContainer: AppColors.navy,
       secondary: AppColors.blue,
@@ -72,12 +72,12 @@ abstract final class AppTheme {
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.amber,
-          foregroundColor: Colors.white,
+          foregroundColor: AppColors.navy,
         ),
       ),
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
         backgroundColor: AppColors.amber,
-        foregroundColor: Colors.white,
+        foregroundColor: AppColors.navy,
       ),
       chipTheme: ChipThemeData(
         backgroundColor: AppColors.lightSurface,

@@ -40,25 +40,47 @@ class AdaptiveButton {
     BorderRadius? borderRadius,
   }) {
 
-    final style = ElevatedButton.styleFrom(
-      backgroundColor: backgroundColor,
-      foregroundColor: foregroundColor,
-      padding: padding,
-      minimumSize: minimumSize,
-      elevation: elevation ?? (type == AdaptiveButtonType.destructive ? 1 : null),
-      shape: borderRadius != null
-          ? RoundedRectangleBorder(borderRadius: borderRadius)
-          : null,
-    );
+    final effectiveRadius = borderRadius ?? BorderRadius.circular(6);
+    final shape = RoundedRectangleBorder(borderRadius: effectiveRadius);
+
+    // Use FilledButton when a background color is explicitly requested so the
+    // color is always fully visible (M3 ElevatedButton surface-tints instead).
+    final bool useFilled = backgroundColor != null;
+
+    final style = useFilled
+        ? FilledButton.styleFrom(
+            backgroundColor: backgroundColor,
+            foregroundColor: foregroundColor,
+            padding: padding,
+            minimumSize: minimumSize,
+            shape: shape,
+          )
+        : ElevatedButton.styleFrom(
+            backgroundColor: backgroundColor,
+            foregroundColor: foregroundColor,
+            padding: padding,
+            minimumSize: minimumSize,
+            elevation: elevation,
+            shape: shape,
+          );
 
     final Widget? effectiveIcon = iconWidget ?? (icon != null ? Icon(icon) : null);
 
     if (effectiveIcon != null) {
-      if(child == null) {
+      if (child == null) {
         return IconButton(
           icon: effectiveIcon,
-          style: style, //tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          style: style,
           onPressed: onPressed,
+        );
+      }
+
+      if (useFilled) {
+        return FilledButton.icon(
+          onPressed: onPressed,
+          icon: effectiveIcon,
+          label: child,
+          style: style,
         );
       }
 
@@ -67,6 +89,14 @@ class AdaptiveButton {
         icon: effectiveIcon,
         label: child,
         style: style,
+      );
+    }
+
+    if (useFilled) {
+      return FilledButton(
+        onPressed: onPressed,
+        style: style,
+        child: child,
       );
     }
 

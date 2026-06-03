@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/navigation/nav_models.dart';
-import 'package:trainlog_app/features/settings/settings_material_page.dart';
+import 'package:trainlog_app/features/settings/settings_page.dart';
 import 'package:trainlog_app/platform/adaptive_app_bar.dart';
 import 'package:trainlog_app/platform/adaptive_bottom_navbar.dart';
 import 'package:trainlog_app/services/android_update_service.dart';
@@ -206,7 +206,7 @@ class _MaterialShellState extends State<MaterialShell> {
       ),
       AppPage(
         id: AppPageId.settings,
-        view: const SettingsMaterialPage(),
+        view: const SettingsPage(),
         titleBuilder: (c) => AppLocalizations.of(c)!.menuSettingsTitle,
         icon: AdaptiveIcons.settings,
       ),

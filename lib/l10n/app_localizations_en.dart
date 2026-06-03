@@ -337,11 +337,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String settingsCache(Object size) {
-    return 'Cached data ($size MiB)';
+    return '$size MiB';
   }
 
   @override
   String get settingsCacheClearButton => 'Clear';
+
+  @override
+  String get settingsCacheTitle => 'Cached data';
 
   @override
   String get settingsCacheClearConfirmTitle => 'Clear cache?';

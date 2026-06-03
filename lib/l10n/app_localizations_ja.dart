@@ -328,11 +328,14 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String settingsCache(Object size) {
-    return 'キャッシュされたデータ ($size MiB)';
+    return '$size MiB';
   }
 
   @override
   String get settingsCacheClearButton => '消す';
+
+  @override
+  String get settingsCacheTitle => 'キャッシュされたデータ';
 
   @override
   String get settingsCacheClearConfirmTitle => 'キャッシュを消しますか?';
