@@ -63,6 +63,7 @@ class ExploreCard extends StatelessWidget {
         padding: const EdgeInsets.all(14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           mainAxisSize: MainAxisSize.max,
           children: [
             // Solid-colour icon square + top-right arrow
@@ -82,12 +83,11 @@ class ExploreCard extends StatelessWidget {
                 Icon(Icons.chevron_right, size: 20, color: cs.onSurfaceVariant),
               ],
             ),
-            const Spacer(),
-            // Title in Space Mono — capped at 2 lines so long translations
-            // (e.g. French) never overflow the fixed card height.
+            // Title in Space Mono — single line with ellipsis so the card
+            // never overflows on very small screens.
             Text(
               data.label,
-              maxLines: 2,
+              maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: GoogleFonts.spaceMono(
                 fontSize: 14,
