@@ -296,6 +296,14 @@ class _SettingsPageState extends State<SettingsPage> {
           orElse: () => languageOptions.first,
         )
         .label;
+
+    final dateFormatName = dateFormatOptions
+        .firstWhere(
+          (o) => o.value == settings.dateFormat,
+          orElse: () => dateFormatOptions.first,
+        )
+        .label; 
+    
     final dateExample = formatDateTime(ctx, trevithickBirth, hasTime: false);
     final timeExample = formatDateTime(ctx, DateTime.now(), timeOnly: true);
     final radiusName = radiusOptions
@@ -329,7 +337,7 @@ class _SettingsPageState extends State<SettingsPage> {
         icon: AdaptiveIcons.date,
         title: l10n.settingsDateFormat,
         subtitle: '(${l10n.settingsExampleShort} $dateExample)',
-        trailing: _chevronTrailing(ctx, settings.dateFormat),
+        trailing: _chevronTrailing(ctx, dateFormatName),
         onTap: () => _showPicker<String>(
           context: ctx,
           title: l10n.settingsDateFormat,
@@ -555,7 +563,7 @@ class _SettingsPageState extends State<SettingsPage> {
         subtitle: _vm.cacheSizeLabel(l10n, ctx),
         enabled: _vm.totalCacheSize > 0,
         trailing: AdaptiveDestructiveButton(
-                  onPressed: () => _vm.totalCacheSize > 0 ? _confirmAndClearCache : null,
+                  onPressed: () => _vm.totalCacheSize > 0 ? _confirmAndClearCache() : null,
                 ),
       ),
       SettingsTile(
