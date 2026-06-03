@@ -112,10 +112,9 @@ class _SettingsMaterialPageState extends State<SettingsMaterialPage> {
 
     final settings = context.watch<SettingsProvider>();
     final trainlog = context.read<TrainlogProvider>();
-    final tripsProvider = context.read<TripsProvider>();    
+    final tripsProvider = context.read<TripsProvider>();
 
     return Scaffold(
-      //appBar: AppBar(title: Text(l10n.menuSettingsTitle)),
       body: AnimatedBuilder(
         animation: _vm,
         builder: (ctx, _) {
@@ -178,10 +177,56 @@ class _SettingsMaterialPageState extends State<SettingsMaterialPage> {
     );
   }
 
+  // Colored rounded-square icon badge, matching the iOS Settings style.
+  Widget _iconSquare(BuildContext context, IconData icon, Color? color) {
+    final bg = color ?? Theme.of(context).colorScheme.primary;
+    return Container(
+      width: 32,
+      height: 32,
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(7),
+      ),
+      child: Icon(icon, color: Colors.white, size: 18),
+    );
+  }
+
+  // Bordered pill showing the currently-selected value, containing a hidden
+  // DropdownButton so the native picker still works.
+  Widget _styledDropdown(
+    BuildContext context, {
+    required dynamic value,
+    required List<dynamic> options,
+    required void Function(dynamic)? onChanged,
+  }) {
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+      decoration: BoxDecoration(
+        border: Border.all(color: cs.outline.withOpacity(0.5)),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<dynamic>(
+          isDense: true,
+          value: value,
+          onChanged: onChanged,
+          items: options.map<DropdownMenuItem<dynamic>>((o) {
+            final opt = o as dynamic;
+            return DropdownMenuItem<dynamic>(
+              value: opt.value,
+              child: Text(opt.label as String),
+            );
+          }).toList(),
+        ),
+      ),
+    );
+  }
+
   Widget _buildMaterialItem(BuildContext context, SettingsItemSpec item) {
     if (item is SettingsToggleSpec) {
       return ListTile(
-        leading: Icon(item.icon),
+        leading: _iconSquare(context, item.icon, item.iconColor),
         title: Text(item.title),
         subtitle: item.subtitle == null ? null : Text(item.subtitle!),
         enabled: item.enabled,
@@ -193,12 +238,18 @@ class _SettingsMaterialPageState extends State<SettingsMaterialPage> {
     }
 
     if (item is SettingsCurrencySpec) {
+      final cs = Theme.of(context).colorScheme;
       return ListTile(
-        leading: Icon(item.icon),
+        leading: _iconSquare(context, item.icon, item.iconColor),
         title: Text(item.title),
         enabled: item.enabled,
         trailing: OutlinedButton(
           onPressed: item.enabled ? item.onPick : null,
+          style: OutlinedButton.styleFrom(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+            side: BorderSide(color: cs.outline.withOpacity(0.5)),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          ),
           child: Text(item.currencyCode),
         ),
       );
@@ -214,22 +265,16 @@ class _SettingsMaterialPageState extends State<SettingsMaterialPage> {
 
       if (item.materialLayout == MaterialChoiceLayout.inlineDropdown) {
         return ListTile(
-          leading: Icon(item.icon),
+          leading: _iconSquare(context, item.icon, item.iconColor),
           title: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(item.title, style: Theme.of(context).textTheme.bodyMedium),
-              DropdownButton<dynamic>(
-                isExpanded: true,
+              _styledDropdown(
+                context,
                 value: dyn.value,
+                options: dyn.options as List,
                 onChanged: onChangedDyn,
-                items: (dyn.options as List).map<DropdownMenuItem<dynamic>>((o) {
-                  final opt = o as dynamic;
-                  return DropdownMenuItem<dynamic>(
-                    value: opt.value,
-                    child: Text(opt.label),
-                  );
-                }).toList(),
               ),
             ],
           ),
@@ -237,27 +282,22 @@ class _SettingsMaterialPageState extends State<SettingsMaterialPage> {
       }
 
       return ListTile(
-        leading: Icon(item.icon),
+        leading: _iconSquare(context, item.icon, item.iconColor),
         title: Text(item.title),
         subtitle: item.subtitle == null ? null : Text(item.subtitle!),
         enabled: item.enabled,
-        trailing: DropdownButton<dynamic>(
+        trailing: _styledDropdown(
+          context,
           value: dyn.value,
+          options: dyn.options as List,
           onChanged: onChangedDyn,
-          items: (dyn.options as List).map<DropdownMenuItem<dynamic>>((o) {
-            final opt = o as dynamic;
-            return DropdownMenuItem<dynamic>(
-              value: opt.value,
-              child: Text(opt.label),
-            );
-          }).toList(),
         ),
       );
     }
 
     if (item is SettingsButtonActionSpec) {
       return ListTile(
-        leading: Icon(item.icon),
+        leading: _iconSquare(context, item.icon, item.iconColor),
         title: Text(item.title),
         trailing: item.button,
       );
@@ -265,7 +305,7 @@ class _SettingsMaterialPageState extends State<SettingsMaterialPage> {
 
     if (item is SettingsVersionSpec) {
       return ListTile(
-        leading: Icon(item.icon),
+        leading: _iconSquare(context, item.icon, item.iconColor),
         title: Text(item.title),
         trailing: FutureBuilder<String>(
           future: item.versionFuture(),
@@ -273,7 +313,10 @@ class _SettingsMaterialPageState extends State<SettingsMaterialPage> {
             if (!snap.hasData) return const SizedBox.shrink();
             return GestureDetector(
               onTap: item.onTap,
-              child: Text(snap.data!),
+              child: Text(
+                snap.data!,
+                style: const TextStyle(fontFamily: 'monospace'),
+              ),
             );
           },
         ),
@@ -282,7 +325,7 @@ class _SettingsMaterialPageState extends State<SettingsMaterialPage> {
 
     if (item is SettingsStringSpec) {
       return ListTile(
-        leading: Icon(item.icon),
+        leading: _iconSquare(context, item.icon, item.iconColor),
         title: Text(item.title),
         trailing: GestureDetector(
           onTap: item.onTap,
@@ -290,7 +333,11 @@ class _SettingsMaterialPageState extends State<SettingsMaterialPage> {
             item.value,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
-          )
+            style: TextStyle(
+              fontFamily: 'monospace',
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          ),
         ),
       );
     }
