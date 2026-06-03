@@ -240,16 +240,21 @@ class _ExploreGrid extends StatelessWidget {
       ),
     ];
 
-    return GridView.count(
-      crossAxisCount: 2,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      crossAxisSpacing: 12,
-      mainAxisSpacing: 12,
-      childAspectRatio: 1.15,
-      children: items
-          .map((d) => ExploreCard(data: d, onTap: () => onPageTap(d.id)))
-          .toList(),
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 520),
+        child: GridView.count(
+          crossAxisCount: 2,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 12,
+          childAspectRatio: 1.15,
+          children: items
+              .map((d) => ExploreCard(data: d, onTap: () => onPageTap(d.id)))
+              .toList(),
+        ),
+      ),
     );
   }
 }
