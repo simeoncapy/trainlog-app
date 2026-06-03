@@ -167,6 +167,17 @@
   "menuSettingsTitle": "Settings",
   "menuAboutTitle": "About",
   "menuIosMore": "More",
+  "menuYouTitle": "You",
+  "menuExploreSectionTitle": "EXPLORE",
+  "menuMenuSectionTitle": "MENU",
+  "menuInboxTitle": "Inbox",
+  "menuTripCount": "{count, plural, =0 {No trips yet} =1 {1 trip} other {{count} trips}}",
+  "@menuTripCount": {
+    "description": "Number of trips shown in the menu summary card",
+    "placeholders": {
+      "count": {}
+    }
+  },
 
   "mapFilterYearsAllBtn": "All",
   "mapFilterYearsNoneBtn": "None",
