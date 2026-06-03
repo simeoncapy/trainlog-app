@@ -438,6 +438,7 @@ class _SettingsPageState extends State<SettingsPage> {
         icon: AdaptiveIcons.palette,
         title: l10n.settingsMapColorPalette,
         trailing: _chevronTrailing(ctx, paletteName),
+        noDivider: true,
         onTap: () => _showPicker<MapColorPalette>(
           context: ctx,
           title: l10n.settingsMapColorPalette,

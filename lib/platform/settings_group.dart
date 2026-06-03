@@ -19,7 +19,10 @@ class SettingsGroup extends StatelessWidget {
         children: [
           for (int i = 0; i < children.length; i++) ...[
             children[i],
-            if (i < children.length - 1)
+            // Only insert a divider if this isn't the last child and the child
+            // is not a SettingsTile with noDivider == true.
+            if (i < children.length - 1 &&
+                !(children[i] is SettingsTile && (children[i] as SettingsTile).noDivider))
               Divider(
                 height: 1,
                 thickness: 1,
@@ -43,6 +46,7 @@ class SettingsTile extends StatelessWidget {
   final Widget? trailing;
   final VoidCallback? onTap;
   final bool enabled;
+  final bool noDivider;
 
   const SettingsTile({
     super.key,
@@ -52,6 +56,7 @@ class SettingsTile extends StatelessWidget {
     this.trailing,
     this.onTap,
     this.enabled = true,
+    this.noDivider = false,
   });
 
   @override
