@@ -104,6 +104,7 @@
   "settingsMapColorPaletteTrainlogGreen": "Vert",
   "settingsMapColorPaletteTrainlogBlue": "Bleu",
   "settingsMapColorPaletteVibrantTones": "Couleurs vives",
+  "settingsCacheTitle": "Données en cache",
   "settingsCache": "Données en cache ({size} Mio)",
   "settingsCacheClearButton" : "Vider",
   "settingsCacheClearConfirmTitle": "Vider le cache ?",

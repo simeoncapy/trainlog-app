@@ -111,6 +111,7 @@
   "settingsMapColorPaletteTrainlogGreen": "Berde",
   "settingsMapColorPaletteTrainlogBlue": "Asul",
   "settingsMapColorPaletteVibrantTones": "Matingkad na kulay",
+  "settingsCacheTitle": "Naka-cache na data",
   "settingsCache": "Cached data ({size} MiB)",
   "@settingsCache": {
     "description": "Size in mebibytes (MiB)",

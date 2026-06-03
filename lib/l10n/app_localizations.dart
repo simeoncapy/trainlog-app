@@ -732,14 +732,17 @@ abstract class AppLocalizations {
   /// **'Cached data ({size} MiB)'**
   String settingsCache(Object size);
 
-  /// No description provided for @settingsCacheTitle.
-  String get settingsCacheTitle;
-
   /// No description provided for @settingsCacheClearButton.
   ///
   /// In en, this message translates to:
   /// **'Clear'**
   String get settingsCacheClearButton;
+
+  /// No description provided for @settingsCacheTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cached data'**
+  String get settingsCacheTitle;
 
   /// No description provided for @settingsCacheClearConfirmTitle.
   ///

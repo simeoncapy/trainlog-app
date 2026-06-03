@@ -103,6 +103,7 @@
   "settingsMapColorPaletteTrainlogGreen": "緑",
   "settingsMapColorPaletteTrainlogBlue": "青",
   "settingsMapColorPaletteVibrantTones": "鮮やかな色合い",
+  "settingsCacheTitle": "キャッシュされたデータ",
   "settingsCache": "キャッシュされたデータ ({size} MiB)",
   "settingsCacheClearButton" : "消す",
   "settingsCacheClearConfirmTitle": "キャッシュを消しますか?",

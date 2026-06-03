@@ -342,10 +342,10 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get settingsCacheTitle => 'Données en cache';
+  String get settingsCacheClearButton => 'Vider';
 
   @override
-  String get settingsCacheClearButton => 'Vider';
+  String get settingsCacheTitle => 'Données en cache';
 
   @override
   String get settingsCacheClearConfirmTitle => 'Vider le cache ?';

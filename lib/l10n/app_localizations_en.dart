@@ -341,10 +341,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get settingsCacheTitle => 'Cached data';
+  String get settingsCacheClearButton => 'Clear';
 
   @override
-  String get settingsCacheClearButton => 'Clear';
+  String get settingsCacheTitle => 'Cached data';
 
   @override
   String get settingsCacheClearConfirmTitle => 'Clear cache?';
