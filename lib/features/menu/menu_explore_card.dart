@@ -78,7 +78,7 @@ class ExploreCard extends StatelessWidget {
                   child: Icon(data.icon, color: Colors.white, size: 20),
                 ),
                 const Spacer(),
-                Icon(Icons.arrow_outward, size: 16, color: cs.onSurfaceVariant),
+                Icon(Icons.chevron_right, size: 20, color: cs.onSurfaceVariant),
               ],
             ),
             const Spacer(),

@@ -446,6 +446,33 @@ class AppLocalizationsTl extends AppLocalizations {
   String get menuIosMore => 'More';
 
   @override
+  String get menuYouTitle => 'Ikaw';
+
+  @override
+  String get menuExploreSectionTitle => 'TUKLASIN';
+
+  @override
+  String get menuMenuSectionTitle => 'MENU';
+
+  @override
+  String get menuInboxTitle => 'Inbox';
+
+  @override
+  String get menuTripCountLabel => 'biyahe';
+
+  @override
+  String menuTripCount(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count biyahe',
+      one: '1 biyahe',
+      zero: 'Walang biyahe',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get mapFilterYearsAllBtn => 'Lahat';
 
   @override

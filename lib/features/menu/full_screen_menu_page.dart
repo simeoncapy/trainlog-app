@@ -260,7 +260,7 @@ class _MenuBlock extends StatelessWidget {
       ),
       _MenuItemData(
         icon: AdaptiveIcons.info,
-        iconBg: AppColors.navy,
+        iconBg: Colors.grey,
         label: loc.menuAboutTitle,
         onTap: onAboutTap,
       ),

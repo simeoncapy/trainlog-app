@@ -930,6 +930,42 @@ abstract class AppLocalizations {
   /// **'More'**
   String get menuIosMore;
 
+  /// No description provided for @menuYouTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You'**
+  String get menuYouTitle;
+
+  /// No description provided for @menuExploreSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'EXPLORE'**
+  String get menuExploreSectionTitle;
+
+  /// No description provided for @menuMenuSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'MENU'**
+  String get menuMenuSectionTitle;
+
+  /// No description provided for @menuInboxTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Inbox'**
+  String get menuInboxTitle;
+
+  /// No description provided for @menuTripCountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'trips'**
+  String get menuTripCountLabel;
+
+  /// Number of trips shown in the menu summary card
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0 {No trips yet} =1 {1 trip} other {{count} trips}}'**
+  String menuTripCount(num count);
+
   /// No description provided for @mapFilterYearsAllBtn.
   ///
   /// In en, this message translates to:
