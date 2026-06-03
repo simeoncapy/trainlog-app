@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/app/app_colors.dart';
+import 'package:trainlog_app/features/menu/menu_explore_card.dart';
+import 'package:trainlog_app/features/menu/menu_summary_card.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/navigation/nav_models.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
@@ -10,9 +10,9 @@ import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 
-/// A full-screen menu that replaces the legacy Drawer on Android and provides
-/// a future entry point for iOS.
-class FullScreenMenuPage extends StatefulWidget {
+/// Full-screen menu replacing the legacy Drawer on Android.
+/// Provides a clean entry point for iOS too (wire up from the iOS shell when ready).
+class FullScreenMenuPage extends StatelessWidget {
   final VoidCallback onClose;
   final VoidCallback onSettingsTap;
   final void Function(AppPageId id) onPageTap;
@@ -29,27 +29,25 @@ class FullScreenMenuPage extends StatefulWidget {
   });
 
   @override
-  State<FullScreenMenuPage> createState() => _FullScreenMenuPageState();
-}
-
-class _FullScreenMenuPageState extends State<FullScreenMenuPage> {
-  @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    // Reversed from usual: the page background is the "surface" tone (beige in
+    // light, deep dark in dark) so that white/elevated cards pop above it.
+    final scaffoldBg = isDark ? AppColors.darkBg : AppColors.lightSurface;
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.darkBg : AppColors.lightBg,
+      backgroundColor: scaffoldBg,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _TopBar(
-              onClose: widget.onClose,
-              onSettings: widget.onSettingsTap,
+              onClose: onClose,
+              onSettings: onSettingsTap,
               loc: loc,
-              theme: theme,
+              isDark: isDark,
             ),
             Expanded(
               child: SingleChildScrollView(
@@ -58,32 +56,32 @@ class _FullScreenMenuPageState extends State<FullScreenMenuPage> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     const SizedBox(height: 8),
-                    _SummaryCard(isDark: isDark, theme: theme),
+                    const MenuSummaryCard(),
                     const SizedBox(height: 24),
-                    _SectionHeader(label: loc.menuExploreSectionTitle, theme: theme),
+                    _SectionHeader(label: loc.menuExploreSectionTitle, isDark: isDark),
                     const SizedBox(height: 12),
-                    _ExploreGrid(onPageTap: widget.onPageTap, loc: loc),
+                    _ExploreGrid(onPageTap: onPageTap, loc: loc),
                     const SizedBox(height: 24),
-                    _SectionHeader(label: loc.menuMenuSectionTitle, theme: theme),
-                    const SizedBox(height: 4),
-                    _MenuList(
+                    _SectionHeader(label: loc.menuMenuSectionTitle, isDark: isDark),
+                    const SizedBox(height: 8),
+                    _MenuBlock(
                       loc: loc,
-                      theme: theme,
-                      onInboxTap: widget.onInboxTap,
-                      onTrainlogStatusTap: widget.onTrainlogStatusTap,
-                      onAboutTap: () => widget.onPageTap(AppPageId.about),
+                      isDark: isDark,
+                      onInboxTap: onInboxTap,
+                      onTrainlogStatusTap: onTrainlogStatusTap,
+                      onAboutTap: () => onPageTap(AppPageId.about),
                       onLogout: () async {
                         final settings = context.read<SettingsProvider>();
                         final trips = context.read<TripsProvider>();
                         final scaffMsg = ScaffoldMessenger.of(context);
-                        widget.onClose();
+                        onClose();
                         await context.read<TrainlogProvider>().logout(settings, trips);
                         scaffMsg.showSnackBar(
                           SnackBar(content: Text(loc.loggedOut)),
                         );
                       },
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 32),
                   ],
                 ),
               ),
@@ -95,197 +93,71 @@ class _FullScreenMenuPageState extends State<FullScreenMenuPage> {
   }
 }
 
-// ── Top bar ──────────────────────────────────────────────────────────────────
+// ── Top bar ───────────────────────────────────────────────────────────────────
 
 class _TopBar extends StatelessWidget {
   final VoidCallback onClose;
   final VoidCallback onSettings;
   final AppLocalizations loc;
-  final ThemeData theme;
+  final bool isDark;
 
   const _TopBar({
     required this.onClose,
     required this.onSettings,
     required this.loc,
-    required this.theme,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      child: Row(
-        children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back),
-            tooltip: MaterialLocalizations.of(context).backButtonTooltip,
-            onPressed: onClose,
-          ),
-          Expanded(
-            child: Text(
-              loc.menuYouTitle,
-              textAlign: TextAlign.center,
-              style: theme.textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.settings_outlined),
-            tooltip: loc.menuSettingsTitle,
-            onPressed: onSettings,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ── Summary card ─────────────────────────────────────────────────────────────
-
-class _SummaryCard extends StatelessWidget {
-  final bool isDark;
-  final ThemeData theme;
-
-  const _SummaryCard({required this.isDark, required this.theme});
-
-  @override
-  Widget build(BuildContext context) {
-    final auth = context.watch<TrainlogProvider>();
-    final trips = context.watch<TripsProvider>();
-
-    final cardBg = isDark ? AppColors.darkSurface : AppColors.lightSurface;
-
-    return Container(
-      decoration: BoxDecoration(
-        color: cardBg,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      padding: const EdgeInsets.all(16),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          _AppIcon(),
-          const SizedBox(width: 16),
-          Expanded(
-            child: _SummaryText(
-              username: auth.username ?? '',
-              instanceUrl: auth.instanceUrl,
-              trips: trips,
-              theme: theme,
-              isDark: isDark,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _AppIcon extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 56,
-      height: 56,
-      decoration: const BoxDecoration(
-        color: AppColors.navy,
-        shape: BoxShape.circle,
-      ),
-      padding: const EdgeInsets.all(4),
-      child: Container(
-        decoration: BoxDecoration(
-          color: AppColors.amber,
-          shape: BoxShape.circle,
-        ),
-        padding: const EdgeInsets.all(6),
-        child: SvgPicture.asset(
-          'assets/icon/trainlog_icon_foreground_only.svg',
-          colorFilter: const ColorFilter.mode(AppColors.navy, BlendMode.srcIn),
-        ),
-      ),
-    );
-  }
-}
-
-class _SummaryText extends StatelessWidget {
-  final String username;
-  final String instanceUrl;
-  final TripsProvider trips;
-  final ThemeData theme;
-  final bool isDark;
-
-  const _SummaryText({
-    required this.username,
-    required this.instanceUrl,
-    required this.trips,
-    required this.theme,
     required this.isDark,
   });
 
   @override
   Widget build(BuildContext context) {
-    final textSecondary = isDark ? AppColors.darkText2 : AppColors.lightText2;
+    final theme = Theme.of(context);
+    final btnBg = isDark ? AppColors.darkSurface : AppColors.lightBg;
+    final btnFg = isDark ? AppColors.darkText : AppColors.lightText;
+    final borderColor = isDark ? AppColors.darkLine : AppColors.lightLine;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          username,
-          style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 2),
-        Text(
-          instanceUrl,
-          style: GoogleFonts.spaceMono(
-            fontSize: 11,
-            color: textSecondary,
+    Widget squareBtn({required IconData icon, required VoidCallback onTap, String? tooltip}) {
+      return Tooltip(
+        message: tooltip ?? '',
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(10),
+          child: Container(
+            width: 38,
+            height: 38,
+            decoration: BoxDecoration(
+              color: btnBg,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: borderColor, width: 1),
+            ),
+            child: Icon(icon, color: btnFg, size: 20),
           ),
-          overflow: TextOverflow.ellipsis,
         ),
-        const SizedBox(height: 4),
-        _TripCountText(trips: trips, theme: theme, textSecondary: textSecondary),
-      ],
-    );
-  }
-}
+      );
+    }
 
-class _TripCountText extends StatefulWidget {
-  final TripsProvider trips;
-  final ThemeData theme;
-  final Color textSecondary;
-
-  const _TripCountText({
-    required this.trips,
-    required this.theme,
-    required this.textSecondary,
-  });
-
-  @override
-  State<_TripCountText> createState() => _TripCountTextState();
-}
-
-class _TripCountTextState extends State<_TripCountText> {
-  int? _count;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadCount();
-  }
-
-  Future<void> _loadCount() async {
-    final c = await widget.trips.repository?.count();
-    if (mounted) setState(() => _count = c);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context)!;
-    if (_count == null) return const SizedBox.shrink();
-    return Text(
-      loc.menuTripCount(_count!),
-      style: widget.theme.textTheme.bodySmall?.copyWith(color: widget.textSecondary),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+      child: Row(
+        children: [
+          squareBtn(
+            icon: Icons.keyboard_arrow_down,
+            onTap: onClose,
+            tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
+          ),
+          Expanded(
+            child: Text(
+              loc.menuYouTitle,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
+            ),
+          ),
+          squareBtn(
+            icon: Icons.settings_outlined,
+            onTap: onSettings,
+            tooltip: loc.menuSettingsTitle,
+          ),
+        ],
+      ),
     );
   }
 }
@@ -294,16 +166,16 @@ class _TripCountTextState extends State<_TripCountText> {
 
 class _SectionHeader extends StatelessWidget {
   final String label;
-  final ThemeData theme;
+  final bool isDark;
 
-  const _SectionHeader({required this.label, required this.theme});
+  const _SectionHeader({required this.label, required this.isDark});
 
   @override
   Widget build(BuildContext context) {
-    final isDark = theme.brightness == Brightness.dark;
     return Text(
       label,
-      style: theme.textTheme.labelSmall?.copyWith(
+      style: TextStyle(
+        fontSize: 11,
         fontWeight: FontWeight.w700,
         letterSpacing: 1.2,
         color: isDark ? AppColors.darkText3 : AppColors.lightText3,
@@ -312,7 +184,7 @@ class _SectionHeader extends StatelessWidget {
   }
 }
 
-// ── Explore grid ──────────────────────────────────────────────────────────────
+// ── Explore 2×2 grid ──────────────────────────────────────────────────────────
 
 class _ExploreGrid extends StatelessWidget {
   final void Function(AppPageId id) onPageTap;
@@ -323,28 +195,28 @@ class _ExploreGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final items = [
-      _ExploreCardData(
+      ExploreCardData(
         id: AppPageId.dashboard,
         icon: AdaptiveIcons.dashboard,
         label: loc.menuDashboardTitle,
         color: AppColors.amber,
         subtitle: null,
       ),
-      _ExploreCardData(
+      ExploreCardData(
         id: AppPageId.tags,
         icon: AdaptiveIcons.tags,
         label: loc.menuTagsTitle,
         color: AppColors.blue,
         subtitle: null,
       ),
-      _ExploreCardData(
+      ExploreCardData(
         id: AppPageId.tickets,
         icon: AdaptiveIcons.tickets,
         label: loc.menuTicketsTitle,
         color: AppColors.early,
         subtitle: null,
       ),
-      _ExploreCardData(
+      ExploreCardData(
         id: AppPageId.smartPrerecorder,
         icon: AdaptiveIcons.smartPrerecorder,
         label: loc.menuSmartPrerecorderTitle,
@@ -359,123 +231,27 @@ class _ExploreGrid extends StatelessWidget {
       physics: const NeverScrollableScrollPhysics(),
       crossAxisSpacing: 12,
       mainAxisSpacing: 12,
-      childAspectRatio: 1.4,
+      childAspectRatio: 1.35,
       children: items
-          .map((d) => _ExploreCard(data: d, onTap: () => onPageTap(d.id)))
+          .map((d) => ExploreCard(data: d, onTap: () => onPageTap(d.id)))
           .toList(),
     );
   }
 }
 
-class _ExploreCardData {
-  final AppPageId id;
-  final IconData icon;
-  final String label;
-  final Color color;
-  final _ExploreSubtitle? subtitle;
+// ── Menu block (single grouped list) ─────────────────────────────────────────
 
-  const _ExploreCardData({
-    required this.id,
-    required this.icon,
-    required this.label,
-    required this.color,
-    required this.subtitle,
-  });
-}
-
-class _ExploreSubtitle {
-  final String number;
-  final Color numberColor;
-  final String text;
-
-  const _ExploreSubtitle({
-    required this.number,
-    required this.numberColor,
-    required this.text,
-  });
-}
-
-class _ExploreCard extends StatelessWidget {
-  final _ExploreCardData data;
-  final VoidCallback onTap;
-
-  const _ExploreCard({required this.data, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final cardBg = isDark ? AppColors.darkSurface : AppColors.lightSurface;
-
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          color: cardBg,
-          borderRadius: BorderRadius.circular(14),
-        ),
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: data.color.withOpacity(0.15),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(data.icon, color: data.color, size: 20),
-            ),
-            const Spacer(),
-            Text(
-              data.label,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            if (data.subtitle != null) ...[
-              const SizedBox(height: 2),
-              RichText(
-                text: TextSpan(
-                  children: [
-                    TextSpan(
-                      text: data.subtitle!.number,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: data.subtitle!.numberColor,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    TextSpan(
-                      text: ' ${data.subtitle!.text}',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: isDark ? AppColors.darkText2 : AppColors.lightText2,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// ── Menu list ─────────────────────────────────────────────────────────────────
-
-class _MenuList extends StatelessWidget {
+class _MenuBlock extends StatelessWidget {
   final AppLocalizations loc;
-  final ThemeData theme;
+  final bool isDark;
   final VoidCallback onInboxTap;
   final VoidCallback onTrainlogStatusTap;
   final VoidCallback onAboutTap;
   final VoidCallback onLogout;
 
-  const _MenuList({
+  const _MenuBlock({
     required this.loc,
-    required this.theme,
+    required this.isDark,
     required this.onInboxTap,
     required this.onTrainlogStatusTap,
     required this.onAboutTap,
@@ -484,79 +260,148 @@ class _MenuList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = theme.brightness == Brightness.dark;
-    final tileColor = isDark ? AppColors.darkSurface : AppColors.lightSurface;
+    final blockBg = isDark ? AppColors.darkSurface : AppColors.lightBg;
+    final borderColor = isDark ? AppColors.darkLine : AppColors.lightLine;
+    final chevronColor = isDark ? AppColors.darkText3 : AppColors.lightText3;
+    final textColor = isDark ? AppColors.darkText : AppColors.lightText;
     final errorColor = isDark ? AppColors.errorDark : AppColors.errorLight;
 
-    Widget tile({
-      required IconData icon,
-      required String label,
-      required VoidCallback onTap,
-      Color? iconColor,
-      Color? labelColor,
-    }) {
-      return Container(
-        margin: const EdgeInsets.symmetric(vertical: 3),
-        decoration: BoxDecoration(
-          color: tileColor,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: ListTile(
-          leading: Icon(icon, color: iconColor),
-          title: Text(
-            label,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              fontWeight: FontWeight.w500,
-              color: labelColor,
-            ),
-          ),
-          trailing: Icon(
-            Icons.chevron_right,
-            color: isDark ? AppColors.darkText3 : AppColors.lightText3,
-          ),
-          onTap: onTap,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        ),
-      );
-    }
+    final items = <_MenuItemData>[
+      _MenuItemData(
+        icon: AdaptiveIcons.inbox,
+        iconBg: AppColors.amber,
+        label: loc.menuInboxTitle,
+        onTap: onInboxTap,
+      ),
+      _MenuItemData(
+        icon: AdaptiveIcons.ok,
+        iconBg: AppColors.blue,
+        label: loc.trainglogStatusPageTitle,
+        onTap: onTrainlogStatusTap,
+      ),
+      _MenuItemData(
+        icon: AdaptiveIcons.info,
+        iconBg: AppColors.navy,
+        label: loc.menuAboutTitle,
+        onTap: onAboutTap,
+      ),
+      _MenuItemData(
+        icon: AdaptiveIcons.logout,
+        iconBg: errorColor,
+        label: loc.logoutButton,
+        labelColor: errorColor,
+        onTap: onLogout,
+        isDestructive: true,
+      ),
+    ];
 
-    return Column(
-      children: [
-        tile(
-          icon: AdaptiveIcons.inbox,
-          label: loc.menuInboxTitle,
-          onTap: onInboxTap,
-        ),
-        tile(
-          icon: AdaptiveIcons.ok,
-          label: loc.trainglogStatusPageTitle,
-          onTap: onTrainlogStatusTap,
-        ),
-        tile(
-          icon: AdaptiveIcons.info,
-          label: loc.menuAboutTitle,
-          onTap: onAboutTap,
-        ),
-        Container(
-          margin: const EdgeInsets.symmetric(vertical: 3),
-          decoration: BoxDecoration(
-            color: tileColor,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: ListTile(
-            leading: Icon(AdaptiveIcons.logout, color: errorColor),
-            title: Text(
-              loc.logoutButton,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w500,
-                color: errorColor,
+    return Container(
+      decoration: BoxDecoration(
+        color: blockBg,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: borderColor, width: 1),
+      ),
+      child: Column(
+        children: [
+          for (int i = 0; i < items.length; i++) ...[
+            _MenuTile(
+              data: items[i],
+              isDark: isDark,
+              textColor: textColor,
+              chevronColor: chevronColor,
+              isFirst: i == 0,
+              isLast: i == items.length - 1,
+            ),
+            if (i < items.length - 1)
+              Divider(
+                height: 1,
+                thickness: 1,
+                indent: 16 + 36 + 12, // align with label start
+                endIndent: 0,
+                color: borderColor,
+              ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _MenuItemData {
+  final IconData icon;
+  final Color iconBg;
+  final String label;
+  final Color? labelColor;
+  final VoidCallback onTap;
+  final bool isDestructive;
+
+  const _MenuItemData({
+    required this.icon,
+    required this.iconBg,
+    required this.label,
+    required this.onTap,
+    this.labelColor,
+    this.isDestructive = false,
+  });
+}
+
+class _MenuTile extends StatelessWidget {
+  final _MenuItemData data;
+  final bool isDark;
+  final Color textColor;
+  final Color chevronColor;
+  final bool isFirst;
+  final bool isLast;
+
+  const _MenuTile({
+    required this.data,
+    required this.isDark,
+    required this.textColor,
+    required this.chevronColor,
+    required this.isFirst,
+    required this.isLast,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final resolvedTextColor = data.labelColor ?? textColor;
+
+    return InkWell(
+      onTap: data.onTap,
+      borderRadius: BorderRadius.vertical(
+        top: isFirst ? const Radius.circular(14) : Radius.zero,
+        bottom: isLast ? const Radius.circular(14) : Radius.zero,
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Row(
+          children: [
+            // Coloured square icon background
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: data.iconBg,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(data.icon, color: Colors.white, size: 18),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                data.label,
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                  color: resolvedTextColor,
+                ),
               ),
             ),
-            onTap: onLogout,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          ),
+            if (!data.isDestructive)
+              Icon(Icons.chevron_right, size: 20, color: chevronColor),
+          ],
         ),
-      ],
+      ),
     );
   }
 }
