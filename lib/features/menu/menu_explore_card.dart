@@ -83,16 +83,18 @@ class ExploreCard extends StatelessWidget {
                 Icon(Icons.chevron_right, size: 20, color: cs.onSurfaceVariant),
               ],
             ),
-            // Title in Space Mono — single line with ellipsis so the card
-            // never overflows on very small screens.
-            Text(
-              data.label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: GoogleFonts.spaceMono(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-                color: cs.onSurface,
+            // Flexible lets the title shrink on very small cards instead of
+            // overflowing; up to 2 lines with ellipsis on truncation.
+            Flexible(
+              child: Text(
+                data.label,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: GoogleFonts.spaceMono(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: cs.onSurface,
+                ),
               ),
             ),
             // Optional coloured subtitle (hidden when null)
