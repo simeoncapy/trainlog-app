@@ -1,6 +1,8 @@
 // material_shell.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:trainlog_app/app/app_colors.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/navigation/nav_models.dart';
 import 'package:trainlog_app/features/settings/settings_page.dart';
@@ -360,7 +362,7 @@ class _MaterialShellState extends State<MaterialShell> {
                 left: 16,
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surfaceBright,
+                    color: AppColors.navy,
                     shape: BoxShape.circle,
                     border: Border.all(
                       color: Theme.of(context).colorScheme.primary,
@@ -371,8 +373,13 @@ class _MaterialShellState extends State<MaterialShell> {
                     ],
                   ),
                   child: IconButton(
-                    icon: const Icon(Icons.menu),
-                    color: Theme.of(context).colorScheme.onSurface,
+                    icon: SvgPicture.asset(
+                      width: 24,
+                      height: 24,
+                      'assets/icon/trainlog_icon_foreground_only.svg',
+                      colorFilter: const ColorFilter.mode(AppColors.amber, BlendMode.srcIn),
+                    ),
+                    //color: Theme.of(context).colorScheme.onSurface,
                     tooltip: AppLocalizations.of(context)!.mainMenuButtonTooltip,
                     onPressed: () => _openFullScreenMenu(context),
                   ),
