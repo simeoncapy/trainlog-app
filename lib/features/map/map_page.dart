@@ -12,10 +12,13 @@ import 'package:latlong2/latlong.dart';
 import 'package:lottie/lottie.dart' as lt;
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
+import 'package:trainlog_app/app/app_colors.dart';
+import 'package:trainlog_app/app/app_nav_bar_theme.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/features/map/map_filter_widget.dart';
 import 'package:trainlog_app/navigation/nav_models.dart';
 import 'package:trainlog_app/platform/adaptive_trip_card.dart';
+import 'package:trainlog_app/platform/adaptive_widget.dart';
 import 'package:trainlog_app/providers/polyline_provider.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
@@ -307,6 +310,8 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver, Automati
   Positioned _mapButtonHelper() { 
     final Icon recenterUserIcon = Icon(AdaptiveIcons.position);
     final Icon followUserIcon = Icon(_followUser ? Symbols.frame_person_off : Symbols.frame_person);
+    final cs = Theme.of(context).colorScheme;
+    final navColors = Theme.of(context).extension<AppNavBarColors>()!;
 
     Widget orientationIconBuilder() {
       return ValueListenableBuilder<double>(
@@ -339,102 +344,69 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver, Automati
     void resetMapOrientationFct () {
       _mapController.rotate(0);
       _rotationNotifier.value = 0;
-    };
+    }
 
-    if(AppPlatform.isApple) {
-      return Positioned(
-        top: 70,
-        right: 12,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(14),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-            child: Container(
-              decoration: BoxDecoration(
-                color: CupertinoColors.systemGrey6.withValues(alpha: 0.7),
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Recenter user
-                  CupertinoButton(
-                    padding: const EdgeInsets.all(10),
+    return Positioned(
+      //top: 70,
+      bottom: 16 + MediaQuery.of(context).padding.bottom + 56 + 12, // above nav bar + some spacing
+      right: 16,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(14),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+          child: Container(
+            decoration: BoxDecoration(
+              color: navColors.background,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Recenter user
+                AdaptiveFilledIconButton(
                     onPressed: recenterFct,
+                    colorScheme: FilledButtonColorScheme.floating, 
                     child: recenterUserIcon,
-                  ),
-                  // Follow user
-                  DecoratedBox(
-                    decoration: BoxDecoration(
-                      border: Border(
-                        top: BorderSide(
-                          color: CupertinoColors.separator.resolveFrom(context),
-                          width: 0.5,
-                        ),
+                ),
+                // Follow user
+                DecoratedBox(
+                  decoration: BoxDecoration(
+                    border: Border(
+                      top: BorderSide(
+                        color: navColors.inactive,
+                        //color: CupertinoColors.separator.resolveFrom(context),
+                        width: 0.5,
                       ),
                     ),
-                    child: CupertinoButton(
-                      padding: const EdgeInsets.all(10),
-                      onPressed: followUserFct,
-                      child: followUserIcon,
-                    ),
                   ),
-                  // Reorientation of the map
-                  DecoratedBox(
-                    decoration: BoxDecoration(
-                      border: Border(
-                        top: BorderSide(
-                          color: CupertinoColors.separator.resolveFrom(context),
-                          width: 0.5,
-                        ),
+                  child: 
+                  AdaptiveFilledIconButton(
+                    onPressed: followUserFct,
+                    colorScheme: FilledButtonColorScheme.floating, 
+                    child: followUserIcon,
+                  ),
+                ),
+                // Reorientation of the map
+                DecoratedBox(
+                  decoration: BoxDecoration(
+                    border: Border(
+                      top: BorderSide(
+                        color: navColors.inactive,
+                        width: 0.5,
                       ),
                     ),
-                    child: CupertinoButton(
-                      padding: const EdgeInsets.all(10),
-                      onPressed: resetMapOrientationFct,
-                      child: orientationIconBuilder(),
-                    ),
                   ),
-                ],
-              ),
+                  child: 
+                  AdaptiveFilledIconButton(
+                    onPressed: resetMapOrientationFct,
+                    colorScheme: FilledButtonColorScheme.floating, 
+                    child: orientationIconBuilder(),
+                  ),
+                ),
+              ],
             ),
           ),
         ),
-      );
-    }
-
-    final bkg = Theme.of(context).colorScheme.tertiaryContainer;
-    final forg = Theme.of(context).colorScheme.onTertiaryContainer;
-    return Positioned(
-      right: 16,
-      bottom: 16 + MediaQuery.of(context).padding.bottom + 56 + 12, // above nav bar + some spacing
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          FloatingActionButton.small(
-            heroTag: 'map_btn_my_location',
-            backgroundColor: bkg,
-            foregroundColor: forg,
-            onPressed: recenterFct,
-            child: recenterUserIcon,
-          ),
-          const SizedBox(height: 8),
-          FloatingActionButton.small(
-            heroTag: 'map_btn_follow',
-            backgroundColor: bkg,
-            foregroundColor: forg,
-            onPressed: followUserFct,
-            child: followUserIcon,
-          ),
-          const SizedBox(height: 8),
-          FloatingActionButton.small(
-            heroTag: 'map_btn_compass',
-            backgroundColor: bkg,
-            foregroundColor: forg,
-            onPressed: resetMapOrientationFct,
-            child: orientationIconBuilder(),
-          ),
-        ],
       ),
     );
   }

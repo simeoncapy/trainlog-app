@@ -130,3 +130,31 @@ abstract final class AppColors {
   /// Early / success (shared alias for green)
   static const Color early = successLight;
 }
+
+
+enum FilledButtonColorScheme { 
+  primary, 
+  secondary, 
+  tertiary, 
+  error, 
+  warn, 
+  success,
+  floating;
+
+  static (Color?, Color?) resolveColors(BuildContext context, FilledButtonColorScheme colorScheme) {
+    final cs = Theme.of(context).colorScheme;
+    final isLight = Theme.of(context).brightness == Brightness.light;
+    return switch (colorScheme) {
+      FilledButtonColorScheme.primary => (cs.primary, cs.onPrimary),
+      FilledButtonColorScheme.secondary => (cs.secondary, cs.onSecondary),
+      FilledButtonColorScheme.tertiary => (cs.tertiary, cs.onTertiary),
+      FilledButtonColorScheme.error => (cs.error, cs.onError),
+      FilledButtonColorScheme.warn => (isLight ? AppColors.warningLight : AppColors.warningDark, 
+                                       isLight ? AppColors.navy : AppColors.navy),
+      FilledButtonColorScheme.success => (isLight ? AppColors.successLight : AppColors.successDark, 
+                                          isLight ? AppColors.navy : AppColors.navy),
+      FilledButtonColorScheme.floating => (isLight ? AppColors.lightBg : AppColors.darkElevated,
+                                           isLight ? AppColors.navy : AppColors.darkText),
+    };
+  }  
+}
