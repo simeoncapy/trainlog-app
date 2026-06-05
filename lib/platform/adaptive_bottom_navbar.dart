@@ -109,7 +109,7 @@ class AdaptiveBottomNavBar extends StatelessWidget {
             ),
           ),
         // Gap in the centre for the protruding button
-        const SizedBox(width: 72),
+        const SizedBox(width: 60),
         for (int i = 0; i < right.length; i++)
           Expanded(
             child: _NavBarItem(
