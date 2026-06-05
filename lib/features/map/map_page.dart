@@ -346,9 +346,14 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver, Automati
       _rotationNotifier.value = 0;
     }
 
+    // On Apple the primary-action FAB sits at kNavBarClearance+16 from the
+    // screen bottom and is 56 px tall, so push these controls clear of it.
+    final double buttonsBottom = AppPlatform.isApple
+        ? 160.0 - MediaQuery.of(context).padding.bottom
+        : 16 + MediaQuery.of(context).padding.bottom + 56 + 12;
+
     return Positioned(
-      //top: 70,
-      bottom: 16 + MediaQuery.of(context).padding.bottom + 56 + 12, // above nav bar + some spacing
+      bottom: buttonsBottom,
       right: 16,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(14),
