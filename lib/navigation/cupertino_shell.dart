@@ -1,6 +1,6 @@
 // cupertino_shell.dart
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart' show Icon;
+import 'package:flutter/material.dart' show Icon, Theme;
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/navigation/nav_models.dart';
 import 'package:trainlog_app/platform/adaptive_bottom_navbar.dart'
@@ -242,19 +242,20 @@ class _CupertinoRootPageState extends State<_CupertinoRootPage> {
           ),
         ),
         Positioned(
-          top: mq.padding.top + 8,
-          right: 12,
+          bottom: kNavBarClearance + 16,
+          right: 16,
           child: ValueListenableBuilder<List<AppPrimaryAction>>(
             valueListenable: _actions,
             builder: (_, actions, __) {
               if (actions.isEmpty) return const SizedBox.shrink();
               final reversed = actions.reversed.toList();
-              return Row(
+              return Column(
                 mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   for (int i = 0; i < reversed.length; i++) ...[
-                    CupertinoFloatingActionButton(action: reversed[i]),
-                    if (i != reversed.length - 1) const SizedBox(width: 8),
+                    _CupertinoMapFab(action: reversed[i]),
+                    if (i != reversed.length - 1) const SizedBox(height: 8),
                   ],
                 ],
               );
@@ -262,6 +263,44 @@ class _CupertinoRootPageState extends State<_CupertinoRootPage> {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Squarish primary-colour FAB used on the Cupertino map page (no nav bar).
+class _CupertinoMapFab extends StatelessWidget {
+  final AppPrimaryAction action;
+
+  const _CupertinoMapFab({required this.action});
+
+  @override
+  Widget build(BuildContext context) {
+    final primary = Theme.of(context).colorScheme.primary;
+    final onPrimary = Theme.of(context).colorScheme.onPrimary;
+
+    return CupertinoButton(
+      padding: EdgeInsets.zero,
+      onPressed: action.onPressed,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: primary,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x44000000),
+              blurRadius: 12,
+              offset: Offset(0, 6),
+            ),
+          ],
+        ),
+        child: SizedBox(
+          width: 56,
+          height: 56,
+          child: Center(
+            child: Icon(action.icon, size: 24, color: onPrimary),
+          ),
+        ),
+      ),
     );
   }
 }
