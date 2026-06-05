@@ -14,6 +14,27 @@ import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 
+/// Wraps [CountryLocalizations.delegate] and falls back to English for any
+/// locale the country_picker package does not ship a translation for (e.g. tl).
+class _FallbackCountryLocalizationsDelegate
+    extends LocalizationsDelegate<CountryLocalizations> {
+  const _FallbackCountryLocalizationsDelegate();
+
+  @override
+  bool isSupported(Locale locale) => true;
+
+  @override
+  Future<CountryLocalizations> load(Locale locale) {
+    final effective = CountryLocalizations.delegate.isSupported(locale)
+        ? locale
+        : const Locale('en');
+    return CountryLocalizations.delegate.load(effective);
+  }
+
+  @override
+  bool shouldReload(_FallbackCountryLocalizationsDelegate old) => false;
+}
+
 class CrashlyticsNavigationObserver extends NavigatorObserver {
   @override
   void didPush(Route route, Route? previousRoute) {
@@ -60,7 +81,7 @@ class AppRoot extends StatelessWidget {
       locale: settings.locale,
       localizationsDelegates: [
         ...AppLocalizations.localizationsDelegates,
-        CountryLocalizations.delegate,
+        const _FallbackCountryLocalizationsDelegate(),
       ],
       supportedLocales: AppLocalizations.supportedLocales,
       theme: AppTheme.light,
@@ -92,7 +113,7 @@ class AppRoot extends StatelessWidget {
       locale: settings.locale,
       localizationsDelegates: [
         ...AppLocalizations.localizationsDelegates,
-        CountryLocalizations.delegate,
+        const _FallbackCountryLocalizationsDelegate(),
       ],
       supportedLocales: AppLocalizations.supportedLocales,
       theme: CupertinoThemeData(
