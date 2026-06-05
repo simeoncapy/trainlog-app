@@ -41,7 +41,7 @@ class _MaterialMapFilter extends StatelessWidget {
         (mediaQuery.size.height - mediaQuery.padding.top - mediaQuery.padding.bottom) * 0.7;
 
     return Positioned(
-      bottom: 16,
+      bottom: 16 + MediaQuery.of(context).padding.bottom,
       left: 16,
       right: 16,
       child: Material(
