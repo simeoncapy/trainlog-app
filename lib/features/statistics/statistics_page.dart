@@ -13,7 +13,7 @@ import 'package:trainlog_app/providers/statistics_provider.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
 import 'package:trainlog_app/utils/number_formatter.dart';
 import 'package:trainlog_app/utils/text_utils.dart';
-import 'package:trainlog_app/widgets/min_height_scrollable.dart';
+import 'package:trainlog_app/widgets/app_steps_tab_bar.dart';
 
 import 'package:trainlog_app/features/statistics/widgets/logo_bar_chart.dart';
 import 'package:trainlog_app/features/statistics/widgets/stats_bar_chart.dart';
@@ -57,15 +57,19 @@ class _StatisticsPageState extends State<StatisticsPage> {
         final tripsProv = context.watch<TripsProvider>();
         final palette = MapColorPaletteHelper.getPalette(settings.mapColorPalette);
         final barColor = palette[statsProv.vehicle] ?? Colors.blue;
-        final hasData = statsProv.currentStats.isNotEmpty && !statsProv.isLoading;
         final disabledYears = statsProv.graph == GraphType.years;
 
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        return SingleChildScrollView(
+          padding: EdgeInsets.only(
+            left: 16,
+            right: 16,
+            top: 12,
+            bottom: MediaQuery.of(context).padding.bottom + 16,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ── Header row ────────────────────────────────────────────
+              // ── Header ────────────────────────────────────────────────
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -87,35 +91,16 @@ class _StatisticsPageState extends State<StatisticsPage> {
               ),
               const SizedBox(height: 14),
 
-              // ── Combined filter + view-selector card ──────────────────
-              _StatsFilterCard(
+              // ── Main card (selectors + chart) ─────────────────────────
+              _StatsCard(
                 view: _view,
                 onViewChanged: (v) => setState(() => _view = v),
                 statsProv: statsProv,
                 tripsProv: tripsProv,
+                barColor: barColor,
                 sortedAlpha: _sortedAlpha,
                 onSortToggle: () => setState(() => _sortedAlpha = !_sortedAlpha),
-              ),
-              const SizedBox(height: 14),
-
-              // ── Chart area ────────────────────────────────────────────
-              Expanded(
-                child: MinHeightScrollable(
-                  minHeight: 350,
-                  padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
-                  child: Builder(builder: (_) {
-                    if (statsProv.isLoading) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-                    if (statsProv.error != null) {
-                      return Center(child: Text('Error: ${statsProv.error}'));
-                    }
-                    if (!hasData) {
-                      return Center(child: Text(loc.statisticsNoDataLabel));
-                    }
-                    return _buildChart(context, statsProv, loc, barColor);
-                  }),
-                ),
+                chartBuilder: (ctx) => _buildChart(ctx, statsProv, loc, barColor),
               ),
             ],
           ),
@@ -124,7 +109,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
     );
   }
 
-  // ── Chart area ─────────────────────────────────────────────────────────────
+  // ── Chart builder ──────────────────────────────────────────────────────────
 
   Widget _buildChart(
     BuildContext context,
@@ -135,11 +120,24 @@ class _StatisticsPageState extends State<StatisticsPage> {
     final otherLabel = loc.statisticsOtherLabel;
     final statsShort = p.currentStatsShort(10, otherLabel: otherLabel);
     final keys = statsShort.keys.toList();
-    final images = p.graphImagesForKeys(context, keys, otherLabel: otherLabel, barColor: barColor);
+    final images = p.graphImagesForKeys(
+      context,
+      keys,
+      otherLabel: otherLabel,
+      barColor: barColor,
+    );
     final unitMap = p.unitsByFactor(context);
     final baseUnit = p.baseUnitLabel(context);
     final labelBuilder = p.labelBuilder(context);
-    final isDurationOrTrips = p.unit == GraphUnit.duration || p.unit == GraphUnit.trip;
+    final isDurationOrTrips =
+        p.unit == GraphUnit.duration || p.unit == GraphUnit.trip;
+
+    if (p.isLoading) return const Padding(
+      padding: EdgeInsets.symmetric(vertical: 40),
+      child: Center(child: CircularProgressIndicator()),
+    );
+    if (p.error != null) return Center(child: Text('Error: ${p.error}'));
+    if (statsShort.isEmpty) return Center(child: Text(loc.statisticsNoDataLabel));
 
     switch (_view) {
       case StatisticsView.bar:
@@ -169,7 +167,11 @@ class _StatisticsPageState extends State<StatisticsPage> {
       case StatisticsView.table:
         final fullStats = p.currentStats;
         final tableStats = (p.graph == GraphType.country)
-            ? _orderedStats(_localizedStatsForTable(context, fullStats), alpha: _sortedAlpha, otherLabel: otherLabel)
+            ? _orderedStats(
+                _localizedStatsForTable(context, fullStats),
+                alpha: _sortedAlpha,
+                otherLabel: otherLabel,
+              )
             : _orderedStats(fullStats, alpha: _sortedAlpha, otherLabel: otherLabel);
         final isDuration = p.unit == GraphUnit.duration;
 
@@ -185,11 +187,12 @@ class _StatisticsPageState extends State<StatisticsPage> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Unit label above the table header
             if (!isDuration)
               Padding(
                 padding: const EdgeInsets.only(bottom: 4),
                 child: Text(
-                  baseUnit,
+                  '${loc.statisticsUnitLabel} $baseUnit',
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                         letterSpacing: 0.5,
@@ -228,7 +231,6 @@ class _StatisticsPageState extends State<StatisticsPage> {
     required String otherLabel,
   }) {
     final entries = stats.entries.toList();
-    // Always pin "Other" at the end
     final other = entries.where((e) => e.key == otherLabel).toList();
     final rest = entries.where((e) => e.key != otherLabel).toList();
 
@@ -282,7 +284,9 @@ class _StatisticsPageState extends State<StatisticsPage> {
     final baseUnit = units[UnitFactor.base]!;
     return WidgetSpan(
       child: DefaultTextStyle(
-        style: base.copyWith(color: Theme.of(context).colorScheme.onPrimaryContainer),
+        style: base.copyWith(
+          color: Theme.of(context).colorScheme.onPrimaryContainer,
+        ),
         child: IntrinsicWidth(
           child: Table(
             defaultColumnWidth: const IntrinsicColumnWidth(),
@@ -310,93 +314,131 @@ class _StatisticsPageState extends State<StatisticsPage> {
   }
 }
 
-// ── Filter card ────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+// Main card — selectors + chart all inside one bordered container
+// ═══════════════════════════════════════════════════════════════════════════
 
-class _StatsFilterCard extends StatelessWidget {
+class _StatsCard extends StatelessWidget {
   final StatisticsView view;
   final ValueChanged<StatisticsView> onViewChanged;
   final StatisticsProvider statsProv;
   final TripsProvider tripsProv;
+  final Color barColor;
   final bool sortedAlpha;
   final VoidCallback onSortToggle;
+  final Widget Function(BuildContext) chartBuilder;
 
-  const _StatsFilterCard({
+  const _StatsCard({
     required this.view,
     required this.onViewChanged,
     required this.statsProv,
     required this.tripsProv,
+    required this.barColor,
     required this.sortedAlpha,
     required this.onSortToggle,
+    required this.chartBuilder,
   });
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardColor = isDark ? cs.surface : cs.surface;
 
     return Container(
-      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: cardColor,
-        borderRadius: BorderRadius.circular(16),
+        color: isDark ? cs.surface : Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(
+          color: isDark
+              ? cs.outline.withValues(alpha: 0.25)
+              : cs.outline.withValues(alpha: 0.18),
+          width: 1.2,
+        ),
         boxShadow: [
           BoxShadow(
-            color: cs.shadow.withValues(alpha: isDark ? 0.3 : 0.08),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: cs.shadow.withValues(alpha: isDark ? 0.25 : 0.06),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Row 1: Dimension dropdown + graph-type icon buttons
-          Row(
-            children: [
-              // Dimension dropdown (expands to fill remaining space)
-              Expanded(
-                child: _DimensionDropdown(
+          // Row 1: dimension title + graph-type tab bar
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 14, 10, 0),
+            child: Row(
+              children: [
+                _DimensionButton(
                   graph: statsProv.graph,
                   vehicle: statsProv.vehicle,
                   onChanged: (g) => statsProv.graph = g,
                 ),
-              ),
-              const SizedBox(width: 8),
-              // Graph-type icon buttons (Bar / Pie / Table)
-              _GraphTypeButtons(
-                selected: view,
-                onChanged: onViewChanged,
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          // Row 2: Vehicle | Unit | Sort
-          Row(
-            children: [
-              Expanded(
-                child: _CompactPillDropdown<VehicleType>(
-                  items: tripsProv.vehicleTypesWithoutPoi,
-                  selected: statsProv.vehicle,
-                  iconOf: (v) => VehicleType.iconOf(v),
-                  labelOf: (v) => VehicleType.labelOf(v, context),
-                  onChanged: (v) => statsProv.vehicle = v ?? statsProv.vehicle,
+                const Spacer(),
+                // AppStepsTabBar — text only (no leadingIcon), not full width
+                AppStepsTabBar(
+                  fullWidth: false,
+                  selectedIndex: view.index,
+                  onTabChanged: (i) => onViewChanged(StatisticsView.values[i]),
+                  tabs: const [
+                    AppStepsTab(label: 'Bar'),
+                    AppStepsTab(label: 'Pie'),
+                    AppStepsTab(label: 'Table'),
+                  ],
                 ),
-              ),
-              const SizedBox(width: 6),
-              Expanded(
-                child: _CompactPillDropdown<GraphUnit>(
-                  items: GraphUnit.values,
-                  selected: statsProv.unit,
-                  iconOf: (u) => u.icon(),
-                  labelOf: (u) => u.label(context),
-                  onChanged: (u) => statsProv.unit = u ?? statsProv.unit,
-                ),
-              ),
-              if (view != StatisticsView.pie) ...[
-                const SizedBox(width: 6),
-                _SortButton(alpha: sortedAlpha, onTap: onSortToggle),
               ],
-            ],
+            ),
+          ),
+          // Row 2: compact outlined dropdowns + sort button
+          Padding(
+            padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
+            child: Row(
+              children: [
+                // Vehicle type
+                Expanded(
+                  child: _OutlinedDropdown<VehicleType>(
+                    items: tripsProv.vehicleTypesWithoutPoi,
+                    selected: statsProv.vehicle,
+                    iconOf: (v) => VehicleType.iconOf(v),
+                    labelOf: (v) => VehicleType.labelOf(v, context),
+                    onChanged: (v) => statsProv.vehicle = v ?? statsProv.vehicle,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                // Graph type (dimension filter — year filter disabled for "By year")
+                Expanded(
+                  child: _OutlinedDropdown<GraphType>(
+                    items: GraphType.values,
+                    selected: statsProv.graph,
+                    iconOf: (g) => g.icon(),
+                    labelOf: (g) => g.label(context, statsProv.vehicle),
+                    onChanged: (g) => statsProv.graph = g ?? statsProv.graph,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                // Unit
+                Expanded(
+                  child: _OutlinedDropdown<GraphUnit>(
+                    items: GraphUnit.values,
+                    selected: statsProv.unit,
+                    iconOf: (u) => u.icon(),
+                    labelOf: (u) => u.label(context),
+                    onChanged: (u) => statsProv.unit = u ?? statsProv.unit,
+                  ),
+                ),
+                // Sort toggle — hidden for Pie view
+                if (view != StatisticsView.pie) ...[
+                  const SizedBox(width: 6),
+                  _SortButton(alpha: sortedAlpha, onTap: onSortToggle),
+                ],
+              ],
+            ),
+          ),
+          // Chart content
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: chartBuilder(context),
           ),
         ],
       ),
@@ -404,14 +446,16 @@ class _StatsFilterCard extends StatelessWidget {
   }
 }
 
-// ── Dimension dropdown (styled pill, full label visible) ───────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+// Dimension title button (large, acts as dropdown opener)
+// ═══════════════════════════════════════════════════════════════════════════
 
-class _DimensionDropdown extends StatelessWidget {
+class _DimensionButton extends StatelessWidget {
   final GraphType graph;
   final VehicleType vehicle;
   final ValueChanged<GraphType> onChanged;
 
-  const _DimensionDropdown({
+  const _DimensionButton({
     required this.graph,
     required this.vehicle,
     required this.onChanged,
@@ -419,121 +463,54 @@ class _DimensionDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return PopupMenuButton<GraphType>(
       onSelected: onChanged,
-      itemBuilder: (_) => GraphType.values.map((g) {
-        return PopupMenuItem<GraphType>(
-          value: g,
-          child: Row(
-            children: [
-              g.icon(),
-              const SizedBox(width: 10),
-              Text(g.label(context, vehicle)),
-            ],
-          ),
-        );
-      }).toList(),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
-        decoration: BoxDecoration(
-          color: isDark
-              ? cs.surfaceContainerHighest.withValues(alpha: 0.3)
-              : cs.surfaceContainerHighest.withValues(alpha: 0.6),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IconTheme(
-              data: IconThemeData(size: 16, color: cs.onSurface),
-              child: graph.icon(),
-            ),
-            const SizedBox(width: 8),
-            Flexible(
-              child: Text(
-                graph.label(context, vehicle),
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-              ),
-            ),
-            const SizedBox(width: 4),
-            Icon(Icons.keyboard_arrow_down, size: 16, color: cs.onSurfaceVariant),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// ── Graph type icon-only toggle (Bar | Pie | Table) ────────────────────────
-
-class _GraphTypeButtons extends StatelessWidget {
-  final StatisticsView selected;
-  final ValueChanged<StatisticsView> onChanged;
-
-  static const _items = [
-    (StatisticsView.bar,   Icons.bar_chart),
-    (StatisticsView.pie,   Icons.pie_chart),
-    (StatisticsView.table, Icons.table_chart),
-  ];
-
-  const _GraphTypeButtons({required this.selected, required this.onChanged});
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return Container(
-      decoration: BoxDecoration(
-        color: isDark
-            ? cs.surfaceContainerHighest.withValues(alpha: 0.3)
-            : cs.surfaceContainerHighest.withValues(alpha: 0.6),
-        borderRadius: BorderRadius.circular(10),
-      ),
+      itemBuilder: (_) => GraphType.values
+          .map((g) => PopupMenuItem<GraphType>(
+                value: g,
+                child: Row(
+                  children: [
+                    g.icon(),
+                    const SizedBox(width: 10),
+                    Text(g.label(context, vehicle)),
+                  ],
+                ),
+              ))
+          .toList(),
       child: Row(
         mainAxisSize: MainAxisSize.min,
-        children: _items.map((item) {
-          final (view, icon) = item;
-          final isSelected = selected == view;
-          return GestureDetector(
-            onTap: () => onChanged(view),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 180),
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
-              decoration: BoxDecoration(
-                color: isSelected ? cs.primary.withValues(alpha: isDark ? 0.25 : 0.15) : Colors.transparent,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(
-                icon,
-                size: 18,
-                color: isSelected ? cs.primary : cs.onSurfaceVariant.withValues(alpha: 0.6),
-              ),
-            ),
-          );
-        }).toList(),
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            graph.label(context, vehicle),
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
+          ),
+          const SizedBox(width: 4),
+          Icon(
+            Icons.keyboard_arrow_down,
+            size: 18,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ],
       ),
     );
   }
 }
 
-// ── Compact pill dropdown ──────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+// Outlined compact dropdown pill
+// ═══════════════════════════════════════════════════════════════════════════
 
-class _CompactPillDropdown<T> extends StatelessWidget {
+class _OutlinedDropdown<T> extends StatelessWidget {
   final List<T> items;
   final T selected;
   final Icon? Function(T) iconOf;
   final String Function(T) labelOf;
   final ValueChanged<T?> onChanged;
 
-  const _CompactPillDropdown({
+  const _OutlinedDropdown({
     required this.items,
     required this.selected,
     required this.iconOf,
@@ -544,39 +521,43 @@ class _CompactPillDropdown<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final icon = iconOf(selected);
 
     return PopupMenuButton<T>(
       onSelected: (v) => onChanged(v),
-      itemBuilder: (_) => items.map((item) {
-        return PopupMenuItem<T>(
-          value: item,
-          child: Row(
-            children: [
-              if (iconOf(item) != null) ...[
-                iconOf(item)!,
-                const SizedBox(width: 10),
-              ],
-              Text(labelOf(item)),
-            ],
-          ),
-        );
-      }).toList(),
+      itemBuilder: (_) => items
+          .map((item) => PopupMenuItem<T>(
+                value: item,
+                child: Row(
+                  children: [
+                    if (iconOf(item) != null) ...[
+                      IconTheme(
+                        data: IconThemeData(size: 16, color: cs.primary),
+                        child: iconOf(item)!,
+                      ),
+                      const SizedBox(width: 10),
+                    ],
+                    Text(labelOf(item)),
+                  ],
+                ),
+              ))
+          .toList(),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
         decoration: BoxDecoration(
-          color: isDark
-              ? cs.surfaceContainerHighest.withValues(alpha: 0.3)
-              : cs.surfaceContainerHighest.withValues(alpha: 0.6),
-          borderRadius: BorderRadius.circular(20),
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: cs.outline.withValues(alpha: 0.4),
+            width: 1.2,
+          ),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             if (icon != null) ...[
               IconTheme(
-                data: IconThemeData(size: 14, color: cs.onSurfaceVariant),
+                data: IconThemeData(size: 14, color: cs.primary),
                 child: icon,
               ),
               const SizedBox(width: 5),
@@ -586,13 +567,14 @@ class _CompactPillDropdown<T> extends StatelessWidget {
                 labelOf(selected),
                 style: Theme.of(context).textTheme.labelMedium?.copyWith(
                       color: cs.onSurface,
+                      fontWeight: FontWeight.w500,
                     ),
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
               ),
             ),
-            const SizedBox(width: 2),
-            Icon(Icons.keyboard_arrow_down, size: 13, color: cs.onSurfaceVariant),
+            const SizedBox(width: 3),
+            Icon(Icons.keyboard_arrow_down, size: 14, color: cs.onSurfaceVariant),
           ],
         ),
       ),
@@ -600,7 +582,9 @@ class _CompactPillDropdown<T> extends StatelessWidget {
   }
 }
 
-// ── Sort icon button ───────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+// Sort toggle button — icon changes with state
+// ═══════════════════════════════════════════════════════════════════════════
 
 class _SortButton extends StatelessWidget {
   final bool alpha;
@@ -611,24 +595,25 @@ class _SortButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return Tooltip(
       message: alpha ? 'Sort by total' : 'Sort alphabetically',
       child: GestureDetector(
         onTap: onTap,
         child: Container(
-          padding: const EdgeInsets.all(9),
+          padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: isDark
-                ? cs.surfaceContainerHighest.withValues(alpha: 0.3)
-                : cs.surfaceContainerHighest.withValues(alpha: 0.6),
-            borderRadius: BorderRadius.circular(20),
+            color: Colors.transparent,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: cs.outline.withValues(alpha: 0.4),
+              width: 1.2,
+            ),
           ),
           child: Icon(
-            alpha ? Icons.sort_by_alpha : Icons.arrow_downward,
+            // Icon reflects current sort mode: changes when toggled
+            alpha ? Icons.sort_by_alpha : Icons.filter_list,
             size: 16,
-            color: cs.onSurfaceVariant,
+            color: cs.primary,
           ),
         ),
       ),
@@ -636,7 +621,9 @@ class _SortButton extends StatelessWidget {
   }
 }
 
-// ── Year chip ──────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+// Year chip (header)
+// ═══════════════════════════════════════════════════════════════════════════
 
 class _YearChip extends StatelessWidget {
   final List<int> years;
@@ -682,7 +669,10 @@ class _YearChip extends StatelessWidget {
             const SizedBox(width: 6),
             Text(
               label,
-              style: Theme.of(context).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w600),
+              style: Theme.of(context)
+                  .textTheme
+                  .labelLarge
+                  ?.copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(width: 4),
             Icon(Icons.keyboard_arrow_down, size: 16, color: cs.onSurfaceVariant),
