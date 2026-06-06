@@ -7,7 +7,10 @@ class AppStepsTab {
   /// shows the label only — used for plain text-only segmented tabs.
   final int? count;
 
-  const AppStepsTab({required this.label, this.count});
+  /// Optional icon rendered before the label.
+  final Widget? leadingIcon;
+
+  const AppStepsTab({required this.label, this.count, this.leadingIcon});
 }
 
 /// Segmented-control-style horizontally-scrollable tab bar with a smooth
@@ -150,6 +153,7 @@ class _AppStepsTabBarState extends State<AppStepsTabBar> {
                     key: _keys[i],
                     label: widget.tabs[i].label,
                     count: widget.tabs[i].count,
+                    leadingIcon: widget.tabs[i].leadingIcon,
                     isSelected: i == widget.selectedIndex,
                     onTap: () => widget.onTabChanged(i),
                   ),
@@ -165,6 +169,7 @@ class _AppStepsTabBarState extends State<AppStepsTabBar> {
 class _AppStepsTabChip extends StatelessWidget {
   final String label;
   final int? count;
+  final Widget? leadingIcon;
   final bool isSelected;
   final VoidCallback onTap;
 
@@ -172,6 +177,7 @@ class _AppStepsTabChip extends StatelessWidget {
     super.key,
     required this.label,
     required this.count,
+    this.leadingIcon,
     required this.isSelected,
     required this.onTap,
   });
@@ -190,6 +196,17 @@ class _AppStepsTabChip extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
+            if (leadingIcon != null) ...[
+              AnimatedOpacity(
+                duration: const Duration(milliseconds: 200),
+                opacity: isSelected ? 1.0 : 0.5,
+                child: IconTheme(
+                  data: IconThemeData(color: cs.onSurface, size: 16),
+                  child: leadingIcon!,
+                ),
+              ),
+              const SizedBox(width: 6),
+            ],
             AnimatedDefaultTextStyle(
               duration: const Duration(milliseconds: 200),
               style: TextStyle(
