@@ -263,7 +263,7 @@ class _PageHeader extends StatelessWidget {
 
           // View toggle
           _HeaderIconButton(
-            icon: isCardView ? Icons.table_rows_outlined : Icons.view_agenda_outlined,
+            icon: isCardView ? Icons.table_chart_outlined : Icons.view_agenda_outlined,
             tooltip: isCardView ? 'Table view' : 'Card view',
             onPressed: onToggleView,
           ),
