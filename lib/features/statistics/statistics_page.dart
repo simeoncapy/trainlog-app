@@ -412,7 +412,7 @@ class _StatsCard extends StatelessWidget {
           ),
           // Row 2: compact outlined dropdowns + sort button
           Padding(
-            padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
+            padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
             child: Row(
               children: [
                 // Vehicle type
