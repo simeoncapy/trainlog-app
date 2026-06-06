@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:trainlog_app/app/app_colors.dart';
-import 'package:trainlog_app/app/app_nav_bar_theme.dart';
+import 'package:trainlog_app/app/theme/app_colors.dart';
+import 'package:trainlog_app/app/theme/app_nav_bar_theme.dart';
 
 /// Height of the nav bar pill + its top/bottom padding, excluding the system
 /// safe area. Both shells expose this value as MediaQuery.padding.bottom so

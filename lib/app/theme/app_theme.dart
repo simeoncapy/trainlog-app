@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:trainlog_app/app/app_colors.dart';
-import 'package:trainlog_app/app/app_nav_bar_theme.dart';
+import 'package:trainlog_app/app/theme/app_colors.dart';
+import 'package:trainlog_app/app/theme/app_nav_bar_theme.dart';
+import 'package:trainlog_app/app/theme/app_tab_theme.dart';
 
 /// Trainlog design-system themes and typography.
 abstract final class AppTheme {
@@ -101,12 +102,18 @@ abstract final class AppTheme {
           borderSide: const BorderSide(color: AppColors.blue, width: 2),
         ),
       ),
-      extensions: const [
+      extensions: [
         AppNavBarColors(
           background: AppColors.lightBg,
           active: AppColors.amber,
           inactive: AppColors.lightText3,
           shadow: Color(0x1F14213D), // navy @ 12 %
+        ),
+        AppTabColors(
+          tabBackground: colorScheme.surface,
+          selectedBackground: AppColors.lightTabSurface,
+          onSelected: AppColors.lightOnTabSurface,
+          //onBackground: AppColors.darkText,
         ),
       ],
     );
@@ -195,12 +202,18 @@ abstract final class AppTheme {
           borderSide: const BorderSide(color: AppColors.sky, width: 2),
         ),
       ),
-      extensions: const [
-        AppNavBarColors(
+      extensions: [
+        const AppNavBarColors(
           background: AppColors.darkElevated,
           active: AppColors.amber,
           inactive: AppColors.darkText3,
           shadow: Color(0x66000000), // black @ 40 %
+        ),
+        AppTabColors(
+          tabBackground: colorScheme.secondary.withValues(alpha: 0.1),
+          selectedBackground: AppColors.darkTabSurface,
+          onSelected: AppColors.darkOnTabSurface,
+          //onBackground: AppColors.darkText,
         ),
       ],
     );

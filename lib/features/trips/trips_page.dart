@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:trainlog_app/app/app_colors.dart';
+import 'package:trainlog_app/app/theme/app_colors.dart';
 import 'package:trainlog_app/data/models/trip_form_model.dart';
 import 'package:trainlog_app/features/trips/add_trip_page.dart';
 import 'package:trainlog_app/features/trips/widgets/trip_card_view.dart';

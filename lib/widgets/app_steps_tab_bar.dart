@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:trainlog_app/app/theme/app_tab_theme.dart';
 
 class AppStepsTab {
   final String label;
@@ -105,6 +106,7 @@ class _AppStepsTabBarState extends State<AppStepsTabBar> {
   }
 
   Widget _buildIndicator(bool isDark, ColorScheme cs) {
+    final tabColors = Theme.of(context).extension<AppTabColors>()!;
     if (_widths.isEmpty) return const SizedBox.shrink();
     return AnimatedPositioned(
       duration: const Duration(milliseconds: 250),
@@ -115,7 +117,7 @@ class _AppStepsTabBarState extends State<AppStepsTabBar> {
       width: _indicatorWidth,
       child: Container(
         decoration: BoxDecoration(
-          color: isDark ? cs.surface : Colors.white,
+          color: tabColors.selectedBackground,
           borderRadius: BorderRadius.circular(10),
           boxShadow: [
             BoxShadow(
@@ -133,21 +135,14 @@ class _AppStepsTabBarState extends State<AppStepsTabBar> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cs = Theme.of(context).colorScheme;
-    final trackColor = isDark ? cs.surfaceContainerHighest : const Color(0xFFEEEEF2);
-
-    final track = Container(
-      height: 46,
-      decoration: BoxDecoration(
-        color: trackColor,
-        borderRadius: BorderRadius.circular(14),
-      ),
-    );
+    final trackColor = isDark ? cs.secondaryContainer.withValues(alpha: 0.2) : const Color(0xFFEEEEF2);
+    final tabColors = Theme.of(context).extension<AppTabColors>()!;
 
     if (widget.fullWidth) {
       return Container(
         height: 46,
         decoration: BoxDecoration(
-          color: trackColor,
+          color: tabColors.tabBackground,
           borderRadius: BorderRadius.circular(14),
         ),
         child: Padding(
@@ -231,6 +226,7 @@ class _AppStepsTabChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final tabColors = Theme.of(context).extension<AppTabColors>()!;
 
     // Keep the same layout/sizing for selected and unselected so that
     // _widths stays stable and the indicator slides correctly.
@@ -257,7 +253,7 @@ class _AppStepsTabChip extends StatelessWidget {
               duration: const Duration(milliseconds: 200),
               style: TextStyle(
                 color: isSelected
-                    ? cs.onSurface
+                    ? tabColors.onSelected
                     : cs.onSurface.withValues(alpha: 0.50),
                 fontSize: 13,
                 fontWeight:
@@ -275,15 +271,15 @@ class _AppStepsTabChip extends StatelessWidget {
                     const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
                   color: isSelected
-                      ? cs.primary
-                      : cs.onSurface.withValues(alpha: 0.10),
+                      ? tabColors.selectedBackground
+                      : tabColors.tabBackground,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
                   '$count',
                   style: TextStyle(
                     color: isSelected
-                        ? cs.onPrimary
+                        ? tabColors.onSelected
                         : cs.onSurface.withValues(alpha: 0.45),
                     fontSize: 11,
                     fontWeight: FontWeight.w700,

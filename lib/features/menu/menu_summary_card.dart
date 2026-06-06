@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:trainlog_app/app/app_colors.dart';
+import 'package:trainlog_app/app/theme/app_colors.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';

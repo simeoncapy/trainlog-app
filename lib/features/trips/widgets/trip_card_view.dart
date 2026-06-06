@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:trainlog_app/app/app_colors.dart';
-import 'package:trainlog_app/app/app_theme.dart';
+import 'package:trainlog_app/app/theme/app_colors.dart';
+import 'package:trainlog_app/app/theme/app_theme.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/data/trips_repository.dart';
 import 'package:trainlog_app/platform/adaptive_trip_card.dart';
