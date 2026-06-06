@@ -139,16 +139,18 @@ class _TripsPageState extends State<TripsPage> {
               },
             ),
 
-            // ── Summary block ────────────────────────────────────────────
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-              child: _SummaryBlock(count: _summaryCount),
-            ),
+            // ── Summary block (card view only) ──────────────────────────
+            if (_isCardView)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                child: _SummaryBlock(count: _summaryCount),
+              ),
 
             // ── Past / Future tab selector ───────────────────────────────
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
               child: AppStepsTabBar(
+                fullWidth: true,
                 tabs: [
                   AppStepsTab(label: loc.yearPastList),
                   AppStepsTab(label: loc.yearFutureList),
@@ -267,6 +269,7 @@ class _PageHeader extends StatelessWidget {
               icon: Icons.search_off,
               tooltip: AppLocalizations.of(context)!.filterClearButton,
               onPressed: onClearFilter,
+              circle: true,
             ),
           ],
 
@@ -283,19 +286,30 @@ class _PageHeader extends StatelessWidget {
   }
 }
 
+/// Rounded-rectangle icon button matching the screenshot design.
+/// Used for view toggle and clear-filter actions.
 class _HeaderIconButton extends StatelessWidget {
   const _HeaderIconButton({
     required this.icon,
     required this.tooltip,
     required this.onPressed,
+    this.circle = false,
   });
 
   final IconData icon;
   final String tooltip;
   final VoidCallback onPressed;
+  /// When true renders as a circle (used for the clear-filter action).
+  final bool circle;
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cs = Theme.of(context).colorScheme;
+    final bg = isDark ? cs.surfaceContainerHigh : cs.surface;
+    final fg = cs.onSurface;
+    final radius = circle ? BorderRadius.circular(20) : BorderRadius.circular(10);
+
     if (AppPlatform.isApple) {
       return CupertinoButton(
         padding: EdgeInsets.zero,
@@ -305,25 +319,29 @@ class _HeaderIconButton extends StatelessWidget {
           height: 36,
           decoration: BoxDecoration(
             color: CupertinoColors.systemFill.resolveFrom(context),
-            shape: BoxShape.circle,
+            borderRadius: radius,
           ),
-          child: Icon(icon, size: 18),
+          child: Icon(icon, size: 18, color: CupertinoTheme.of(context).primaryColor),
         ),
       );
     }
-    return Container(
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.4),
+    return Tooltip(
+      message: tooltip,
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: radius,
+        child: Container(
+          width: 36,
+          height: 36,
+          decoration: BoxDecoration(
+            color: bg,
+            borderRadius: radius,
+            border: Border.all(
+              color: cs.outline.withValues(alpha: 0.3),
+            ),
+          ),
+          child: Icon(icon, size: 18, color: fg),
         ),
-        shape: BoxShape.circle,
-      ),
-      child: IconButton(
-        onPressed: onPressed,
-        icon: Icon(icon),
-        tooltip: tooltip,
-        iconSize: 20,
-        constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
       ),
     );
   }
@@ -337,6 +355,10 @@ class _AdaptiveFilterButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cs = Theme.of(context).colorScheme;
+    const radius = BorderRadius.all(Radius.circular(10));
+
     if (AppPlatform.isApple) {
       return CupertinoButton(
         padding: EdgeInsets.zero,
@@ -346,22 +368,29 @@ class _AdaptiveFilterButton extends StatelessWidget {
           height: 36,
           decoration: BoxDecoration(
             color: CupertinoColors.systemFill.resolveFrom(context),
-            shape: BoxShape.circle,
+            borderRadius: radius,
           ),
-          child: Icon(AdaptiveIcons.filter, size: 20),
+          child: Icon(AdaptiveIcons.filter, size: 20,
+              color: CupertinoTheme.of(context).primaryColor),
         ),
       );
     }
 
-    return Material(
-      elevation: 4,
-      shape: const CircleBorder(),
-      color: Theme.of(context).colorScheme.primaryContainer,
-      child: IconButton(
-        onPressed: onPressed,
-        icon: const Icon(Icons.filter_alt),
-        color: Theme.of(context).colorScheme.onPrimaryContainer,
-        tooltip: tooltip,
+    return Tooltip(
+      message: tooltip,
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: radius,
+        child: Container(
+          width: 36,
+          height: 36,
+          decoration: BoxDecoration(
+            color: isDark ? cs.surfaceContainerHigh : cs.surface,
+            borderRadius: radius,
+            border: Border.all(color: cs.outline.withValues(alpha: 0.3)),
+          ),
+          child: Icon(Icons.filter_alt_outlined, size: 18, color: cs.onSurface),
+        ),
       ),
     );
   }
@@ -377,16 +406,14 @@ class _SummaryBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    final bgColor = isDark ? Colors.white.withValues(alpha: 0.08) : AppColors.navy;
-    final labelColor = isDark ? AppColors.navy : Colors.white;
+    // inverseSurface = navy on light, lightBg (white) on dark — mirrors MenuSummaryCard
+    final cs = Theme.of(context).colorScheme;
 
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
-        color: bgColor,
+        color: cs.inverseSurface,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Text.rich(
@@ -394,7 +421,7 @@ class _SummaryBlock extends StatelessWidget {
           children: [
             TextSpan(
               text: '$count',
-              style: TextStyle(
+              style: const TextStyle(
                 color: AppColors.amber,
                 fontWeight: FontWeight.w800,
                 fontSize: 13,
@@ -404,7 +431,7 @@ class _SummaryBlock extends StatelessWidget {
             TextSpan(
               text: ' TRIPS',
               style: TextStyle(
-                color: isDark ? Colors.white.withValues(alpha: 0.85) : Colors.white,
+                color: cs.onInverseSurface,
                 fontWeight: FontWeight.w700,
                 fontSize: 13,
                 letterSpacing: 0.5,

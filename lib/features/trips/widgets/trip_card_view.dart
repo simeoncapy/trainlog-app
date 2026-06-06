@@ -236,46 +236,8 @@ class _TripCard extends StatelessWidget {
 
             const SizedBox(height: 12),
 
-            // Row 2: departure → arrival times (monospace)
-            if (!trip.isUnknownPastFuture)
-              _TimeRow(trip: trip),
-
-            if (!trip.isUnknownPastFuture) const SizedBox(height: 6),
-
-            // Row 3: route (origin → destination)
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    trip.originStation,
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyMedium
-                        ?.copyWith(fontWeight: FontWeight.w600),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 6),
-                  child: Icon(
-                    Icons.chevron_right,
-                    size: 18,
-                    color: cs.onSurface.withValues(alpha: 0.4),
-                  ),
-                ),
-                Expanded(
-                  child: Text(
-                    trip.destinationStation,
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyMedium
-                        ?.copyWith(fontWeight: FontWeight.w600),
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.end,
-                  ),
-                ),
-              ],
-            ),
+            // Rows 2+3: times (lighter) and stations with a single chevron
+            _RouteSection(trip: trip),
 
             const SizedBox(height: 10),
             Divider(height: 1, color: cs.outline.withValues(alpha: 0.3)),
@@ -291,84 +253,124 @@ class _TripCard extends StatelessWidget {
 }
 
 // ---------------------------------------------------------------------------
-// Time row with monospace font and delay indicators
+// Route section: times (small/muted) + station names, with a single chevron
+// spanning both rows
 // ---------------------------------------------------------------------------
 
-class _TimeRow extends StatelessWidget {
-  const _TimeRow({required this.trip});
+class _RouteSection extends StatelessWidget {
+  const _RouteSection({required this.trip});
   final Trips trip;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final showTimes = !trip.isUnknownPastFuture && !trip.isDateOnly;
 
-    String depTime = '';
-    String arrTime = '';
+    final String depTime =
+        showTimes ? DateFormat('HH:mm').format(trip.startDatetime) : '';
+    final String arrTime =
+        showTimes ? DateFormat('HH:mm').format(trip.endDatetime) : '';
 
-    if (!trip.isDateOnly) {
-      depTime = DateFormat('HH:mm').format(trip.startDatetime);
-      arrTime = DateFormat('HH:mm').format(trip.endDatetime);
-    }
+    final timeStyle = AppTheme.monoFont.copyWith(
+      fontSize: 12,
+      fontWeight: FontWeight.w500,
+      color: cs.onSurface.withValues(alpha: 0.5),
+    );
+    final stationStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
+          fontWeight: FontWeight.w600,
+        );
 
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        _TimeChip(
-          time: depTime,
-          delay: trip.departureDelayInMinutes,
-          delayText: trip.departureDelayFormatted,
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: Icon(
-            Icons.arrow_forward,
-            size: 14,
-            color: AppColors.amber,
+        // Left column: departure time + origin station
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (showTimes)
+                _TimeLabel(
+                  time: depTime,
+                  delay: trip.departureDelayInMinutes,
+                  delayText: trip.departureDelayFormatted,
+                  style: timeStyle,
+                  textAlign: TextAlign.start,
+                ),
+              Text(
+                trip.originStation,
+                style: stationStyle,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
           ),
         ),
-        _TimeChip(
-          time: arrTime,
-          delay: trip.arrivalDelayInMinutes,
-          delayText: trip.arrivalDelayFormatted,
+
+        // Centre chevron (primary colour), spans both rows
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 6),
+          child: Icon(Icons.chevron_right, size: 22, color: cs.primary),
+        ),
+
+        // Right column: arrival time + destination station
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              if (showTimes)
+                _TimeLabel(
+                  time: arrTime,
+                  delay: trip.arrivalDelayInMinutes,
+                  delayText: trip.arrivalDelayFormatted,
+                  style: timeStyle,
+                  textAlign: TextAlign.end,
+                ),
+              Text(
+                trip.destinationStation,
+                style: stationStyle,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.end,
+              ),
+            ],
+          ),
         ),
       ],
     );
   }
 }
 
-class _TimeChip extends StatelessWidget {
-  const _TimeChip({required this.time, this.delay, this.delayText});
+class _TimeLabel extends StatelessWidget {
+  const _TimeLabel({
+    required this.time,
+    required this.style,
+    required this.textAlign,
+    this.delay,
+    this.delayText,
+  });
+
   final String time;
+  final TextStyle? style;
+  final TextAlign textAlign;
   final int? delay;
   final String? delayText;
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          time,
-          style: AppTheme.monoFont.copyWith(
-            fontSize: 15,
-            fontWeight: FontWeight.w600,
-            color: cs.onSurface,
-          ),
-        ),
-        if (delay != null && delayText != null) ...[
-          const SizedBox(width: 4),
-          Text(
-            '($delayText)',
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w500,
+    if (delay != null && delayText != null) {
+      return Text.rich(
+        TextSpan(children: [
+          TextSpan(text: time, style: style),
+          TextSpan(
+            text: ' ($delayText)',
+            style: (style ?? const TextStyle()).copyWith(
               color: delay! > 0 ? Colors.red : Colors.green,
+              fontSize: 10,
             ),
           ),
-        ],
-      ],
-    );
+        ]),
+        textAlign: textAlign,
+      );
+    }
+    return Text(time, style: style, textAlign: textAlign);
   }
 }
 
@@ -380,7 +382,12 @@ class _MetaRow extends StatelessWidget {
   const _MetaRow({required this.trip});
   final Trips trip;
 
-  String _formatDate(Trips trip) {
+  String _formatDate(BuildContext context, Trips trip) {
+    final locale = Localizations.localeOf(context);
+    // British date formatting only for English; all other locales use their own.
+    final localeStr =
+        locale.languageCode == 'en' ? 'en_GB' : locale.toString();
+
     final start = trip.startDatetime;
     final end = trip.endDatetime;
 
@@ -389,14 +396,15 @@ class _MetaRow extends StatelessWidget {
         start.day == end.day;
 
     if (isSameDay || trip.isDateOnly) {
-      return DateFormat('d MMM', 'en_GB').format(start);
+      return DateFormat('d MMM', localeStr).format(start);
     }
 
     if (start.month == end.month && start.year == end.year) {
-      return '${start.day}–${end.day} ${DateFormat('MMM', 'en_GB').format(start)}';
+      return '${start.day}–${end.day} ${DateFormat('MMM', localeStr).format(start)}';
     }
 
-    return '${DateFormat('d MMM', 'en_GB').format(start)}–${DateFormat('d MMM', 'en_GB').format(end)}';
+    return '${DateFormat('d MMM', localeStr).format(start)}–'
+        '${DateFormat('d MMM', localeStr).format(end)}';
   }
 
   String _formatDuration(Trips trip) {
@@ -432,7 +440,7 @@ class _MetaRow extends StatelessWidget {
         if (!trip.isUnknownPastFuture) ...[
           Icon(Icons.calendar_today_outlined, size: 13, color: cs.onSurface.withValues(alpha: 0.5)),
           const SizedBox(width: 4),
-          Text(_formatDate(trip), style: metaStyle),
+          Text(_formatDate(context, trip), style: metaStyle),
         ],
       ],
     );
