@@ -109,17 +109,6 @@ String formatDateRange(BuildContext context, DateTime start, DateTime end) {
       '${DateFormat.MMMd(localeStr).format(end)}';
 }
 
-/// Formats a trip duration expressed in fractional minutes (as stored on the
-/// model) into a compact human-readable string, e.g. "1h 37min".
-String formatTripDuration(double durationMinutes) {
-  final total = durationMinutes.round();
-  final h = total ~/ 60;
-  final m = total % 60;
-  if (h == 0) return '${m} min';
-  if (m == 0) return '${h} h';
-  return '${h} h ${m} min';
-}
-
 String formatDurationFixed(Duration d) {
   final parts = <String>[];
   const nbsp = '\u00A0';
@@ -148,5 +137,34 @@ String formatDurationFixed(Duration d) {
   }
 
   return parts.join(' ');
+}
+
+String formatSecondsToHMS(int totalSeconds, {bool withSeconds = false, bool hourEvenIfZero = false}) {
+  int days = totalSeconds ~/ 86400; // 24 * 3600
+  int remainingAfterDays = totalSeconds % 86400;
+
+  int hours = remainingAfterDays ~/ 3600;
+  int remainingSecondsAfterHours = remainingAfterDays % 3600;
+
+  int minutes = remainingSecondsAfterHours ~/ 60;
+  int seconds = remainingSecondsAfterHours % 60;
+
+  String result = "";
+
+  if (days > 0) {
+    result += "$days d ";
+  }
+
+  if (hours != 0 || hourEvenIfZero || days > 0) {
+    result += "${hours.toString().padLeft(2, '0')} h ";
+  }
+
+  result += "${minutes.toString().padLeft(2, '0')} min";
+
+  if (withSeconds) {
+    result += " ${seconds.toString().padLeft(2, '0')} s";
+  }
+
+  return result;
 }
 

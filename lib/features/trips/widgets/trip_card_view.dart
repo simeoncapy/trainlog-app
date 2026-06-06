@@ -400,8 +400,10 @@ class _MetaRow extends StatelessWidget {
         : date_utils.formatDateRange(
             context, trip.startDatetime, trip.endDatetime);
 
-    final durationStr = date_utils.formatTripDuration(
-        trip.manualTripDuration ?? trip.estimatedTripDuration);
+    final duration = trip.utcEndDatetime?.difference(trip.utcStartDatetime ?? trip.startDatetime); // UTC start shouldn't be NULL if UTC end is not NULL, so startDatetime shouldn't be used (placed here to avoid NULL error)
+    final durationStr = date_utils.formatSecondsToHMS(
+        (trip.manualTripDuration ?? duration?.inSeconds ?? trip.estimatedTripDuration).round().toInt()
+    );
 
     return Row(
       children: [
