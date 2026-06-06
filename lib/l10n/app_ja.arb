@@ -248,6 +248,13 @@
   "statisticsUnitLabel": "単位：",
   "statisticsNoDataLabel": "データがありません",
   "statisticsPieWip": "円グラフは仕掛品です",
+  "statisticsTitle": "統計",
+  "statisticsViewBar": "棒グラフ",
+  "statisticsViewPie": "円グラフ",
+  "statisticsViewTable": "テーブル",
+  "statisticsSelectDimension": "次元を選択",
+  "statisticsSelectVehicle": "車両を選択",
+  "statisticsSelectUnit": "単位を選択",
   "internationalWaters": "公海",
 
   "addTripPageTitle": "旅行を追加",

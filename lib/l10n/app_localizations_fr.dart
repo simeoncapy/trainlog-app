@@ -878,6 +878,13 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get statisticsPieWip => 'Le camembert est en cours de construction';
+  String get statisticsTitle => 'Statistiques';
+  String get statisticsViewBar => 'Barres';
+  String get statisticsViewPie => 'Camembert';
+  String get statisticsViewTable => 'Tableau';
+  String get statisticsSelectDimension => 'Sélectionner une dimension';
+  String get statisticsSelectVehicle => 'Sélectionner un véhicule';
+  String get statisticsSelectUnit => 'Sélectionner une unité';
 
   @override
   String get internationalWaters => 'Eaux internationales';

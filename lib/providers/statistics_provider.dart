@@ -7,7 +7,7 @@ import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/utils/style_utils.dart';
 import 'package:trainlog_app/utils/text_utils.dart'; // for countryCodeToName(...)
-import 'package:trainlog_app/widgets/logo_bar_chart.dart'; // for UnitFactor
+import 'package:trainlog_app/features/statistics/widgets/logo_bar_chart.dart'; // for UnitFactor
 import 'package:duration/duration.dart';
 import 'package:duration/locale.dart';
 

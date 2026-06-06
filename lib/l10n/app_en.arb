@@ -342,6 +342,13 @@
   "statisticsUnitLabel": "Unit:",
   "statisticsNoDataLabel": "No data",
   "statisticsPieWip": "The pie chart is WIP",
+  "statisticsTitle": "Statistics",
+  "statisticsViewBar": "Bar",
+  "statisticsViewPie": "Pie",
+  "statisticsViewTable": "Table",
+  "statisticsSelectDimension": "Select dimension",
+  "statisticsSelectVehicle": "Select vehicle",
+  "statisticsSelectUnit": "Select unit",
   "internationalWaters": "International waters",
 
   "addTripPageTitle": "Add a Trip",

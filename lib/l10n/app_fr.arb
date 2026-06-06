@@ -248,6 +248,13 @@
   "statisticsUnitLabel": "Unités :",
   "statisticsNoDataLabel": "Pas de données",
   "statisticsPieWip": "Le camembert est en cours de construction",
+  "statisticsTitle": "Statistiques",
+  "statisticsViewBar": "Barres",
+  "statisticsViewPie": "Camembert",
+  "statisticsViewTable": "Tableau",
+  "statisticsSelectDimension": "Sélectionner une dimension",
+  "statisticsSelectVehicle": "Sélectionner un véhicule",
+  "statisticsSelectUnit": "Sélectionner une unité",
   "internationalWaters": "Eaux internationales",
 
   "addTripPageTitle": "Ajouter un trajet",

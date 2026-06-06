@@ -859,6 +859,13 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get statisticsPieWip => '円グラフは仕掛品です';
+  String get statisticsTitle => '統計';
+  String get statisticsViewBar => '棒グラフ';
+  String get statisticsViewPie => '円グラフ';
+  String get statisticsViewTable => 'テーブル';
+  String get statisticsSelectDimension => '次元を選択';
+  String get statisticsSelectVehicle => '車両を選択';
+  String get statisticsSelectUnit => '単位を選択';
 
   @override
   String get internationalWaters => '公海';

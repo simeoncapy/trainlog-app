@@ -1,13 +1,10 @@
 import 'dart:collection';
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/platform/adaptive_dropdown.dart';
-import 'package:trainlog_app/platform/adaptive_expansion_title.dart';
-import 'package:trainlog_app/platform/adaptive_switch.dart';
 
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
@@ -17,13 +14,15 @@ import 'package:trainlog_app/providers/statistics_provider.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
 import 'package:trainlog_app/utils/number_formatter.dart';
 import 'package:trainlog_app/utils/text_utils.dart';
-import 'package:trainlog_app/widgets/error_banner.dart';
-
-import 'package:trainlog_app/widgets/logo_bar_chart.dart';
+import 'package:trainlog_app/widgets/app_steps_tab_bar.dart';
 import 'package:trainlog_app/widgets/min_height_scrollable.dart';
-import 'package:trainlog_app/widgets/statistics_type_selector.dart';
-import 'package:trainlog_app/widgets/stats_pie_chart.dart';
-import 'package:trainlog_app/widgets/stats_table_chart.dart';
+
+import 'package:trainlog_app/features/statistics/widgets/logo_bar_chart.dart';
+import 'package:trainlog_app/features/statistics/widgets/stats_bar_chart.dart';
+import 'package:trainlog_app/features/statistics/widgets/stats_pie_chart.dart';
+import 'package:trainlog_app/features/statistics/widgets/stats_table_chart.dart';
+
+enum StatisticsView { bar, pie, table }
 
 class StatisticsPage extends StatefulWidget {
   const StatisticsPage({super.key});
@@ -33,11 +32,8 @@ class StatisticsPage extends StatefulWidget {
 }
 
 class _StatisticsPageState extends State<StatisticsPage> {
-  bool _rotated = false;      // bar chart orientation
-  bool _sortedAlpha = false;  // table sorting mode
-  bool _isParametersExpanded = true;
-  StatisticsType _selectedStatistics = StatisticsType.bar;
-
+  StatisticsView _view = StatisticsView.bar;
+  bool _sortedAlpha = false;
   late List<int> _listYears;
 
   @override
@@ -46,15 +42,12 @@ class _StatisticsPageState extends State<StatisticsPage> {
     _listYears = [DateTime.now().year];
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      // Ensure Trips repo (for year list) is loaded
       final tripsProvider = Provider.of<TripsProvider>(context, listen: false);
       if (tripsProvider.repository == null) {
-        // await tripsProvider.loadTrips();
         await tripsProvider.loadNecessaryTripsData(hardRefresh: true);
       }
       final years = await tripsProvider.repository?.fetchListOfYears()
         ?..sort((a, b) => b.compareTo(a));
-
       if (!mounted) return;
       setState(() => _listYears = years ?? [DateTime.now().year]);
     });
@@ -65,189 +58,62 @@ class _StatisticsPageState extends State<StatisticsPage> {
     final loc = AppLocalizations.of(context)!;
 
     return ChangeNotifierProvider(
-      // Inject StatisticsProvider with TrainlogProvider, then load once
       create: (ctx) => StatisticsProvider(ctx.read<TrainlogProvider>())..load(),
       builder: (context, _) {
-        context.watch<TrainlogProvider>();  // forces rebuild when logos load
-        final statsProv  = context.watch<StatisticsProvider>();
-        final settings   = context.watch<SettingsProvider>();
-        final palette    = MapColorPaletteHelper.getPalette(settings.mapColorPalette);
-        final barColor   = palette[statsProv.vehicle] ?? Colors.blue;
-        final hasData    = statsProv.currentStats.isNotEmpty && !statsProv.isLoading;
+        context.watch<TrainlogProvider>();
+        final statsProv = context.watch<StatisticsProvider>();
+        final settings = context.watch<SettingsProvider>();
+        final tripsProv = context.watch<TripsProvider>();
+        final palette = MapColorPaletteHelper.getPalette(settings.mapColorPalette);
+        final barColor = palette[statsProv.vehicle] ?? Colors.blue;
+        final hasData = statsProv.currentStats.isNotEmpty && !statsProv.isLoading;
+        final disabledYears = statsProv.graph == GraphType.years;
 
         return Padding(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Top right: chart type switcher (bar/pie/table)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  StatisticsTypeSelector(
-                    initialValue: _selectedStatistics,
-                    onChanged: (newType) => setState(() {
-                      _selectedStatistics = newType;
-                    }),
-                  ),
+              // ── Header: title + year picker ────────────────────────────
+              _buildHeader(context, statsProv, loc, tripsProv, disabledYears),
+              const SizedBox(height: 16),
+
+              // ── Graph-type tab bar (Bar / Pie / Table) ─────────────────
+              AppStepsTabBar(
+                fullWidth: true,
+                selectedIndex: _view.index,
+                onTabChanged: (i) => setState(() => _view = StatisticsView.values[i]),
+                tabs: [
+                  AppStepsTab(label: loc.statisticsViewBar,   leadingIcon: const Icon(Icons.bar_chart)),
+                  AppStepsTab(label: loc.statisticsViewPie,   leadingIcon: const Icon(Icons.pie_chart)),
+                  AppStepsTab(label: loc.statisticsViewTable, leadingIcon: const Icon(Icons.table_chart)),
                 ],
               ),
               const SizedBox(height: 16),
-              if(_selectedStatistics == StatisticsType.pie)
-              ErrorBanner(
-                  severity: ErrorSeverity.info,
-                  compact: true,
-                  message: loc.statisticsPieWip,
-                ),
+
+              // ── Dimension dropdown + filter row ────────────────────────
+              _buildDimensionRow(context, statsProv, loc),
               const SizedBox(height: 8),
-              _filtersPanel(context, statsProv),
+              _buildFilterRow(context, statsProv, loc, tripsProv),
               const SizedBox(height: 16),
 
+              // ── Chart area ─────────────────────────────────────────────
               Expanded(
                 child: MinHeightScrollable(
                   minHeight: 350,
                   padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
-                  child: Builder(
-                    builder: (_) {
-                      if (statsProv.isLoading) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-                      if (statsProv.error != null) {
-                        return Center(child: Text('Error: ${statsProv.error}'));
-                      }
-                      if (!hasData) {
-                        return Center(child: Text(loc.statisticsNoDataLabel));
-                      }
-
-                      // Data + helpers
-                      final stats = statsProv.currentStats;
-                      final unitMap = statsProv.unitsByFactor(context);
-                      final baseUnit = statsProv.baseUnitLabel(context);
-                      final labelBuilder = statsProv.labelBuilder(context);
-                      //final images = statsProv.graphImages(context);
-                      final statsShort = statsProv.currentStatsShort(
-                        10, // top 10
-                        otherLabel: AppLocalizations.of(context)!.statisticsOtherLabel,
-                      );
-                      final images = statsProv.graphImagesForKeys(
-                        context,
-                        statsShort.keys.toList(),
-                      );
-                      // For duration tooltips: parallel raw-seconds lists in same order
-                      List<double>? rawPastSecs;
-                      List<double>? rawFutureSecs;
-                      String Function(BuildContext, double)? rawFormatter;
-
-                      if (statsProv.unit == GraphUnit.duration) {
-                        final rawShort = statsProv.currentDurationRawSecondsShort(
-                          10,
-                          otherLabel: AppLocalizations.of(context)!.statisticsOtherLabel,
-                        );
-
-                        rawPastSecs = [
-                          for (final k in statsShort.keys) (rawShort[k]?.past ?? 0),
-                        ];
-                        rawFutureSecs = [
-                          for (final k in statsShort.keys) (rawShort[k]?.future ?? 0),
-                        ];
-                        rawFormatter = (ctx, v) => statsProv.humanizeSeconds(ctx, v);
-                      }
-                      final isDurationOrTrips =
-                          statsProv.unit == GraphUnit.duration || statsProv.unit == GraphUnit.trip;
-
-
-                      switch (_selectedStatistics) {
-                        case StatisticsType.bar:
-                          return LayoutBuilder(
-                            builder: (context, c) {
-                              const minH = 350.0;
-                              final h = math.max(
-                                minH, c.maxHeight.isFinite ? c.maxHeight : minH);
-                              return SizedBox(
-                                height: h,
-                                child: LogoBarChart(
-                                  stats: statsShort,
-                                  rotationQuarterTurns: !_rotated ? 1 : 0,
-                                  images: images,
-                                  baseUnit: baseUnit,
-                                  unitsByFactor: unitMap, // null for duration
-                                  color: barColor,
-                                  showAxisBackground: statsProv.graph == GraphType.operator,
-                                  // Only show tooltip for scalable units (distance/trips/CO2)
-                                  unitHelpTooltip: (isDurationOrTrips)
-                                      ? null
-                                      : _tooltipRich(context, unitMap!),
-                                  labelBuilder: labelBuilder,
-                                  // (optional) for pretty duration tooltips:
-                                  tooltipRawPast: rawPastSecs,
-                                  tooltipRawFuture: rawFutureSecs,
-                                  tooltipValueFormatter: rawFormatter,
-                                ),
-                              );
-                            },
-                          );
-
-                        case StatisticsType.pie:
-                          return StatsPieChart(
-                            stats: statsShort,
-                            interactive: false,
-                            seedColor: barColor,
-                            valueFormatter: (v) =>
-                                formatNumber(context, v, noDecimal: false),
-                            showLegend: true,
-                            sectionsSpace: 2,
-                            centerSpaceRadius: 36,
-                            labelBuilder: labelBuilder,
-                          );
-
-                        case StatisticsType.table:
-                          // Localize countries in labels for table (same as your old page)
-                          final fullStats = statsProv.currentStats;
-                          final tableStats = (statsProv.graph == GraphType.country)
-                              ? _orderedStats(_localizedStatsForTable(context, fullStats), alpha: _sortedAlpha)
-                              : _orderedStats(fullStats, alpha: _sortedAlpha);
-                          final isDuration = statsProv.unit == GraphUnit.duration;
-
-                          // 2) For duration: build a FULL raw-seconds map (keys must match table keys)
-                          Map<String, ({double past, double future})>? rawForTable;
-                          if (isDuration) {
-                            final rawSeconds = statsProv.currentDurationRawSeconds(); // full, keyed by original labels
-                            rawForTable = (statsProv.graph == GraphType.country)
-                                ? _localizedRawSecondsForTable(context, rawSeconds)
-                                : LinkedHashMap.of(rawSeconds);
-                          }
-
-                          return Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              if(!isDuration) Text("${loc.statisticsUnitLabel} $baseUnit"),
-                              const SizedBox(height: 8),
-                              StatsTableChart(
-                                stats: tableStats,
-                                isDuration: isDuration,
-                                rawValues: rawForTable,
-                                rawValueFormatter: statsProv.humanizeSeconds,
-                                valueFormatter: (v) => formatNumber(context, v),
-                                //labelBuilder: statsProv.labelBuilder(context),
-                                labelHeader: statsProv.graph.label(context, statsProv.vehicle),
-                                pastHeader: loc.yearPastList,
-                                futureHeader: loc.yearFutureList,
-                                totalHeader: loc.statisticsTotalLabel,
-                                labelMaxWidth: 180,
-                                labelMaxLines: 4,
-                                compact: true,
-                                onlyTotal: switch (statsProv.year) {
-                                  null => false,
-                                  final y when y == 0 => false,
-                                  final y when y == DateTime.now().year => false,
-                                  _ => true,
-                                },
-                              ),
-                            ],
-                          );
-                      }
-                    },
-                  ),
+                  child: Builder(builder: (_) {
+                    if (statsProv.isLoading) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    if (statsProv.error != null) {
+                      return Center(child: Text('Error: ${statsProv.error}'));
+                    }
+                    if (!hasData) {
+                      return Center(child: Text(loc.statisticsNoDataLabel));
+                    }
+                    return _buildChart(context, statsProv, loc, barColor);
+                  }),
                 ),
               ),
             ],
@@ -257,211 +123,214 @@ class _StatisticsPageState extends State<StatisticsPage> {
     );
   }
 
-  // ------------------------ FILTERS PANEL -----------------------------
+  // ── Header: "Statistics" title  +  year dropdown ──────────────────────────
 
-  Widget _filtersPanel(BuildContext context, StatisticsProvider p) {
-    final loc = AppLocalizations.of(context)!;
-    final tripsProv = context.watch<TripsProvider>();
-    final disabledYears = p.graph == GraphType.years;
-
-    final collapsedTitle = Row(
-      children: [
-        p.vehicle.icon(),
-        const Text("・"),
-        p.graph.icon(),
-        const Text("・"),
-        p.unit.icon(),
-        const Text("・"),
-        Expanded(
-          child: Text(
-            p.year == null || p.year == 0
-                ? loc.tripsFilterAllYears
-                : p.year.toString(),
-            overflow: TextOverflow.ellipsis,
-            maxLines: 1,
-          ),
-        ),
-      ],
-    );
-
-    final body = _filterPanelBody(context, p, loc, tripsProv, disabledYears);
-
-      return AdaptiveExpansionTile(
-        initiallyExpanded: _isParametersExpanded,
-        onExpansionChanged: (v) => setState(() => _isParametersExpanded = v),
-        title: _isParametersExpanded
-            ? Text(loc.statisticsHideFilters)
-            : collapsedTitle,
-        children: [body],
-      );
-    
-    
-
-    // return ExpansionPanelList(
-    //   expansionCallback: (i, isExpanded) =>
-    //       setState(() => _isParametersExpanded = isExpanded),
-    //   children: [
-    //     ExpansionPanel(
-    //       canTapOnHeader: true,
-    //       isExpanded: _isParametersExpanded,
-    //       headerBuilder: (context, isExpanded) {
-    //         return ListTile(
-    //           title: isExpanded
-    //               ? Text(loc.statisticsHideFilters)
-    //               : collapsedTitle,
-    //         );
-    //       },
-    //       body: body,
-    //     )
-    //   ],
-    // );
-  }
-
-  Widget _filterPanelBody(
+  Widget _buildHeader(
     BuildContext context,
     StatisticsProvider p,
     AppLocalizations loc,
     TripsProvider tripsProv,
     bool disabledYears,
   ) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Column(
-        children: [
-          // Vehicle + Year
-          Row(
-            children: [
-              Expanded(
-                child: AdaptiveDropdown<VehicleType>(
-                  items: tripsProv.vehicleTypesWithoutPoi,
-                  selectedValue: p.vehicle,
-                  onChanged: (v) => p.vehicle = v ?? VehicleType.train,
-                  labelOf: (v) => VehicleType.labelOf(v, context),
-                  iconOf: (v) => VehicleType.iconOf(v),
-                  hintText: 'Select vehicle',
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: AdaptiveDropdown<int>(
-                  items: [0, ...tripsProv.years], // 0 = All
-                  selectedValue: p.year ?? 0,
-                  onChanged: disabledYears ? null : (y) => p.year = y,
-                  labelOf: (y) => y == 0 ? loc.tripsFilterAllYears : y.toString(),
-                  hintText: 'Select Year',
-                  enabled: !disabledYears,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-      
-          // Graph type
-          AdaptiveDropdown<GraphType>(
-            items: GraphType.values,
-            selectedValue: p.graph,
-            onChanged: (g) => p.graph = g ?? GraphType.operator,
-            labelOf: (t) => t.label(context, p.vehicle),
-            iconOf: (t) => t.icon(),
-            hintText: 'Select a graph',
-          ),
-      
-          const SizedBox(height: 16),
-      
-          // Graph unit + optional orientation / sort switch
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Expanded(
-                child: AdaptiveDropdown<GraphUnit>(
-                  items: GraphUnit.values,
-                  selectedValue: p.unit,
-                  onChanged: (u) => p.unit = u ?? GraphUnit.trip,
-                  labelOf: (u) => u.label(context),
-                  iconOf: (u) => u.icon(),
-                  hintText: 'Select a unit',
-                ),
-              ),
-              const SizedBox(width: 8),
-              if (_selectedStatistics == StatisticsType.bar)
-                _iconSwitch(
-                  iconBefore: Icons.sort,
-                  iconAfter: Icons.bar_chart,
-                  value: _rotated,
-                  onChanged: (v) => setState(() => _rotated = v),
-                ),
-              if (_selectedStatistics == StatisticsType.table)
-                _iconSwitch(
-                  iconBefore: Icons.arrow_downward,
-                  iconAfter: Icons.sort_by_alpha,
-                  value: _sortedAlpha,
-                  onChanged: (v) => setState(() => _sortedAlpha = v),
-                ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ------------------------ SMALL HELPERS -----------------------------
-
-  Widget _iconSwitch({
-    required IconData iconBefore,
-    required IconData iconAfter,
-    required bool value,
-    required ValueChanged<bool> onChanged,
-    bool disabled = false,
-  }) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Icon(iconBefore),
-        AdaptiveSwitch(value: value, onChanged: disabled ? null : onChanged),
-        Icon(iconAfter),
+        Text(
+          loc.statisticsTitle,
+          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
+        ),
+        const Spacer(),
+        // Year selector chip
+        _YearDropdown(
+          years: [0, ...tripsProv.years],
+          selected: p.year ?? 0,
+          enabled: !disabledYears,
+          allYearsLabel: loc.tripsFilterAllYears,
+          onChanged: (y) => p.year = y,
+        ),
       ],
     );
   }
 
-  // Dropdown helper (same UX as your original)
-  Widget buildDropdown<T>({
-    required List<T> items,
-    required T? selectedValue,
-    required ValueChanged<T?>? onChanged,
-    required String Function(T item) labelOf,
-    Icon? Function(T item)? iconOf,
-    String hintText = 'Select an option',
-    bool isExpanded = true,
-    bool enabled = true,
-  }) {
-    return DropdownButton<T>(
-      hint: Text(hintText),
-      value: selectedValue,
-      isExpanded: isExpanded,
-      onChanged: enabled ? onChanged : null,
-      items: items.map((item) {
-        return DropdownMenuItem<T>(
-          value: item,
-          child: Row(
-            children: [
-              if (iconOf != null) ...[
-                iconOf(item) ?? const SizedBox.shrink(),
-                const SizedBox(width: 8),
-              ],
-              Expanded(
-                child: Text(
-                  labelOf(item),
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                ),
-              ),
-            ],
-          ),
-        );
-      }).toList(),
+  // ── Dimension dropdown (By operator / country / year …) ───────────────────
+
+  Widget _buildDimensionRow(
+    BuildContext context,
+    StatisticsProvider p,
+    AppLocalizations loc,
+  ) {
+    return AdaptiveDropdown<GraphType>(
+      items: GraphType.values,
+      selectedValue: p.graph,
+      onChanged: (g) => p.graph = g ?? GraphType.operator,
+      labelOf: (t) => t.label(context, p.vehicle),
+      iconOf: (t) => t.icon(),
+      hintText: loc.statisticsSelectDimension,
     );
   }
 
-  // Keep your stable ordering logic (alpha vs by-total)
+  // ── Filter row: vehicle  |  unit  |  sort toggle ──────────────────────────
+
+  Widget _buildFilterRow(
+    BuildContext context,
+    StatisticsProvider p,
+    AppLocalizations loc,
+    TripsProvider tripsProv,
+  ) {
+    return Row(
+      children: [
+        // Vehicle type
+        Expanded(
+          child: AdaptiveDropdown<VehicleType>(
+            items: tripsProv.vehicleTypesWithoutPoi,
+            selectedValue: p.vehicle,
+            onChanged: (v) => p.vehicle = v ?? VehicleType.train,
+            labelOf: (v) => VehicleType.labelOf(v, context),
+            iconOf: (v) => VehicleType.iconOf(v),
+            hintText: loc.statisticsSelectVehicle,
+          ),
+        ),
+        const SizedBox(width: 8),
+        // Unit
+        Expanded(
+          child: AdaptiveDropdown<GraphUnit>(
+            items: GraphUnit.values,
+            selectedValue: p.unit,
+            onChanged: (u) => p.unit = u ?? GraphUnit.trip,
+            labelOf: (u) => u.label(context),
+            iconOf: (u) => u.icon(),
+            hintText: loc.statisticsSelectUnit,
+          ),
+        ),
+        // Sort toggle — hidden for Pie view
+        if (_view != StatisticsView.pie) ...[
+          const SizedBox(width: 8),
+          _SortToggleButton(
+            alpha: _sortedAlpha,
+            onToggle: () => setState(() => _sortedAlpha = !_sortedAlpha),
+          ),
+        ],
+      ],
+    );
+  }
+
+  // ── Chart switcher ─────────────────────────────────────────────────────────
+
+  Widget _buildChart(
+    BuildContext context,
+    StatisticsProvider p,
+    AppLocalizations loc,
+    Color barColor,
+  ) {
+    final statsShort = p.currentStatsShort(
+      10,
+      otherLabel: loc.statisticsOtherLabel,
+    );
+    final images = p.graphImagesForKeys(context, statsShort.keys.toList());
+    final unitMap = p.unitsByFactor(context);
+    final baseUnit = p.baseUnitLabel(context);
+    final labelBuilder = p.labelBuilder(context);
+
+    // Raw seconds for duration tooltips
+    List<double>? rawPastSecs;
+    List<double>? rawFutureSecs;
+    String Function(BuildContext, double)? rawFormatter;
+
+    if (p.unit == GraphUnit.duration) {
+      final rawShort = p.currentDurationRawSecondsShort(
+        10,
+        otherLabel: loc.statisticsOtherLabel,
+      );
+      rawPastSecs = [for (final k in statsShort.keys) rawShort[k]?.past ?? 0];
+      rawFutureSecs = [for (final k in statsShort.keys) rawShort[k]?.future ?? 0];
+      rawFormatter = (ctx, v) => p.humanizeSeconds(ctx, v);
+    }
+
+    final isDurationOrTrips =
+        p.unit == GraphUnit.duration || p.unit == GraphUnit.trip;
+
+    switch (_view) {
+      case StatisticsView.bar:
+        return StatsBarChart(
+          stats: _orderedStats(statsShort, alpha: _sortedAlpha),
+          images: images,
+          baseUnit: baseUnit,
+          unitsByFactor: unitMap,
+          color: barColor,
+          labelBuilder: labelBuilder,
+          unitHelpTooltip: isDurationOrTrips ? null : _tooltipRich(context, unitMap!),
+        );
+
+      case StatisticsView.pie:
+        return StatsPieChart(
+          stats: statsShort,
+          interactive: false,
+          seedColor: barColor,
+          valueFormatter: (v) => formatNumber(context, v, noDecimal: false),
+          showLegend: true,
+          sectionsSpace: 2,
+          centerSpaceRadius: 36,
+          labelBuilder: labelBuilder,
+        );
+
+      case StatisticsView.table:
+        final fullStats = p.currentStats;
+        final tableStats = (p.graph == GraphType.country)
+            ? _orderedStats(_localizedStatsForTable(context, fullStats), alpha: _sortedAlpha)
+            : _orderedStats(fullStats, alpha: _sortedAlpha);
+        final isDuration = p.unit == GraphUnit.duration;
+
+        Map<String, ({double past, double future})>? rawForTable;
+        if (isDuration) {
+          final rawSeconds = p.currentDurationRawSeconds();
+          rawForTable = (p.graph == GraphType.country)
+              ? _localizedRawSecondsForTable(context, rawSeconds)
+              : LinkedHashMap.of(rawSeconds);
+        }
+
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (!isDuration)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Text(
+                  baseUnit,
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        letterSpacing: 0.5,
+                      ),
+                ),
+              ),
+            StatsTableChart(
+              stats: tableStats,
+              isDuration: isDuration,
+              rawValues: rawForTable,
+              rawValueFormatter: p.humanizeSeconds,
+              valueFormatter: (v) => formatNumber(context, v),
+              labelHeader: p.graph.label(context, p.vehicle),
+              pastHeader: loc.yearPastList,
+              futureHeader: loc.yearFutureList,
+              totalHeader: loc.statisticsTotalLabel,
+              labelMaxWidth: 200,
+              compact: true,
+              onlyTotal: switch (p.year) {
+                null => false,
+                final y when y == 0 => false,
+                final y when y == DateTime.now().year => false,
+                _ => true,
+              },
+            ),
+          ],
+        );
+    }
+  }
+
+  // ── Helpers ────────────────────────────────────────────────────────────────
+
   LinkedHashMap<String, ({double past, double future})> _orderedStats(
     Map<String, ({double past, double future})> stats, {
     required bool alpha,
@@ -480,7 +349,6 @@ class _StatisticsPageState extends State<StatisticsPage> {
     return LinkedHashMap.fromEntries(entries);
   }
 
-  // For the table: localize country names (same behavior as your old page)
   LinkedHashMap<String, ({double past, double future})> _localizedStatsForTable(
     BuildContext context,
     Map<String, ({double past, double future})> stats,
@@ -489,15 +357,14 @@ class _StatisticsPageState extends State<StatisticsPage> {
     for (final e in stats.entries) {
       final name = countryCodeToName(e.key, context);
       final cur = out[name];
-      out[name] = (past: (cur?.past ?? 0) + e.value.past,
-                   future: (cur?.future ?? 0) + e.value.future);
+      out[name] = (
+        past: (cur?.past ?? 0) + e.value.past,
+        future: (cur?.future ?? 0) + e.value.future,
+      );
     }
-    // Keep ordering preference
     return _orderedStats(out, alpha: _sortedAlpha);
   }
 
-  // Localize + aggregate a raw-seconds map keyed by country code,
-// so keys match the table’s localized labels.
   LinkedHashMap<String, ({double past, double future})> _localizedRawSecondsForTable(
     BuildContext context,
     Map<String, ({double past, double future})> rawSecondsByCode,
@@ -508,7 +375,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
       final cur = out[name];
       out[name] = (
         past: (cur?.past ?? 0) + e.value.past,
-        future: (cur?.future ?? 0) + e.value.future
+        future: (cur?.future ?? 0) + e.value.future,
       );
     }
     return out;
@@ -519,9 +386,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
     final baseUnit = units[UnitFactor.base]!;
     return WidgetSpan(
       child: DefaultTextStyle(
-        style: base.copyWith(
-          color: Theme.of(context).colorScheme.onPrimaryContainer,
-        ),
+        style: base.copyWith(color: Theme.of(context).colorScheme.onPrimaryContainer),
         child: IntrinsicWidth(
           child: Table(
             defaultColumnWidth: const IntrinsicColumnWidth(),
@@ -536,14 +401,106 @@ class _StatisticsPageState extends State<StatisticsPage> {
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                     child: Align(
                       alignment: Alignment.centerRight,
-                      child: Text(
-                        formatNumber(context, f.multiplier, noDecimal: true),
-                      ),
+                      child: Text(formatNumber(context, f.multiplier, noDecimal: true)),
                     ),
                   ),
                   Text(baseUnit),
                 ]),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Year selector chip ─────────────────────────────────────────────────────
+
+class _YearDropdown extends StatelessWidget {
+  final List<int> years;
+  final int selected;
+  final bool enabled;
+  final String allYearsLabel;
+  final ValueChanged<int> onChanged;
+
+  const _YearDropdown({
+    required this.years,
+    required this.selected,
+    required this.enabled,
+    required this.allYearsLabel,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final label = selected == 0 ? allYearsLabel : selected.toString();
+
+    return PopupMenuButton<int>(
+      enabled: enabled,
+      initialValue: selected,
+      onSelected: onChanged,
+      itemBuilder: (_) => [
+        for (final y in years)
+          PopupMenuItem<int>(
+            value: y,
+            child: Text(y == 0 ? allYearsLabel : y.toString()),
+          ),
+      ],
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          color: cs.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: cs.outline.withValues(alpha: 0.4)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.calendar_today_outlined, size: 15, color: cs.onSurfaceVariant),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+            const SizedBox(width: 4),
+            Icon(Icons.expand_more, size: 16, color: cs.onSurfaceVariant),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Sort toggle button ─────────────────────────────────────────────────────
+
+class _SortToggleButton extends StatelessWidget {
+  final bool alpha;
+  final VoidCallback onToggle;
+
+  const _SortToggleButton({required this.alpha, required this.onToggle});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Tooltip(
+      message: alpha ? 'Sort by total' : 'Sort alphabetically',
+      child: InkWell(
+        onTap: onToggle,
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: cs.surfaceContainerHighest,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: cs.outline.withValues(alpha: 0.4)),
+          ),
+          child: Icon(
+            alpha ? Icons.sort_by_alpha : Icons.arrow_downward,
+            size: 18,
+            color: cs.onSurfaceVariant,
           ),
         ),
       ),

@@ -1494,6 +1494,14 @@ abstract class AppLocalizations {
   /// **'The pie chart is WIP'**
   String get statisticsPieWip;
 
+  String get statisticsTitle;
+  String get statisticsViewBar;
+  String get statisticsViewPie;
+  String get statisticsViewTable;
+  String get statisticsSelectDimension;
+  String get statisticsSelectVehicle;
+  String get statisticsSelectUnit;
+
   /// No description provided for @internationalWaters.
   ///
   /// In en, this message translates to:
