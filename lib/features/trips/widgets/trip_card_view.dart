@@ -223,7 +223,7 @@ class _TripCard extends StatelessWidget {
                       trip.lineName,
                       style: Theme.of(context)
                           .textTheme
-                          .titleSmall
+                          .bodySmall
                           ?.copyWith(fontWeight: FontWeight.w600),
                       overflow: TextOverflow.ellipsis,
                     ),
