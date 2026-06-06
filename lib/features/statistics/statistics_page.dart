@@ -132,10 +132,12 @@ class _StatisticsPageState extends State<StatisticsPage> {
     final isDurationOrTrips =
         p.unit == GraphUnit.duration || p.unit == GraphUnit.trip;
 
-    if (p.isLoading) return const Padding(
+    if (p.isLoading) {
+      return const Padding(
       padding: EdgeInsets.symmetric(vertical: 40),
       child: Center(child: CircularProgressIndicator()),
     );
+    }
     if (p.error != null) return Center(child: Text('Error: ${p.error}'));
     if (statsShort.isEmpty) return Center(child: Text(loc.statisticsNoDataLabel));
 
@@ -406,17 +408,6 @@ class _StatsCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 6),
-                // Graph type (dimension filter — year filter disabled for "By year")
-                Expanded(
-                  child: _OutlinedDropdown<GraphType>(
-                    items: GraphType.values,
-                    selected: statsProv.graph,
-                    iconOf: (g) => g.icon(),
-                    labelOf: (g) => g.label(context, statsProv.vehicle),
-                    onChanged: (g) => statsProv.graph = g ?? statsProv.graph,
-                  ),
-                ),
-                const SizedBox(width: 6),
                 // Unit
                 Expanded(
                   child: _OutlinedDropdown<GraphUnit>(
@@ -429,7 +420,7 @@ class _StatsCard extends StatelessWidget {
                 ),
                 // Sort toggle — hidden for Pie view
                 if (view != StatisticsView.pie) ...[
-                  const SizedBox(width: 6),
+                  const SizedBox(width: 10),
                   _SortButton(alpha: sortedAlpha, onTap: onSortToggle),
                 ],
               ],
@@ -532,7 +523,7 @@ class _OutlinedDropdown<T> extends StatelessWidget {
                   children: [
                     if (iconOf(item) != null) ...[
                       IconTheme(
-                        data: IconThemeData(size: 16, color: cs.primary),
+                        data: IconThemeData(size: 18, color: cs.primary),
                         child: iconOf(item)!,
                       ),
                       const SizedBox(width: 10),
@@ -557,7 +548,7 @@ class _OutlinedDropdown<T> extends StatelessWidget {
           children: [
             if (icon != null) ...[
               IconTheme(
-                data: IconThemeData(size: 14, color: cs.primary),
+                data: IconThemeData(size: 18, color: cs.primary),
                 child: icon,
               ),
               const SizedBox(width: 5),
@@ -565,7 +556,7 @@ class _OutlinedDropdown<T> extends StatelessWidget {
             Flexible(
               child: Text(
                 labelOf(selected),
-                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                style: Theme.of(context).textTheme.labelLarge?.copyWith(
                       color: cs.onSurface,
                       fontWeight: FontWeight.w500,
                     ),
@@ -574,7 +565,7 @@ class _OutlinedDropdown<T> extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 3),
-            Icon(Icons.keyboard_arrow_down, size: 14, color: cs.onSurfaceVariant),
+            Icon(Icons.keyboard_arrow_down, size: 18, color: cs.onSurfaceVariant),
           ],
         ),
       ),
@@ -610,9 +601,8 @@ class _SortButton extends StatelessWidget {
             ),
           ),
           child: Icon(
-            // Icon reflects current sort mode: changes when toggled
-            alpha ? Icons.sort_by_alpha : Icons.filter_list,
-            size: 16,
+            alpha ? Icons.filter_list : Icons.sort_by_alpha,
+            size: 18,
             color: cs.primary,
           ),
         ),

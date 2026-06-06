@@ -135,7 +135,6 @@ class _AppStepsTabBarState extends State<AppStepsTabBar> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cs = Theme.of(context).colorScheme;
-    final trackColor = isDark ? cs.secondaryContainer.withValues(alpha: 0.2) : const Color(0xFFEEEEF2);
     final tabColors = Theme.of(context).extension<AppTabColors>()!;
 
     if (widget.fullWidth) {
@@ -202,7 +201,7 @@ class _AppStepsTabBarState extends State<AppStepsTabBar> {
     return Container(
       height: 46,
       decoration: BoxDecoration(
-        color: trackColor,
+        color: tabColors.tabBackground,
         borderRadius: BorderRadius.circular(14),
       ),
       child: SingleChildScrollView(
