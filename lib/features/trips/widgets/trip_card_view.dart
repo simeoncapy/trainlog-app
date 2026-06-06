@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/app/theme/app_colors.dart';
 import 'package:trainlog_app/app/theme/app_theme.dart';
@@ -11,6 +12,7 @@ import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/utils/date_utils.dart' as date_utils;
 import 'package:trainlog_app/utils/map_color_palette.dart';
 import 'package:trainlog_app/utils/style_utils.dart';
+import 'package:trainlog_app/widgets/divider_with_widget.dart';
 import 'package:trainlog_app/widgets/past_future_selector.dart';
 import 'package:trainlog_app/widgets/trips_filter_dialog.dart';
 
@@ -132,24 +134,58 @@ class _TripCardViewState extends State<TripCardView> {
     }
 
     final bottomInset = MediaQuery.of(context).padding.bottom;
-    return ListView.builder(
+    final locale = Localizations.localeOf(context).toString();
+
+    // Build a flat list of items (dividers + cards) from loaded trips.
+    final List<Widget> listItems = [];
+    String? lastMonthKey;
+
+    for (int index = 0; index < _totalCount; index++) {
+      final trip = index < _items.length ? _items[index] : null;
+
+      if (trip == null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) => _loadMoreIfNeeded());
+        listItems.add(const _TripCardSkeleton());
+        lastMonthKey = null; // reset so divider is re-evaluated once loaded
+        continue;
+      }
+
+      final dt = trip.startDatetime;
+      final monthKey = '${dt.year}-${dt.month}';
+
+      if (monthKey != lastMonthKey) {
+        final isJanuary = dt.month == 1;
+        final label = isJanuary
+            ? DateFormat('MMMM yyyy', locale).format(dt)
+            : DateFormat('MMMM', locale).format(dt);
+        listItems.add(
+          Padding(
+            padding: const EdgeInsets.only(top: 12, bottom: 4),
+            child: DividerWithText(
+              text: label,
+              style: isJanuary ? const TextStyle(fontWeight: FontWeight.bold) : null,
+            ),
+          ),
+        );
+        lastMonthKey = monthKey;
+      }
+
+      listItems.add(_TripCard(trip: trip, trainlog: widget.trainlog));
+    }
+
+    if (_isLoadingMore) {
+      listItems.add(
+        const Padding(
+          padding: EdgeInsets.symmetric(vertical: 16),
+          child: Center(child: CircularProgressIndicator()),
+        ),
+      );
+    }
+
+    return ListView(
       controller: _scrollController,
       padding: EdgeInsets.fromLTRB(16, 8, 16, bottomInset + 90),
-      itemCount: _totalCount + (_isLoadingMore ? 1 : 0),
-      itemBuilder: (context, index) {
-        if (index >= _totalCount) {
-          return const Padding(
-            padding: EdgeInsets.symmetric(vertical: 16),
-            child: Center(child: CircularProgressIndicator()),
-          );
-        }
-        final trip = index < _items.length ? _items[index] : null;
-        if (trip == null) {
-          WidgetsBinding.instance.addPostFrameCallback((_) => _loadMoreIfNeeded());
-          return const _TripCardSkeleton();
-        }
-        return _TripCard(trip: trip, trainlog: widget.trainlog);
-      },
+      children: listItems,
     );
   }
 }

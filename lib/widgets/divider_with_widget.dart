@@ -38,10 +38,12 @@ class DividerWithWidget extends StatelessWidget {
 
 class DividerWithText extends StatelessWidget {
   final String text;
+  final TextStyle? style;
 
   const DividerWithText({
     super.key,
     required this.text,
+    this.style,
   });
 
   @override
@@ -53,7 +55,7 @@ class DividerWithText extends StatelessWidget {
         text,
         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: cs.onSurfaceVariant,
-            ),
+            ).merge(style),
       ),
     );
   }
