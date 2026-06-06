@@ -176,8 +176,9 @@ class _TripCardViewState extends State<TripCardView> {
           final newerDt = lastMonthDate!;
           final yearTransition = dt.year != newerDt.year;
           final bold = yearTransition ? FontWeight.bold : FontWeight.normal;
+          final color = yearTransition ? cs.primary : cs.onSurfaceVariant;
           final baseStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: cs.onSurfaceVariant,
+                color: color,
                 fontWeight: bold,
               );
 
@@ -194,21 +195,21 @@ class _TripCardViewState extends State<TripCardView> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(Icons.keyboard_arrow_down_rounded,
-                  size: 16, color: cs.onSurfaceVariant),
+                  size: 16, color: color),
               const SizedBox(width: 2),
               Text(olderLabel, style: baseStyle),
               Text('  /  ', style: baseStyle),
               Text(newerLabel, style: baseStyle),
               const SizedBox(width: 2),
               Icon(Icons.keyboard_arrow_up_rounded,
-                  size: 16, color: cs.onSurfaceVariant),
+                  size: 16, color: color),
             ],
           );
         }
 
         listItems.add(
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
+            padding: const EdgeInsets.fromLTRB(0, 8, 0, 16),
             child: DividerWithWidget(child: dividerChild),
           ),
         );
