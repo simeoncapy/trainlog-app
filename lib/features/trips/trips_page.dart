@@ -152,8 +152,14 @@ class _TripsPageState extends State<TripsPage> {
               child: AppStepsTabBar(
                 fullWidth: true,
                 tabs: [
-                  AppStepsTab(label: loc.yearPastList),
-                  AppStepsTab(label: loc.yearFutureList),
+                  AppStepsTab(
+                    label: loc.yearPastList,
+                    leadingIcon: const Icon(Icons.restore),
+                  ),
+                  AppStepsTab(
+                    label: loc.yearFutureList,
+                    leadingIcon: const Icon(Icons.next_plan_outlined),
+                  ),
                 ],
                 selectedIndex: _timeMoment == TimeMoment.past ? 0 : 1,
                 onTabChanged: (i) {

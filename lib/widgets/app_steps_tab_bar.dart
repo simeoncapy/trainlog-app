@@ -163,6 +163,7 @@ class _AppStepsTabBarState extends State<AppStepsTabBar> {
                         leadingIcon: widget.tabs[i].leadingIcon,
                         isSelected: i == widget.selectedIndex,
                         onTap: () => widget.onTabChanged(i),
+                        centerContent: true,
                       ),
                     ),
                 ],
@@ -213,6 +214,9 @@ class _AppStepsTabChip extends StatelessWidget {
   final Widget? leadingIcon;
   final bool isSelected;
   final VoidCallback onTap;
+  /// When true the chip content is centered both horizontally and vertically
+  /// (used in fullWidth mode where the chip fills an Expanded cell).
+  final bool centerContent;
 
   const _AppStepsTabChip({
     super.key,
@@ -221,6 +225,7 @@ class _AppStepsTabChip extends StatelessWidget {
     this.leadingIcon,
     required this.isSelected,
     required this.onTap,
+    this.centerContent = false,
   });
 
   @override
@@ -230,14 +235,11 @@ class _AppStepsTabChip extends StatelessWidget {
 
     // Keep the same layout/sizing for selected and unselected so that
     // _widths stays stable and the indicator slides correctly.
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
+    final content = Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
             if (leadingIcon != null) ...[
               AnimatedOpacity(
                 duration: const Duration(milliseconds: 200),
@@ -290,6 +292,12 @@ class _AppStepsTabChip extends StatelessWidget {
           ],
         ),
       ),
+    );
+
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: centerContent ? Center(child: content) : content,
     );
   }
 }
