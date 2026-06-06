@@ -67,7 +67,7 @@ class _TripTableViewState extends State<TripTableView> {
         final btmPad = MediaQuery.of(context).padding.bottom;
         const double headingHeight = 56.0;
         const double rowHeight = 48.0;
-        final double footerHeight = AppPlatform.isApple ? btmPad + 50 : 180.0;
+        final double footerHeight = AppPlatform.isApple ? btmPad + 50 : 110.0;
         final rowsPerPage =
             ((constraints.maxHeight - headingHeight - footerHeight) ~/ rowHeight).clamp(5, 50);
 

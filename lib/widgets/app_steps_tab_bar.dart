@@ -289,8 +289,7 @@ class _AppStepsTabChip extends StatelessWidget {
                 ),
               ),
             ],
-          ],
-        ),
+        ],
       ),
     );
 
