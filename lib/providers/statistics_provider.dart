@@ -425,64 +425,75 @@ class StatisticsProvider extends ChangeNotifier {
   }
 
   /// Build graph images for a given ordered list of keys (so it matches `stats.keys`).
-  List<Widget> graphImagesForKeys(BuildContext context, List<String> keys) {
-    // Use the same logic you already have in the provider for building images.
-    // This version reuses your graphImages() behavior but for a provided key order.
-    List<Widget> forGraph(List<String> data) {
-      // Convert "JP" -> "🇯🇵"
-      String flagEmoji(String code) {
-        String normalize(String c) {
-          final cc = c.trim().toUpperCase();
-          return (cc == 'UK') ? 'GB' : cc;
-        }
-
-        final cc = normalize(code);
-        if (cc.length != 2) return '🏳️';
-        const int base = 0x1F1E6;
-        final int a = cc.codeUnitAt(0);
-        final int b = cc.codeUnitAt(1);
-        if (a < 65 || a > 90 || b < 65 || b > 90) return '🏳️';
-        return String.fromCharCodes([base + (a - 65), base + (b - 65)]);
+  ///
+  /// [otherLabel] — when a key equals this string, renders a vehicle-type icon
+  /// in a coloured square (the "Other" bucket fallback).
+  /// [barColor]   — the colour used for the "Other" square background.
+  List<Widget> graphImagesForKeys(
+    BuildContext context,
+    List<String> keys, {
+    String? otherLabel,
+    Color barColor = Colors.blue,
+  }) {
+    // Convert "JP" -> "🇯🇵"
+    String flagEmoji(String code) {
+      String normalize(String c) {
+        final cc = c.trim().toUpperCase();
+        return (cc == 'UK') ? 'GB' : cc;
       }
-
-      switch (graph) {
-        case GraphType.operator:
-          return List.generate(keys.length, (i) {
-          final name = keys[i];
-          if (name == AppLocalizations.of(context)!.statisticsOtherLabel) {
-            return Text(
-              name,
-              style: const TextStyle(color: Colors.black),
-            );
-          }
-          // Otherwise display operator logo
-          return _trainlog.getOperatorImage(name, maxWidth: 48, maxHeight: 48);
-          // return withOperatorLogoBg(
-          //   context,
-          //   _trainlog.getOperatorImage(name, maxWidth: 48, maxHeight: 48),
-          // );
-        });
-        case GraphType.country:
-          return List.generate(
-            data.length,
-            (i) => Text(
-              flagEmoji(data[i]),
-              style: const TextStyle(fontSize: 18),
-            ),
-          );
-        default:
-          return List.generate(
-            data.length,
-            (i) => Text(
-              _shortLabel(data[i], maxLen: shortLabelSize),
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-          );
-      }
+      final cc = normalize(code);
+      if (cc.length != 2) return '🏳️';
+      const int base = 0x1F1E6;
+      final int a = cc.codeUnitAt(0);
+      final int b = cc.codeUnitAt(1);
+      if (a < 65 || a > 90 || b < 65 || b > 90) return '🏳️';
+      return String.fromCharCodes([base + (a - 65), base + (b - 65)]);
     }
 
-    return forGraph(keys);
+    Widget otherWidget() {
+      return Container(
+        width: 32,
+        height: 32,
+        decoration: BoxDecoration(
+          color: barColor.withValues(alpha: 0.2),
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(color: barColor.withValues(alpha: 0.4), width: 1.5),
+        ),
+        child: Center(
+          child: IconTheme(
+            data: IconThemeData(size: 16, color: barColor),
+            child: _vehicle.icon(),
+          ),
+        ),
+      );
+    }
+
+    switch (graph) {
+      case GraphType.operator:
+        return List.generate(keys.length, (i) {
+          final name = keys[i];
+          if (otherLabel != null && name == otherLabel) return otherWidget();
+          return _trainlog.getOperatorImage(name, maxWidth: 48, maxHeight: 48);
+        });
+
+      case GraphType.country:
+        return List.generate(keys.length, (i) {
+          final name = keys[i];
+          if (otherLabel != null && name == otherLabel) return otherWidget();
+          return Text(flagEmoji(name), style: const TextStyle(fontSize: 18));
+        });
+
+      default:
+        return List.generate(keys.length, (i) {
+          final name = keys[i];
+          if (otherLabel != null && name == otherLabel) return otherWidget();
+          return Text(
+            _shortLabel(name, maxLen: shortLabelSize),
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          );
+        });
+    }
   }
 
   // -------------------------------------------------------------------

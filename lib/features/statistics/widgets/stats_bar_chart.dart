@@ -7,32 +7,23 @@ import 'package:trainlog_app/utils/number_formatter.dart';
 
 /// Horizontal proportional bar chart.
 ///
-/// The item with the maximum total (past + future) spans 100 % of the
-/// available track width; every other bar scales proportionally.
-/// Bars are stacked: solid colour for past trips, a lighter tint for future.
+/// The item with the maximum total (past + future) spans 100% of the
+/// available track width; every other bar scales down proportionally.
+/// Bars are stacked: solid colour for past trips, lighter tint for future.
+///
+/// Layout per row:
+///   [icon]  Label name               value
+///           [████████████░░░░░░░░░░░░░░░░░░]  ← bar below label+value
 class StatsBarChart extends StatefulWidget {
-  /// label -> (past, future). LinkedHashMap order is respected.
   final Map<String, ({double past, double future})> stats;
-
-  /// One icon/widget per row (must match stats length).
   final List<Widget> images;
-
-  /// Optional: map a key to a display label (e.g. country code → name).
   final String Function(String key)? labelBuilder;
-
   final String baseUnit;
-
-  /// Per-factor labels for scalable units (k/M/G…). Null for duration.
   final Map<UnitFactor, String>? unitsByFactor;
-
-  /// Base bar colour (all rows share the same hue unless [colors] is given).
   final Color color;
-
-  /// Optional per-row colour overrides.
   final List<Color>? colors;
-
-  /// Optional tooltip content shown when the unit label is long-pressed.
   final InlineSpan? unitHelpTooltip;
+  final String? otherLabel;
 
   const StatsBarChart({
     super.key,
@@ -44,6 +35,7 @@ class StatsBarChart extends StatefulWidget {
     this.color = Colors.blue,
     this.colors,
     this.unitHelpTooltip,
+    this.otherLabel,
   }) : assert(
           images.length == stats.length,
           'images.length must match stats.length',
@@ -54,6 +46,7 @@ class StatsBarChart extends StatefulWidget {
 }
 
 class _StatsBarChartState extends State<StatsBarChart> {
+  late List<String> _keys;
   late List<String> _titles;
   late List<double> _rawPast;
   late List<double> _rawFuture;
@@ -76,6 +69,7 @@ class _StatsBarChartState extends State<StatsBarChart> {
 
   void _rebuild() {
     final entries = widget.stats.entries.toList();
+    _keys = [for (final e in entries) e.key];
     _titles = [
       for (final e in entries) widget.labelBuilder?.call(e.key) ?? e.key,
     ];
@@ -119,7 +113,6 @@ class _StatsBarChartState extends State<StatsBarChart> {
     final n = widget.stats.length;
     final colors = widget.colors ?? List.generate(n, (_) => widget.color);
 
-    // Maximum scaled total — drives proportional width.
     final maxTotal = Iterable.generate(n)
         .map((i) => (_scaledPast[i] + _scaledFuture[i]).clamp(0.0, double.infinity))
         .fold(0.0, math.max);
@@ -130,6 +123,7 @@ class _StatsBarChartState extends State<StatsBarChart> {
       color: Theme.of(context).colorScheme.onSurface,
     );
 
+    // Unit label widget — with optional long-press tooltip
     final unitWidget = widget.unitHelpTooltip != null
         ? Tooltip(
             triggerMode: TooltipTriggerMode.longPress,
@@ -154,7 +148,7 @@ class _StatsBarChartState extends State<StatsBarChart> {
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: n,
-      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      separatorBuilder: (_, __) => const SizedBox(height: 14),
       itemBuilder: (context, i) {
         final past = _scaledPast[i];
         final future = _scaledFuture[i];
@@ -164,7 +158,6 @@ class _StatsBarChartState extends State<StatsBarChart> {
         final color = colors[i];
         final futureColor = _lighten(color);
 
-        // Format value string
         final pastStr = formatNumber(context, past, noDecimal: past == past.truncateToDouble());
         final futureStr = formatNumber(context, future, noDecimal: future == future.truncateToDouble());
         final hasFuture = future > 0;
@@ -179,6 +172,7 @@ class _StatsBarChartState extends State<StatsBarChart> {
           hasFuture: hasFuture,
           pastStr: pastStr,
           futureStr: futureStr,
+          unitLabel: _unitLabel,
           unitWidget: unitWidget,
           monoStyle: monoStyle,
         );
@@ -197,6 +191,7 @@ class _BarRow extends StatelessWidget {
   final bool hasFuture;
   final String pastStr;
   final String futureStr;
+  final String unitLabel;
   final Widget unitWidget;
   final TextStyle monoStyle;
 
@@ -210,6 +205,7 @@ class _BarRow extends StatelessWidget {
     required this.hasFuture,
     required this.pastStr,
     required this.futureStr,
+    required this.unitLabel,
     required this.unitWidget,
     required this.monoStyle,
   });
@@ -219,34 +215,70 @@ class _BarRow extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final trackColor = isDark
         ? Colors.white.withValues(alpha: 0.10)
-        : Colors.black.withValues(alpha: 0.08);
+        : Colors.black.withValues(alpha: 0.07);
 
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Icon / logo
-        SizedBox(width: 40, child: Center(child: image)),
+        // Left icon (40 px wide, vertically centred with the text row)
+        SizedBox(
+          width: 40,
+          child: Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: Center(child: image),
+          ),
+        ),
         const SizedBox(width: 8),
-        // Bar + label column
+        // Right column: [label + value on same row] then bar below
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Label row
-              Text(
-                label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
+              // Label + value on same line
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.baseline,
+                textBaseline: TextBaseline.alphabetic,
+                children: [
+                  Expanded(
+                    child: Text(
+                      label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
                     ),
+                  ),
+                  const SizedBox(width: 8),
+                  // Value: "5,420 km  + 30" or "5,420 km"
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.baseline,
+                    textBaseline: TextBaseline.alphabetic,
+                    children: [
+                      Text(pastStr, style: monoStyle),
+                      const SizedBox(width: 4),
+                      unitWidget,
+                      if (hasFuture) ...[
+                        const SizedBox(width: 6),
+                        Text(
+                          '+ $futureStr',
+                          style: monoStyle.copyWith(
+                            fontSize: 11,
+                            color: monoStyle.color?.withValues(alpha: 0.55),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ],
               ),
-              const SizedBox(height: 4),
-              // Bar track
+              const SizedBox(height: 5),
+              // Proportional bar track
               ClipRRect(
                 borderRadius: BorderRadius.circular(4),
                 child: SizedBox(
-                  height: 8,
+                  height: 7,
                   child: LayoutBuilder(
                     builder: (context, constraints) {
                       final trackW = constraints.maxWidth;
@@ -255,11 +287,8 @@ class _BarRow extends StatelessWidget {
                       final futureW = barW * (1 - pastFraction);
                       return Stack(
                         children: [
-                          // Track background
                           Container(width: trackW, color: trackColor),
-                          // Past segment
                           Container(width: pastW, color: pastColor),
-                          // Future segment (lighter, appended after past)
                           if (hasFuture)
                             Positioned(
                               left: pastW,
@@ -275,29 +304,6 @@ class _BarRow extends StatelessWidget {
               ),
             ],
           ),
-        ),
-        const SizedBox(width: 12),
-        // Value text
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(pastStr, style: monoStyle),
-                const SizedBox(width: 4),
-                unitWidget,
-              ],
-            ),
-            if (hasFuture)
-              Text(
-                '+ $futureStr',
-                style: monoStyle.copyWith(
-                  fontSize: 11,
-                  color: monoStyle.color?.withValues(alpha: 0.6),
-                ),
-              ),
-          ],
         ),
       ],
     );
