@@ -1221,4 +1221,7 @@ class AppLocalizationsTl extends AppLocalizations {
 
   @override
   String get tapAgainToExit => 'I-tap muli para lumabas';
+
+  @override
+  String get tripsEmptyList => 'Wala pang biyahe';
 }

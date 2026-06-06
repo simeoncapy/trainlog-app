@@ -1237,4 +1237,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tapAgainToExit => 'Tap again to exit';
+
+  @override
+  String get tripsEmptyList => 'No trips yet';
 }

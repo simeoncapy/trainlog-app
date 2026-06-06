@@ -2,8 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:trainlog_app/app/theme/app_colors.dart';
 import 'package:trainlog_app/data/models/trip_form_model.dart';
+import 'package:trainlog_app/features/menu/menu_summary_card.dart';
 import 'package:trainlog_app/features/trips/add_trip_page.dart';
 import 'package:trainlog_app/features/trips/widgets/trip_card_view.dart';
 import 'package:trainlog_app/features/trips/widgets/trip_table_view.dart';
@@ -412,7 +412,6 @@ class _SummaryBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // inverseSurface = navy on light, lightBg (white) on dark — mirrors MenuSummaryCard
     final cs = Theme.of(context).colorScheme;
 
     return Container(
@@ -422,30 +421,7 @@ class _SummaryBlock extends StatelessWidget {
         color: cs.inverseSurface,
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Text.rich(
-        TextSpan(
-          children: [
-            TextSpan(
-              text: '$count',
-              style: const TextStyle(
-                color: AppColors.amber,
-                fontWeight: FontWeight.w800,
-                fontSize: 13,
-                letterSpacing: 0.5,
-              ),
-            ),
-            TextSpan(
-              text: ' TRIPS',
-              style: TextStyle(
-                color: cs.onInverseSurface,
-                fontWeight: FontWeight.w700,
-                fontSize: 13,
-                letterSpacing: 0.5,
-              ),
-            ),
-          ],
-        ),
-      ),
+      child: TripCountLine(count: count),
     );
   }
 }

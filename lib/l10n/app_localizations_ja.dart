@@ -1219,4 +1219,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get tapAgainToExit => 'もう一度タップすると終了します';
+
+  @override
+  String get tripsEmptyList => 'まだ旅はありません';
 }

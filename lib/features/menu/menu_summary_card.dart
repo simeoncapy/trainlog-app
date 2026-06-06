@@ -148,6 +148,22 @@ class _TripCountState extends State<_TripCount> {
   @override
   Widget build(BuildContext context) {
     if (_count == null) return const SizedBox.shrink();
+    return TripCountLine(count: _count!);
+  }
+}
+
+/// Displays a trip count as "[number] [localised label]" where the number is
+/// amber and the label uses [cs.onInverseSurface] at 65 % opacity.
+///
+/// Designed to sit on an [ColorScheme.inverseSurface] background (navy on
+/// light theme, white on dark theme).
+class TripCountLine extends StatelessWidget {
+  const TripCountLine({super.key, required this.count});
+
+  final int count;
+
+  @override
+  Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     final subtleColor = cs.onInverseSurface.withOpacity(0.65);
@@ -156,9 +172,8 @@ class _TripCountState extends State<_TripCount> {
     return RichText(
       text: TextSpan(
         children: [
-          // Only the number is amber.
           TextSpan(
-            text: '$_count',
+            text: '$count',
             style: monoBase.copyWith(color: AppColors.amber),
           ),
           TextSpan(

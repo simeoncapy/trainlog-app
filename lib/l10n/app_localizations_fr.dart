@@ -1245,4 +1245,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get tapAgainToExit => 'Appuyez à nouveau pour quitter';
+
+  @override
+  String get tripsEmptyList => 'Aucun trajet';
 }

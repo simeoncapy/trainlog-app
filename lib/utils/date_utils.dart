@@ -80,6 +80,50 @@ String formatDateTime(
   return result;
 }
 
+/// Formats [dateTime] as a short date with month name, e.g. "30 Mar" (English)
+/// or the locale equivalent. English always uses British ordering (d MMM).
+String formatDateShort(BuildContext context, DateTime dateTime) {
+  final locale = Localizations.localeOf(context);
+  final localeStr = locale.languageCode == 'en' ? 'en_GB' : locale.toString();
+  return DateFormat('d MMM', localeStr).format(dateTime);
+}
+
+/// Formats a date range between [start] and [end] as a compact string.
+/// Same day or date-only trips: "30 Mar"
+/// Same month: "15–18 Apr"
+/// Cross-month: "30 Mar–2 Apr"
+/// English always uses British date ordering; other locales use their own.
+String formatDateRange(BuildContext context, DateTime start, DateTime end) {
+  final locale = Localizations.localeOf(context);
+  final localeStr = locale.languageCode == 'en' ? 'en_GB' : locale.toString();
+
+  final isSameDay = start.year == end.year &&
+      start.month == end.month &&
+      start.day == end.day;
+
+  if (isSameDay) {
+    return DateFormat('d MMM', localeStr).format(start);
+  }
+
+  if (start.month == end.month && start.year == end.year) {
+    return '${start.day}–${end.day} ${DateFormat('MMM', localeStr).format(start)}';
+  }
+
+  return '${DateFormat('d MMM', localeStr).format(start)}–'
+      '${DateFormat('d MMM', localeStr).format(end)}';
+}
+
+/// Formats a trip duration expressed in fractional minutes (as stored on the
+/// model) into a compact human-readable string, e.g. "1h 37min".
+String formatTripDuration(double durationMinutes) {
+  final total = durationMinutes.round();
+  final h = total ~/ 60;
+  final m = total % 60;
+  if (h == 0) return '${m} min';
+  if (m == 0) return '${h} h';
+  return '${h} h ${m} min';
+}
+
 String formatDurationFixed(Duration d) {
   final parts = <String>[];
   const nbsp = '\u00A0';

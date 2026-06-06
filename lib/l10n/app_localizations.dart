@@ -2147,6 +2147,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Tap again to exit'**
   String get tapAgainToExit;
+
+  /// No description provided for @tripsEmptyList.
+  ///
+  /// In en, this message translates to:
+  /// **'No trips yet'**
+  String get tripsEmptyList;
 }
 
 class _AppLocalizationsDelegate

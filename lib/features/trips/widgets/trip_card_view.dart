@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/app/theme/app_colors.dart';
 import 'package:trainlog_app/app/theme/app_theme.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/data/trips_repository.dart';
+import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/platform/adaptive_trip_card.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
-import 'package:trainlog_app/utils/date_utils.dart';
+import 'package:trainlog_app/utils/date_utils.dart' as date_utils;
 import 'package:trainlog_app/utils/map_color_palette.dart';
 import 'package:trainlog_app/utils/style_utils.dart';
 import 'package:trainlog_app/widgets/past_future_selector.dart';
@@ -125,7 +125,7 @@ class _TripCardViewState extends State<TripCardView> {
     if (_totalCount == 0) {
       return Center(
         child: Text(
-          'No trips',
+          AppLocalizations.of(context)!.tripsEmptyList,
           style: Theme.of(context).textTheme.bodyLarge,
         ),
       );
@@ -266,10 +266,14 @@ class _RouteSection extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final showTimes = !trip.isUnknownPastFuture && !trip.isDateOnly;
 
-    final String depTime =
-        showTimes ? DateFormat('HH:mm').format(trip.startDatetime) : '';
-    final String arrTime =
-        showTimes ? DateFormat('HH:mm').format(trip.endDatetime) : '';
+    final String depTime = showTimes
+        ? date_utils.formatDateTime(context, trip.startDatetime,
+            hasTime: true, timeOnly: true)
+        : '';
+    final String arrTime = showTimes
+        ? date_utils.formatDateTime(context, trip.endDatetime,
+            hasTime: true, timeOnly: true)
+        : '';
 
     final timeStyle = AppTheme.monoFont.copyWith(
       fontSize: 12,
@@ -382,65 +386,38 @@ class _MetaRow extends StatelessWidget {
   const _MetaRow({required this.trip});
   final Trips trip;
 
-  String _formatDate(BuildContext context, Trips trip) {
-    final locale = Localizations.localeOf(context);
-    // British date formatting only for English; all other locales use their own.
-    final localeStr =
-        locale.languageCode == 'en' ? 'en_GB' : locale.toString();
-
-    final start = trip.startDatetime;
-    final end = trip.endDatetime;
-
-    final isSameDay = start.year == end.year &&
-        start.month == end.month &&
-        start.day == end.day;
-
-    if (isSameDay || trip.isDateOnly) {
-      return DateFormat('d MMM', localeStr).format(start);
-    }
-
-    if (start.month == end.month && start.year == end.year) {
-      return '${start.day}–${end.day} ${DateFormat('MMM', localeStr).format(start)}';
-    }
-
-    return '${DateFormat('d MMM', localeStr).format(start)}–'
-        '${DateFormat('d MMM', localeStr).format(end)}';
-  }
-
-  String _formatDuration(Trips trip) {
-    final minutes = (trip.manualTripDuration ?? trip.estimatedTripDuration).round();
-    final h = minutes ~/ 60;
-    final m = minutes % 60;
-    if (h == 0) return '${m}min';
-    if (m == 0) return '${h}h';
-    return '${h}h ${m}min';
-  }
-
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final metaStyle = Theme.of(context).textTheme.bodySmall?.copyWith(
           color: cs.onSurface.withValues(alpha: 0.6),
         );
+    final iconColor = cs.onSurface.withValues(alpha: 0.5);
+
+    final dateStr = trip.isDateOnly
+        ? date_utils.formatDateShort(context, trip.startDatetime)
+        : date_utils.formatDateRange(
+            context, trip.startDatetime, trip.endDatetime);
+
+    final durationStr = date_utils.formatTripDuration(
+        trip.manualTripDuration ?? trip.estimatedTripDuration);
 
     return Row(
       children: [
         if (trip.tripLength > 0) ...[
-          Icon(Icons.route_outlined, size: 13, color: cs.onSurface.withValues(alpha: 0.5)),
+          Icon(Icons.route_outlined, size: 13, color: iconColor),
           const SizedBox(width: 4),
           Text('${(trip.tripLength / 1000).round()} km', style: metaStyle),
           const SizedBox(width: 12),
         ],
         if (!trip.isUnknownPastFuture) ...[
-          Icon(Icons.schedule_outlined, size: 13, color: cs.onSurface.withValues(alpha: 0.5)),
+          Icon(Icons.schedule_outlined, size: 13, color: iconColor),
           const SizedBox(width: 4),
-          Text(_formatDuration(trip), style: metaStyle),
+          Text(durationStr, style: metaStyle),
           const SizedBox(width: 12),
-        ],
-        if (!trip.isUnknownPastFuture) ...[
-          Icon(Icons.calendar_today_outlined, size: 13, color: cs.onSurface.withValues(alpha: 0.5)),
+          Icon(Icons.calendar_today_outlined, size: 13, color: iconColor),
           const SizedBox(width: 4),
-          Text(_formatDate(context, trip), style: metaStyle),
+          Text(dateStr, style: metaStyle),
         ],
       ],
     );

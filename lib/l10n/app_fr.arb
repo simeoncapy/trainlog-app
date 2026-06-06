@@ -365,5 +365,6 @@
   "onboardingPage4Title": "Classements",
   "onboardingPage4Subtitle": "Êtes-vous un grand voyageur ? Comparez vos voyages avec ceux des autres membres du monde entier.",
 
-  "tapAgainToExit": "Appuyez à nouveau pour quitter"
+  "tapAgainToExit": "Appuyez à nouveau pour quitter",
+  "tripsEmptyList": "Aucun trajet"
 }
