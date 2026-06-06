@@ -1,6 +1,6 @@
 // cupertino_shell.dart
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart' show Icon, Theme;
+import 'package:flutter/material.dart' show Icon, PageRouteBuilder, Theme;
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/navigation/nav_models.dart';
 import 'package:trainlog_app/platform/adaptive_bottom_navbar.dart'
@@ -9,8 +9,11 @@ import 'package:trainlog_app/platform/cupertino_fab.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 
 import 'package:trainlog_app/features/map/map_page.dart';
+import 'package:trainlog_app/features/menu/full_screen_menu_page.dart';
 import 'package:trainlog_app/features/ranking/ranking_page.dart';
 import 'package:trainlog_app/features/statistics/statistics_page.dart';
+import 'package:trainlog_app/features/trainlog/inbox_page.dart';
+import 'package:trainlog_app/features/trainlog/trainlog_status_page.dart';
 import 'package:trainlog_app/features/trips/trips_page.dart';
 
 typedef SetPrimaryActions = void Function(List<AppPrimaryAction> actions);
@@ -39,6 +42,41 @@ class _CupertinoShellState extends State<CupertinoShell> {
     } else {
       setState(() => _currentIndex = index);
     }
+  }
+
+  void _openFullScreenMenu(BuildContext context) {
+    Navigator.of(context).push(
+      PageRouteBuilder(
+        opaque: true,
+        pageBuilder: (ctx, _, __) => FullScreenMenuPage(
+          onClose: () => Navigator.of(ctx).pop(),
+          onSettingsTap: () => Navigator.of(ctx).pop(),
+          onPageTap: (id) => Navigator.of(ctx).pop(),
+          onInboxTap: () {
+            Navigator.of(ctx).pop();
+            Navigator.of(context).push(PageRouteBuilder(
+              pageBuilder: (_, __, ___) => const InboxPage(),
+              transitionDuration: Duration.zero,
+              reverseTransitionDuration: Duration.zero,
+            ));
+          },
+          onTrainlogStatusTap: () {
+            Navigator.of(ctx).pop();
+            Navigator.of(context).push(PageRouteBuilder(
+              pageBuilder: (_, __, ___) => const TrainlogStatusPage(),
+              transitionDuration: Duration.zero,
+              reverseTransitionDuration: Duration.zero,
+            ));
+          },
+        ),
+        transitionsBuilder: (_, animation, __, child) => FadeTransition(
+          opacity: animation,
+          child: child,
+        ),
+        transitionDuration: const Duration(milliseconds: 200),
+        reverseTransitionDuration: const Duration(milliseconds: 150),
+      ),
+    );
   }
 
   @override
@@ -110,6 +148,7 @@ class _CupertinoShellState extends State<CupertinoShell> {
               currentIndex: _currentIndex,
               items: navItems,
               onTap: _onTabTapped,
+              onMenuTap: () => _openFullScreenMenu(context),
             ),
           ),
         ],

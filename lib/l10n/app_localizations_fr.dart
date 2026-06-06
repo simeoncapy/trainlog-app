@@ -426,7 +426,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get menuRankingTitle => 'Classement';
 
   @override
-  String get menuStatisticsTitle => 'Statistiques';
+  String get menuStatisticsTitle => 'Stat.';
 
   @override
   String get menuDashboardTitle => 'Tableau de bord';

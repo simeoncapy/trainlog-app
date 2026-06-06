@@ -1,8 +1,6 @@
 // material_shell.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:trainlog_app/app/app_colors.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/navigation/nav_models.dart';
 import 'package:trainlog_app/features/settings/settings_page.dart';
@@ -347,45 +345,10 @@ class _MaterialShellState extends State<MaterialShell> {
 
         drawer: null,
 
-        body: Stack(
-          children: [
-            PageView(
-              controller: _pageController,
-              physics: const NeverScrollableScrollPhysics(),
-              children: _pages.map((p) => p.view).toList(),
-            ),
-
-            // Hamburger overlay for bottom-tab pages — opens the full-screen menu
-            if (!_isDrawerPage)
-              Positioned(
-                top: 16,
-                left: 16,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: AppColors.navy,
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: Theme.of(context).colorScheme.primary,
-                      width: 2,
-                    ),
-                    boxShadow: const [
-                      BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(2, 2)),
-                    ],
-                  ),
-                  child: IconButton(
-                    icon: SvgPicture.asset(
-                      width: 24,
-                      height: 24,
-                      'assets/icon/trainlog_icon_foreground_only.svg',
-                      colorFilter: const ColorFilter.mode(AppColors.amber, BlendMode.srcIn),
-                    ),
-                    //color: Theme.of(context).colorScheme.onSurface,
-                    tooltip: AppLocalizations.of(context)!.mainMenuButtonTooltip,
-                    onPressed: () => _openFullScreenMenu(context),
-                  ),
-                ),
-              ),
-          ],
+        body: PageView(
+          controller: _pageController,
+          physics: const NeverScrollableScrollPhysics(),
+          children: _pages.map((p) => p.view).toList(),
         ),
 
         bottomNavigationBar: _isDrawerPage
@@ -393,6 +356,7 @@ class _MaterialShellState extends State<MaterialShell> {
             : AdaptiveBottomNavBar(
                 currentIndex: _selectedIndex, // 0..3 here
                 onTap: _onItemTapped,
+                onMenuTap: () => _openFullScreenMenu(context),
                 items: [
                   for (int i = 0; i < 4; i++)
                     BottomNavigationBarItem(
