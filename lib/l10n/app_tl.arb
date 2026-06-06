@@ -163,7 +163,7 @@
   "menuExploreSectionTitle": "TUKLASIN",
   "menuMenuSectionTitle": "MENU",
   "menuInboxTitle": "Inbox",
-  "menuTripCountLabel": "biyahe",
+  "menuTripCountLabel": "{count, plural, other {biyahe}}",
   "menuTripCount": "{count, plural, =0 {Walang biyahe} =1 {1 biyahe} other {{count} biyahe}}",
   "@menuTripCount": {
     "description": "Bilang ng biyahe na ipinapakita sa menu summary card",

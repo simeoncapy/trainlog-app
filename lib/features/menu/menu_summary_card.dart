@@ -177,7 +177,7 @@ class TripCountLine extends StatelessWidget {
             style: monoBase.copyWith(color: AppColors.amber),
           ),
           TextSpan(
-            text: ' ${loc.menuTripCountLabel}',
+            text: ' ${loc.menuTripCountLabel(count)}',
             style: monoBase.copyWith(color: subtleColor),
           ),
         ],

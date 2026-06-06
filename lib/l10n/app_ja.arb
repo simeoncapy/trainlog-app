@@ -143,7 +143,7 @@
   "menuExploreSectionTitle": "探索",
   "menuMenuSectionTitle": "メニュー",
   "menuInboxTitle": "受信トレイ",
-  "menuTripCountLabel": "件の旅程",
+  "menuTripCountLabel": "{count, plural, other {件の旅程}}",
   "menuTripCount": "{count, plural, =0 {旅程なし} =1 {1件の旅程} other {{count}件の旅程}}",
   "@menuTripCount": {
     "description": "メニューのサマリーカードに表示される旅程数",

@@ -468,7 +468,16 @@ class AppLocalizationsFr extends AppLocalizations {
   String get menuInboxTitle => 'Boîte de réception';
 
   @override
-  String get menuTripCountLabel => 'trajets';
+  String menuTripCountLabel(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'trajets',
+      one: 'trajet',
+      zero: 'trajet',
+    );
+    return '$_temp0';
+  }
 
   @override
   String menuTripCount(num count) {

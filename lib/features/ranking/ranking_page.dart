@@ -26,12 +26,12 @@ class _RankingPageState extends State<RankingPage>
           message: loc.pageNotImplementedYet,
           severity: ErrorSeverity.warning,
           padding: EdgeInsets.only(
-            left: AppPlatform.isApple ? 8 : 80, // For Material, keep space for the burger menu
+            left: 8,
             top: 12,
             right: 8,
             bottom: 12,
           ),
-          collapsedHeight: 80,
+          //collapsedHeight: 80,
         ),
         Expanded(
           child: TrainlogWebPage(

@@ -271,7 +271,7 @@ class _PageHeader extends StatelessWidget {
 
           // Clear filter (when active)
           if (activeFilter != null) ...[
-            const SizedBox(width: 4),
+            const SizedBox(width: 8),
             _HeaderIconButton(
               icon: Icons.search_off,
               tooltip: AppLocalizations.of(context)!.filterClearButton,
@@ -280,7 +280,7 @@ class _PageHeader extends StatelessWidget {
             ),
           ],
 
-          const SizedBox(width: 4),
+          const SizedBox(width: 8),
 
           // Filter button
           _AdaptiveFilterButton(

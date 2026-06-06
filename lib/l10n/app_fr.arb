@@ -144,7 +144,7 @@
   "menuExploreSectionTitle": "EXPLORER",
   "menuMenuSectionTitle": "MENU",
   "menuInboxTitle": "Boîte de réception",
-  "menuTripCountLabel": "trajets",
+  "menuTripCountLabel": "{count, plural, =0 {trajet} =1 {trajet} other {trajets}}",
   "menuTripCount": "{count, plural, =0 {Aucun trajet} =1 {1 trajet} other {{count} trajets}}",
   "@menuTripCount": {
     "description": "Nombre de trajets affiché dans la carte résumée du menu",

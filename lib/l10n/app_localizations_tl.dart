@@ -461,7 +461,14 @@ class AppLocalizationsTl extends AppLocalizations {
   String get menuInboxTitle => 'Inbox';
 
   @override
-  String get menuTripCountLabel => 'biyahe';
+  String menuTripCountLabel(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'biyahe',
+    );
+    return '$_temp0';
+  }
 
   @override
   String menuTripCount(num count) {
