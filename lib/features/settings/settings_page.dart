@@ -2,10 +2,11 @@ import 'package:currency_picker/currency_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:trainlog_app/app/theme/app_tab_theme.dart';
 import 'package:trainlog_app/platform/adaptive_widget.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import 'package:trainlog_app/app/app_theme.dart';
+import 'package:trainlog_app/app/theme/app_theme.dart';
 import 'package:trainlog_app/features/trainlog/egg.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/platform/adaptive_button.dart';
@@ -74,13 +75,31 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Widget _chevronTrailing(BuildContext context, String label) {
     final cs = Theme.of(context).colorScheme;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(label, style: TextStyle(color: cs.onSurfaceVariant, fontSize: 14)),
-        const SizedBox(width: 2),
-        Icon(Icons.chevron_right, color: cs.onSurfaceVariant, size: 20),
-      ],
+
+    return SizedBox(
+      width: MediaQuery.sizeOf(context).width * 0.35,
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              label,
+              maxLines: 2,
+              textAlign: TextAlign.end,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: cs.onSurfaceVariant,
+                fontSize: 14,
+              ),
+            ),
+          ),
+          const SizedBox(width: 2),
+          Icon(
+            Icons.chevron_right,
+            color: cs.onSurfaceVariant,
+            size: 20,
+          ),
+        ],
+      ),
     );
   }
 
@@ -709,6 +728,7 @@ class _ThemeRow extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bgColor = isDark ? const Color(0xFF3A3A3C) : const Color(0xFFE5E5EA);
     final fgColor = isDark ? const Color(0xFFEEEEF0) : const Color(0xFF3A3A3C);
+    final tabColors = Theme.of(context).extension<AppTabColors>()!;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 11, 16, 11),
@@ -742,7 +762,7 @@ class _ThemeRow extends StatelessWidget {
             padding: const EdgeInsets.only(left: 52),
             child: Container(
               decoration: BoxDecoration(
-                color: cs.secondary.withValues(alpha: 0.1),
+                color: tabColors.tabBackground,
                 borderRadius: BorderRadius.circular(10),
               ),
               padding: const EdgeInsets.all(3),
@@ -753,7 +773,7 @@ class _ThemeRow extends StatelessWidget {
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
                       decoration: BoxDecoration(
-                        color: selectedItem ? cs.secondary : Colors.transparent,
+                        color: selectedItem ? tabColors.selectedBackground : Colors.transparent,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: InkWell(
@@ -767,7 +787,7 @@ class _ThemeRow extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 13,
                               color:
-                                  selectedItem ? cs.onSecondary : cs.onSurface,
+                                  selectedItem ? tabColors.onSelected : cs.onSurface,
                               fontWeight: selectedItem
                                   ? FontWeight.w600
                                   : FontWeight.normal,

@@ -37,6 +37,9 @@ abstract final class AppColors {
   /// Sunken  --sunken (light)
   static const Color lightSunken = Color(0xFFEEECE8);
 
+  /// Tab surface  --tab-surface (light)
+  static const Color lightTabSurface = Color(0xFFE5E5EA);
+
   // ── Light theme text ─────────────────────────────────────────────────────
 
   /// Primary text (light)  --text
@@ -51,6 +54,9 @@ abstract final class AppColors {
   /// Hairline / border (light)  #E7E3D9  --line
   static const Color lightLine = Color(0xFFE7E3D9);
 
+  /// Tab on surface  --tab-on-surface (light)
+  static const Color lightOnTabSurface = Color(0xFF3A3A3C);
+
   // ── Dark theme surfaces ──────────────────────────────────────────────────
 
   /// Base  --bg (dark)
@@ -61,6 +67,9 @@ abstract final class AppColors {
 
   /// Elevated  --elevated (dark)
   static const Color darkElevated = Color(0xFF1E2533);
+
+  /// Tab surface  --tab-surface (dark)
+  static const Color darkTabSurface = Color(0xFF3A3A3C);
 
   // ── Dark theme text ──────────────────────────────────────────────────────
 
@@ -75,6 +84,9 @@ abstract final class AppColors {
 
   /// Hairline / border (dark)  rgba(255,255,255,.09)  --line
   static const Color darkLine = Color(0x17FFFFFF);
+
+  /// Tab on surface  --tab-on-surface (dark)
+  static const Color darkOnTabSurface = Color(0xFFEEEEF0);
 
   // ── Semantic ─────────────────────────────────────────────────────────────
 

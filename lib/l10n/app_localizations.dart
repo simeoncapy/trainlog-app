@@ -960,11 +960,11 @@ abstract class AppLocalizations {
   /// **'Inbox'**
   String get menuInboxTitle;
 
-  /// No description provided for @menuTripCountLabel.
+  /// trips label without the number, used after the number in the menu summary card
   ///
   /// In en, this message translates to:
-  /// **'trips'**
-  String get menuTripCountLabel;
+  /// **'{count, plural, =0 {trips} =1 {trip} other {trips}}'**
+  String menuTripCountLabel(num count);
 
   /// Number of trips shown in the menu summary card
   ///
@@ -2147,6 +2147,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Tap again to exit'**
   String get tapAgainToExit;
+
+  /// No description provided for @tripsEmptyList.
+  ///
+  /// In en, this message translates to:
+  /// **'No trips yet'**
+  String get tripsEmptyList;
 }
 
 class _AppLocalizationsDelegate

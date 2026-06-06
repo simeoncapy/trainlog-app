@@ -4,7 +4,7 @@ import 'package:trainlog_app/features/menu/menu_block.dart';
 import 'package:trainlog_app/features/menu/menu_explore_card.dart';
 import 'package:trainlog_app/features/menu/menu_item_data.dart';
 import 'package:trainlog_app/features/menu/menu_summary_card.dart';
-import 'package:trainlog_app/app/app_colors.dart';
+import 'package:trainlog_app/app/theme/app_colors.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/navigation/nav_models.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';

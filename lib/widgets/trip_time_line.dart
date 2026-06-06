@@ -4,6 +4,7 @@ import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
+import 'package:trainlog_app/utils/date_utils.dart' as date_utils;
 import 'package:trainlog_app/utils/map_color_palette.dart';
 import 'package:trainlog_app/utils/style_utils.dart';
 
@@ -27,7 +28,7 @@ class TripTimeline extends StatelessWidget {
     final lineName = trip.lineName;
     final distance = "${(trip.tripLength / 1000).round()} km";
     final duration = trip.utcEndDatetime?.difference(trip.utcStartDatetime ?? trip.startDatetime); // UTC start shouldn't be NULL if UTC end is not NULL, so startDatetime shouldn't be used (placed here to avoid NULL error)
-    final durationStr = formatSecondsToHMS((trip.manualTripDuration ?? duration?.inSeconds ?? trip.estimatedTripDuration).round().toInt());
+    final durationStr = date_utils.formatSecondsToHMS((trip.manualTripDuration ?? duration?.inSeconds ?? trip.estimatedTripDuration).round().toInt());
 
     final settings = context.read<SettingsProvider>();
     final palette = MapColorPaletteHelper.getPalette(settings.mapColorPalette);
@@ -206,33 +207,4 @@ class TripTimeline extends StatelessWidget {
         width: 10,
         color: color,
   );
-
-  String formatSecondsToHMS(int totalSeconds, {bool withSeconds = false, bool hourEvenIfZero = false}) {
-    int days = totalSeconds ~/ 86400; // 24 * 3600
-    int remainingAfterDays = totalSeconds % 86400;
-
-    int hours = remainingAfterDays ~/ 3600;
-    int remainingSecondsAfterHours = remainingAfterDays % 3600;
-
-    int minutes = remainingSecondsAfterHours ~/ 60;
-    int seconds = remainingSecondsAfterHours % 60;
-
-    String result = "";
-
-    if (days > 0) {
-      result += "$days d ";
-    }
-
-    if (hours != 0 || hourEvenIfZero || days > 0) {
-      result += "${hours.toString().padLeft(2, '0')} h ";
-    }
-
-    result += "${minutes.toString().padLeft(2, '0')} min";
-
-    if (withSeconds) {
-      result += " ${seconds.toString().padLeft(2, '0')} s";
-    }
-
-    return result;
-  }
 }

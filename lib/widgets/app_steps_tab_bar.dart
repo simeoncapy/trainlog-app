@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:trainlog_app/app/theme/app_tab_theme.dart';
 
 class AppStepsTab {
   final String label;
@@ -7,7 +8,10 @@ class AppStepsTab {
   /// shows the label only — used for plain text-only segmented tabs.
   final int? count;
 
-  const AppStepsTab({required this.label, this.count});
+  /// Optional icon rendered before the label.
+  final Widget? leadingIcon;
+
+  const AppStepsTab({required this.label, this.count, this.leadingIcon});
 }
 
 /// Segmented-control-style horizontally-scrollable tab bar with a smooth
@@ -22,11 +26,16 @@ class AppStepsTabBar extends StatefulWidget {
   final int selectedIndex;
   final ValueChanged<int> onTabChanged;
 
+  /// When true, chips divide the full container width equally instead of
+  /// sizing to their content. Use this for a fixed two-tab selector.
+  final bool fullWidth;
+
   const AppStepsTabBar({
     super.key,
     required this.tabs,
     required this.selectedIndex,
     required this.onTabChanged,
+    this.fullWidth = false,
   });
 
   @override
@@ -96,13 +105,99 @@ class _AppStepsTabBarState extends State<AppStepsTabBar> {
     return _widths[widget.selectedIndex];
   }
 
+  Widget _buildIndicator(bool isDark, ColorScheme cs) {
+    final tabColors = Theme.of(context).extension<AppTabColors>()!;
+    if (_widths.isEmpty) return const SizedBox.shrink();
+    return AnimatedPositioned(
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeInOut,
+      left: _indicatorLeft,
+      top: 0,
+      bottom: 0,
+      width: _indicatorWidth,
+      child: Container(
+        decoration: BoxDecoration(
+          color: tabColors.selectedBackground,
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.10),
+              blurRadius: 6,
+              offset: const Offset(0, 1),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cs = Theme.of(context).colorScheme;
-    final trackColor = isDark
-        ? cs.surfaceContainerHighest
-        : const Color(0xFFEEEEF2);
+    final trackColor = isDark ? cs.secondaryContainer.withValues(alpha: 0.2) : const Color(0xFFEEEEF2);
+    final tabColors = Theme.of(context).extension<AppTabColors>()!;
+
+    if (widget.fullWidth) {
+      return Container(
+        height: 46,
+        decoration: BoxDecoration(
+          color: tabColors.tabBackground,
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(_trackPadding),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final chipWidth = constraints.maxWidth / widget.tabs.length;
+              return Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  // Indicator derived purely from layout — always correct on resize.
+                  AnimatedPositioned(
+                    duration: const Duration(milliseconds: 250),
+                    curve: Curves.easeInOut,
+                    left: widget.selectedIndex * chipWidth,
+                    top: 0,
+                    bottom: 0,
+                    width: chipWidth,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: tabColors.selectedBackground,
+                        borderRadius: BorderRadius.circular(10),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.10),
+                            blurRadius: 6,
+                            offset: const Offset(0, 1),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Row(
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      for (int i = 0; i < widget.tabs.length; i++)
+                        Expanded(
+                          child: _AppStepsTabChip(
+                            label: widget.tabs[i].label,
+                            count: widget.tabs[i].count,
+                            leadingIcon: widget.tabs[i].leadingIcon,
+                            isSelected: i == widget.selectedIndex,
+                            onTap: () => widget.onTabChanged(i),
+                            centerContent: true,
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+      );
+    }
 
     return Container(
       height: 46,
@@ -114,35 +209,9 @@ class _AppStepsTabBarState extends State<AppStepsTabBar> {
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.all(_trackPadding),
         child: Stack(
-          // Row (non-positioned) determines Stack size; indicator overlaps it.
           clipBehavior: Clip.none,
           children: [
-            // ── Sliding white indicator card (behind chips) ──────────────
-            if (_widths.isNotEmpty)
-              AnimatedPositioned(
-                duration: const Duration(milliseconds: 250),
-                curve: Curves.easeInOut,
-                left: _indicatorLeft,
-                top: 0,
-                bottom: 0,
-                width: _indicatorWidth,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: isDark ? cs.surface : Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black
-                            .withValues(alpha: isDark ? 0.25 : 0.10),
-                        blurRadius: 6,
-                        offset: const Offset(0, 1),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-            // ── Tab chips (on top of indicator) ─────────────────────────
+            _buildIndicator(isDark, cs),
             Row(
               children: [
                 for (int i = 0; i < widget.tabs.length; i++)
@@ -150,6 +219,7 @@ class _AppStepsTabBarState extends State<AppStepsTabBar> {
                     key: _keys[i],
                     label: widget.tabs[i].label,
                     count: widget.tabs[i].count,
+                    leadingIcon: widget.tabs[i].leadingIcon,
                     isSelected: i == widget.selectedIndex,
                     onTap: () => widget.onTabChanged(i),
                   ),
@@ -162,39 +232,55 @@ class _AppStepsTabBarState extends State<AppStepsTabBar> {
   }
 }
 
+
 class _AppStepsTabChip extends StatelessWidget {
   final String label;
   final int? count;
+  final Widget? leadingIcon;
   final bool isSelected;
   final VoidCallback onTap;
+  /// When true the chip content is centered both horizontally and vertically
+  /// (used in fullWidth mode where the chip fills an Expanded cell).
+  final bool centerContent;
 
   const _AppStepsTabChip({
     super.key,
     required this.label,
     required this.count,
+    this.leadingIcon,
     required this.isSelected,
     required this.onTap,
+    this.centerContent = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final tabColors = Theme.of(context).extension<AppTabColors>()!;
 
     // Keep the same layout/sizing for selected and unselected so that
     // _widths stays stable and the indicator slides correctly.
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
+    final content = Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+            if (leadingIcon != null) ...[
+              AnimatedOpacity(
+                duration: const Duration(milliseconds: 200),
+                opacity: isSelected ? 1.0 : 0.5,
+                child: IconTheme(
+                  data: IconThemeData(color: cs.onSurface, size: 16),
+                  child: leadingIcon!,
+                ),
+              ),
+              const SizedBox(width: 6),
+            ],
             AnimatedDefaultTextStyle(
               duration: const Duration(milliseconds: 200),
               style: TextStyle(
                 color: isSelected
-                    ? cs.onSurface
+                    ? tabColors.onSelected
                     : cs.onSurface.withValues(alpha: 0.50),
                 fontSize: 13,
                 fontWeight:
@@ -212,15 +298,15 @@ class _AppStepsTabChip extends StatelessWidget {
                     const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
                   color: isSelected
-                      ? cs.primary
-                      : cs.onSurface.withValues(alpha: 0.10),
+                      ? tabColors.selectedBackground
+                      : tabColors.tabBackground,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
                   '$count',
                   style: TextStyle(
                     color: isSelected
-                        ? cs.onPrimary
+                        ? tabColors.onSelected
                         : cs.onSurface.withValues(alpha: 0.45),
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
@@ -228,9 +314,14 @@ class _AppStepsTabChip extends StatelessWidget {
                 ),
               ),
             ],
-          ],
-        ),
+        ],
       ),
+    );
+
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: centerContent ? Center(child: content) : content,
     );
   }
 }

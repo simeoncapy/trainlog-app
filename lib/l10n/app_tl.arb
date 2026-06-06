@@ -163,7 +163,7 @@
   "menuExploreSectionTitle": "TUKLASIN",
   "menuMenuSectionTitle": "MENU",
   "menuInboxTitle": "Inbox",
-  "menuTripCountLabel": "biyahe",
+  "menuTripCountLabel": "{count, plural, other {biyahe}}",
   "menuTripCount": "{count, plural, =0 {Walang biyahe} =1 {1 biyahe} other {{count} biyahe}}",
   "@menuTripCount": {
     "description": "Bilang ng biyahe na ipinapakita sa menu summary card",
@@ -531,5 +531,6 @@
   "onboardingPage4Title": "Mga Leaderboard",
   "onboardingPage4Subtitle": "Ikaw ba ay madalas maglakbay? Tingnan kung paano ang iyong mga paglalakbay kumpara sa ibang mga miyembro sa buong mundo.",
 
-  "tapAgainToExit": "I-tap muli para lumabas"
+  "tapAgainToExit": "I-tap muli para lumabas",
+  "tripsEmptyList": "Wala pang biyahe"
 }

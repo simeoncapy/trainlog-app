@@ -172,7 +172,13 @@
   "menuExploreSectionTitle": "EXPLORE",
   "menuMenuSectionTitle": "MENU",
   "menuInboxTitle": "Inbox",
-  "menuTripCountLabel": "trips",
+  "menuTripCountLabel": "{count, plural, =0 {trips} =1 {trip} other {trips}}",
+  "@menuTripCountLabel": {
+    "description": "trips label without the number, used after the number in the menu summary card",
+    "placeholders": {
+      "count": {}
+    }
+  },
   "menuTripCount": "{count, plural, =0 {No trips yet} =1 {1 trip} other {{count} trips}}",
   "@menuTripCount": {
     "description": "Number of trips shown in the menu summary card",
@@ -553,5 +559,6 @@
   "onboardingPage4Title": "Leaderboards",
   "onboardingPage4Subtitle": "Are you a frequent traveller? See how your travels stack up against other members worldwide.",
 
-  "tapAgainToExit": "Tap again to exit"
+  "tapAgainToExit": "Tap again to exit",
+  "tripsEmptyList": "No trips yet"
 }
