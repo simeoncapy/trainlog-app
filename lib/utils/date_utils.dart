@@ -85,13 +85,13 @@ String formatDateTime(
 String formatDateShort(BuildContext context, DateTime dateTime) {
   final locale = Localizations.localeOf(context);
   final localeStr = locale.languageCode == 'en' ? 'en_GB' : locale.toString();
-  return DateFormat('d MMM', localeStr).format(dateTime);
+  return DateFormat.MMMd(localeStr).format(dateTime);
 }
 
 /// Formats a date range between [start] and [end] as a compact string.
-/// Same day or date-only trips: "30 Mar"
-/// Same month: "15–18 Apr"
-/// Cross-month: "30 Mar–2 Apr"
+/// Same day or date-only trips: "30 Mar" / "5月27日"
+/// Same month: "15–18 Apr" / "5月15日–18日"
+/// Cross-month: "30 Mar–2 Apr" / "3月30日–4月2日"
 /// English always uses British date ordering; other locales use their own.
 String formatDateRange(BuildContext context, DateTime start, DateTime end) {
   final locale = Localizations.localeOf(context);
@@ -102,15 +102,11 @@ String formatDateRange(BuildContext context, DateTime start, DateTime end) {
       start.day == end.day;
 
   if (isSameDay) {
-    return DateFormat('d MMM', localeStr).format(start);
+    return DateFormat.MMMd(localeStr).format(start);
   }
 
-  if (start.month == end.month && start.year == end.year) {
-    return '${start.day}–${end.day} ${DateFormat('MMM', localeStr).format(start)}';
-  }
-
-  return '${DateFormat('d MMM', localeStr).format(start)}–'
-      '${DateFormat('d MMM', localeStr).format(end)}';
+  return '${DateFormat.MMMd(localeStr).format(start)}–'
+      '${DateFormat.MMMd(localeStr).format(end)}';
 }
 
 /// Formats a trip duration expressed in fractional minutes (as stored on the
