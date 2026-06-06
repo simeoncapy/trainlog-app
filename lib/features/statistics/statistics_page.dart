@@ -19,6 +19,7 @@ import 'package:trainlog_app/features/statistics/widgets/logo_bar_chart.dart';
 import 'package:trainlog_app/features/statistics/widgets/stats_bar_chart.dart';
 import 'package:trainlog_app/features/statistics/widgets/stats_pie_chart.dart';
 import 'package:trainlog_app/features/statistics/widgets/stats_table_chart.dart';
+import 'package:trainlog_app/widgets/divider_with_widget.dart';
 
 enum StatisticsView { bar, pie, table }
 
@@ -154,7 +155,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
           color: barColor,
           labelBuilder: labelBuilder,
           otherLabel: otherLabel,
-          unitHelpTooltip: isDurationOrTrips ? null : _tooltipRich(context, unitMap!),
+          unitHelpTooltip: null,//isDurationOrTrips ? null : _tooltipRich(context, unitMap!),
         );
 
       case StatisticsView.pie:
@@ -283,40 +284,6 @@ class _StatisticsPageState extends State<StatisticsPage> {
     }
     return out;
   }
-
-  InlineSpan _tooltipRich(BuildContext context, Map<UnitFactor, String> units) {
-    final base = Theme.of(context).textTheme.bodyMedium!;
-    final baseUnit = units[UnitFactor.base]!;
-    return WidgetSpan(
-      child: DefaultTextStyle(
-        style: base.copyWith(
-          color: Theme.of(context).colorScheme.onPrimaryContainer,
-        ),
-        child: IntrinsicWidth(
-          child: Table(
-            defaultColumnWidth: const IntrinsicColumnWidth(),
-            children: [
-              for (final f in UnitFactor.values.where((f) => f != UnitFactor.base))
-                TableRow(children: [
-                  Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: Text(units[f]!),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: Align(
-                      alignment: Alignment.centerRight,
-                      child: Text(formatNumber(context, f.multiplier, noDecimal: true)),
-                    ),
-                  ),
-                  Text(baseUnit),
-                ]),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -348,6 +315,9 @@ class _StatsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final loc = AppLocalizations.of(context)!;
+    final isDurationOrTrips =
+        statsProv.unit == GraphUnit.duration || statsProv.unit == GraphUnit.trip;
 
     return Container(
       decoration: BoxDecoration(
@@ -382,8 +352,7 @@ class _StatsCard extends StatelessWidget {
                 ),
                 const Spacer(),
                 // AppStepsTabBar — icon-only tabs, not full width
-                Builder(builder: (context) {
-                  final loc = AppLocalizations.of(context)!;
+                Builder(builder: (context) {                  
                   return AppStepsTabBar(
                     fullWidth: false,
                     selectedIndex: view.index,
@@ -412,7 +381,7 @@ class _StatsCard extends StatelessWidget {
           ),
           // Row 2: compact outlined dropdowns + sort button
           Padding(
-            padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+            padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
             child: Row(
               children: [
                 // Vehicle type
@@ -444,6 +413,24 @@ class _StatsCard extends StatelessWidget {
               ],
             ),
           ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(10, 20, 10, 10), // "${loc.statisticsTotalLabel} ${statsProv.totalFormatted(context)}"
+            child: DividerWithWidget(
+              child: Row(
+                children: [
+                  Text('${loc.statisticsTotalLabel} ${statsProv.totalFormatted(context)}',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                    ),
+                  if (!isDurationOrTrips) ...[
+                    const SizedBox(width: 6),
+                    _tooltipWidget(context, statsProv.unitsByFactor(context)!),
+                  ],
+                ],
+              ),
+            ),
+          ),
           // Chart content
           Padding(
             padding: const EdgeInsets.all(12),
@@ -451,6 +438,54 @@ class _StatsCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  InlineSpan _tooltipRich(BuildContext context, Map<UnitFactor, String> units) {
+    final base = Theme.of(context).textTheme.bodyMedium!;
+    final baseUnit = units[UnitFactor.base]!;
+    return WidgetSpan(
+      child: DefaultTextStyle(
+        style: base.copyWith(
+          color: Theme.of(context).colorScheme.onPrimaryContainer,
+        ),
+        child: IntrinsicWidth(
+          child: Table(
+            defaultColumnWidth: const IntrinsicColumnWidth(),
+            children: [
+              for (final f in UnitFactor.values.where((f) => f != UnitFactor.base))
+                TableRow(children: [
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: Text(units[f]!),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: Text(formatNumber(context, f.multiplier, noDecimal: true)),
+                    ),
+                  ),
+                  Text(baseUnit),
+                ]),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Tooltip _tooltipWidget(BuildContext context, Map<UnitFactor, String> units) {
+    final cs = Theme.of(context).colorScheme;
+    return Tooltip(
+      triggerMode: TooltipTriggerMode.longPress,
+      richMessage: TextSpan(children: [_tooltipRich(context, units)]),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.primaryContainer,
+      ),
+      waitDuration: Duration.zero,
+      showDuration: const Duration(seconds: 4),
+      child: Icon(Icons.help, size: 18, color: cs.primary,),
     );
   }
 }
@@ -490,6 +525,8 @@ class _DimensionButton extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          graph.icon(),
+          const SizedBox(width: 8),
           Text(
             graph.label(context, vehicle),
             style: Theme.of(context).textTheme.titleMedium?.copyWith(

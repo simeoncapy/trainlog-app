@@ -5,11 +5,25 @@ import 'package:diacritic/diacritic.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
+import 'package:trainlog_app/utils/number_formatter.dart';
 import 'package:trainlog_app/utils/style_utils.dart';
 import 'package:trainlog_app/utils/text_utils.dart'; // for countryCodeToName(...)
 import 'package:trainlog_app/features/statistics/widgets/logo_bar_chart.dart'; // for UnitFactor
 import 'package:duration/duration.dart';
 import 'package:duration/locale.dart';
+
+const _counterSymbols = [
+  Symbols.counter_0,
+  Symbols.counter_1,
+  Symbols.counter_2,
+  Symbols.counter_3,
+  Symbols.counter_4,
+  Symbols.counter_5,
+  Symbols.counter_6,
+  Symbols.counter_7,
+  Symbols.counter_8,
+  Symbols.counter_9,
+];
 
 /// Graph categories aligned with the UI page.
 enum GraphType {
@@ -157,6 +171,58 @@ class StatisticsProvider extends ChangeNotifier {
     if (!_disposed) {
       notifyListeners();
     }
+  }
+
+  double get total {
+    return currentStats.values.fold<double>(
+      0,
+      (sum, v) => sum + v.past + v.future,
+    );
+  }
+
+  (double, double) get totalPastFuture {
+    return currentStats.values.fold<(double, double)>(
+      (0, 0),
+      (sum, v) => (sum.$1 + v.past, sum.$2 + v.future),
+    );
+  }
+
+  String totalFormatted(
+    BuildContext context, {
+    bool baseUnit = false,
+    bool splitPastFuture = false,
+  }) {
+    String formatValue(double value) {
+      // Duration is special
+      if (unit == GraphUnit.duration) {
+        if (baseUnit) {
+          return '${formatNumber(context, value)} '
+              '${_durationBase.localizedTimeUnit(context, short: true)}';
+        }
+
+        final seconds = value * _durationBase.secondsPerUnit;
+        return humanizeSeconds(context, seconds);
+      }
+
+      if (baseUnit) {
+        return '${formatNumber(context, value)} ${baseUnitLabel(context)}';
+      }
+
+      final factor = _factorForValue(value);
+      final scaled = factor.apply(value);
+
+      final unitLabel =
+          unitsByFactor(context)?[factor] ?? baseUnitLabel(context);
+
+      return '${formatNumber(context, scaled)} $unitLabel';
+    }
+
+    if (splitPastFuture) {
+      final (past, future) = totalPastFuture;
+      return '${formatValue(past)} + ${formatValue(future)}';
+    }
+
+    return formatValue(total);
   }
 
   // -------------------------------------------------------------------
@@ -473,7 +539,10 @@ class StatisticsProvider extends ChangeNotifier {
         return List.generate(keys.length, (i) {
           final name = keys[i];
           if (otherLabel != null && name == otherLabel) return otherWidget();
-          return _trainlog.getOperatorImage(name, maxWidth: 48, maxHeight: 48);
+          return withOperatorLogoBg(
+            context,
+            _trainlog.getOperatorImage(name, maxWidth: 48, maxHeight: 48)
+          );
         });
 
       case GraphType.country:
@@ -487,6 +556,10 @@ class StatisticsProvider extends ChangeNotifier {
         return List.generate(keys.length, (i) {
           final name = keys[i];
           if (otherLabel != null && name == otherLabel) return otherWidget();
+
+          if (i < _counterSymbols.length) {
+            return Icon(_counterSymbols[i]);
+          }
           return Text(
             _shortLabel(name, maxLen: shortLabelSize),
             overflow: TextOverflow.ellipsis,
@@ -649,6 +722,22 @@ class StatisticsProvider extends ChangeNotifier {
     // Append "Other" last, even if bigger
     out[otherLabel] = (past: otherPast, future: otherFuture);
     return out;
+  }
+
+  UnitFactor _factorForValue(double value) {
+    final abs = value.abs();
+
+    if (abs >= UnitFactor.billion.multiplier) {
+      return UnitFactor.billion;
+    }
+    if (abs >= UnitFactor.million.multiplier) {
+      return UnitFactor.million;
+    }
+    if (abs >= UnitFactor.thousand.multiplier) {
+      return UnitFactor.thousand;
+    }
+
+    return UnitFactor.base;
   }
 }
 
