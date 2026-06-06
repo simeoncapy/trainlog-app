@@ -134,11 +134,14 @@ class _TripCardViewState extends State<TripCardView> {
     }
 
     final bottomInset = MediaQuery.of(context).padding.bottom;
+    final cs = Theme.of(context).colorScheme;
     final locale = Localizations.localeOf(context).toString();
 
     // Build a flat list of items (dividers + cards) from loaded trips.
     final List<Widget> listItems = [];
     String? lastMonthKey;
+    DateTime? lastMonthDate; // date of the month above (newer, already processed)
+    bool isFirstDivider = true;
 
     for (int index = 0; index < _totalCount; index++) {
       final trip = index < _items.length ? _items[index] : null;
@@ -146,7 +149,8 @@ class _TripCardViewState extends State<TripCardView> {
       if (trip == null) {
         WidgetsBinding.instance.addPostFrameCallback((_) => _loadMoreIfNeeded());
         listItems.add(const _TripCardSkeleton());
-        lastMonthKey = null; // reset so divider is re-evaluated once loaded
+        lastMonthKey = null;
+        lastMonthDate = null;
         continue;
       }
 
@@ -154,20 +158,62 @@ class _TripCardViewState extends State<TripCardView> {
       final monthKey = '${dt.year}-${dt.month}';
 
       if (monthKey != lastMonthKey) {
-        final isJanuary = dt.month == 1;
-        final label = isJanuary
-            ? DateFormat('MMMM yyyy', locale).format(dt)
-            : DateFormat('MMMM', locale).format(dt);
+        final Widget dividerChild;
+
+        if (isFirstDivider || lastMonthDate == null) {
+          // Top of the list: show only the year.
+          dividerChild = Text(
+            '${dt.year}',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: cs.onSurfaceVariant,
+                ),
+          );
+          isFirstDivider = false;
+        } else {
+          // Between two months: "↓ olderMonth / newerMonth ↑"
+          // dt        = current (older, below in list)
+          // lastMonthDate = previous (newer, above in list)
+          final newerDt = lastMonthDate!;
+          final yearTransition = dt.year != newerDt.year;
+          final bold = yearTransition ? FontWeight.bold : FontWeight.normal;
+          final baseStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: cs.onSurfaceVariant,
+                fontWeight: bold,
+              );
+
+          String monthName(DateTime d, {required bool showYear}) {
+            final raw = DateFormat('MMMM', locale).format(d);
+            final capitalized = raw[0].toUpperCase() + raw.substring(1);
+            return showYear ? '$capitalized ${d.year}' : capitalized;
+          }
+
+          final olderLabel = monthName(dt, showYear: yearTransition);
+          final newerLabel = monthName(newerDt, showYear: yearTransition);
+
+          dividerChild = Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.keyboard_arrow_down_rounded,
+                  size: 16, color: cs.onSurfaceVariant),
+              const SizedBox(width: 2),
+              Text(olderLabel, style: baseStyle),
+              Text('  /  ', style: baseStyle),
+              Text(newerLabel, style: baseStyle),
+              const SizedBox(width: 2),
+              Icon(Icons.keyboard_arrow_up_rounded,
+                  size: 16, color: cs.onSurfaceVariant),
+            ],
+          );
+        }
+
         listItems.add(
           Padding(
-            padding: const EdgeInsets.only(top: 12, bottom: 4),
-            child: DividerWithText(
-              text: label,
-              style: isJanuary ? const TextStyle(fontWeight: FontWeight.bold) : null,
-            ),
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: DividerWithWidget(child: dividerChild),
           ),
         );
         lastMonthKey = monthKey;
+        lastMonthDate = dt;
       }
 
       listItems.add(_TripCard(trip: trip, trainlog: widget.trainlog));
