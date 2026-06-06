@@ -147,28 +147,53 @@ class _AppStepsTabBarState extends State<AppStepsTabBar> {
         ),
         child: Padding(
           padding: const EdgeInsets.all(_trackPadding),
-          child: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              _buildIndicator(isDark, cs),
-              Row(
-                mainAxisSize: MainAxisSize.max,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final chipWidth = constraints.maxWidth / widget.tabs.length;
+              return Stack(
+                clipBehavior: Clip.none,
                 children: [
-                  for (int i = 0; i < widget.tabs.length; i++)
-                    Expanded(
-                      child: _AppStepsTabChip(
-                        key: _keys[i],
-                        label: widget.tabs[i].label,
-                        count: widget.tabs[i].count,
-                        leadingIcon: widget.tabs[i].leadingIcon,
-                        isSelected: i == widget.selectedIndex,
-                        onTap: () => widget.onTabChanged(i),
-                        centerContent: true,
+                  // Indicator derived purely from layout — always correct on resize.
+                  AnimatedPositioned(
+                    duration: const Duration(milliseconds: 250),
+                    curve: Curves.easeInOut,
+                    left: widget.selectedIndex * chipWidth,
+                    top: 0,
+                    bottom: 0,
+                    width: chipWidth,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: tabColors.selectedBackground,
+                        borderRadius: BorderRadius.circular(10),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.10),
+                            blurRadius: 6,
+                            offset: const Offset(0, 1),
+                          ),
+                        ],
                       ),
                     ),
+                  ),
+                  Row(
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      for (int i = 0; i < widget.tabs.length; i++)
+                        Expanded(
+                          child: _AppStepsTabChip(
+                            label: widget.tabs[i].label,
+                            count: widget.tabs[i].count,
+                            leadingIcon: widget.tabs[i].leadingIcon,
+                            isSelected: i == widget.selectedIndex,
+                            onTap: () => widget.onTabChanged(i),
+                            centerContent: true,
+                          ),
+                        ),
+                    ],
+                  ),
                 ],
-              ),
-            ],
+              );
+            },
           ),
         ),
       );
