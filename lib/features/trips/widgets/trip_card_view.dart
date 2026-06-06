@@ -144,7 +144,7 @@ class _TripCardViewState extends State<TripCardView> {
         }
         final trip = index < _items.length ? _items[index] : null;
         if (trip == null) {
-          _loadMoreIfNeeded();
+          WidgetsBinding.instance.addPostFrameCallback((_) => _loadMoreIfNeeded());
           return const _TripCardSkeleton();
         }
         return _TripCard(trip: trip, trainlog: widget.trainlog);
