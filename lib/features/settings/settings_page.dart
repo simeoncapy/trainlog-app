@@ -75,13 +75,31 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Widget _chevronTrailing(BuildContext context, String label) {
     final cs = Theme.of(context).colorScheme;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(label, style: TextStyle(color: cs.onSurfaceVariant, fontSize: 14)),
-        const SizedBox(width: 2),
-        Icon(Icons.chevron_right, color: cs.onSurfaceVariant, size: 20),
-      ],
+
+    return SizedBox(
+      width: MediaQuery.sizeOf(context).width * 0.35,
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              label,
+              maxLines: 2,
+              textAlign: TextAlign.end,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: cs.onSurfaceVariant,
+                fontSize: 14,
+              ),
+            ),
+          ),
+          const SizedBox(width: 2),
+          Icon(
+            Icons.chevron_right,
+            color: cs.onSurfaceVariant,
+            size: 20,
+          ),
+        ],
+      ),
     );
   }
 
