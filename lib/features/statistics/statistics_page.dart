@@ -119,13 +119,6 @@ class _StatisticsPageState extends State<StatisticsPage> {
   ) {
     final otherLabel = loc.statisticsOtherLabel;
     final statsShort = p.currentStatsShort(10, otherLabel: otherLabel);
-    final keys = statsShort.keys.toList();
-    final images = p.graphImagesForKeys(
-      context,
-      keys,
-      otherLabel: otherLabel,
-      barColor: barColor,
-    );
     final unitMap = p.unitsByFactor(context);
     final baseUnit = p.baseUnitLabel(context);
     final labelBuilder = p.labelBuilder(context);
@@ -143,8 +136,18 @@ class _StatisticsPageState extends State<StatisticsPage> {
 
     switch (_view) {
       case StatisticsView.bar:
+        // Order first, then build images from the SAME ordered keys so the
+        // icons follow the bars when sorting mode changes.
+        final orderedBar =
+            _orderedStats(statsShort, alpha: _sortedAlpha, otherLabel: otherLabel);
+        final images = p.graphImagesForKeys(
+          context,
+          orderedBar.keys.toList(),
+          otherLabel: otherLabel,
+          barColor: barColor,
+        );
         return StatsBarChart(
-          stats: _orderedStats(statsShort, alpha: _sortedAlpha, otherLabel: otherLabel),
+          stats: orderedBar,
           images: images,
           baseUnit: baseUnit,
           unitsByFactor: unitMap,
@@ -378,17 +381,32 @@ class _StatsCard extends StatelessWidget {
                   onChanged: (g) => statsProv.graph = g,
                 ),
                 const Spacer(),
-                // AppStepsTabBar — text only (no leadingIcon), not full width
-                AppStepsTabBar(
-                  fullWidth: false,
-                  selectedIndex: view.index,
-                  onTabChanged: (i) => onViewChanged(StatisticsView.values[i]),
-                  tabs: const [
-                    AppStepsTab(label: 'Bar'),
-                    AppStepsTab(label: 'Pie'),
-                    AppStepsTab(label: 'Table'),
-                  ],
-                ),
+                // AppStepsTabBar — icon-only tabs, not full width
+                Builder(builder: (context) {
+                  final loc = AppLocalizations.of(context)!;
+                  return AppStepsTabBar(
+                    fullWidth: false,
+                    selectedIndex: view.index,
+                    onTabChanged: (i) => onViewChanged(StatisticsView.values[i]),
+                    tabs: [
+                      AppStepsTab(
+                        label: loc.statisticsViewBar,
+                        iconOnly: true,
+                        leadingIcon: const Icon(Icons.bar_chart),
+                      ),
+                      AppStepsTab(
+                        label: loc.statisticsViewPie,
+                        iconOnly: true,
+                        leadingIcon: const Icon(Icons.pie_chart),
+                      ),
+                      AppStepsTab(
+                        label: loc.statisticsViewTable,
+                        iconOnly: true,
+                        leadingIcon: const Icon(Icons.table_chart),
+                      ),
+                    ],
+                  );
+                }),
               ],
             ),
           ),

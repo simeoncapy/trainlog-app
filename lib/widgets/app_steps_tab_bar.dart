@@ -11,7 +11,17 @@ class AppStepsTab {
   /// Optional icon rendered before the label.
   final Widget? leadingIcon;
 
-  const AppStepsTab({required this.label, this.count, this.leadingIcon});
+  /// When true, only [leadingIcon] is rendered (the label is hidden but still
+  /// used as the accessibility tooltip). Requires [leadingIcon] to be set.
+  final bool iconOnly;
+
+  const AppStepsTab({
+    required this.label,
+    this.count,
+    this.leadingIcon,
+    this.iconOnly = false,
+  }) : assert(!iconOnly || leadingIcon != null,
+            'iconOnly requires a leadingIcon');
 }
 
 /// Segmented-control-style horizontally-scrollable tab bar with a smooth
@@ -183,6 +193,7 @@ class _AppStepsTabBarState extends State<AppStepsTabBar> {
                             label: widget.tabs[i].label,
                             count: widget.tabs[i].count,
                             leadingIcon: widget.tabs[i].leadingIcon,
+                            iconOnly: widget.tabs[i].iconOnly,
                             isSelected: i == widget.selectedIndex,
                             onTap: () => widget.onTabChanged(i),
                             centerContent: true,
@@ -219,6 +230,7 @@ class _AppStepsTabBarState extends State<AppStepsTabBar> {
                     label: widget.tabs[i].label,
                     count: widget.tabs[i].count,
                     leadingIcon: widget.tabs[i].leadingIcon,
+                    iconOnly: widget.tabs[i].iconOnly,
                     isSelected: i == widget.selectedIndex,
                     onTap: () => widget.onTabChanged(i),
                   ),
@@ -236,6 +248,7 @@ class _AppStepsTabChip extends StatelessWidget {
   final String label;
   final int? count;
   final Widget? leadingIcon;
+  final bool iconOnly;
   final bool isSelected;
   final VoidCallback onTap;
   /// When true the chip content is centered both horizontally and vertically
@@ -247,6 +260,7 @@ class _AppStepsTabChip extends StatelessWidget {
     required this.label,
     required this.count,
     this.leadingIcon,
+    this.iconOnly = false,
     required this.isSelected,
     required this.onTap,
     this.centerContent = false,
@@ -256,6 +270,32 @@ class _AppStepsTabChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tabColors = Theme.of(context).extension<AppTabColors>()!;
+
+    // Icon-only chip: render just the icon (label used as tooltip).
+    if (iconOnly && leadingIcon != null) {
+      final iconContent = Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+        child: AnimatedOpacity(
+          duration: const Duration(milliseconds: 200),
+          opacity: isSelected ? 1.0 : 0.5,
+          child: IconTheme(
+            data: IconThemeData(
+              color: isSelected ? tabColors.onSelected : cs.onSurface,
+              size: 18,
+            ),
+            child: leadingIcon!,
+          ),
+        ),
+      );
+      return GestureDetector(
+        onTap: onTap,
+        behavior: HitTestBehavior.opaque,
+        child: Tooltip(
+          message: label,
+          child: centerContent ? Center(child: iconContent) : iconContent,
+        ),
+      );
+    }
 
     // Keep the same layout/sizing for selected and unselected so that
     // _widths stays stable and the indicator slides correctly.
