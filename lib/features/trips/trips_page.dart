@@ -94,6 +94,7 @@ class _TripsPageState extends State<TripsPage> {
 
     return SafeArea(
       top: false,
+      bottom: false,
       child: RefreshIndicator(
         onRefresh: () async {
           final locale = Localizations.localeOf(context);

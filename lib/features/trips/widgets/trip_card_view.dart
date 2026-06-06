@@ -131,9 +131,10 @@ class _TripCardViewState extends State<TripCardView> {
       );
     }
 
+    final bottomInset = MediaQuery.of(context).padding.bottom;
     return ListView.builder(
       controller: _scrollController,
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
+      padding: EdgeInsets.fromLTRB(16, 8, 16, bottomInset + 90),
       itemCount: _totalCount + (_isLoadingMore ? 1 : 0),
       itemBuilder: (context, index) {
         if (index >= _totalCount) {
