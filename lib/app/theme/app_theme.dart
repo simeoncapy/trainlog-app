@@ -110,7 +110,7 @@ abstract final class AppTheme {
           shadow: Color(0x1F14213D), // navy @ 12 %
         ),
         AppTabColors(
-          tabBackground: colorScheme.surface,
+          tabBackground: colorScheme.primaryContainer.withValues(alpha: 0.5),
           selectedBackground: AppColors.lightTabSurface,
           onSelected: AppColors.lightOnTabSurface,
           //onBackground: AppColors.darkText,
