@@ -873,6 +873,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get statisticsPieWip => 'The pie chart is WIP';
 
   @override
+  String get statisticsTitle => 'Statistics';
+
+  @override
+  String get statisticsViewBar => 'Bar';
+
+  @override
+  String get statisticsViewPie => 'Pie';
+
+  @override
+  String get statisticsViewTable => 'Table';
+
+  @override
+  String get statisticsSelectDimension => 'Select dimension';
+
+  @override
+  String get statisticsSelectVehicle => 'Select vehicle';
+
+  @override
+  String get statisticsSelectUnit => 'Select unit';
+
+  @override
   String get internationalWaters => 'International waters';
 
   @override

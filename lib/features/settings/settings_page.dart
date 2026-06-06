@@ -14,7 +14,7 @@ import 'package:trainlog_app/platform/adaptive_dialog.dart';
 import 'package:trainlog_app/platform/adaptive_information_message.dart';
 import 'package:trainlog_app/platform/adaptive_page_route.dart';
 import 'package:trainlog_app/platform/adaptive_switch.dart';
-import 'package:trainlog_app/platform/settings_group.dart';
+import 'package:trainlog_app/features/settings/widgets/settings_group.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';

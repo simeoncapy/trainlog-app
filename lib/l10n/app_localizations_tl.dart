@@ -855,6 +855,27 @@ class AppLocalizationsTl extends AppLocalizations {
   String get statisticsPieWip => 'Ang pie chart ay WIP';
 
   @override
+  String get statisticsTitle => 'Statistics';
+
+  @override
+  String get statisticsViewBar => 'Bar';
+
+  @override
+  String get statisticsViewPie => 'Pie';
+
+  @override
+  String get statisticsViewTable => 'Table';
+
+  @override
+  String get statisticsSelectDimension => 'Pumili ng dimensyon';
+
+  @override
+  String get statisticsSelectVehicle => 'Pumili ng sasakyan';
+
+  @override
+  String get statisticsSelectUnit => 'Pumili ng yunit';
+
+  @override
   String get internationalWaters => 'Tubig international';
 
   @override

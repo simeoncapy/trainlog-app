@@ -2,6 +2,8 @@ import 'dart:math' as math;
 import 'dart:ui' show FontFeature;
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:trainlog_app/l10n/app_localizations.dart';
+import 'package:trainlog_app/widgets/error_banner.dart';
 
 /// Input is a LinkedHashMap of key -> (past, future).
 /// Slice size uses (past + future).
@@ -97,6 +99,7 @@ class StatsPieChart extends StatelessWidget {
         if (w.isFinite && h.isFinite) {
           side = math.max(minChartSize, math.min(w, h));
         }
+        final loc = AppLocalizations.of(context)!;
 
         final legend = Wrap(
           spacing: 12,
@@ -131,6 +134,12 @@ class StatsPieChart extends StatelessWidget {
         return Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            ErrorBanner(
+                severity: ErrorSeverity.info,
+                compact: true,
+                message: loc.statisticsPieWip,
+              ),
+              const SizedBox(height: 12),
             // Chart + center widget in a Stack so the center shows correctly
             Center(
               child: SizedBox(

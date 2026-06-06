@@ -1494,6 +1494,48 @@ abstract class AppLocalizations {
   /// **'The pie chart is WIP'**
   String get statisticsPieWip;
 
+  /// No description provided for @statisticsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Statistics'**
+  String get statisticsTitle;
+
+  /// No description provided for @statisticsViewBar.
+  ///
+  /// In en, this message translates to:
+  /// **'Bar'**
+  String get statisticsViewBar;
+
+  /// No description provided for @statisticsViewPie.
+  ///
+  /// In en, this message translates to:
+  /// **'Pie'**
+  String get statisticsViewPie;
+
+  /// No description provided for @statisticsViewTable.
+  ///
+  /// In en, this message translates to:
+  /// **'Table'**
+  String get statisticsViewTable;
+
+  /// No description provided for @statisticsSelectDimension.
+  ///
+  /// In en, this message translates to:
+  /// **'Select dimension'**
+  String get statisticsSelectDimension;
+
+  /// No description provided for @statisticsSelectVehicle.
+  ///
+  /// In en, this message translates to:
+  /// **'Select vehicle'**
+  String get statisticsSelectVehicle;
+
+  /// No description provided for @statisticsSelectUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'Select unit'**
+  String get statisticsSelectUnit;
+
   /// No description provided for @internationalWaters.
   ///
   /// In en, this message translates to:
