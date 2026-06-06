@@ -145,7 +145,7 @@ class _StatsBarChartState extends State<StatsBarChart> {
         : Text(_unitLabel, style: monoStyle);
 
     return ListView.separated(
-      padding: EdgeInsets.zero,
+      padding: EdgeInsetsGeometry.only(bottom: 8),
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: n,
