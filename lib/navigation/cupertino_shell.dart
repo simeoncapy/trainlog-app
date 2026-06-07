@@ -11,6 +11,7 @@ import 'package:trainlog_app/utils/platform_utils.dart';
 import 'package:trainlog_app/features/map/map_page.dart';
 import 'package:trainlog_app/features/menu/full_screen_menu_page.dart';
 import 'package:trainlog_app/features/ranking/ranking_page.dart';
+import 'package:trainlog_app/features/settings/settings_page.dart';
 import 'package:trainlog_app/features/statistics/statistics_page.dart';
 import 'package:trainlog_app/features/trainlog/inbox_page.dart';
 import 'package:trainlog_app/features/trainlog/trainlog_status_page.dart';
@@ -50,7 +51,14 @@ class _CupertinoShellState extends State<CupertinoShell> {
         opaque: true,
         pageBuilder: (ctx, _, __) => FullScreenMenuPage(
           onClose: () => Navigator.of(ctx).pop(),
-          onSettingsTap: () => Navigator.of(ctx).pop(),
+          onSettingsTap: () {
+            Navigator.of(ctx).pop();
+            Navigator.of(context).push(PageRouteBuilder(
+              pageBuilder: (_, __, ___) => const SettingsPage(),
+              transitionDuration: Duration.zero,
+              reverseTransitionDuration: Duration.zero,
+            ));
+          },
           onPageTap: (id) => Navigator.of(ctx).pop(),
           onInboxTap: () {
             Navigator.of(ctx).pop();

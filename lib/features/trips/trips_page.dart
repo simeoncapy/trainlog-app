@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -14,6 +13,7 @@ import 'package:trainlog_app/providers/trips_provider.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 import 'package:trainlog_app/widgets/app_steps_tab_bar.dart';
 import 'package:trainlog_app/widgets/past_future_selector.dart';
+import 'package:trainlog_app/platform/adaptive_widget.dart';
 import 'package:trainlog_app/widgets/trips_filter_dialog.dart';
 
 const _kViewPrefKey = 'trips_view_mode'; // 'card' or 'table'
@@ -263,19 +263,23 @@ class _PageHeader extends StatelessWidget {
             const Spacer(),
 
           // View toggle
-          _HeaderIconButton(
+          AdaptiveAppBarSquareButton(
             icon: isCardView ? Icons.table_chart_outlined : Icons.view_agenda_outlined,
-            tooltip: isCardView ? 'Table view' : 'Card view',
             onPressed: onToggleView,
+            tooltip: isCardView ? 'Table view' : 'Card view',
+            size: 36,
+            iconSize: 18,
           ),
 
           // Clear filter (when active)
           if (activeFilter != null) ...[
             const SizedBox(width: 8),
-            _HeaderIconButton(
+            AdaptiveAppBarSquareButton(
               icon: Icons.search_off,
-              tooltip: AppLocalizations.of(context)!.filterClearButton,
               onPressed: onClearFilter,
+              tooltip: AppLocalizations.of(context)!.filterClearButton,
+              size: 36,
+              iconSize: 18,
               circle: true,
             ),
           ],
@@ -283,121 +287,14 @@ class _PageHeader extends StatelessWidget {
           const SizedBox(width: 8),
 
           // Filter button
-          _AdaptiveFilterButton(
+          AdaptiveAppBarSquareButton(
+            icon: AdaptiveIcons.filter,
             onPressed: onFilterTap,
             tooltip: AppLocalizations.of(context)!.filterButton,
+            size: 36,
+            iconSize: 18,
           ),
         ],
-      ),
-    );
-  }
-}
-
-/// Rounded-rectangle icon button matching the screenshot design.
-/// Used for view toggle and clear-filter actions.
-class _HeaderIconButton extends StatelessWidget {
-  const _HeaderIconButton({
-    required this.icon,
-    required this.tooltip,
-    required this.onPressed,
-    this.circle = false,
-  });
-
-  final IconData icon;
-  final String tooltip;
-  final VoidCallback onPressed;
-  /// When true renders as a circle (used for the clear-filter action).
-  final bool circle;
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cs = Theme.of(context).colorScheme;
-    final bg = isDark ? cs.surfaceContainerHigh : cs.surface;
-    final fg = cs.onSurface;
-    final radius = circle ? BorderRadius.circular(20) : BorderRadius.circular(10);
-
-    if (AppPlatform.isApple) {
-      return CupertinoButton(
-        padding: EdgeInsets.zero,
-        onPressed: onPressed,
-        child: Container(
-          width: 36,
-          height: 36,
-          decoration: BoxDecoration(
-            color: CupertinoColors.systemFill.resolveFrom(context),
-            borderRadius: radius,
-          ),
-          child: Icon(icon, size: 18, color: CupertinoTheme.of(context).primaryColor),
-        ),
-      );
-    }
-    return Tooltip(
-      message: tooltip,
-      child: InkWell(
-        onTap: onPressed,
-        borderRadius: radius,
-        child: Container(
-          width: 36,
-          height: 36,
-          decoration: BoxDecoration(
-            color: bg,
-            borderRadius: radius,
-            border: Border.all(
-              color: cs.outline.withValues(alpha: 0.3),
-            ),
-          ),
-          child: Icon(icon, size: 18, color: fg),
-        ),
-      ),
-    );
-  }
-}
-
-class _AdaptiveFilterButton extends StatelessWidget {
-  final VoidCallback onPressed;
-  final String tooltip;
-
-  const _AdaptiveFilterButton({required this.onPressed, required this.tooltip});
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cs = Theme.of(context).colorScheme;
-    const radius = BorderRadius.all(Radius.circular(10));
-
-    if (AppPlatform.isApple) {
-      return CupertinoButton(
-        padding: EdgeInsets.zero,
-        onPressed: onPressed,
-        child: Container(
-          width: 36,
-          height: 36,
-          decoration: BoxDecoration(
-            color: CupertinoColors.systemFill.resolveFrom(context),
-            borderRadius: radius,
-          ),
-          child: Icon(AdaptiveIcons.filter, size: 20,
-              color: CupertinoTheme.of(context).primaryColor),
-        ),
-      );
-    }
-
-    return Tooltip(
-      message: tooltip,
-      child: InkWell(
-        onTap: onPressed,
-        borderRadius: radius,
-        child: Container(
-          width: 36,
-          height: 36,
-          decoration: BoxDecoration(
-            color: isDark ? cs.surfaceContainerHigh : cs.surface,
-            borderRadius: radius,
-            border: Border.all(color: cs.outline.withValues(alpha: 0.3)),
-          ),
-          child: Icon(Icons.filter_alt_outlined, size: 18, color: cs.onSurface),
-        ),
       ),
     );
   }
