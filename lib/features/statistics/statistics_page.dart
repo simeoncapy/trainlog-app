@@ -19,6 +19,7 @@ import 'package:trainlog_app/features/statistics/widgets/logo_bar_chart.dart';
 import 'package:trainlog_app/features/statistics/widgets/stats_bar_chart.dart';
 import 'package:trainlog_app/features/statistics/widgets/stats_pie_chart.dart';
 import 'package:trainlog_app/features/statistics/widgets/stats_table_chart.dart';
+import 'package:trainlog_app/platform/adaptive_widget.dart';
 import 'package:trainlog_app/widgets/divider_with_widget.dart';
 
 enum StatisticsView { bar, pie, table }
@@ -690,14 +691,14 @@ class _YearChip extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final label = selected == 0 ? allYearsLabel : selected.toString();
 
-    return PopupMenuButton<int>(
+    return AdaptivePopup<int>(
       enabled: enabled,
       initialValue: selected,
       onSelected: onChanged,
-      itemBuilder: (_) => years
-          .map((y) => PopupMenuItem<int>(
+      items: years
+          .map((y) => AdaptivePopupItem(
                 value: y,
-                child: Text(y == 0 ? allYearsLabel : y.toString()),
+                label: y == 0 ? allYearsLabel : y.toString(),
               ))
           .toList(),
       child: Container(
