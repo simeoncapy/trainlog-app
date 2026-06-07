@@ -81,14 +81,17 @@ class _StatisticsPageState extends State<StatisticsPage> {
                           fontWeight: FontWeight.w700,
                         ),
                   ),
-                  const Spacer(),
-                  Flexible(
-                    child: _YearChip(
-                      years: [0, ...tripsProv.years],
-                      selected: statsProv.year ?? 0,
-                      enabled: !disabledYears,
-                      allYearsLabel: loc.tripsFilterAllYears,
-                      onChanged: (y) => statsProv.year = y,
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: _YearChip(
+                        years: [0, ...tripsProv.years],
+                        selected: statsProv.year ?? 0,
+                        enabled: !disabledYears,
+                        allYearsLabel: loc.tripsFilterAllYears,
+                        onChanged: (y) => statsProv.year = y,
+                      ),
                     ),
                   ),
                 ],
