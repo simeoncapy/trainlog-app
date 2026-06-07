@@ -7,6 +7,7 @@ import 'package:trainlog_app/utils/platform_utils.dart';
 enum AdaptiveButtonType {
   isNull,
   normal,
+  outlined,
   destructive,
   destructiveContainer,
   primary,
@@ -43,26 +44,38 @@ class AdaptiveButton {
     final effectiveRadius = borderRadius ?? BorderRadius.circular(6);
     final shape = RoundedRectangleBorder(borderRadius: effectiveRadius);
 
+    final bool isOutlined = type == AdaptiveButtonType.outlined;
     // Use FilledButton when a background color is explicitly requested so the
     // color is always fully visible (M3 ElevatedButton surface-tints instead).
-    final bool useFilled = backgroundColor != null;
+    final bool useFilled = !isOutlined && backgroundColor != null;
 
-    final style = useFilled
-        ? FilledButton.styleFrom(
-            backgroundColor: backgroundColor,
-            foregroundColor: foregroundColor,
-            padding: padding,
-            minimumSize: minimumSize,
-            shape: shape,
-          )
-        : ElevatedButton.styleFrom(
-            backgroundColor: backgroundColor,
-            foregroundColor: foregroundColor,
-            padding: padding,
-            minimumSize: minimumSize,
-            elevation: elevation,
-            shape: shape,
-          );
+    final ButtonStyle style;
+    if (isOutlined) {
+      style = OutlinedButton.styleFrom(
+        foregroundColor: foregroundColor,
+        padding: padding,
+        minimumSize: minimumSize,
+        shape: shape,
+        side: foregroundColor != null ? BorderSide(color: foregroundColor) : null,
+      );
+    } else if (useFilled) {
+      style = FilledButton.styleFrom(
+        backgroundColor: backgroundColor,
+        foregroundColor: foregroundColor,
+        padding: padding,
+        minimumSize: minimumSize,
+        shape: shape,
+      );
+    } else {
+      style = ElevatedButton.styleFrom(
+        backgroundColor: backgroundColor,
+        foregroundColor: foregroundColor,
+        padding: padding,
+        minimumSize: minimumSize,
+        elevation: elevation,
+        shape: shape,
+      );
+    }
 
     final Widget? effectiveIcon = iconWidget ?? (icon != null ? Icon(icon) : null);
 
@@ -72,6 +85,15 @@ class AdaptiveButton {
           icon: effectiveIcon,
           style: style,
           onPressed: onPressed,
+        );
+      }
+
+      if (isOutlined) {
+        return OutlinedButton.icon(
+          onPressed: onPressed,
+          icon: effectiveIcon,
+          label: child,
+          style: style,
         );
       }
 
@@ -89,6 +111,14 @@ class AdaptiveButton {
         icon: effectiveIcon,
         label: child,
         style: style,
+      );
+    }
+
+    if (isOutlined) {
+      return OutlinedButton(
+        onPressed: onPressed,
+        style: style,
+        child: child,
       );
     }
 
@@ -178,6 +208,26 @@ class AdaptiveButton {
       );
     }
 
+    if (type == AdaptiveButtonType.outlined) {
+      final radius = borderRadius ?? BorderRadius.circular(8);
+      final borderColor = effectiveFg ?? CupertinoTheme.of(context).primaryColor;
+      return DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: radius,
+          border: Border.all(color: borderColor),
+        ),
+        child: CupertinoButton(
+          onPressed: onPressed,
+          sizeStyle: size ?? CupertinoButtonSize.medium,
+          padding: padding,
+          color: CupertinoColors.transparent,
+          foregroundColor: borderColor,
+          borderRadius: radius,
+          child: content!,
+        ),
+      );
+    }
+
     return CupertinoButton.filled(
       onPressed: onPressed,
       sizeStyle: size ?? CupertinoButtonSize.medium,
@@ -204,6 +254,9 @@ class AdaptiveButton {
       bgColor = user;
     } else {
       switch (type) {
+        case AdaptiveButtonType.outlined:
+          bgColor = Colors.transparent;
+          break;
         case AdaptiveButtonType.destructive:
           bgColor = AdaptiveThemeColor.error(context);
           break;
@@ -245,6 +298,9 @@ class AdaptiveButton {
       fgColor = user;
     } else {
       switch (type) {
+        case AdaptiveButtonType.outlined:
+          fgColor = AdaptiveThemeColor.primary(context);
+          break;
         case AdaptiveButtonType.destructive:
           fgColor = AdaptiveThemeColor.onError(context);
           break;

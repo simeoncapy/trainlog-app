@@ -55,9 +55,11 @@ class _TripsLoaderState extends State<TripsLoader> {
                         padding: const EdgeInsets.fromLTRB(8, 8, 8, 24),
                         child: Column(
                           children: [
-                            Expanded(child: Lottie.asset('assets/animations/loading.json')),
+                            const SizedBox(height: 24),
                             Text(l10n.dataLoading,
                                 style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold)),
+                            const SizedBox(height: 16),
+                            Expanded(child: Lottie.asset('assets/animations/loading.json')),                            
                           ],
                         ),
                       ),

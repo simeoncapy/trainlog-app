@@ -32,6 +32,11 @@
   "createAccountButtonShort": "Gumawa",
   "createAccountPrivacyPolicy": "Sa pag sign up, sumasang-ayon ka sa aming Privacy Policy.",
   "loginToYourAccount": "Mag login sa account ",
+  "loginWelcomeBack": "Maligayang pagbabalik",
+  "loginSubtitle": "I-log ang iyong susunod na biyahe",
+  "loginNewHere": "Bago dito?",
+  "changeInstance": "Baguhin ang instance",
+  "instanceSelectorLabel": "Instance",
   "errorCreationAccount": "May mali sa pag gawa ng account.",
   "menuHello": "Kamusta {username}",
   "@menuHello": {

@@ -106,6 +106,21 @@ class AppLocalizationsJa extends AppLocalizations {
   String get loginToYourAccount => 'アカウントにログイン';
 
   @override
+  String get loginWelcomeBack => 'おかえりなさい';
+
+  @override
+  String get loginSubtitle => '次の旅を記録しよう';
+
+  @override
+  String get loginNewHere => '初めてですか？';
+
+  @override
+  String get changeInstance => 'インスタンスを変更';
+
+  @override
+  String get instanceSelectorLabel => 'インスタンス';
+
+  @override
   String get errorCreationAccount => 'アカウントの作成中にエラーが発生しました。';
 
   @override

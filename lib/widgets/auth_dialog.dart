@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
-import 'package:trainlog_app/widgets/auth_form.dart';
+import 'package:trainlog_app/features/user/widgets/auth_form.dart';
 
 class AuthDialog extends StatefulWidget {
   final AuthFormType type;

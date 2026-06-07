@@ -4,7 +4,7 @@ import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/features/about/privacy_tab.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
-import 'package:trainlog_app/widgets/auth_form.dart';
+import 'package:trainlog_app/features/user/widgets/auth_form.dart';
 import 'package:trainlog_app/widgets/error_banner.dart';
 import 'package:trainlog_app/widgets/footer.dart';
 
@@ -77,7 +77,7 @@ class _SignupPageState extends State<SignupPage> {
               Padding(
                 padding: const EdgeInsets.only(left: 30, right: 30, bottom: 10, top: 24),
                 child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 320),
+                  constraints: const BoxConstraints(maxWidth: 320, maxHeight: 100),
                   child: Image.asset(
                     'assets/logo/wide_cutted.png',
                     fit: BoxFit.contain,
