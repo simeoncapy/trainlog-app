@@ -75,22 +75,21 @@ class _StatisticsPageState extends State<StatisticsPage> {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Flexible(
-                    child: Text(
-                      loc.statisticsTitle,
-                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                            fontWeight: FontWeight.w700,
-                          ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                  Text(
+                    loc.statisticsTitle,
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
                   ),
-                  const SizedBox(width: 8),
-                  _YearChip(
-                    years: [0, ...tripsProv.years],
-                    selected: statsProv.year ?? 0,
-                    enabled: !disabledYears,
-                    allYearsLabel: loc.tripsFilterAllYears,
-                    onChanged: (y) => statsProv.year = y,
+                  const Spacer(),
+                  Flexible(
+                    child: _YearChip(
+                      years: [0, ...tripsProv.years],
+                      selected: statsProv.year ?? 0,
+                      enabled: !disabledYears,
+                      allYearsLabel: loc.tripsFilterAllYears,
+                      onChanged: (y) => statsProv.year = y,
+                    ),
                   ),
                 ],
               ),
@@ -708,12 +707,15 @@ class _YearChip extends StatelessWidget {
           children: [
             Icon(Icons.calendar_today_outlined, size: 14, color: cs.onSurfaceVariant),
             const SizedBox(width: 6),
-            Text(
-              label,
-              style: Theme.of(context)
-                  .textTheme
-                  .labelLarge
-                  ?.copyWith(fontWeight: FontWeight.w600),
+            Flexible(
+              child: Text(
+                label,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context)
+                    .textTheme
+                    .labelLarge
+                    ?.copyWith(fontWeight: FontWeight.w600),
+              ),
             ),
             const SizedBox(width: 4),
             Icon(Icons.keyboard_arrow_down, size: 16, color: cs.onSurfaceVariant),
