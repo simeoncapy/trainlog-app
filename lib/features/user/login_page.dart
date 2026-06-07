@@ -3,10 +3,9 @@ import 'package:provider/provider.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/features/user/signup_page.dart';
 import 'package:trainlog_app/features/user/widgets/instance_selector_widget.dart';
-import 'package:trainlog_app/platform/adaptive_information_message.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
-import 'package:trainlog_app/widgets/auth_form.dart';
+import 'package:trainlog_app/features/user/widgets/auth_form.dart';
 import 'package:trainlog_app/widgets/divider_with_widget.dart';
 import 'package:trainlog_app/widgets/footer.dart';
 
@@ -63,102 +62,6 @@ class _LoginPageState extends State<LoginPage> {
     } finally {
       if (mounted) setState(() => _loggingIn = false);
     }
-  }
-
-  void _dialogInstanceUrl() {
-    final settings = context.read<SettingsProvider>();
-    final loc = AppLocalizations.of(context)!;
-    final controller = TextEditingController(text: settings.userInstanceUrl);
-    final auth = context.read<TrainlogProvider>();
-
-    InstanceType? instanceType = auth
-        .getListOfInstances(settings: settings)
-        .entries
-        .firstWhere(
-          (e) => e.value == auth.instanceUrl,
-          orElse: () => MapEntry(InstanceType.user, settings.userInstanceUrl),
-        )
-        .key;
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setDialogState) {
-            return AlertDialog(
-              title: Text(loc.dialogueChangeInstanceTitle),
-              content: RadioGroup<InstanceType>(
-                groupValue: instanceType,
-                onChanged: (InstanceType? value) {
-                  setDialogState(() {
-                    instanceType = value;
-                  });
-                },
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      for (final e in auth.getListOfInstances(settings: settings).entries)
-                        ListTile(
-                          title: e.key == InstanceType.user
-                              ? TextField(
-                                  controller: controller,
-                                  decoration: InputDecoration(
-                                    labelText: loc.dialogueChangeInstanceCustomLabel,
-                                  ),
-                                  onTap: () => setDialogState(() => instanceType = InstanceType.user),
-                                )
-                              : Text(e.value),
-                          leading: Radio<InstanceType>(value: e.key),
-                          onTap: () => setDialogState(() => instanceType = e.key),
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                  ),
-                  onPressed: () async {
-                    final userUrl = controller.text.trim();
-                    String newUrl;
-
-                    if (instanceType == InstanceType.user && userUrl.isEmpty) {
-                      AdaptiveInformationMessage.showInfo("Please enter a valid URL");
-                      return;
-                    }
-
-                    if (instanceType != InstanceType.user) {
-                      newUrl = auth.getListOfInstances(settings: settings)[instanceType]!;
-                    } else {
-                      newUrl = userUrl;
-                    }
-
-                    final success = await auth.setInstanceUrl(newUrl);
-                    settings.setLastUsedInstanceUrl(newUrl);
-                    if (!success) {
-                      if (!context.mounted) return;
-                      AdaptiveInformationMessage.showInfo("Error changing instance URL");
-                    } else {
-                      if (instanceType == InstanceType.user) settings.setUserInstanceUrl(userUrl);
-                      Navigator.of(context).pop();
-                    }
-                  },
-                  child: Text(loc.dialogueChangeInstanceButton),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
   }
 
   @override
@@ -226,8 +129,8 @@ class _LoginPageState extends State<LoginPage> {
                               DividerWithText(text: loc.changeInstance),
                               const SizedBox(height: 16),
 
-                              // Instance selector
-                              InstanceSelectorWidget(onTap: _dialogInstanceUrl),
+                              // Instance selector (handles its own bottom sheet)
+                              const InstanceSelectorWidget(),
                             ],
                           ),
                         ),

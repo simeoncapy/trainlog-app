@@ -4,7 +4,7 @@ import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/features/about/privacy_tab.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
-import 'package:trainlog_app/widgets/auth_form.dart';
+import 'package:trainlog_app/features/user/widgets/auth_form.dart';
 import 'package:trainlog_app/widgets/error_banner.dart';
 import 'package:trainlog_app/widgets/footer.dart';
 
