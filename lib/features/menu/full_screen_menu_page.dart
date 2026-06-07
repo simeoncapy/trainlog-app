@@ -11,6 +11,7 @@ import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
+import 'package:trainlog_app/widgets/app_bar_square_button.dart';
 
 /// Full-screen menu replacing the legacy Drawer on Android.
 /// Provides a clean entry point for iOS (wire up from the iOS shell when ready).
@@ -129,35 +130,14 @@ class _TopBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final cs = theme.colorScheme;
-
-    Widget squareBtn({required IconData icon, required VoidCallback onTap, String? tooltip}) {
-      return Tooltip(
-        message: tooltip ?? '',
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(10),
-          child: Container(
-            width: 38,
-            height: 38,
-            decoration: BoxDecoration(
-              color: cs.surface,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: cs.outlineVariant, width: 1),
-            ),
-            child: Icon(icon, color: cs.onSurface, size: 20),
-          ),
-        ),
-      );
-    }
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
       child: Row(
         children: [
-          squareBtn(
+          AppBarSquareButton(
             icon: Icons.keyboard_arrow_down,
-            onTap: onClose,
+            onPressed: onClose,
             tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
           ),
           Expanded(
@@ -167,9 +147,9 @@ class _TopBar extends StatelessWidget {
               style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
             ),
           ),
-          squareBtn(
+          AppBarSquareButton(
             icon: Icons.settings_outlined,
-            onTap: onSettings,
+            onPressed: onSettings,
             tooltip: loc.menuSettingsTitle,
           ),
         ],
