@@ -356,9 +356,12 @@ class _StatsCard extends StatelessWidget {
                   vehicle: statsProv.vehicle,
                   onChanged: (g) => statsProv.graph = g,
                 ),
-                const Spacer(),
-                // AppStepsTabBar — icon-only tabs, not full width
-                Builder(builder: (context) {                  
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    // AppStepsTabBar — icon-only tabs, not full width
+                    child: Builder(builder: (context) {
                   return AppStepsTabBar(
                     fullWidth: false,
                     selectedIndex: view.index,
@@ -382,6 +385,8 @@ class _StatsCard extends StatelessWidget {
                     ],
                   );
                 }),
+                  ),
+                ),
               ],
             ),
           ),
