@@ -508,18 +508,14 @@ class _DimensionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PopupMenuButton<GraphType>(
+    return AdaptivePopup<GraphType>(
       onSelected: onChanged,
-      itemBuilder: (_) => GraphType.values
-          .map((g) => PopupMenuItem<GraphType>(
+      initialValue: graph,
+      items: GraphType.values
+          .map((g) => AdaptivePopupItem(
                 value: g,
-                child: Row(
-                  children: [
-                    g.icon(),
-                    const SizedBox(width: 10),
-                    Text(g.label(context, vehicle)),
-                  ],
-                ),
+                label: g.label(context, vehicle),
+                leading: g.icon(),
               ))
           .toList(),
       child: Row(
@@ -570,23 +566,19 @@ class _OutlinedDropdown<T> extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final icon = iconOf(selected);
 
-    return PopupMenuButton<T>(
-      onSelected: (v) => onChanged(v),
-      itemBuilder: (_) => items
-          .map((item) => PopupMenuItem<T>(
+    return AdaptivePopup<T>(
+      onSelected: onChanged,
+      initialValue: selected,
+      items: items
+          .map((item) => AdaptivePopupItem(
                 value: item,
-                child: Row(
-                  children: [
-                    if (iconOf(item) != null) ...[
-                      IconTheme(
+                label: labelOf(item),
+                leading: iconOf(item) != null
+                    ? IconTheme(
                         data: IconThemeData(size: 18, color: cs.primary),
                         child: iconOf(item)!,
-                      ),
-                      const SizedBox(width: 10),
-                    ],
-                    Text(labelOf(item)),
-                  ],
-                ),
+                      )
+                    : null,
               ))
           .toList(),
       child: Container(

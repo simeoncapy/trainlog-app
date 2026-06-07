@@ -3,11 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:trainlog_app/platform/widget/adaptive_widget_base.dart';
 
 /// A single item in an [AdaptivePopup] menu.
+///
+/// [leading] is shown before the label on both platforms (icon, etc.).
 class AdaptivePopupItem<T> {
-  const AdaptivePopupItem({required this.value, required this.label});
+  const AdaptivePopupItem({required this.value, required this.label, this.leading});
 
   final T value;
   final String label;
+  final Widget? leading;
 }
 
 /// A popup menu button that uses [PopupMenuButton] on Material and a
@@ -30,6 +33,17 @@ class AdaptivePopup<T> extends AdaptiveWidget {
   final T? initialValue;
   final bool enabled;
 
+  Widget _itemChild(AdaptivePopupItem<T> item) {
+    if (item.leading == null) return Text(item.label);
+    return Row(
+      children: [
+        item.leading!,
+        const SizedBox(width: 10),
+        Text(item.label),
+      ],
+    );
+  }
+
   @override
   Widget buildMaterial(BuildContext context) {
     return PopupMenuButton<T>(
@@ -39,7 +53,7 @@ class AdaptivePopup<T> extends AdaptiveWidget {
       itemBuilder: (_) => items
           .map((item) => PopupMenuItem<T>(
                 value: item.value,
-                child: Text(item.label),
+                child: _itemChild(item),
               ))
           .toList(),
       child: child,
@@ -61,7 +75,7 @@ class AdaptivePopup<T> extends AdaptiveWidget {
                             Navigator.of(context).pop();
                             onSelected(item.value);
                           },
-                          child: Text(item.label),
+                          child: _itemChild(item),
                         ),
                       )
                       .toList(),
