@@ -1,8 +1,9 @@
 // cupertino_shell.dart
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart' show Icon, PageRouteBuilder, Theme;
+import 'package:flutter/material.dart' show Icon, PageRouteBuilder, Scaffold, Theme;
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/navigation/nav_models.dart';
+import 'package:trainlog_app/platform/adaptive_app_bar.dart';
 import 'package:trainlog_app/platform/adaptive_bottom_navbar.dart'
     show AdaptiveBottomNavBar, kNavBarClearance;
 import 'package:trainlog_app/platform/cupertino_fab.dart';
@@ -45,6 +46,31 @@ class _CupertinoShellState extends State<CupertinoShell> {
     }
   }
 
+  /// Pushes a full-screen sub-page, giving it the shared [AdaptiveAppBar] (with
+  /// the back button) here in the shell rather than inside the page itself —
+  /// the same way the root pages get their navigation bar from the shell.
+  void _pushAppBarPage(
+    BuildContext context,
+    String Function(BuildContext) titleBuilder,
+    Widget page,
+  ) {
+    Navigator.of(context).push(
+      PageRouteBuilder(
+        pageBuilder: (routeContext, _, __) => SafeArea(
+          child: Scaffold(
+            appBar: AdaptiveAppBar(
+              title: titleBuilder(routeContext),
+              onBack: () => Navigator.of(routeContext).pop(),
+            ),
+            body: page,
+          ),
+        ),
+        transitionDuration: Duration.zero,
+        reverseTransitionDuration: Duration.zero,
+      ),
+    );
+  }
+
   void _openFullScreenMenu(BuildContext context) {
     Navigator.of(context).push(
       PageRouteBuilder(
@@ -62,19 +88,15 @@ class _CupertinoShellState extends State<CupertinoShell> {
           onPageTap: (id) => Navigator.of(ctx).pop(),
           onInboxTap: () {
             Navigator.of(ctx).pop();
-            Navigator.of(context).push(PageRouteBuilder(
-              pageBuilder: (_, __, ___) => const InboxPage(),
-              transitionDuration: Duration.zero,
-              reverseTransitionDuration: Duration.zero,
-            ));
+            _pushAppBarPage(context, InboxPage.pageTitle, const InboxPage());
           },
           onTrainlogStatusTap: () {
             Navigator.of(ctx).pop();
-            Navigator.of(context).push(PageRouteBuilder(
-              pageBuilder: (_, __, ___) => const TrainlogStatusPage(),
-              transitionDuration: Duration.zero,
-              reverseTransitionDuration: Duration.zero,
-            ));
+            _pushAppBarPage(
+              context,
+              TrainlogStatusPage.pageTitle,
+              const TrainlogStatusPage(),
+            );
           },
         ),
         transitionsBuilder: (_, animation, __, child) => FadeTransition(

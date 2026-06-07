@@ -256,6 +256,31 @@ class _MaterialShellState extends State<MaterialShell> {
 
   void _goBackToBottomNavPage() => _onItemTapped(_previousBottomIndex);
 
+  /// Pushes a full-screen sub-page, giving it the shared [AdaptiveAppBar] (with
+  /// the back button) here in the shell rather than inside the page itself —
+  /// the same way the drawer pages get their app bar from the shell.
+  void _pushAppBarPage(
+    BuildContext context,
+    String Function(BuildContext) titleBuilder,
+    Widget page,
+  ) {
+    Navigator.of(context).push(
+      PageRouteBuilder(
+        pageBuilder: (routeContext, _, __) => SafeArea(
+          child: Scaffold(
+            appBar: AdaptiveAppBar(
+              title: titleBuilder(routeContext),
+              onBack: () => Navigator.of(routeContext).pop(),
+            ),
+            body: page,
+          ),
+        ),
+        transitionDuration: Duration.zero,
+        reverseTransitionDuration: Duration.zero,
+      ),
+    );
+  }
+
   void _openFullScreenMenu(BuildContext context) {
     Navigator.of(context).push(
       PageRouteBuilder(
@@ -272,19 +297,15 @@ class _MaterialShellState extends State<MaterialShell> {
           },
           onInboxTap: () {
             Navigator.of(ctx).pop();
-            Navigator.of(context).push(PageRouteBuilder(
-              pageBuilder: (_, __, ___) => const InboxPage(),
-              transitionDuration: Duration.zero,
-              reverseTransitionDuration: Duration.zero,
-            ));
+            _pushAppBarPage(context, InboxPage.pageTitle, const InboxPage());
           },
           onTrainlogStatusTap: () {
             Navigator.of(ctx).pop();
-            Navigator.of(context).push(PageRouteBuilder(
-              pageBuilder: (_, __, ___) => const TrainlogStatusPage(),
-              transitionDuration: Duration.zero,
-              reverseTransitionDuration: Duration.zero,
-            ));
+            _pushAppBarPage(
+              context,
+              TrainlogStatusPage.pageTitle,
+              const TrainlogStatusPage(),
+            );
           },
         ),
         transitionsBuilder: (_, animation, __, child) => FadeTransition(

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
-import 'package:trainlog_app/platform/adaptive_app_bar.dart';
 
 class TrainlogStatusPage extends StatelessWidget {
   const TrainlogStatusPage({super.key});
@@ -8,17 +7,9 @@ class TrainlogStatusPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context)!;
-
-    return SafeArea(
-      child: Scaffold(
-        appBar: AdaptiveAppBar(
-          title: loc.trainglogStatusPageTitle,
-          onBack: () => Navigator.pop(context),
-        ),
-        body: _bodyHelper(),
-      ),
-    );
+    // The surrounding app bar (and back button) is provided by the shell, the
+    // same way it is for the other pages — see material/cupertino shell.
+    return _bodyHelper();
   }
 
   Padding _bodyHelper() {
