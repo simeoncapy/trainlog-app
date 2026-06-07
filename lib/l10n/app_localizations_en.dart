@@ -1270,4 +1270,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tripsEmptyList => 'No trips yet';
+
+  @override
+  String get tripCardDateUndefined => 'Undefined';
 }

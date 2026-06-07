@@ -539,5 +539,6 @@
   "onboardingPage4Subtitle": "Ikaw ba ay madalas maglakbay? Tingnan kung paano ang iyong mga paglalakbay kumpara sa ibang mga miyembro sa buong mundo.",
 
   "tapAgainToExit": "I-tap muli para lumabas",
-  "tripsEmptyList": "Wala pang biyahe"
+  "tripsEmptyList": "Wala pang biyahe",
+  "tripCardDateUndefined": "Hindi natukoy"
 }

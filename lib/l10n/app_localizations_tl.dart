@@ -1252,4 +1252,7 @@ class AppLocalizationsTl extends AppLocalizations {
 
   @override
   String get tripsEmptyList => 'Wala pang biyahe';
+
+  @override
+  String get tripCardDateUndefined => 'Hindi natukoy';
 }
