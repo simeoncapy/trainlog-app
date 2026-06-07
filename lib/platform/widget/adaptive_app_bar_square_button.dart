@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:trainlog_app/platform/widget/adaptive_widget_base.dart';
 
@@ -49,17 +48,18 @@ class AdaptiveAppBarSquareButton extends AdaptiveWidget {
 
   @override
   Widget buildCupertino(BuildContext context) {
-    return CupertinoButton(
-      padding: EdgeInsets.zero,
-      onPressed: onPressed,
+    final cs = Theme.of(context).colorScheme;
+    return GestureDetector(
+      onTap: onPressed,
       child: Container(
         width: size,
         height: size,
         decoration: BoxDecoration(
-          color: CupertinoColors.systemFill.resolveFrom(context),
+          color: cs.surface,
           borderRadius: _radius,
+          border: Border.all(color: cs.outlineVariant),
         ),
-        child: Icon(icon, size: iconSize, color: CupertinoTheme.of(context).primaryColor),
+        child: Icon(icon, size: iconSize, color: cs.onSurface),
       ),
     );
   }
