@@ -11,11 +11,13 @@ import 'dart:io';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/navigation/nav_models.dart';
 import 'package:trainlog_app/features/trips/add_trip_page.dart';
+import 'package:trainlog_app/app/theme/app_theme.dart';
 import 'package:trainlog_app/platform/adaptive_button.dart';
 import 'package:trainlog_app/platform/adaptive_dialog.dart';
 import 'package:trainlog_app/platform/adaptive_expansion_title.dart';
 import 'package:trainlog_app/platform/adaptive_information_message.dart';
 import 'package:trainlog_app/platform/adaptive_record_tile.dart';
+import 'package:trainlog_app/platform/widget/adaptive_app_bar_square_button.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
@@ -449,32 +451,78 @@ class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
             ),
 
             Expanded(
-              child: ListView.builder(
+              child: ListView.separated(
                 itemCount: stations.length,
+                separatorBuilder: (ctx, _) => Divider(
+                  height: 1,
+                  indent: 16,
+                  endIndent: 16,
+                  color: theme.colorScheme.outline.withValues(alpha: 0.3),
+                ),
                 itemBuilder: (ctx, index) {
                   final (name, address, type, distance) = stations[index];
+                  final typeColor = palette[type] ?? theme.colorScheme.primary;
 
-                  return AdaptiveRecordTile(
-                    materialUseCard: false,        // IMPORTANT: remove Card separation on Material
-                    cupertinoUseBackground: false, // IMPORTANT: remove per-row rounded blocks on iOS
-                    leading: IconTheme(
-                      data: IconThemeData(
-                        color: palette[type],
-                        size: 32,
-                      ),
-                      child: type.icon(),
-                    ),
-                    title: Text(
-                          name ?? "",
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          )
-                    ),
-                    subtitle: Text(
-                      loc.prerecorderAway(formatNumber(ctx, distance)),
-                      style: theme.textTheme.bodySmall,
-                    ),
+                  return InkWell(
                     onTap: () => AdaptiveDialog.pop(ctx, (name, address, type)),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 12),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 36,
+                            height: 36,
+                            decoration: BoxDecoration(
+                              color: typeColor,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Center(
+                              child: IconTheme(
+                                data: const IconThemeData(
+                                    color: Colors.white, size: 20),
+                                child: type.icon(),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  name ?? '',
+                                  style: theme.textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.location_on,
+                                      size: 12,
+                                      color: theme.colorScheme.primary,
+                                    ),
+                                    const SizedBox(width: 3),
+                                    Text(
+                                      loc.prerecorderAway(
+                                          formatNumber(ctx, distance)),
+                                      style: AppTheme.monoFont.copyWith(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w500,
+                                        color: theme.colorScheme.onSurface
+                                            .withValues(alpha: 0.55),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   );
                 },
               ),
@@ -755,16 +803,12 @@ Widget build(BuildContext context) {
               ),
             ),
             const Spacer(),
-            Material(
-              elevation: 4,
-              shape: const CircleBorder(),
-              color: theme.colorScheme.secondaryContainer,
-              child: IconButton(
-                onPressed: _changeSortOder,
-                icon: Icon(sortIcon),
-                color: theme.colorScheme.onSecondaryContainer,
-                tooltip: sortTooltip(loc),
-              ),
+            AdaptiveAppBarSquareButton(
+              icon: sortIcon,
+              onPressed: _changeSortOder,
+              tooltip: sortTooltip(loc),
+              size: 48,
+              iconSize: 24,
             ),
           ],
         ),
@@ -802,9 +846,11 @@ Widget build(BuildContext context) {
   Widget _preRecordTile(
     PreRecordModel record,
     bool selected,
-    AppLocalizations loc, 
+    AppLocalizations loc,
     ThemeData theme,
   ) {
+    final isDark = theme.brightness == Brightness.dark;
+    final cs = theme.colorScheme;
     final hasCoordinates = record.lat != null && record.long != null;
     final hasStation = record.stationName != null &&
         record.stationName!.trim().isNotEmpty;
@@ -812,49 +858,52 @@ Widget build(BuildContext context) {
         record.address!.trim().isNotEmpty;
     final settings = context.read<SettingsProvider>();
     final palette = MapColorPaletteHelper.getPalette(settings.mapColorPalette);
-    final unknownLocationIcon = Icon( Icons.not_listed_location, color: theme.colorScheme.primary, size: 32, );
+    final typeColor = palette[record.type] ?? cs.primary;
 
-    return AdaptiveRecordTile(
-      selected: selected,
-      leading: record.loaded
-          ? (hasStation ? IconTheme(
-              data: IconThemeData(
-                color: palette[record.type],
-                size: 32,
-              ),
-              child: record.type.icon(),
-            ) : unknownLocationIcon)
-          : (AppPlatform.isApple
+    Widget leadingIcon;
+    if (!record.loaded) {
+      leadingIcon = SizedBox(
+        width: 36,
+        height: 36,
+        child: Center(
+          child: AppPlatform.isApple
               ? const CupertinoActivityIndicator()
-              : const SizedBox(
-                  width: 32,
-                  height: 32,
-                  child: CircularProgressIndicator(strokeWidth: 3),
-                )),
-      title: record.loaded
-          ? Text(
-              record.stationName ?? loc.prerecorderUnknownStation,
-              style: AppPlatform.isApple
-                  ? null
-                  : theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-            )
-          : const ShimmerBox(width: 180, height: 18),
-      subtitle: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(formatDateTime(context, record.dateTime)),
-          hasCoordinates
-              ? Text(
-                  hasAddress
-                      ? record.address!
-                      : '${record.lat!.toStringAsFixed(6)}, ${record.long!.toStringAsFixed(6)}',
-                )
-              : const ShimmerBox(width: 180, height: 18),
-        ],
-      ),
-      trailing: _selectionTrailing(record.id, loc, theme),
+              : const CircularProgressIndicator(strokeWidth: 3),
+        ),
+      );
+    } else if (hasStation) {
+      leadingIcon = Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          color: typeColor,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Center(
+          child: IconTheme(
+            data: const IconThemeData(color: Colors.white, size: 20),
+            child: record.type.icon(),
+          ),
+        ),
+      );
+    } else {
+      leadingIcon = Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          color: cs.primaryContainer,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Center(
+          child: Icon(Icons.not_listed_location, color: cs.primary, size: 20),
+        ),
+      );
+    }
+
+    final selectionTrailing = _selectionTrailing(record.id, loc, theme);
+
+    return GestureDetector(
       onTap: () {
-        // iOS feels nicer if tap gives a little haptic:
         if (AppPlatform.isApple) HapticFeedback.selectionClick();
         setState(() {
           if (selected) {
@@ -864,6 +913,66 @@ Widget build(BuildContext context) {
           }
         });
       },
+      child: Container(
+        decoration: BoxDecoration(
+          color: selected
+              ? cs.primaryContainer
+              : (isDark ? cs.surfaceContainerLow : Colors.white),
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.06),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            leadingIcon,
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  record.loaded
+                      ? Text(
+                          record.stationName ?? loc.prerecorderUnknownStation,
+                          style: theme.textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.w600),
+                        )
+                      : const ShimmerBox(width: 180, height: 18),
+                  const SizedBox(height: 4),
+                  Text(
+                    formatDateTime(context, record.dateTime),
+                    style: AppTheme.monoFont.copyWith(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: cs.onSurface.withValues(alpha: 0.5),
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  hasCoordinates
+                      ? Text(
+                          hasAddress
+                              ? record.address!
+                              : '${record.lat!.toStringAsFixed(6)}, ${record.long!.toStringAsFixed(6)}',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: cs.onSurfaceVariant,
+                          ),
+                        )
+                      : const ShimmerBox(width: 180, height: 14),
+                ],
+              ),
+            ),
+            if (selectionTrailing != null) ...[
+              const SizedBox(width: 8),
+              selectionTrailing,
+            ],
+          ],
+        ),
+      ),
     );
   }
 
