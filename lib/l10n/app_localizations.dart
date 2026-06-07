@@ -294,6 +294,36 @@ abstract class AppLocalizations {
   /// **'Log in to your account'**
   String get loginToYourAccount;
 
+  /// No description provided for @loginWelcomeBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome back'**
+  String get loginWelcomeBack;
+
+  /// No description provided for @loginSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Log your next journey'**
+  String get loginSubtitle;
+
+  /// No description provided for @loginNewHere.
+  ///
+  /// In en, this message translates to:
+  /// **'New here?'**
+  String get loginNewHere;
+
+  /// No description provided for @changeInstance.
+  ///
+  /// In en, this message translates to:
+  /// **'Change instance'**
+  String get changeInstance;
+
+  /// No description provided for @instanceSelectorLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Instance'**
+  String get instanceSelectorLabel;
+
   /// No description provided for @errorCreationAccount.
   ///
   /// In en, this message translates to:

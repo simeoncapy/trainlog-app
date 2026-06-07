@@ -106,6 +106,21 @@ class AppLocalizationsTl extends AppLocalizations {
   String get loginToYourAccount => 'Mag login sa account ';
 
   @override
+  String get loginWelcomeBack => 'Maligayang pagbabalik';
+
+  @override
+  String get loginSubtitle => 'I-log ang iyong susunod na biyahe';
+
+  @override
+  String get loginNewHere => 'Bago dito?';
+
+  @override
+  String get changeInstance => 'Baguhin ang instance';
+
+  @override
+  String get instanceSelectorLabel => 'Instance';
+
+  @override
   String get errorCreationAccount => 'May mali sa pag gawa ng account.';
 
   @override

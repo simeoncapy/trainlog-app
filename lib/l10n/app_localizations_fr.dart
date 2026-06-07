@@ -106,6 +106,21 @@ class AppLocalizationsFr extends AppLocalizations {
   String get loginToYourAccount => 'Connectez-vous à votre compte';
 
   @override
+  String get loginWelcomeBack => 'Bon retour';
+
+  @override
+  String get loginSubtitle => 'Enregistrez votre prochain trajet';
+
+  @override
+  String get loginNewHere => 'Nouveau ici ?';
+
+  @override
+  String get changeInstance => 'Changer d'instance';
+
+  @override
+  String get instanceSelectorLabel => 'Instance';
+
+  @override
   String get errorCreationAccount => 'Erreur lors de la création du compte.';
 
   @override

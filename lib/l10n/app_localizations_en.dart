@@ -106,6 +106,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginToYourAccount => 'Log in to your account';
 
   @override
+  String get loginWelcomeBack => 'Welcome back';
+
+  @override
+  String get loginSubtitle => 'Log your next journey';
+
+  @override
+  String get loginNewHere => 'New here?';
+
+  @override
+  String get changeInstance => 'Change instance';
+
+  @override
+  String get instanceSelectorLabel => 'Instance';
+
+  @override
   String get errorCreationAccount => 'Error while creating account.';
 
   @override

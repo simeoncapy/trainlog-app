@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/features/user/signup_page.dart';
+import 'package:trainlog_app/features/user/widgets/instance_selector_widget.dart';
 import 'package:trainlog_app/platform/adaptive_information_message.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/widgets/auth_form.dart';
+import 'package:trainlog_app/widgets/divider_with_widget.dart';
 import 'package:trainlog_app/widgets/footer.dart';
 
 class LoginPage extends StatefulWidget {
@@ -24,7 +26,6 @@ class _LoginPageState extends State<LoginPage> {
 
     final auth = context.read<TrainlogProvider>();
     final settings = context.read<SettingsProvider>();
-    // If there's a saved instance URL that differs from the current one, try to set it
     if (settings.lastUsedInstanceUrl != null && settings.lastUsedInstanceUrl != auth.instanceUrl) {
       auth.setInstanceUrl(settings.lastUsedInstanceUrl!);
     }
@@ -52,7 +53,6 @@ class _LoginPageState extends State<LoginPage> {
           ..hideCurrentSnackBar()
           ..showSnackBar(SnackBar(content: Text("${loc.connectionError} ${auth.error ?? ""}")));
       } else {
-        // Do things here
         settings.setShouldLoadTripsFromApi(true);
       }
     } catch (e) {
@@ -70,19 +70,19 @@ class _LoginPageState extends State<LoginPage> {
     final loc = AppLocalizations.of(context)!;
     final controller = TextEditingController(text: settings.userInstanceUrl);
     final auth = context.read<TrainlogProvider>();
-    
-    // Initial value calculation
+
     InstanceType? instanceType = auth
         .getListOfInstances(settings: settings)
         .entries
-        .firstWhere((e) => e.value == auth.instanceUrl,
-            orElse: () => MapEntry(InstanceType.user, settings.userInstanceUrl))
+        .firstWhere(
+          (e) => e.value == auth.instanceUrl,
+          orElse: () => MapEntry(InstanceType.user, settings.userInstanceUrl),
+        )
         .key;
 
     showDialog(
       context: context,
       builder: (context) {
-        // Use StatefulBuilder to allow the dialog to update its own state
         return StatefulBuilder(
           builder: (context, setDialogState) {
             return AlertDialog(
@@ -90,7 +90,6 @@ class _LoginPageState extends State<LoginPage> {
               content: RadioGroup<InstanceType>(
                 groupValue: instanceType,
                 onChanged: (InstanceType? value) {
-                  // Use the local setDialogState instead of the page's setState
                   setDialogState(() {
                     instanceType = value;
                   });
@@ -107,12 +106,10 @@ class _LoginPageState extends State<LoginPage> {
                                   decoration: InputDecoration(
                                     labelText: loc.dialogueChangeInstanceCustomLabel,
                                   ),
-                                  // Optional: Select radio button when typing
                                   onTap: () => setDialogState(() => instanceType = InstanceType.user),
                                 )
                               : Text(e.value),
                           leading: Radio<InstanceType>(value: e.key),
-                          // Makes the whole row clickable
                           onTap: () => setDialogState(() => instanceType = e.key),
                         ),
                     ],
@@ -132,7 +129,7 @@ class _LoginPageState extends State<LoginPage> {
                   onPressed: () async {
                     final userUrl = controller.text.trim();
                     String newUrl;
-                    
+
                     if (instanceType == InstanceType.user && userUrl.isEmpty) {
                       AdaptiveInformationMessage.showInfo("Please enter a valid URL");
                       return;
@@ -168,97 +165,110 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
     final auth = context.watch<TrainlogProvider>();
+    final theme = Theme.of(context);
 
     return SafeArea(
       child: Scaffold(
         body: Center(
-          child: Column(
+          child: Stack(
             children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 30, right: 30, bottom: 10, top: 24),
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 320),
-                  child: Image.asset(
-                    'assets/logo/wide_cutted.png',
-                    fit: BoxFit.contain,
+              AbsorbPointer(
+                absorbing: _loggingIn,
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 420),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          // Logo
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 24),
+                            child: ConstrainedBox(
+                              constraints: const BoxConstraints(maxWidth: 320, maxHeight: 80),
+                              child: Image.asset(
+                                'assets/logo/wide_cutted.png',
+                                fit: BoxFit.contain,
+                              ),
+                            ),
+                          ),
+
+                          // Welcome heading
+                          Text(
+                            loc.loginWelcomeBack,
+                            style: theme.textTheme.headlineMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            loc.loginSubtitle,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 32),
+
+                          // Auth form (username + password + login button)
+                          AuthForm(
+                            type: AuthFormType.login,
+                            onSubmitted: (result) => _onLogin(context, result, auth),
+                          ),
+                          const SizedBox(height: 24),
+
+                          // Divider with "Change instance"
+                          DividerWithText(text: loc.changeInstance),
+                          const SizedBox(height: 16),
+
+                          // Instance selector
+                          InstanceSelectorWidget(onTap: _dialogInstanceUrl),
+                          const SizedBox(height: 24),
+
+                          // New here? Create an account
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                loc.loginNewHere,
+                                style: theme.textTheme.bodyMedium,
+                              ),
+                              TextButton(
+                                onPressed: _loggingIn
+                                    ? null
+                                    : () => Navigator.of(context).push(
+                                          MaterialPageRoute(builder: (_) => const SignupPage()),
+                                        ),
+                                child: Text(loc.createAccountButton),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+
+                          // Footer (instance already shown in selector)
+                          const Footer(displayInstance: false),
+                          const SizedBox(height: 8),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ),
 
-              Expanded(
-                child: Stack(
-                  children: [
-                    // Main content
-                    AbsorbPointer(
-                      absorbing: _loggingIn, // blocks taps while loading
-                      child: SingleChildScrollView(
-                        padding: const EdgeInsets.all(24),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              loc.loginToYourAccount,
-                              style: Theme.of(context).textTheme.headlineSmall,
-                            ),
-                            const SizedBox(height: 24),
-                            AuthForm(
-                              type: AuthFormType.login,
-                              onSubmitted: (result) => _onLogin(context, result, auth),
-                            ),
-                            const SizedBox(height: 24),
-                            ElevatedButton.icon(
-                              onPressed: _loggingIn ? null : () {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(builder: (_) => const SignupPage()),
-                                );
-                              },
-                              label: Text(loc.createAccountButton),
-                              icon: const Icon(Icons.person_add_alt),
-                            ),
-                          ],
-                        ),
-                      ),
+              // Loading overlay
+              if (_loggingIn)
+                Positioned.fill(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.25),
                     ),
-
-                    // Overlay (only covers the Expanded area)
-                    if (_loggingIn)
-                      Positioned.fill(
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            color: Colors.black.withValues(alpha: 0.25),
-                          ),
-                          child: const Center(
-                            child: CircularProgressIndicator(),
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 12, top: 8, left: 16, right: 16),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        ElevatedButton.icon(
-                          onPressed: _dialogInstanceUrl, 
-                          label: Text(
-                            loc.dialogueChangeInstanceTitle,
-                          ),
-                          icon: const Icon(Icons.keyboard_arrow_right),
-                          style: ElevatedButton.styleFrom(
-                            iconAlignment: IconAlignment.end,
-                          ),
-                        ),
-                      ],
+                    child: const Center(
+                      child: CircularProgressIndicator(),
                     ),
-                    SizedBox(height: 12,),
-                    Footer(),
-                  ],
+                  ),
                 ),
-              ),
             ],
           ),
         ),

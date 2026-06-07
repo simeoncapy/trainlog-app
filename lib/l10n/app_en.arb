@@ -32,6 +32,11 @@
   "createAccountButtonShort": "Create",
   "createAccountPrivacyPolicy": "By signing up, you agree to our Privacy Policy.",
   "loginToYourAccount": "Log in to your account",
+  "loginWelcomeBack": "Welcome back",
+  "loginSubtitle": "Log your next journey",
+  "loginNewHere": "New here?",
+  "changeInstance": "Change instance",
+  "instanceSelectorLabel": "Instance",
   "errorCreationAccount": "Error while creating account.",
   "menuHello": "Hello {username}",
   "@menuHello" :{
