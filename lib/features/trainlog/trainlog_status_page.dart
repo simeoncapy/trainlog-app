@@ -36,7 +36,8 @@ class TrainlogStatusPage extends StatelessWidget {
         child: Column(
           children: [              
             Expanded(
-              child: Text("status"),
+              child: Text("I hope it's working well, because this page is really just a placeholder for Trainlog's router status. Stay tuned! 😊",
+              ),
             ),
           ],
         ),
