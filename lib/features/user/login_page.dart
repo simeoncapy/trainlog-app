@@ -169,108 +169,117 @@ class _LoginPageState extends State<LoginPage> {
 
     return SafeArea(
       child: Scaffold(
-        body: Center(
-          child: Stack(
-            children: [
-              AbsorbPointer(
-                absorbing: _loggingIn,
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-                  child: Center(
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 420),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          // Logo
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 24),
-                            child: ConstrainedBox(
-                              constraints: const BoxConstraints(maxWidth: 320, maxHeight: 80),
-                              child: Image.asset(
-                                'assets/logo/wide_cutted.png',
-                                fit: BoxFit.contain,
-                              ),
-                            ),
-                          ),
-
-                          // Welcome heading
-                          Text(
-                            loc.loginWelcomeBack,
-                            style: theme.textTheme.headlineMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            loc.loginSubtitle,
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: theme.colorScheme.onSurfaceVariant,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 32),
-
-                          // Auth form (username + password + login button)
-                          AuthForm(
-                            type: AuthFormType.login,
-                            onSubmitted: (result) => _onLogin(context, result, auth),
-                          ),
-                          const SizedBox(height: 24),
-
-                          // Divider with "Change instance"
-                          DividerWithText(text: loc.changeInstance),
-                          const SizedBox(height: 16),
-
-                          // Instance selector
-                          InstanceSelectorWidget(onTap: _dialogInstanceUrl),
-                          const SizedBox(height: 24),
-
-                          // New here? Create an account
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
+        body: Stack(
+          children: [
+            AbsorbPointer(
+              absorbing: _loggingIn,
+              child: Column(
+                children: [
+                  // Scrollable form area
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+                      child: Center(
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 420),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
+                              // Logo
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 24),
+                                child: ConstrainedBox(
+                                  constraints: const BoxConstraints(maxWidth: 320, maxHeight: 80),
+                                  child: Image.asset(
+                                    'assets/logo/wide_cutted.png',
+                                    fit: BoxFit.contain,
+                                  ),
+                                ),
+                              ),
+
+                              // Welcome heading
                               Text(
-                                loc.loginNewHere,
-                                style: theme.textTheme.bodyMedium,
+                                loc.loginWelcomeBack,
+                                style: theme.textTheme.headlineMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                textAlign: TextAlign.center,
                               ),
-                              TextButton(
-                                onPressed: _loggingIn
-                                    ? null
-                                    : () => Navigator.of(context).push(
-                                          MaterialPageRoute(builder: (_) => const SignupPage()),
-                                        ),
-                                child: Text(loc.createAccountButton),
+                              const SizedBox(height: 4),
+                              Text(
+                                loc.loginSubtitle,
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                ),
+                                textAlign: TextAlign.center,
                               ),
+                              const SizedBox(height: 32),
+
+                              // Auth form (username + password + login button)
+                              AuthForm(
+                                type: AuthFormType.login,
+                                onSubmitted: (result) => _onLogin(context, result, auth),
+                              ),
+                              const SizedBox(height: 24),
+
+                              // Divider with "Change instance"
+                              DividerWithText(text: loc.changeInstance),
+                              const SizedBox(height: 16),
+
+                              // Instance selector
+                              InstanceSelectorWidget(onTap: _dialogInstanceUrl),
                             ],
                           ),
-                          const SizedBox(height: 8),
-
-                          // Footer (instance already shown in selector)
-                          const Footer(displayInstance: false),
-                          const SizedBox(height: 8),
-                        ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ),
 
-              // Loading overlay
-              if (_loggingIn)
-                Positioned.fill(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.25),
-                    ),
-                    child: const Center(
-                      child: CircularProgressIndicator(),
+                  // Pinned bottom: New here? + Footer
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              loc.loginNewHere,
+                              style: theme.textTheme.bodyMedium,
+                            ),
+                            TextButton(
+                              onPressed: _loggingIn
+                                  ? null
+                                  : () => Navigator.of(context).push(
+                                        MaterialPageRoute(builder: (_) => const SignupPage()),
+                                      ),
+                              child: Text(loc.createAccountButton),
+                            ),
+                          ],
+                        ),
+                        const Footer(displayInstance: false),
+                        const SizedBox(height: 4),
+                      ],
                     ),
                   ),
+                ],
+              ),
+            ),
+
+            // Loading overlay
+            if (_loggingIn)
+              Positioned.fill(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.25),
+                  ),
+                  child: const Center(
+                    child: CircularProgressIndicator(),
+                  ),
                 ),
-            ],
-          ),
+              ),
+          ],
         ),
       ),
     );

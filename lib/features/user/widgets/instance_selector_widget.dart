@@ -31,7 +31,7 @@ class InstanceSelectorWidget extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Row(
             children: [
-              Icon(Icons.language_outlined, color: cs.onSurfaceVariant),
+              Icon(Icons.language_outlined, color: cs.secondary),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
