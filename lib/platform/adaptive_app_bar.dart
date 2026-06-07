@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:trainlog_app/platform/widget/adaptive_app_bar_square_button.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 
 class AdaptiveAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -23,28 +24,29 @@ class AdaptiveAppBar extends StatelessWidget implements PreferredSizeWidget {
             : kToolbarHeight,
       );
 
+  /// Square back button matching the size used by [AdaptiveAppBarSquareButton]
+  /// elsewhere (e.g. the menu page top bar).
+  Widget _backButton(BuildContext context) {
+    return AdaptiveAppBarSquareButton(
+      icon: Icons.chevron_left,
+      onPressed: onBack!,
+      tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (AppPlatform.isApple) {
       return CupertinoNavigationBar(
         middle: Text(title),
-        leading: onBack == null
-            ? null
-            : CupertinoNavigationBarBackButton(
-                onPressed: onBack,
-              ),
+        leading: onBack == null ? null : _backButton(context),
         trailing: cupertinoTrailing,
       );
     }
 
     return AppBar(
       title: Text(title),
-      leading: onBack == null
-          ? null
-          : IconButton(
-              icon: const Icon(Icons.arrow_back),
-              onPressed: onBack,
-            ),
+      leading: onBack == null ? null : Center(child: _backButton(context)),
       actions: materialActions,
     );
   }

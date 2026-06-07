@@ -1,12 +1,11 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/data/models/news_model.dart';
+import 'package:trainlog_app/platform/adaptive_app_bar.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
-import 'package:trainlog_app/utils/platform_utils.dart';
 import 'package:trainlog_app/widgets/error_banner.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 
@@ -221,20 +220,11 @@ class _InboxPageState extends State<InboxPage> {
     final locale = Localizations.localeOf(context).languageCode;
     final theme = Theme.of(context);
 
-    if(AppPlatform.isApple) {
-      return _bodyHelper(locale, loc, theme);
-    }
-
     return SafeArea(
       child: Scaffold(
-        appBar: AppBar(
-          title: Text(loc.inboxPageTitle),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
+        appBar: AdaptiveAppBar(
+          title: loc.inboxPageTitle,
+          onBack: () => Navigator.pop(context),
         ),
         body: _bodyHelper(locale, loc, theme),
       ),

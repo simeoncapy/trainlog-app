@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
-import 'package:trainlog_app/utils/platform_utils.dart';
+import 'package:trainlog_app/platform/adaptive_app_bar.dart';
 
 class TrainlogStatusPage extends StatelessWidget {
   const TrainlogStatusPage({super.key});
@@ -10,20 +10,11 @@ class TrainlogStatusPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
 
-    if(AppPlatform.isApple) {
-      return _bodyHelper();
-    }
-
     return SafeArea(
       child: Scaffold(
-        appBar: AppBar(
-          title: Text(loc.trainglogStatusPageTitle),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
+        appBar: AdaptiveAppBar(
+          title: loc.trainglogStatusPageTitle,
+          onBack: () => Navigator.pop(context),
         ),
         body: _bodyHelper(),
       ),
