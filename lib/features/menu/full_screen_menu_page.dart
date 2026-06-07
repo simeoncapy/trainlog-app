@@ -10,8 +10,8 @@ import 'package:trainlog_app/navigation/nav_models.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
+import 'package:trainlog_app/platform/adaptive_widget.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
-import 'package:trainlog_app/widgets/app_bar_square_button.dart';
 
 /// Full-screen menu replacing the legacy Drawer on Android.
 /// Provides a clean entry point for iOS (wire up from the iOS shell when ready).
@@ -135,7 +135,7 @@ class _TopBar extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
       child: Row(
         children: [
-          AppBarSquareButton(
+          AdaptiveAppBarSquareButton(
             icon: Icons.keyboard_arrow_down,
             onPressed: onClose,
             tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
@@ -147,7 +147,7 @@ class _TopBar extends StatelessWidget {
               style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
             ),
           ),
-          AppBarSquareButton(
+          AdaptiveAppBarSquareButton(
             icon: Icons.settings_outlined,
             onPressed: onSettings,
             tooltip: loc.menuSettingsTitle,

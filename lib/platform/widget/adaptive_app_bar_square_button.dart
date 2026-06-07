@@ -1,10 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:trainlog_app/utils/platform_utils.dart';
+import 'package:trainlog_app/platform/widget/adaptive_widget_base.dart';
 
 /// A small square (or circular) icon button used in app bars and page headers.
-class AppBarSquareButton extends StatelessWidget {
-  const AppBarSquareButton({
+class AdaptiveAppBarSquareButton extends AdaptiveWidget {
+  const AdaptiveAppBarSquareButton({
     super.key,
     required this.icon,
     required this.onPressed,
@@ -23,42 +23,43 @@ class AppBarSquareButton extends StatelessWidget {
   /// When true, renders with a fully circular border radius.
   final bool circle;
 
+  BorderRadius get _radius => BorderRadius.circular(circle ? size / 2 : 10);
+
   @override
-  Widget build(BuildContext context) {
-    final radius = BorderRadius.circular(circle ? size / 2 : 10);
-
-    if (AppPlatform.isApple) {
-      return CupertinoButton(
-        padding: EdgeInsets.zero,
-        onPressed: onPressed,
-        child: Container(
-          width: size,
-          height: size,
-          decoration: BoxDecoration(
-            color: CupertinoColors.systemFill.resolveFrom(context),
-            borderRadius: radius,
-          ),
-          child: Icon(icon, size: iconSize, color: CupertinoTheme.of(context).primaryColor),
-        ),
-      );
-    }
-
+  Widget buildMaterial(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return Tooltip(
       message: tooltip,
       child: InkWell(
         onTap: onPressed,
-        borderRadius: radius,
+        borderRadius: _radius,
         child: Container(
           width: size,
           height: size,
           decoration: BoxDecoration(
             color: cs.surface,
-            borderRadius: radius,
+            borderRadius: _radius,
             border: Border.all(color: cs.outlineVariant),
           ),
           child: Icon(icon, size: iconSize, color: cs.onSurface),
         ),
+      ),
+    );
+  }
+
+  @override
+  Widget buildCupertino(BuildContext context) {
+    return CupertinoButton(
+      padding: EdgeInsets.zero,
+      onPressed: onPressed,
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          color: CupertinoColors.systemFill.resolveFrom(context),
+          borderRadius: _radius,
+        ),
+        child: Icon(icon, size: iconSize, color: CupertinoTheme.of(context).primaryColor),
       ),
     );
   }

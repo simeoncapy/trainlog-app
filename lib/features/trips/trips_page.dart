@@ -13,7 +13,7 @@ import 'package:trainlog_app/providers/trips_provider.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 import 'package:trainlog_app/widgets/app_steps_tab_bar.dart';
 import 'package:trainlog_app/widgets/past_future_selector.dart';
-import 'package:trainlog_app/widgets/app_bar_square_button.dart';
+import 'package:trainlog_app/platform/adaptive_widget.dart';
 import 'package:trainlog_app/widgets/trips_filter_dialog.dart';
 
 const _kViewPrefKey = 'trips_view_mode'; // 'card' or 'table'
@@ -263,7 +263,7 @@ class _PageHeader extends StatelessWidget {
             const Spacer(),
 
           // View toggle
-          AppBarSquareButton(
+          AdaptiveAppBarSquareButton(
             icon: isCardView ? Icons.table_chart_outlined : Icons.view_agenda_outlined,
             onPressed: onToggleView,
             tooltip: isCardView ? 'Table view' : 'Card view',
@@ -274,7 +274,7 @@ class _PageHeader extends StatelessWidget {
           // Clear filter (when active)
           if (activeFilter != null) ...[
             const SizedBox(width: 8),
-            AppBarSquareButton(
+            AdaptiveAppBarSquareButton(
               icon: Icons.search_off,
               onPressed: onClearFilter,
               tooltip: AppLocalizations.of(context)!.filterClearButton,
@@ -287,7 +287,7 @@ class _PageHeader extends StatelessWidget {
           const SizedBox(width: 8),
 
           // Filter button
-          AppBarSquareButton(
+          AdaptiveAppBarSquareButton(
             icon: AdaptiveIcons.filter,
             onPressed: onFilterTap,
             tooltip: AppLocalizations.of(context)!.filterButton,
