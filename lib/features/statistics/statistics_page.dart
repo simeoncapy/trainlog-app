@@ -75,13 +75,16 @@ class _StatisticsPageState extends State<StatisticsPage> {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Text(
-                    loc.statisticsTitle,
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
+                  Flexible(
+                    child: Text(
+                      loc.statisticsTitle,
+                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                  const Spacer(),
+                  const SizedBox(width: 8),
                   _YearChip(
                     years: [0, ...tripsProv.years],
                     selected: statsProv.year ?? 0,
