@@ -66,13 +66,13 @@ class AdaptivePopup<T> extends AdaptiveWidget {
       onTap: enabled
           ? () => showCupertinoModalPopup<void>(
                 context: context,
-                builder: (_) => CupertinoActionSheet(
+                builder: (sheetContext) => CupertinoActionSheet(
                   actions: items
                       .map(
                         (item) => CupertinoActionSheetAction(
                           isDefaultAction: item.value == initialValue,
                           onPressed: () {
-                            Navigator.of(context).pop();
+                            Navigator.of(sheetContext).pop();
                             onSelected(item.value);
                           },
                           child: _itemChild(item),
@@ -80,8 +80,8 @@ class AdaptivePopup<T> extends AdaptiveWidget {
                       )
                       .toList(),
                   cancelButton: CupertinoActionSheetAction(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: Text(CupertinoLocalizations.of(context).cancelButtonLabel),
+                    onPressed: () => Navigator.of(sheetContext).pop(),
+                    child: Text(CupertinoLocalizations.of(sheetContext).cancelButtonLabel),
                   ),
                 ),
               )
