@@ -220,10 +220,11 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver, Automati
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Expanded(child: lt.Lottie.asset('assets/animations/loading.json')),
-              const SizedBox(height: 16),
+              const SizedBox(height: 24),
               Text(appLocalizations.tripPathLoading,
                   style: const TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 16),
+              Expanded(child: lt.Lottie.asset('assets/animations/loading.json')),     
             ],
           ),
         ),
