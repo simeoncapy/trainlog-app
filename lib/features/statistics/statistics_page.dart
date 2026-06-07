@@ -478,7 +478,7 @@ class _StatsCard extends StatelessWidget {
   Tooltip _tooltipWidget(BuildContext context, Map<UnitFactor, String> units) {
     final cs = Theme.of(context).colorScheme;
     return Tooltip(
-      triggerMode: TooltipTriggerMode.longPress,
+      triggerMode: TooltipTriggerMode.tap,
       richMessage: TextSpan(children: [_tooltipRich(context, units)]),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.primaryContainer,

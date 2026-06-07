@@ -2195,6 +2195,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No trips yet'**
   String get tripsEmptyList;
+
+  /// No description provided for @tripCardDateUndefined.
+  ///
+  /// In en, this message translates to:
+  /// **'Undefined'**
+  String get tripCardDateUndefined;
 }
 
 class _AppLocalizationsDelegate
