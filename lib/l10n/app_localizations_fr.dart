@@ -115,7 +115,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get loginNewHere => 'Nouveau ici ?';
 
   @override
-  String get changeInstance => 'Changer d'instance';
+  String get changeInstance => 'Changer d\'instance';
 
   @override
   String get instanceSelectorLabel => 'Instance';

@@ -77,7 +77,7 @@ class _SignupPageState extends State<SignupPage> {
               Padding(
                 padding: const EdgeInsets.only(left: 30, right: 30, bottom: 10, top: 24),
                 child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 320),
+                  constraints: const BoxConstraints(maxWidth: 320, maxHeight: 100),
                   child: Image.asset(
                     'assets/logo/wide_cutted.png',
                     fit: BoxFit.contain,

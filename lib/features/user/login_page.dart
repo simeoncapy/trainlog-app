@@ -189,7 +189,7 @@ class _LoginPageState extends State<LoginPage> {
                               Padding(
                                 padding: const EdgeInsets.only(bottom: 24),
                                 child: ConstrainedBox(
-                                  constraints: const BoxConstraints(maxWidth: 320, maxHeight: 80),
+                                  constraints: const BoxConstraints(maxWidth: 320, maxHeight: 100),
                                   child: Image.asset(
                                     'assets/logo/wide_cutted.png',
                                     fit: BoxFit.contain,
