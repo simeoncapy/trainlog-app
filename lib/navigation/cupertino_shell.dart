@@ -9,14 +9,21 @@ import 'package:trainlog_app/platform/adaptive_bottom_navbar.dart'
 import 'package:trainlog_app/platform/cupertino_fab.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 
+import 'package:trainlog_app/features/about/about_page.dart';
+import 'package:trainlog_app/features/friends/friends_page.dart';
 import 'package:trainlog_app/features/map/map_page.dart';
 import 'package:trainlog_app/features/menu/full_screen_menu_page.dart';
 import 'package:trainlog_app/features/ranking/ranking_page.dart';
 import 'package:trainlog_app/features/settings/settings_page.dart';
+import 'package:trainlog_app/features/spr/smart_prerecorder_page.dart';
 import 'package:trainlog_app/features/statistics/statistics_page.dart';
+import 'package:trainlog_app/features/tags/tags_page.dart';
+import 'package:trainlog_app/features/tickets/tickets_page.dart';
 import 'package:trainlog_app/features/trainlog/inbox_page.dart';
 import 'package:trainlog_app/features/trainlog/trainlog_status_page.dart';
 import 'package:trainlog_app/features/trips/trips_page.dart';
+import 'package:trainlog_app/features/user/coverage_page.dart';
+import 'package:trainlog_app/features/user/dashboard_page.dart';
 
 typedef SetPrimaryActions = void Function(List<AppPrimaryAction> actions);
 
@@ -49,26 +56,66 @@ class _CupertinoShellState extends State<CupertinoShell> {
   /// Pushes a full-screen sub-page, giving it the shared [AdaptiveAppBar] (with
   /// the back button) here in the shell rather than inside the page itself —
   /// the same way the root pages get their navigation bar from the shell.
-  void _pushAppBarPage(
+  void _pushSubPage(
     BuildContext context,
     String Function(BuildContext) titleBuilder,
-    Widget page,
+    Widget Function(BuildContext, SetPrimaryActions) builder,
   ) {
     Navigator.of(context).push(
       PageRouteBuilder(
-        pageBuilder: (routeContext, _, __) => SafeArea(
-          child: Scaffold(
-            appBar: AdaptiveAppBar(
-              title: titleBuilder(routeContext),
-              onBack: () => Navigator.of(routeContext).pop(),
-            ),
-            body: page,
-          ),
+        pageBuilder: (_, __, ___) => _ShellSubPage(
+          titleBuilder: titleBuilder,
+          builder: builder,
         ),
         transitionDuration: Duration.zero,
         reverseTransitionDuration: Duration.zero,
       ),
     );
+  }
+
+  /// Resolves an [AppPageId] coming from the menu to its page and pushes it.
+  /// The bottom-tab pages live in the tab bar and so are ignored here.
+  void _pushPage(BuildContext context, AppPageId id) {
+    switch (id) {
+      case AppPageId.dashboard:
+        _pushSubPage(context, (c) => AppLocalizations.of(c)!.menuDashboardTitle,
+            (_, __) => const DashboardPage());
+        break;
+      case AppPageId.coverage:
+        _pushSubPage(context, (c) => AppLocalizations.of(c)!.menuCoverageTitle,
+            (_, __) => const CoveragePage());
+        break;
+      case AppPageId.tags:
+        _pushSubPage(context, (c) => AppLocalizations.of(c)!.menuTagsTitle,
+            (_, setActions) => TagsPage(onPrimaryActionsReady: setActions));
+        break;
+      case AppPageId.tickets:
+        _pushSubPage(context, (c) => AppLocalizations.of(c)!.menuTicketsTitle,
+            (_, setActions) => TicketsPage(onPrimaryActionsReady: setActions));
+        break;
+      case AppPageId.friends:
+        _pushSubPage(context, (c) => AppLocalizations.of(c)!.menuFriendsTitle,
+            (_, __) => const FriendsPage());
+        break;
+      case AppPageId.smartPrerecorder:
+        _pushSubPage(
+            context,
+            (c) => AppLocalizations.of(c)!.menuSmartPrerecorderTitle,
+            (_, setActions) =>
+                SmartPrerecorderPage(onPrimaryActionsReady: setActions));
+        break;
+      case AppPageId.about:
+        _pushSubPage(context, (c) => AppLocalizations.of(c)!.menuAboutTitle,
+            (_, __) => const AboutPage());
+        break;
+      case AppPageId.settings:
+      case AppPageId.map:
+      case AppPageId.trips:
+      case AppPageId.ranking:
+      case AppPageId.statistics:
+        // Settings has its own menu entry; the tab pages live in the bottom bar.
+        break;
+    }
   }
 
   void _openFullScreenMenu(BuildContext context) {
@@ -85,18 +132,19 @@ class _CupertinoShellState extends State<CupertinoShell> {
               reverseTransitionDuration: Duration.zero,
             ));
           },
-          onPageTap: (id) => Navigator.of(ctx).pop(),
+          onPageTap: (id) {
+            Navigator.of(ctx).pop();
+            _pushPage(context, id);
+          },
           onInboxTap: () {
             Navigator.of(ctx).pop();
-            _pushAppBarPage(context, InboxPage.pageTitle, const InboxPage());
+            _pushSubPage(
+                context, InboxPage.pageTitle, (_, __) => const InboxPage());
           },
           onTrainlogStatusTap: () {
             Navigator.of(ctx).pop();
-            _pushAppBarPage(
-              context,
-              TrainlogStatusPage.pageTitle,
-              const TrainlogStatusPage(),
-            );
+            _pushSubPage(context, TrainlogStatusPage.pageTitle,
+                (_, __) => const TrainlogStatusPage());
           },
         ),
         transitionsBuilder: (_, animation, __, child) => FadeTransition(
@@ -237,6 +285,47 @@ class CupertinoPrimaryActionsRow extends StatelessWidget {
           if (i != reversed.length - 1) const SizedBox(width: 6),
         ],
       ],
+    );
+  }
+}
+
+/// Full-screen sub-page pushed from the menu (inbox, tags, about, …).
+/// Provides the shared [AdaptiveAppBar] with a back button, and surfaces any
+/// primary actions the page reports into the navigation bar trailing —
+/// mirroring how [_CupertinoRootPage] handles the bottom-tab pages.
+class _ShellSubPage extends StatefulWidget {
+  final String Function(BuildContext context) titleBuilder;
+  final Widget Function(BuildContext context, SetPrimaryActions setActions) builder;
+
+  const _ShellSubPage({required this.titleBuilder, required this.builder});
+
+  @override
+  State<_ShellSubPage> createState() => _ShellSubPageState();
+}
+
+class _ShellSubPageState extends State<_ShellSubPage> {
+  final ValueNotifier<List<AppPrimaryAction>> _actions = ValueNotifier(const []);
+
+  @override
+  void dispose() {
+    _actions.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Scaffold(
+        appBar: AdaptiveAppBar(
+          title: widget.titleBuilder(context),
+          onBack: () => Navigator.of(context).pop(),
+          cupertinoTrailing: ValueListenableBuilder<List<AppPrimaryAction>>(
+            valueListenable: _actions,
+            builder: (_, actions, __) => CupertinoPrimaryActionsRow(actions: actions),
+          ),
+        ),
+        body: widget.builder(context, (actions) => _actions.value = actions),
+      ),
     );
   }
 }
