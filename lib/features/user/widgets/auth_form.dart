@@ -199,6 +199,8 @@ class AuthFormState extends State<AuthForm> {
                     onPressed: () => Navigator.of(context).pop(),
                     icon: Icons.arrow_back,
                     label: Text(MaterialLocalizations.of(context).backButtonTooltip),
+                    type: AdaptiveButtonType.outlined,
+                    borderRadius: BorderRadius.circular(8),
                   ),
                   const SizedBox(width: 12),
                 ],
