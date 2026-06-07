@@ -457,7 +457,7 @@ class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
                   height: 1,
                   indent: 16,
                   endIndent: 16,
-                  color: theme.colorScheme.outline.withValues(alpha: 0.3),
+                  color: theme.colorScheme.outline,//.withValues(alpha: 0.3),
                 ),
                 itemBuilder: (ctx, index) {
                   final (name, address, type, distance) = stations[index];
@@ -512,7 +512,7 @@ class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
                                         fontSize: 11,
                                         fontWeight: FontWeight.w500,
                                         color: theme.colorScheme.onSurface
-                                            .withValues(alpha: 0.55),
+                                            .withValues(alpha: 0.7),
                                       ),
                                     ),
                                   ],
@@ -895,7 +895,7 @@ Widget build(BuildContext context) {
           borderRadius: BorderRadius.circular(8),
         ),
         child: Center(
-          child: Icon(Icons.not_listed_location, color: cs.primary, size: 20),
+          child: Icon(Icons.not_listed_location, color: cs.onPrimary, size: 20),
         ),
       );
     }
@@ -948,8 +948,8 @@ Widget build(BuildContext context) {
                     formatDateTime(context, record.dateTime),
                     style: AppTheme.monoFont.copyWith(
                       fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: cs.onSurface.withValues(alpha: 0.5),
+                      fontWeight: FontWeight.w800,
+                      color: cs.onSurface,//.withValues(alpha: 0.6),
                     ),
                   ),
                   const SizedBox(height: 2),
