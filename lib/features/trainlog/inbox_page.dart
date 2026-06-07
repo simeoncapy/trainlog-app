@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
@@ -6,7 +5,6 @@ import 'package:trainlog_app/data/models/news_model.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
-import 'package:trainlog_app/utils/platform_utils.dart';
 import 'package:trainlog_app/widgets/error_banner.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 
@@ -221,24 +219,9 @@ class _InboxPageState extends State<InboxPage> {
     final locale = Localizations.localeOf(context).languageCode;
     final theme = Theme.of(context);
 
-    if(AppPlatform.isApple) {
-      return _bodyHelper(locale, loc, theme);
-    }
-
-    return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(loc.inboxPageTitle),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
-        ),
-        body: _bodyHelper(locale, loc, theme),
-      ),
-    );
+    // The surrounding app bar (and back button) is provided by the shell, the
+    // same way it is for the other pages — see material/cupertino shell.
+    return _bodyHelper(locale, loc, theme);
   }
 
   Padding _bodyHelper(String locale, AppLocalizations loc, ThemeData theme) {
