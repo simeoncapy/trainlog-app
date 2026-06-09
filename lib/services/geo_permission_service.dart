@@ -63,6 +63,17 @@ class GeoPermissionService {
     settings.setRefusedToSharePosition(true);
   }
 
+  /// Clears Trainlog's stored location-permission state so the app behaves as
+  /// if access had never been requested (e.g. when resetting onboarding).
+  ///
+  /// Note: the operating system does not allow an app to revoke a permission
+  /// it has already been granted. This only resets the in-app tracking —
+  /// notably [SettingsProvider.refusedToSharePosition] — so the location
+  /// prompt is offered again from scratch.
+  void removePermission(SettingsProvider settings) {
+    settings.setRefusedToSharePosition(false);
+  }
+
   /// Returns the current position if location services are enabled and a fix
   /// can be obtained, otherwise `null`. Does not request permission.
   Future<LatLng?> getCurrentPositionOrNull() async {

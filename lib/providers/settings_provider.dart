@@ -6,6 +6,7 @@ import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
+import 'package:trainlog_app/services/geo_permission_service.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
 
 enum PathDisplayOrder {
@@ -555,6 +556,7 @@ class SettingsProvider with ChangeNotifier {
 
   Future<void> resetOnboarding(TrainlogProvider trainlog, TripsProvider trips) async {
     await clearSharedPreference();
+    const GeoPermissionService().removePermission(this);
     _SP_onboardingCompleted = false;
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('onboarding_completed');
