@@ -376,6 +376,10 @@
   "onboardingPage3Subtitle": "Créez des liens partageables pour vos trajets et communiquez vos projets de voyage à qui vous voulez.",
   "onboardingPage4Title": "Classements",
   "onboardingPage4Subtitle": "Êtes-vous un grand voyageur ? Comparez vos voyages avec ceux des autres membres du monde entier.",
+  "onboardingLocationTitle": "Activation des services de localisation",
+  "onboardingLocationSubtitle": "Trainlog utilise la position de votre appareil pour centrer la carte sur votre position, ou pour enregistrer votre position lorsque vous utilisez la fonction Géomémo. Ce n'est pas obligatoire.",
+  "onboardingLocationActivate": "Activer la localisation",
+  "onboardingLocationSkip": "Passer",
 
   "tapAgainToExit": "Appuyez à nouveau pour quitter",
   "tripsEmptyList": "Aucun trajet",

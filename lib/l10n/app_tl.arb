@@ -542,6 +542,10 @@
   "onboardingPage3Subtitle": "Gumawa ng mga link na maaaring ibahagi para sa iyong mga biyahe upang ibahagi ang iyong mga plano sa paglalakbay sa sinuman.",
   "onboardingPage4Title": "Mga Leaderboard",
   "onboardingPage4Subtitle": "Ikaw ba ay madalas maglakbay? Tingnan kung paano ang iyong mga paglalakbay kumpara sa ibang mga miyembro sa buong mundo.",
+  "onboardingLocationTitle": "Pag-activate ng mga serbisyo ng lokasyon",
+  "onboardingLocationSubtitle": "Ginamit ng Trainlog ang lokasyon ng iyong device upang i-center ang mapa sa iyong posisyon, o upang i-record ang iyong posisyon kapag ginamit mo ang function na Geolog. Ito ay hindi sapilitan.",
+  "onboardingLocationActivate": "I-activate ang lokasyon",
+  "onboardingLocationSkip": "Laktawan",
 
   "tapAgainToExit": "I-tap muli para lumabas",
   "tripsEmptyList": "Wala pang biyahe",

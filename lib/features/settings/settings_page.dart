@@ -18,6 +18,7 @@ import 'package:trainlog_app/features/settings/widgets/settings_group.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
+import 'package:trainlog_app/services/geo_permission_service.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
@@ -34,6 +35,7 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   final SettingsVm _vm = SettingsVm();
+  final GeoPermissionService _geo = const GeoPermissionService();
 
   @override
   void initState() {
@@ -483,7 +485,15 @@ class _SettingsPageState extends State<SettingsPage> {
         title: l10n.settingsDisplayUserMarker,
         trailing: AdaptiveSwitch(
           value: settings.mapDisplayUserLocationMarker,
-          onChanged: settings.setMapDisplayUserLocationMarker,
+          onChanged: (value) async {
+            // Enabling the marker needs location access: prompt via the
+            // service first and only flip the switch on if it's granted.
+            if (value && !await _geo.hasPermission()) {
+              final granted = await _geo.requestPermission(settings);
+              if (!granted) return;
+            }
+            settings.setMapDisplayUserLocationMarker(value);
+          },
         ),
       ),
     ]);

@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:math' as math;
 import 'dart:ui';
 
@@ -22,6 +21,7 @@ import 'package:trainlog_app/platform/adaptive_widget.dart';
 import 'package:trainlog_app/providers/polyline_provider.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
+import 'package:trainlog_app/services/geo_permission_service.dart';
 import 'package:trainlog_app/utils/location_utils.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 import 'package:trainlog_app/widgets/rendered_polyline_layer.dart';
@@ -38,6 +38,7 @@ class MapPage extends StatefulWidget {
 class _MapPageState extends State<MapPage> with WidgetsBindingObserver, AutomaticKeepAliveClientMixin {
   // --- Map state
   final MapController _mapController = MapController();
+  final GeoPermissionService _geo = const GeoPermissionService();
   static const LatLng _greenwich = LatLng(51.476852, -0.0005);
   LatLng _center = _greenwich;
   static const double _defaultZoom = 13.0;
@@ -92,7 +93,11 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver, Automati
     final saved = settings.userPosition;
     if (mounted) setState(() => _center = saved ?? _greenwich);
 
-    final current = await _maybeUseLocationWithSystemPrompt(settings);
+    // Never prompt for permission on load: only use the live position if the
+    // user has already granted access.
+    if (!await _geo.hasPermission()) return;
+
+    final current = await _geo.getCurrentPositionOrNull();
     if (current != null && mounted) {
       setState(() {
         _userPosition = current;
@@ -102,53 +107,16 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver, Automati
     }
   }
 
-  Future<LatLng?> _maybeUseLocationWithSystemPrompt(SettingsProvider settings) async {
-    var p = await Geolocator.checkPermission();
-    if (p == LocationPermission.always || p == LocationPermission.whileInUse) {
-      if (settings.refusedToSharePosition) settings.setRefusedToSharePosition(false);
-      return _safeGetPositionOrNull();
-    }
-
-    if (settings.refusedToSharePosition) return null;
-
-    final canShowSystemPrompt =
-        kIsWeb || Platform.isAndroid || Platform.isIOS || Platform.isMacOS;
-    if (!canShowSystemPrompt) return null;
-
-    p = await Geolocator.requestPermission();
-    if (p == LocationPermission.always || p == LocationPermission.whileInUse) {
-      return _safeGetPositionOrNull();
-    }
-
-    settings.setRefusedToSharePosition(true);
-    return null;
-  }
-
-  Future<LatLng?> _safeGetPositionOrNull() async {
-    if (!await Geolocator.isLocationServiceEnabled()) return null;
-    try {
-      final pos = await Geolocator.getCurrentPosition(
-        locationSettings: platformLocationSettings().copyWith(
-          timeLimit: const Duration(seconds: 3),
-        ),
-      );
-      return LatLng(pos.latitude, pos.longitude);
-    } catch (_) {
-      final lastKnown = await Geolocator.getLastKnownPosition();
-      if (lastKnown == null) return null;
-      return LatLng(lastKnown.latitude, lastKnown.longitude);
-    }
-  }
-
   Future<void> _startUserLocationUpdates(
     SettingsProvider settings, {
     bool requestInitialFix = true,
   }) async {
-    final granted = await _hasLocationAccess(settings);
-    if (!granted) return;
+    // Only stream when permission is already granted — requesting it is left to
+    // explicit user actions (recenter button, settings toggle, onboarding).
+    if (!await _geo.hasPermission()) return;
 
     if (requestInitialFix) {
-      final current = await _safeGetPositionOrNull();
+      final current = await _geo.getCurrentPositionOrNull();
       if (current != null && mounted) {
         setState(() => _userPosition = current);
       }
@@ -172,27 +140,6 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver, Automati
       },
       onError: (e) => debugPrint('Location stream error: $e'),
     );
-  }
-
-  Future<bool> _hasLocationAccess(SettingsProvider settings) async {
-    var p = await Geolocator.checkPermission();
-    if (p == LocationPermission.always || p == LocationPermission.whileInUse) {
-      if (settings.refusedToSharePosition) settings.setRefusedToSharePosition(false);
-      return true;
-    }
-
-    if (settings.refusedToSharePosition) return false;
-
-    final canShowSystemPrompt =
-        kIsWeb || Platform.isAndroid || Platform.isIOS || Platform.isMacOS;
-    if (!canShowSystemPrompt) return false;
-
-    p = await Geolocator.requestPermission();
-    final granted = p == LocationPermission.always || p == LocationPermission.whileInUse;
-    if (!granted) {
-      settings.setRefusedToSharePosition(true);
-    }
-    return granted;
   }
 
   Future<void> _stopUserLocationUpdates() async {
@@ -326,10 +273,24 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver, Automati
       );
     }
 
-    void recenterFct () {
-      final p = _userPosition;
+    Future<void> recenterFct () async {
+      final settings = context.read<SettingsProvider>();
+      var p = _userPosition;
+
+      // No fix yet: this is an explicit user action, so it's fine to ask the
+      // OS for permission now (the only place on the map that does so).
+      if (p == null) {
+        final granted = await _geo.requestPermission(settings);
+        if (!granted || !mounted) return;
+        final current = await _geo.getCurrentPositionOrNull();
+        if (current == null || !mounted) return;
+        settings.setLastUserPosition(current);
+        setState(() => _userPosition = current);
+        await _startUserLocationUpdates(settings, requestInitialFix: false);
+        p = current;
+      }
+
       double z = _zoom;
-      if (p == null) return;
       if (_center == p) {
         _mapController.move(p, _defaultZoom);
         z = _defaultZoom;
@@ -370,8 +331,8 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver, Automati
               children: [
                 // Recenter user
                 AdaptiveFilledIconButton(
-                    onPressed: recenterFct,
-                    colorScheme: FilledButtonColorScheme.floating, 
+                    onPressed: () => recenterFct(),
+                    colorScheme: FilledButtonColorScheme.floating,
                     child: recenterUserIcon,
                 ),
                 // Follow user
