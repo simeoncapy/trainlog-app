@@ -377,6 +377,10 @@
   "onboardingPage3Subtitle": "旅のリンクを作成して、移動の計画を誰とでも共有できます。",
   "onboardingPage4Title": "リーダーボード",
   "onboardingPage4Subtitle": "よく旅をするあなたへ。世界中のメンバーと旅の記録を比べてみましょう。",
+  "onboardingLocationTitle": "位置情報サービスの有効化",
+  "onboardingLocationSubtitle": "Trainlogは、地図を現在地に合わせたり、ジオログ機能使用時に位置情報を記録したりするためにデバイスの位置情報を利用します。これは必須ではありません。",
+  "onboardingLocationActivate": "位置情報を有効にする",
+  "onboardingLocationSkip": "スキップ",
 
   "tapAgainToExit": "もう一度タップすると終了します",
   "tripsEmptyList": "まだ旅はありません",

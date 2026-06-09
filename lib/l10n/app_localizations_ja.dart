@@ -1261,6 +1261,19 @@ class AppLocalizationsJa extends AppLocalizations {
   String get onboardingPage4Subtitle => 'よく旅をするあなたへ。世界中のメンバーと旅の記録を比べてみましょう。';
 
   @override
+  String get onboardingLocationTitle => '位置情報サービスの有効化';
+
+  @override
+  String get onboardingLocationSubtitle =>
+      'Trainlogは、地図を現在地に合わせたり、ジオログ機能使用時に位置情報を記録したりするためにデバイスの位置情報を利用します。これは必須ではありません。';
+
+  @override
+  String get onboardingLocationActivate => '位置情報を有効にする';
+
+  @override
+  String get onboardingLocationSkip => 'スキップ';
+
+  @override
   String get tapAgainToExit => 'もう一度タップすると終了します';
 
   @override

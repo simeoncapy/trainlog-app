@@ -1263,6 +1263,20 @@ class AppLocalizationsTl extends AppLocalizations {
       'Ikaw ba ay madalas maglakbay? Tingnan kung paano ang iyong mga paglalakbay kumpara sa ibang mga miyembro sa buong mundo.';
 
   @override
+  String get onboardingLocationTitle =>
+      'Pag-activate ng mga serbisyo ng lokasyon';
+
+  @override
+  String get onboardingLocationSubtitle =>
+      'Ginamit ng Trainlog ang lokasyon ng iyong device upang i-center ang mapa sa iyong posisyon, o upang i-record ang iyong posisyon kapag ginamit mo ang function na Geolog. Ito ay hindi sapilitan.';
+
+  @override
+  String get onboardingLocationActivate => 'I-activate ang lokasyon';
+
+  @override
+  String get onboardingLocationSkip => 'Laktawan';
+
+  @override
   String get tapAgainToExit => 'I-tap muli para lumabas';
 
   @override

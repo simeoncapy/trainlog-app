@@ -570,6 +570,10 @@
   "onboardingPage3Subtitle": "Create shareable links about your trips to share your travel plans with anyone.",
   "onboardingPage4Title": "Leaderboards",
   "onboardingPage4Subtitle": "Are you a frequent traveller? See how your travels stack up against other members worldwide.",
+  "onboardingLocationTitle": "Activation of location services",
+  "onboardingLocationSubtitle": "Trainlog uses the location of your device to centre the map on your position, or to record your position when you use the Geolog function. This is not mandatory.",
+  "onboardingLocationActivate": "Activate location",
+  "onboardingLocationSkip": "Skip",
 
   "tapAgainToExit": "Tap again to exit",
   "tripsEmptyList": "No trips yet",

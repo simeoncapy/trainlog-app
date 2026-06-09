@@ -1281,6 +1281,19 @@ class AppLocalizationsEn extends AppLocalizations {
       'Are you a frequent traveller? See how your travels stack up against other members worldwide.';
 
   @override
+  String get onboardingLocationTitle => 'Activation of location services';
+
+  @override
+  String get onboardingLocationSubtitle =>
+      'Trainlog uses the location of your device to centre the map on your position, or to record your position when you use the Geolog function. This is not mandatory.';
+
+  @override
+  String get onboardingLocationActivate => 'Activate location';
+
+  @override
+  String get onboardingLocationSkip => 'Skip';
+
+  @override
   String get tapAgainToExit => 'Tap again to exit';
 
   @override

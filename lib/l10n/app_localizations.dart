@@ -2214,6 +2214,30 @@ abstract class AppLocalizations {
   /// **'Are you a frequent traveller? See how your travels stack up against other members worldwide.'**
   String get onboardingPage4Subtitle;
 
+  /// No description provided for @onboardingLocationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Activation of location services'**
+  String get onboardingLocationTitle;
+
+  /// No description provided for @onboardingLocationSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Trainlog uses the location of your device to centre the map on your position, or to record your position when you use the Geolog function. This is not mandatory.'**
+  String get onboardingLocationSubtitle;
+
+  /// No description provided for @onboardingLocationActivate.
+  ///
+  /// In en, this message translates to:
+  /// **'Activate location'**
+  String get onboardingLocationActivate;
+
+  /// No description provided for @onboardingLocationSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get onboardingLocationSkip;
+
   /// No description provided for @tapAgainToExit.
   ///
   /// In en, this message translates to:

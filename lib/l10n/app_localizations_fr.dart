@@ -1289,6 +1289,20 @@ class AppLocalizationsFr extends AppLocalizations {
       'Êtes-vous un grand voyageur ? Comparez vos voyages avec ceux des autres membres du monde entier.';
 
   @override
+  String get onboardingLocationTitle =>
+      'Activation des services de localisation';
+
+  @override
+  String get onboardingLocationSubtitle =>
+      'Trainlog utilise la position de votre appareil pour centrer la carte sur votre position, ou pour enregistrer votre position lorsque vous utilisez la fonction Géomémo. Ce n\'est pas obligatoire.';
+
+  @override
+  String get onboardingLocationActivate => 'Activer la localisation';
+
+  @override
+  String get onboardingLocationSkip => 'Passer';
+
+  @override
   String get tapAgainToExit => 'Appuyez à nouveau pour quitter';
 
   @override
