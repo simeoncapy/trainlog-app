@@ -1032,6 +1032,12 @@ abstract class AppLocalizations {
   /// **'Trips\' path loading, please wait'**
   String get tripPathLoading;
 
+  /// No description provided for @mapLockedOnPosition.
+  ///
+  /// In en, this message translates to:
+  /// **'Map locked on your position'**
+  String get mapLockedOnPosition;
+
   /// No description provided for @yearTitle.
   ///
   /// In en, this message translates to:

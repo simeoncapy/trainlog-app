@@ -35,7 +35,8 @@ class MapPage extends StatefulWidget {
   State<MapPage> createState() => _MapPageState();
 }
 
-class _MapPageState extends State<MapPage> with WidgetsBindingObserver, AutomaticKeepAliveClientMixin {
+class _MapPageState extends State<MapPage>
+    with WidgetsBindingObserver, AutomaticKeepAliveClientMixin, SingleTickerProviderStateMixin {
   // --- Map state
   final MapController _mapController = MapController();
   final GeoPermissionService _geo = const GeoPermissionService();
@@ -52,6 +53,10 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver, Automati
   bool _showFilterModal = false;
   final ValueNotifier<double> _rotationNotifier = ValueNotifier(0.0);
 
+  // Drives the slow blink of the "locked on position" pill shown while
+  // [_followUser] is active.
+  late final AnimationController _pillBlinkController;
+
   @override
   bool get wantKeepAlive => true;
 
@@ -59,6 +64,11 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver, Automati
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+
+    _pillBlinkController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    )..repeat(reverse: true);
 
     final settings = context.read<SettingsProvider>();
     _initCenterAndMarker(settings);
@@ -74,6 +84,7 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver, Automati
 
   @override
   void dispose() {
+    _pillBlinkController.dispose();
     _stopUserLocationUpdates();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
@@ -145,6 +156,28 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver, Automati
   Future<void> _stopUserLocationUpdates() async {
     await _posSub?.cancel();
     _posSub = null;
+  }
+
+  /// Ensures we have a live fix for the user's position, requesting OS
+  /// permission and starting the location stream if needed.
+  ///
+  /// Only call from explicit user actions (recenter / follow buttons): this is
+  /// allowed to prompt for permission. Returns the position, or `null` if
+  /// permission was denied or no fix could be obtained.
+  Future<LatLng?> _ensureUserPosition() async {
+    if (_userPosition != null) return _userPosition;
+
+    final settings = context.read<SettingsProvider>();
+    final granted = await _geo.requestPermission(settings);
+    if (!granted || !mounted) return null;
+
+    final current = await _geo.getCurrentPositionOrNull();
+    if (current == null || !mounted) return null;
+
+    settings.setLastUserPosition(current);
+    setState(() => _userPosition = current);
+    await _startUserLocationUpdates(settings, requestInitialFix: false);
+    return current;
   }
 
   @override
@@ -233,6 +266,7 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver, Automati
               ),
           ],
         ),
+        if (_followUser) _lockedOnPositionPill(appLocalizations),
         if (!_showFilterModal || AppPlatform.isApple) _mapButtonHelper(),
         if (_showFilterModal) ...[
           GestureDetector(
@@ -274,21 +308,10 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver, Automati
     }
 
     Future<void> recenterFct () async {
-      final settings = context.read<SettingsProvider>();
-      var p = _userPosition;
-
       // No fix yet: this is an explicit user action, so it's fine to ask the
-      // OS for permission now (the only place on the map that does so).
-      if (p == null) {
-        final granted = await _geo.requestPermission(settings);
-        if (!granted || !mounted) return;
-        final current = await _geo.getCurrentPositionOrNull();
-        if (current == null || !mounted) return;
-        settings.setLastUserPosition(current);
-        setState(() => _userPosition = current);
-        await _startUserLocationUpdates(settings, requestInitialFix: false);
-        p = current;
-      }
+      // OS for permission now (one of the only places on the map that does so).
+      final p = await _ensureUserPosition();
+      if (p == null || !mounted) return;
 
       double z = _zoom;
       if (_center == p) {
@@ -298,11 +321,27 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver, Automati
         _mapController.move(p, _zoom);
       }
       setState(() {
-        _center = p!;
+        _center = p;
         _zoom = z;
       });
     }
-    void followUserFct () => setState(() => _followUser = !_followUser);
+    Future<void> followUserFct () async {
+      // Turning follow off needs no location access.
+      if (_followUser) {
+        setState(() => _followUser = false);
+        return;
+      }
+
+      // Enabling follow requires a position: prompt for permission if needed.
+      final p = await _ensureUserPosition();
+      if (p == null || !mounted) return;
+
+      _mapController.move(p, _zoom);
+      setState(() {
+        _center = p;
+        _followUser = true;
+      });
+    }
     void resetMapOrientationFct () {
       _mapController.rotate(0);
       _rotationNotifier.value = 0;
@@ -348,8 +387,8 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver, Automati
                   ),
                   child: 
                   AdaptiveFilledIconButton(
-                    onPressed: followUserFct,
-                    colorScheme: FilledButtonColorScheme.floating, 
+                    onPressed: () => followUserFct(),
+                    colorScheme: FilledButtonColorScheme.floating,
                     child: followUserIcon,
                   ),
                 ),
@@ -371,6 +410,42 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver, Automati
                   ),
                 ),
               ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// A slowly blinking black pill anchored at the top of the map, shown while
+  /// the map is locked on the user's position ([_followUser]).
+  Widget _lockedOnPositionPill(AppLocalizations appLocalizations) {
+    return Positioned(
+      top: MediaQuery.of(context).padding.top + 12,
+      left: 0,
+      right: 0,
+      child: IgnorePointer(
+        child: Center(
+          child: FadeTransition(
+            opacity: Tween<double>(begin: 0.25, end: 1.0).animate(
+              CurvedAnimation(
+                parent: _pillBlinkController,
+                curve: Curves.easeInOut,
+              ),
+            ),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.black,
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: Text(
+                appLocalizations.mapLockedOnPosition,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
             ),
           ),
         ),

@@ -505,6 +505,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get tripPathLoading => '旅行のパスを読み込んでいます。お待ちください';
 
   @override
+  String get mapLockedOnPosition => '地図を現在地に固定中';
+
+  @override
   String get yearTitle => '年';
 
   @override
