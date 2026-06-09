@@ -516,6 +516,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tripPathLoading => 'Trips\' path loading, please wait';
 
   @override
+  String get mapLockedOnPosition => 'Map following your position';
+
+  @override
   String get yearTitle => 'Years';
 
   @override

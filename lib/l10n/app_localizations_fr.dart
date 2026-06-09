@@ -523,6 +523,9 @@ class AppLocalizationsFr extends AppLocalizations {
       'Trajets en cours de chargement, veuillez patienter';
 
   @override
+  String get mapLockedOnPosition => 'La carte suit votre position';
+
+  @override
   String get yearTitle => 'Années';
 
   @override
