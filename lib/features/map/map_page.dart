@@ -298,7 +298,7 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver, Automati
         _mapController.move(p, _zoom);
       }
       setState(() {
-        _center = p;
+        _center = p!;
         _zoom = z;
       });
     }

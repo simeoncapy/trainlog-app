@@ -80,14 +80,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         title: loc.onboardingPage3Title,
         subtitle: loc.onboardingPage3Subtitle,
         color: colorScheme.tertiaryContainer,
-        iconColor: colorScheme.tertiary,
+        iconColor: colorScheme.onTertiary,
       ),
       _OnboardingPage(
         icon: Icons.emoji_events,
         title: loc.onboardingPage4Title,
         subtitle: loc.onboardingPage4Subtitle,
         color: colorScheme.errorContainer,
-        iconColor: colorScheme.error,
+        iconColor: colorScheme.onError,
       ),
       _LocationOnboardingPage(
         title: loc.onboardingLocationTitle,
