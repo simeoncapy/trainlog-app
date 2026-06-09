@@ -127,7 +127,7 @@ abstract final class AppTheme {
       primary: AppColors.amber,
       onPrimary: AppColors.navy,
       primaryContainer: AppColors.amberDk,
-      onPrimaryContainer: AppColors.amberSoft,
+      onPrimaryContainer: AppColors.navy,
       secondary: AppColors.sky,
       onSecondary: AppColors.navy,
       secondaryContainer: AppColors.blue,
