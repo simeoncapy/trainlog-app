@@ -86,6 +86,13 @@ class SettingsProvider with ChangeNotifier {
   int get mapPolylineYearFilterOption => _SP_mapPolylineYearFilterOption;
 
   SettingsProvider() {
+    _loadAll();
+  }
+
+  /// Loads every persisted value into memory. Reading from an empty
+  /// SharedPreferences store yields the documented defaults, so this also
+  /// doubles as a "reset to defaults" once the store has been cleared.
+  void _loadAll() {
     // Shared Preference in settings
     _loadTheme();
     _loadLocale();
@@ -547,10 +554,20 @@ class SettingsProvider with ChangeNotifier {
   }
 
   Future<void> resetOnboarding(TrainlogProvider trainlog, TripsProvider trips) async {
+    await clearSharedPreference();
     _SP_onboardingCompleted = false;
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('onboarding_completed');
     await trainlog.logout(this, trips);
+    notifyListeners();
+  }
+
+  /// Wipes every persisted SharedPreferences value and resets the in-memory
+  /// state back to its defaults.
+  Future<void> clearSharedPreference() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+    _loadAll();
     notifyListeners();
   }
 
