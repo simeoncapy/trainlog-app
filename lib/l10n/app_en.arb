@@ -198,7 +198,7 @@
   "mapFilterVehicleTypeNoneBtn": "None",
 
   "tripPathLoading": "Trips' path loading, please wait",
-  "mapLockedOnPosition": "Map locked on your position",
+  "mapLockedOnPosition": "Map following your position",
   "yearTitle": "Years",
   "yearAllList": "All",
   "yearPastList": "Past",

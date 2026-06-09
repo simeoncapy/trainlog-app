@@ -164,7 +164,7 @@
   "mapFilterVehicleTypeNoneBtn": "Aucun",
 
   "tripPathLoading": "Trajets en cours de chargement, veuillez patienter",
-  "mapLockedOnPosition": "Carte verrouillée sur votre position",
+  "mapLockedOnPosition": "La carte suit votre position",
   "yearTitle": "Années",
   "yearAllList": "Tout",
   "yearPastList": "Passé",

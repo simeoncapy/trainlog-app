@@ -514,7 +514,7 @@ class AppLocalizationsTl extends AppLocalizations {
       'Ang byahe mo ay nag loload, mag hintay ng saglit';
 
   @override
-  String get mapLockedOnPosition => 'Naka-lock ang mapa sa iyong posisyon';
+  String get mapLockedOnPosition => 'Sinusundan ng mapa ang iyong posisyon';
 
   @override
   String get yearTitle => 'Taon';

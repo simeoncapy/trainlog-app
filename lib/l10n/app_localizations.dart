@@ -1035,7 +1035,7 @@ abstract class AppLocalizations {
   /// No description provided for @mapLockedOnPosition.
   ///
   /// In en, this message translates to:
-  /// **'Map locked on your position'**
+  /// **'Map following your position'**
   String get mapLockedOnPosition;
 
   /// No description provided for @yearTitle.
