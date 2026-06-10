@@ -145,8 +145,12 @@ class _StatisticsPageState extends State<StatisticsPage> {
       case StatisticsView.bar:
         // Order first, then build images from the SAME ordered keys so the
         // icons follow the bars when sorting mode changes.
-        final orderedBar =
-            _orderedStats(statsShort, alpha: _sortedAlpha, otherLabel: otherLabel);
+        final orderedBar = _orderedStats(
+          statsShort,
+          alpha: _sortedAlpha,
+          otherLabel: otherLabel,
+          labelOf: labelBuilder,
+        );
         final images = p.graphImagesForKeys(
           context,
           orderedBar.keys.toList(),
@@ -241,19 +245,23 @@ class _StatisticsPageState extends State<StatisticsPage> {
     Map<String, ({double past, double future})> stats, {
     required bool alpha,
     required String otherLabel,
+    String Function(String key)? labelOf,
   }) {
     final entries = stats.entries.toList();
     final other = entries.where((e) => e.key == otherLabel).toList();
     final rest = entries.where((e) => e.key != otherLabel).toList();
 
+    // Sort on the displayed label (e.g. localized country name), not the key.
+    String sortKey(String key) => (labelOf?.call(key) ?? key).toLowerCase();
+
     if (alpha) {
-      rest.sort((a, b) => a.key.toLowerCase().compareTo(b.key.toLowerCase()));
+      rest.sort((a, b) => sortKey(a.key).compareTo(sortKey(b.key)));
     } else {
       rest.sort((a, b) {
         final ta = a.value.past + a.value.future;
         final tb = b.value.past + b.value.future;
         final cmp = tb.compareTo(ta);
-        return cmp != 0 ? cmp : a.key.toLowerCase().compareTo(b.key.toLowerCase());
+        return cmp != 0 ? cmp : sortKey(a.key).compareTo(sortKey(b.key));
       });
     }
     return LinkedHashMap.fromEntries([...rest, ...other]);
