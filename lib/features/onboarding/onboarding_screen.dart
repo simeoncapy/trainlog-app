@@ -147,33 +147,59 @@ class _OnboardingPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 32),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: 120,
-            height: 120,
-            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-            child: Icon(icon, size: 60, color: iconColor),
+    return _ScrollablePageBody(
+      children: [
+        Container(
+          width: 120,
+          height: 120,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+          child: Icon(icon, size: 60, color: iconColor),
+        ),
+        const SizedBox(height: 40),
+        Text(
+          title,
+          style: textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 16),
+        Text(
+          subtitle,
+          style: textTheme.bodyLarge?.copyWith(
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
           ),
-          const SizedBox(height: 40),
-          Text(
-            title,
-            style: textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            subtitle,
-            style: textTheme.bodyLarge?.copyWith(
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+          textAlign: TextAlign.center,
+        ),
+      ],
+    );
+  }
+}
+
+/// Shared layout for onboarding pages: keeps the content vertically centered
+/// when it fits, and becomes scrollable when the screen is too small for it.
+class _ScrollablePageBody extends StatelessWidget {
+  final List<Widget> children;
+
+  const _ScrollablePageBody({required this.children});
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              // Fill the viewport (minus the vertical padding) so the content
+              // stays centered, but never go negative on tiny screens.
+              minHeight: (constraints.maxHeight - 32).clamp(0.0, double.infinity),
             ),
-            textAlign: TextAlign.center,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: children,
+            ),
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
@@ -270,59 +296,55 @@ class _LocationOnboardingPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 32),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: 120,
-            height: 120,
-            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-            child: Icon(Icons.location_on, size: 60, color: iconColor),
+    return _ScrollablePageBody(
+      children: [
+        Container(
+          width: 120,
+          height: 120,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+          child: Icon(Icons.location_on, size: 60, color: iconColor),
+        ),
+        const SizedBox(height: 40),
+        Text(
+          title,
+          style:
+              textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 16),
+        Text(
+          subtitle,
+          style: textTheme.bodyLarge?.copyWith(
+            color:
+                Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
           ),
-          const SizedBox(height: 40),
-          Text(
-            title,
-            style:
-                textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
-            textAlign: TextAlign.center,
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 40),
+        SizedBox(
+          width: double.infinity,
+          child: AdaptiveButton.build(
+            context: context,
+            type: AdaptiveButtonType.primary,
+            minimumSize: const Size(double.infinity, 52),
+            size: AdaptiveButton.large,
+            onPressed: () => onActivate(),
+            label: Text(activateLabel),
           ),
-          const SizedBox(height: 16),
-          Text(
-            subtitle,
-            style: textTheme.bodyLarge?.copyWith(
-              color:
-                  Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-            ),
-            textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 12),
+        SizedBox(
+          width: double.infinity,
+          child: AdaptiveButton.build(
+            context: context,
+            type: AdaptiveButtonType.outlined,
+            minimumSize: const Size(double.infinity, 52),
+            size: AdaptiveButton.large,
+            onPressed: onSkip,
+            label: Text(skipLabel),
           ),
-          const SizedBox(height: 40),
-          SizedBox(
-            width: double.infinity,
-            child: AdaptiveButton.build(
-              context: context,
-              type: AdaptiveButtonType.primary,
-              minimumSize: const Size(double.infinity, 52),
-              size: AdaptiveButton.large,
-              onPressed: () => onActivate(),
-              label: Text(activateLabel),
-            ),
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: AdaptiveButton.build(
-              context: context,
-              type: AdaptiveButtonType.outlined,
-              minimumSize: const Size(double.infinity, 52),
-              size: AdaptiveButton.large,
-              onPressed: onSkip,
-              label: Text(skipLabel),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
