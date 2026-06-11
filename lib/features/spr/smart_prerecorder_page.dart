@@ -20,6 +20,7 @@ import 'package:trainlog_app/platform/adaptive_record_tile.dart';
 import 'package:trainlog_app/platform/widget/adaptive_app_bar_square_button.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
+import 'package:trainlog_app/services/geo_permission_service.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/utils/location_utils.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
@@ -84,6 +85,7 @@ class SmartPrerecorderPage extends StatefulWidget {
 }
 
 class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
+  final GeoPermissionService _geo = const GeoPermissionService();
   List<PreRecordModel> _records = [];
   final List<int> _selectedIds = [];
   bool _ascending = false; // default: newest first
@@ -142,16 +144,6 @@ class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       throw Exception(loc.locationServicesDisabled);
-    }
-
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-    }
-
-    if (permission == LocationPermission.denied ||
-        permission == LocationPermission.deniedForever) {
-      throw Exception(loc.locationPermissionDenied);
     }
 
     return Geolocator.getCurrentPosition(
@@ -980,6 +972,15 @@ Widget build(BuildContext context) {
     final trainlog = Provider.of<TrainlogProvider>(context, listen: false);
     final loc = AppLocalizations.of(context)!;
     final settings = context.read<SettingsProvider>();
+
+    // Make sure location access is granted (prompting the user if needed)
+    // before recording anything.
+    final granted = await _geo.requestPermission(settings);
+    if (!granted) {
+      if (!mounted) return;
+      AdaptiveInformationMessage.show(context, loc.locationPermissionDenied);
+      return;
+    }
 
     try {
       final id = DateTime.now().millisecondsSinceEpoch;
