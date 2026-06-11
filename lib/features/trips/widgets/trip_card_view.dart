@@ -109,9 +109,11 @@ class _TripCardViewState extends State<TripCardView> {
       filter: widget.filter,
       limit: _pageSize,
       offset: pageIndex * _pageSize,
+      // Order by UTC time so trips crossing time zones (e.g. the IDL)
+      // are sorted chronologically; display still uses local time.
       orderBy: widget.timeMoment == TimeMoment.future
-          ? 'start_datetime ASC'
-          : 'start_datetime DESC',
+          ? 'COALESCE(utc_start_datetime, start_datetime) ASC'
+          : 'COALESCE(utc_start_datetime, start_datetime) DESC',
     );
     for (int i = 0; i < trips.length; i++) {
       final idx = pageIndex * _pageSize + i;
