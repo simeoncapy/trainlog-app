@@ -32,6 +32,11 @@
   "createAccountButtonShort": "Create",
   "createAccountPrivacyPolicy": "By signing up, you agree to our Privacy Policy.",
   "loginToYourAccount": "Log in to your account",
+  "loginWelcomeBack": "Welcome back",
+  "loginSubtitle": "Log your next journey",
+  "loginNewHere": "New here?",
+  "changeInstance": "Change instance",
+  "instanceSelectorLabel": "Instance",
   "errorCreationAccount": "Error while creating account.",
   "menuHello": "Hello {username}",
   "@menuHello" :{
@@ -113,13 +118,14 @@
   "settingMapPathDisplayOrderByTrip": "By trip date",
   "settingMapPathDisplayOrderByTripAndPlane": "By trip date (with flights above)",
   "settingsMapColorPalette": "Colour palette for trips",
+  "settingsMapColorPaletteTrainlogApp": "Trainlog App",
   "settingsMapColorPaletteTrainlogWeb": "Trainlog Web",
   "settingsMapColorPaletteColourBlind": "Palette for colour blindness",
   "settingsMapColorPaletteTrainlogRed": "Red",
   "settingsMapColorPaletteTrainlogGreen": "Green",
   "settingsMapColorPaletteTrainlogBlue": "Blue",
   "settingsMapColorPaletteVibrantTones": "Vibrant Tones",
-  "settingsCache": "Cached data ({size} MiB)",
+  "settingsCache": "{size} MiB",
   "@settingsCache" :{
     "description": "Size in mebibytes (MiB)",
     "placeholders": {
@@ -127,6 +133,7 @@
     }
   },
   "settingsCacheClearButton" : "Clear",
+  "settingsCacheTitle" : "Cached data",
   "settingsCacheClearConfirmTitle": "Clear cache?",
   "settingsCacheClearConfirmMessage": "Are you sure you want to delete the cached data? This action is irreversible. The next loading of the app might take longer.",
   "settingsCacheClearedMessage": "Cache cleared successfully.",
@@ -166,6 +173,24 @@
   "menuSettingsTitle": "Settings",
   "menuAboutTitle": "About",
   "menuIosMore": "More",
+  "menuYouTitle": "You",
+  "menuExploreSectionTitle": "EXPLORE",
+  "menuMenuSectionTitle": "MENU",
+  "menuInboxTitle": "Inbox",
+  "menuTripCountLabel": "{count, plural, =0 {trips} =1 {trip} other {trips}}",
+  "@menuTripCountLabel": {
+    "description": "trips label without the number, used after the number in the menu summary card",
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "menuTripCount": "{count, plural, =0 {No trips yet} =1 {1 trip} other {{count} trips}}",
+  "@menuTripCount": {
+    "description": "Number of trips shown in the menu summary card",
+    "placeholders": {
+      "count": {}
+    }
+  },
 
   "mapFilterYearsAllBtn": "All",
   "mapFilterYearsNoneBtn": "None",
@@ -173,6 +198,7 @@
   "mapFilterVehicleTypeNoneBtn": "None",
 
   "tripPathLoading": "Trips' path loading, please wait",
+  "mapLockedOnPosition": "Map following your position",
   "yearTitle": "Years",
   "yearAllList": "All",
   "yearPastList": "Past",
@@ -322,6 +348,13 @@
   "statisticsUnitLabel": "Unit:",
   "statisticsNoDataLabel": "No data",
   "statisticsPieWip": "The pie chart is WIP",
+  "statisticsTitle": "Statistics",
+  "statisticsViewBar": "Bar",
+  "statisticsViewPie": "Pie",
+  "statisticsViewTable": "Table",
+  "statisticsSelectDimension": "Select dimension",
+  "statisticsSelectVehicle": "Select vehicle",
+  "statisticsSelectUnit": "Select unit",
   "internationalWaters": "International waters",
 
   "addTripPageTitle": "Add a Trip",
@@ -538,6 +571,12 @@
   "onboardingPage3Subtitle": "Create shareable links about your trips to share your travel plans with anyone.",
   "onboardingPage4Title": "Leaderboards",
   "onboardingPage4Subtitle": "Are you a frequent traveller? See how your travels stack up against other members worldwide.",
+  "onboardingLocationTitle": "Activation of location services",
+  "onboardingLocationSubtitle": "Trainlog uses the location of your device to centre the map on your position, or to record your position when you use the Geolog function. This is not mandatory.",
+  "onboardingLocationActivate": "Activate location",
+  "onboardingLocationSkip": "Skip",
 
-  "tapAgainToExit": "Tap again to exit"
+  "tapAgainToExit": "Tap again to exit",
+  "tripsEmptyList": "No trips yet",
+  "tripCardDateUndefined": "Undefined"
 }

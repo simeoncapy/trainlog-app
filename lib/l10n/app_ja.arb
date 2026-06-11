@@ -32,6 +32,11 @@
   "createAccountButtonShort": "作成",
   "createAccountPrivacyPolicy": "サインアップすることで、プライバシーポリシーに同意したことになります。",
   "loginToYourAccount": "アカウントにログイン",
+  "loginWelcomeBack": "おかえりなさい",
+  "loginSubtitle": "次の旅を記録しよう",
+  "loginNewHere": "初めてですか？",
+  "changeInstance": "インスタンスを変更",
+  "instanceSelectorLabel": "インスタンス",
   "errorCreationAccount": "アカウントの作成中にエラーが発生しました。",
   "menuHello": "こんにちは {username}さん",
   "connectionError": "ログインに失敗しました。資格情報を確認してください。",
@@ -103,7 +108,8 @@
   "settingsMapColorPaletteTrainlogGreen": "緑",
   "settingsMapColorPaletteTrainlogBlue": "青",
   "settingsMapColorPaletteVibrantTones": "鮮やかな色合い",
-  "settingsCache": "キャッシュされたデータ ({size} MiB)",
+  "settingsCacheTitle": "キャッシュされたデータ",
+  "settingsCache": "{size} MiB",
   "settingsCacheClearButton" : "消す",
   "settingsCacheClearConfirmTitle": "キャッシュを消しますか?",
   "settingsCacheClearConfirmMessage": "キャッシュデータを削除してもよろしいですか？この操作は元に戻せません。次回のアプリの読み込みに時間がかかる可能性があります。",
@@ -138,6 +144,18 @@
   "menuSettingsTitle": "設定",
   "menuAboutTitle": "ついて",
   "menuIosMore": "もっと",
+  "menuYouTitle": "あなた",
+  "menuExploreSectionTitle": "探索",
+  "menuMenuSectionTitle": "メニュー",
+  "menuInboxTitle": "受信トレイ",
+  "menuTripCountLabel": "{count, plural, other {件の旅程}}",
+  "menuTripCount": "{count, plural, =0 {旅程なし} =1 {1件の旅程} other {{count}件の旅程}}",
+  "@menuTripCount": {
+    "description": "メニューのサマリーカードに表示される旅程数",
+    "placeholders": {
+      "count": {}
+    }
+  },
 
   "mapFilterYearsAllBtn": "全て",
   "mapFilterYearsNoneBtn": "なし",
@@ -145,6 +163,7 @@
   "mapFilterVehicleTypeNoneBtn": "なし",
 
   "tripPathLoading": "旅行のパスを読み込んでいます。お待ちください",
+  "mapLockedOnPosition": "地図が現在地を追従中",
   "yearTitle": "年",
   "yearAllList": "全て",
   "yearPastList": "過去",
@@ -235,6 +254,13 @@
   "statisticsUnitLabel": "単位：",
   "statisticsNoDataLabel": "データがありません",
   "statisticsPieWip": "円グラフは仕掛品です",
+  "statisticsTitle": "統計",
+  "statisticsViewBar": "棒グラフ",
+  "statisticsViewPie": "円グラフ",
+  "statisticsViewTable": "テーブル",
+  "statisticsSelectDimension": "次元を選択",
+  "statisticsSelectVehicle": "車両を選択",
+  "statisticsSelectUnit": "単位を選択",
   "internationalWaters": "公海",
 
   "addTripPageTitle": "旅行を追加",
@@ -352,6 +378,12 @@
   "onboardingPage3Subtitle": "旅のリンクを作成して、移動の計画を誰とでも共有できます。",
   "onboardingPage4Title": "リーダーボード",
   "onboardingPage4Subtitle": "よく旅をするあなたへ。世界中のメンバーと旅の記録を比べてみましょう。",
+  "onboardingLocationTitle": "位置情報サービスの有効化",
+  "onboardingLocationSubtitle": "Trainlogは、地図を現在地に合わせたり、ジオログ機能使用時に位置情報を記録したりするためにデバイスの位置情報を利用します。これは必須ではありません。",
+  "onboardingLocationActivate": "位置情報を有効にする",
+  "onboardingLocationSkip": "スキップ",
 
-  "tapAgainToExit": "もう一度タップすると終了します"
+  "tapAgainToExit": "もう一度タップすると終了します",
+  "tripsEmptyList": "まだ旅はありません",
+  "tripCardDateUndefined": "未定義"
 }

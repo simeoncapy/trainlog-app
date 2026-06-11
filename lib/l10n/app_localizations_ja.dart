@@ -106,6 +106,21 @@ class AppLocalizationsJa extends AppLocalizations {
   String get loginToYourAccount => 'アカウントにログイン';
 
   @override
+  String get loginWelcomeBack => 'おかえりなさい';
+
+  @override
+  String get loginSubtitle => '次の旅を記録しよう';
+
+  @override
+  String get loginNewHere => '初めてですか？';
+
+  @override
+  String get changeInstance => 'インスタンスを変更';
+
+  @override
+  String get instanceSelectorLabel => 'インスタンス';
+
+  @override
   String get errorCreationAccount => 'アカウントの作成中にエラーが発生しました。';
 
   @override
@@ -306,6 +321,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get settingsMapColorPalette => '旅行のカラーパレット';
 
   @override
+  String get settingsMapColorPaletteTrainlogApp => 'Trainlog App';
+
+  @override
   String get settingsMapColorPaletteTrainlogWeb => 'Trainlog Web';
 
   @override
@@ -325,11 +343,14 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String settingsCache(Object size) {
-    return 'キャッシュされたデータ ($size MiB)';
+    return '$size MiB';
   }
 
   @override
   String get settingsCacheClearButton => '消す';
+
+  @override
+  String get settingsCacheTitle => 'キャッシュされたデータ';
 
   @override
   String get settingsCacheClearConfirmTitle => 'キャッシュを消しますか?';
@@ -435,6 +456,40 @@ class AppLocalizationsJa extends AppLocalizations {
   String get menuIosMore => 'もっと';
 
   @override
+  String get menuYouTitle => 'あなた';
+
+  @override
+  String get menuExploreSectionTitle => '探索';
+
+  @override
+  String get menuMenuSectionTitle => 'メニュー';
+
+  @override
+  String get menuInboxTitle => '受信トレイ';
+
+  @override
+  String menuTripCountLabel(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '件の旅程',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String menuTripCount(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count件の旅程',
+      one: '1件の旅程',
+      zero: '旅程なし',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get mapFilterYearsAllBtn => '全て';
 
   @override
@@ -448,6 +503,9 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get tripPathLoading => '旅行のパスを読み込んでいます。お待ちください';
+
+  @override
+  String get mapLockedOnPosition => '地図が現在地を追従中';
 
   @override
   String get yearTitle => '年';
@@ -821,6 +879,27 @@ class AppLocalizationsJa extends AppLocalizations {
   String get statisticsPieWip => '円グラフは仕掛品です';
 
   @override
+  String get statisticsTitle => '統計';
+
+  @override
+  String get statisticsViewBar => '棒グラフ';
+
+  @override
+  String get statisticsViewPie => '円グラフ';
+
+  @override
+  String get statisticsViewTable => 'テーブル';
+
+  @override
+  String get statisticsSelectDimension => '次元を選択';
+
+  @override
+  String get statisticsSelectVehicle => '車両を選択';
+
+  @override
+  String get statisticsSelectUnit => '単位を選択';
+
+  @override
   String get internationalWaters => '公海';
 
   @override
@@ -1185,5 +1264,24 @@ class AppLocalizationsJa extends AppLocalizations {
   String get onboardingPage4Subtitle => 'よく旅をするあなたへ。世界中のメンバーと旅の記録を比べてみましょう。';
 
   @override
+  String get onboardingLocationTitle => '位置情報サービスの有効化';
+
+  @override
+  String get onboardingLocationSubtitle =>
+      'Trainlogは、地図を現在地に合わせたり、ジオログ機能使用時に位置情報を記録したりするためにデバイスの位置情報を利用します。これは必須ではありません。';
+
+  @override
+  String get onboardingLocationActivate => '位置情報を有効にする';
+
+  @override
+  String get onboardingLocationSkip => 'スキップ';
+
+  @override
   String get tapAgainToExit => 'もう一度タップすると終了します';
+
+  @override
+  String get tripsEmptyList => 'まだ旅はありません';
+
+  @override
+  String get tripCardDateUndefined => '未定義';
 }

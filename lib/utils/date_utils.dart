@@ -80,6 +80,35 @@ String formatDateTime(
   return result;
 }
 
+/// Formats [dateTime] as a short date with month name, e.g. "30 Mar" (English)
+/// or the locale equivalent. English always uses British ordering (d MMM).
+String formatDateShort(BuildContext context, DateTime dateTime) {
+  final locale = Localizations.localeOf(context);
+  final localeStr = locale.languageCode == 'en' ? 'en_GB' : locale.toString();
+  return DateFormat.MMMd(localeStr).format(dateTime);
+}
+
+/// Formats a date range between [start] and [end] as a compact string.
+/// Same day or date-only trips: "30 Mar" / "5月27日"
+/// Same month: "15–18 Apr" / "5月15日–18日"
+/// Cross-month: "30 Mar–2 Apr" / "3月30日–4月2日"
+/// English always uses British date ordering; other locales use their own.
+String formatDateRange(BuildContext context, DateTime start, DateTime end) {
+  final locale = Localizations.localeOf(context);
+  final localeStr = locale.languageCode == 'en' ? 'en_GB' : locale.toString();
+
+  final isSameDay = start.year == end.year &&
+      start.month == end.month &&
+      start.day == end.day;
+
+  if (isSameDay) {
+    return DateFormat.MMMd(localeStr).format(start);
+  }
+
+  return '${DateFormat.MMMd(localeStr).format(start)}–'
+      '${DateFormat.MMMd(localeStr).format(end)}';
+}
+
 String formatDurationFixed(Duration d) {
   final parts = <String>[];
   const nbsp = '\u00A0';
@@ -108,5 +137,34 @@ String formatDurationFixed(Duration d) {
   }
 
   return parts.join(' ');
+}
+
+String formatSecondsToHMS(int totalSeconds, {bool withSeconds = false, bool hourEvenIfZero = false}) {
+  int days = totalSeconds ~/ 86400; // 24 * 3600
+  int remainingAfterDays = totalSeconds % 86400;
+
+  int hours = remainingAfterDays ~/ 3600;
+  int remainingSecondsAfterHours = remainingAfterDays % 3600;
+
+  int minutes = remainingSecondsAfterHours ~/ 60;
+  int seconds = remainingSecondsAfterHours % 60;
+
+  String result = "";
+
+  if (days > 0) {
+    result += "$days d ";
+  }
+
+  if (hours != 0 || hourEvenIfZero || days > 0) {
+    result += "${hours.toString().padLeft(2, '0')} h ";
+  }
+
+  result += "${minutes.toString().padLeft(2, '0')} min";
+
+  if (withSeconds) {
+    result += " ${seconds.toString().padLeft(2, '0')} s";
+  }
+
+  return result;
 }
 

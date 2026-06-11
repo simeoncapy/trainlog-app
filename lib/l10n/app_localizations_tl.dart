@@ -106,6 +106,21 @@ class AppLocalizationsTl extends AppLocalizations {
   String get loginToYourAccount => 'Mag login sa account ';
 
   @override
+  String get loginWelcomeBack => 'Maligayang pagbabalik';
+
+  @override
+  String get loginSubtitle => 'I-log ang iyong susunod na biyahe';
+
+  @override
+  String get loginNewHere => 'Bago dito?';
+
+  @override
+  String get changeInstance => 'Baguhin ang instance';
+
+  @override
+  String get instanceSelectorLabel => 'Instance';
+
+  @override
   String get errorCreationAccount => 'May mali sa pag gawa ng account.';
 
   @override
@@ -312,6 +327,9 @@ class AppLocalizationsTl extends AppLocalizations {
   String get settingsMapColorPalette => 'Kulay ng trip';
 
   @override
+  String get settingsMapColorPaletteTrainlogApp => 'Trainlog App';
+
+  @override
   String get settingsMapColorPaletteTrainlogWeb => 'Trainlog Web';
 
   @override
@@ -331,11 +349,14 @@ class AppLocalizationsTl extends AppLocalizations {
 
   @override
   String settingsCache(Object size) {
-    return 'Cached data ($size MiB)';
+    return '$size MiB';
   }
 
   @override
   String get settingsCacheClearButton => 'Ibura';
+
+  @override
+  String get settingsCacheTitle => 'Naka-cache na data';
 
   @override
   String get settingsCacheClearConfirmTitle => 'Ibura ang cache?';
@@ -443,6 +464,40 @@ class AppLocalizationsTl extends AppLocalizations {
   String get menuIosMore => 'More';
 
   @override
+  String get menuYouTitle => 'Ikaw';
+
+  @override
+  String get menuExploreSectionTitle => 'TUKLASIN';
+
+  @override
+  String get menuMenuSectionTitle => 'MENU';
+
+  @override
+  String get menuInboxTitle => 'Inbox';
+
+  @override
+  String menuTripCountLabel(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'biyahe',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String menuTripCount(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count biyahe',
+      one: '1 biyahe',
+      zero: 'Walang biyahe',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get mapFilterYearsAllBtn => 'Lahat';
 
   @override
@@ -457,6 +512,9 @@ class AppLocalizationsTl extends AppLocalizations {
   @override
   String get tripPathLoading =>
       'Ang byahe mo ay nag loload, mag hintay ng saglit';
+
+  @override
+  String get mapLockedOnPosition => 'Sinusundan ng mapa ang iyong posisyon';
 
   @override
   String get yearTitle => 'Taon';
@@ -813,6 +871,27 @@ class AppLocalizationsTl extends AppLocalizations {
 
   @override
   String get statisticsPieWip => 'Ang pie chart ay WIP';
+
+  @override
+  String get statisticsTitle => 'Statistics';
+
+  @override
+  String get statisticsViewBar => 'Bar';
+
+  @override
+  String get statisticsViewPie => 'Pie';
+
+  @override
+  String get statisticsViewTable => 'Table';
+
+  @override
+  String get statisticsSelectDimension => 'Pumili ng dimensyon';
+
+  @override
+  String get statisticsSelectVehicle => 'Pumili ng sasakyan';
+
+  @override
+  String get statisticsSelectUnit => 'Pumili ng yunit';
 
   @override
   String get internationalWaters => 'Tubig international';
@@ -1187,5 +1266,25 @@ class AppLocalizationsTl extends AppLocalizations {
       'Ikaw ba ay madalas maglakbay? Tingnan kung paano ang iyong mga paglalakbay kumpara sa ibang mga miyembro sa buong mundo.';
 
   @override
+  String get onboardingLocationTitle =>
+      'Pag-activate ng mga serbisyo ng lokasyon';
+
+  @override
+  String get onboardingLocationSubtitle =>
+      'Ginamit ng Trainlog ang lokasyon ng iyong device upang i-center ang mapa sa iyong posisyon, o upang i-record ang iyong posisyon kapag ginamit mo ang function na Geolog. Ito ay hindi sapilitan.';
+
+  @override
+  String get onboardingLocationActivate => 'I-activate ang lokasyon';
+
+  @override
+  String get onboardingLocationSkip => 'Laktawan';
+
+  @override
   String get tapAgainToExit => 'I-tap muli para lumabas';
+
+  @override
+  String get tripsEmptyList => 'Wala pang biyahe';
+
+  @override
+  String get tripCardDateUndefined => 'Hindi natukoy';
 }

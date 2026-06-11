@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
+import 'package:trainlog_app/platform/adaptive_bottom_navbar.dart' show kNavBarClearance;
 import 'package:trainlog_app/platform/adaptive_vehicle_type_filter_chips.dart';
 import 'package:trainlog_app/providers/polyline_provider.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
@@ -41,7 +42,7 @@ class _MaterialMapFilter extends StatelessWidget {
         (mediaQuery.size.height - mediaQuery.padding.top - mediaQuery.padding.bottom) * 0.7;
 
     return Positioned(
-      bottom: 16,
+      bottom: 16 + MediaQuery.of(context).padding.bottom,
       left: 16,
       right: 16,
       child: Material(
@@ -226,8 +227,15 @@ class _CupertinoMapFilter extends StatelessWidget {
       darkColor: const Color(0xE61C1C1E),
     ).resolveFrom(context);
 
+    // The map page lives inside a Padding(bottom: mq.padding.bottom), so its
+    // coordinate origin is already above the system home indicator. The nav bar
+    // sits at kNavBarClearance from the screen bottom, which translates to
+    // (kNavBarClearance - padding.bottom) from the map page viewport bottom.
+    final double filterBottom =
+        kNavBarClearance - mediaQuery.padding.bottom + 8;
+
     return Positioned(
-      bottom: 16,
+      bottom: filterBottom,
       left: 16,
       right: 16,
       child: ConstrainedBox(

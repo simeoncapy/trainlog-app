@@ -4,9 +4,11 @@ import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/utils/app_info_utils.dart';
 
 class Footer extends StatefulWidget {
+  final bool displayInstance;
 
   const Footer({
     super.key,
+    this.displayInstance = true,
   });
 
   @override
@@ -22,19 +24,20 @@ class _FooterState extends State<Footer> {
     return Column(
       children: [
         Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              FutureBuilder<String>(
-                future: getAppVersionString(),
-                builder: (context, snap) {
-                  if (!snap.hasData) return const SizedBox.shrink();
-                  final version = 'v${snap.data} • 2026 Trainlog ';
-                  return Text(version);
-                },
-              ),
-            ],
-          ),
-          SizedBox(height: 4,),
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            FutureBuilder<String>(
+              future: getAppVersionString(),
+              builder: (context, snap) {
+                if (!snap.hasData) return const SizedBox.shrink();
+                final version = 'v${snap.data} • 2026 Trainlog ';
+                return Text(version, style: Theme.of(context).textTheme.bodySmall);
+              },
+            ),
+          ],
+        ),
+        if (widget.displayInstance) ...[
+          const SizedBox(height: 4),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -49,6 +52,7 @@ class _FooterState extends State<Footer> {
               ),
             ],
           ),
+        ],
       ],
     );
   }

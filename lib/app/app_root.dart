@@ -6,11 +6,34 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import 'package:trainlog_app/app/theme/app_colors.dart';
 import 'package:trainlog_app/app/app_globals.dart';
+import 'package:trainlog_app/app/theme/app_theme.dart';
 import 'package:trainlog_app/app/home_gate.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
+
+/// Wraps [CountryLocalizations.delegate] and falls back to English for any
+/// locale the country_picker package does not ship a translation for (e.g. tl).
+class _FallbackCountryLocalizationsDelegate
+    extends LocalizationsDelegate<CountryLocalizations> {
+  const _FallbackCountryLocalizationsDelegate();
+
+  @override
+  bool isSupported(Locale locale) => true;
+
+  @override
+  Future<CountryLocalizations> load(Locale locale) {
+    final effective = CountryLocalizations.delegate.isSupported(locale)
+        ? locale
+        : const Locale('en');
+    return CountryLocalizations.delegate.load(effective);
+  }
+
+  @override
+  bool shouldReload(_FallbackCountryLocalizationsDelegate old) => false;
+}
 
 class CrashlyticsNavigationObserver extends NavigatorObserver {
   @override
@@ -58,23 +81,11 @@ class AppRoot extends StatelessWidget {
       locale: settings.locale,
       localizationsDelegates: [
         ...AppLocalizations.localizationsDelegates,
-        CountryLocalizations.delegate,
+        const _FallbackCountryLocalizationsDelegate(),
       ],
       supportedLocales: AppLocalizations.supportedLocales,
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: kSeedColor,
-          brightness: Brightness.light,
-        ),
-      ),
-      darkTheme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: kSeedColor,
-          brightness: Brightness.dark,
-        ),
-      ),
+      theme: AppTheme.light,
+      darkTheme: AppTheme.dark,
       themeMode: settings.themeMode,
       builder: (context, child) {
         final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -102,19 +113,26 @@ class AppRoot extends StatelessWidget {
       locale: settings.locale,
       localizationsDelegates: [
         ...AppLocalizations.localizationsDelegates,
-        CountryLocalizations.delegate,
+        const _FallbackCountryLocalizationsDelegate(),
       ],
       supportedLocales: AppLocalizations.supportedLocales,
       theme: CupertinoThemeData(
         brightness: brightness,
-        primaryColor: CupertinoColors.systemBlue,
+        primaryColor: const CupertinoDynamicColor.withBrightness(
+          color: AppColors.amber,
+          darkColor: AppColors.amber,
+        ),
       ),
 
-      // Keep using the same ScaffoldMessengerKey for both apps.
       builder: (_, child) {
-        return ScaffoldMessenger(
-          key: rootScaffoldMessengerKey,
-          child: child!,
+        final themeData =
+            brightness == Brightness.dark ? AppTheme.dark : AppTheme.light;
+        return Theme(
+          data: themeData,
+          child: ScaffoldMessenger(
+            key: rootScaffoldMessengerKey,
+            child: child!,
+          ),
         );
       },
 

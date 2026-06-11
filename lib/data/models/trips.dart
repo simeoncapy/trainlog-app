@@ -128,6 +128,33 @@ class Trips {
     return arrivalDelayDate ?? endDatetime;
   }
 
+  /// Scheduled trip duration: manual value if set, otherwise the UTC
+  /// start/end difference, otherwise the estimated duration.
+  Duration get duration {
+    // UTC start shouldn't be NULL if UTC end is not NULL, so startDatetime
+    // shouldn't be used (placed here to avoid NULL error)
+    final utcDuration = utcEndDatetime?.difference(utcStartDatetime ?? startDatetime);
+    return Duration(
+      seconds: (manualTripDuration ?? utcDuration?.inSeconds ?? estimatedTripDuration)
+          .round()
+          .toInt(),
+    );
+  }
+
+  String get durationFormatted => formatSecondsToHMS(duration.inSeconds);
+
+  /// Trip duration taking the departure/arrival delays into account,
+  /// or null when no delay information is available.
+  Duration? get realDuration {
+    if (!hasDelay) return null;
+    return duration + Duration(seconds: (arrivalDelay ?? 0) - (departureDelay ?? 0));
+  }
+
+  String? get realDurationFormatted {
+    final real = realDuration;
+    return real == null ? null : formatSecondsToHMS(real.inSeconds);
+  }
+
   //       hasTimeRange: trip.hasTimeRange,
 
   bool get isDateOnly => (startDatetime == endDatetime) && utcEndDatetime == null;

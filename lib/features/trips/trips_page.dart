@@ -1,304 +1,197 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:trainlog_app/data/models/trip_form_model.dart';
-import 'package:trainlog_app/data/models/trips.dart';
-import 'package:trainlog_app/data/trips_repository.dart';
+import 'package:trainlog_app/features/menu/menu_summary_card.dart';
+import 'package:trainlog_app/features/trips/add_trip_page.dart';
+import 'package:trainlog_app/features/trips/widgets/trip_card_view.dart';
+import 'package:trainlog_app/features/trips/widgets/trip_table_view.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/navigation/nav_models.dart';
-import 'package:trainlog_app/features/trips/add_trip_page.dart';
-import 'package:trainlog_app/platform/adaptive_trip_card.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
-import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
-import 'package:trainlog_app/utils/date_utils.dart';
-import 'package:trainlog_app/utils/map_color_palette.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
-import 'package:trainlog_app/utils/style_utils.dart';
+import 'package:trainlog_app/widgets/app_steps_tab_bar.dart';
 import 'package:trainlog_app/widgets/past_future_selector.dart';
+import 'package:trainlog_app/platform/adaptive_widget.dart';
 import 'package:trainlog_app/widgets/trips_filter_dialog.dart';
+
+const _kViewPrefKey = 'trips_view_mode'; // 'card' or 'table'
 
 class TripsPage extends StatefulWidget {
   final SetPrimaryActions onPrimaryActionsReady;
-  const TripsPage({super.key, required this.onPrimaryActionsReady});  
+  const TripsPage({super.key, required this.onPrimaryActionsReady});
 
   @override
   State<TripsPage> createState() => _TripsPageState();
 }
 
 class _TripsPageState extends State<TripsPage> {
-  int _seenRevision = -1;
-  int _sortColumnIndex = 2;
-  bool _sortAscending = false;
-  TripsDataSource? _dataSource;
-  Key _tableKey = UniqueKey();
   late TrainlogProvider trainlog;
   TripsFilterResult? _activeFilter;
-  final _refreshKey = GlobalKey<RefreshIndicatorState>(); // DELETE ON MOBILE
-  bool _refreshTriggered = false; // DELETE ON MOBILE
+  TimeMoment _timeMoment = TimeMoment.past;
+
+  bool _isCardView = true; // default; overridden by SharedPreferences
+  bool _prefsLoaded = false;
+
+  int _summaryCount = 0;
+  int _seenRevision = -1;
 
   @override
   void initState() {
     super.initState();
     trainlog = Provider.of<TrainlogProvider>(context, listen: false);
+    _loadPrefs();
   }
 
-  @override // temp for test // DELETE ON MOBILE
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-
-    // This depends on Theme, so it belongs here
-    if (!_refreshTriggered && Theme.of(context).platform == TargetPlatform.windows) {
-      _refreshTriggered = true;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        //_refreshKey.currentState?.show(); // 👈 triggers the refresh on Windows
+  Future<void> _loadPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    final saved = prefs.getString(_kViewPrefKey);
+    if (mounted) {
+      setState(() {
+        _isCardView = saved != 'table';
+        _prefsLoaded = true;
       });
     }
+  }
+
+  Future<void> _setCardView(bool isCard) async {
+    setState(() => _isCardView = isCard);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_kViewPrefKey, isCard ? 'card' : 'table');
+  }
+
+  Future<void> _refreshSummaryCount(TripsProvider tripsProvider) async {
+    final repo = tripsProvider.repository;
+    if (repo == null) return;
+    final count = await repo.countFilteredTrips(
+      showFutureTrips: _timeMoment == TimeMoment.future,
+      filter: _activeFilter,
+    );
+    if (mounted) setState(() => _summaryCount = count);
   }
 
   @override
   Widget build(BuildContext context) {
     final tripsProvider = Provider.of<TripsProvider>(context);
-    final scaffMsg = ScaffoldMessenger.of(context);
     final loc = AppLocalizations.of(context)!;
-    final revision = context.select((TripsProvider p) => p.revision);
     final repo = context.select((TripsProvider p) => p.repository);
     final isLoading = context.select((TripsProvider p) => p.isLoading);
+    final revision = context.select((TripsProvider p) => p.revision);
 
-    if (repo == null || isLoading) {
+    if (revision != _seenRevision) {
+      _seenRevision = revision;
+      WidgetsBinding.instance.addPostFrameCallback((_) => _refreshSummaryCount(tripsProvider));
+    }
+
+    if (repo == null || isLoading || !_prefsLoaded) {
       return const Center(child: CircularProgressIndicator());
     }
 
-    // revision changed => provider has new data/repo => rebuild table source
-    if (_seenRevision != revision) {
-      _seenRevision = revision;
-      _dataSource = null;
-      _tableKey = ValueKey(revision); // forces PaginatedDataTable internal reset too
-    }
-
-    if (_dataSource == null) {
-      // Create it synchronously; pass the (currently empty) map
-      _dataSource = TripsDataSource(context, repo, trainlog);
-      _dataSource!.sort(_sortColumnIndex, _sortAscending);
-
-      // If you need to (re)expose the FAB after first layout:
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) widget.onPrimaryActionsReady([_buildPrimaryAction(context)]);
-      });
-    }
-
-    //final width = MediaQuery.of(context).size.width;
-    // Using SingleChildScrollView then we don't need to adapt the column to the size
-    // To not delete the code, and keep it in case later use, we just force the width parameter
-    final width = 1500.0;     
-
-    final visibleColumns = _getVisibleColumns(width);
-    _dataSource!.setVisibleColumns(visibleColumns);
-    final locale = Localizations.localeOf(context);
-
-    return RefreshIndicator(
-      key: _refreshKey,
-      onRefresh: () async {
-        //final settings = context.read<SettingsProvider>();        
-        // Force reloading data from repository
-        //settings.setShouldReloadPolylines(true);
-        //await tripsProvider.loadTrips(locale: Localizations.localeOf(context), loadFromApi: true);
-        await tripsProvider.loadNecessaryTripsData(locale: locale, hardRefresh: false);
-        
-        if (!mounted) return;
-        setState(() {
-          _dataSource = null; // rebuild data source
-          _tableKey = UniqueKey();
-        });
-
-        if (mounted) {
-          scaffMsg.showSnackBar(
-            SnackBar(content: Text('✅ ${loc.refreshCompleted}')),
-          );
-        }
-      },
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final btmPad = MediaQuery.of(context).padding.bottom;
-          final visibleColumns = _getVisibleColumns(width);
-          _dataSource!.setVisibleColumns(visibleColumns);
-      
-          final double availableHeight = constraints.maxHeight;
-          const double headingHeight = 56.0;
-          const double rowHeight = 48.0;
-          final double footerHeight = AppPlatform.isApple ? btmPad + 50 : 180.0; // On Material, keep space for the FAB
-      
-          // Estimate how many rows fit in the remaining height
-          final rowsPerPage = ((availableHeight - headingHeight - footerHeight) ~/ rowHeight).clamp(5, 50);
-      
-          return SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            child: ConstrainedBox(
-              constraints: BoxConstraints(minHeight: constraints.maxHeight),
-              child: DataTableTheme(
-                data: DataTableTheme.of(context).copyWith(
-                  headingRowColor: WidgetStateProperty.resolveWith<Color?>(
-                    (Set<WidgetState> states) =>
-                        Theme.of(context).colorScheme.primaryContainer,
-                  ),
-                  headingTextStyle: Theme.of(context).textTheme.labelLarge?.copyWith(
-                        color: Theme.of(context).colorScheme.onPrimaryContainer,
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      minWidth: MediaQuery.of(context).size.width,
-                      maxWidth: MediaQuery.of(context).size.width,
-                    ),
-                    child: PaginatedDataTable(
-                      showCheckboxColumn: false,
-                      key: _tableKey,
-                      header: _tableGeneralHeaderBuilder(tripsProvider),
-                      columns: _buildDataColumns(visibleColumns, width),
-                      source: _dataSource!,
-                      sortColumnIndex: _sortColumnIndex,
-                      sortAscending: _sortAscending,
-                      horizontalMargin: 5,
-                      columnSpacing: 5,
-                      showFirstLastButtons: true,
-                      rowsPerPage: rowsPerPage,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _tableGeneralHeaderBuilder(TripsProvider tripsProvider) {
-    final locale = Localizations.localeOf(context);
-    return Align(
-      alignment: Alignment.centerRight,
-      child: SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-        PastFutureSelector(
-          initialValue: _dataSource!.timeMoment,
-          onChanged: (newMoment) {
-            setState(() {
-              _dataSource!.setTimeMoment(newMoment);
-              _tableKey = UniqueKey();
-            });
-          },
-        ),
-        const SizedBox(width: 8),
-        if (_activeFilter != null)
-          Container(
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: Theme.of(context).colorScheme.outline,
-                width: 1,
-              ),
-              shape: BoxShape.circle,
-            ),
-            child: IconButton(
-              onPressed: () {
-                setState(() {
-                  _activeFilter = null;
-                  _dataSource!.setFilter(null);
-                  _tableKey = UniqueKey();
-                });
-              },
-              icon: const Icon(Icons.search_off),
-              tooltip: AppLocalizations.of(context)!.filterClearButton,
-            ),
-          ),
-        const SizedBox(width: 8),
-        _AdaptiveFilterButton(
-          onPressed: () async {
-            final operators = tripsProvider.operators;
-            final countries = await tripsProvider.getMapCountryCodesSafe(locale: locale);
-            final types = tripsProvider.vehicleTypes;
-
-            if (!context.mounted) return;
-            final result = await showAdaptiveTripsFilterDialog(
-              context,
-              operatorOptions: operators,
-              countryOptions: countries,
-              typeOptions: types,
-              initialFilter: _activeFilter,
-            );
-
-            if (result != null) {
-              setState(() {
-                _activeFilter = result;
-                _dataSource!.setFilter(result);
-                _tableKey = UniqueKey();
-              });
-            }
-          },
-          tooltip: AppLocalizations.of(context)!.filterButton,
-        ),
-      ],
-      ),
-    ),
-    );
-  }
-
-  List<String> _getVisibleColumns(double width) {
-    final columns = ['type', 'origin_destination', 'startTime', 'endTime'];
-    if (width > 800) columns.add('operator');
-    if (width > 1000) columns.add('lineName');
-    if (width > 1200) columns.add('tripLength');
-    if (width > 1100) columns.add('visibility');
-    return columns;
-  }
-
-  List<DataColumn> _buildDataColumns(List<String> keys, double width) {
-    return List.generate(keys.length, (index) {
-      final label = _getLabel(keys[index]);
-      return DataColumn(
-        label: Text(label),
-        columnWidth: (index == 0 && width < 750) ? FixedColumnWidth(32) : null,
-        onSort: (columnIndex, ascending) => setState(() {
-          _sortColumnIndex = columnIndex;
-          _sortAscending = ascending;
-          _dataSource!.sort(columnIndex, ascending);
-        }),
-      );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) widget.onPrimaryActionsReady([_buildPrimaryAction(context)]);
     });
-  }
 
-  String _getLabel(String key) {
-    final appLocalizations = AppLocalizations.of(context)!;
-    switch (key) {
-      case 'type':
-        return '';
-      case 'origin_destination':
-        return appLocalizations.tripsTableHeaderOriginDestination;
-      case 'origin':
-        return appLocalizations.tripsTableHeaderOrigin;
-      case 'destination':
-        return appLocalizations.tripsTableHeaderDestination;
-      case 'startTime':
-        return appLocalizations.tripsTableHeaderStartTime;
-      case 'endTime':
-        return appLocalizations.tripsTableHeaderEndTime;
-      case 'operator':
-        return appLocalizations.tripsTableHeaderOperator;
-      case 'lineName':
-        return appLocalizations.tripsTableHeaderLineName;
-      case 'tripLength':
-        return appLocalizations.tripsTableHeaderTripLength;
-      case 'visibility':
-        return appLocalizations.tripsTableHeaderVisibility;
-      default:
-        return key;
-    }
+    return SafeArea(
+      top: false,
+      bottom: false,
+      child: RefreshIndicator(
+        onRefresh: () async {
+          final locale = Localizations.localeOf(context);
+          await tripsProvider.loadNecessaryTripsData(locale: locale, hardRefresh: false);
+          if (!mounted) return;
+          await _refreshSummaryCount(tripsProvider);
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('✅ ${loc.refreshCompleted}')),
+            );
+          }
+        },
+        child: Column(
+          children: [
+            // ── Page header ─────────────────────────────────────────────
+            _PageHeader(
+              isCardView: _isCardView,
+              activeFilter: _activeFilter,
+              onToggleView: () => _setCardView(!_isCardView),
+              onFilterTap: () async {
+                final locale = Localizations.localeOf(context);
+                final operators = tripsProvider.operators;
+                final countries = await tripsProvider.getMapCountryCodesSafe(locale: locale);
+                final types = tripsProvider.vehicleTypes;
+
+                if (!context.mounted) return;
+                final result = await showAdaptiveTripsFilterDialog(
+                  context,
+                  operatorOptions: operators,
+                  countryOptions: countries,
+                  typeOptions: types,
+                  initialFilter: _activeFilter,
+                );
+
+                if (result != null) {
+                  setState(() => _activeFilter = result);
+                  _refreshSummaryCount(tripsProvider);
+                }
+              },
+              onClearFilter: () {
+                setState(() => _activeFilter = null);
+                _refreshSummaryCount(tripsProvider);
+              },
+            ),
+
+            // ── Summary block (card view only) ──────────────────────────
+            if (_isCardView)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                child: _SummaryBlock(count: _summaryCount),
+              ),
+
+            // ── Past / Future tab selector ───────────────────────────────
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+              child: AppStepsTabBar(
+                fullWidth: true,
+                tabs: [
+                  AppStepsTab(
+                    label: loc.yearPastList,
+                    leadingIcon: const Icon(Icons.restore),
+                  ),
+                  AppStepsTab(
+                    label: loc.yearFutureList,
+                    leadingIcon: const Icon(Icons.next_plan_outlined),
+                  ),
+                ],
+                selectedIndex: _timeMoment == TimeMoment.past ? 0 : 1,
+                onTabChanged: (i) {
+                  setState(() => _timeMoment = i == 0 ? TimeMoment.past : TimeMoment.future);
+                  _refreshSummaryCount(tripsProvider);
+                },
+              ),
+            ),
+
+            // ── Content view ─────────────────────────────────────────────
+            Expanded(
+              child: _isCardView
+                  ? TripCardView(
+                      key: ValueKey('card-$_timeMoment-${_activeFilter.hashCode}'),
+                      repo: repo,
+                      trainlog: trainlog,
+                      filter: _activeFilter,
+                      timeMoment: _timeMoment,
+                    )
+                  : TripTableView(
+                      key: ValueKey('table-$_timeMoment-${_activeFilter.hashCode}'),
+                      repo: repo,
+                      trainlog: trainlog,
+                      filter: _activeFilter,
+                      timeMoment: _timeMoment,
+                    ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   AppPrimaryAction _buildPrimaryAction(BuildContext context) {
@@ -319,20 +212,7 @@ class _TripsPageState extends State<TripsPage> {
         if (!context.mounted) return;
 
         if (didSave == true) {
-          // refresh trips after returning
-          // final tripsProvider = context.read<TripsProvider>();
-          // await tripsProvider.loadTrips(
-          //   locale: Localizations.localeOf(context),
-          //   loadFromApi: true, // or false if you want DB-only refresh
-          // );
-
-          // force rebuild datasource
-          setState(() {
-            _dataSource = null;
-            _tableKey = UniqueKey();
-          });
-
-          // (optional) re-emit the FAB
+          setState(() {});
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted) widget.onPrimaryActionsReady([_buildPrimaryAction(context)]);
           });
@@ -344,404 +224,102 @@ class _TripsPageState extends State<TripsPage> {
   }
 }
 
-// *************************************************
-// *************************************************
-// *************************************************
+// ---------------------------------------------------------------------------
+// Page header with title, view toggle, filter
+// ---------------------------------------------------------------------------
 
-class TripsDataSource extends DataTableSource {
-  final BuildContext context;
-  final TripsRepository _repository;
-  final TrainlogProvider _trainlog;
-  int _sortColumnIndex = 0;
-  bool _sortAscending = true;
-  final List<Trips?> _cache = [];
-  int _rowCount = 0;
-  List<String> _visibleColumns = [];
-  TimeMoment _timeMoment = TimeMoment.past;
-  TripsFilterResult? _filter;
-
-  TripsDataSource(this.context, this._repository, this._trainlog, [this._filter]) {
-    _fetchRowCount();
-  }
-
-  void setFilter(TripsFilterResult? filter) {
-    _filter = filter;
-    _cache.clear();
-    _fetchRowCount();
-  }
-
-  void setTimeMoment(TimeMoment moment) {
-    _timeMoment = moment;
-    _cache.clear();
-    _fetchRowCount();
-  }
-
-  void setVisibleColumns(List<String> columns) {
-    if (listEquals(_visibleColumns, columns)) return;
-    _visibleColumns = columns;
-    notifyListeners();
-  }
-
-  Future<void> _fetchRowCount() async {
-    _rowCount = await _repository.countFilteredTrips(
-      showFutureTrips: _timeMoment == TimeMoment.future, filter: _filter,
-    );
-    _cache.clear();
-    _cache.addAll(List.generate(_rowCount, (_) => null));
-    notifyListeners();
-  }
-
-  Widget _timeDisplayHelper({
-    required DateTime datetime,
-    int? delay,
-    String? delayFormatted,
-    bool noTime = false,
-    bool shrinkCondition = false
-  }) {
-    if (shrinkCondition) return const SizedBox.shrink();
-
-    final date = formatDateTime(context, datetime, hasTime: false);
-    final time = formatDateTime(context, datetime, hasTime: true, timeOnly: true).trim();
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(date),
-        if(!noTime)
-        Row(
-          children: [
-            Text(time),
-            if(delay != null && delayFormatted != null)
-              Text(" ($delayFormatted)", 
-                  style: TextStyle(
-                  color: delay > 0
-                      ? Colors.red
-                      : Colors.green,
-                  //fontSize: 12,
-                ),
-              ),
-          ],
-        ),        
-      ],
-    );
-  }
-
-  @override
-  DataRow getRow(int index) {
-    final bkgColor = WidgetStateProperty.resolveWith<Color?>(
-          (Set<WidgetState> states) => index.isEven ? Theme.of(context).colorScheme.surfaceContainerHighest : null,
-        );
-    final settings = context.read<SettingsProvider>();
-    final palette = MapColorPaletteHelper.getPalette(settings.mapColorPalette);
-
-    final emptyRow = DataRow(
-          color: bkgColor,
-          cells: List.generate(
-            _visibleColumns.length,
-            (_) => const DataCell(SizedBox.shrink()),
-          ),
-        );
-
-    try{
-        if (_cache[index] == null) {
-        _fetchPage(index ~/ 50);
-        return emptyRow;
-      }
-    }
-    catch (_)
-    {
-      return emptyRow;
-    }
-
-    final trip = _cache[index]!;
-    // String startTimeStr = trip.isUnknownPastFuture
-    //     ? ""
-    //     : formatDateTime(context, trip.startDatetime, hasTime: !trip.isDateOnly).replaceAll(RegExp(r" "), "\n");
-    // if(trip.hasDepartureDelay) {
-    //   startTimeStr += " (${trip.departureDelayFormatted})";
-    // }
-
-    // String endTimeStr = trip.isDateOnly 
-    //     ? "" 
-    //     : formatDateTime(context, trip.endDatetime).replaceAll(RegExp(r" "), "\n");
-    // if(trip.hasArrivalDelay) {
-    //   endTimeStr += " (${trip.arrivalDelayFormatted})";
-    // }
-
-    final cells = _visibleColumns.map((key) {
-      switch (key) {
-        case 'type':
-          return DataCell(
-            IconTheme(
-              data: IconThemeData(color: palette[trip.type]),
-              child: trip.type.icon(),
-            ),
-          );
-        case 'origin_destination':
-          return DataCell(
-            Text("${trip.originStation}\n${trip.destinationStation}"),
-            // onTap: () {
-            //   showModalBottomSheet(
-            //     context: context,
-            //     builder: (ctx) => TripDetailsBottomSheet(trip: trip),
-            //     isScrollControlled: true,
-            //   );
-            // },
-          );
-        case 'origin':
-          return DataCell(Text(trip.originStation));
-        case 'destination':
-          return DataCell(Text(trip.destinationStation));
-        case 'startTime':
-          return DataCell(
-            //Text(startTimeStr)
-            _timeDisplayHelper(
-              datetime: trip.startDatetime, 
-              delay: trip.departureDelayInMinutes, 
-              delayFormatted: trip.departureDelayFormatted, 
-              noTime: trip.isDateOnly, 
-              shrinkCondition: trip.isUnknownPastFuture
-            ),
-          );
-        case 'endTime':
-          return DataCell(
-            //Text(endTimeStr)
-            _timeDisplayHelper(
-              datetime: trip.endDatetime, 
-              delay: trip.arrivalDelayInMinutes, 
-              delayFormatted: trip.arrivalDelayFormatted, 
-              noTime: trip.isDateOnly, 
-              shrinkCondition: trip.isDateOnly
-            ),
-          );
-        case 'operator':
-          if(trip.operatorName.isEmpty) {
-            return const DataCell(SizedBox.shrink());
-          }
-          final operators = trip.operatorName.split(',').map((s) => s.trim()).where((s) => s.isNotEmpty).toList();
-          final count = operators.length;
-
-          return DataCell(
-            Tooltip(
-              message: operators.join(', '),
-              child: _OperatorLogoWithCount(
-                image: withOperatorLogoBg(
-                  context,
-                  _trainlog.getOperatorImage(
-                    operators.join("&&"),
-                    maxWidth: 45,
-                    maxHeight: 45,
-                  ),
-                ),
-                count: count,
-              ),
-            ),
-          );
-          //return DataCell(_operatorLogos[Uri.decodeComponent(trip.operatorName)] ?? Text(Uri.decodeComponent(trip.operatorName))); // _operatorLogos
-          //return DataCell(Text(Uri.decodeComponent(trip.operatorName))); // _operatorLogos
-        case 'lineName':
-          return DataCell(Text(
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            trip.lineName)
-          );
-        case 'tripLength':
-          return DataCell(Text("${(trip.tripLength/1000).round()} km", textAlign: TextAlign.end,));
-        case 'visibility':
-          return DataCell(Icon(trip.visibility.icon()));
-        default:
-          return const DataCell(SizedBox.shrink());
-      }
-    }).toList();
-
-  //   return DataCell(  // To align the distance on the right, replace the current DataCell by this code
-  //   Align(
-  //     alignment: Alignment.centerRight,
-  //     child: Text(
-  //       "${(trip.tripLength / 1000).round()} km",
-  //       textAlign: TextAlign.right,
-  //     ),
-  //   ),
-  // );
-
-    return DataRow(
-      color: bkgColor, 
-      onSelectChanged: (_) {
-        showAdaptiveTripBottomSheet(context, trip: trip);
-      },
-      cells: cells,
-    );
-  }
-
-  @override
-  bool get isRowCountApproximate => false;
-
-  @override
-  int get rowCount => _rowCount;
-
-  @override
-  int get selectedRowCount => 0;
-  
-  get timeMoment => _timeMoment;
-
-  void sort(int columnIndex, bool ascending) {
-    _sortColumnIndex = columnIndex;
-    _sortAscending = ascending;
-    _cache.clear();
-    _cache.addAll(List.generate(_rowCount, (_) => null));
-    notifyListeners();
-  }
-
-  Future<void> _fetchPage(int pageKey) async {
-    final key = _visibleColumns.length > _sortColumnIndex
-        ? _visibleColumns[_sortColumnIndex]
-        : 'startTime';
-    final columnName = _mapKeyToColumnName(key);
-    final orderBy = '$columnName ${_sortAscending ? 'ASC' : 'DESC'}';
-
-    final page = await _repository.getTripsFiltered(
-      showFutureTrips: _timeMoment == TimeMoment.future,
-      filter: _filter,
-      limit: 50,
-      offset: pageKey * 50,
-      orderBy: orderBy,
-    );
-
-    for (var i = 0; i < page.length; i++) {
-      _cache[pageKey * 50 + i] = page[i];
-    }
-
-    notifyListeners();
-  }
-
-  String _mapKeyToColumnName(String key) {
-    switch (key) {
-      case 'type':
-        return 'type';
-      case 'origin':
-        return 'origin_station';
-      case 'destination':
-        return 'destination_station';
-      case 'startTime':
-        return 'start_datetime';
-      case 'endDatetime':
-        return 'end_datetime';
-      case 'operator':
-        return 'operator';
-      case 'lineName':
-        return 'line_name';
-      case 'tripLength':
-        return 'trip_length';
-      case 'visibility':
-        return 'visibility';
-      default:
-        return 'start_datetime';
-    }
-  }
-}
-
-class _OperatorLogoWithCount extends StatelessWidget {
-  const _OperatorLogoWithCount({
-    required this.image,
-    required this.count,
+class _PageHeader extends StatelessWidget {
+  const _PageHeader({
+    required this.isCardView,
+    required this.activeFilter,
+    required this.onToggleView,
+    required this.onFilterTap,
+    required this.onClearFilter,
   });
 
-  final Widget image;
-  final int count;
-
-  static const double _size = 45;
+  final bool isCardView;
+  final TripsFilterResult? activeFilter;
+  final VoidCallback onToggleView;
+  final VoidCallback onFilterTap;
+  final VoidCallback onClearFilter;
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: _size,
-      height: _size,
-      child: Stack(
-        clipBehavior: Clip.hardEdge, 
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 12, 8),
+      child: Row(
         children: [
-          Center(child: image),
-
-          if (count > 1)
-            Positioned(
-              top: 2,
-              right: 0,
-              child: _Badge(
-                text: count > 9 ? '9+' : '$count',
+          // Title — only shown on Material (iOS has it in the nav bar)
+          if (!AppPlatform.isApple)
+            Expanded(
+              child: Text(
+                AppLocalizations.of(context)!.menuTripsTitle,
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
               ),
+            )
+          else
+            const Spacer(),
+
+          // View toggle
+          AdaptiveAppBarSquareButton(
+            icon: isCardView ? Icons.table_chart_outlined : Icons.view_agenda_outlined,
+            onPressed: onToggleView,
+            tooltip: isCardView ? 'Table view' : 'Card view',
+            size: 36,
+            iconSize: 18,
+          ),
+
+          // Clear filter (when active)
+          if (activeFilter != null) ...[
+            const SizedBox(width: 8),
+            AdaptiveAppBarSquareButton(
+              icon: Icons.search_off,
+              onPressed: onClearFilter,
+              tooltip: AppLocalizations.of(context)!.filterClearButton,
+              size: 36,
+              iconSize: 18,
+              circle: true,
             ),
+          ],
+
+          const SizedBox(width: 8),
+
+          // Filter button
+          AdaptiveAppBarSquareButton(
+            icon: AdaptiveIcons.filter,
+            onPressed: onFilterTap,
+            tooltip: AppLocalizations.of(context)!.filterButton,
+            size: 36,
+            iconSize: 18,
+          ),
         ],
       ),
     );
   }
 }
 
-class _Badge extends StatelessWidget {
-  const _Badge({required this.text});
-  final String text;
+// ---------------------------------------------------------------------------
+// Summary block
+// ---------------------------------------------------------------------------
+
+class _SummaryBlock extends StatelessWidget {
+  const _SummaryBlock({required this.count});
+  final int count;
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-      constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
-        color: Colors.red,
-        borderRadius: BorderRadius.circular(9),
-        //border: Border.all(color: Colors.white, width: 1.5),
+        color: cs.inverseSurface,
+        borderRadius: BorderRadius.circular(12),
       ),
-      child: Text(
-        text,
-        textAlign: TextAlign.center,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 11,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
+      child: TripCountLine(count: count),
     );
   }
 }
-
-class _AdaptiveFilterButton extends StatelessWidget {
-  final VoidCallback onPressed;
-  final String tooltip;
-
-  const _AdaptiveFilterButton({
-    required this.onPressed,
-    required this.tooltip,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    if (AppPlatform.isApple) {
-      return CupertinoButton(
-        padding: EdgeInsets.zero,
-        onPressed: onPressed,
-        child: Container(
-          width: 36,
-          height: 36,
-          decoration: BoxDecoration(
-            color: CupertinoColors.systemFill.resolveFrom(context),
-            shape: BoxShape.circle,
-          ),
-          child: Icon(AdaptiveIcons.filter, size: 20),
-        ),
-      );
-    }
-
-    return Material(
-      elevation: 4,
-      shape: const CircleBorder(),
-      color: Theme.of(context).colorScheme.primaryContainer,
-      child: IconButton(
-        onPressed: onPressed,
-        icon: const Icon(Icons.filter_alt),
-        color: Theme.of(context).colorScheme.onPrimaryContainer,
-        tooltip: tooltip,
-      ),
-    );
-  }
-}
-
-

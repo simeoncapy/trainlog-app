@@ -5,11 +5,25 @@ import 'package:diacritic/diacritic.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
+import 'package:trainlog_app/utils/number_formatter.dart';
 import 'package:trainlog_app/utils/style_utils.dart';
 import 'package:trainlog_app/utils/text_utils.dart'; // for countryCodeToName(...)
-import 'package:trainlog_app/widgets/logo_bar_chart.dart'; // for UnitFactor
+import 'package:trainlog_app/features/statistics/widgets/logo_bar_chart.dart'; // for UnitFactor
 import 'package:duration/duration.dart';
 import 'package:duration/locale.dart';
+
+const _counterSymbols = [
+  Symbols.counter_0,
+  Symbols.counter_1,
+  Symbols.counter_2,
+  Symbols.counter_3,
+  Symbols.counter_4,
+  Symbols.counter_5,
+  Symbols.counter_6,
+  Symbols.counter_7,
+  Symbols.counter_8,
+  Symbols.counter_9,
+];
 
 /// Graph categories aligned with the UI page.
 enum GraphType {
@@ -157,6 +171,58 @@ class StatisticsProvider extends ChangeNotifier {
     if (!_disposed) {
       notifyListeners();
     }
+  }
+
+  double get total {
+    return currentStats.values.fold<double>(
+      0,
+      (sum, v) => sum + v.past + v.future,
+    );
+  }
+
+  (double, double) get totalPastFuture {
+    return currentStats.values.fold<(double, double)>(
+      (0, 0),
+      (sum, v) => (sum.$1 + v.past, sum.$2 + v.future),
+    );
+  }
+
+  String totalFormatted(
+    BuildContext context, {
+    bool baseUnit = false,
+    bool splitPastFuture = false,
+  }) {
+    String formatValue(double value) {
+      // Duration is special
+      if (unit == GraphUnit.duration) {
+        if (baseUnit) {
+          return '${formatNumber(context, value)} '
+              '${_durationBase.localizedTimeUnit(context, short: true)}';
+        }
+
+        final seconds = value * _durationBase.secondsPerUnit;
+        return humanizeSeconds(context, seconds);
+      }
+
+      if (baseUnit) {
+        return '${formatNumber(context, value)} ${baseUnitLabel(context)}';
+      }
+
+      final factor = _factorForValue(value);
+      final scaled = factor.apply(value);
+
+      final unitLabel =
+          unitsByFactor(context)?[factor] ?? baseUnitLabel(context);
+
+      return '${formatNumber(context, scaled)} $unitLabel';
+    }
+
+    if (splitPastFuture) {
+      final (past, future) = totalPastFuture;
+      return '${formatValue(past)} + ${formatValue(future)}';
+    }
+
+    return formatValue(total);
   }
 
   // -------------------------------------------------------------------
@@ -425,64 +491,82 @@ class StatisticsProvider extends ChangeNotifier {
   }
 
   /// Build graph images for a given ordered list of keys (so it matches `stats.keys`).
-  List<Widget> graphImagesForKeys(BuildContext context, List<String> keys) {
-    // Use the same logic you already have in the provider for building images.
-    // This version reuses your graphImages() behavior but for a provided key order.
-    List<Widget> forGraph(List<String> data) {
-      // Convert "JP" -> "🇯🇵"
-      String flagEmoji(String code) {
-        String normalize(String c) {
-          final cc = c.trim().toUpperCase();
-          return (cc == 'UK') ? 'GB' : cc;
-        }
-
-        final cc = normalize(code);
-        if (cc.length != 2) return '🏳️';
-        const int base = 0x1F1E6;
-        final int a = cc.codeUnitAt(0);
-        final int b = cc.codeUnitAt(1);
-        if (a < 65 || a > 90 || b < 65 || b > 90) return '🏳️';
-        return String.fromCharCodes([base + (a - 65), base + (b - 65)]);
+  ///
+  /// [otherLabel] — when a key equals this string, renders a vehicle-type icon
+  /// in a coloured square (the "Other" bucket fallback).
+  /// [barColor]   — the colour used for the "Other" square background.
+  List<Widget> graphImagesForKeys(
+    BuildContext context,
+    List<String> keys, {
+    String? otherLabel,
+    Color barColor = Colors.blue,
+  }) {
+    // Convert "JP" -> "🇯🇵"
+    String flagEmoji(String code) {
+      String normalize(String c) {
+        final cc = c.trim().toUpperCase();
+        return (cc == 'UK') ? 'GB' : cc;
       }
-
-      switch (graph) {
-        case GraphType.operator:
-          return List.generate(keys.length, (i) {
-          final name = keys[i];
-          if (name == AppLocalizations.of(context)!.statisticsOtherLabel) {
-            return Text(
-              name,
-              style: const TextStyle(color: Colors.black),
-            );
-          }
-          // Otherwise display operator logo
-          return _trainlog.getOperatorImage(name, maxWidth: 48, maxHeight: 48);
-          // return withOperatorLogoBg(
-          //   context,
-          //   _trainlog.getOperatorImage(name, maxWidth: 48, maxHeight: 48),
-          // );
-        });
-        case GraphType.country:
-          return List.generate(
-            data.length,
-            (i) => Text(
-              flagEmoji(data[i]),
-              style: const TextStyle(fontSize: 18),
-            ),
-          );
-        default:
-          return List.generate(
-            data.length,
-            (i) => Text(
-              _shortLabel(data[i], maxLen: shortLabelSize),
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-          );
-      }
+      final cc = normalize(code);
+      if (cc.length != 2) return '🏳️';
+      const int base = 0x1F1E6;
+      final int a = cc.codeUnitAt(0);
+      final int b = cc.codeUnitAt(1);
+      if (a < 65 || a > 90 || b < 65 || b > 90) return '🏳️';
+      return String.fromCharCodes([base + (a - 65), base + (b - 65)]);
     }
 
-    return forGraph(keys);
+    Widget otherWidget() {
+      return Container(
+        width: 32,
+        height: 32,
+        decoration: BoxDecoration(
+          color: barColor.withValues(alpha: 0.2),
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(color: barColor.withValues(alpha: 0.4), width: 1.5),
+        ),
+        child: Center(
+          child: IconTheme(
+            data: IconThemeData(size: 16, color: barColor),
+            child: _vehicle.icon(),
+          ),
+        ),
+      );
+    }
+
+    switch (graph) {
+      case GraphType.operator:
+        return List.generate(keys.length, (i) {
+          final name = keys[i];
+          if (otherLabel != null && name == otherLabel) return otherWidget();
+          return withOperatorLogoBg(
+            context,
+            _trainlog.getOperatorImage(name, maxWidth: 48, maxHeight: 48)
+          );
+        });
+
+      case GraphType.country:
+        return List.generate(keys.length, (i) {
+          final name = keys[i];
+          if (otherLabel != null && name == otherLabel) return otherWidget();
+          return Text(flagEmoji(name), style: const TextStyle(fontSize: 18));
+        });
+
+      default:
+        return List.generate(keys.length, (i) {
+          final name = keys[i];
+          if (otherLabel != null && name == otherLabel) return otherWidget();
+
+          if (i < _counterSymbols.length) {
+            return Icon(_counterSymbols[i]);
+          }
+          return Text(
+            _shortLabel(name, maxLen: shortLabelSize),
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          );
+        });
+    }
   }
 
   // -------------------------------------------------------------------
@@ -638,6 +722,22 @@ class StatisticsProvider extends ChangeNotifier {
     // Append "Other" last, even if bigger
     out[otherLabel] = (past: otherPast, future: otherFuture);
     return out;
+  }
+
+  UnitFactor _factorForValue(double value) {
+    final abs = value.abs();
+
+    if (abs >= UnitFactor.billion.multiplier) {
+      return UnitFactor.billion;
+    }
+    if (abs >= UnitFactor.million.multiplier) {
+      return UnitFactor.million;
+    }
+    if (abs >= UnitFactor.thousand.multiplier) {
+      return UnitFactor.thousand;
+    }
+
+    return UnitFactor.base;
   }
 }
 

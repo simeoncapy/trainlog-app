@@ -106,6 +106,21 @@ class AppLocalizationsFr extends AppLocalizations {
   String get loginToYourAccount => 'Connectez-vous à votre compte';
 
   @override
+  String get loginWelcomeBack => 'Bon retour';
+
+  @override
+  String get loginSubtitle => 'Enregistrez votre prochain trajet';
+
+  @override
+  String get loginNewHere => 'Nouveau ici ?';
+
+  @override
+  String get changeInstance => 'Changer d\'instance';
+
+  @override
+  String get instanceSelectorLabel => 'Instance';
+
+  @override
   String get errorCreationAccount => 'Erreur lors de la création du compte.';
 
   @override
@@ -316,6 +331,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get settingsMapColorPalette => 'Palette de couleurs des trajets';
 
   @override
+  String get settingsMapColorPaletteTrainlogApp => 'Trainlog App';
+
+  @override
   String get settingsMapColorPaletteTrainlogWeb => 'Trainlog Web';
 
   @override
@@ -335,11 +353,14 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String settingsCache(Object size) {
-    return 'Données en cache ($size Mio)';
+    return '$size Mio';
   }
 
   @override
   String get settingsCacheClearButton => 'Vider';
+
+  @override
+  String get settingsCacheTitle => 'Données en cache';
 
   @override
   String get settingsCacheClearConfirmTitle => 'Vider le cache ?';
@@ -420,7 +441,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get menuRankingTitle => 'Classement';
 
   @override
-  String get menuStatisticsTitle => 'Statistiques';
+  String get menuStatisticsTitle => 'Stat.';
 
   @override
   String get menuDashboardTitle => 'Tableau de bord';
@@ -450,6 +471,42 @@ class AppLocalizationsFr extends AppLocalizations {
   String get menuIosMore => 'Plus';
 
   @override
+  String get menuYouTitle => 'Vous';
+
+  @override
+  String get menuExploreSectionTitle => 'EXPLORER';
+
+  @override
+  String get menuMenuSectionTitle => 'MENU';
+
+  @override
+  String get menuInboxTitle => 'Boîte de réception';
+
+  @override
+  String menuTripCountLabel(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'trajets',
+      one: 'trajet',
+      zero: 'trajet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String menuTripCount(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count trajets',
+      one: '1 trajet',
+      zero: 'Aucun trajet',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get mapFilterYearsAllBtn => 'Toutes';
 
   @override
@@ -464,6 +521,9 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get tripPathLoading =>
       'Trajets en cours de chargement, veuillez patienter';
+
+  @override
+  String get mapLockedOnPosition => 'La carte suit votre position';
 
   @override
   String get yearTitle => 'Années';
@@ -836,6 +896,27 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get statisticsPieWip => 'Le camembert est en cours de construction';
+
+  @override
+  String get statisticsTitle => 'Statistiques';
+
+  @override
+  String get statisticsViewBar => 'Barres';
+
+  @override
+  String get statisticsViewPie => 'Camembert';
+
+  @override
+  String get statisticsViewTable => 'Tableau';
+
+  @override
+  String get statisticsSelectDimension => 'Sélectionner une dimension';
+
+  @override
+  String get statisticsSelectVehicle => 'Sélectionner un véhicule';
+
+  @override
+  String get statisticsSelectUnit => 'Sélectionner une unité';
 
   @override
   String get internationalWaters => 'Eaux internationales';
@@ -1211,5 +1292,25 @@ class AppLocalizationsFr extends AppLocalizations {
       'Êtes-vous un grand voyageur ? Comparez vos voyages avec ceux des autres membres du monde entier.';
 
   @override
+  String get onboardingLocationTitle =>
+      'Activation des services de localisation';
+
+  @override
+  String get onboardingLocationSubtitle =>
+      'Trainlog utilise la position de votre appareil pour centrer la carte sur votre position, ou pour enregistrer votre position lorsque vous utilisez la fonction Géomémo. Ce n\'est pas obligatoire.';
+
+  @override
+  String get onboardingLocationActivate => 'Activer la localisation';
+
+  @override
+  String get onboardingLocationSkip => 'Passer';
+
+  @override
   String get tapAgainToExit => 'Appuyez à nouveau pour quitter';
+
+  @override
+  String get tripsEmptyList => 'Aucun trajet';
+
+  @override
+  String get tripCardDateUndefined => 'Indéfinie';
 }

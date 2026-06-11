@@ -26,8 +26,10 @@ class TripTimeline extends StatelessWidget {
     final operatorName = trip.operatorName;
     final lineName = trip.lineName;
     final distance = "${(trip.tripLength / 1000).round()} km";
-    final duration = trip.utcEndDatetime?.difference(trip.utcStartDatetime ?? trip.startDatetime); // UTC start shouldn't be NULL if UTC end is not NULL, so startDatetime shouldn't be used (placed here to avoid NULL error)
-    final durationStr = formatSecondsToHMS((trip.manualTripDuration ?? duration?.inSeconds ?? trip.estimatedTripDuration).round().toInt());
+    final durationStr = trip.durationFormatted;
+    final realDuration = trip.realDuration;
+    final showRealDuration = realDuration != null &&
+        ((realDuration - trip.duration).inSeconds / 60).round() != 0;
 
     final settings = context.read<SettingsProvider>();
     final palette = MapColorPaletteHelper.getPalette(settings.mapColorPalette);
@@ -155,8 +157,23 @@ class TripTimeline extends StatelessWidget {
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 4),
-                          Text(
-                            '$durationStr - $distance',
+                          Text.rich(
+                            TextSpan(children: [
+                              TextSpan(
+                                text: durationStr,
+                                style: showRealDuration
+                                    ? const TextStyle(decoration: TextDecoration.lineThrough)
+                                    : null,
+                              ),
+                              if (showRealDuration)
+                                TextSpan(
+                                  text: ' (${trip.realDurationFormatted})',
+                                  style: TextStyle(
+                                    color: realDuration! > trip.duration ? Colors.red : Colors.green,
+                                  ),
+                                ),
+                              TextSpan(text: ' - $distance'),
+                            ]),
                             style: TextStyle(color: Theme.of(context).colorScheme.secondary),
                           ),
                         ],
@@ -206,33 +223,4 @@ class TripTimeline extends StatelessWidget {
         width: 10,
         color: color,
   );
-
-  String formatSecondsToHMS(int totalSeconds, {bool withSeconds = false, bool hourEvenIfZero = false}) {
-    int days = totalSeconds ~/ 86400; // 24 * 3600
-    int remainingAfterDays = totalSeconds % 86400;
-
-    int hours = remainingAfterDays ~/ 3600;
-    int remainingSecondsAfterHours = remainingAfterDays % 3600;
-
-    int minutes = remainingSecondsAfterHours ~/ 60;
-    int seconds = remainingSecondsAfterHours % 60;
-
-    String result = "";
-
-    if (days > 0) {
-      result += "$days d ";
-    }
-
-    if (hours != 0 || hourEvenIfZero || days > 0) {
-      result += "${hours.toString().padLeft(2, '0')} h ";
-    }
-
-    result += "${minutes.toString().padLeft(2, '0')} min";
-
-    if (withSeconds) {
-      result += " ${seconds.toString().padLeft(2, '0')} s";
-    }
-
-    return result;
-  }
 }

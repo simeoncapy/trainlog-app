@@ -294,6 +294,36 @@ abstract class AppLocalizations {
   /// **'Log in to your account'**
   String get loginToYourAccount;
 
+  /// No description provided for @loginWelcomeBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome back'**
+  String get loginWelcomeBack;
+
+  /// No description provided for @loginSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Log your next journey'**
+  String get loginSubtitle;
+
+  /// No description provided for @loginNewHere.
+  ///
+  /// In en, this message translates to:
+  /// **'New here?'**
+  String get loginNewHere;
+
+  /// No description provided for @changeInstance.
+  ///
+  /// In en, this message translates to:
+  /// **'Change instance'**
+  String get changeInstance;
+
+  /// No description provided for @instanceSelectorLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Instance'**
+  String get instanceSelectorLabel;
+
   /// No description provided for @errorCreationAccount.
   ///
   /// In en, this message translates to:
@@ -684,6 +714,12 @@ abstract class AppLocalizations {
   /// **'Colour palette for trips'**
   String get settingsMapColorPalette;
 
+  /// No description provided for @settingsMapColorPaletteTrainlogApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Trainlog App'**
+  String get settingsMapColorPaletteTrainlogApp;
+
   /// No description provided for @settingsMapColorPaletteTrainlogWeb.
   ///
   /// In en, this message translates to:
@@ -723,7 +759,7 @@ abstract class AppLocalizations {
   /// Size in mebibytes (MiB)
   ///
   /// In en, this message translates to:
-  /// **'Cached data ({size} MiB)'**
+  /// **'{size} MiB'**
   String settingsCache(Object size);
 
   /// No description provided for @settingsCacheClearButton.
@@ -731,6 +767,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Clear'**
   String get settingsCacheClearButton;
+
+  /// No description provided for @settingsCacheTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cached data'**
+  String get settingsCacheTitle;
 
   /// No description provided for @settingsCacheClearConfirmTitle.
   ///
@@ -924,6 +966,42 @@ abstract class AppLocalizations {
   /// **'More'**
   String get menuIosMore;
 
+  /// No description provided for @menuYouTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You'**
+  String get menuYouTitle;
+
+  /// No description provided for @menuExploreSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'EXPLORE'**
+  String get menuExploreSectionTitle;
+
+  /// No description provided for @menuMenuSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'MENU'**
+  String get menuMenuSectionTitle;
+
+  /// No description provided for @menuInboxTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Inbox'**
+  String get menuInboxTitle;
+
+  /// trips label without the number, used after the number in the menu summary card
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0 {trips} =1 {trip} other {trips}}'**
+  String menuTripCountLabel(num count);
+
+  /// Number of trips shown in the menu summary card
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0 {No trips yet} =1 {1 trip} other {{count} trips}}'**
+  String menuTripCount(num count);
+
   /// No description provided for @mapFilterYearsAllBtn.
   ///
   /// In en, this message translates to:
@@ -953,6 +1031,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Trips\' path loading, please wait'**
   String get tripPathLoading;
+
+  /// No description provided for @mapLockedOnPosition.
+  ///
+  /// In en, this message translates to:
+  /// **'Map following your position'**
+  String get mapLockedOnPosition;
 
   /// No description provided for @yearTitle.
   ///
@@ -1445,6 +1529,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The pie chart is WIP'**
   String get statisticsPieWip;
+
+  /// No description provided for @statisticsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Statistics'**
+  String get statisticsTitle;
+
+  /// No description provided for @statisticsViewBar.
+  ///
+  /// In en, this message translates to:
+  /// **'Bar'**
+  String get statisticsViewBar;
+
+  /// No description provided for @statisticsViewPie.
+  ///
+  /// In en, this message translates to:
+  /// **'Pie'**
+  String get statisticsViewPie;
+
+  /// No description provided for @statisticsViewTable.
+  ///
+  /// In en, this message translates to:
+  /// **'Table'**
+  String get statisticsViewTable;
+
+  /// No description provided for @statisticsSelectDimension.
+  ///
+  /// In en, this message translates to:
+  /// **'Select dimension'**
+  String get statisticsSelectDimension;
+
+  /// No description provided for @statisticsSelectVehicle.
+  ///
+  /// In en, this message translates to:
+  /// **'Select vehicle'**
+  String get statisticsSelectVehicle;
+
+  /// No description provided for @statisticsSelectUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'Select unit'**
+  String get statisticsSelectUnit;
 
   /// No description provided for @internationalWaters.
   ///
@@ -2094,11 +2220,47 @@ abstract class AppLocalizations {
   /// **'Are you a frequent traveller? See how your travels stack up against other members worldwide.'**
   String get onboardingPage4Subtitle;
 
+  /// No description provided for @onboardingLocationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Activation of location services'**
+  String get onboardingLocationTitle;
+
+  /// No description provided for @onboardingLocationSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Trainlog uses the location of your device to centre the map on your position, or to record your position when you use the Geolog function. This is not mandatory.'**
+  String get onboardingLocationSubtitle;
+
+  /// No description provided for @onboardingLocationActivate.
+  ///
+  /// In en, this message translates to:
+  /// **'Activate location'**
+  String get onboardingLocationActivate;
+
+  /// No description provided for @onboardingLocationSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get onboardingLocationSkip;
+
   /// No description provided for @tapAgainToExit.
   ///
   /// In en, this message translates to:
   /// **'Tap again to exit'**
   String get tapAgainToExit;
+
+  /// No description provided for @tripsEmptyList.
+  ///
+  /// In en, this message translates to:
+  /// **'No trips yet'**
+  String get tripsEmptyList;
+
+  /// No description provided for @tripCardDateUndefined.
+  ///
+  /// In en, this message translates to:
+  /// **'Undefined'**
+  String get tripCardDateUndefined;
 }
 
 class _AppLocalizationsDelegate

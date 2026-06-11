@@ -106,6 +106,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginToYourAccount => 'Log in to your account';
 
   @override
+  String get loginWelcomeBack => 'Welcome back';
+
+  @override
+  String get loginSubtitle => 'Log your next journey';
+
+  @override
+  String get loginNewHere => 'New here?';
+
+  @override
+  String get changeInstance => 'Change instance';
+
+  @override
+  String get instanceSelectorLabel => 'Instance';
+
+  @override
   String get errorCreationAccount => 'Error while creating account.';
 
   @override
@@ -314,6 +329,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsMapColorPalette => 'Colour palette for trips';
 
   @override
+  String get settingsMapColorPaletteTrainlogApp => 'Trainlog App';
+
+  @override
   String get settingsMapColorPaletteTrainlogWeb => 'Trainlog Web';
 
   @override
@@ -334,11 +352,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String settingsCache(Object size) {
-    return 'Cached data ($size MiB)';
+    return '$size MiB';
   }
 
   @override
   String get settingsCacheClearButton => 'Clear';
+
+  @override
+  String get settingsCacheTitle => 'Cached data';
 
   @override
   String get settingsCacheClearConfirmTitle => 'Clear cache?';
@@ -444,6 +465,42 @@ class AppLocalizationsEn extends AppLocalizations {
   String get menuIosMore => 'More';
 
   @override
+  String get menuYouTitle => 'You';
+
+  @override
+  String get menuExploreSectionTitle => 'EXPLORE';
+
+  @override
+  String get menuMenuSectionTitle => 'MENU';
+
+  @override
+  String get menuInboxTitle => 'Inbox';
+
+  @override
+  String menuTripCountLabel(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'trips',
+      one: 'trip',
+      zero: 'trips',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String menuTripCount(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count trips',
+      one: '1 trip',
+      zero: 'No trips yet',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get mapFilterYearsAllBtn => 'All';
 
   @override
@@ -457,6 +514,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tripPathLoading => 'Trips\' path loading, please wait';
+
+  @override
+  String get mapLockedOnPosition => 'Map following your position';
 
   @override
   String get yearTitle => 'Years';
@@ -831,6 +891,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get statisticsPieWip => 'The pie chart is WIP';
 
   @override
+  String get statisticsTitle => 'Statistics';
+
+  @override
+  String get statisticsViewBar => 'Bar';
+
+  @override
+  String get statisticsViewPie => 'Pie';
+
+  @override
+  String get statisticsViewTable => 'Table';
+
+  @override
+  String get statisticsSelectDimension => 'Select dimension';
+
+  @override
+  String get statisticsSelectVehicle => 'Select vehicle';
+
+  @override
+  String get statisticsSelectUnit => 'Select unit';
+
+  @override
   String get internationalWaters => 'International waters';
 
   @override
@@ -1203,5 +1284,24 @@ class AppLocalizationsEn extends AppLocalizations {
       'Are you a frequent traveller? See how your travels stack up against other members worldwide.';
 
   @override
+  String get onboardingLocationTitle => 'Activation of location services';
+
+  @override
+  String get onboardingLocationSubtitle =>
+      'Trainlog uses the location of your device to centre the map on your position, or to record your position when you use the Geolog function. This is not mandatory.';
+
+  @override
+  String get onboardingLocationActivate => 'Activate location';
+
+  @override
+  String get onboardingLocationSkip => 'Skip';
+
+  @override
   String get tapAgainToExit => 'Tap again to exit';
+
+  @override
+  String get tripsEmptyList => 'No trips yet';
+
+  @override
+  String get tripCardDateUndefined => 'Undefined';
 }

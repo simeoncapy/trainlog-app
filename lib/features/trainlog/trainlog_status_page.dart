@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
-import 'package:trainlog_app/utils/platform_utils.dart';
 
 class TrainlogStatusPage extends StatelessWidget {
   const TrainlogStatusPage({super.key});
@@ -8,26 +7,9 @@ class TrainlogStatusPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context)!;
-
-    if(AppPlatform.isApple) {
-      return _bodyHelper();
-    }
-
-    return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(loc.trainglogStatusPageTitle),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
-        ),
-        body: _bodyHelper(),
-      ),
-    );
+    // The surrounding app bar (and back button) is provided by the shell, the
+    // same way it is for the other pages — see material/cupertino shell.
+    return _bodyHelper();
   }
 
   Padding _bodyHelper() {
@@ -36,7 +18,8 @@ class TrainlogStatusPage extends StatelessWidget {
         child: Column(
           children: [              
             Expanded(
-              child: Text("status"),
+              child: Text("I hope it's working well, because this page is really just a placeholder for Trainlog's router status. Stay tuned! 😊",
+              ),
             ),
           ],
         ),

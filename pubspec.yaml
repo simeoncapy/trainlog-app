@@ -1,7 +1,7 @@
 name: trainlog_app
 description: "Your online travel diary"
 publish_to: 'none'
-version: 0.1.8+14
+version: 0.2.0+15
 
 environment:
   sdk: ^3.8.0
@@ -60,6 +60,7 @@ dependencies:
   firebase_core: ^4.8.0
   firebase_crashlytics: ^5.2.1
   firebase_analytics: ^12.4.0
+  google_fonts: ^6.2.1
 
 dev_dependencies:
   flutter_test:

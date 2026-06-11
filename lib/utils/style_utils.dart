@@ -1,23 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:trainlog_app/app/app_globals.dart';
+import 'package:trainlog_app/app/theme/app_theme.dart';
 
-ButtonStyle buttonStyleHelper(Color background, Color foreground)
-  {
-      return ButtonStyle(
-        backgroundColor: WidgetStateProperty.resolveWith<Color?>((states) {
-          if (states.contains(WidgetState.disabled)) {
-            return background.withValues(alpha: 0.3);
-          }
-          return background;
-        }),
-        foregroundColor: WidgetStateProperty.resolveWith<Color?>((states) {
-          if (states.contains(WidgetState.disabled)) {
-            return foreground.withValues(alpha: 0.5);
-          }
-          return foreground;
-        }),
-      );
-  }
+ButtonStyle buttonStyleHelper(Color background, Color foreground) {
+  return ButtonStyle(
+    backgroundColor: WidgetStateProperty.resolveWith<Color?>((states) {
+      if (states.contains(WidgetState.disabled)) {
+        return background.withValues(alpha: 0.3);
+      }
+      return background;
+    }),
+    foregroundColor: WidgetStateProperty.resolveWith<Color?>((states) {
+      if (states.contains(WidgetState.disabled)) {
+        return foreground.withValues(alpha: 0.5);
+      }
+      return foreground;
+    }),
+  );
+}
 
 /// Wraps [child] with the light-theme surface colour and rounded corners when
 /// in dark mode. Use this around operator logos so they remain legible on dark
@@ -32,7 +31,7 @@ Widget withOperatorLogoBg(
   if (!isDark) return child;
   return Container(
     decoration: BoxDecoration(
-      color: kLightThemeSurface,
+      color: AppTheme.operatorLogoBg,
       borderRadius: BorderRadius.circular(radius),
     ),
     padding: padding,

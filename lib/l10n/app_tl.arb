@@ -32,6 +32,11 @@
   "createAccountButtonShort": "Gumawa",
   "createAccountPrivacyPolicy": "Sa pag sign up, sumasang-ayon ka sa aming Privacy Policy.",
   "loginToYourAccount": "Mag login sa account ",
+  "loginWelcomeBack": "Maligayang pagbabalik",
+  "loginSubtitle": "I-log ang iyong susunod na biyahe",
+  "loginNewHere": "Bago dito?",
+  "changeInstance": "Baguhin ang instance",
+  "instanceSelectorLabel": "Instance",
   "errorCreationAccount": "May mali sa pag gawa ng account.",
   "menuHello": "Kamusta {username}",
   "@menuHello": {
@@ -111,7 +116,8 @@
   "settingsMapColorPaletteTrainlogGreen": "Berde",
   "settingsMapColorPaletteTrainlogBlue": "Asul",
   "settingsMapColorPaletteVibrantTones": "Matingkad na kulay",
-  "settingsCache": "Cached data ({size} MiB)",
+  "settingsCacheTitle": "Naka-cache na data",
+  "settingsCache": "{size} MiB",
   "@settingsCache": {
     "description": "Size in mebibytes (MiB)",
     "placeholders": {
@@ -158,11 +164,24 @@
   "menuSettingsTitle": "Settings",
   "menuAboutTitle": "Tungkol sa app",
   "menuIosMore": "More",
+  "menuYouTitle": "Ikaw",
+  "menuExploreSectionTitle": "TUKLASIN",
+  "menuMenuSectionTitle": "MENU",
+  "menuInboxTitle": "Inbox",
+  "menuTripCountLabel": "{count, plural, other {biyahe}}",
+  "menuTripCount": "{count, plural, =0 {Walang biyahe} =1 {1 biyahe} other {{count} biyahe}}",
+  "@menuTripCount": {
+    "description": "Bilang ng biyahe na ipinapakita sa menu summary card",
+    "placeholders": {
+      "count": {}
+    }
+  },
   "mapFilterYearsAllBtn": "Lahat",
   "mapFilterYearsNoneBtn": "Wala",
   "mapFilterVehicleTypeAllBtn": "Lahat",
   "mapFilterVehicleTypeNoneBtn": "Wala",
   "tripPathLoading": "Ang byahe mo ay nag loload, mag hintay ng saglit",
+  "mapLockedOnPosition": "Sinusundan ng mapa ang iyong posisyon",
   "yearTitle": "Taon",
   "yearAllList": "Lahat",
   "yearPastList": "Nakaraan",
@@ -308,6 +327,13 @@
   "statisticsUnitLabel": "Unit:",
   "statisticsNoDataLabel": "Walang data",
   "statisticsPieWip": "Ang pie chart ay WIP",
+  "statisticsTitle": "Statistics",
+  "statisticsViewBar": "Bar",
+  "statisticsViewPie": "Pie",
+  "statisticsViewTable": "Table",
+  "statisticsSelectDimension": "Pumili ng dimensyon",
+  "statisticsSelectVehicle": "Pumili ng sasakyan",
+  "statisticsSelectUnit": "Pumili ng yunit",
   "internationalWaters": "Tubig international",
   "addTripPageTitle": "Magdagdag ng byahe",
   "addTripStepBasics": "Basics",
@@ -517,6 +543,12 @@
   "onboardingPage3Subtitle": "Gumawa ng mga link na maaaring ibahagi para sa iyong mga biyahe upang ibahagi ang iyong mga plano sa paglalakbay sa sinuman.",
   "onboardingPage4Title": "Mga Leaderboard",
   "onboardingPage4Subtitle": "Ikaw ba ay madalas maglakbay? Tingnan kung paano ang iyong mga paglalakbay kumpara sa ibang mga miyembro sa buong mundo.",
+  "onboardingLocationTitle": "Pag-activate ng mga serbisyo ng lokasyon",
+  "onboardingLocationSubtitle": "Ginamit ng Trainlog ang lokasyon ng iyong device upang i-center ang mapa sa iyong posisyon, o upang i-record ang iyong posisyon kapag ginamit mo ang function na Geolog. Ito ay hindi sapilitan.",
+  "onboardingLocationActivate": "I-activate ang lokasyon",
+  "onboardingLocationSkip": "Laktawan",
 
-  "tapAgainToExit": "I-tap muli para lumabas"
+  "tapAgainToExit": "I-tap muli para lumabas",
+  "tripsEmptyList": "Wala pang biyahe",
+  "tripCardDateUndefined": "Hindi natukoy"
 }

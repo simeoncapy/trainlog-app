@@ -32,6 +32,11 @@
   "createAccountButtonShort": "Créer",
   "createAccountPrivacyPolicy": "En vous inscrivant, vous acceptez notre Politique de confidentialité.",
   "loginToYourAccount": "Connectez-vous à votre compte",
+  "loginWelcomeBack": "Bon retour",
+  "loginSubtitle": "Enregistrez votre prochain trajet",
+  "loginNewHere": "Nouveau ici ?",
+  "changeInstance": "Changer d'instance",
+  "instanceSelectorLabel": "Instance",
   "errorCreationAccount": "Erreur lors de la création du compte.",
   "menuHello": "Bonjour {username}",
   "connectionError": "Echec de la connexion, vérifiez vos identifiants",
@@ -97,13 +102,15 @@
   "settingMapPathDisplayOrderByTrip": "Par date du trajet",
   "settingMapPathDisplayOrderByTripAndPlane": "Par date du trajet (avec les vols au-dessus)",
   "settingsMapColorPalette": "Palette de couleurs des trajets",
+  "settingsMapColorPaletteTrainlogApp": "Trainlog App",
   "settingsMapColorPaletteTrainlogWeb": "Trainlog Web",
   "settingsMapColorPaletteColourBlind": "Palette pour daltonien",
   "settingsMapColorPaletteTrainlogRed": "Rouge",
   "settingsMapColorPaletteTrainlogGreen": "Vert",
   "settingsMapColorPaletteTrainlogBlue": "Bleu",
   "settingsMapColorPaletteVibrantTones": "Couleurs vives",
-  "settingsCache": "Données en cache ({size} Mio)",
+  "settingsCacheTitle": "Données en cache",
+  "settingsCache": "{size} Mio",
   "settingsCacheClearButton" : "Vider",
   "settingsCacheClearConfirmTitle": "Vider le cache ?",
   "settingsCacheClearConfirmMessage": "Êtes-vous sûr de vouloir supprimer les données en cache ? Cette action est irréversible. Le prochain chargement de l'application pourra être plus long.",
@@ -128,7 +135,7 @@
   "menuMapTitle": "Carte",
   "menuTripsTitle": "Trajets",
   "menuRankingTitle": "Classement",
-  "menuStatisticsTitle": "Statistiques",
+  "menuStatisticsTitle": "Stat.",
   "menuDashboardTitle": "Tableau de bord",
   "menuCoverageTitle": "Couverture",
   "menuTagsTitle": "Tags",    
@@ -138,6 +145,18 @@
   "menuSettingsTitle": "Paramètres",
   "menuAboutTitle": "À propos",
   "menuIosMore": "Plus",
+  "menuYouTitle": "Vous",
+  "menuExploreSectionTitle": "EXPLORER",
+  "menuMenuSectionTitle": "MENU",
+  "menuInboxTitle": "Boîte de réception",
+  "menuTripCountLabel": "{count, plural, =0 {trajet} =1 {trajet} other {trajets}}",
+  "menuTripCount": "{count, plural, =0 {Aucun trajet} =1 {1 trajet} other {{count} trajets}}",
+  "@menuTripCount": {
+    "description": "Nombre de trajets affiché dans la carte résumée du menu",
+    "placeholders": {
+      "count": {}
+    }
+  },
 
   "mapFilterYearsAllBtn": "Toutes",
   "mapFilterYearsNoneBtn": "Aucune",
@@ -145,6 +164,7 @@
   "mapFilterVehicleTypeNoneBtn": "Aucun",
 
   "tripPathLoading": "Trajets en cours de chargement, veuillez patienter",
+  "mapLockedOnPosition": "La carte suit votre position",
   "yearTitle": "Années",
   "yearAllList": "Tout",
   "yearPastList": "Passé",
@@ -234,6 +254,13 @@
   "statisticsUnitLabel": "Unités :",
   "statisticsNoDataLabel": "Pas de données",
   "statisticsPieWip": "Le camembert est en cours de construction",
+  "statisticsTitle": "Statistiques",
+  "statisticsViewBar": "Barres",
+  "statisticsViewPie": "Camembert",
+  "statisticsViewTable": "Tableau",
+  "statisticsSelectDimension": "Sélectionner une dimension",
+  "statisticsSelectVehicle": "Sélectionner un véhicule",
+  "statisticsSelectUnit": "Sélectionner une unité",
   "internationalWaters": "Eaux internationales",
 
   "addTripPageTitle": "Ajouter un trajet",
@@ -350,6 +377,12 @@
   "onboardingPage3Subtitle": "Créez des liens partageables pour vos trajets et communiquez vos projets de voyage à qui vous voulez.",
   "onboardingPage4Title": "Classements",
   "onboardingPage4Subtitle": "Êtes-vous un grand voyageur ? Comparez vos voyages avec ceux des autres membres du monde entier.",
+  "onboardingLocationTitle": "Activation des services de localisation",
+  "onboardingLocationSubtitle": "Trainlog utilise la position de votre appareil pour centrer la carte sur votre position, ou pour enregistrer votre position lorsque vous utilisez la fonction Géomémo. Ce n'est pas obligatoire.",
+  "onboardingLocationActivate": "Activer la localisation",
+  "onboardingLocationSkip": "Passer",
 
-  "tapAgainToExit": "Appuyez à nouveau pour quitter"
+  "tapAgainToExit": "Appuyez à nouveau pour quitter",
+  "tripsEmptyList": "Aucun trajet",
+  "tripCardDateUndefined": "Indéfinie"
 }
