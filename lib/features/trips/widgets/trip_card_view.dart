@@ -492,10 +492,11 @@ class _MetaRow extends StatelessWidget {
         : date_utils.formatDateRange(
             context, trip.startDatetime, trip.endDatetime);
 
-    final duration = trip.utcEndDatetime?.difference(trip.utcStartDatetime ?? trip.startDatetime); // UTC start shouldn't be NULL if UTC end is not NULL, so startDatetime shouldn't be used (placed here to avoid NULL error)
-    final durationStr = date_utils.formatSecondsToHMS(
-        (trip.manualTripDuration ?? duration?.inSeconds ?? trip.estimatedTripDuration).round().toInt()
-    );
+    final durationStr = trip.durationFormatted;
+    final realDuration = trip.realDuration;
+    final realDeltaMinutes = realDuration == null
+        ? 0
+        : ((realDuration - trip.duration).inSeconds / 60).round();
 
     return Row(
       children: [
@@ -509,6 +510,13 @@ class _MetaRow extends StatelessWidget {
           Icon(Icons.schedule_outlined, size: 13, color: iconColor),
           const SizedBox(width: 4),
           Text(durationStr, style: metaStyle),
+          if (realDeltaMinutes != 0)
+            Text(
+              ' (${realDeltaMinutes > 0 ? '+' : ''}$realDeltaMinutes)',
+              style: metaStyle?.copyWith(
+                color: realDeltaMinutes > 0 ? Colors.red : Colors.green,
+              ),
+            ),
           const SizedBox(width: 12),
           Icon(Icons.calendar_today_outlined, size: 13, color: iconColor),
           const SizedBox(width: 4),

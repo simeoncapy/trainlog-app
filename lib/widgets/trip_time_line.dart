@@ -4,7 +4,6 @@ import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
-import 'package:trainlog_app/utils/date_utils.dart' as date_utils;
 import 'package:trainlog_app/utils/map_color_palette.dart';
 import 'package:trainlog_app/utils/style_utils.dart';
 
@@ -27,8 +26,7 @@ class TripTimeline extends StatelessWidget {
     final operatorName = trip.operatorName;
     final lineName = trip.lineName;
     final distance = "${(trip.tripLength / 1000).round()} km";
-    final duration = trip.utcEndDatetime?.difference(trip.utcStartDatetime ?? trip.startDatetime); // UTC start shouldn't be NULL if UTC end is not NULL, so startDatetime shouldn't be used (placed here to avoid NULL error)
-    final durationStr = date_utils.formatSecondsToHMS((trip.manualTripDuration ?? duration?.inSeconds ?? trip.estimatedTripDuration).round().toInt());
+    final durationStr = trip.durationFormatted;
 
     final settings = context.read<SettingsProvider>();
     final palette = MapColorPaletteHelper.getPalette(settings.mapColorPalette);
