@@ -27,6 +27,9 @@ class TripTimeline extends StatelessWidget {
     final lineName = trip.lineName;
     final distance = "${(trip.tripLength / 1000).round()} km";
     final durationStr = trip.durationFormatted;
+    final realDuration = trip.realDuration;
+    final showRealDuration = realDuration != null &&
+        ((realDuration - trip.duration).inSeconds / 60).round() != 0;
 
     final settings = context.read<SettingsProvider>();
     final palette = MapColorPaletteHelper.getPalette(settings.mapColorPalette);
@@ -154,8 +157,23 @@ class TripTimeline extends StatelessWidget {
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 4),
-                          Text(
-                            '$durationStr - $distance',
+                          Text.rich(
+                            TextSpan(children: [
+                              TextSpan(
+                                text: durationStr,
+                                style: showRealDuration
+                                    ? const TextStyle(decoration: TextDecoration.lineThrough)
+                                    : null,
+                              ),
+                              if (showRealDuration)
+                                TextSpan(
+                                  text: ' (${trip.realDurationFormatted})',
+                                  style: TextStyle(
+                                    color: realDuration! > trip.duration ? Colors.red : Colors.green,
+                                  ),
+                                ),
+                              TextSpan(text: ' - $distance'),
+                            ]),
                             style: TextStyle(color: Theme.of(context).colorScheme.secondary),
                           ),
                         ],
