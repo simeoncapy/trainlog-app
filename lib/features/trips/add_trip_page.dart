@@ -7,12 +7,12 @@ import 'package:trainlog_app/data/controllers/trainlog_web_controller.dart';
 import 'package:trainlog_app/data/models/polyline_entry.dart';
 import 'package:trainlog_app/data/models/trip_form_model.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
-import 'package:trainlog_app/features/spr/smart_prerecorder_page.dart';
 import 'package:trainlog_app/features/trips/trip_form_basics.dart';
 import 'package:trainlog_app/features/trips/trip_form_date.dart';
 import 'package:trainlog_app/features/trips/trip_form_details.dart';
 import 'package:trainlog_app/features/trips/trip_form_path.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
+import 'package:trainlog_app/services/pre_record_service.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
@@ -170,7 +170,7 @@ class _AddTripPageState extends State<AddTripPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(loc.addTripFinishFeedbackWarning)),
       );
-      if(widget.preRecorderIdsToDelete != null) await SmartPrerecorderPage.deleteSelection(widget.preRecorderIdsToDelete!);
+      if(widget.preRecorderIdsToDelete != null) await const PreRecordService().deleteByIds(widget.preRecorderIdsToDelete!);
       setState(() {
         _isSubmitting = false;
       });
@@ -215,8 +215,8 @@ class _AddTripPageState extends State<AddTripPage> {
       SnackBar(content: Text(loc.addTripFinishMsg)),
     );
 
-    if(widget.preRecorderIdsToDelete != null) await SmartPrerecorderPage.deleteSelection(widget.preRecorderIdsToDelete!);
-    
+    if(widget.preRecorderIdsToDelete != null) await const PreRecordService().deleteByIds(widget.preRecorderIdsToDelete!);
+
     if(!context.mounted) return;
     if(continueTrip) {      
       Navigator.of(context).pushReplacement(PageRouteBuilder(

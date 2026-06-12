@@ -1,631 +1,182 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:lat_lng_to_timezone/lat_lng_to_timezone.dart' as tzmap;
 import 'package:provider/provider.dart';
-import 'package:trainlog_app/data/models/pre_record_model.dart';
-import 'package:trainlog_app/data/models/trip_form_model.dart';
 import 'package:trainlog_app/data/models/trips.dart';
-import 'dart:convert';
-import 'dart:io';
+import 'package:trainlog_app/features/spr/widgets/pre_record_tile.dart';
+import 'package:trainlog_app/features/spr/widgets/spr_button_bar.dart';
+import 'package:trainlog_app/features/spr/widgets/spr_dialogs.dart';
+import 'package:trainlog_app/features/trips/add_trip_page.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/navigation/nav_models.dart';
-import 'package:trainlog_app/features/trips/add_trip_page.dart';
-import 'package:trainlog_app/app/theme/app_theme.dart';
-import 'package:trainlog_app/platform/adaptive_button.dart';
 import 'package:trainlog_app/platform/adaptive_dialog.dart';
 import 'package:trainlog_app/platform/adaptive_expansion_title.dart';
 import 'package:trainlog_app/platform/adaptive_information_message.dart';
-import 'package:trainlog_app/platform/adaptive_record_tile.dart';
-import 'package:trainlog_app/platform/widget/adaptive_app_bar_square_button.dart';
+import 'package:trainlog_app/providers/pre_record_provider.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/services/geo_permission_service.dart';
-import 'package:trainlog_app/utils/date_utils.dart';
-import 'package:trainlog_app/utils/location_utils.dart';
-import 'package:trainlog_app/utils/map_color_palette.dart';
-import 'package:trainlog_app/utils/number_formatter.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
-import 'package:trainlog_app/utils/cached_data_utils.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:trainlog_app/widgets/error_banner.dart';
-import 'package:trainlog_app/widgets/shimmer_box.dart';
+
+/// Smart Prerecorder: record timestamped locations on the go, then turn a
+/// departure/arrival pair into a trip.
+///
+/// State and business logic live in [PreRecordProvider] (scoped to this
+/// page); persistence in PreRecordService. This widget only orchestrates
+/// the UI: list, action bar, dialogs and user feedback.
+class SmartPrerecorderPage extends StatelessWidget {
+  final SetPrimaryActions onPrimaryActionsReady;
+  const SmartPrerecorderPage({super.key, required this.onPrimaryActionsReady});
+
+  @override
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (_) => PreRecordProvider()..loadRecords(),
+      child: _SmartPrerecorderView(onPrimaryActionsReady: onPrimaryActionsReady),
+    );
+  }
+}
 
 class _TripSelectionUiState {
   final bool isValidSelection;
-  final String? errorMessage;
   final List<Widget> errorBanner;
   final VoidCallback? createTripCaller;
 
   const _TripSelectionUiState({
     required this.isValidSelection,
-    required this.errorMessage,
     required this.errorBanner,
     required this.createTripCaller,
   });
 }
 
-class SmartPrerecorderPage extends StatefulWidget {
+class _SmartPrerecorderView extends StatefulWidget {
   final SetPrimaryActions onPrimaryActionsReady;
-  const SmartPrerecorderPage({super.key, required this.onPrimaryActionsReady});
+  const _SmartPrerecorderView({required this.onPrimaryActionsReady});
 
   @override
-  State<SmartPrerecorderPage> createState() => _SmartPrerecorderPageState();
-
-  static Future<void> deleteSelection(
-    List<int> preRecorderIdsToDelete,
-  ) async {
-    final file = File(AppCacheFilePath.preRecord);
-
-    // Return if missing
-    if (!await file.exists()) {
-      return;
-    }
-
-    final content = await file.readAsString();
-    if (content.trim().isEmpty) {
-      return;
-    }
-
-    final List decoded = jsonDecode(content);
-
-    final records = decoded
-        .map((e) => PreRecordModel.fromJson(e))
-        .toList();
-
-    records.removeWhere(
-      (r) => preRecorderIdsToDelete.contains(r.id),
-    );
-
-    await file.writeAsString(
-      jsonEncode(records.map((e) => e.toJson()).toList()),
-      flush: true,
-    );
-  }
+  State<_SmartPrerecorderView> createState() => _SmartPrerecorderViewState();
 }
 
-class _SmartPrerecorderPageState extends State<SmartPrerecorderPage> {
+class _SmartPrerecorderViewState extends State<_SmartPrerecorderView> {
   final GeoPermissionService _geo = const GeoPermissionService();
-  List<PreRecordModel> _records = [];
-  final List<int> _selectedIds = [];
-  bool _ascending = false; // default: newest first
-  IconData get sortIcon => _ascending ? AdaptiveIcons.sortAscending : AdaptiveIcons.sortDescending;
-  String sortTooltip(AppLocalizations loc) => _ascending ? loc.ascendingOrder : loc.descendingOrder;
-  String deleteButtonLabel(AppLocalizations loc, {bool short = false}) {
-    if (_selectedIds.isNotEmpty) {
+
+  PreRecordProvider get _prerecords => context.read<PreRecordProvider>();
+
+  IconData _sortIcon(PreRecordProvider prerecords) => prerecords.ascending
+      ? AdaptiveIcons.sortAscending
+      : AdaptiveIcons.sortDescending;
+
+  String _sortTooltip(PreRecordProvider prerecords, AppLocalizations loc) =>
+      prerecords.ascending ? loc.ascendingOrder : loc.descendingOrder;
+
+  String _deleteButtonLabel(
+    PreRecordProvider prerecords,
+    AppLocalizations loc, {
+    bool short = false,
+  }) {
+    if (prerecords.hasSelection) {
       return short ? loc.deleteSelectionShort : loc.deleteSelection;
     }
-    else {
-      return short ? loc.deleteAllShort : loc.deleteAll;
-    }    
+    return short ? loc.deleteAllShort : loc.deleteAll;
   }
 
   @override
-  void initState() {
-    super.initState();
-    _loadPreRecords();
-  }
+  Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final prerecords = context.watch<PreRecordProvider>();
 
-  Future<void> _loadPreRecords() async {
-    final file = File(AppCacheFilePath.preRecord);
-
-    // Create file if missing
-    if (!await file.exists()) {
-      await file.create(recursive: true);
-      await file.writeAsString(jsonEncode([]));
-    }
-
-    final content = await file.readAsString();
-    if (content.trim().isEmpty) {
-      setState(() => _records = []);
-      return;
-    }
-
-    final List decoded = jsonDecode(content);
-    setState(() {
-      _records = decoded
-          .map((e) => PreRecordModel.fromJson(e))
-          .toList();
-      _records.removeWhere( // remove incomplete records
-        (r) => r.loaded == false,
-      );
-      _sortRecords();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      widget.onPrimaryActionsReady(_buildPrimaryAction(context));
     });
-  }
 
-  void _sortRecords() {
-    _records.sort((a, b) =>
-        _ascending
-            ? a.dateTimeUtc.compareTo(b.dateTimeUtc)
-            : b.dateTimeUtc.compareTo(a.dateTimeUtc));
-  }
+    final records = prerecords.records;
 
-  Future<Position> _getCurrentPosition(AppLocalizations loc) async {
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      throw Exception(loc.locationServicesDisabled);
-    }
-
-    return Geolocator.getCurrentPosition(
-      locationSettings: platformLocationSettings()
-    );
-  }
-
-  Future<void> _saveAll() async {
-    final file = File(AppCacheFilePath.preRecord);
-    await file.writeAsString(
-      jsonEncode(_records.map((e) => e.toJson()).toList()),
-      flush: true,
-    );
-  }
-
-  Widget? _selectionTrailing(
-    int recordId,
-    AppLocalizations loc,
-    ThemeData theme,
-  ) {
-    final index = _selectedIds.indexOf(recordId);
-    if (index == -1) return null;
-
-    if (index == 0) {
-      return Text(
-        loc.departureSingleCharacter,
-        style: TextStyle(
-          fontSize: 28,
-          fontWeight: FontWeight.bold,
-          color: Colors.green,
-        ),
-      );
-    }
-
-    if (index == 1) {
-      return Text(
-        loc.arrivalSingleCharacter,
-        style: TextStyle(
-          fontSize: 28,
-          fontWeight: FontWeight.bold,
-          color: Colors.red,
-        ),
-      );
-    }
-
-    return null;
-  }
-
-  Future<void> _deleteRecords({
-    required bool deleteSelection,
-  }) async {
-    final file = File(AppCacheFilePath.preRecord);
-
-    if (deleteSelection) {
-      _records.removeWhere(
-        (r) => _selectedIds.contains(r.id),
-      );
-    } else {
-      _records.clear();
-    }
-
-    _selectedIds.clear();
-
-    await file.writeAsString(
-      jsonEncode(_records.map((e) => e.toJson()).toList()),
-      flush: true,
-    );
-  }
-
-  Future<VehicleType?> _showRailDisambiguationDialog(BuildContext context) async {
-    final loc = AppLocalizations.of(context)!;
-
-    return AdaptiveDialog.showCustom<VehicleType>(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) {
-        final theme = Theme.of(ctx);
-        return Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                loc.prerecorderSelectRailType, // new l10n key
-                style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 16),
-              for (final type in [VehicleType.train, VehicleType.metro, VehicleType.rail])
-                ListTile(
-                  leading: type.icon(),
-                  title: Text(type.label(context)),
-                  onTap: () => AdaptiveDialog.pop(ctx, type),
-                ),
-              const SizedBox(height: 8),
-              SizedBox(
-                width: double.infinity,
-                child: AdaptiveButton.build(
-                  context: ctx,
-                  type: AdaptiveButtonType.secondary,
-                  onPressed: () => AdaptiveDialog.pop(ctx, null),
-                  label: Text(MaterialLocalizations.of(ctx).cancelButtonLabel),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Future<VehicleType?> _showVehicleTypePickerDialog(BuildContext context) async {
-    final loc = AppLocalizations.of(context)!;
-    VehicleType? selected;
-
-    return AdaptiveDialog.showCustom<VehicleType>(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) {
-        final theme = Theme.of(ctx);
-        return StatefulBuilder(
-          builder: (ctx, setDialogState) => Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  loc.prerecorderSelectVehicleType,
-                  style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 16),
-                DropdownButtonFormField<VehicleType>(
-                  decoration: InputDecoration(
-                    labelText: loc.addTripTransportationMode,
-                    border: const OutlineInputBorder(),
-                  ),
-                  initialValue: selected,
-                  items: VehicleType.values
-                      .where((v) => v != VehicleType.unknown && v != VehicleType.poi)
-                      .map(
-                        (type) => DropdownMenuItem(
-                          value: type,
-                          child: Row(
-                            children: [
-                              type.icon(),
-                              const SizedBox(width: 8),
-                              Text(type.label(context)),
-                            ],
-                          ),
-                        ),
-                      )
-                      .toList(),
-                  onChanged: (v) => setDialogState(() => selected = v),
-                ),
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  child: AdaptiveButton.build(
-                    context: ctx,
-                    type: AdaptiveButtonType.primary,
-                    onPressed: selected != null
-                        ? () => AdaptiveDialog.pop(ctx, selected)
-                        : null,
-                    label: Text(MaterialLocalizations.of(ctx).okButtonLabel),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                SizedBox(
-                  width: double.infinity,
-                  child: AdaptiveButton.build(
-                    context: ctx,
-                    type: AdaptiveButtonType.secondary,
-                    onPressed: () => AdaptiveDialog.pop(ctx, null),
-                    label: Text(MaterialLocalizations.of(ctx).cancelButtonLabel),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-  
-  Future<TripFormModel?> _createTripFormModel() async {
-    final model = TripFormModel();
-    final departurePrerecord = _records.firstWhere((r) => r.id == _selectedIds[0]);
-    final arrivalPrerecord   = _records.firstWhere((r) => r.id == _selectedIds[1]);
-
-    const railGroup = {VehicleType.train, VehicleType.metro, VehicleType.rail};
-
-    final depType = departurePrerecord.type;
-    final arrType = arrivalPrerecord.type;
-    final depKnown = depType != VehicleType.unknown;
-    final arrKnown = arrType != VehicleType.unknown;
-
-    VehicleType? resolvedType;
-
-    if (!depKnown && !arrKnown) {
-      // Both unknown → full picker
-      if (!mounted) return null;
-      resolvedType = await _showVehicleTypePickerDialog(context);
-    } else {
-      // At least one is known — pick the known one (or either if both known & equal)
-      final knownType = depKnown ? depType : arrType;
-
-      if (railGroup.contains(knownType)) {
-        // Rail family → let user disambiguate
-        if (!mounted) return null;
-        resolvedType = await _showRailDisambiguationDialog(context);
-      } else {
-        resolvedType = knownType;
-      }
-    }
-
-    if (resolvedType == null) return null; // user dismissed
-
-    model.vehicleType = resolvedType;
-
-    String departureTimezone = tzmap.latLngToTimezoneString(departurePrerecord.lat!, departurePrerecord.long!);
-    DateTime departureDateOnly = DateTime(
-      departurePrerecord.dateTime.year,
-      departurePrerecord.dateTime.month,
-      departurePrerecord.dateTime.day,
-    );
-    TimeOfDay departureTimeOnly = TimeOfDay.fromDateTime(departurePrerecord.dateTime);
-
-    // Departure
-    model.setDepartureDateTime(departureDateOnly, departureTimeOnly, departureTimezone);
-    model.departureLat = departurePrerecord.lat;
-    model.departureLong = departurePrerecord.long;  
-    if (departurePrerecord.stationName?.trim().isEmpty ?? true) {  // geo mode
-      model.departureGeoMode = true;
-    }
-    else { // name mode
-      model.departureStationName = departurePrerecord.stationName;
-      model.departureAddress = departurePrerecord.address;
-      model.departureGeoMode = false;
-    }
-
-    // Arrival
-    String arrivalTimezone = tzmap.latLngToTimezoneString(arrivalPrerecord.lat!, arrivalPrerecord.long!);
-    DateTime arrivalDateOnly = DateTime(
-      arrivalPrerecord.dateTime.year,
-      arrivalPrerecord.dateTime.month,
-      arrivalPrerecord.dateTime.day,
-    );
-    TimeOfDay arrivalTimeOnly = TimeOfDay.fromDateTime(arrivalPrerecord.dateTime);
-
-    model.setArrivalDateTime(arrivalDateOnly, arrivalTimeOnly, arrivalTimezone);
-    model.arrivalLat = arrivalPrerecord.lat;
-    model.arrivalLong = arrivalPrerecord.long;
-    if (arrivalPrerecord.stationName?.trim().isEmpty ?? true) {  // geo mode
-      model.arrivalGeoMode = true;
-    }
-    else { // name mode
-      model.arrivalStationName = arrivalPrerecord.stationName;
-      model.arrivalAddress = arrivalPrerecord.address;
-      model.arrivalGeoMode = false;
-    }
-
-    model.initState(); // Toggle hasBeenModified
-    return model;
-  }
-
-  Future<(String?, String?, VehicleType)?> _showStationSelectionDialog(
-    BuildContext context,
-    List<(String?, String?, VehicleType, double)> stations,
-  ) async {
-    final loc = AppLocalizations.of(context)!;
-    final settings = context.read<SettingsProvider>();
-    final palette = MapColorPaletteHelper.getPalette(settings.mapColorPalette);
-
-    return AdaptiveDialog.showCustom<(String?, String?, VehicleType)>(
-      context: context,
-      maxWidth: 500,
-      maxHeightFactor: 0.6,
-      barrierDismissible: true, // tap outside => null
-      builder: (ctx) {
-        final theme = Theme.of(ctx); // ok even in Cupertino pages
-
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Text(
-                loc.prerecorderSelectStation,
-                style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 8, right: 8, bottom: 4),
-              child: Text(loc.prerecorderStationsFound(stations.length)),
-            ),
-
-            Expanded(
-              child: ListView.separated(
-                itemCount: stations.length,
-                separatorBuilder: (ctx, _) => Divider(
-                  height: 1,
-                  indent: 16,
-                  endIndent: 16,
-                  color: theme.colorScheme.outline,//.withValues(alpha: 0.3),
-                ),
-                itemBuilder: (ctx, index) {
-                  final (name, address, type, distance) = stations[index];
-                  final typeColor = palette[type] ?? theme.colorScheme.primary;
-
-                  return InkWell(
-                    onTap: () => AdaptiveDialog.pop(ctx, (name, address, type)),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 12),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 36,
-                            height: 36,
-                            decoration: BoxDecoration(
-                              color: typeColor,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Center(
-                              child: IconTheme(
-                                data: const IconThemeData(
-                                    color: Colors.white, size: 20),
-                                child: type.icon(),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  name ?? '',
-                                  style: theme.textTheme.titleMedium?.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                const SizedBox(height: 2),
-                                Row(
-                                  children: [
-                                    Icon(
-                                      Icons.location_on,
-                                      size: 12,
-                                      color: theme.colorScheme.primary,
-                                    ),
-                                    const SizedBox(width: 3),
-                                    Text(
-                                      loc.prerecorderAway(
-                                          formatNumber(ctx, distance)),
-                                      style: AppTheme.monoFont.copyWith(
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.w500,
-                                        color: theme.colorScheme.onSurface
-                                            .withValues(alpha: 0.7),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: SizedBox(
-                width: double.infinity,
-                child: AdaptiveButton.build(
-                  context: ctx,
-                  type: AdaptiveButtonType.primary,
-                  onPressed: () => AdaptiveDialog.pop(
-                    ctx,
-                    (null, null, VehicleType.unknown),
-                  ),
-                  label: Text(loc.prerecorderUnknownStation),
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  // UI
-  @override
-Widget build(BuildContext context) {
-  final loc = AppLocalizations.of(context)!;
-  final theme = Theme.of(context);
-
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    if (!mounted) return;
-    widget.onPrimaryActionsReady(_buildPrimaryAction(context));
-  });
-
-  return Padding(
-    padding: const EdgeInsets.all(8.0),
-    child: Column(
-      children: [
-        // Scrollable area (explanation + list + optional top controls)
-        Expanded(
-          child: CustomScrollView(
-            slivers: [
-              SliverToBoxAdapter(
-                child: _explanationTile(loc, theme),
-              ),
-              const SliverToBoxAdapter(
-                child: SizedBox(height: 16),
-              ),
-
-              // Android controls (if you still want them in-page)
-              if (!AppPlatform.isApple) ...[
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        children: [
+          // Scrollable area (explanation + list + optional top controls)
+          Expanded(
+            child: CustomScrollView(
+              slivers: [
                 SliverToBoxAdapter(
-                  child: _buttonBar(_selectedIds, loc, theme),
+                  child: _explanationTile(loc),
                 ),
                 const SliverToBoxAdapter(
-                  child: SizedBox(height: 8),
+                  child: SizedBox(height: 16),
                 ),
-              ],
 
-              // Records
-              if (_records.isEmpty)
-                SliverFillRemaining(
-                  hasScrollBody: false,
-                  child: Center(
-                    child: Text(
-                      loc.prerecorderNoData,
-                      style: theme.textTheme.bodyLarge,
+                // Android controls (iOS gets the fixed bottom bar instead)
+                if (!AppPlatform.isApple) ...[
+                  SliverToBoxAdapter(
+                    child: _buttonBar(prerecords, loc),
+                  ),
+                  const SliverToBoxAdapter(
+                    child: SizedBox(height: 8),
+                  ),
+                ],
+
+                // Records
+                if (records.isEmpty)
+                  SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: Center(
+                      child: Text(
+                        loc.prerecorderNoData,
+                        style: theme.textTheme.bodyLarge,
+                      ),
+                    ),
+                  )
+                else
+                  SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                        final record = records[index];
+
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: PreRecordTile(
+                            record: record,
+                            selected: prerecords.isSelected(record.id),
+                            selectionIndex:
+                                prerecords.selectionIndexOf(record.id),
+                            onTap: () {
+                              if (AppPlatform.isApple) {
+                                HapticFeedback.selectionClick();
+                              }
+                              prerecords.toggleSelection(record.id);
+                            },
+                          ),
+                        );
+                      },
+                      childCount: records.length,
                     ),
                   ),
-                )
-              else
-                SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      final record = _records[index];
-                      final selected = _selectedIds.contains(record.id);
 
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: _preRecordTile(record, selected, loc, theme),
-                      );
-                    },
-                    childCount: _records.length,
-                  ),
+                // Bottom padding:
+                // - Android: keep room for FAB overlay
+                // - iOS: small visual spacing above fixed bar
+                SliverToBoxAdapter(
+                  child: SizedBox(height: AppPlatform.isApple ? 8 : 88),
                 ),
-
-              // Bottom padding:
-              // - Android: keep room for FAB overlay
-              // - iOS: small visual spacing above fixed bar
-              SliverToBoxAdapter(
-                child: SizedBox(height: AppPlatform.isApple ? 8 : 88),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
 
-        // iOS fixed bottom action bar (always visible)
-        if (AppPlatform.isApple)
-          Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: _buttonBar(_selectedIds, loc, theme),
-          ),
-      ],
-    ),
-  );
-}
+          // iOS fixed bottom action bar (always visible)
+          if (AppPlatform.isApple)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: _buttonBar(prerecords, loc),
+            ),
+        ],
+      ),
+    );
+  }
 
-  Widget _explanationTile(AppLocalizations loc, ThemeData theme) {
+  Widget _explanationTile(AppLocalizations loc) {
     final settings = context.read<SettingsProvider>();
 
     return AdaptiveExpansionTile(
@@ -647,176 +198,146 @@ Widget build(BuildContext context) {
     );
   }
 
+  Widget _buttonBar(PreRecordProvider prerecords, AppLocalizations loc) {
+    final tripSelectionUi = _buildTripSelectionUiState(prerecords, loc);
+
+    return SprButtonBar(
+      errorBanner: tripSelectionUi.errorBanner,
+      onCreateTrip: tripSelectionUi.createTripCaller,
+      onRecord: _recordNewLog,
+      onDelete: () => _askForDelete(loc),
+      onToggleSort: prerecords.toggleSortOrder,
+      sortIcon: _sortIcon(prerecords),
+      sortTooltip: _sortTooltip(prerecords, loc),
+      deleteLabel: _deleteButtonLabel(prerecords, loc),
+    );
+  }
+
+  String _errorText(SelectionError error, AppLocalizations loc) {
+    switch (error) {
+      case SelectionError.lessThanTwoSelected:
+        return loc.prerecorderErrorLessThanTwoSelected;
+      case SelectionError.moreThanTwoSelected:
+        return loc.prerecorderErrorMoreThanTwoSelected;
+      case SelectionError.departureAfterArrival:
+        return loc.prerecorderErrorDepartureAfterArrival;
+      case SelectionError.typeMismatch:
+        return loc.prerecorderErrorTypeSameForDepartureArrival;
+    }
+  }
+
   _TripSelectionUiState _buildTripSelectionUiState(
-    List<int> selectedIds,
+    PreRecordProvider prerecords,
     AppLocalizations loc,
   ) {
-    final errors = <String>[];
-    bool noSelection = false;
+    final validation = prerecords.validateSelection();
 
-    if (selectedIds.isEmpty) {
-      noSelection = true;
-    } else if (selectedIds.length < 2) {
-      errors.add(loc.prerecorderErrorLessThanTwoSelected);
-    } else if (selectedIds.length > 2) {
-      errors.add(loc.prerecorderErrorMoreThanTwoSelected);
-    } else {
-      final a = _records.firstWhere((r) => r.id == selectedIds[0]);
-      final b = _records.firstWhere((r) => r.id == selectedIds[1]);
-
-      // Rule 1: departure must be before arrival
-      if (a.dateTimeUtc.isAfter(b.dateTimeUtc)) {
-        errors.add(loc.prerecorderErrorDepartureAfterArrival);
-      }
-
-      // Rule 2: types must be consistent (ignore unknown)
-      final bothKnown =
-          a.type != VehicleType.unknown && b.type != VehicleType.unknown;
-      if (bothKnown && a.type != b.type) {
-        errors.add(loc.prerecorderErrorTypeSameForDepartureArrival);
-      }
-    }
-
-    final isValidSelection = errors.isEmpty && !noSelection;
-    final String? errorMessage = errors.isEmpty ? null : errors.join('\n');
-    final isWarning =
-        errorMessage == loc.prerecorderErrorLessThanTwoSelected;
+    final errorMessage = validation.errors.isEmpty
+        ? null
+        : validation.errors.map((e) => _errorText(e, loc)).join('\n');
+    final isWarning = validation.errors.length == 1 &&
+        validation.errors.single == SelectionError.lessThanTwoSelected;
 
     final errorBanner = errorMessage != null
         ? <Widget>[
             ErrorBanner(
               message: errorMessage,
               compact: true,
-              severity:
-                  isWarning ? ErrorSeverity.warning : ErrorSeverity.error,
+              severity: isWarning ? ErrorSeverity.warning : ErrorSeverity.error,
             ),
             const SizedBox(height: 8),
           ]
         : <Widget>[];
 
-    final createTripCaller = !isValidSelection
-        ? null
-        : () async {
-            final tripModel = await _createTripFormModel();
-            if (tripModel == null) return; // user cancelled a dialog
-            if (!context.mounted) return;
-
-            Navigator.of(context)
-                .push(
-              PageRouteBuilder(
-                pageBuilder: (_, __, ___) => ChangeNotifierProvider(
-                  create: (_) => tripModel,
-                  child: AddTripPage(
-                    preRecorderIdsToDelete: _selectedIds,
-                  ),
-                ),
-                transitionDuration: Duration.zero,
-                reverseTransitionDuration: Duration.zero,
-              ),
-            )
-                .then((result) {
-              if (!context.mounted) return;
-              if (result == true) {
-                setState(() {
-                  debugPrint(
-                    "Trip creation successful, deleting prerecords with ids: $_selectedIds",
-                  );
-                  _selectedIds.clear();
-                  _loadPreRecords();
-                });
-              }
-            });
-          };
-
     return _TripSelectionUiState(
-      isValidSelection: isValidSelection,
-      errorMessage: errorMessage,
+      isValidSelection: validation.isValid,
       errorBanner: errorBanner,
-      createTripCaller: createTripCaller,
+      createTripCaller: validation.isValid ? _createTrip : null,
     );
   }
 
-  Column _buttonBar(List<int> selectedIds, AppLocalizations loc, ThemeData theme) {
-    final tripSelectionUi = _buildTripSelectionUiState(selectedIds, loc);
+  /// Resolves the vehicle type (asking the user when needed), builds the
+  /// trip form from the selected pair, and opens the add-trip page.
+  Future<void> _createTrip() async {
+    final prerecords = _prerecords;
 
-    if (AppPlatform.isApple) {
-      return Column(
-        children: [
-          ...tripSelectionUi.errorBanner,
-          Row(
-            children: [
-              Expanded(
-                child: AdaptiveButton.build(
-                  context: context,
-                  label: Text(
-                    loc.prerecorderCreateTripButton,
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                    softWrap: false,
-                  ),
-                  icon: AdaptiveIcons.add,
-                  onPressed: tripSelectionUi.createTripCaller,
-                  size: AdaptiveButton.large,
-                  type: AdaptiveButtonType.secondary,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: AdaptiveButton.build(
-                  context: context,
-                  label: Text(loc.prerecorderRecordButton),
-                  icon: AdaptiveIcons.edit,
-                  onPressed: _recordNewLog,
-                  size: AdaptiveButton.large,
-                  type: AdaptiveButtonType.primary,
-                ),
-              ),
-            ],
+    final (resolution, knownType) = prerecords.typeResolutionForSelection();
+    VehicleType? resolvedType = knownType;
+    if (resolution == TypeResolution.needsFullPicker) {
+      resolvedType = await showVehicleTypePickerDialog(context);
+    } else if (resolution == TypeResolution.needsRailDisambiguation) {
+      resolvedType = await showRailDisambiguationDialog(context);
+    }
+    if (resolvedType == null) return; // user dismissed a dialog
+
+    final tripModel = prerecords.buildTripForm(resolvedType);
+    final selectedIds = List<int>.of(prerecords.selectedIds);
+    if (!mounted) return;
+
+    final result = await Navigator.of(context).push(
+      PageRouteBuilder(
+        pageBuilder: (_, __, ___) => ChangeNotifierProvider(
+          create: (_) => tripModel,
+          child: AddTripPage(
+            preRecorderIdsToDelete: selectedIds,
           ),
-        ],
+        ),
+        transitionDuration: Duration.zero,
+        reverseTransitionDuration: Duration.zero,
+      ),
+    );
+
+    if (!mounted) return;
+    if (result == true) {
+      debugPrint(
+        "Trip creation successful, deleting prerecords with ids: $selectedIds",
       );
+      prerecords.clearSelection();
+      await prerecords.loadRecords();
+    }
+  }
+
+  Future<void> _recordNewLog() async {
+    final loc = AppLocalizations.of(context)!;
+    final settings = context.read<SettingsProvider>();
+    final trainlog = context.read<TrainlogProvider>();
+    final prerecords = _prerecords;
+
+    // Make sure location access is granted (prompting the user if needed)
+    // before recording anything.
+    final granted = await _geo.requestPermission(settings);
+    if (!granted) {
+      if (!mounted) return;
+      AdaptiveInformationMessage.show(context, loc.locationPermissionDenied);
+      return;
     }
 
-    return Column(
-      children: [
-        ...tripSelectionUi.errorBanner,
-        Row(
-          children: [
-            IntrinsicWidth(
-              child: AdaptiveButton.build(
-                context: context,
-                label: Text(deleteButtonLabel(loc)),
-                icon: AdaptiveIcons.delete,
-                type: AdaptiveButtonType.destructive,
-                size: AdaptiveButton.small,
-                onPressed: () async {
-                  _askForDelete(loc);
-                },
-              ),
-            ),
-            const Spacer(),
-            AdaptiveAppBarSquareButton(
-              icon: sortIcon,
-              onPressed: _changeSortOder,
-              tooltip: sortTooltip(loc),
-              size: 48,
-              iconSize: 24,
-            ),
-          ],
-        ),
-      ],
+    final outcome = await prerecords.recordNewLog(
+      trainlog: trainlog,
+      radiusMeters: settings.sprRadius,
+      pickStation: (stations) async {
+        if (!mounted) return null;
+        return showStationSelectionDialog(context, stations);
+      },
     );
-  }
 
-  void _changeSortOder() {
-    setState(() {
-      _ascending = !_ascending;
-      _sortRecords();
-    });
+    if (!mounted) return;
+    switch (outcome) {
+      case RecordOutcome.noStationFound:
+        AdaptiveInformationMessage.show(context, loc.prerecorderNoStationReachable);
+      case RecordOutcome.locationDisabled:
+        AdaptiveInformationMessage.show(context, loc.locationServicesDisabled);
+      case RecordOutcome.failed:
+        AdaptiveInformationMessage.show(context, loc.prerecorderErrorFetchingStation);
+      case RecordOutcome.success:
+      case RecordOutcome.cancelled:
+        break;
+    }
   }
 
   Future<void> _askForDelete(AppLocalizations loc) async {
-    final deleteSelection = _selectedIds.isNotEmpty;
+    final prerecords = _prerecords;
+    final deleteSelection = prerecords.hasSelection;
 
     final confirmed = await AdaptiveDialog.confirm(
       context: context,
@@ -830,293 +351,42 @@ Widget build(BuildContext context) {
 
     if (!confirmed) return;
 
-    setState(() {
-      _deleteRecords(deleteSelection: deleteSelection);
-    });
-  }
-
-  Widget _preRecordTile(
-    PreRecordModel record,
-    bool selected,
-    AppLocalizations loc,
-    ThemeData theme,
-  ) {
-    final isDark = theme.brightness == Brightness.dark;
-    final cs = theme.colorScheme;
-    final hasCoordinates = record.lat != null && record.long != null;
-    final hasStation = record.stationName != null &&
-        record.stationName!.trim().isNotEmpty;
-    final hasAddress = record.address != null &&
-        record.address!.trim().isNotEmpty;
-    final settings = context.read<SettingsProvider>();
-    final palette = MapColorPaletteHelper.getPalette(settings.mapColorPalette);
-    final typeColor = palette[record.type] ?? cs.primary;
-
-    Widget leadingIcon;
-    if (!record.loaded) {
-      leadingIcon = SizedBox(
-        width: 36,
-        height: 36,
-        child: Center(
-          child: AppPlatform.isApple
-              ? const CupertinoActivityIndicator()
-              : const CircularProgressIndicator(strokeWidth: 3),
-        ),
-      );
-    } else if (hasStation) {
-      leadingIcon = Container(
-        width: 36,
-        height: 36,
-        decoration: BoxDecoration(
-          color: typeColor,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Center(
-          child: IconTheme(
-            data: const IconThemeData(color: Colors.white, size: 20),
-            child: record.type.icon(),
-          ),
-        ),
-      );
-    } else {
-      leadingIcon = Container(
-        width: 36,
-        height: 36,
-        decoration: BoxDecoration(
-          color: cs.primaryContainer,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Center(
-          child: Icon(Icons.not_listed_location, color: cs.onPrimary, size: 20),
-        ),
-      );
-    }
-
-    final selectionTrailing = _selectionTrailing(record.id, loc, theme);
-
-    return GestureDetector(
-      onTap: () {
-        if (AppPlatform.isApple) HapticFeedback.selectionClick();
-        setState(() {
-          if (selected) {
-            _selectedIds.remove(record.id);
-          } else {
-            _selectedIds.add(record.id);
-          }
-        });
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          color: selected
-              ? cs.primaryContainer
-              : (isDark ? cs.surfaceContainerLow : Colors.white),
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.06),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            leadingIcon,
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  record.loaded
-                      ? Text(
-                          record.stationName ?? loc.prerecorderUnknownStation,
-                          style: theme.textTheme.titleMedium
-                              ?.copyWith(fontWeight: FontWeight.w600),
-                        )
-                      : const ShimmerBox(width: 180, height: 18),
-                  const SizedBox(height: 4),
-                  Text(
-                    formatDateTime(context, record.dateTime),
-                    style: AppTheme.monoFont.copyWith(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w800,
-                      color: cs.onSurface,//.withValues(alpha: 0.6),
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  hasCoordinates
-                      ? Text(
-                          hasAddress
-                              ? record.address!
-                              : '${record.lat!.toStringAsFixed(6)}, ${record.long!.toStringAsFixed(6)}',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: cs.onSurfaceVariant,
-                          ),
-                        )
-                      : const ShimmerBox(width: 180, height: 14),
-                ],
-              ),
-            ),
-            if (selectionTrailing != null) ...[
-              const SizedBox(width: 8),
-              selectionTrailing,
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-
-  Future<void> _recordNewLog() async {
-    final trainlog = Provider.of<TrainlogProvider>(context, listen: false);
-    final loc = AppLocalizations.of(context)!;
-    final settings = context.read<SettingsProvider>();
-
-    // Make sure location access is granted (prompting the user if needed)
-    // before recording anything.
-    final granted = await _geo.requestPermission(settings);
-    if (!granted) {
-      if (!mounted) return;
-      AdaptiveInformationMessage.show(context, loc.locationPermissionDenied);
-      return;
-    }
-
-    try {
-      final id = DateTime.now().millisecondsSinceEpoch;
-
-      // Create record immediately
-      final pendingRecord = PreRecordModel(
-        id: id,
-        dateTime: DateTime.now(),
-        loaded: false, // tells that the coordinates, station name and address have to be fetched
-      );
-
-      setState(() {
-        _records.add(pendingRecord);
-        _sortRecords();
-      });
-
-      await _saveAll(); // save pending state
-
-      final position = await _getCurrentPosition(loc);
-      final index = _records.indexWhere((r) => r.id == id);
-
-      setState(() {
-        _records[index] = _records[index].copyWith(
-            lat: position.latitude,
-            long: position.longitude,
-          );
-        });
-        await _saveAll();
-
-      // Resolve stations asynchronously
-      final stations = await trainlog.findStationsFromCoordinate(
-        position.latitude,
-        position.longitude,
-        distanceLimitMeters: settings.sprRadius,
-      );
-
-      // Handle empty results (no station found)
-      if (stations.isEmpty) {
-        if (index == -1) return;
-
-        // Remove the pending record
-        // setState(() {
-        //   _records.removeWhere((r) => r.id == id);
-        // });
-        // Unknown station (manual input)
-        setState(() {
-        _records[index] = _records[index].copyWith(
-            stationName: null,
-            address: null,
-            type: VehicleType.unknown,
-            loaded: true,
-          );
-        });
-        await _saveAll();
-        
-        // scaffMsg.showSnackBar(
-        //   SnackBar(content: Text(loc.prerecorderNoStationReachable))
-        // );
-        if(!mounted) return;
-        AdaptiveInformationMessage.show(context, loc.prerecorderNoStationReachable);
-        return;
-      }
-
-      // If only one station, use it directly
-      String? name;
-      String? address;
-      VehicleType? type;
-
-      if (stations.length == 1) {
-        (name, address, type, _) = stations[0];
-      } else {
-        if (!mounted) return;
-        // Multiple stations - show selection dialog
-        final result = await _showStationSelectionDialog(context, stations);
-        
-        if (result == null) {
-          // User cancelled - remove pending record
-          setState(() {
-            _records.removeWhere((r) => r.id == id);
-          });
-          await _saveAll();
-          return;
-        }
-        
-        (name, address, type) = result;
-      }
-
-      // Update same record
-      if (index == -1) return;
-
-      setState(() {
-        _records[index] = _records[index].copyWith(
-          stationName: name,
-          address: address,
-          type: type,
-          loaded: true,
-        );
-      });
-
-      await _saveAll(); // persist resolved data
-    } catch (e) {          
-      setState(() {
-        _records.removeWhere((r) => r.loaded == false);
-      });
-      await _saveAll();
-      if(!mounted) return;
-      debugPrint(e.toString());
-      AdaptiveInformationMessage.show(context, loc.prerecorderErrorFetchingStation);
-      return;
-    }
+    await prerecords.deleteRecords(selectionOnly: deleteSelection);
   }
 
   List<AppPrimaryAction> _buildPrimaryAction(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
+    final prerecords = _prerecords;
 
-    if(AppPlatform.isApple) {
+    if (AppPlatform.isApple) {
       return [
         AppPrimaryAction(
-          onPressed: _changeSortOder,
-          icon: sortIcon,
-          tooltip: sortTooltip(loc),
+          onPressed: prerecords.toggleSortOrder,
+          icon: _sortIcon(prerecords),
+          tooltip: _sortTooltip(prerecords, loc),
         ),
         AppPrimaryAction(
           onPressed: () => _askForDelete(loc),
           icon: AdaptiveIcons.delete,
-          label: deleteButtonLabel(loc, short: true),
+          label: _deleteButtonLabel(prerecords, loc, short: true),
           isDestructive: true,
         ),
       ];
     }
 
-    final tripSelectionUi = _buildTripSelectionUiState(_selectedIds, loc);
-    return [AppPrimaryAction(
-      onPressed: tripSelectionUi.isValidSelection ? tripSelectionUi.createTripCaller! : _recordNewLog,
-      icon: tripSelectionUi.isValidSelection ? AdaptiveIcons.add : AdaptiveIcons.edit,
-      label: tripSelectionUi.isValidSelection ? loc.prerecorderCreateTripButton : loc.prerecorderRecordButton
-    )];
+    final tripSelectionUi = _buildTripSelectionUiState(prerecords, loc);
+    return [
+      AppPrimaryAction(
+        onPressed: tripSelectionUi.isValidSelection
+            ? tripSelectionUi.createTripCaller!
+            : _recordNewLog,
+        icon: tripSelectionUi.isValidSelection
+            ? AdaptiveIcons.add
+            : AdaptiveIcons.edit,
+        label: tripSelectionUi.isValidSelection
+            ? loc.prerecorderCreateTripButton
+            : loc.prerecorderRecordButton,
+      ),
+    ];
   }
 }
