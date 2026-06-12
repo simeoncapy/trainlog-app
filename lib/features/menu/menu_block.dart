@@ -59,6 +59,7 @@ class _MenuTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final resolvedTextColor = data.labelColor ?? cs.onSurface;
+    final badgeCount = data.badgeCount ?? 0;
 
     return InkWell(
       onTap: data.onTap,
@@ -70,14 +71,20 @@ class _MenuTile extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(
           children: [
-            Container(
-              width: 28,
-              height: 28,
-              decoration: BoxDecoration(
-                color: data.iconBg,
-                borderRadius: BorderRadius.circular(6),
+            Badge(
+              isLabelVisible: badgeCount > 0,
+              backgroundColor: Colors.red,
+              textColor: Colors.white,
+              label: Text(badgeCount > 9 ? '9+' : '$badgeCount'),
+              child: Container(
+                width: 28,
+                height: 28,
+                decoration: BoxDecoration(
+                  color: data.iconBg,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Icon(data.icon, color: Colors.white, size: 15),
               ),
-              child: Icon(data.icon, color: Colors.white, size: 15),
             ),
             const SizedBox(width: 12),
             Expanded(
