@@ -43,7 +43,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     final settings = context.read<SettingsProvider>();
     // Explicit user action: ask the OS for permission, then proceed
     // regardless of the outcome (the service records a refusal for us).
-    await _geo.requestPermission(settings);
+    final granted = await _geo.requestPermission(settings);
+    if (granted) {
+      settings.setMapDisplayUserLocationMarker(true);
+    }
     if (!mounted) return;
     settings.completeOnboarding();
   }
