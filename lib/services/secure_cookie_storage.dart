@@ -47,7 +47,7 @@ class SecureCookieStorage implements Storage {
   /// It can be missing at runtime (e.g. Linux without a Secret Service
   /// keyring), in which case the caller should fall back to file storage.
   static Future<bool> isAvailable() async {
-    const probeKey = '$_keyPrefix__probe__';
+    const probeKey = '${_keyPrefix}__probe__';
     try {
       const storage = FlutterSecureStorage(
         aOptions: AndroidOptions(encryptedSharedPreferences: true),
