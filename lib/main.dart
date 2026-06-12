@@ -8,6 +8,7 @@ import 'package:trainlog_app/app/app_providers.dart';
 import 'package:trainlog_app/navigation/platform_shell.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
+import 'package:trainlog_app/services/secure_cookie_storage.dart';
 import 'package:trainlog_app/services/trainlog_service.dart';
 import 'package:trainlog_app/utils/cached_data_utils.dart';
 
@@ -46,6 +47,16 @@ Future<void> main() async {
   // Settings must be fully loaded before tryRestoreSession reads the
   // persisted username and instance URL.
   await settings.ready;
+
+  // The iOS Keychain survives uninstall, so leftover session cookies would
+  // log a reinstalled app straight back in. SharedPreferences do get wiped
+  // on uninstall: both flags missing means fresh install. (Checking
+  // onboardingCompleted too keeps users updating from a pre-flag version
+  // logged in.)
+  if (!settings.hasRunBefore && !settings.onboardingCompleted) {
+    await SecureCookieStorage.clearAllCookies();
+  }
+  await settings.markHasRunBefore();
 
   final service = await TrainlogService.persistent();
   final auth = TrainlogProvider(service: service);

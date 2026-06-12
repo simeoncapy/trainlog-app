@@ -31,6 +31,7 @@ class SettingsProvider with ChangeNotifier {
 
   // _SP members are stored in the Shared Preferences only, they cannot be modified by the user in settings
   bool _SP_onboardingCompleted = false;
+  bool _SP_hasRunBefore = false;
   LatLng? _SP_userPosition;
   bool _SP_refusedToSharePosition = false;
   String? _SP_authUsername;
@@ -71,6 +72,7 @@ class SettingsProvider with ChangeNotifier {
   String get userInstanceUrl => _userInstanceUrl;
 
   bool get onboardingCompleted => _SP_onboardingCompleted;
+  bool get hasRunBefore => _SP_hasRunBefore;
   LatLng? get userPosition => _SP_userPosition;
   bool get refusedToSharePosition => _SP_refusedToSharePosition;
   String? get authUsername => _SP_authUsername;
@@ -121,6 +123,7 @@ class SettingsProvider with ChangeNotifier {
 
     // Shared Preference only (_SP) i.e. internal to the app
     _loadOnboardingCompleted(prefs);
+    _loadHasRunBefore(prefs);
     _loadLastUserPosition(prefs);
     _loadRefusedToSharePosition(prefs);
     _loadUsername(prefs);
@@ -515,6 +518,19 @@ class SettingsProvider with ChangeNotifier {
 
   void _loadOnboardingCompleted(SharedPreferences prefs) {
     _SP_onboardingCompleted = prefs.getBool('onboarding_completed') ?? false;
+  }
+
+  void _loadHasRunBefore(SharedPreferences prefs) {
+    _SP_hasRunBefore = prefs.getBool('has_run_before') ?? false;
+  }
+
+  /// SharedPreferences are wiped on uninstall (unlike the iOS Keychain),
+  /// so the absence of this flag identifies a fresh install at startup.
+  Future<void> markHasRunBefore() async {
+    if (_SP_hasRunBefore) return;
+    _SP_hasRunBefore = true;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('has_run_before', true);
   }
 
   Future<void> completeOnboarding() async {

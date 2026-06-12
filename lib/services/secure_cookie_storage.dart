@@ -10,14 +10,15 @@ import 'package:path/path.dart' as p;
 /// cookie_jar's [FileStorage] writes them in plaintext.
 class SecureCookieStorage implements Storage {
   SecureCookieStorage({FlutterSecureStorage? storage})
-      : _storage = storage ??
-            const FlutterSecureStorage(
-              aOptions: AndroidOptions(encryptedSharedPreferences: true),
-            );
+      : _storage = storage ?? _defaultStorage;
 
   /// Namespaces cookie entries so they cannot collide with any other
   /// values the app may keep in secure storage later.
   static const _keyPrefix = 'cookies.';
+
+  static const FlutterSecureStorage _defaultStorage = FlutterSecureStorage(
+    aOptions: AndroidOptions(encryptedSharedPreferences: true),
+  );
 
   final FlutterSecureStorage _storage;
 
@@ -49,16 +50,35 @@ class SecureCookieStorage implements Storage {
   static Future<bool> isAvailable() async {
     const probeKey = '${_keyPrefix}__probe__';
     try {
-      const storage = FlutterSecureStorage(
-        aOptions: AndroidOptions(encryptedSharedPreferences: true),
-      );
-      await storage.write(key: probeKey, value: 'ok');
-      final ok = await storage.read(key: probeKey) == 'ok';
-      await storage.delete(key: probeKey);
+      await _defaultStorage.write(key: probeKey, value: 'ok');
+      final ok = await _defaultStorage.read(key: probeKey) == 'ok';
+      await _defaultStorage.delete(key: probeKey);
       return ok;
     } catch (e) {
       debugPrint('⚠️ Secure storage unavailable: $e');
       return false;
+    }
+  }
+
+  /// Deletes every cookie entry from secure storage.
+  ///
+  /// Needed on fresh installs: the iOS Keychain survives app uninstall, so
+  /// without this a reinstalled app would silently resume the old session.
+  static Future<void> clearAllCookies() async {
+    try {
+      final all = await _defaultStorage.readAll();
+      var removed = 0;
+      for (final key in all.keys) {
+        if (key.startsWith(_keyPrefix)) {
+          await _defaultStorage.delete(key: key);
+          removed++;
+        }
+      }
+      if (removed > 0) {
+        debugPrint('🔒 Fresh install: removed $removed leftover cookie entrie(s) from secure storage');
+      }
+    } catch (e) {
+      debugPrint('⚠️ Could not clear secure cookie storage: $e');
     }
   }
 
