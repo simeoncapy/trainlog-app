@@ -23,7 +23,6 @@ bool _isOsmTileNetworkError(Object error) {
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -44,6 +43,9 @@ Future<void> main() async {
   tz.initializeTimeZones();
 
   final settings = SettingsProvider();
+  // Settings must be fully loaded before tryRestoreSession reads the
+  // persisted username and instance URL.
+  await settings.ready;
 
   final service = await TrainlogService.persistent();
   final auth = TrainlogProvider(service: service);

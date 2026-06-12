@@ -695,7 +695,8 @@ class TripsRepository {
         }
         final Map<String, dynamic> json = jsonDecode(decoded);
         return json.keys.toList(); // country codes like "JP","FR"
-      } catch (_) {
+      } catch (e) {
+        debugPrint('⚠️ Failed to decode country JSON: $raw ($e)');
         return const [];
       }
     }
@@ -757,7 +758,8 @@ class TripsRepository {
         final decoded = Uri.decodeComponent(raw);
         final Map<String, dynamic> json = jsonDecode(decoded);
         return json.keys.toList();
-      } catch (_) {
+      } catch (e) {
+        debugPrint('⚠️ Failed to decode country JSON: $raw ($e)');
         return const [];
       }
     }

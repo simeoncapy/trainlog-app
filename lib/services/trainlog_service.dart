@@ -562,7 +562,8 @@ class TrainlogService {
       }
 
       return _stationListGenerator(data);
-    } on Exception catch (_) {
+    } on Exception catch (e) {
+      debugPrint('🛑 fetchStations failed: $e');
       return [];
     }
   }
@@ -697,7 +698,8 @@ class TrainlogService {
         }
       });
       return out;
-    } catch (_) {
+    } catch (e) {
+      debugPrint('🛑 fetchAccountSettings failed: $e');
       return {};
     }
   }
@@ -779,7 +781,8 @@ class TrainlogService {
       }
 
       return out;
-    } catch (_) {
+    } catch (e) {
+      debugPrint('🛑 fetchAvailableCurrencies failed: $e');
       return const [];
     }
   }
@@ -901,7 +904,8 @@ class TrainlogService {
       final count = data["count"] is int ? data["count"] : int.tryParse(data["count"].toString()) ?? 0;
 
       return count;
-    } catch (_) {
+    } catch (e) {
+      debugPrint('🛑 fetchNewsCount failed: $e');
       return 0;
     }
   }
@@ -918,7 +922,8 @@ class TrainlogService {
         .map((json) => NewsModel.fromJson(json as Map<String, dynamic>, lastVisit: lastVisit))
         .toList();
 
-    } catch (_) {
+    } catch (e) {
+      debugPrint('🛑 fetchNews failed: $e');
       return [];
     }
   }

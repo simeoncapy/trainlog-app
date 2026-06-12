@@ -86,43 +86,55 @@ class SettingsProvider with ChangeNotifier {
   Set<VehicleType> get mapPolylineDeselectedTypes => Set.unmodifiable(_SP_mapPolylineDeselectedTypes);
   int get mapPolylineYearFilterOption => _SP_mapPolylineYearFilterOption;
 
+  late final Future<void> _ready;
+
+  /// Completes once every persisted value has been loaded into memory.
+  /// Await this before reading settings during app startup.
+  Future<void> get ready => _ready;
+
   SettingsProvider() {
-    _loadAll();
+    _ready = _loadAll();
   }
 
   /// Loads every persisted value into memory. Reading from an empty
   /// SharedPreferences store yields the documented defaults, so this also
   /// doubles as a "reset to defaults" once the store has been cleared.
-  void _loadAll() {
+  ///
+  /// All values are loaded from a single SharedPreferences instance and
+  /// listeners are notified exactly once, after everything is in memory.
+  Future<void> _loadAll() async {
+    final prefs = await SharedPreferences.getInstance();
+
     // Shared Preference in settings
-    _loadTheme();
-    _loadLocale();
-    _loadDateFormat();
-    _loadHourFormat12();
-    _loadPathDisplayOrder();
-    _loadMapColorPalette();
-    _loadShouldReloadPolylines();
-    _loadMapDisplayUserLocationMarker();
-    _loadHideWarningMessage();
-    _loadCurrency();
-    _loadSprRadius();
-    _loadUserInstanceUrl();
+    _loadTheme(prefs);
+    _loadLocale(prefs);
+    _loadDateFormat(prefs);
+    _loadHourFormat12(prefs);
+    _loadPathDisplayOrder(prefs);
+    _loadMapColorPalette(prefs);
+    _loadShouldReloadPolylines(prefs);
+    _loadMapDisplayUserLocationMarker(prefs);
+    _loadHideWarningMessage(prefs);
+    _loadCurrency(prefs);
+    _loadSprRadius(prefs);
+    _loadUserInstanceUrl(prefs);
 
     // Shared Preference only (_SP) i.e. internal to the app
-    _loadOnboardingCompleted();
-    _loadLastUserPosition();
-    _loadRefusedToSharePosition();
-    _loadUsername();
-    _loadShouldLoadTripsFromApi();
-    _loadIsSmartPrerecorderExplanationExpanded();
-    _loadLastNewsVisit();
-    _loadLastFetchingTrips();
-    _loadLastUsedInstanceUrl();
-    _loadMapPolylineFilterState();
+    _loadOnboardingCompleted(prefs);
+    _loadLastUserPosition(prefs);
+    _loadRefusedToSharePosition(prefs);
+    _loadUsername(prefs);
+    _loadShouldLoadTripsFromApi(prefs);
+    _loadIsSmartPrerecorderExplanationExpanded(prefs);
+    _loadLastNewsVisit(prefs);
+    _loadLastFetchingTrips(prefs);
+    _loadLastUsedInstanceUrl(prefs);
+    _loadMapPolylineFilterState(prefs);
+
+    notifyListeners();
   }
 
-  void _loadTheme() async {
-    final prefs = await SharedPreferences.getInstance();
+  void _loadTheme(SharedPreferences prefs) {
     final theme = prefs.getString('theme');
     if (theme == 'dark') {
       _themeMode = ThemeMode.dark;
@@ -131,7 +143,6 @@ class SettingsProvider with ChangeNotifier {
     } else {
       _themeMode = ThemeMode.system;
     }
-    notifyListeners();
   }
 
   void setTheme(ThemeMode themeMode) async {
@@ -150,8 +161,7 @@ class SettingsProvider with ChangeNotifier {
 
   // ------------------------------------------------------------------------------
 
-  void _loadLocale() async {
-    final prefs = await SharedPreferences.getInstance();
+  void _loadLocale(SharedPreferences prefs) {
     final languageCode = prefs.getString('language_code');
     if (languageCode != null) {
       _locale = Locale(languageCode);
@@ -169,7 +179,6 @@ class SettingsProvider with ChangeNotifier {
         _locale = const Locale('en', 'GB');
       }
     }
-    notifyListeners();
   }
 
   void setLocale(Locale locale) async {
@@ -182,11 +191,9 @@ class SettingsProvider with ChangeNotifier {
 
   // ------------------------------------------------------------------------------
 
-  void _loadDateFormat() async {
-    final prefs = await SharedPreferences.getInstance();
+  void _loadDateFormat(SharedPreferences prefs) {
     final u = prefs.getString('date_format');
     _dateFormat = u ?? 'yyyy/MM/dd';
-    notifyListeners();
   }
 
   void setDateFormat(String format) async {
@@ -199,11 +206,9 @@ class SettingsProvider with ChangeNotifier {
 
   // ------------------------------------------------------------------------------
 
-  void _loadHourFormat12() async {
-    final prefs = await SharedPreferences.getInstance();
+  void _loadHourFormat12(SharedPreferences prefs) {
     final format12 = prefs.getBool('hour_format_12');
     _hourFormat12 = format12 ?? false;
-    notifyListeners();
   }
 
   void setHourFormat12(bool format12) async {
@@ -216,8 +221,7 @@ class SettingsProvider with ChangeNotifier {
 
   // ------------------------------------------------------------------------------
 
-  void _loadPathDisplayOrder() async {
-    final prefs = await SharedPreferences.getInstance();
+  void _loadPathDisplayOrder(SharedPreferences prefs) {
     final pathOrder = prefs.getString('path_display_order');
     if (pathOrder != null) {
       _pathDisplayOrder = PathDisplayOrder.values.firstWhere(
@@ -227,7 +231,6 @@ class SettingsProvider with ChangeNotifier {
     } else {
       _pathDisplayOrder = PathDisplayOrder.creationDate;
     }
-    notifyListeners();
   }
 
   void setPathDisplayOrder(PathDisplayOrder pathOrder) async {
@@ -240,8 +243,7 @@ class SettingsProvider with ChangeNotifier {
 
   // ------------------------------------------------------------------------------
 
-  void _loadMapColorPalette() async {
-    final prefs = await SharedPreferences.getInstance();
+  void _loadMapColorPalette(SharedPreferences prefs) {
     final palette = prefs.getString('map_color_palette');
     if (palette != null) {
       _mapColorPalette = MapColorPalette.values.firstWhere(
@@ -251,7 +253,6 @@ class SettingsProvider with ChangeNotifier {
     } else {
       _mapColorPalette = MapColorPalette.trainlogWeb;
     }
-    notifyListeners();
   }
 
   void setMapColorPalette(MapColorPalette palette) async {
@@ -264,11 +265,9 @@ class SettingsProvider with ChangeNotifier {
 
   // ------------------------------------------------------------------------------
 
-  void _loadShouldReloadPolylines() async {
-    final prefs = await SharedPreferences.getInstance();
+  void _loadShouldReloadPolylines(SharedPreferences prefs) {
     final reload = prefs.getBool('should_reload_polylines');
     _shouldReloadPolylines = reload ?? false;
-    notifyListeners();
   }
 
   void setShouldReloadPolylines(bool reload) async {
@@ -281,11 +280,9 @@ class SettingsProvider with ChangeNotifier {
 
   // ------------------------------------------------------------------------------
 
-  void _loadMapDisplayUserLocationMarker() async {
-    final prefs = await SharedPreferences.getInstance();
+  void _loadMapDisplayUserLocationMarker(SharedPreferences prefs) {
     final marker = prefs.getBool('display_user_marker');
     _mapDisplayUserLocationMarker = marker ?? false;
-    notifyListeners();
   }
 
   void setMapDisplayUserLocationMarker(bool maker) async {
@@ -298,11 +295,9 @@ class SettingsProvider with ChangeNotifier {
 
   // ------------------------------------------------------------------------------
 
-  void _loadHideWarningMessage() async {
-    final prefs = await SharedPreferences.getInstance();
+  void _loadHideWarningMessage(SharedPreferences prefs) {
     final h = prefs.getBool('hide_warning_message');
     _hideWarningMessage = h ?? false;
-    notifyListeners();
   }
 
   void setHideWarningMessage(bool hide) async {
@@ -315,11 +310,9 @@ class SettingsProvider with ChangeNotifier {
 
   // ------------------------------------------------------------------------------
 
-  void _loadCurrency() async {
-    final prefs = await SharedPreferences.getInstance();
+  void _loadCurrency(SharedPreferences prefs) {
     final c = prefs.getString('currency');
     _currency = c ?? 'EUR';
-    notifyListeners();
   }
 
   void setCurrency(String currency) async {
@@ -332,11 +325,9 @@ class SettingsProvider with ChangeNotifier {
 
   // ------------------------------------------------------------------------------
 
-  void _loadSprRadius() async {
-    final prefs = await SharedPreferences.getInstance();
+  void _loadSprRadius(SharedPreferences prefs) {
     final r = prefs.getInt('spr_radius');
     _sprRadius = r ?? 500;
-    notifyListeners();
   }
 
   void setSprRadius(int sprRadius) async {
@@ -349,11 +340,9 @@ class SettingsProvider with ChangeNotifier {
 
   // ------------------------------------------------------------------------------
 
-  void _loadUserInstanceUrl() async {
-    final prefs = await SharedPreferences.getInstance();
+  void _loadUserInstanceUrl(SharedPreferences prefs) {
     final u = prefs.getString('user_instance_url');
     _userInstanceUrl = u ?? '';
-    notifyListeners();
   }
 
   void setUserInstanceUrl(String url) async {
@@ -368,8 +357,7 @@ class SettingsProvider with ChangeNotifier {
   // ------- SHARED PREFERENCES NOT IN SETTINGS MENU ------------------------------
   // ------------------------------------------------------------------------------
 
-  void _loadLastUserPosition() async {
-    final prefs = await SharedPreferences.getInstance();
+  void _loadLastUserPosition(SharedPreferences prefs) {
     if (!prefs.containsKey(_kLastUserLat) || !prefs.containsKey(_kLastUserLng)) {
       _SP_userPosition = null;
     }
@@ -383,7 +371,6 @@ class SettingsProvider with ChangeNotifier {
     {
       _SP_userPosition = LatLng(lat, lng);
     }
-    notifyListeners();
   }
 
   void setLastUserPosition(LatLng pos) async {
@@ -394,11 +381,9 @@ class SettingsProvider with ChangeNotifier {
 
   // ------------------------------------------------------------------------------
 
-  void _loadRefusedToSharePosition() async {
-    final prefs = await SharedPreferences.getInstance();
+  void _loadRefusedToSharePosition(SharedPreferences prefs) {
     final p = prefs.getBool('refused_share_position');
     _SP_refusedToSharePosition = p ?? false;
-    notifyListeners();
   }
 
   void setRefusedToSharePosition(bool p) async {
@@ -419,11 +404,9 @@ class SettingsProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void _loadUsername() async {
-    final prefs = await SharedPreferences.getInstance();
+  void _loadUsername(SharedPreferences prefs) {
     final u = prefs.getString(_kUsernameKey);
     _SP_authUsername = u;
-    notifyListeners();
   }
 
   Future<void> clearUsername() async {
@@ -435,11 +418,9 @@ class SettingsProvider with ChangeNotifier {
 
   // ------------------------------------------------------------------------------
 
-  void _loadShouldLoadTripsFromApi() async {
-    final prefs = await SharedPreferences.getInstance();
+  void _loadShouldLoadTripsFromApi(SharedPreferences prefs) {
     final p = prefs.getBool('should_load_trips_from_api');
     _SP_shouldLoadTripsFromApi = p ?? false;
-    notifyListeners();
   }
 
   void setShouldLoadTripsFromApi(bool p) async {
@@ -452,11 +433,9 @@ class SettingsProvider with ChangeNotifier {
 
   // ------------------------------------------------------------------------------
 
-  void _loadIsSmartPrerecorderExplanationExpanded() async {
-    final prefs = await SharedPreferences.getInstance();
+  void _loadIsSmartPrerecorderExplanationExpanded(SharedPreferences prefs) {
     final p = prefs.getBool('is_spr_explanation_expanded');
     _SP_isSmartPrerecorderExplanationExpanded = p ?? true;
-    notifyListeners();
   }
 
   void setIsSmartPrerecorderExplanationExpanded(bool p) async {
@@ -469,11 +448,9 @@ class SettingsProvider with ChangeNotifier {
 
   // ------------------------------------------------------------------------------
 
-  void _loadLastNewsVisit() async {
-    final prefs = await SharedPreferences.getInstance();
+  void _loadLastNewsVisit(SharedPreferences prefs) {
     final p = prefs.getString('last_news_visit');
     _SP_lastNewsVisit = DateTime.parse(p ?? DateTime.now().toUtc().toIso8601String());
-    notifyListeners();
   }
 
   void setLastNewsVisit(DateTime p) async {
@@ -490,11 +467,9 @@ class SettingsProvider with ChangeNotifier {
 
   // ------------------------------------------------------------------------------
 
-  void _loadLastFetchingTrips() async {
-    final prefs = await SharedPreferences.getInstance();
+  void _loadLastFetchingTrips(SharedPreferences prefs) {
     final p = prefs.getString('last_fetching_trips');
     _SP_lastFetchingTrips = p == null ? null : DateTime.parse(p);
-    notifyListeners();
   }
 
   void setLastFetchingTrips(DateTime p) async {
@@ -519,11 +494,9 @@ class SettingsProvider with ChangeNotifier {
 
   // ------------------------------------------------------------------------------
   
-  void _loadLastUsedInstanceUrl() async {
-    final prefs = await SharedPreferences.getInstance();
+  void _loadLastUsedInstanceUrl(SharedPreferences prefs) {
     final u = prefs.getString('last_used_instance_url');
     _SP_lastUsedInstanceUrl = u;
-    notifyListeners();
   }
 
   void setLastUsedInstanceUrl(String? url) async {
@@ -540,10 +513,8 @@ class SettingsProvider with ChangeNotifier {
 
   // ------------------------------------------------------------------------------
 
-  void _loadOnboardingCompleted() async {
-    final prefs = await SharedPreferences.getInstance();
+  void _loadOnboardingCompleted(SharedPreferences prefs) {
     _SP_onboardingCompleted = prefs.getBool('onboarding_completed') ?? false;
-    notifyListeners();
   }
 
   Future<void> completeOnboarding() async {
@@ -569,15 +540,12 @@ class SettingsProvider with ChangeNotifier {
   Future<void> clearSharedPreference() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
-    _loadAll();
-    notifyListeners();
+    await _loadAll();
   }
 
   // ------------------------------------------------------------------------------
 
-  void _loadMapPolylineFilterState() async {
-    final prefs = await SharedPreferences.getInstance();
-
+  void _loadMapPolylineFilterState(SharedPreferences prefs) {
     _SP_mapPolylineYearFilter = PolylineYearFilter.values[
         prefs.getInt(_kMapPolylineYearFilter) ?? 0];
 
@@ -593,8 +561,6 @@ class SettingsProvider with ChangeNotifier {
 
     _SP_mapPolylineYearFilterOption =
         prefs.getInt(_kMapPolylineYearFilterOption) ?? 0;
-
-    notifyListeners();
   }
 
   Future<void> setMapPolylineFilterState({
