@@ -34,6 +34,7 @@ dependencies:
   dio: ^5.4.0
   cookie_jar: ^4.0.6
   dio_cookie_manager: ^3.3.0
+  flutter_secure_storage: ^9.2.2
   html: ^0.15.4
   material_symbols_icons: ^4.2719.0
   step_progress: ^2.7.0

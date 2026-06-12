@@ -9,6 +9,7 @@ import 'package:path/path.dart' as p;
 import 'package:latlong2/latlong.dart';
 import 'package:trainlog_app/data/models/news_model.dart';
 import 'package:trainlog_app/data/models/trips.dart';
+import 'package:trainlog_app/services/secure_cookie_storage.dart';
 import 'package:trainlog_app/utils/text_utils.dart';
 
 typedef StationResult = ({
@@ -70,12 +71,28 @@ class TrainlogService {
     return TrainlogService._(dio, jar);
   }
 
-  /// Persistent cookies (survive app restarts)
+  /// Persistent cookies (survive app restarts), encrypted at rest via the
+  /// platform keychain/keystore when available.
   static Future<TrainlogService> persistent({String baseUrl = TrainlogService.urlLegacy}) async {
     final dir = await getApplicationSupportDirectory();
     final cookieDir = p.join(dir.path, 'cookies');
+
+    Storage cookieStorage;
+    if (await SecureCookieStorage.isAvailable()) {
+      final secure = SecureCookieStorage();
+      // Imports any plaintext cookies from previous versions, then removes
+      // them, so existing sessions survive the switch.
+      await secure.migrateFromFileStorage(cookieDir);
+      cookieStorage = secure;
+    } else {
+      // No keychain on this platform (e.g. Linux without a Secret Service
+      // keyring): keep the legacy plaintext file storage rather than
+      // breaking login persistence.
+      cookieStorage = FileStorage(cookieDir);
+    }
+
     final jar = PersistCookieJar(
-      storage: FileStorage(cookieDir),
+      storage: cookieStorage,
       persistSession: true, // keep session cookies without Expires
     );
     final dio = Dio(
