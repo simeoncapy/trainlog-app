@@ -63,22 +63,28 @@ class SecureCookieStorage implements Storage {
   }
 
   /// One-time migration from the legacy plaintext [FileStorage] directory:
-  /// imports every cookie file (filename == storage key in cookie_jar 4.x),
-  /// then deletes the directory so no plaintext copy remains. Existing
-  /// sessions survive the switch to encrypted storage.
+  /// imports every cookie file, then deletes the directory so no plaintext
+  /// copy remains. Existing sessions survive the switch to encrypted storage.
+  ///
+  /// FileStorage nests the files in a config subdirectory of the path it is
+  /// given (`<dir>/ie0_ps1/` for persistSession: true, ignoreExpires: false),
+  /// so the walk is recursive. Within that leaf directory the filename is the
+  /// storage key verbatim (cookie_jar 4.x).
   Future<void> migrateFromFileStorage(String legacyDir) async {
     final dir = Directory(legacyDir);
     if (!await dir.exists()) return;
 
     try {
-      await for (final entity in dir.list()) {
+      var migrated = 0;
+      await for (final entity in dir.list(recursive: true)) {
         if (entity is! File) continue;
         final key = p.basename(entity.path);
-        final value = await (entity).readAsString();
+        final value = await entity.readAsString();
         await write(key, value);
+        migrated++;
       }
       await dir.delete(recursive: true);
-      debugPrint('🔒 Migrated legacy cookie files to secure storage');
+      debugPrint('🔒 Migrated $migrated legacy cookie file(s) to secure storage');
     } catch (e) {
       debugPrint('⚠️ Cookie migration to secure storage failed: $e');
     }
