@@ -149,7 +149,14 @@ class _StationFieldsSwitcherState extends State<StationFieldsSwitcher>
   @override
   void dispose() {
     _debounceTimer?.cancel();
-    // ... your existing dispose calls
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+    _nameCtl.dispose();
+    _latCtl.dispose();
+    _longCtl.dispose();
+    _manualNameCtl.dispose();
+    _searchCtl.dispose();
+    _searchFocusNode.dispose();
     super.dispose();
   }
 

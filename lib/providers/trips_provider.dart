@@ -165,49 +165,6 @@ class TripsProvider extends ChangeNotifier {
   // Public API
   // ------------------------
 
-  // Future<void> loadTrips({String csvPath = "", Locale? locale, bool loadFromApi = false}) async {
-  //   debugPrint("Deprecated loading function usage");
-  //   _loading = true;
-  //   notifyListeners();
-  //   if (locale != null) _locale = locale;
-
-  //   try {
-  //     if (csvPath.isNotEmpty) {
-  //       _repository = await TripsRepository.loadFromCsv(csvPath);
-  //     } else if (loadFromApi) {
-  //       debugPrint("Loading from API");
-  //       final content = await _service!.fetchAllTripsData(_username ?? "");
-  //       _settings!.setShouldLoadTripsFromApi(false);
-  //       _repository = await TripsRepository.loadFromCsv(
-  //         content,
-  //         replace: true,
-  //         path: false,
-  //       );
-  //     } else {
-  //       _repository = await TripsRepository.loadFromDatabase();
-  //     }
-
-  //     await _refreshDerivedLists();
-
-  //     _revision++;
-  //     _polylineRevision++;
-  //     final count = await _repository!.count();
-  //     debugPrint("✅ Finished loading trips. $count rows");
-  //   } catch (e, stack) {
-  //     debugPrint("loadTrips failed: $e");
-  //     debugPrintStack(stackTrace: stack);
-  //     // keep safe fallbacks
-  //     _vehicleTypes = const [VehicleType.unknown];
-  //     _years = const [];
-  //     _operators = const [];
-  //     _countryCodes = const [];
-  //     _mapCountryCodes = const {};
-  //   } finally {
-  //     _loading = false;
-  //     notifyListeners(); // single notify after all data ready
-  //   }
-  // }
-
   /// Loads (or refreshes) trips data.
   ///
   /// [hardRefresh] — if true, re-downloads everything from the server;

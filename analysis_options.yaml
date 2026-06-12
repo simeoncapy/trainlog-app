@@ -1,1 +1,11 @@
 include: package:flutter_lints/flutter.yaml
+
+linter:
+  rules:
+    # Catch fire-and-forget futures (must be explicitly marked with unawaited()).
+    - unawaited_futures
+    # Catch StreamSubscriptions that are never cancelled.
+    - cancel_subscriptions
+    - always_declare_return_types
+    - avoid_slow_async_io
+    - unnecessary_await_in_return
