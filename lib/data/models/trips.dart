@@ -181,9 +181,9 @@ class Trips {
       destinationStation: json['destination_station']?.toString() ?? '',
       startDatetime: start,
       endDatetime: end,
-      estimatedTripDuration: _toDouble(json['estimated_trip_duration']),
+      estimatedTripDuration: _toDoubleOrNull(json['estimated_trip_duration']) ?? 0.0,
       manualTripDuration: _toDoubleOrNull(json['manual_trip_duration']),
-      tripLength: _toDouble(json['trip_length']),
+      tripLength: _toDoubleOrNull(json['trip_length']) ?? 0.0,
       operatorName: json['operator']?.toString() ?? '',
       countries: json['countries']?.toString() ?? '',
       utcStartDatetime: _toDateTimeOrCopy(json['utc_start_datetime'], start),
@@ -297,13 +297,6 @@ class Trips {
     );
   }
 
-  static double _toDouble(dynamic value) {
-    final str = value?.toString().trim();
-    if (str == null || str.isEmpty) {
-      throw FormatException('Cannot parse empty value as double');
-    }
-    return double.parse(str);
-  }
 
   static DateTime _toDateTimeUnknownPastFuture(dynamic value) {
     final str = value?.toString().trim();
