@@ -606,31 +606,13 @@ class PolylineProvider extends ChangeNotifier {
 
     final palette = MapColorPaletteHelper.getPalette(settings.mapColorPalette);
     final now = _nowUtc;
-    bool changed = false;
 
-    final updated = _polylines.map((e) {
-      final ongoingNow = PolylineStyling.isOngoing(e, now);
-      final isFutureNow = !ongoingNow && PolylineStyling.isFutureUtc(e.utcStartDate, now);
-      final wasRed = e.polyline.color == PolylineStyling.ongoingColor;
-
-      final shouldRestyle =
-          (isFutureNow != e.isFuture) ||
-          (ongoingNow && !wasRed) ||
-          (!ongoingNow && wasRed);
-
-      if (shouldRestyle) {
-        changed = true;
-        return PolylineStyling.restyleEntry(e, palette, now);
-      }
-
-      return e;
-    }).toList();
-
-    if (!changed) return;
-
-    _polylines = updated;
-    _rebuildRenderedPolylines(notify: false);
-    notifyListeners();
+    // Recompute every entry's base styling for the current instant. This runs
+    // only when the flip timer fires (i.e. at an ongoing/future boundary), so
+    // restyling unconditionally is cheap and avoids fragile change-detection
+    // that could leave a finished trip stuck red.
+    _polylines = PolylineStyling.restyleAll(_polylines, palette, now);
+    _rebuildRenderedPolylines(notify: true);
   }
 
   void _scheduleNextFlip() {

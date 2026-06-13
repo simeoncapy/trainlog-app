@@ -90,7 +90,10 @@ class PolylineStyling {
     final ongoing = isOngoing(e, nowUtc);
     final isFuture = !ongoing && isFutureUtc(e.utcStartDate, nowUtc);
 
-    final baseColor = ongoing ? ongoingColor : (palette[e.type] ?? e.polyline.color);
+    // Use a stable palette colour (defaulting to black, like createPolyline) for
+    // non-ongoing trips — never fall back to the entry's current colour, which
+    // may be the temporary ongoing red and would otherwise "stick".
+    final baseColor = ongoing ? ongoingColor : (palette[e.type] ?? Colors.black);
 
     final base = Polyline(
       points: e.polyline.points,
