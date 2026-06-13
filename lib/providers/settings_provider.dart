@@ -107,32 +107,47 @@ class SettingsProvider with ChangeNotifier {
   Future<void> _loadAll() async {
     final prefs = await SharedPreferences.getInstance();
 
-    // Shared Preference in settings
-    _loadTheme(prefs);
-    _loadLocale(prefs);
-    _loadDateFormat(prefs);
-    _loadHourFormat12(prefs);
-    _loadPathDisplayOrder(prefs);
-    _loadMapColorPalette(prefs);
-    _loadShouldReloadPolylines(prefs);
-    _loadMapDisplayUserLocationMarker(prefs);
-    _loadHideWarningMessage(prefs);
-    _loadCurrency(prefs);
-    _loadSprRadius(prefs);
-    _loadUserInstanceUrl(prefs);
+    // Each loader is run in isolation: a corrupt or incompatible stored
+    // value (e.g. an unparseable date, or a vehicle-type/year-filter name
+    // left over from an older app version) must fall back to its default
+    // rather than abort the whole load. Since _ready is awaited before
+    // runApp, an uncaught throw here would prevent the app from starting.
+    final loaders = <void Function(SharedPreferences)>[
+      // Shared Preference in settings
+      _loadTheme,
+      _loadLocale,
+      _loadDateFormat,
+      _loadHourFormat12,
+      _loadPathDisplayOrder,
+      _loadMapColorPalette,
+      _loadShouldReloadPolylines,
+      _loadMapDisplayUserLocationMarker,
+      _loadHideWarningMessage,
+      _loadCurrency,
+      _loadSprRadius,
+      _loadUserInstanceUrl,
 
-    // Shared Preference only (_SP) i.e. internal to the app
-    _loadOnboardingCompleted(prefs);
-    _loadHasRunBefore(prefs);
-    _loadLastUserPosition(prefs);
-    _loadRefusedToSharePosition(prefs);
-    _loadUsername(prefs);
-    _loadShouldLoadTripsFromApi(prefs);
-    _loadIsSmartPrerecorderExplanationExpanded(prefs);
-    _loadLastNewsVisit(prefs);
-    _loadLastFetchingTrips(prefs);
-    _loadLastUsedInstanceUrl(prefs);
-    _loadMapPolylineFilterState(prefs);
+      // Shared Preference only (_SP) i.e. internal to the app
+      _loadOnboardingCompleted,
+      _loadHasRunBefore,
+      _loadLastUserPosition,
+      _loadRefusedToSharePosition,
+      _loadUsername,
+      _loadShouldLoadTripsFromApi,
+      _loadIsSmartPrerecorderExplanationExpanded,
+      _loadLastNewsVisit,
+      _loadLastFetchingTrips,
+      _loadLastUsedInstanceUrl,
+      _loadMapPolylineFilterState,
+    ];
+
+    for (final load in loaders) {
+      try {
+        load(prefs);
+      } catch (e) {
+        debugPrint('⚠️ SettingsProvider: a value failed to load, keeping default: $e');
+      }
+    }
 
     notifyListeners();
   }
