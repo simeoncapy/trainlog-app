@@ -5,12 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/data/trips_repository.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
-import 'package:trainlog_app/services/trainlog_service.dart';
+import 'package:trainlog_app/services/api/trips_api.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 
 class TripsProvider extends ChangeNotifier {
   TripsRepository? _repository;
-  TrainlogService? _service;
+  TripsApi? _service;
   SettingsProvider? _settings;
   String? _username;
   bool _hasLoadedForUser = false;
@@ -77,7 +77,7 @@ class TripsProvider extends ChangeNotifier {
   int get polylineRevision => _polylineRevision;
 
   void updateDeps({
-    required TrainlogService service,
+    required TripsApi service,
     required SettingsProvider settings,
     required String? username,
   }) {
