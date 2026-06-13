@@ -583,6 +583,10 @@ class PolylineProvider extends ChangeNotifier {
     _renderedPolylines = PolylineStyling.toRenderPolylines(filtered, now);
     _renderRevision++;
 
+    // Reschedule the temporal flip so trips added/removed/restyled since the
+    // last schedule still get their ongoing/future transitions on time.
+    _scheduleNextFlip();
+
     if (notify) {
       notifyListeners();
     }
@@ -645,9 +649,13 @@ class PolylineProvider extends ChangeNotifier {
 
       if (e.hasTimeRange) {
         final end = e.utcEndDate;
-        if (end != null && end.isAfter(now)) {
-          if (nextEdge == null || end.isBefore(nextEdge)) {
-            nextEdge = end;
+        // The trip stays ongoing (red) until end + grace, so schedule the
+        // un-redden flip at that moment — not at the bare end — otherwise the
+        // transition is missed and the polyline stays red.
+        final endEdge = end?.add(PolylineStyling.ongoingEndGrace);
+        if (endEdge != null && endEdge.isAfter(now)) {
+          if (nextEdge == null || endEdge.isBefore(nextEdge)) {
+            nextEdge = endEdge;
           }
         }
       }

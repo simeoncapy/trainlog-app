@@ -23,6 +23,11 @@ class PolylineStyling {
   static const double dashLen = 20.0;
   static const double gapLen = 20.0;
 
+  /// A trip is still considered "ongoing" (red) for this long after its
+  /// scheduled arrival. The flip scheduler must use the same grace so the
+  /// ongoing→past transition is actually scheduled at end + grace.
+  static const Duration ongoingEndGrace = Duration(minutes: 1);
+
   // ============================================================================
   // Temporal predicates
   // ============================================================================
@@ -38,7 +43,7 @@ class PolylineStyling {
     final end = e.utcEndDate;
     if (start == null || end == null) return false;
 
-    final inclusiveEnd = end.add(const Duration(minutes: 1));
+    final inclusiveEnd = end.add(ongoingEndGrace);
 
     return !nowUtc.isBefore(start) && !nowUtc.isAfter(inclusiveEnd);
   }
