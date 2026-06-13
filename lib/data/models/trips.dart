@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io' show HttpDate, HttpException;
 import 'package:google_polyline_algorithm/google_polyline_algorithm.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter/material.dart';
@@ -189,8 +190,8 @@ class Trips {
       utcStartDatetime: _toDateTimeOrCopy(json['utc_start_datetime'], start),
       utcEndDatetime: _toDateTimeOrNull(json['utc_end_datetime']),
       lineName: json['line_name']?.toString() ?? '',
-      created: DateTime.parse(json['created'].toString()),
-      lastModified: DateTime.parse(json['last_modified'].toString()),
+      created: _toDateTime(json['created']),
+      lastModified: _toDateTime(json['last_modified']),
       type: VehicleType.fromString(json['type']?.toString()),
       materialType: json['material_type']?.toString() ?? '',
       seat: json['seat']?.toString() ?? '',
@@ -258,9 +259,11 @@ class Trips {
   static DateTime? _toDateTimeOrNull(dynamic value, {bool forceUtc = true}) {
     if (value == null || value.toString().trim().isEmpty) return null;
     final str = value.toString();
+    // For naive ISO strings, appending 'Z' makes them parse as UTC. RFC 1123
+    // dates already carry their zone, so fall back to parsing the raw string.
     final dateStr = forceUtc && !str.endsWith('Z') ? '${str}Z' : str;
-    
-    return DateTime.tryParse(dateStr);
+
+    return _tryParseFlexibleDate(dateStr) ?? _tryParseFlexibleDate(str);
   }
 
   static DateTime? _toDateTimeOrCopy(dynamic value, DateTime? copy, {bool forceUtc = true}) {
@@ -280,8 +283,8 @@ class Trips {
       );
     }
     
-    final parsed = DateTime.tryParse(value.toString());
-    
+    final parsed = _tryParseFlexibleDate(value.toString());
+
     if (parsed == null || !forceUtc || parsed.isUtc) return parsed;
     
     // Convert parsed to UTC
@@ -308,7 +311,37 @@ class Trips {
     // the stringified value so both shapes resolve correctly.
     if (str == "-1") return unknownPast;
     if (str == "1") return unknownFuture;
-    return DateTime.parse(str);
+    final parsed = _tryParseFlexibleDate(str);
+    if (parsed == null) {
+      throw FormatException('Invalid date format', str);
+    }
+    return parsed;
+  }
+
+  /// Parses a required date, throwing if it is missing or unparseable.
+  static DateTime _toDateTime(dynamic value) {
+    final str = value?.toString().trim();
+    final parsed = (str == null || str.isEmpty) ? null : _tryParseFlexibleDate(str);
+    if (parsed == null) {
+      throw FormatException('Invalid date format', str);
+    }
+    return parsed;
+  }
+
+  /// Parses a date that may be ISO 8601 (CSV export / local cache) or RFC 1123 /
+  /// HTTP-date — the Flask getTripsPaths JSON endpoint serialises datetimes as
+  /// e.g. "Wed, 11 Jun 2026 14:26:52 GMT". Returns null if neither format fits.
+  static DateTime? _tryParseFlexibleDate(String value) {
+    final iso = DateTime.tryParse(value);
+    if (iso != null) return iso;
+    try {
+      // HttpDate.parse handles RFC 1123, RFC 850 and asctime, always UTC.
+      return HttpDate.parse(value);
+    } on HttpException {
+      return null;
+    } on FormatException {
+      return null;
+    }
   }
 }
 
