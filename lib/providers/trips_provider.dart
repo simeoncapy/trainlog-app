@@ -71,6 +71,16 @@ class TripsProvider extends ChangeNotifier {
     return data;
   }
 
+  /// Trip IDs removed server-side and detected via the incremental sync's
+  /// id list. Consume-once, like [modificatedTrips], so the polyline layer can
+  /// drop their polylines.
+  List<int>? _deletedTripIds;
+  List<int>? get deletedTripIds {
+    final data = _deletedTripIds;
+    _deletedTripIds = null;
+    return data;
+  }
+
   int _revision = 0;
   int get revision => _revision;
   int _polylineRevision = 0;
@@ -191,6 +201,10 @@ class TripsProvider extends ChangeNotifier {
     }
 
     try {
+      // Cursor persisted after the sync. The incremental path overrides this
+      // with the server's own `lastLocal` timestamp when one is provided.
+      DateTime cursorToPersist = DateTime.now().toUtc();
+
       if (lastRefresh == null) {
         debugPrint("🔄 Hard refreshing all trips data");
         final content = await _service!.fetchAllTripsData(_username ?? "");
@@ -202,17 +216,39 @@ class TripsProvider extends ChangeNotifier {
         );
       } else {
         debugPrint("🔄 Refreshing only necessary $_username's trips from ${lastRefresh.toIso8601String()}");
-        final trips = await _service!.fetchLastUpdatedTripsData(_username??"", lastRefresh);
-        if (trips.isEmpty) {
-          debugPrint("✅ Nothing to update.");
-          return; // finally block handles notifyListeners
-        }
+        final result = await _service!.fetchLastUpdatedTripsData(_username??"", lastRefresh);
+
+        _repository ??= await TripsRepository.loadFromDatabase();
+
         // Merge the thin getTripsPaths payload onto existing rows so the fields
         // it omits (operator, price, notes, …) are preserved.
-        _repository ??= await TripsRepository.loadFromDatabase();
-        await _repository!.mergePathUpdates(trips);
-        _modificatedTrips = [...?_modificatedTrips, ...trips];
-        debugPrint("✅ Finished updating ${trips.length} trips");
+        if (result.trips.isNotEmpty) {
+          await _repository!.mergePathUpdates(result.trips);
+          _modificatedTrips = [...?_modificatedTrips, ...result.trips];
+        }
+
+        // Deletion detection: drop local trips the server no longer lists.
+        // Guarded on a non-empty id list so an absent/empty list — e.g. while
+        // the backend endpoint is incomplete — can never wipe the local DB.
+        List<int> deleted = const [];
+        if (result.serverTripIds.isNotEmpty) {
+          deleted = await _repository!.deleteTripsNotIn(result.serverTripIds.toSet());
+          if (deleted.isNotEmpty) {
+            _deletedTripIds = [...?_deletedTripIds, ...deleted];
+            debugPrint("🗑️ Removed ${deleted.length} trip(s) deleted server-side");
+          }
+        }
+
+        // Advance the cursor to the server's own timestamp when provided.
+        if (result.lastLocal != null) cursorToPersist = result.lastLocal!;
+
+        if (result.trips.isEmpty && deleted.isEmpty) {
+          debugPrint("✅ Nothing to update.");
+          _settings!.setLastFetchingTrips(cursorToPersist);
+          return; // finally block handles notifyListeners
+        }
+
+        debugPrint("✅ Finished updating ${result.trips.length} trip(s), removed ${deleted.length}");
       }
 
       await _refreshDerivedLists();
@@ -225,7 +261,7 @@ class TripsProvider extends ChangeNotifier {
       _revision++;
       final count = await _repository!.count();
       debugPrint("✅ Finished loading trips. Total $count rows");
-      _settings!.setLastFetchingTripsNowUtc();
+      _settings!.setLastFetchingTrips(cursorToPersist);
     } catch (e, stack) {
       debugPrint("🛑 loadTrips failed: $e");
       debugPrintStack(stackTrace: stack);

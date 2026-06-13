@@ -688,21 +688,41 @@ class PolylineProvider extends ChangeNotifier {
     final trips = _trips;
     if (trips == null) return;
 
+    // Consume both signals up front (the getters clear themselves on read).
+    final deleted = trips.deletedTripIds;
     final partialUpdate = trips.modificatedTrips;
-    debugPrint('Trips changed (${partialUpdate?.length ?? -1})');
+    debugPrint('Trips changed (upserts=${partialUpdate?.length ?? -1}, deletes=${deleted?.length ?? 0})');
 
-    if (partialUpdate == null) {
-      _syncWithTrips();
+    // Drop polylines for trips removed server-side. Done first so any rebuild
+    // below already reflects the removals.
+    if (deleted != null && deleted.isNotEmpty) {
+      final removeSet = deleted.toSet();
+      _polylines.removeWhere((e) => removeSet.contains(e.tripId));
+    }
+
+    if (partialUpdate != null) {
+      // upsertPolylinesFromTrips reconciles filters, rebuilds and persists.
+      upsertPolylinesFromTrips(partialUpdate);
+      _lastTripsPolylineRevision = trips.polylineRevision;
+
+      // An incremental refresh only updates modified trips, so a polyline that
+      // was missing before the refresh will still be absent.  Run the integrity
+      // check to catch and recover any such gaps.
+      unawaited(_checkAndFixMissingPolylines(_loadToken));
       return;
     }
 
-    upsertPolylinesFromTrips(partialUpdate);
-    _lastTripsPolylineRevision = trips.polylineRevision;
+    if (deleted != null && deleted.isNotEmpty) {
+      // Deletions only: reconcile, rebuild and flush the (possibly smaller)
+      // list to the cache — write directly so an emptied list is persisted too.
+      _reconcileFiltersWithTrips();
+      _rebuildRenderedPolylines(notify: true);
+      _lastTripsPolylineRevision = trips.polylineRevision;
+      unawaited(PolylineCache.write(_polylines));
+      return;
+    }
 
-    // An incremental refresh only updates modified trips, so a polyline that
-    // was missing before the refresh will still be absent.  Run the integrity
-    // check to catch and recover any such gaps.
-    unawaited(_checkAndFixMissingPolylines(_loadToken));
+    _syncWithTrips();
   }
 
   void _onSettingsChanged() {

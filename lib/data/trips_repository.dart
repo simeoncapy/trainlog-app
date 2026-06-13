@@ -863,6 +863,37 @@ class TripsRepository {
     }
   }
 
+  /// Deletes every local trip whose uid is not in [keepIds] — the server's
+  /// complete current id set — and returns the deleted uids.
+  ///
+  /// WARNING: [keepIds] must be the *complete* set of trips that still exist
+  /// server-side. A partial list would delete trips that are still valid, so
+  /// callers pass an empty set as "unknown" and this method no-ops on it.
+  Future<List<int>> deleteTripsNotIn(Set<int> keepIds) async {
+    if (keepIds.isEmpty) return const [];
+    if (!_schemaChecked) {
+      await _ensureTripsTableSchema();
+      _schemaChecked = true;
+    }
+
+    final rows = await _db.query(TripsTable.tableName, columns: ['uid']);
+    final localIds = rows
+        .map((r) => int.tryParse(r['uid'].toString()))
+        .whereType<int>()
+        .toSet();
+
+    final toDelete = localIds.difference(keepIds);
+    if (toDelete.isEmpty) return const [];
+
+    final batch = _db.batch();
+    for (final id in toDelete) {
+      batch.delete(TripsTable.tableName, where: 'uid = ?', whereArgs: [id.toString()]);
+    }
+    await batch.commit(noResult: true);
+
+    return toDelete.toList();
+  }
+
   Future<void> clearAllTrips() async {
     await _db.delete(TripsTable.tableName);
   }
