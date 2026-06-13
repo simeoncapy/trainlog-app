@@ -189,9 +189,9 @@ class Trips {
       utcStartDatetime: _toDateTimeOrCopy(json['utc_start_datetime'], start),
       utcEndDatetime: _toDateTimeOrNull(json['utc_end_datetime']),
       lineName: json['line_name']?.toString() ?? '',
-      created: DateTime.parse(json['created']),
-      lastModified: DateTime.parse(json['last_modified']),
-      type: VehicleType.fromString(json['type']),
+      created: DateTime.parse(json['created'].toString()),
+      lastModified: DateTime.parse(json['last_modified'].toString()),
+      type: VehicleType.fromString(json['type']?.toString()),
       materialType: json['material_type']?.toString() ?? '',
       seat: json['seat']?.toString() ?? '',
       reg: json['reg']?.toString() ?? '',
@@ -204,7 +204,7 @@ class Trips {
       pathPoints: pathAsGooglePolyline 
                   ? (decodePolyline ? PolylineTools.decodePath(json['path']?.toString() ?? '') : null) 
                   : PolylineTools.toLatLngList(json['path']),
-      visibility: TripVisibility.fromString(json['visibility']),
+      visibility: TripVisibility.fromString(json['visibility']?.toString()),
       departureDelay: _toIntOrNull(json['departure_delay']),
       arrivalDelay: _toIntOrNull(json['arrival_delay']),
     );
@@ -305,13 +305,16 @@ class Trips {
     return double.parse(str);
   }
 
-  static DateTime _toDateTimeUnknownPastFuture(String? value) {
-    final str = value?.trim();
+  static DateTime _toDateTimeUnknownPastFuture(dynamic value) {
+    final str = value?.toString().trim();
     if (str == null || str.isEmpty) {
       throw FormatException('Cannot parse empty value as DateTime');
     }
-    if(value == "-1") return unknownPast;
-    if(value == "1") return unknownFuture;
+    // The CSV export delivers the sentinels as strings ("-1"/"1") while the
+    // getTripsPaths JSON endpoint delivers them as raw integers — compare on
+    // the stringified value so both shapes resolve correctly.
+    if (str == "-1") return unknownPast;
+    if (str == "1") return unknownFuture;
     return DateTime.parse(str);
   }
 }
