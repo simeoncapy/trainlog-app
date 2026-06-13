@@ -53,19 +53,23 @@ class TripsApi {
       final rawTrips = data["trips"];
       if (rawTrips is! List) return [];
 
-      return rawTrips
-        .map((json) {
-          debugPrint('json type: ${json.runtimeType}');
-          final tripData = json['trip'] as Map<String, dynamic>;
-          final path = json['path'];
-
-          // Merge trip data with path at the same level
-          return Trips.fromJson(
+      // Parse per-trip so a single malformed trip is skipped (and logged with
+      // its raw payload) instead of dropping the whole incremental batch.
+      final out = <Trips>[];
+      for (final json in rawTrips) {
+        final tripData = json['trip'] as Map<String, dynamic>;
+        final path = json['path'];
+        try {
+          out.add(Trips.fromJson(
             {...tripData, 'path': path},
-            pathAsGooglePolyline: false
-          );
-        })
-        .toList();
+            pathAsGooglePolyline: false,
+          ));
+        } catch (e) {
+          debugPrint('⚠️ Skipping trip that failed to parse: $e');
+          debugPrint('   raw trip: $tripData');
+        }
+      }
+      return out;
 
     } catch (e) {
       debugPrint('debugPrintFirstTrips: error fetching $path: $e');
