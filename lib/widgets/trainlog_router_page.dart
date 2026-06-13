@@ -115,7 +115,7 @@ class _TrainlogRouterPageState extends State<TrainlogRouterPage> {
     if (provider == null || cookieWebUri == null) return;
 
     try {
-      final cookies = await provider.service.getCookiesForWebView();
+      final cookies = await provider.getCookiesForWebView();
       if (!mounted) return;
 
       final cookieManager = CookieManager.instance();

@@ -1,3 +1,4 @@
+import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:trainlog_app/data/models/news_model.dart';
@@ -5,9 +6,9 @@ import 'package:trainlog_app/data/models/pre_record_model.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
+import 'package:trainlog_app/services/api/api_import.dart';
 import 'package:trainlog_app/utils/cached_data_utils.dart';
 import 'package:trainlog_app/utils/text_utils.dart';
-import '../services/trainlog_service.dart';
 import 'package:latlong2/latlong.dart';
 import "package:unorm_dart/unorm_dart.dart" as unorm;
 
@@ -22,7 +23,12 @@ typedef StationInfo = (
 enum InstanceType {legacy, dev, localhost, user}
 
 class TrainlogProvider extends ChangeNotifier {
-  TrainlogService _service;
+  TrainlogHttpClient _client;
+  late AuthApi _auth;
+  late TripsApi _tripsApi;
+  late StationsApi _stations;
+  late AccountApi _account;
+  late MiscApi _misc;
 
   bool _loading = false;
   bool _isAuthenticated = false;
@@ -33,19 +39,38 @@ class TrainlogProvider extends ChangeNotifier {
   Map<String, String> _listOperators = Map();
   List<String> _availableCurrencies = [];
 
-  TrainlogProvider({TrainlogService? service})
-      : _service = service ?? TrainlogService();
+  TrainlogProvider({TrainlogHttpClient? client})
+      : _client = client ?? TrainlogHttpClient() {
+    _buildApis();
+  }
+
+  /// (Re)builds the per-domain API objects against the current [_client].
+  /// Called on construction and whenever the underlying client is swapped
+  /// (e.g. after an instance URL change).
+  void _buildApis() {
+    _auth = AuthApi(_client);
+    _tripsApi = TripsApi(_client);
+    _stations = StationsApi(_client);
+    _account = AccountApi(_client);
+    _misc = MiscApi(_client);
+  }
 
   bool get loading => _loading;
   bool get isAuthenticated => _isAuthenticated;
   String? get error => _error;
   String? get username => _username;
   TrainlogLoginResult? get session => _session;
-  TrainlogService get service => _service;
+
+  /// The trips data API, handed to [TripsProvider] so it shares this session.
+  TripsApi get tripsApi => _tripsApi;
+
   Map<String, String> get listOperators => _listOperators;
   List<String> get availableCurrencies => _availableCurrencies;
 
-  String get instanceUrl => _service.baseUrl;
+  String get instanceUrl => _client.baseUrl;
+
+  /// Cookies for the authenticated session, used by the embedded WebView shells.
+  Future<List<Cookie>> getCookiesForWebView() => _auth.getCookiesForWebView();
   
   Future<bool> login({
     required String username,
@@ -57,14 +82,14 @@ class TrainlogProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final res = await _service.login(username: username, password: password);
+      final res = await _auth.login(username: username, password: password);
       _session = res;
       _isAuthenticated = res.success;
       if (res.success) {
         _username = username; // keep what the user typed
         settings?.setUsername(username);
-        _listOperatorsLogoUrl = await _service.fetchAllOperatorLogosUrl(username);
-        _availableCurrencies = await _service.fetchAvailableCurrencies(username);
+        _listOperatorsLogoUrl = await _misc.fetchAllOperatorLogosUrl(username);
+        _availableCurrencies = await _account.fetchAvailableCurrencies(username);
       } else {
         _username = null;
         _error = res.failureReason ?? 'Invalid username or password';
@@ -85,7 +110,7 @@ class TrainlogProvider extends ChangeNotifier {
     _error = null;
     notifyListeners();
     try {
-      await _service.clearSession();
+      await _auth.clearSession();
       settings.clearUsername();
       settings.clearLastFetchingTrips();
       settings.setShouldReloadPolylines(true);
@@ -111,7 +136,7 @@ class TrainlogProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final (res, failureReason) = await _service.signup(
+      final (res, failureReason) = await _auth.signup(
         username: username, 
         password: password, 
         email: email, 
@@ -134,16 +159,17 @@ class TrainlogProvider extends ChangeNotifier {
   Future<bool> setInstanceUrl(String url) async {
     if(isAuthenticated) return false;
     if(url == instanceUrl) return true; // no change
-    _service = await TrainlogService.persistent(baseUrl: url);
+    _client = await TrainlogHttpClient.persistent(baseUrl: url);
+    _buildApis();
     notifyListeners();
     return true;
   }
 
   Map<InstanceType, String> getListOfInstances({SettingsProvider? settings}) {
     Map<InstanceType, String> instances = {};
-    instances[InstanceType.legacy] = TrainlogService.urlLegacy;
-    instances[InstanceType.dev] = TrainlogService.urlDev;
-    instances[InstanceType.localhost] = TrainlogService.urlLocalhost;
+    instances[InstanceType.legacy] = TrainlogHttpClient.urlLegacy;
+    instances[InstanceType.dev] = TrainlogHttpClient.urlDev;
+    instances[InstanceType.localhost] = TrainlogHttpClient.urlLocalhost;
     if(settings != null) {
       instances[InstanceType.user] = settings.userInstanceUrl;
     }
@@ -155,7 +181,7 @@ class TrainlogProvider extends ChangeNotifier {
     _error = null;
     notifyListeners();
     try {
-      final ok = await _service.checkAuthenticated();
+      final ok = await _auth.checkAuthenticated();
       _isAuthenticated = ok;
       // (Optional) fetch/display username if there’s a profile endpoint
       if (ok) {
@@ -164,13 +190,13 @@ class TrainlogProvider extends ChangeNotifier {
       
         // 2) Optional: if not present, ask the API once (no scraping).
         if (_username == null) {
-          final apiName = await _service.fetchUsernameViaApi(); // TODO wire real API
+          final apiName = await _auth.fetchUsernameViaApi(); // TODO wire real API
           if (apiName != null) {
             _username = apiName;
             settings?.setUsername(apiName);
           }
         }
-        if(_username != null) _listOperatorsLogoUrl = await _service.fetchAllOperatorLogosUrl(_username!);
+        if(_username != null) _listOperatorsLogoUrl = await _misc.fetchAllOperatorLogosUrl(_username!);
       } else {
         _username = null;
       }
@@ -189,21 +215,21 @@ class TrainlogProvider extends ChangeNotifier {
 
   // Expose authenticated requests for the rest of the app.
   Future<Response<T>> get<T>(String path, {Map<String, dynamic>? query}) =>
-      _service.get<T>(path, query: query);
+      _client.get<T>(path, query: query);
 
   Future<Response<T>> post<T>(String path, Map<String, dynamic> data) =>
-      _service.post<T>(path, data);
+      _client.post<T>(path, data);
 
   Future<void> reloadOperatorList() async {
     if (_username == null) return;
-    _listOperatorsLogoUrl = await _service.fetchAllOperatorLogosUrl(_username ?? "");
+    _listOperatorsLogoUrl = await _misc.fetchAllOperatorLogosUrl(_username ?? "");
 
     notifyListeners();
   }
 
   Future<void> reloadAvailableCurrencies() async {
     if (_username == null) return;
-    _availableCurrencies = await _service.fetchAvailableCurrencies(_username ?? "");
+    _availableCurrencies = await _account.fetchAvailableCurrencies(_username ?? "");
 
     notifyListeners();
   }
@@ -290,7 +316,7 @@ class TrainlogProvider extends ChangeNotifier {
 
   Future<Map<String, dynamic>> fetchStatsForVehicleType(VehicleType type, int? year) async {
     if (_username == null) return {};
-    return await _service.fetchStatsByVehicle(_username ?? "", type, year);
+    return await _misc.fetchStatsByVehicle(_username ?? "", type, year);
   }
 
   /// Return up to [limit] operators that match [query] by
@@ -393,10 +419,10 @@ class TrainlogProvider extends ChangeNotifier {
 
     // Run all three in parallel
     final manualFuture =
-        service.fetchAllManualStationsSuffixed(_username!, type);
-    final osmFuture = service.fetchStations(query, type);
+        _stations.fetchAllManualStationsSuffixed(_username!, type);
+    final osmFuture = _stations.fetchStations(query, type);
     final visitsFuture =
-        service.fetchAllVisitedStations(_username!, type);
+        _misc.fetchAllVisitedStations(_username!, type);
 
     final manualMap = await manualFuture;
     final osmMap = await osmFuture;
@@ -483,7 +509,7 @@ class TrainlogProvider extends ChangeNotifier {
     double long,
   ) async {
 
-    final (name, address, type, distance) = await _service.findStationFromCoordinate(lat, long);
+    final (name, address, type, distance) = await _stations.findStationFromCoordinate(lat, long);
 
     return PreRecordModel(
       id: DateTime.now().millisecondsSinceEpoch,
@@ -503,8 +529,8 @@ class TrainlogProvider extends ChangeNotifier {
     bool returnUniqueEvenIfOutOfRange = true,
     }
   ) {
-    return _service.findStationFromCoordinate(lat, long, 
-      distanceLimitMeters: distanceLimitMeters, 
+    return _stations.findStationFromCoordinate(lat, long,
+      distanceLimitMeters: distanceLimitMeters,
       returnUniqueEvenIfOutOfRange: returnUniqueEvenIfOutOfRange
     );
   }
@@ -516,45 +542,45 @@ class TrainlogProvider extends ChangeNotifier {
       bool returnUniqueEvenIfOutOfRange = true,
     }
   ) {
-    return _service.findStationsFromCoordinate(
-      lat, 
-      long, 
-      distanceLimitMeters: distanceLimitMeters, 
+    return _stations.findStationsFromCoordinate(
+      lat,
+      long,
+      distanceLimitMeters: distanceLimitMeters,
       returnUniqueEvenIfOutOfRange: returnUniqueEvenIfOutOfRange
     );
   }
 
   Future<Map<String, String>> fetchAccountSettings() async {
     if (_username == null) return {};
-    return await _service.fetchAccountSettings(_username!);
+    return await _account.fetchAccountSettings(_username!);
   }
 
   Future<void> updateAccountSettings(Map<String, dynamic> settings) async {
     if (_username == null) return;
-    await _service.updateAccountSettings(_username!, settings);
+    await _account.updateAccountSettings(_username!, settings);
   }
 
   Future<List<String>> fetchAvailableCurrencies() async {
     if (_username == null) return [];
-    return await _service.fetchAvailableCurrencies(_username!);
+    return await _account.fetchAvailableCurrencies(_username!);
   }
 
   Future<bool> deleteTrip(int tripId) async {
     if (_username == null) return false;
-    return _service.deleteTrip(_username!, tripId);
+    return _tripsApi.deleteTrip(_username!, tripId);
   }
 
   Future<bool> deleteTrips(List<int> tripIds) async {
     if (_username == null) return false;
-    return _service.deleteTrips(_username!, tripIds);
+    return _tripsApi.deleteTrips(_username!, tripIds);
   }
 
   Future<int> fetchNewsCount(SettingsProvider settings) {
-    return _service.fetchNewsCount(settings.lastNewsVisit);
+    return _misc.fetchNewsCount(settings.lastNewsVisit);
   }
 
-  Future<List<NewsModel>> fetchNews(SettingsProvider settings) async {    
-    final out = _service.fetchNews(settings.lastNewsVisit);
+  Future<List<NewsModel>> fetchNews(SettingsProvider settings) async {
+    final out = _misc.fetchNews(settings.lastNewsVisit);
     settings.setLastNewsVisitNowUtc();
     return out;
   }

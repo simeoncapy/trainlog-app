@@ -44,7 +44,7 @@ class _TrainlogWebPageState extends State<TrainlogWebPage> {
   /// Copy Dio cookies into the WebView cookie store
   Future<void> _injectCookies() async {
     final cookies =
-        await provider.service.getCookiesForWebView(); // ← helper in service
+        await provider.getCookiesForWebView(); // ← helper in provider
 
     final cookieManager = CookieManager.instance();
 

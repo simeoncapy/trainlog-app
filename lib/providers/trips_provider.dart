@@ -5,12 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/data/trips_repository.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
-import 'package:trainlog_app/services/trainlog_service.dart';
+import 'package:trainlog_app/services/api/trips_api.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 
 class TripsProvider extends ChangeNotifier {
   TripsRepository? _repository;
-  TrainlogService? _service;
+  TripsApi? _service;
   SettingsProvider? _settings;
   String? _username;
   bool _hasLoadedForUser = false;
@@ -71,13 +71,23 @@ class TripsProvider extends ChangeNotifier {
     return data;
   }
 
+  /// Trip IDs removed server-side and detected via the incremental sync's
+  /// id list. Consume-once, like [modificatedTrips], so the polyline layer can
+  /// drop their polylines.
+  List<int>? _deletedTripIds;
+  List<int>? get deletedTripIds {
+    final data = _deletedTripIds;
+    _deletedTripIds = null;
+    return data;
+  }
+
   int _revision = 0;
   int get revision => _revision;
   int _polylineRevision = 0;
   int get polylineRevision => _polylineRevision;
 
   void updateDeps({
-    required TrainlogService service,
+    required TripsApi service,
     required SettingsProvider settings,
     required String? username,
   }) {
@@ -191,6 +201,10 @@ class TripsProvider extends ChangeNotifier {
     }
 
     try {
+      // Cursor persisted after the sync. The incremental path overrides this
+      // with the server's own `lastLocal` timestamp when one is provided.
+      DateTime cursorToPersist = DateTime.now().toUtc();
+
       if (lastRefresh == null) {
         debugPrint("🔄 Hard refreshing all trips data");
         final content = await _service!.fetchAllTripsData(_username ?? "");
@@ -202,14 +216,39 @@ class TripsProvider extends ChangeNotifier {
         );
       } else {
         debugPrint("🔄 Refreshing only necessary $_username's trips from ${lastRefresh.toIso8601String()}");
-        final trips = await _service!.fetchLastUpdatedTripsData(_username??"", lastRefresh);
-        if (trips.isEmpty) {
+        final result = await _service!.fetchLastUpdatedTripsData(_username??"", lastRefresh);
+
+        _repository ??= await TripsRepository.loadFromDatabase();
+
+        // Merge the getTripsPaths payload onto existing rows, writing only the
+        // fields it actually carried so omitted fields keep their values.
+        if (result.updates.isNotEmpty) {
+          await _repository!.mergeTripUpdates(result.updates);
+          _modificatedTrips = [...?_modificatedTrips, ...result.trips];
+        }
+
+        // Deletion detection: drop local trips the server no longer lists.
+        // Guarded on a non-empty id list so an absent/empty list — e.g. while
+        // the backend endpoint is incomplete — can never wipe the local DB.
+        List<int> deleted = const [];
+        if (result.serverTripIds.isNotEmpty) {
+          deleted = await _repository!.deleteTripsNotIn(result.serverTripIds.toSet());
+          if (deleted.isNotEmpty) {
+            _deletedTripIds = [...?_deletedTripIds, ...deleted];
+            debugPrint("🗑️ Removed ${deleted.length} trip(s) deleted server-side");
+          }
+        }
+
+        // Advance the cursor to the server's own timestamp when provided.
+        if (result.lastLocal != null) cursorToPersist = result.lastLocal!;
+
+        if (result.updates.isEmpty && deleted.isEmpty) {
           debugPrint("✅ Nothing to update.");
+          _settings!.setLastFetchingTrips(cursorToPersist);
           return; // finally block handles notifyListeners
         }
-        _repository = await TripsRepository.loadFromTripsList(trips);
-        _modificatedTrips = [...?_modificatedTrips, ...trips];
-        debugPrint("✅ Finished updating ${trips.length} trips");
+
+        debugPrint("✅ Finished updating ${result.updates.length} trip(s), removed ${deleted.length}");
       }
 
       await _refreshDerivedLists();
@@ -222,7 +261,7 @@ class TripsProvider extends ChangeNotifier {
       _revision++;
       final count = await _repository!.count();
       debugPrint("✅ Finished loading trips. Total $count rows");
-      _settings!.setLastFetchingTripsNowUtc();
+      _settings!.setLastFetchingTrips(cursorToPersist);
     } catch (e, stack) {
       debugPrint("🛑 loadTrips failed: $e");
       debugPrintStack(stackTrace: stack);

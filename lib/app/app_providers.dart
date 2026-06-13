@@ -34,7 +34,7 @@ class AppProviders extends StatelessWidget {
           update: (_, auth, settings, trips) {
             final instance = trips ?? TripsProvider();
             instance.updateDeps(
-              service: auth.service,
+              service: auth.tripsApi,
               settings: settings,
               username: auth.username,
             );

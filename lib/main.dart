@@ -8,8 +8,8 @@ import 'package:trainlog_app/app/app_providers.dart';
 import 'package:trainlog_app/navigation/platform_shell.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
+import 'package:trainlog_app/services/api/trainlog_http_client.dart';
 import 'package:trainlog_app/services/secure_cookie_storage.dart';
-import 'package:trainlog_app/services/trainlog_service.dart';
 import 'package:trainlog_app/utils/cached_data_utils.dart';
 
 import 'package:firebase_core/firebase_core.dart';
@@ -58,8 +58,8 @@ Future<void> main() async {
   }
   await settings.markHasRunBefore();
 
-  final service = await TrainlogService.persistent();
-  final auth = TrainlogProvider(service: service);
+  final client = await TrainlogHttpClient.persistent();
+  final auth = TrainlogProvider(client: client);
   await auth.tryRestoreSession(settings: settings);
 
   LicenseRegistry.addLicense(() async* {

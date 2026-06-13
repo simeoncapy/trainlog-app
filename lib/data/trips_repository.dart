@@ -813,6 +813,90 @@ class TripsRepository {
     await batch.commit(noResult: true);
   }
 
+  /// Merges incremental trip updates from `getTripsPaths`.
+  ///
+  /// For a trip that already exists, only the columns the payload actually
+  /// carried (see [TripUpdate.sourceKeys] / [TripUpdate.hasPath]) are written,
+  /// so fields the payload omits keep their current values. This adapts to both
+  /// the thin path-only shape and a full trip object. A trip not yet in the
+  /// table is inserted with whatever data is available.
+  Future<void> mergeTripUpdates(List<TripUpdate> updates) async {
+    if (!_schemaChecked) {
+      await _ensureTripsTableSchema();
+      _schemaChecked = true;
+    }
+
+    for (final update in updates) {
+      final full = update.trip.toJson();
+      final columns = _columnsForKeys(update.sourceKeys, update.hasPath);
+      final patch = {for (final c in columns) c: full[c]};
+
+      final updated = patch.isEmpty
+          ? 0
+          : await _db.update(
+              TripsTable.tableName,
+              patch,
+              where: 'uid = ?',
+              whereArgs: [update.trip.uid],
+            );
+
+      if (updated == 0) {
+        // Not seen before (or nothing mappable to update): insert the full record.
+        await _db.insert(
+          TripsTable.tableName,
+          full,
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        );
+      }
+    }
+  }
+
+  /// Maps the payload's raw keys to the DB columns to overwrite. The `uid`
+  /// primary key is never updated; the `utc_filtered_*` variants map onto the
+  /// canonical `utc_*` columns; and a top-level path maps to the `path` column.
+  Set<String> _columnsForKeys(Set<String> keys, bool hasPath) {
+    final cols = <String>{};
+    for (final column in TripsTable.columns.keys) {
+      if (column == 'uid') continue;
+      if (keys.contains(column)) cols.add(column);
+    }
+    if (keys.contains('utc_filtered_start_datetime')) cols.add('utc_start_datetime');
+    if (keys.contains('utc_filtered_end_datetime')) cols.add('utc_end_datetime');
+    if (hasPath) cols.add('path');
+    return cols;
+  }
+
+  /// Deletes every local trip whose uid is not in [keepIds] — the server's
+  /// complete current id set — and returns the deleted uids.
+  ///
+  /// WARNING: [keepIds] must be the *complete* set of trips that still exist
+  /// server-side. A partial list would delete trips that are still valid, so
+  /// callers pass an empty set as "unknown" and this method no-ops on it.
+  Future<List<int>> deleteTripsNotIn(Set<int> keepIds) async {
+    if (keepIds.isEmpty) return const [];
+    if (!_schemaChecked) {
+      await _ensureTripsTableSchema();
+      _schemaChecked = true;
+    }
+
+    final rows = await _db.query(TripsTable.tableName, columns: ['uid']);
+    final localIds = rows
+        .map((r) => int.tryParse(r['uid'].toString()))
+        .whereType<int>()
+        .toSet();
+
+    final toDelete = localIds.difference(keepIds);
+    if (toDelete.isEmpty) return const [];
+
+    final batch = _db.batch();
+    for (final id in toDelete) {
+      batch.delete(TripsTable.tableName, where: 'uid = ?', whereArgs: [id.toString()]);
+    }
+    await batch.commit(noResult: true);
+
+    return toDelete.toList();
+  }
+
   Future<void> clearAllTrips() async {
     await _db.delete(TripsTable.tableName);
   }
