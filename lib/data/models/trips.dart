@@ -187,11 +187,16 @@ class Trips {
       tripLength: _toDoubleOrNull(json['trip_length']) ?? 0.0,
       operatorName: json['operator']?.toString() ?? '',
       countries: json['countries']?.toString() ?? '',
-      utcStartDatetime: _toDateTimeOrCopy(json['utc_start_datetime'], start),
-      utcEndDatetime: _toDateTimeOrNull(json['utc_end_datetime']),
+      utcStartDatetime: _toDateTimeOrCopy(
+          json['utc_start_datetime'] ?? json['utc_filtered_start_datetime'], start),
+      utcEndDatetime: _toDateTimeOrNull(
+          json['utc_end_datetime'] ?? json['utc_filtered_end_datetime']),
       lineName: json['line_name']?.toString() ?? '',
-      created: _toDateTime(json['created']),
-      lastModified: _toDateTime(json['last_modified']),
+      // The getTripsPaths incremental endpoint omits created/last_modified;
+      // default them so parsing succeeds (these columns are not overwritten on
+      // an incremental merge of an existing trip).
+      created: _toDateTimeOrNull(json['created'], forceUtc: false) ?? DateTime.now().toUtc(),
+      lastModified: _toDateTimeOrNull(json['last_modified'], forceUtc: false) ?? DateTime.now().toUtc(),
       type: VehicleType.fromString(json['type']?.toString()),
       materialType: json['material_type']?.toString() ?? '',
       seat: json['seat']?.toString() ?? '',
@@ -312,16 +317,6 @@ class Trips {
     if (str == "-1") return unknownPast;
     if (str == "1") return unknownFuture;
     final parsed = _tryParseFlexibleDate(str);
-    if (parsed == null) {
-      throw FormatException('Invalid date format', str);
-    }
-    return parsed;
-  }
-
-  /// Parses a required date, throwing if it is missing or unparseable.
-  static DateTime _toDateTime(dynamic value) {
-    final str = value?.toString().trim();
-    final parsed = (str == null || str.isEmpty) ? null : _tryParseFlexibleDate(str);
     if (parsed == null) {
       throw FormatException('Invalid date format', str);
     }

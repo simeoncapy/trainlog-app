@@ -813,6 +813,56 @@ class TripsRepository {
     await batch.commit(noResult: true);
   }
 
+  /// Columns carried by the `getTripsPaths` incremental endpoint. Only these
+  /// are written when merging an update onto an existing trip, so the richer
+  /// fields the endpoint omits (operator, countries, price, currency, notes,
+  /// visibility, created, …) are preserved.
+  static const List<String> _pathUpdateColumns = [
+    'username',
+    'origin_station',
+    'destination_station',
+    'start_datetime',
+    'end_datetime',
+    'utc_start_datetime',
+    'utc_end_datetime',
+    'trip_length',
+    'type',
+    'path',
+  ];
+
+  /// Merges incremental trip updates from `getTripsPaths`.
+  ///
+  /// For a trip that already exists, only [_pathUpdateColumns] are updated so
+  /// the fields the endpoint does not return are left untouched. A trip not yet
+  /// in the table is inserted with whatever (partial) data is available.
+  Future<void> mergePathUpdates(List<Trips> trips) async {
+    if (!_schemaChecked) {
+      await _ensureTripsTableSchema();
+      _schemaChecked = true;
+    }
+
+    for (final trip in trips) {
+      final full = trip.toJson();
+      final patch = {for (final c in _pathUpdateColumns) c: full[c]};
+
+      final updated = await _db.update(
+        TripsTable.tableName,
+        patch,
+        where: 'uid = ?',
+        whereArgs: [trip.uid],
+      );
+
+      if (updated == 0) {
+        // Not seen before: insert the full (possibly partial) record.
+        await _db.insert(
+          TripsTable.tableName,
+          full,
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        );
+      }
+    }
+  }
+
   Future<void> clearAllTrips() async {
     await _db.delete(TripsTable.tableName);
   }

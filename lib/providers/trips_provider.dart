@@ -207,7 +207,10 @@ class TripsProvider extends ChangeNotifier {
           debugPrint("✅ Nothing to update.");
           return; // finally block handles notifyListeners
         }
-        _repository = await TripsRepository.loadFromTripsList(trips);
+        // Merge the thin getTripsPaths payload onto existing rows so the fields
+        // it omits (operator, price, notes, …) are preserved.
+        _repository ??= await TripsRepository.loadFromDatabase();
+        await _repository!.mergePathUpdates(trips);
         _modificatedTrips = [...?_modificatedTrips, ...trips];
         debugPrint("✅ Finished updating ${trips.length} trips");
       }
