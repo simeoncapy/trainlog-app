@@ -6,8 +6,9 @@ import 'package:trainlog_app/services/api/trainlog_http_client.dart';
 
 /// Result of an incremental `getTripsPaths` sync.
 class IncrementalTripsResult {
-  /// Trips changed since the requested timestamp (thin getTripsPaths shape).
-  final List<Trips> trips;
+  /// Trips changed since the requested timestamp, each paired with the payload
+  /// keys it carried so the repository can merge only the provided fields.
+  final List<TripUpdate> updates;
 
   /// Full set of trip IDs the server currently lists for the user, used for
   /// deletion detection. Empty when the endpoint did not send `idList` — an
@@ -18,13 +19,16 @@ class IncrementalTripsResult {
   final DateTime? lastLocal;
 
   const IncrementalTripsResult({
-    required this.trips,
+    required this.updates,
     required this.serverTripIds,
     required this.lastLocal,
   });
 
+  /// The parsed trips only (e.g. for the polyline partial-update path).
+  List<Trips> get trips => updates.map((u) => u.trip).toList();
+
   static const IncrementalTripsResult empty =
-      IncrementalTripsResult(trips: [], serverTripIds: [], lastLocal: null);
+      IncrementalTripsResult(updates: [], serverTripIds: [], lastLocal: null);
 }
 
 /// Trip data domain: fetching the user's trip exports/paths and deleting trips.
@@ -73,19 +77,25 @@ class TripsApi {
       final data = res.data; // already decoded JSON
       if (data == null) return IncrementalTripsResult.empty;
 
-      // ---- Changed trips (thin getTripsPaths shape) -------------------------
+      // ---- Changed trips ----------------------------------------------------
       // Parse per-trip so a single malformed trip is skipped (and logged with
-      // its raw payload) instead of dropping the whole incremental batch.
-      final trips = <Trips>[];
+      // its raw payload) instead of dropping the whole incremental batch. Keep
+      // the payload's keys so the repository merges only the provided fields.
+      final updates = <TripUpdate>[];
       final rawTrips = data["trips"];
       if (rawTrips is List) {
         for (final json in rawTrips) {
           final tripData = json['trip'] as Map<String, dynamic>;
           final path = json['path'];
           try {
-            trips.add(Trips.fromJson(
+            final trip = Trips.fromJson(
               {...tripData, 'path': path},
               pathAsGooglePolyline: false,
+            );
+            updates.add(TripUpdate(
+              trip: trip,
+              sourceKeys: tripData.keys.toSet(),
+              hasPath: path != null,
             ));
           } catch (e) {
             debugPrint('⚠️ Skipping trip that failed to parse: $e');
@@ -110,7 +120,7 @@ class TripsApi {
           rawLastLocal == null ? null : DateTime.tryParse(rawLastLocal.toString());
 
       return IncrementalTripsResult(
-        trips: trips,
+        updates: updates,
         serverTripIds: serverTripIds,
         lastLocal: lastLocal,
       );

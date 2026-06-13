@@ -340,6 +340,23 @@ class Trips {
   }
 }
 
+/// A parsed trip from the incremental `getTripsPaths` sync, together with the
+/// raw payload keys it actually carried. The repository uses [sourceKeys] /
+/// [hasPath] to decide which DB columns to overwrite, so fields the payload
+/// omits keep their existing values (and fields it includes — even explicit
+/// nulls like a cleared `departure_delay` — are applied).
+class TripUpdate {
+  final Trips trip;
+  final Set<String> sourceKeys;
+  final bool hasPath;
+
+  const TripUpdate({
+    required this.trip,
+    required this.sourceKeys,
+    required this.hasPath,
+  });
+}
+
 
 enum VehicleType {
   train,

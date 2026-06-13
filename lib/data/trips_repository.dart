@@ -813,47 +813,35 @@ class TripsRepository {
     await batch.commit(noResult: true);
   }
 
-  /// Columns carried by the `getTripsPaths` incremental endpoint. Only these
-  /// are written when merging an update onto an existing trip, so the richer
-  /// fields the endpoint omits (operator, countries, price, currency, notes,
-  /// visibility, created, …) are preserved.
-  static const List<String> _pathUpdateColumns = [
-    'username',
-    'origin_station',
-    'destination_station',
-    'start_datetime',
-    'end_datetime',
-    'utc_start_datetime',
-    'utc_end_datetime',
-    'trip_length',
-    'type',
-    'path',
-  ];
-
   /// Merges incremental trip updates from `getTripsPaths`.
   ///
-  /// For a trip that already exists, only [_pathUpdateColumns] are updated so
-  /// the fields the endpoint does not return are left untouched. A trip not yet
-  /// in the table is inserted with whatever (partial) data is available.
-  Future<void> mergePathUpdates(List<Trips> trips) async {
+  /// For a trip that already exists, only the columns the payload actually
+  /// carried (see [TripUpdate.sourceKeys] / [TripUpdate.hasPath]) are written,
+  /// so fields the payload omits keep their current values. This adapts to both
+  /// the thin path-only shape and a full trip object. A trip not yet in the
+  /// table is inserted with whatever data is available.
+  Future<void> mergeTripUpdates(List<TripUpdate> updates) async {
     if (!_schemaChecked) {
       await _ensureTripsTableSchema();
       _schemaChecked = true;
     }
 
-    for (final trip in trips) {
-      final full = trip.toJson();
-      final patch = {for (final c in _pathUpdateColumns) c: full[c]};
+    for (final update in updates) {
+      final full = update.trip.toJson();
+      final columns = _columnsForKeys(update.sourceKeys, update.hasPath);
+      final patch = {for (final c in columns) c: full[c]};
 
-      final updated = await _db.update(
-        TripsTable.tableName,
-        patch,
-        where: 'uid = ?',
-        whereArgs: [trip.uid],
-      );
+      final updated = patch.isEmpty
+          ? 0
+          : await _db.update(
+              TripsTable.tableName,
+              patch,
+              where: 'uid = ?',
+              whereArgs: [update.trip.uid],
+            );
 
       if (updated == 0) {
-        // Not seen before: insert the full (possibly partial) record.
+        // Not seen before (or nothing mappable to update): insert the full record.
         await _db.insert(
           TripsTable.tableName,
           full,
@@ -861,6 +849,21 @@ class TripsRepository {
         );
       }
     }
+  }
+
+  /// Maps the payload's raw keys to the DB columns to overwrite. The `uid`
+  /// primary key is never updated; the `utc_filtered_*` variants map onto the
+  /// canonical `utc_*` columns; and a top-level path maps to the `path` column.
+  Set<String> _columnsForKeys(Set<String> keys, bool hasPath) {
+    final cols = <String>{};
+    for (final column in TripsTable.columns.keys) {
+      if (column == 'uid') continue;
+      if (keys.contains(column)) cols.add(column);
+    }
+    if (keys.contains('utc_filtered_start_datetime')) cols.add('utc_start_datetime');
+    if (keys.contains('utc_filtered_end_datetime')) cols.add('utc_end_datetime');
+    if (hasPath) cols.add('path');
+    return cols;
   }
 
   /// Deletes every local trip whose uid is not in [keepIds] — the server's

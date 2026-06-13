@@ -220,10 +220,10 @@ class TripsProvider extends ChangeNotifier {
 
         _repository ??= await TripsRepository.loadFromDatabase();
 
-        // Merge the thin getTripsPaths payload onto existing rows so the fields
-        // it omits (operator, price, notes, …) are preserved.
-        if (result.trips.isNotEmpty) {
-          await _repository!.mergePathUpdates(result.trips);
+        // Merge the getTripsPaths payload onto existing rows, writing only the
+        // fields it actually carried so omitted fields keep their values.
+        if (result.updates.isNotEmpty) {
+          await _repository!.mergeTripUpdates(result.updates);
           _modificatedTrips = [...?_modificatedTrips, ...result.trips];
         }
 
@@ -242,13 +242,13 @@ class TripsProvider extends ChangeNotifier {
         // Advance the cursor to the server's own timestamp when provided.
         if (result.lastLocal != null) cursorToPersist = result.lastLocal!;
 
-        if (result.trips.isEmpty && deleted.isEmpty) {
+        if (result.updates.isEmpty && deleted.isEmpty) {
           debugPrint("✅ Nothing to update.");
           _settings!.setLastFetchingTrips(cursorToPersist);
           return; // finally block handles notifyListeners
         }
 
-        debugPrint("✅ Finished updating ${result.trips.length} trip(s), removed ${deleted.length}");
+        debugPrint("✅ Finished updating ${result.updates.length} trip(s), removed ${deleted.length}");
       }
 
       await _refreshDerivedLists();
