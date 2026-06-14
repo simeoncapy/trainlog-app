@@ -28,17 +28,21 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  // Pass all uncaught "fatal" errors from the framework to Crashlytics
-  FlutterError.onError = (errorDetails) {
-    if (_isOsmTileNetworkError(errorDetails.exception)) return;
-    FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
-  };
-  // Pass all uncaught asynchronous errors that aren't handled by the Flutter framework to Crashlytics
-  PlatformDispatcher.instance.onError = (error, stack) {
-    if (_isOsmTileNetworkError(error)) return true;
-    FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
-    return true;
-  };
+  if (!kIsWeb &&
+      (defaultTargetPlatform == TargetPlatform.android ||
+      defaultTargetPlatform == TargetPlatform.iOS)) {
+
+    FlutterError.onError = (errorDetails) {
+      if (_isOsmTileNetworkError(errorDetails.exception)) return;
+      FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
+    };
+
+    PlatformDispatcher.instance.onError = (error, stack) {
+      if (_isOsmTileNetworkError(error)) return true;
+      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+      return true;
+    };
+  }
 
   await AppCacheFilePath.init();
   tz.initializeTimeZones();
