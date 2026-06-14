@@ -4,7 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' show showModalBottomSheet;
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/utils/platform_utils.dart'; // for AppPlatform.isApple
-import 'package:trainlog_app/widgets/trip_details_bottom_sheet.dart';
+import 'package:trainlog_app/features/trips/detail_sheet/trip_details_bottom_sheet.dart';
 
 /// Call this everywhere.
 Future<void> showAdaptiveTripBottomSheet(

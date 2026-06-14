@@ -251,6 +251,25 @@
     }
   },
   "tripsDetailsTitleNotes": "Notes: ",
+  "tripsDetailsSectionDetails": "Details",
+  "tripsDetailsLabelVehicle": "Vehicle",
+  "tripsDetailsLabelMaterial": "Material",
+  "tripsDetailsLabelSeat": "Seat",
+  "tripsDetailsLabelRegistration": "Registration",
+  "tripsDetailsSectionOperator": "{count, plural, =1 {Operator} other {Operators}}",
+  "@tripsDetailsSectionOperator": {
+    "description": "Section header for the trip operator(s)",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tripsDetailsSectionTicket": "Ticket",
+  "tripsDetailsSectionNotes": "Notes",
+  "tripsDetailsMetricDistance": "Distance",
+  "tripsDetailsMetricAvgSpeed": "Avg speed",
+  "tripsDetailsNoDate": "No date set",
   "tripsDetailsEditButton": "Edit",
   "tripsDetailsDeleteButton": "Delete",
   "tripsDetailsDeleteDialogTitle": "Delete this trip?",

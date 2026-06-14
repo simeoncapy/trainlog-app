@@ -637,6 +637,47 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tripsDetailsTitleNotes => 'Notes: ';
 
   @override
+  String get tripsDetailsSectionDetails => 'Details';
+
+  @override
+  String get tripsDetailsLabelVehicle => 'Vehicle';
+
+  @override
+  String get tripsDetailsLabelMaterial => 'Material';
+
+  @override
+  String get tripsDetailsLabelSeat => 'Seat';
+
+  @override
+  String get tripsDetailsLabelRegistration => 'Registration';
+
+  @override
+  String tripsDetailsSectionOperator(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Operators',
+      one: 'Operator',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get tripsDetailsSectionTicket => 'Ticket';
+
+  @override
+  String get tripsDetailsSectionNotes => 'Notes';
+
+  @override
+  String get tripsDetailsMetricDistance => 'Distance';
+
+  @override
+  String get tripsDetailsMetricAvgSpeed => 'Avg speed';
+
+  @override
+  String get tripsDetailsNoDate => 'No date set';
+
+  @override
   String get tripsDetailsEditButton => 'Edit';
 
   @override

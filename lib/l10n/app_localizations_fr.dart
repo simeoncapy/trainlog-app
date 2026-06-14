@@ -644,6 +644,47 @@ class AppLocalizationsFr extends AppLocalizations {
   String get tripsDetailsTitleNotes => 'Notes : ';
 
   @override
+  String get tripsDetailsSectionDetails => 'Détails';
+
+  @override
+  String get tripsDetailsLabelVehicle => 'Véhicule';
+
+  @override
+  String get tripsDetailsLabelMaterial => 'Matériel';
+
+  @override
+  String get tripsDetailsLabelSeat => 'Siège';
+
+  @override
+  String get tripsDetailsLabelRegistration => 'Immatriculation';
+
+  @override
+  String tripsDetailsSectionOperator(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Transporteurs',
+      one: 'Transporteur',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get tripsDetailsSectionTicket => 'Billet';
+
+  @override
+  String get tripsDetailsSectionNotes => 'Notes';
+
+  @override
+  String get tripsDetailsMetricDistance => 'Distance';
+
+  @override
+  String get tripsDetailsMetricAvgSpeed => 'Vitesse moy.';
+
+  @override
+  String get tripsDetailsNoDate => 'Aucune date';
+
+  @override
   String get tripsDetailsEditButton => 'Modifier';
 
   @override

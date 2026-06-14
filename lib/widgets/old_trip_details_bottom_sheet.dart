@@ -1,4 +1,8 @@
-// trip_details_bottom_sheet.dart
+// old_trip_details_bottom_sheet.dart
+//
+// Deprecated reference implementation of the trip details bottom sheet.
+// Kept intentionally for comparison with the redesigned sheet living under
+// lib/features/trips/detail_sheet/. No longer wired into navigation.
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -16,16 +20,16 @@ import 'package:trainlog_app/utils/number_formatter.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 import 'package:trainlog_app/widgets/trip_time_line.dart';
 
-class TripDetailsBottomSheet extends StatefulWidget {
+class OldTripDetailsBottomSheet extends StatefulWidget {
   final Trips trip;
 
-  const TripDetailsBottomSheet({super.key, required this.trip});
+  const OldTripDetailsBottomSheet({super.key, required this.trip});
 
   @override
-  State<TripDetailsBottomSheet> createState() => _TripDetailsBottomSheetState();
+  State<OldTripDetailsBottomSheet> createState() => _OldTripDetailsBottomSheetState();
 }
 
-class _TripDetailsBottomSheetState extends State<TripDetailsBottomSheet> {
+class _OldTripDetailsBottomSheetState extends State<OldTripDetailsBottomSheet> {
   // Only used on iOS, but safe to keep always.
   final ScrollController _iosScrollController = ScrollController();
 

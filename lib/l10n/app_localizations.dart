@@ -1266,6 +1266,72 @@ abstract class AppLocalizations {
   /// **'Notes: '**
   String get tripsDetailsTitleNotes;
 
+  /// No description provided for @tripsDetailsSectionDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get tripsDetailsSectionDetails;
+
+  /// No description provided for @tripsDetailsLabelVehicle.
+  ///
+  /// In en, this message translates to:
+  /// **'Vehicle'**
+  String get tripsDetailsLabelVehicle;
+
+  /// No description provided for @tripsDetailsLabelMaterial.
+  ///
+  /// In en, this message translates to:
+  /// **'Material'**
+  String get tripsDetailsLabelMaterial;
+
+  /// No description provided for @tripsDetailsLabelSeat.
+  ///
+  /// In en, this message translates to:
+  /// **'Seat'**
+  String get tripsDetailsLabelSeat;
+
+  /// No description provided for @tripsDetailsLabelRegistration.
+  ///
+  /// In en, this message translates to:
+  /// **'Registration'**
+  String get tripsDetailsLabelRegistration;
+
+  /// Section header for the trip operator(s)
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1 {Operator} other {Operators}}'**
+  String tripsDetailsSectionOperator(int count);
+
+  /// No description provided for @tripsDetailsSectionTicket.
+  ///
+  /// In en, this message translates to:
+  /// **'Ticket'**
+  String get tripsDetailsSectionTicket;
+
+  /// No description provided for @tripsDetailsSectionNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get tripsDetailsSectionNotes;
+
+  /// No description provided for @tripsDetailsMetricDistance.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance'**
+  String get tripsDetailsMetricDistance;
+
+  /// No description provided for @tripsDetailsMetricAvgSpeed.
+  ///
+  /// In en, this message translates to:
+  /// **'Avg speed'**
+  String get tripsDetailsMetricAvgSpeed;
+
+  /// No description provided for @tripsDetailsNoDate.
+  ///
+  /// In en, this message translates to:
+  /// **'No date set'**
+  String get tripsDetailsNoDate;
+
   /// No description provided for @tripsDetailsEditButton.
   ///
   /// In en, this message translates to:
