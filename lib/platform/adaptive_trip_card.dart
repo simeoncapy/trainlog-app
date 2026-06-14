@@ -210,6 +210,7 @@ class _CupertinoDraggableCard extends StatelessWidget {
                   child: TripDetailsBottomSheet(
                     trip: trip,
                     scrollController: scrollController,
+                    onClose: onDismiss,
                   ),
                 ),
               ],

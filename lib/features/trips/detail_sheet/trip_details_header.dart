@@ -3,15 +3,20 @@ import 'package:trainlog_app/app/theme/app_theme.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/features/trips/detail_sheet/trip_details_common.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
+import 'package:trainlog_app/platform/widget/adaptive_app_bar_square_button.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
+import 'package:trainlog_app/utils/platform_utils.dart';
 
 /// Header row of the trip details sheet: a coloured vehicle-type tile, the line
-/// name (or a localized fallback) with the departure date underneath, and a
-/// trailing visibility chip.
+/// name (or a localized fallback) with the departure date underneath, a
+/// trailing visibility chip and a square close button.
 class TripDetailsHeader extends StatelessWidget {
   final Trips trip;
 
-  const TripDetailsHeader({super.key, required this.trip});
+  /// Closes the sheet. Falls back to popping the current route when null.
+  final VoidCallback? onClose;
+
+  const TripDetailsHeader({super.key, required this.trip, this.onClose});
 
   @override
   Widget build(BuildContext context) {
@@ -67,6 +72,14 @@ class TripDetailsHeader extends StatelessWidget {
         ),
         const SizedBox(width: 8),
         _VisibilityChip(trip: trip),
+        const SizedBox(width: 8),
+        AdaptiveAppBarSquareButton(
+          icon: AdaptiveIcons.chevronDown,
+          onPressed: onClose ?? () => Navigator.of(context).maybePop(),
+          tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
+          size: 36,
+          iconSize: 20,
+        ),
       ],
     );
   }

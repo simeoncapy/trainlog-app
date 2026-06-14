@@ -25,10 +25,16 @@ class TripDetailsBottomSheet extends StatelessWidget {
   final Trips trip;
   final ScrollController? scrollController;
 
+  /// Closes the sheet. Supplied by the iOS draggable card so the close button
+  /// triggers the same animated dismissal as the swipe gesture; on Material it
+  /// falls back to popping the modal route.
+  final VoidCallback? onClose;
+
   const TripDetailsBottomSheet({
     super.key,
     required this.trip,
     this.scrollController,
+    this.onClose,
   });
 
   @override
@@ -44,7 +50,7 @@ class TripDetailsBottomSheet extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          TripDetailsHeader(trip: trip),
+          TripDetailsHeader(trip: trip, onClose: onClose),
           const SizedBox(height: 20),
           TripDetailsTimeline(trip: trip),
           if (hasMetrics) ...[
