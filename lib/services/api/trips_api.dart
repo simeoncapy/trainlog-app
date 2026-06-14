@@ -70,65 +70,98 @@ class TripsApi {
   }
 
   Future<IncrementalTripsResult> fetchLastUpdatedTripsData(String username, DateTime? lastUpdate) async {
-    //final path = '/u/$username/getUpdatedTrips/${lastUpdate?.toIso8601String() ?? "all"}'; // New service name, waiting for backend to be updated
-    final path = '/u/$username/getTripsPaths/${lastUpdate?.toIso8601String() ?? "all"}';
+    final cursor = lastUpdate?.toIso8601String() ?? "all";
+
+    // Prefer the newer `getUpdatedTrips` endpoint (returns the full trip data,
+    // not just the path subset). It is not deployed on every backend yet, so
+    // fall back to the legacy `getTripsPaths` when it yields no usable
+    // response. Both endpoints return the same JSON shape, so parsing is
+    // shared — only the path differs.
+    final fromNew =
+        await _fetchIncrementalTrips('/u/$username/getUpdatedTrips/$cursor');
+    if (fromNew != null) return fromNew;
+
+    debugPrint('getUpdatedTrips unavailable, falling back to getTripsPaths');
+    final fromLegacy =
+        await _fetchIncrementalTrips('/u/$username/getTripsPaths/$cursor');
+    return fromLegacy ?? IncrementalTripsResult.empty;
+  }
+
+  /// Fetches and parses an incremental-trips payload from [path].
+  ///
+  /// Returns null when the endpoint produced no usable response — a network
+  /// error, a null body, or a body that is not an incremental-trips payload
+  /// (e.g. a 404/login page when the endpoint does not exist) — signalling the
+  /// caller to fall back to another endpoint. A valid payload with zero changed
+  /// trips is NOT null (it is a legitimate "nothing changed" result).
+  Future<IncrementalTripsResult?> _fetchIncrementalTrips(String path) async {
     try {
       final res = await _client.safeGet<Map<String, dynamic>>(path);
-
       final data = res.data; // already decoded JSON
-      if (data == null) return IncrementalTripsResult.empty;
+      if (data == null) return null;
 
-      // ---- Changed trips ----------------------------------------------------
-      // Parse per-trip so a single malformed trip is skipped (and logged with
-      // its raw payload) instead of dropping the whole incremental batch. Keep
-      // the payload's keys so the repository merges only the provided fields.
-      final updates = <TripUpdate>[];
-      final rawTrips = data["trips"];
-      if (rawTrips is List) {
-        for (final json in rawTrips) {
-          final tripData = json['trip'] as Map<String, dynamic>;
-          final path = json['path'];
-          try {
-            final trip = Trips.fromJson(
-              {...tripData, 'path': path},
-              pathAsGooglePolyline: false,
-            );
-            updates.add(TripUpdate(
-              trip: trip,
-              sourceKeys: tripData.keys.toSet(),
-              hasPath: path != null,
-            ));
-          } catch (e) {
-            debugPrint('⚠️ Skipping trip that failed to parse: $e');
-            debugPrint('   raw trip: $tripData');
-          }
-        }
+      // A real incremental payload carries `trips` and/or `idList`. Anything
+      // else (an error object, an HTML login redirect decoded loosely, …)
+      // means the endpoint isn't serving this contract → fall back.
+      if (!data.containsKey('trips') && !data.containsKey('idList')) {
+        return null;
       }
 
-      // ---- Full set of the user's current trip IDs (for deletion detection)--
-      final serverTripIds = <int>[];
-      final rawIds = data["idList"];
-      if (rawIds is List) {
-        for (final id in rawIds) {
-          final parsed = id is int ? id : int.tryParse(id.toString());
-          if (parsed != null) serverTripIds.add(parsed);
-        }
-      }
-
-      // ---- Server-side sync cursor -----------------------------------------
-      final rawLastLocal = data["lastLocal"];
-      final lastLocal =
-          rawLastLocal == null ? null : DateTime.tryParse(rawLastLocal.toString());
-
-      return IncrementalTripsResult(
-        updates: updates,
-        serverTripIds: serverTripIds,
-        lastLocal: lastLocal,
-      );
+      return _parseIncrementalTrips(data);
     } catch (e) {
-      debugPrint('debugPrintFirstTrips: error fetching $path: $e');
+      debugPrint('error fetching $path: $e');
+      return null;
     }
-    return IncrementalTripsResult.empty;
+  }
+
+  IncrementalTripsResult _parseIncrementalTrips(Map<String, dynamic> data) {
+    // ---- Changed trips ----------------------------------------------------
+    // Parse per-trip so a single malformed trip is skipped (and logged with
+    // its raw payload) instead of dropping the whole incremental batch. Keep
+    // the payload's keys so the repository merges only the provided fields.
+    final updates = <TripUpdate>[];
+    final rawTrips = data["trips"];
+    if (rawTrips is List) {
+      for (final json in rawTrips) {
+        final tripData = json['trip'] as Map<String, dynamic>;
+        final path = json['path'];
+        try {
+          final trip = Trips.fromJson(
+            {...tripData, 'path': path},
+            pathAsGooglePolyline: false,
+          );
+          updates.add(TripUpdate(
+            trip: trip,
+            sourceKeys: tripData.keys.toSet(),
+            hasPath: path != null,
+          ));
+        } catch (e) {
+          debugPrint('⚠️ Skipping trip that failed to parse: $e');
+          debugPrint('   raw trip: $tripData');
+        }
+      }
+    }
+
+    // ---- Full set of the user's current trip IDs (for deletion detection)--
+    final serverTripIds = <int>[];
+    final rawIds = data["idList"];
+    if (rawIds is List) {
+      for (final id in rawIds) {
+        final parsed = id is int ? id : int.tryParse(id.toString());
+        if (parsed != null) serverTripIds.add(parsed);
+      }
+    }
+
+    // ---- Server-side sync cursor -----------------------------------------
+    final rawLastLocal = data["lastLocal"];
+    final lastLocal =
+        rawLastLocal == null ? null : DateTime.tryParse(rawLastLocal.toString());
+
+    return IncrementalTripsResult(
+      updates: updates,
+      serverTripIds: serverTripIds,
+      lastLocal: lastLocal,
+    );
   }
 
   Future<bool> deleteTrip(String username, int tripId) =>
