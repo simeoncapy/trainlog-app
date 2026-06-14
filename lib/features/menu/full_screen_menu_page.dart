@@ -15,7 +15,7 @@ import 'package:trainlog_app/utils/platform_utils.dart';
 
 /// Full-screen menu replacing the legacy Drawer on Android.
 /// Provides a clean entry point for iOS (wire up from the iOS shell when ready).
-class FullScreenMenuPage extends StatelessWidget {
+class FullScreenMenuPage extends StatefulWidget {
   final VoidCallback onClose;
   final VoidCallback onSettingsTap;
   final void Function(AppPageId id) onPageTap;
@@ -32,6 +32,31 @@ class FullScreenMenuPage extends StatelessWidget {
   });
 
   @override
+  State<FullScreenMenuPage> createState() => _FullScreenMenuPageState();
+}
+
+class _FullScreenMenuPageState extends State<FullScreenMenuPage> {
+  int? _newMessageCount;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchNewsCount();
+    });
+  }
+
+  Future<void> _fetchNewsCount() async {
+    final settings = context.read<SettingsProvider>();
+    final trainlog = context.read<TrainlogProvider>();
+
+    final count = await trainlog.fetchNewsCount(settings);
+    if (mounted) {
+      setState(() => _newMessageCount = count);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
 
@@ -42,7 +67,7 @@ class FullScreenMenuPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _TopBar(onClose: onClose, onSettings: onSettingsTap, loc: loc),
+            _TopBar(onClose: widget.onClose, onSettings: widget.onSettingsTap, loc: loc),
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -54,7 +79,7 @@ class FullScreenMenuPage extends StatelessWidget {
                     const SizedBox(height: 24),
                     _SectionHeader(label: loc.menuExploreSectionTitle),
                     const SizedBox(height: 12),
-                    _ExploreGrid(onPageTap: onPageTap, loc: loc),
+                    _ExploreGrid(onPageTap: widget.onPageTap, loc: loc),
                     const SizedBox(height: 24),
                     _SectionHeader(label: loc.menuMenuSectionTitle),
                     const SizedBox(height: 8),
@@ -78,19 +103,20 @@ class FullScreenMenuPage extends StatelessWidget {
           icon: AdaptiveIcons.inbox,
           iconBg: AppColors.amber,
           label: loc.menuInboxTitle,
-          onTap: onInboxTap,
+          badgeCount: _newMessageCount,
+          onTap: widget.onInboxTap,
         ),
         MenuItemData(
           icon: AdaptiveIcons.ok,
           iconBg: AppColors.blue,
           label: loc.trainglogStatusPageTitle,
-          onTap: onTrainlogStatusTap,
+          onTap: widget.onTrainlogStatusTap,
         ),
         MenuItemData(
           icon: AdaptiveIcons.info,
           iconBg: AppColors.navy,
           label: loc.menuAboutTitle,
-          onTap: () => onPageTap(AppPageId.about),
+          onTap: () => widget.onPageTap(AppPageId.about),
         ),
         MenuItemData(
           icon: AdaptiveIcons.logout,
@@ -102,7 +128,7 @@ class FullScreenMenuPage extends StatelessWidget {
             final settings = context.read<SettingsProvider>();
             final trips = context.read<TripsProvider>();
             final scaffMsg = ScaffoldMessenger.of(context);
-            onClose();
+            widget.onClose();
             await context.read<TrainlogProvider>().logout(settings, trips);
             scaffMsg.showSnackBar(
               SnackBar(content: Text(loc.loggedOut)),

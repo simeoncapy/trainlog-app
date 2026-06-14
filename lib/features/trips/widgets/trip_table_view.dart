@@ -268,7 +268,8 @@ class _TripsDataSource extends DataTableSource {
         _fetchPage(index ~/ 50);
         return emptyRow;
       }
-    } catch (_) {
+    } catch (e) {
+      debugPrint('⚠️ Trip table row $index unavailable: $e');
       return emptyRow;
     }
 

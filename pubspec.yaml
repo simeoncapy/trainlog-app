@@ -34,6 +34,7 @@ dependencies:
   dio: ^5.4.0
   cookie_jar: ^4.0.6
   dio_cookie_manager: ^3.3.0
+  flutter_secure_storage: ^9.2.2
   html: ^0.15.4
   material_symbols_icons: ^4.2719.0
   step_progress: ^2.7.0
@@ -44,12 +45,9 @@ dependencies:
   flutter_inappwebview: ^6.1.5
   url_launcher: ^6.2.6
   flutter_html: ^3.0.0
-  flutter_markdown_plus: ^1.0.5
   markdown_widget: ^2.3.2
   flutter_svg: ^2.0.9
   flutter_launcher_icons: ^0.14.4
-  #dotted_line_flutter: ^2.1.8 # not used anymore, delete?
-  #dotted_border: ^3.1.0
   shimmer: ^3.0.0
   share_plus: ^12.0.1
   package_info_plus: ^8.0.0

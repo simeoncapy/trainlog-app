@@ -8,7 +8,8 @@ import 'package:trainlog_app/app/app_providers.dart';
 import 'package:trainlog_app/navigation/platform_shell.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
-import 'package:trainlog_app/services/trainlog_service.dart';
+import 'package:trainlog_app/services/api/trainlog_http_client.dart';
+import 'package:trainlog_app/services/secure_cookie_storage.dart';
 import 'package:trainlog_app/utils/cached_data_utils.dart';
 
 import 'package:firebase_core/firebase_core.dart';
@@ -23,7 +24,6 @@ bool _isOsmTileNetworkError(Object error) {
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -44,9 +44,22 @@ Future<void> main() async {
   tz.initializeTimeZones();
 
   final settings = SettingsProvider();
+  // Settings must be fully loaded before tryRestoreSession reads the
+  // persisted username and instance URL.
+  await settings.ready;
 
-  final service = await TrainlogService.persistent();
-  final auth = TrainlogProvider(service: service);
+  // The iOS Keychain survives uninstall, so leftover session cookies would
+  // log a reinstalled app straight back in. SharedPreferences do get wiped
+  // on uninstall: both flags missing means fresh install. (Checking
+  // onboardingCompleted too keeps users updating from a pre-flag version
+  // logged in.)
+  if (!settings.hasRunBefore && !settings.onboardingCompleted) {
+    await SecureCookieStorage.clearAllCookies();
+  }
+  await settings.markHasRunBefore();
+
+  final client = await TrainlogHttpClient.persistent();
+  final auth = TrainlogProvider(client: client);
   await auth.tryRestoreSession(settings: settings);
 
   LicenseRegistry.addLicense(() async* {

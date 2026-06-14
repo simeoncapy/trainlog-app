@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io' show HttpDate, HttpException;
 import 'package:google_polyline_algorithm/google_polyline_algorithm.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter/material.dart';
@@ -181,17 +182,22 @@ class Trips {
       destinationStation: json['destination_station']?.toString() ?? '',
       startDatetime: start,
       endDatetime: end,
-      estimatedTripDuration: _toDouble(json['estimated_trip_duration']),
+      estimatedTripDuration: _toDoubleOrNull(json['estimated_trip_duration']) ?? 0.0,
       manualTripDuration: _toDoubleOrNull(json['manual_trip_duration']),
-      tripLength: _toDouble(json['trip_length']),
+      tripLength: _toDoubleOrNull(json['trip_length']) ?? 0.0,
       operatorName: json['operator']?.toString() ?? '',
       countries: json['countries']?.toString() ?? '',
-      utcStartDatetime: _toDateTimeOrCopy(json['utc_start_datetime'], start),
-      utcEndDatetime: _toDateTimeOrNull(json['utc_end_datetime']),
+      utcStartDatetime: _toDateTimeOrCopy(
+          json['utc_start_datetime'] ?? json['utc_filtered_start_datetime'], start),
+      utcEndDatetime: _toDateTimeOrNull(
+          json['utc_end_datetime'] ?? json['utc_filtered_end_datetime']),
       lineName: json['line_name']?.toString() ?? '',
-      created: DateTime.parse(json['created']),
-      lastModified: DateTime.parse(json['last_modified']),
-      type: VehicleType.fromString(json['type']),
+      // The getTripsPaths incremental endpoint omits created/last_modified;
+      // default them so parsing succeeds (these columns are not overwritten on
+      // an incremental merge of an existing trip).
+      created: _toDateTimeOrNull(json['created'], forceUtc: false) ?? DateTime.now().toUtc(),
+      lastModified: _toDateTimeOrNull(json['last_modified'], forceUtc: false) ?? DateTime.now().toUtc(),
+      type: VehicleType.fromString(json['type']?.toString()),
       materialType: json['material_type']?.toString() ?? '',
       seat: json['seat']?.toString() ?? '',
       reg: json['reg']?.toString() ?? '',
@@ -204,7 +210,7 @@ class Trips {
       pathPoints: pathAsGooglePolyline 
                   ? (decodePolyline ? PolylineTools.decodePath(json['path']?.toString() ?? '') : null) 
                   : PolylineTools.toLatLngList(json['path']),
-      visibility: TripVisibility.fromString(json['visibility']),
+      visibility: TripVisibility.fromString(json['visibility']?.toString()),
       departureDelay: _toIntOrNull(json['departure_delay']),
       arrivalDelay: _toIntOrNull(json['arrival_delay']),
     );
@@ -258,9 +264,11 @@ class Trips {
   static DateTime? _toDateTimeOrNull(dynamic value, {bool forceUtc = true}) {
     if (value == null || value.toString().trim().isEmpty) return null;
     final str = value.toString();
+    // For naive ISO strings, appending 'Z' makes them parse as UTC. RFC 1123
+    // dates already carry their zone, so fall back to parsing the raw string.
     final dateStr = forceUtc && !str.endsWith('Z') ? '${str}Z' : str;
-    
-    return DateTime.tryParse(dateStr);
+
+    return _tryParseFlexibleDate(dateStr) ?? _tryParseFlexibleDate(str);
   }
 
   static DateTime? _toDateTimeOrCopy(dynamic value, DateTime? copy, {bool forceUtc = true}) {
@@ -280,8 +288,8 @@ class Trips {
       );
     }
     
-    final parsed = DateTime.tryParse(value.toString());
-    
+    final parsed = _tryParseFlexibleDate(value.toString());
+
     if (parsed == null || !forceUtc || parsed.isUtc) return parsed;
     
     // Convert parsed to UTC
@@ -297,23 +305,56 @@ class Trips {
     );
   }
 
-  static double _toDouble(dynamic value) {
-    final str = value?.toString().trim();
-    if (str == null || str.isEmpty) {
-      throw FormatException('Cannot parse empty value as double');
-    }
-    return double.parse(str);
-  }
 
-  static DateTime _toDateTimeUnknownPastFuture(String? value) {
-    final str = value?.trim();
+  static DateTime _toDateTimeUnknownPastFuture(dynamic value) {
+    final str = value?.toString().trim();
     if (str == null || str.isEmpty) {
       throw FormatException('Cannot parse empty value as DateTime');
     }
-    if(value == "-1") return unknownPast;
-    if(value == "1") return unknownFuture;
-    return DateTime.parse(str);
+    // The CSV export delivers the sentinels as strings ("-1"/"1") while the
+    // getTripsPaths JSON endpoint delivers them as raw integers — compare on
+    // the stringified value so both shapes resolve correctly.
+    if (str == "-1") return unknownPast;
+    if (str == "1") return unknownFuture;
+    final parsed = _tryParseFlexibleDate(str);
+    if (parsed == null) {
+      throw FormatException('Invalid date format', str);
+    }
+    return parsed;
   }
+
+  /// Parses a date that may be ISO 8601 (CSV export / local cache) or RFC 1123 /
+  /// HTTP-date — the Flask getTripsPaths JSON endpoint serialises datetimes as
+  /// e.g. "Wed, 11 Jun 2026 14:26:52 GMT". Returns null if neither format fits.
+  static DateTime? _tryParseFlexibleDate(String value) {
+    final iso = DateTime.tryParse(value);
+    if (iso != null) return iso;
+    try {
+      // HttpDate.parse handles RFC 1123, RFC 850 and asctime, always UTC.
+      return HttpDate.parse(value);
+    } on HttpException {
+      return null;
+    } on FormatException {
+      return null;
+    }
+  }
+}
+
+/// A parsed trip from the incremental `getTripsPaths` sync, together with the
+/// raw payload keys it actually carried. The repository uses [sourceKeys] /
+/// [hasPath] to decide which DB columns to overwrite, so fields the payload
+/// omits keep their existing values (and fields it includes — even explicit
+/// nulls like a cleared `departure_delay` — are applied).
+class TripUpdate {
+  final Trips trip;
+  final Set<String> sourceKeys;
+  final bool hasPath;
+
+  const TripUpdate({
+    required this.trip,
+    required this.sourceKeys,
+    required this.hasPath,
+  });
 }
 
 

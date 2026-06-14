@@ -112,6 +112,14 @@ class _TripsFilterDialogState extends State<TripsFilterDialog> {
   }
 
   @override
+  void dispose() {
+    _keywordController.dispose();
+    _startDateController.dispose();
+    _endDateController.dispose();
+    super.dispose();
+  }
+
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     final localizations = AppLocalizations.of(context)!;

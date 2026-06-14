@@ -1,20 +1,18 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
 import 'package:trainlog_app/data/models/polyline_entry.dart';
 import 'package:trainlog_app/data/models/polyline_filter_state.dart';
 import 'package:trainlog_app/data/models/trips.dart';
+import 'package:trainlog_app/data/polyline_cache.dart';
+import 'package:trainlog_app/data/polyline_loader.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
-import 'package:trainlog_app/utils/cached_data_utils.dart';
-import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
+import 'package:trainlog_app/utils/polyline_styling.dart';
 
 class PolylineProvider extends ChangeNotifier {
   // ============================================================================
@@ -67,15 +65,6 @@ class PolylineProvider extends ChangeNotifier {
   Set<VehicleType> _lastAvailableTypes = {};
 
   bool _filtersLoadedFromSettings = false;
-
-  // ============================================================================
-  // Rendering constants
-  // ============================================================================
-
-  static const Color _ongoingColor = Colors.red;
-  static const Color _futureDashColor = Colors.white;
-  static const double _dashLen = 20.0;
-  static const double _gapLen = 20.0;
 
   // ============================================================================
   // Public getters
@@ -364,30 +353,27 @@ class PolylineProvider extends ChangeNotifier {
       // -----------------------------------------------------------------------
       // 1) Try file cache first
       // -----------------------------------------------------------------------
-      final cacheFile = File(AppCacheFilePath.polylines);
-      if (!ignoreCache && await cacheFile.exists()) {
+      if (!ignoreCache) {
         try {
-          final cachedJson = await cacheFile.readAsString();
-          final decoded = (json.decode(cachedJson) as List<dynamic>)
-              .map((e) => PolylineEntry.fromJson(e as Map<String, dynamic>))
-              .toList();
+          final decoded = await PolylineCache.read();
+          if (decoded != null) {
+            if (myToken != _loadToken) return;
 
-          if (myToken != _loadToken) return;
+            _polylines = PolylineStyling.restyleAll(decoded, palette, _nowUtc);
+            _reconcileFiltersWithTrips();
+            _rebuildRenderedPolylines(notify: false);
 
-          _polylines = _restyleAll(decoded, palette);
-          _reconcileFiltersWithTrips();
-          _rebuildRenderedPolylines(notify: false);
+            debugPrint('✅ Loaded ${_polylines.length} polylines from cache');
 
-          debugPrint('✅ Loaded ${_polylines.length} polylines from cache');
+            _isLoading = false;
+            _scheduleNextFlip();
+            notifyListeners();
 
-          _isLoading = false;
-          _scheduleNextFlip();
-          notifyListeners();
-
-          // Run integrity check asynchronously: the cache may be stale or
-          // incomplete if a trip was added/updated without flushing the cache.
-          unawaited(_checkAndFixMissingPolylines(myToken));
-          return;
+            // Run integrity check asynchronously: the cache may be stale or
+            // incomplete if a trip was added/updated without flushing the cache.
+            unawaited(_checkAndFixMissingPolylines(myToken));
+            return;
+          }
         } catch (e) {
           debugPrint('Polyline cache read failed: $e');
         }
@@ -396,36 +382,11 @@ class PolylineProvider extends ChangeNotifier {
       // -----------------------------------------------------------------------
       // 2) Fall back to DB
       // -----------------------------------------------------------------------
-      final pathData = await repo.getPathExtendedData(PathDisplayOrder.creationDate);
-
-      // Build isolate-friendly colour map.
-      final colors = <String, int>{};
-      for (final type in VehicleType.values) {
-        colors[type.name] = (palette[type] ?? Colors.black).toARGB32();
-      }
-
-      // Convert entries to isolate-friendly format.
-      final entries = pathData.map<Map<String, dynamic>>((raw) {
-        final m = Map<String, dynamic>.from(raw);
-        final typeVal = m['type'];
-
-        if (typeVal is VehicleType) {
-          m['type'] = typeVal.name;
-        } else {
-          m['type'] = typeVal?.toString() ?? '';
-        }
-
-        return m;
-      }).toList();
-
-      final decoded = await compute(
-        PolylineTools.decodePolylinesBatchIsolateFriendly,
-        {'entries': entries, 'colors': colors},
-      );
+      final decoded = await PolylineLoader.loadFromDb(repo, palette);
 
       if (myToken != _loadToken) return;
 
-      final styled = _restyleAll(decoded, palette);
+      final styled = PolylineStyling.restyleAll(decoded, palette, _nowUtc);
       _polylines = styled;
       _reconcileFiltersWithTrips();
       _rebuildRenderedPolylines(notify: false);
@@ -437,7 +398,7 @@ class PolylineProvider extends ChangeNotifier {
       notifyListeners();
 
       if (styled.isNotEmpty) {
-        unawaited(_writeCache(styled));
+        unawaited(PolylineCache.write(styled));
       }
 
       // Even after a DB load, some entries may have been silently dropped due
@@ -478,55 +439,21 @@ class PolylineProvider extends ChangeNotifier {
     if (repo == null) return;
 
     try {
-      // Fetch all trip IDs that have a non-empty path in the DB.
-      final dbIds = (await repo.getTripIdsWithPath())
-          .map((id) => int.tryParse(id))
-          .whereType<int>()
-          .toSet();
-
-      // Bail out if another reload has started in the meantime.
-      if (_loadToken != loadToken) return;
-
+      final palette = MapColorPaletteHelper.getPalette(settings.mapColorPalette);
       final loadedIds = _polylines.map((e) => e.tripId).toSet();
-      final missingIds = dbIds.difference(loadedIds);
 
-      if (missingIds.isEmpty) return;
+      // Fetch + decode only the trips missing from the in-memory list.
+      final decoded = await PolylineLoader.loadMissing(repo, loadedIds, palette);
+
+      if (decoded.isEmpty) return;
+      if (_loadToken != loadToken) return; // Check after the heavy compute step.
 
       debugPrint(
-        '⚠️ Polyline integrity: ${missingIds.length} trip(s) have a path in the DB '
+        '⚠️ Polyline integrity: ${decoded.length} trip(s) have a path in the DB '
         'but no polyline loaded — recovering...',
       );
 
-      // Fetch path data only for the missing trips.
-      final pathData = await repo.getPathExtendedDataForIds(
-        missingIds.map((id) => id.toString()).toList(),
-      );
-
-      if (pathData.isEmpty) return;
-      if (_loadToken != loadToken) return; // Check again after the async gap.
-
-      // Build isolate-friendly structures.
-      final palette = MapColorPaletteHelper.getPalette(settings.mapColorPalette);
-      final colors = <String, int>{};
-      for (final type in VehicleType.values) {
-        colors[type.name] = (palette[type] ?? Colors.black).toARGB32();
-      }
-
-      final entries = pathData.map<Map<String, dynamic>>((raw) {
-        final m = Map<String, dynamic>.from(raw);
-        final typeVal = m['type'];
-        m['type'] = typeVal is VehicleType ? typeVal.name : (typeVal?.toString() ?? '');
-        return m;
-      }).toList();
-
-      final decoded = await compute(
-        PolylineTools.decodePolylinesBatchIsolateFriendly,
-        {'entries': entries, 'colors': colors},
-      );
-
-      if (_loadToken != loadToken) return; // Check after the heavy compute step.
-
-      final styled = _restyleAll(decoded, palette);
+      final styled = PolylineStyling.restyleAll(decoded, palette, _nowUtc);
 
       for (final entry in styled) {
         final index = _polylines.indexWhere((e) => e.tripId == entry.tripId);
@@ -544,7 +471,7 @@ class PolylineProvider extends ChangeNotifier {
 
       // Flush the now-complete polyline list to the cache.
       if (_polylines.isNotEmpty) {
-        unawaited(_writeCache(_polylines));
+        unawaited(PolylineCache.write(_polylines));
       }
     } catch (e) {
       debugPrint('⚠️ Polyline integrity check failed: $e');
@@ -577,8 +504,8 @@ class PolylineProvider extends ChangeNotifier {
     if (settings == null) return;
 
     final palette = MapColorPaletteHelper.getPalette(settings.mapColorPalette);
-    final polyline = _createPolyline(path, trip, palette);
-    final entry = _createPolylineEntry(polyline, trip);
+    final polyline = PolylineStyling.createPolyline(path, trip, palette);
+    final entry = PolylineStyling.createPolylineEntry(polyline, trip);
 
     final index = _polylines.indexWhere((e) => e.tripId == int.parse(trip.uid));
     if (index >= 0) {
@@ -606,8 +533,8 @@ class PolylineProvider extends ChangeNotifier {
       final trip = trips[i];
       final path = paths?[i];
 
-      final polyline = _createPolyline(path, trip, palette);
-      final entry = _createPolylineEntry(polyline, trip);
+      final polyline = PolylineStyling.createPolyline(path, trip, palette);
+      final entry = PolylineStyling.createPolylineEntry(polyline, trip);
 
       final index = _polylines.indexWhere((e) => e.tripId == int.parse(trip.uid));
       if (index >= 0) {
@@ -631,153 +558,34 @@ class PolylineProvider extends ChangeNotifier {
   }
 
   // ============================================================================
-  // Polyline creation helpers
-  // ============================================================================
-
-  Polyline<Object> _createPolyline(
-    List<LatLng>? path,
-    Trips trip,
-    Map<VehicleType, Color> palette,
-  ) {
-    return PolylineTools.createPolyline(
-      path ?? trip.pathPoints ?? PolylineTools.decodePath(trip.path),
-      palette[trip.vehicleType] ?? Colors.black,
-    );
-  }
-
-  PolylineEntry _createPolylineEntry(Polyline<Object> polyline, Trips trip) {
-    return PolylineEntry(
-      polyline: polyline,
-      type: trip.vehicleType,
-      startDate: trip.startDate,
-      creationDate: trip.creationDate,
-      utcStartDate: trip.utcStartDate,
-      utcEndDate: trip.utcEndDate,
-      hasTimeRange: PolylineTools.hasClockPart(trip.startDate.toIso8601String()) &&
-          PolylineTools.hasClockPart(trip.endDate.toIso8601String()),
-      isFuture: trip.utcStartDate != null && trip.utcStartDate!.isAfter(DateTime.now().toUtc()),
-      tripId: int.parse(trip.uid),
-    );
-  }
-
-  // ============================================================================
   // Render pipeline
   // ============================================================================
   //
-  // Source entries -> filtered entries -> sorted entries -> UI polylines
+  // Source entries -> filtered entries -> sorted entries -> UI polylines.
+  // The actual filtering / sorting / styling lives in [PolylineStyling]; this
+  // method just feeds it the current provider state.
   // ============================================================================
-
-  List<PolylineEntry> _filterBySelection(List<PolylineEntry> polylines) {
-    switch (_selectedYearFilter) {
-      case PolylineYearFilter.past:
-        final now = _nowUtc;
-        return polylines.where((e) {
-          return (e.utcStartDate?.isBefore(now) ?? false) &&
-              _selectedTypes.contains(e.type);
-        }).toList();
-
-      case PolylineYearFilter.future:
-        final now = _nowUtc;
-        return polylines.where((e) {
-          return (e.utcStartDate?.isAfter(now) ?? false) &&
-              _selectedTypes.contains(e.type);
-        }).toList();
-
-      case PolylineYearFilter.all:
-        final allowedYears = {...availableYears, unknownPast.year, unknownFuture.year};
-        return polylines.where((e) {
-          return allowedYears.contains(e.startDate?.year) &&
-              _selectedTypes.contains(e.type);
-        }).toList();
-
-      case PolylineYearFilter.years:
-        final allowedYears = {..._selectedYears, unknownPast.year, unknownFuture.year};
-        return polylines.where((e) {
-          return allowedYears.contains(e.startDate?.year) &&
-              _selectedTypes.contains(e.type);
-        }).toList();
-    }
-  }
-
-  void _sortInPlace(List<PolylineEntry> list, PathDisplayOrder order) {
-    switch (order) {
-      case PathDisplayOrder.creationDate:
-        list.sort((a, b) {
-          return (a.creationDate ?? DateTime(0))
-              .compareTo(b.creationDate ?? DateTime(0));
-        });
-        break;
-
-      case PathDisplayOrder.tripDate:
-        list.sort((a, b) {
-          return (a.startDate ?? DateTime(0))
-              .compareTo(b.startDate ?? DateTime(0));
-        });
-        break;
-
-      case PathDisplayOrder.tripDatePlaneOver:
-        final nonAir = list
-            .where((e) => e.type != VehicleType.plane && e.type != VehicleType.helicopter)
-            .toList()
-          ..sort((a, b) {
-            return (a.startDate ?? DateTime(0))
-                .compareTo(b.startDate ?? DateTime(0));
-          });
-
-        final air = list
-            .where((e) => e.type == VehicleType.plane || e.type == VehicleType.helicopter)
-            .toList()
-          ..sort((a, b) {
-            return (a.creationDate ?? DateTime(0))
-                .compareTo(b.creationDate ?? DateTime(0));
-          });
-
-        list
-          ..clear()
-          ..addAll(nonAir)
-          ..addAll(air);
-        break;
-    }
-  }
-
-  List<Polyline<int>> _toRenderPolylines(List<PolylineEntry> entries) {
-    return entries.expand((e) {
-      final base = Polyline<int>(
-        points: e.polyline.points,
-        color: e.polyline.color,
-        strokeWidth: e.polyline.strokeWidth,
-        borderColor: e.polyline.borderColor,
-        borderStrokeWidth: e.polyline.borderStrokeWidth,
-        pattern: e.polyline.pattern,
-        hitValue: e.tripId,
-      );
-
-      if (_isOngoing(e)) return [base];
-
-      final isFuture = !_isOngoing(e) && _isFutureUtc(e.utcStartDate);
-      if (isFuture) {
-        final overlay = Polyline<int>(
-          points: e.polyline.points,
-          color: _futureDashColor,
-          strokeWidth: e.polyline.strokeWidth,
-          pattern: StrokePattern.dashed(segments: const [_dashLen, _gapLen]),
-          hitValue: e.tripId,
-        );
-        return [base, overlay];
-      }
-
-      return [base];
-    }).toList();
-  }
 
   void _rebuildRenderedPolylines({required bool notify}) {
     final settings = _settings;
     if (settings == null) return;
 
-    final filtered = _filterBySelection(_polylines);
-    _sortInPlace(filtered, settings.pathDisplayOrder);
-    _renderedPolylines = _toRenderPolylines(filtered);
+    final now = _nowUtc;
+    final filtered = PolylineStyling.filterBySelection(
+      _polylines,
+      yearFilter: _selectedYearFilter,
+      selectedTypes: _selectedTypes,
+      selectedYears: _selectedYears,
+      availableYears: availableYears,
+      nowUtc: now,
+    );
+    PolylineStyling.sortInPlace(filtered, settings.pathDisplayOrder);
+    _renderedPolylines = PolylineStyling.toRenderPolylines(filtered, now);
     _renderRevision++;
+
+    // Reschedule the temporal flip so trips added/removed/restyled since the
+    // last schedule still get their ongoing/future transitions on time.
+    _scheduleNextFlip();
 
     if (notify) {
       notifyListeners();
@@ -788,94 +596,23 @@ class PolylineProvider extends ChangeNotifier {
   // Temporal styling
   // ============================================================================
   //
-  // This section handles:
-  // - ongoing trip colouring
-  // - future trip detection
-  // - timer scheduling for style changes when time boundaries are crossed
+  // Re-applies base styling when a trip crosses an ongoing/future boundary and
+  // schedules the next such boundary so the map updates without a reload.
   // ============================================================================
-
-  bool _isFutureUtc(DateTime? utcStart) {
-    return utcStart != null && utcStart.isAfter(_nowUtc);
-  }
-
-  bool _isOngoing(PolylineEntry e) {
-    if (!e.hasTimeRange) return false;
-
-    final start = e.utcStartDate;
-    final end = e.utcEndDate;
-    if (start == null || end == null) return false;
-
-    final inclusiveEnd = end.add(const Duration(minutes: 1));
-    final now = _nowUtc;
-
-    return !now.isBefore(start) && !now.isAfter(inclusiveEnd);
-  }
-
-  PolylineEntry _restyleEntry(PolylineEntry e, Map<VehicleType, Color> palette) {
-    final ongoing = _isOngoing(e);
-    final isFuture = !ongoing && _isFutureUtc(e.utcStartDate);
-
-    final baseColor = ongoing ? _ongoingColor : (palette[e.type] ?? e.polyline.color);
-
-    final base = Polyline(
-      points: e.polyline.points,
-      color: baseColor,
-      strokeWidth: e.polyline.strokeWidth,
-      borderColor: Colors.black,
-      borderStrokeWidth: 1.0,
-      pattern: const StrokePattern.solid(),
-    );
-
-    return PolylineEntry(
-      polyline: base,
-      type: e.type,
-      startDate: e.startDate,
-      creationDate: e.creationDate,
-      utcStartDate: e.utcStartDate,
-      utcEndDate: e.utcEndDate,
-      hasTimeRange: e.hasTimeRange,
-      isFuture: isFuture,
-      tripId: e.tripId,
-    );
-  }
-
-  List<PolylineEntry> _restyleAll(
-    List<PolylineEntry> list,
-    Map<VehicleType, Color> palette,
-  ) {
-    return list.map((e) => _restyleEntry(e, palette)).toList();
-  }
 
   void _refreshTemporalStyles() {
     final settings = _settings;
     if (settings == null) return;
 
     final palette = MapColorPaletteHelper.getPalette(settings.mapColorPalette);
-    bool changed = false;
+    final now = _nowUtc;
 
-    final updated = _polylines.map((e) {
-      final ongoingNow = _isOngoing(e);
-      final isFutureNow = !ongoingNow && _isFutureUtc(e.utcStartDate);
-      final wasRed = e.polyline.color == _ongoingColor;
-
-      final shouldRestyle =
-          (isFutureNow != e.isFuture) ||
-          (ongoingNow && !wasRed) ||
-          (!ongoingNow && wasRed);
-
-      if (shouldRestyle) {
-        changed = true;
-        return _restyleEntry(e, palette);
-      }
-
-      return e;
-    }).toList();
-
-    if (!changed) return;
-
-    _polylines = updated;
-    _rebuildRenderedPolylines(notify: false);
-    notifyListeners();
+    // Recompute every entry's base styling for the current instant. This runs
+    // only when the flip timer fires (i.e. at an ongoing/future boundary), so
+    // restyling unconditionally is cheap and avoids fragile change-detection
+    // that could leave a finished trip stuck red.
+    _polylines = PolylineStyling.restyleAll(_polylines, palette, now);
+    _rebuildRenderedPolylines(notify: true);
   }
 
   void _scheduleNextFlip() {
@@ -894,9 +631,13 @@ class PolylineProvider extends ChangeNotifier {
 
       if (e.hasTimeRange) {
         final end = e.utcEndDate;
-        if (end != null && end.isAfter(now)) {
-          if (nextEdge == null || end.isBefore(nextEdge)) {
-            nextEdge = end;
+        // The trip stays ongoing (red) until end + grace, so schedule the
+        // un-redden flip at that moment — not at the bare end — otherwise the
+        // transition is missed and the polyline stays red.
+        final endEdge = end?.add(PolylineStyling.ongoingEndGrace);
+        if (endEdge != null && endEdge.isAfter(now)) {
+          if (nextEdge == null || endEdge.isBefore(nextEdge)) {
+            nextEdge = endEdge;
           }
         }
       }
@@ -925,18 +666,8 @@ class PolylineProvider extends ChangeNotifier {
       return;
     }
 
-    await _writeCache(_polylines);
+    await PolylineCache.write(_polylines);
     debugPrint('💾 Saved ${_polylines.length} polylines to cache');
-  }
-
-  Future<void> _writeCache(List<PolylineEntry> list) async {
-    try {
-      final encoded = json.encode(list.map((e) => e.toJson()).toList());
-      final cacheFile = File(AppCacheFilePath.polylines);
-      await cacheFile.writeAsString(encoded);
-    } catch (e) {
-      debugPrint('Failed to write polyline cache: $e');
-    }
   }
 
   // ============================================================================
@@ -947,21 +678,41 @@ class PolylineProvider extends ChangeNotifier {
     final trips = _trips;
     if (trips == null) return;
 
+    // Consume both signals up front (the getters clear themselves on read).
+    final deleted = trips.deletedTripIds;
     final partialUpdate = trips.modificatedTrips;
-    debugPrint('Trips changed (${partialUpdate?.length ?? -1})');
+    debugPrint('Trips changed (upserts=${partialUpdate?.length ?? -1}, deletes=${deleted?.length ?? 0})');
 
-    if (partialUpdate == null) {
-      _syncWithTrips();
+    // Drop polylines for trips removed server-side. Done first so any rebuild
+    // below already reflects the removals.
+    if (deleted != null && deleted.isNotEmpty) {
+      final removeSet = deleted.toSet();
+      _polylines.removeWhere((e) => removeSet.contains(e.tripId));
+    }
+
+    if (partialUpdate != null) {
+      // upsertPolylinesFromTrips reconciles filters, rebuilds and persists.
+      upsertPolylinesFromTrips(partialUpdate);
+      _lastTripsPolylineRevision = trips.polylineRevision;
+
+      // An incremental refresh only updates modified trips, so a polyline that
+      // was missing before the refresh will still be absent.  Run the integrity
+      // check to catch and recover any such gaps.
+      unawaited(_checkAndFixMissingPolylines(_loadToken));
       return;
     }
 
-    upsertPolylinesFromTrips(partialUpdate);
-    _lastTripsPolylineRevision = trips.polylineRevision;
+    if (deleted != null && deleted.isNotEmpty) {
+      // Deletions only: reconcile, rebuild and flush the (possibly smaller)
+      // list to the cache — write directly so an emptied list is persisted too.
+      _reconcileFiltersWithTrips();
+      _rebuildRenderedPolylines(notify: true);
+      _lastTripsPolylineRevision = trips.polylineRevision;
+      unawaited(PolylineCache.write(_polylines));
+      return;
+    }
 
-    // An incremental refresh only updates modified trips, so a polyline that
-    // was missing before the refresh will still be absent.  Run the integrity
-    // check to catch and recover any such gaps.
-    unawaited(_checkAndFixMissingPolylines(_loadToken));
+    _syncWithTrips();
   }
 
   void _onSettingsChanged() {
@@ -971,7 +722,7 @@ class PolylineProvider extends ChangeNotifier {
     final palette = MapColorPaletteHelper.getPalette(settings.mapColorPalette);
 
     // Reapply palette / temporal base styling.
-    _polylines = _restyleAll(_polylines, palette);
+    _polylines = PolylineStyling.restyleAll(_polylines, palette, _nowUtc);
 
     // Re-import persisted filter state in case it was changed elsewhere.
     _selectedYearFilter = settings.mapPolylineYearFilter;

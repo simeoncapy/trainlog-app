@@ -14,6 +14,9 @@ class MenuItemData {
   /// Destructive items show no trailing chevron.
   final bool isDestructive;
 
+  /// When > 0, a red counter badge is shown on the icon (capped at "9+").
+  final int? badgeCount;
+
   const MenuItemData({
     required this.icon,
     required this.iconBg,
@@ -21,5 +24,6 @@ class MenuItemData {
     required this.onTap,
     this.labelColor,
     this.isDestructive = false,
+    this.badgeCount,
   });
 }
