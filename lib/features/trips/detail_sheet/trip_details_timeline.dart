@@ -79,7 +79,11 @@ class TripDetailsTimeline extends StatelessWidget {
             children: [
               _marker(context, color, filled: false),
               Expanded(
-                child: Container(width: 5, color: color),
+                child: Container(
+                  width: 5, 
+                  color: color,
+                  constraints: const BoxConstraints(minHeight: 40),
+                ),
               ),
               _marker(context, color, filled: true),
             ],
