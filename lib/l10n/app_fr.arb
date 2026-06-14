@@ -211,6 +211,7 @@
   "tripsDetailsLabelSeat": "Siège",
   "tripsDetailsLabelRegistration": "Immatriculation",
   "tripsDetailsSectionOperator": "{count, plural, =1 {Transporteur} other {Transporteurs}}",
+  "tripsDetailsSectionCountry": "{count, plural, =1 {Pays} other {Pays}}",
   "tripsDetailsSectionTicket": "Billet",
   "tripsDetailsSectionNotes": "Notes",
   "tripsDetailsMetricDistance": "Distance",

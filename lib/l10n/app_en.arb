@@ -265,6 +265,15 @@
       }
     }
   },
+  "tripsDetailsSectionCountry": "{count, plural, =1 {Country} other {Countries}}",
+  "@tripsDetailsSectionCountry": {
+    "description": "Section header for the trip country/countries",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "tripsDetailsSectionTicket": "Ticket",
   "tripsDetailsSectionNotes": "Notes",
   "tripsDetailsMetricDistance": "Distance",

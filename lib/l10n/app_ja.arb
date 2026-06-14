@@ -210,6 +210,7 @@
   "tripsDetailsLabelSeat": "座席",
   "tripsDetailsLabelRegistration": "登録番号",
   "tripsDetailsSectionOperator": "{count, plural, other {事業者}}",
+  "tripsDetailsSectionCountry": "{count, plural, other {国}}",
   "tripsDetailsSectionTicket": "チケット",
   "tripsDetailsSectionNotes": "メモ",
   "tripsDetailsMetricDistance": "距離",

@@ -99,33 +99,10 @@ class _DateLine extends StatelessWidget {
         ? l10n.tripsDetailsNoDate
         : formatDateTime(context, trip.startDatetime, hasTime: false);
 
-    // Leading country code (e.g. "JP", "FR") shown like the design when known.
-    final countries = trip.countryList;
-    final countryCode = countries.isNotEmpty ? countries.first.toUpperCase() : null;
-
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        if (countryCode != null) ...[
-          Text(
-            countryCode,
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
-              color: muted,
-              letterSpacing: 0.5,
-            ),
-          ),
-          const SizedBox(width: 6),
-        ],
-        Flexible(
-          child: Text(
-            dateText,
-            style: TextStyle(fontSize: 13, color: muted),
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-      ],
+    return Text(
+      dateText,
+      style: TextStyle(fontSize: 13, color: muted),
+      overflow: TextOverflow.ellipsis,
     );
   }
 }

@@ -64,18 +64,67 @@ class TripDetailsMetadata extends StatelessWidget {
             .where((s) => s.isNotEmpty)
             .toList();
 
+    final countries = trip.countryDetails(context);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         TripDetailsSectionHeader(l10n.tripsDetailsSectionDetails),
         const SizedBox(height: 10),
         _FieldGrid(fields: fields),
+        if (countries.isNotEmpty) ...[
+          const SizedBox(height: 20),
+          TripDetailsSectionHeader(l10n.tripsDetailsSectionCountry(countries.length)),
+          const SizedBox(height: 10),
+          _Countries(countries: countries),
+        ],
         if (operators.isNotEmpty) ...[
           const SizedBox(height: 20),
           TripDetailsSectionHeader(l10n.tripsDetailsSectionOperator(operators.length)),
           const SizedBox(height: 10),
           _Operators(operators: operators),
         ],
+      ],
+    );
+  }
+}
+
+/// Lists the trip's countries with a flag emoji and the localized name.
+class _Countries extends StatelessWidget {
+  final List<({String code, String emoji, String name})> countries;
+
+  const _Countries({required this.countries});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (var i = 0; i < countries.length; i++)
+          Padding(
+            padding: EdgeInsets.only(bottom: i == countries.length - 1 ? 0 : 8),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  countries[i].emoji,
+                  style: const TextStyle(fontSize: 20),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    countries[i].name,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                    softWrap: true,
+                  ),
+                ),
+              ],
+            ),
+          ),
       ],
     );
   }

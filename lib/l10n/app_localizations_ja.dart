@@ -651,6 +651,16 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
+  String tripsDetailsSectionCountry(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '国',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get tripsDetailsSectionTicket => 'チケット';
 
   @override

@@ -670,6 +670,17 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String tripsDetailsSectionCountry(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Pays',
+      one: 'Pays',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get tripsDetailsSectionTicket => 'Billet';
 
   @override

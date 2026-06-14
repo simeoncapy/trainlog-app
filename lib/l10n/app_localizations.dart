@@ -1302,6 +1302,12 @@ abstract class AppLocalizations {
   /// **'{count, plural, =1 {Operator} other {Operators}}'**
   String tripsDetailsSectionOperator(int count);
 
+  /// Section header for the trip country/countries
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1 {Country} other {Countries}}'**
+  String tripsDetailsSectionCountry(int count);
+
   /// No description provided for @tripsDetailsSectionTicket.
   ///
   /// In en, this message translates to:
