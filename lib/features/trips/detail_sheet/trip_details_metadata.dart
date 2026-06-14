@@ -89,7 +89,9 @@ class TripDetailsMetadata extends StatelessWidget {
   }
 }
 
-/// Lists the trip's countries with a flag emoji and the localized name.
+/// Lists the trip's countries with a flag emoji and the localized name, laid
+/// out in two responsive columns like the details grid (collapsing to one
+/// column on narrow widths).
 class _Countries extends StatelessWidget {
   final List<({String code, String emoji, String name})> countries;
 
@@ -97,35 +99,43 @@ class _Countries extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        for (var i = 0; i < countries.length; i++)
-          Padding(
-            padding: EdgeInsets.only(bottom: i == countries.length - 1 ? 0 : 8),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  countries[i].emoji,
-                  style: const TextStyle(fontSize: 20),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    countries[i].name,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Theme.of(context).colorScheme.onSurface,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        const gap = 16.0;
+        final columns = constraints.maxWidth < 340 ? 1 : 2;
+        final itemWidth = columns == 1
+            ? constraints.maxWidth
+            : (constraints.maxWidth - gap) / 2;
+
+        return Wrap(
+          spacing: gap,
+          runSpacing: 12,
+          children: [
+            for (final c in countries)
+              SizedBox(
+                width: itemWidth,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(c.emoji, style: const TextStyle(fontSize: 20)),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        c.name,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                        softWrap: true,
+                      ),
                     ),
-                    softWrap: true,
-                  ),
+                  ],
                 ),
-              ],
-            ),
-          ),
-      ],
+              ),
+          ],
+        );
+      },
     );
   }
 }
