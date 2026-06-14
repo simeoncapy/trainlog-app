@@ -70,6 +70,7 @@ class TripsApi {
   }
 
   Future<IncrementalTripsResult> fetchLastUpdatedTripsData(String username, DateTime? lastUpdate) async {
+    //final path = '/u/$username/getUpdatedTrips/${lastUpdate?.toIso8601String() ?? "all"}'; // New service name, waiting for backend to be updated
     final path = '/u/$username/getTripsPaths/${lastUpdate?.toIso8601String() ?? "all"}';
     try {
       final res = await _client.safeGet<Map<String, dynamic>>(path);
