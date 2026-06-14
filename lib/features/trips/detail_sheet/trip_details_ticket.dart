@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:trainlog_app/app/theme/app_theme.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/features/trips/detail_sheet/trip_details_common.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
+import 'package:trainlog_app/providers/settings_provider.dart';
+import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/utils/number_formatter.dart';
 
@@ -18,8 +21,45 @@ class TripDetailsTicket extends StatelessWidget {
 
   const TripDetailsTicket({super.key, required this.trip});
 
+  Widget _buildConvertedPrice(Future<double?>? caller, String userCurrency) {
+    return FutureBuilder<double?>(
+      future: caller,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const SizedBox.shrink();
+          // or:
+          // return CircularProgressIndicator();
+        }
+
+        if (snapshot.hasError) {
+          return const SizedBox.shrink();
+        }
+
+        final convertedPrice = snapshot.data;
+
+        if (convertedPrice == null) {
+          return const SizedBox.shrink();
+        }
+
+        return Text(
+          '(~ ${formatCurrency(
+            context,
+            convertedPrice,
+            convertedPrice % 1 != 0,
+          )} $userCurrency)',
+          style: TextStyle(
+            fontSize: Theme.of(context).textTheme.labelLarge?.fontSize,
+            color: detailMutedColor(context),
+          ),
+          softWrap: true,
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final settings = context.read<SettingsProvider>();
     final price = trip.price;
     if (price == null) return const SizedBox.shrink();
 
@@ -31,6 +71,11 @@ class TripDetailsTicket extends StatelessWidget {
     final priceLabel = currency.isEmpty ? amount : '$amount $currency';
 
     final purchased = trip.purchasingDate;
+
+    final userCurrency = settings.currency;
+    final convertedPrice = currency == userCurrency
+        ? null
+        : context.read<TrainlogProvider>().convertCurrency(price, currency, purchased ?? DateTime.now(), userCurrency);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -56,14 +101,21 @@ class TripDetailsTicket extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      priceLabel,
-                      style: AppTheme.monoFont.copyWith(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w700,
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
-                      softWrap: true,
+                    Wrap(
+                      spacing: 6,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        Text(
+                          priceLabel,
+                          style: AppTheme.monoFont.copyWith(
+                            fontSize: Theme.of(context).textTheme.titleMedium?.fontSize,
+                            fontWeight: FontWeight.w700,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                          softWrap: true,
+                        ),
+                        _buildConvertedPrice(convertedPrice, userCurrency)
+                      ],
                     ),
                     if (purchased != null) ...[
                       const SizedBox(height: 2),
@@ -72,7 +124,7 @@ class TripDetailsTicket extends StatelessWidget {
                           formatDateTime(context, purchased, hasTime: false),
                         ),
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: Theme.of(context).textTheme.labelMedium?.fontSize,
                           color: detailMutedColor(context),
                         ),
                         softWrap: true,
