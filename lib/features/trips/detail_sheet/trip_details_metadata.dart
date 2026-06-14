@@ -4,12 +4,11 @@ import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/features/trips/detail_sheet/trip_details_common.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
-import 'package:trainlog_app/utils/platform_utils.dart';
 import 'package:trainlog_app/utils/style_utils.dart';
 
 /// The "DETAILS" metadata block: vehicle type (mandatory) plus the optional
-/// material, seat and registration fields laid out in a responsive grid, the
-/// optional operator(s) section and the optional notes.
+/// material, seat and registration fields laid out in a responsive grid, and
+/// the optional operator(s) section.
 ///
 /// Every optional field is guarded so missing data simply omits its row
 /// without leaving empty gaps.
@@ -21,21 +20,40 @@ class TripDetailsMetadata extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final routeColor = tripRouteColor(context, trip);
 
     String? clean(String? v) {
       final t = v?.trim();
       return (t == null || t.isEmpty) ? null : t;
     }
 
-    // Vehicle is mandatory; the rest are optional.
+    // Vehicle is mandatory; the rest are optional. Each field carries a small
+    // leading icon shown before the value.
     final fields = <_Field>[
-      _Field(l10n.tripsDetailsLabelVehicle, trip.type.label(context)),
+      _Field(
+        l10n.tripsDetailsLabelVehicle,
+        trip.type.label(context),
+        icon: trip.type.icon().icon,
+        iconColor: routeColor,
+      ),
       if (clean(trip.materialType) != null)
-        _Field(l10n.tripsDetailsLabelMaterial, trip.materialType!.trim()),
+        _Field(
+          l10n.tripsDetailsLabelMaterial,
+          trip.materialType!.trim(),
+          icon: Icons.train_outlined,
+        ),
       if (clean(trip.seat) != null)
-        _Field(l10n.tripsDetailsLabelSeat, trip.seat!.trim()),
+        _Field(
+          l10n.tripsDetailsLabelSeat,
+          trip.seat!.trim(),
+          icon: Icons.event_seat_outlined,
+        ),
       if (clean(trip.reg) != null)
-        _Field(l10n.tripsDetailsLabelRegistration, trip.reg!.trim()),
+        _Field(
+          l10n.tripsDetailsLabelRegistration,
+          trip.reg!.trim(),
+          icon: Icons.tag,
+        ),
     ];
 
     final operators = trip.operatorName.isEmpty
@@ -46,43 +64,17 @@ class TripDetailsMetadata extends StatelessWidget {
             .where((s) => s.isNotEmpty)
             .toList();
 
-    final notes = clean(trip.notes);
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         TripDetailsSectionHeader(l10n.tripsDetailsSectionDetails),
         const SizedBox(height: 10),
         _FieldGrid(fields: fields),
-
         if (operators.isNotEmpty) ...[
           const SizedBox(height: 20),
           TripDetailsSectionHeader(l10n.tripsDetailsSectionOperator(operators.length)),
           const SizedBox(height: 10),
           _Operators(operators: operators),
-        ],
-
-        if (notes != null) ...[
-          const SizedBox(height: 20),
-          TripDetailsSectionHeader(l10n.tripsDetailsSectionNotes),
-          const SizedBox(height: 10),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: AdaptiveThemeColor.surfaceVariant(context),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Text(
-              notes,
-              style: TextStyle(
-                fontStyle: FontStyle.italic,
-                color: AdaptiveThemeColor.onSurfaceVariant(context),
-                height: 1.35,
-              ),
-              softWrap: true,
-            ),
-          ),
         ],
       ],
     );
@@ -92,7 +84,9 @@ class TripDetailsMetadata extends StatelessWidget {
 class _Field {
   final String label;
   final String value;
-  const _Field(this.label, this.value);
+  final IconData? icon;
+  final Color? iconColor;
+  const _Field(this.label, this.value, {this.icon, this.iconColor});
 }
 
 /// Lays out the [fields] in two columns, collapsing to a single column on
@@ -144,18 +138,36 @@ class _FieldTile extends StatelessWidget {
             fontSize: 11,
             fontWeight: FontWeight.w600,
             letterSpacing: 0.6,
-            color: AdaptiveThemeColor.onSurfaceVariant(context),
+            color: detailMutedColor(context),
           ),
         ),
-        const SizedBox(height: 2),
-        Text(
-          field.value,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: Theme.of(context).colorScheme.onSurface,
-          ),
-          softWrap: true,
+        const SizedBox(height: 3),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (field.icon != null) ...[
+              Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: Icon(
+                  field.icon,
+                  size: 18,
+                  color: field.iconColor ?? detailMutedColor(context),
+                ),
+              ),
+              const SizedBox(width: 6),
+            ],
+            Expanded(
+              child: Text(
+                field.value,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+                softWrap: true,
+              ),
+            ),
+          ],
         ),
       ],
     );

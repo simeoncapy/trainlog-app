@@ -5,7 +5,6 @@ import 'package:trainlog_app/features/trips/detail_sheet/trip_details_common.dar
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/utils/number_formatter.dart';
-import 'package:trainlog_app/utils/platform_utils.dart';
 
 /// Ticket section: a dashed-style card showing the ticket icon and the total
 /// price using the trip's currency in ISO form (e.g. "1,450 JPY", "39.90 EUR").
@@ -74,7 +73,7 @@ class TripDetailsTicket extends StatelessWidget {
                         ),
                         style: TextStyle(
                           fontSize: 12,
-                          color: AdaptiveThemeColor.onSurfaceVariant(context),
+                          color: detailMutedColor(context),
                         ),
                         softWrap: true,
                       ),

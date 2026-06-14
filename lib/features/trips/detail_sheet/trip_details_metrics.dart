@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:trainlog_app/app/theme/app_theme.dart';
 import 'package:trainlog_app/data/models/trips.dart';
+import 'package:trainlog_app/features/trips/detail_sheet/trip_details_common.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/utils/number_formatter.dart';
-import 'package:trainlog_app/utils/platform_utils.dart';
 
 /// Summary metric cards (Distance, Average speed). The "Duration" card is
 /// deliberately omitted because the timeline already surfaces the duration
@@ -70,13 +70,14 @@ class _MetricCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final muted = AdaptiveThemeColor.onSurfaceVariant(context);
+    final muted = detailMutedColor(context);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: AdaptiveThemeColor.surfaceVariant(context),
+        color: detailSurfaceColor(context),
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: detailBorderColor(context)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

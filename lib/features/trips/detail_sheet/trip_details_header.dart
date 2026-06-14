@@ -4,7 +4,6 @@ import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/features/trips/detail_sheet/trip_details_common.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
-import 'package:trainlog_app/utils/platform_utils.dart';
 
 /// Header row of the trip details sheet: a coloured vehicle-type tile, the line
 /// name (or a localized fallback) with the departure date underneath, and a
@@ -81,7 +80,7 @@ class _DateLine extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final muted = AdaptiveThemeColor.onSurfaceVariant(context);
+    final muted = detailMutedColor(context);
 
     final dateText = trip.isUnknownPastFuture
         ? l10n.tripsDetailsNoDate
@@ -126,13 +125,14 @@ class _VisibilityChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final fg = AdaptiveThemeColor.onSurfaceVariant(context);
+    final fg = detailMutedColor(context);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: AdaptiveThemeColor.surfaceVariant(context),
+        color: detailSurfaceColor(context),
         borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: detailBorderColor(context)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

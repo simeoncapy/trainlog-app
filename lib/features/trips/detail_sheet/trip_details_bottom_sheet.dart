@@ -1,9 +1,12 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/features/trips/detail_sheet/trip_details_actions.dart';
+import 'package:trainlog_app/features/trips/detail_sheet/trip_details_common.dart';
 import 'package:trainlog_app/features/trips/detail_sheet/trip_details_header.dart';
 import 'package:trainlog_app/features/trips/detail_sheet/trip_details_metadata.dart';
 import 'package:trainlog_app/features/trips/detail_sheet/trip_details_metrics.dart';
+import 'package:trainlog_app/features/trips/detail_sheet/trip_details_notes.dart';
 import 'package:trainlog_app/features/trips/detail_sheet/trip_details_ticket.dart';
 import 'package:trainlog_app/features/trips/detail_sheet/trip_details_timeline.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
@@ -14,53 +17,86 @@ import 'package:trainlog_app/utils/platform_utils.dart';
 /// views (via `showAdaptiveTripBottomSheet`). The sheet is composed of small,
 /// independent sub-widgets living in this folder so each section can evolve
 /// (and degrade gracefully on missing data) on its own.
+///
+/// The scrollable content and the action button row are split so the actions
+/// stay pinned to the bottom regardless of scrolling. On iOS the hosting
+/// draggable card supplies its [scrollController] so dragging keeps working.
 class TripDetailsBottomSheet extends StatelessWidget {
   final Trips trip;
+  final ScrollController? scrollController;
 
-  const TripDetailsBottomSheet({super.key, required this.trip});
+  const TripDetailsBottomSheet({
+    super.key,
+    required this.trip,
+    this.scrollController,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final isApple = AppPlatform.isApple;
     final hasMetrics = trip.tripLength > 0;
     final hasTicket = trip.price != null;
+    final hasNotes = (trip.notes?.trim().isNotEmpty ?? false);
 
-    final content = Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        TripDetailsHeader(trip: trip),
-        const SizedBox(height: 20),
-        TripDetailsTimeline(trip: trip),
-        if (hasMetrics) ...[
+    final content = Padding(
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TripDetailsHeader(trip: trip),
           const SizedBox(height: 20),
-          TripDetailsMetrics(trip: trip),
-        ],
-        const SizedBox(height: 20),
-        TripDetailsMetadata(trip: trip),
-        if (hasTicket) ...[
+          TripDetailsTimeline(trip: trip),
+          if (hasMetrics) ...[
+            const SizedBox(height: 20),
+            TripDetailsMetrics(trip: trip),
+          ],
           const SizedBox(height: 20),
-          TripDetailsTicket(trip: trip),
+          TripDetailsMetadata(trip: trip),
+          if (hasTicket) ...[
+            const SizedBox(height: 20),
+            TripDetailsTicket(trip: trip),
+          ],
+          if (hasNotes) ...[
+            const SizedBox(height: 20),
+            TripDetailsNotes(trip: trip),
+          ],
         ],
-        const SizedBox(height: 24),
-        TripDetailsActions(trip: trip),
-        AppPlatform.bottomPadding(context, offset: 8),
-      ],
+      ),
     );
 
-    // iOS: the sheet is already hosted in a scrollable Cupertino card, so just
-    // pad horizontally. Android/Material: provide our own scroll view.
-    if (AppPlatform.isApple) {
-      return Padding(
-        padding: const EdgeInsets.fromLTRB(20, 4, 20, 0),
-        child: content,
-      );
-    }
+    final Widget scrollArea = isApple
+        ? CupertinoScrollbar(
+            controller: scrollController,
+            child: SingleChildScrollView(
+              controller: scrollController,
+              physics: const BouncingScrollPhysics(),
+              child: content,
+            ),
+          )
+        : SingleChildScrollView(child: content);
 
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: content,
+    // Pinned action footer (does not scroll).
+    final footer = Container(
+      decoration: BoxDecoration(
+        color: isApple ? Colors.transparent : Theme.of(context).colorScheme.surface,
+        border: Border(top: BorderSide(color: detailBorderColor(context))),
       ),
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+      child: SafeArea(
+        top: false,
+        child: TripDetailsActions(trip: trip),
+      ),
+    );
+
+    return Column(
+      // iOS hosts us inside a bounded card → fill it; Material lets the sheet
+      // size to its content with the footer pinned beneath the scroll area.
+      mainAxisSize: isApple ? MainAxisSize.max : MainAxisSize.min,
+      children: [
+        isApple ? Expanded(child: scrollArea) : Flexible(child: scrollArea),
+        footer,
+      ],
     );
   }
 }
