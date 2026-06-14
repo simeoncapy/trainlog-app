@@ -45,7 +45,7 @@ class TripDetailsBottomSheet extends StatelessWidget {
     final hasNotes = (trip.notes?.trim().isNotEmpty ?? false);
 
     final content = Padding(
-      padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,

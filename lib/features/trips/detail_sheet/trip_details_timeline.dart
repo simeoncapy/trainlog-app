@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:trainlog_app/app/theme/app_colors.dart';
 import 'package:trainlog_app/app/theme/app_theme.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/features/trips/detail_sheet/trip_details_common.dart';
@@ -47,7 +48,7 @@ class TripDetailsTimeline extends StatelessWidget {
             width: 76,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 _TimeBlock(
                   main: _time(context, trip.realStartDate),
@@ -154,11 +155,11 @@ class _TimeBlock extends StatelessWidget {
     if (main == null) return const SizedBox.shrink();
 
     final deltaColor = isLate
-        ? Theme.of(context).colorScheme.error
-        : Theme.of(context).colorScheme.tertiary;
+        ? AppColors.late
+        : AppColors.early;
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.end,
       mainAxisSize: MainAxisSize.min,
       children: [
         if (topLabel != null)
@@ -244,20 +245,22 @@ class _DurationPill extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                     color: showReal
                         ? (isLate
-                            ? Theme.of(context).colorScheme.error
-                            : Theme.of(context).colorScheme.tertiary)
+                            ? AppColors.late
+                            : AppColors.early)
                         : Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
-                if (showReal)
+                if (showReal) ...[
+                  TextSpan(text: '  '),
                   TextSpan(
-                    text: '  ${trip.durationFormatted}',
+                    text: trip.durationFormatted,
                     style: AppTheme.monoFont.copyWith(
                       fontSize: 12,
                       decoration: TextDecoration.lineThrough,
                       color: detailMutedColor(context),
                     ),
                   ),
+                ]
               ]),
             ),
           ),
