@@ -85,7 +85,7 @@ class AccountApi {
       "amount": amount,
       "base_currency": fromCurrency,
       "target_currency": toCurrency,
-      "date": date.toIso8601String(),
+      "date": date.toIso8601String().split('T').first,
     };
 
     final path = '/convert_currency';

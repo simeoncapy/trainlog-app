@@ -16,42 +16,70 @@ import 'package:trainlog_app/utils/number_formatter.dart';
 ///
 /// The fare-type label (e.g. "IC", "Sparpreis") is intentionally not rendered
 /// here as the backing API for fare categories is not yet available.
-class TripDetailsTicket extends StatelessWidget {
+class TripDetailsTicket extends StatefulWidget {
   final Trips trip;
 
-  const TripDetailsTicket({super.key, required this.trip});
+  const TripDetailsTicket({
+    super.key,
+    required this.trip,
+  });
 
-  Widget _buildConvertedPrice(Future<double?>? caller, String userCurrency) {
+  @override
+  State<TripDetailsTicket> createState() => _TripDetailsTicketState();
+}
+
+class _TripDetailsTicketState extends State<TripDetailsTicket> {
+  Future<double?>? _convertedPriceFuture;
+  late String _userCurrency;
+
+  @override
+  void initState() {
+    super.initState();
+
+    final settings = context.read<SettingsProvider>();
+    final trainlog = context.read<TrainlogProvider>();
+
+    _userCurrency = settings.currency;
+
+    final price = widget.trip.price;
+    final currency = (widget.trip.currency ?? '').trim();
+
+    if (price != null &&
+        currency.isNotEmpty &&
+        currency != _userCurrency) {
+      _convertedPriceFuture = trainlog.convertCurrency(
+        price,
+        currency,
+        widget.trip.purchasingDate ?? DateTime.now(),
+        _userCurrency,
+      );
+    }
+  }
+
+  Widget _buildConvertedPrice() {
     return FutureBuilder<double?>(
-      future: caller,
+      future: _convertedPriceFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const SizedBox.shrink();
-          // or:
-          // return CircularProgressIndicator();
         }
 
-        if (snapshot.hasError) {
+        if (snapshot.hasError || !snapshot.hasData) {
           return const SizedBox.shrink();
         }
 
-        final convertedPrice = snapshot.data;
-
-        if (convertedPrice == null) {
-          return const SizedBox.shrink();
-        }
+        final convertedPrice = snapshot.data!;
 
         return Text(
           '(~ ${formatCurrency(
             context,
             convertedPrice,
             convertedPrice % 1 != 0,
-          )} $userCurrency)',
+          )} $_userCurrency)',
           style: TextStyle(
             fontSize: Theme.of(context).textTheme.labelLarge?.fontSize,
             color: detailMutedColor(context),
           ),
-          softWrap: true,
         );
       },
     );
@@ -59,23 +87,17 @@ class TripDetailsTicket extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final settings = context.read<SettingsProvider>();
-    final price = trip.price;
+    final price = widget.trip.price;
     if (price == null) return const SizedBox.shrink();
 
     final l10n = AppLocalizations.of(context)!;
     final primary = Theme.of(context).colorScheme.primary;
 
-    final currency = (trip.currency ?? '').trim();
+    final currency = (widget.trip.currency ?? '').trim();
     final amount = formatCurrency(context, price, price % 1 != 0);
     final priceLabel = currency.isEmpty ? amount : '$amount $currency';
 
-    final purchased = trip.purchasingDate;
-
-    final userCurrency = settings.currency;
-    final convertedPrice = currency == userCurrency
-        ? null
-        : context.read<TrainlogProvider>().convertCurrency(price, currency, purchased ?? DateTime.now(), userCurrency);
+    final purchased = widget.trip.purchasingDate;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -114,7 +136,7 @@ class TripDetailsTicket extends StatelessWidget {
                           ),
                           softWrap: true,
                         ),
-                        _buildConvertedPrice(convertedPrice, userCurrency)
+                        _buildConvertedPrice(),
                       ],
                     ),
                     if (purchased != null) ...[
