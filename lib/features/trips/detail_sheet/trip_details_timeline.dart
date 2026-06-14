@@ -262,6 +262,12 @@ class _DurationPill extends StatelessWidget {
                   ),
                 ]
               ]),
+              // Keep the pill on a single line: wrapping here would desync the
+              // IntrinsicHeight measurement from the actual layout and overflow
+              // the timeline row. Overly long values are ellipsized instead.
+              maxLines: 1,
+              softWrap: false,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
