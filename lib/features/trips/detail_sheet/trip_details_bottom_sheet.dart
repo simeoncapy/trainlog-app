@@ -95,11 +95,28 @@ class TripDetailsBottomSheet extends StatelessWidget {
       ),
     );
 
+    // Grab handle. On iOS the hosting draggable card already provides one, so
+    // this is only rendered for the Material sheet.
+    final handle = Padding(
+      padding: const EdgeInsets.only(top: 10, bottom: 2),
+      child: Center(
+        child: Container(
+          width: 36,
+          height: 5,
+          decoration: BoxDecoration(
+            color: detailMutedColor(context).withValues(alpha: 0.4),
+            borderRadius: BorderRadius.circular(99),
+          ),
+        ),
+      ),
+    );
+
     return Column(
       // iOS hosts us inside a bounded card → fill it; Material lets the sheet
       // size to its content with the footer pinned beneath the scroll area.
       mainAxisSize: isApple ? MainAxisSize.max : MainAxisSize.min,
       children: [
+        if (!isApple) handle,
         isApple ? Expanded(child: scrollArea) : Flexible(child: scrollArea),
         footer,
       ],
