@@ -1,10 +1,10 @@
 import 'dart:math' as math;
 import 'dart:ui';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart' show showModalBottomSheet;
+import 'package:flutter/material.dart' show showModalBottomSheet, Theme;
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/utils/platform_utils.dart'; // for AppPlatform.isApple
-import 'package:trainlog_app/widgets/trip_details_bottom_sheet.dart';
+import 'package:trainlog_app/features/trips/detail_sheet/trip_details_bottom_sheet.dart';
 
 /// Call this everywhere.
 Future<void> showAdaptiveTripBottomSheet(
@@ -26,14 +26,12 @@ Future<void> _showTripSheetMaterial(
     context: context,
     useSafeArea: true,
     isScrollControlled: true,
-    builder: (ctx) {
-      final mq = MediaQuery.of(ctx);
-      final bottom = math.max(mq.viewPadding.bottom, mq.viewInsets.bottom);
-      return Padding(
-        padding: EdgeInsets.only(bottom: bottom),
-        child: TripDetailsBottomSheet(trip: trip),
-      );
-    },
+    backgroundColor: Theme.of(context).colorScheme.surface,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    ),
+    // The sheet manages its own scrolling and pins the action row at the bottom.
+    builder: (ctx) => TripDetailsBottomSheet(trip: trip),
   );
 }
 
@@ -76,7 +74,7 @@ Future<void> _showTripCardCupertino(
                       scrollController: scrollController,
                       sheetController: sheetController,
                       onDismiss: () => Navigator.of(ctx).pop(),
-                      child: TripDetailsBottomSheet(trip: trip),
+                      trip: trip,
                     );
                   },
                 ),
@@ -106,13 +104,13 @@ Future<void> _showTripCardCupertino(
 class _CupertinoDraggableCard extends StatelessWidget {
   final ScrollController scrollController;
   final DraggableScrollableController sheetController;
-  final Widget child;
+  final Trips trip;
   final VoidCallback onDismiss;
 
   const _CupertinoDraggableCard({
     required this.scrollController,
     required this.sheetController,
-    required this.child,
+    required this.trip,
     required this.onDismiss,
   });
 
@@ -205,17 +203,14 @@ class _CupertinoDraggableCard extends StatelessWidget {
                   ),
                 ),
 
-                // ── Scrollable content ──────────────────────────────────────
+                // ── Scrollable content + pinned actions ─────────────────────
+                // The sheet owns its scroll view (driven by the draggable
+                // sheet's controller) and keeps the action row pinned below it.
                 Expanded(
-                  child: CupertinoScrollbar(
-                    controller: scrollController,
-                    child: ListView(
-                      controller: scrollController,
-                      primary: false,
-                      physics: const BouncingScrollPhysics(),
-                      padding: EdgeInsets.zero,
-                      children: [child],
-                    ),
+                  child: TripDetailsBottomSheet(
+                    trip: trip,
+                    scrollController: scrollController,
+                    onClose: onDismiss,
                   ),
                 ),
               ],

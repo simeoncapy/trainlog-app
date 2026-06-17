@@ -141,6 +141,8 @@ abstract final class AppColors {
 
   /// Early / success (shared alias for green)
   static const Color early = successLight;
+
+  static const Color late = errorLight;
 }
 
 

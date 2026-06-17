@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:trainlog_app/services/api/trainlog_http_client.dart';
@@ -76,5 +78,30 @@ class AccountApi {
       debugPrint('🛑 fetchAvailableCurrencies failed: $e');
       return const [];
     }
+  }
+
+  Future<double?> convertCurrency(double amount, String fromCurrency, DateTime date, String toCurrency) async {
+    Map<String, dynamic> querry = {
+      "amount": amount,
+      "base_currency": fromCurrency,
+      "target_currency": toCurrency,
+      "date": date.toIso8601String().split('T').first,
+    };
+
+    final path = '/convert_currency';
+    final r = await _client.safePost(
+      path,
+      data: querry,
+      contentType: Headers.jsonContentType,
+      headers: {'Accept': 'application/json'},
+      followRedirects: false,
+      validateStatus: (s) => s != null && s < 500,
+    );
+
+    final data = r.data;
+    if (data == null) return null;
+
+    final raw = data['converted_amount'];
+    return raw is num ? raw.toDouble() : double.tryParse(raw.toString());
   }
 }

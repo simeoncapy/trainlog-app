@@ -635,6 +635,58 @@ class AppLocalizationsTl extends AppLocalizations {
   String get tripsDetailsTitleNotes => 'Notes: ';
 
   @override
+  String get tripsDetailsSectionDetails => 'Detalye';
+
+  @override
+  String get tripsDetailsLabelVehicle => 'Sasakyan';
+
+  @override
+  String get tripsDetailsLabelMaterial => 'Materyal';
+
+  @override
+  String get tripsDetailsLabelSeat => 'Upuan';
+
+  @override
+  String get tripsDetailsLabelRegistration => 'Rehistrasyon';
+
+  @override
+  String tripsDetailsSectionOperator(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Operators',
+      one: 'Operator',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String tripsDetailsSectionCountry(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Mga bansa',
+      one: 'Bansa',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get tripsDetailsSectionTicket => 'Tiket';
+
+  @override
+  String get tripsDetailsSectionNotes => 'Notes';
+
+  @override
+  String get tripsDetailsMetricDistance => 'Distansya';
+
+  @override
+  String get tripsDetailsMetricAvgSpeed => 'Karaniwang bilis';
+
+  @override
+  String get tripsDetailsNoDate => 'Walang petsa';
+
+  @override
   String get tripsDetailsEditButton => 'Edit';
 
   @override

@@ -65,7 +65,7 @@ String formatDateTime(
         .replaceAll(RegExp(r'p\.m\.', caseSensitive: false), 'p');
   }
 
-  return result;
+  return result.trim();
 }
 
 /// Formats [dateTime] as a short date with month name, e.g. "30 Mar" (English)

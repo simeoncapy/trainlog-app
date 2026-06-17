@@ -459,7 +459,7 @@ class _TimeLabel extends StatelessWidget {
           TextSpan(
             text: ' ($delayText)',
             style: (style ?? const TextStyle()).copyWith(
-              color: delay! > 0 ? Colors.red : Colors.green,
+              color: delay! > 0 ? AppColors.late : AppColors.early,
               fontSize: 10,
             ),
           ),
@@ -514,7 +514,7 @@ class _MetaRow extends StatelessWidget {
             Text(
               ' (${realDeltaMinutes > 0 ? '+' : ''}$realDeltaMinutes)',
               style: metaStyle?.copyWith(
-                color: realDeltaMinutes > 0 ? Colors.red : Colors.green,
+                color: realDeltaMinutes > 0 ? AppColors.late : AppColors.early,
               ),
             ),
           const SizedBox(width: 12),

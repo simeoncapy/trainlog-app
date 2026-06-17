@@ -584,4 +584,8 @@ class TrainlogProvider extends ChangeNotifier {
     settings.setLastNewsVisitNowUtc();
     return out;
   }
+
+  Future<double?> convertCurrency(double amount, String fromCurrency, DateTime date, String toCurrency) async {
+    return _account.convertCurrency(amount, fromCurrency, date, toCurrency);
+  }
 }

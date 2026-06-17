@@ -626,6 +626,56 @@ class AppLocalizationsJa extends AppLocalizations {
   String get tripsDetailsTitleNotes => 'メモ: ';
 
   @override
+  String get tripsDetailsSectionDetails => '詳細';
+
+  @override
+  String get tripsDetailsLabelVehicle => '車両';
+
+  @override
+  String get tripsDetailsLabelMaterial => '車両形式';
+
+  @override
+  String get tripsDetailsLabelSeat => '座席';
+
+  @override
+  String get tripsDetailsLabelRegistration => '登録番号';
+
+  @override
+  String tripsDetailsSectionOperator(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '事業者',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String tripsDetailsSectionCountry(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '国',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get tripsDetailsSectionTicket => 'チケット';
+
+  @override
+  String get tripsDetailsSectionNotes => 'メモ';
+
+  @override
+  String get tripsDetailsMetricDistance => '距離';
+
+  @override
+  String get tripsDetailsMetricAvgSpeed => '平均速度';
+
+  @override
+  String get tripsDetailsNoDate => '日付なし';
+
+  @override
   String get tripsDetailsEditButton => '編集';
 
   @override

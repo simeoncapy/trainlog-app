@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
+import 'package:trainlog_app/utils/text_utils.dart';
 import 'package:trainlog_app/widgets/trip_visibility_selector.dart';
 import 'package:trainlog_app/data/models/polyline_entry.dart';
 
@@ -170,6 +171,19 @@ class Trips {
     } catch (_) {
       return const [];
     }
+  }
+
+  /// The trip's countries as `(code, emoji, localized name)` records, resolving
+  /// names through the active [CountryLocalizations]. Returns an empty list
+  /// when the trip carries no country data.
+  List<({String code, String emoji, String name})> countryDetails(BuildContext context) {
+    return countryList
+        .map((code) => (
+              code: code,
+              emoji: countryCodeToEmoji(code),
+              name: countryCodeToName(code, context),
+            ))
+        .toList();
   }
 
   factory Trips.fromJson(Map<String, dynamic> json, {bool pathAsGooglePolyline = true, bool decodePolyline = false}) {
