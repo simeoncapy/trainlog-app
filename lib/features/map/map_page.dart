@@ -15,6 +15,7 @@ import 'package:trainlog_app/app/theme/app_colors.dart';
 import 'package:trainlog_app/app/theme/app_nav_bar_theme.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/features/map/map_filter_widget.dart';
+import 'package:trainlog_app/features/map/map_marker.dart';
 import 'package:trainlog_app/navigation/nav_models.dart';
 import 'package:trainlog_app/platform/adaptive_trip_card.dart';
 import 'package:trainlog_app/platform/adaptive_widget.dart';
@@ -260,7 +261,7 @@ class _MapPageState extends State<MapPage>
                     width: 40,
                     height: 40,
                     point: _userPosition!,
-                    child: const Icon(Icons.my_location, size: 28, color: Colors.red),
+                    child: const MapMarker(),
                   ),
                 ],
               ),
