@@ -258,8 +258,8 @@ class _MapPageState extends State<MapPage>
               MarkerLayer(
                 markers: [
                   Marker(
-                    width: 40,
-                    height: 40,
+                    width: 30,
+                    height: 30,
                     point: _userPosition!,
                     child: const MapMarker(),
                   ),
