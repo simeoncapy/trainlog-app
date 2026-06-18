@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:trainlog_app/data/models/news_model.dart';
 import 'package:trainlog_app/data/models/pre_record_model.dart';
+import 'package:trainlog_app/data/models/ranking_model.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
@@ -29,6 +30,7 @@ class TrainlogProvider extends ChangeNotifier {
   late StationsApi _stations;
   late AccountApi _account;
   late MiscApi _misc;
+  late RankingApi _ranking;
 
   bool _loading = false;
   bool _isAuthenticated = false;
@@ -53,6 +55,7 @@ class TrainlogProvider extends ChangeNotifier {
     _stations = StationsApi(_client);
     _account = AccountApi(_client);
     _misc = MiscApi(_client);
+    _ranking = RankingApi(_client);
   }
 
   bool get loading => _loading;
@@ -63,6 +66,9 @@ class TrainlogProvider extends ChangeNotifier {
 
   /// The trips data API, handed to [TripsProvider] so it shares this session.
   TripsApi get tripsApi => _tripsApi;
+
+  /// The leaderboard / ranking API.
+  RankingApi get rankingApi => _ranking;
 
   Map<String, String> get listOperators => _listOperators;
   List<String> get availableCurrencies => _availableCurrencies;
@@ -318,6 +324,27 @@ class TrainlogProvider extends ChangeNotifier {
     if (_username == null) return {};
     return await _misc.fetchStatsByVehicle(_username ?? "", type, year);
   }
+
+  // ----------------------------
+  // Leaderboards / rankings
+  // ----------------------------
+
+  Future<RankingResult<LeaderboardEntry>> fetchRankingForVehicle(VehicleType type) =>
+      _ranking.fetchRankingForVehicle(type);
+
+  Future<RankingResult<LeaderboardEntry>> fetchRankingAll() =>
+      _ranking.fetchRankingAll();
+
+  Future<RankingResult<CarbonLeaderboardEntry>> fetchRankingForCarbonFootprint() =>
+      _ranking.fetchRankingForCarbonFootprint();
+
+  Future<void> fetchRankingForCountry() => _ranking.fetchRankingForCountry();
+
+  Future<void> fetchRankingForRailPercentage() =>
+      _ranking.fetchRankingForRailPercentage();
+
+  Future<void> fetchRankingForWorldSquares() =>
+      _ranking.fetchRankingForWorldSquares();
 
   /// Return up to [limit] operators that match [query] by
   /// substring match first, then fuzzy Levenshtein distance.
