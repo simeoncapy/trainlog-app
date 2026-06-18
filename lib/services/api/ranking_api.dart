@@ -37,14 +37,9 @@ class RankingApi {
     return _fetchCarbonLeaderboard('carbon');
   }
 
-  /// Ranking by country (`<type>` = `country`).
-  ///
-  /// Placeholder: the backend returns a different shape than the distance
-  /// leaderboards and needs its own result model. To be implemented.
-  Future<void> fetchRankingForCountry() {
-    throw UnimplementedError(
-      'fetchRankingForCountry (/getLeaderboardUsers/country) is not implemented yet',
-    );
+  /// Ranking by number of countries visited (`<type>` = `country_count`).
+  Future<RankingResult<CountryLeaderboardEntry>> fetchRankingForCountry() {
+    return _fetchCountryLeaderboard('country_count');
   }
 
   /// Ranking by share of rail travel (`<type>` = `train_countries`).
@@ -87,6 +82,18 @@ class RankingApi {
     final entries = rows
         .where((r) => !nonPublic.contains(r['username']?.toString()))
         .map(CarbonLeaderboardEntry.fromJson)
+        .toList();
+    return RankingResult(entries);
+  }
+
+  /// The countries-visited leaderboard: a list of country codes plus a count.
+  Future<RankingResult<CountryLeaderboardEntry>> _fetchCountryLeaderboard(
+    String type,
+  ) async {
+    final (rows, nonPublic) = await _fetchRaw(type);
+    final entries = rows
+        .where((r) => !nonPublic.contains(r['username']?.toString()))
+        .map(CountryLeaderboardEntry.fromJson)
         .toList();
     return RankingResult(entries);
   }

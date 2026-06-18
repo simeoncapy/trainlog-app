@@ -9,6 +9,7 @@ import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/utils/text_utils.dart';
 import 'package:trainlog_app/widgets/trip_visibility_selector.dart';
 import 'package:trainlog_app/data/models/polyline_entry.dart';
+import 'package:trainlog_app/data/models/country_detail.dart';
 
 class Trips {
   final String uid;
@@ -173,16 +174,12 @@ class Trips {
     }
   }
 
-  /// The trip's countries as `(code, emoji, localized name)` records, resolving
-  /// names through the active [CountryLocalizations]. Returns an empty list
-  /// when the trip carries no country data.
-  List<({String code, String emoji, String name})> countryDetails(BuildContext context) {
+  /// The trip's countries as [CountryDetail]s (code, flag emoji and localized
+  /// name), resolving names through the active [CountryLocalizations]. Returns
+  /// an empty list when the trip carries no country data.
+  List<CountryDetail> countryDetails(BuildContext context) {
     return countryList
-        .map((code) => (
-              code: code,
-              emoji: countryCodeToEmoji(code),
-              name: countryCodeToName(code, context),
-            ))
+        .map((code) => CountryDetail.fromCode(code, context))
         .toList();
   }
 

@@ -1,18 +1,27 @@
 import 'dart:io';
 
+import 'package:flutter/widgets.dart';
+import 'package:trainlog_app/data/models/country_detail.dart';
+
 /// Base class shared by every leaderboard entry.
 ///
-/// Every ranking row exposes a [username], the last time the user's data was
-/// modified ([lastModified], nullable — the backend sends `null` for users who
-/// never logged anything) and the number of [trips]. The concrete subclasses
-/// add the metric-specific fields (e.g. distance, carbon, …).
+/// The only field common to all ranking variants is the [username]; each
+/// concrete subclass adds the metric-specific fields.
 abstract class RankingEntry {
   final String username;
+
+  const RankingEntry({required this.username});
+}
+
+/// Intermediate class for the trip-based leaderboards (vehicle, `all`,
+/// carbon). These share a nullable [lastModified] (the backend sends `null`
+/// for users who never logged anything) and a number of [trips].
+abstract class TripRankingEntry extends RankingEntry {
   final DateTime? lastModified;
   final int trips;
 
-  const RankingEntry({
-    required this.username,
+  const TripRankingEntry({
+    required super.username,
     required this.lastModified,
     required this.trips,
   });
@@ -24,7 +33,7 @@ abstract class RankingEntry {
 /// ```json
 /// { "last_modified": "...", "length": 35377003.27, "trips": 196, "username": "mylou" }
 /// ```
-class LeaderboardEntry extends RankingEntry {
+class LeaderboardEntry extends TripRankingEntry {
   /// Total travelled distance in metres.
   final double length;
 
@@ -52,7 +61,7 @@ class LeaderboardEntry extends RankingEntry {
 /// { "carbon_per_km": 0.177, "last_modified": "...", "total_carbon": 507375.78,
 ///   "total_distance": 2856857682.75, "trips": 2202, "username": "nmartin4" }
 /// ```
-class CarbonLeaderboardEntry extends RankingEntry {
+class CarbonLeaderboardEntry extends TripRankingEntry {
   /// Average carbon emitted per kilometre (kg CO2 / km).
   final double carbonPerKm;
 
@@ -83,13 +92,62 @@ class CarbonLeaderboardEntry extends RankingEntry {
   }
 }
 
+/// A leaderboard row for the countries-visited ranking
+/// (`/getLeaderboardUsers/country_count`):
+/// ```json
+/// { "countries_visited": ["US", "JP", ...], "country_count": 101, "username": "nmartin4" }
+/// ```
+class CountryLeaderboardEntry extends RankingEntry {
+  /// Number of distinct countries visited.
+  final int countryCount;
+
+  /// ISO country codes the user has visited, kept in the backend order
+  /// (by trip count per country, most visited first).
+  final List<String> countriesVisited;
+
+  const CountryLeaderboardEntry({
+    required super.username,
+    required this.countryCount,
+    required this.countriesVisited,
+  });
+
+  factory CountryLeaderboardEntry.fromJson(Map<String, dynamic> json) {
+    final visited = (json['countries_visited'] as List<dynamic>? ?? [])
+        .map((e) => e.toString())
+        .toList();
+    return CountryLeaderboardEntry(
+      username: json['username']?.toString() ?? '',
+      countryCount: _toInt(json['country_count']),
+      countriesVisited: visited,
+    );
+  }
+
+  /// Resolves [countriesVisited] to [CountryDetail]s (code, localized name and
+  /// emoji), preserving the backend order — by trip count, most visited first.
+  List<CountryDetail> countryDetails(BuildContext context) {
+    return countriesVisited
+        .map((code) => CountryDetail.fromCode(code, context))
+        .toList();
+  }
+
+  /// Same as [countryDetails] but sorted alphabetically by localized country
+  /// name (according to the user's locale).
+  List<CountryDetail> countryDetailsSortedByName(BuildContext context) {
+    final details = countryDetails(context);
+    details.sort(
+      (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()),
+    );
+    return details;
+  }
+}
+
 /// The result of a leaderboard request: the public entries only (users listed
-/// in `non_public_users` are already filtered out by [RankingApi]).
+/// in `non_public_users` are already filtered out by `RankingApi`).
 ///
 /// Sorting is intentionally not baked in — the same data is shown sorted by
 /// length, trips, carbon, … depending on the screen. Use [sortedBy] with a
-/// field selector, or the convenience helpers ([sortedByTrips] here, plus the
-/// metric-specific helpers in the extensions below).
+/// field selector, or one of the metric-specific helpers in the extensions
+/// below.
 class RankingResult<T extends RankingEntry> {
   final List<T> entries;
 
@@ -109,8 +167,12 @@ class RankingResult<T extends RankingEntry> {
     });
     return copy;
   }
+}
 
-  /// Sorted by number of trips (available on every entry type).
+/// Trip-count sorting, shared by every trip-based leaderboard.
+extension TripRankingResultSorting<T extends TripRankingEntry>
+    on RankingResult<T> {
+  /// Sorted by number of trips.
   List<T> sortedByTrips({bool descending = true}) =>
       sortedBy((e) => e.trips, descending: descending);
 }
@@ -135,6 +197,13 @@ extension CarbonResultSorting on RankingResult<CarbonLeaderboardEntry> {
   /// Sorted by total travelled distance.
   List<CarbonLeaderboardEntry> sortedByTotalDistance({bool descending = true}) =>
       sortedBy((e) => e.totalDistance, descending: descending);
+}
+
+/// Country-count sorting for the countries-visited leaderboard.
+extension CountryResultSorting on RankingResult<CountryLeaderboardEntry> {
+  /// Sorted by the number of distinct countries visited.
+  List<CountryLeaderboardEntry> sortedByCountryCount({bool descending = true}) =>
+      sortedBy((e) => e.countryCount, descending: descending);
 }
 
 /// Parses a leaderboard `last_modified` value into a local [DateTime].

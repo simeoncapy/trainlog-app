@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:trainlog_app/data/models/country_detail.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/features/trips/detail_sheet/trip_details_common.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
@@ -93,7 +94,7 @@ class TripDetailsMetadata extends StatelessWidget {
 /// out in two responsive columns like the details grid (collapsing to one
 /// column on narrow widths).
 class _Countries extends StatelessWidget {
-  final List<({String code, String emoji, String name})> countries;
+  final List<CountryDetail> countries;
 
   const _Countries({required this.countries});
 
