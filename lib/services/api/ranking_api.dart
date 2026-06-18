@@ -131,7 +131,7 @@ class RankingApi {
     try {
       final res = await _client.safeGet<Map<String, dynamic>>(path);
       final data = res.data;
-      if (data == null) return (const [], const {});
+      if (data == null) return (const <Map<String, dynamic>>[], const <String>{});
 
       final rows = (data['leaderboard_data'] as List<dynamic>? ?? [])
           .whereType<Map<String, dynamic>>()
@@ -143,7 +143,7 @@ class RankingApi {
       return (rows, nonPublic);
     } catch (e) {
       debugPrint('🛑 fetchLeaderboard($type) failed: $e');
-      return (const [], const {});
+      return (const <Map<String, dynamic>>[], const <String>{});
     }
   }
 }
