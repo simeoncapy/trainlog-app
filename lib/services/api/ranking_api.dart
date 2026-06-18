@@ -42,13 +42,10 @@ class RankingApi {
     return _fetchCountryLeaderboard('country_count');
   }
 
-  /// Ranking by share of rail travel (`<type>` = `train_countries`).
-  ///
-  /// Placeholder: dedicated result model still to be defined.
-  Future<void> fetchRankingForRailPercentage() {
-    throw UnimplementedError(
-      'fetchRankingForRailPercentage (/getLeaderboardUsers/train_countries) is not implemented yet',
-    );
+  /// Ranking by share of rail travel per country / subdivision
+  /// (`<type>` = `train_countries`).
+  Future<RailPercentageResult> fetchRankingForRailPercentage() {
+    return _fetchRailPercentageLeaderboard('train_countries');
   }
 
   /// Ranking by world squares covered (`<type>` = `world_squares`).
@@ -96,6 +93,32 @@ class RankingApi {
         .map(CountryLeaderboardEntry.fromJson)
         .toList();
     return RankingResult(entries);
+  }
+
+  /// The rail-percentage leaderboard: rows keyed by country / subdivision
+  /// rather than by user. Public users are filtered out per coverage tier and
+  /// country- and subdivision-level rows are kept apart.
+  Future<RailPercentageResult> _fetchRailPercentageLeaderboard(
+    String type,
+  ) async {
+    final (rows, nonPublic) = await _fetchRaw(type);
+    final countries = <RailPercentageEntry>[];
+    final subdivisions = <RailPercentageEntry>[];
+
+    for (final row in rows) {
+      final entry = RailPercentageEntry.fromJson(row, nonPublic: nonPublic);
+      if (entry == null) continue; // no public users left for this area
+      if (entry.isSubdivision) {
+        subdivisions.add(entry);
+      } else {
+        countries.add(entry);
+      }
+    }
+
+    return RailPercentageResult(
+      countries: countries,
+      subdivisions: subdivisions,
+    );
   }
 
   /// Fetches and splits a `/getLeaderboardUsers/<type>` response into its

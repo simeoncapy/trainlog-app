@@ -206,6 +206,148 @@ extension CountryResultSorting on RankingResult<CountryLeaderboardEntry> {
       sortedBy((e) => e.countryCount, descending: descending);
 }
 
+/// A single coverage tier within a country/subdivision: the [percent] of the
+/// rail network covered and the [usernames] of the users who reached it.
+class RailCoverage {
+  final double percent;
+  final List<String> usernames;
+
+  const RailCoverage({required this.percent, required this.usernames});
+}
+
+/// Rail-coverage stats for one country or subdivision, from
+/// `/getLeaderboardUsers/train_countries`:
+/// ```json
+/// { "cc": "AT", "data": [ { "percent": 99.0, "usernames": ["Wandering Pom"] }, ... ] }
+/// ```
+///
+/// [code] is either a country code (`"AT"`) or an ISO 3166-2 subdivision code
+/// (`"AT-1"`, `"FR-ARA"`); [RailPercentageResult] keeps the two kinds apart.
+class RailPercentageEntry {
+  /// Raw area code: a country code or an ISO 3166-2 subdivision code.
+  final String code;
+
+  /// Per-percentage coverage tiers (highest first, as returned by the backend).
+  final List<RailCoverage> data;
+
+  const RailPercentageEntry({required this.code, required this.data});
+
+  /// Whether [code] denotes a subdivision (ISO 3166-2, contains a hyphen).
+  bool get isSubdivision => code.contains('-');
+
+  /// The country code: the parent for a subdivision (`"AT-1"` -> `"AT"`) or
+  /// [code] itself for a country.
+  String get countryCode => isSubdivision ? code.split('-').first : code;
+
+  /// The subdivision part (`"AT-1"` -> `"1"`, `"FR-ARA"` -> `"ARA"`), or `null`
+  /// for a country.
+  String? get subdivisionCode =>
+      isSubdivision ? code.split('-').sublist(1).join('-') : null;
+
+  /// The highest coverage percentage reached in this area (0 when empty).
+  double get highestPercent => data.isEmpty
+      ? 0
+      : data.map((c) => c.percent).reduce((a, b) => a > b ? a : b);
+
+  /// The country resolved to a [CountryDetail] (code, localized name, emoji).
+  CountryDetail country(BuildContext context) =>
+      CountryDetail.fromCode(countryCode, context);
+
+  /// Parses one `leaderboard_data` row, dropping users in [nonPublic] (and any
+  /// tier or whole entry left empty as a result). Returns `null` when no public
+  /// users remain.
+  static RailPercentageEntry? fromJson(
+    Map<String, dynamic> json, {
+    Set<String> nonPublic = const {},
+  }) {
+    final code = json['cc']?.toString() ?? '';
+    if (code.isEmpty) return null;
+
+    final coverages = <RailCoverage>[];
+    for (final d in (json['data'] as List<dynamic>? ?? [])
+        .whereType<Map<String, dynamic>>()) {
+      final users = (d['usernames'] as List<dynamic>? ?? [])
+          .map((e) => e.toString())
+          .where((u) => !nonPublic.contains(u))
+          .toList();
+      if (users.isEmpty) continue;
+      coverages
+          .add(RailCoverage(percent: _toDouble(d['percent']), usernames: users));
+    }
+
+    if (coverages.isEmpty) return null;
+    return RailPercentageEntry(code: code, data: coverages);
+  }
+}
+
+/// The result of the rail-percentage leaderboard, with country-level and
+/// subdivision-level entries kept apart (public users only).
+class RailPercentageResult {
+  /// Country-level entries (`cc` without a hyphen).
+  final List<RailPercentageEntry> countries;
+
+  /// Subdivision-level entries (`cc` in ISO 3166-2 form, with a hyphen).
+  final List<RailPercentageEntry> subdivisions;
+
+  const RailPercentageResult({
+    required this.countries,
+    required this.subdivisions,
+  });
+
+  bool get isEmpty => countries.isEmpty && subdivisions.isEmpty;
+  bool get isNotEmpty => !isEmpty;
+
+  /// All subdivisions belonging to [countryCode] (e.g. `"AT"` -> AT-1, AT-2…),
+  /// in the order they appear.
+  List<RailPercentageEntry> subdivisionsOf(String countryCode) {
+    final cc = countryCode.toUpperCase();
+    return subdivisions.where((e) => e.countryCode.toUpperCase() == cc).toList();
+  }
+
+  /// Countries sorted by highest coverage percentage (highest first); ties
+  /// broken alphabetically by localized country name.
+  List<RailPercentageEntry> countriesSortedByPercent(BuildContext context) =>
+      _sortByPercent(countries, (e) => e.country(context).name);
+
+  /// Countries sorted alphabetically by localized country name.
+  List<RailPercentageEntry> countriesSortedByName(BuildContext context) =>
+      _sortByName(countries, (e) => e.country(context).name);
+
+  /// Subdivisions sorted by highest coverage percentage (highest first); ties
+  /// broken alphabetically by subdivision code.
+  List<RailPercentageEntry> subdivisionsSortedByPercent() =>
+      _sortByPercent(subdivisions, (e) => e.code);
+
+  /// Subdivisions sorted alphabetically by subdivision code.
+  List<RailPercentageEntry> subdivisionsSortedByName() =>
+      _sortByName(subdivisions, (e) => e.code);
+}
+
+/// Sorts by highest coverage percentage (descending), breaking ties
+/// alphabetically (ascending) on [name].
+List<RailPercentageEntry> _sortByPercent(
+  List<RailPercentageEntry> list,
+  String Function(RailPercentageEntry entry) name,
+) {
+  final copy = List<RailPercentageEntry>.of(list);
+  copy.sort((a, b) {
+    final cmp = b.highestPercent.compareTo(a.highestPercent);
+    if (cmp != 0) return cmp;
+    return name(a).toLowerCase().compareTo(name(b).toLowerCase());
+  });
+  return copy;
+}
+
+/// Sorts alphabetically (ascending) on [name].
+List<RailPercentageEntry> _sortByName(
+  List<RailPercentageEntry> list,
+  String Function(RailPercentageEntry entry) name,
+) {
+  final copy = List<RailPercentageEntry>.of(list);
+  copy.sort((a, b) => name(a).toLowerCase().compareTo(name(b).toLowerCase()));
+  return copy;
+}
+
 /// Parses a leaderboard `last_modified` value into a local [DateTime].
 ///
 /// The backend sends RFC 1123 dates (e.g. `"Wed, 01 Apr 2026 00:00:00 GMT"`)

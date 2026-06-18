@@ -341,7 +341,7 @@ class TrainlogProvider extends ChangeNotifier {
   Future<RankingResult<CountryLeaderboardEntry>> fetchRankingForCountry() =>
       _ranking.fetchRankingForCountry();
 
-  Future<void> fetchRankingForRailPercentage() =>
+  Future<RailPercentageResult> fetchRankingForRailPercentage() =>
       _ranking.fetchRankingForRailPercentage();
 
   Future<void> fetchRankingForWorldSquares() =>
