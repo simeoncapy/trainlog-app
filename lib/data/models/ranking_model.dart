@@ -31,7 +31,7 @@ abstract class TripRankingEntry extends RankingEntry {
 ///
 /// Matches the `leaderboard_data` rows of `/getLeaderboardUsers/<type>`:
 /// ```json
-/// { "last_modified": "...", "length": 35377003.27, "trips": 196, "username": "mylou" }
+/// { "last_modified": "...", "length": 35377003.27, "trips": 196, "username": "John Doe" }
 /// ```
 class LeaderboardEntry extends TripRankingEntry {
   /// Total travelled distance in metres.
@@ -59,7 +59,7 @@ class LeaderboardEntry extends TripRankingEntry {
 /// Matches the carbon variant of `/getLeaderboardUsers/carbon`:
 /// ```json
 /// { "carbon_per_km": 0.177, "last_modified": "...", "total_carbon": 507375.78,
-///   "total_distance": 2856857682.75, "trips": 2202, "username": "nmartin4" }
+///   "total_distance": 2856857682.75, "trips": 2202, "username": "John Doe" }
 /// ```
 class CarbonLeaderboardEntry extends TripRankingEntry {
   /// Average carbon emitted per kilometre (kg CO2 / km).
@@ -95,7 +95,7 @@ class CarbonLeaderboardEntry extends TripRankingEntry {
 /// A leaderboard row for the countries-visited ranking
 /// (`/getLeaderboardUsers/country_count`):
 /// ```json
-/// { "countries_visited": ["US", "JP", ...], "country_count": 101, "username": "nmartin4" }
+/// { "countries_visited": ["US", "JP", ...], "country_count": 101, "username": "John Doe" }
 /// ```
 class CountryLeaderboardEntry extends RankingEntry {
   /// Number of distinct countries visited.
@@ -218,7 +218,7 @@ class RailCoverage {
 /// Rail-coverage stats for one country or subdivision, from
 /// `/getLeaderboardUsers/train_countries`:
 /// ```json
-/// { "cc": "AT", "data": [ { "percent": 99.0, "usernames": ["Wandering Pom"] }, ... ] }
+/// { "cc": "AT", "data": [ { "percent": 99.0, "usernames": ["John Doe"] }, ... ] }
 /// ```
 ///
 /// [code] is either a country code (`"AT"`) or an ISO 3166-2 subdivision code
