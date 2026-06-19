@@ -491,7 +491,6 @@ class AppLocalizationsTl extends AppLocalizations {
       count,
       locale: localeName,
       other: '$count biyahe',
-      one: '1 biyahe',
       zero: 'Walang biyahe',
     );
     return '$_temp0';
@@ -527,7 +526,6 @@ class AppLocalizationsTl extends AppLocalizations {
       count,
       locale: localeName,
       other: 'Ipakita ang $count byahe',
-      one: 'Ipakita ang 1 byahe',
       zero: 'Walang byahe',
     );
     return '$_temp0';
