@@ -513,6 +513,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mapFilterVehicleTypeNoneBtn => 'None';
 
   @override
+  String get mapFilterTitle => 'Filter map';
+
+  @override
+  String get mapFilterReset => 'Reset';
+
+  @override
+  String get mapFilterTimeRange => 'Time range';
+
+  @override
+  String get mapFilterSelectYears => 'Select years';
+
+  @override
+  String mapFilterShowTrips(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Show $count trips',
+      one: 'Show 1 trip',
+      zero: 'Show no trips',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get tripPathLoading => 'Trips\' path loading, please wait';
 
   @override

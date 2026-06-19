@@ -1026,6 +1026,36 @@ abstract class AppLocalizations {
   /// **'None'**
   String get mapFilterVehicleTypeNoneBtn;
 
+  /// No description provided for @mapFilterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter map'**
+  String get mapFilterTitle;
+
+  /// No description provided for @mapFilterReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get mapFilterReset;
+
+  /// No description provided for @mapFilterTimeRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Time range'**
+  String get mapFilterTimeRange;
+
+  /// No description provided for @mapFilterSelectYears.
+  ///
+  /// In en, this message translates to:
+  /// **'Select years'**
+  String get mapFilterSelectYears;
+
+  /// Primary action button in the map filter sheet showing how many trips match the current filters
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0 {Show no trips} =1 {Show 1 trip} other {Show {count} trips}}'**
+  String mapFilterShowTrips(num count);
+
   /// No description provided for @tripPathLoading.
   ///
   /// In en, this message translates to:

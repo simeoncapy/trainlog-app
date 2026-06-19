@@ -21,6 +21,9 @@ class VehicleTypeFilterChips extends StatelessWidget {
     final settings = context.watch<SettingsProvider>();
     final colours = MapColorPaletteHelper.getPalette(settings.mapColorPalette);
 
+    final theme = Theme.of(context);
+    final unselectedContentColor = theme.chipTheme.labelStyle?.color;
+
     return Wrap(
       spacing: 8,
       runSpacing: 8,
@@ -31,27 +34,30 @@ class VehicleTypeFilterChips extends StatelessWidget {
             ? ThemeData.estimateBrightnessForColor(backgroundColor)
             : Brightness.light;
         final textColor = brightness == Brightness.dark ? Colors.white : Colors.black;
+        final contentColor = selected ? textColor : unselectedContentColor;
 
         return FilterChip(
           label: Text(
             type.label(context),
             style: TextStyle(
-              color: selected
-                  ? textColor
-                  : Theme.of(context).chipTheme.labelStyle?.color,
+              color: contentColor,
+              fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
             ),
           ),
           avatar: IconTheme(
-            data: IconThemeData(
-              color: selected
-                  ? textColor
-                  : Theme.of(context).chipTheme.labelStyle?.color,
-            ),
+            data: IconThemeData(color: contentColor),
             child: type.icon(),
           ),
           selectedColor: backgroundColor,
           selected: selected,
           showCheckmark: false,
+          // Pill shape matching the updated filter-sheet card aesthetics.
+          shape: const StadiumBorder(),
+          side: selected
+              ? BorderSide.none
+              : BorderSide(color: theme.colorScheme.outline),
+          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          visualDensity: VisualDensity.compact,
           onSelected: (bool isSelected) {
             onTypeToggle(type, isSelected);
           },

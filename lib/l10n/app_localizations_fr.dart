@@ -519,6 +519,30 @@ class AppLocalizationsFr extends AppLocalizations {
   String get mapFilterVehicleTypeNoneBtn => 'Aucun';
 
   @override
+  String get mapFilterTitle => 'Filtrer la carte';
+
+  @override
+  String get mapFilterReset => 'Réinitialiser';
+
+  @override
+  String get mapFilterTimeRange => 'Période';
+
+  @override
+  String get mapFilterSelectYears => 'Choisir les années';
+
+  @override
+  String mapFilterShowTrips(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Afficher $count trajets',
+      one: 'Afficher 1 trajet',
+      zero: 'Aucun trajet',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get tripPathLoading =>
       'Trajets en cours de chargement, veuillez patienter';
 

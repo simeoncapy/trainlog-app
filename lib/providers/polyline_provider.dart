@@ -42,6 +42,11 @@ class PolylineProvider extends ChangeNotifier {
   bool _isLoading = true;
   Object? _error;
 
+  /// Number of trips matching the current filter selection (before the future
+  /// dash-overlay duplication that happens when building render polylines).
+  /// Drives the "Show {count} trips" action button in the filter sheet.
+  int _visibleTripCount = 0;
+
   int _renderRevision = 0;
   int _lastTripsPolylineRevision = -1;
   int _loadToken = 0;
@@ -81,6 +86,9 @@ class PolylineProvider extends ChangeNotifier {
 
   /// Revision of the final rendered polyline list.
   int get renderRevision => _renderRevision;
+
+  /// Number of trips currently visible on the map given the active filters.
+  int get visibleTripCount => _visibleTripCount;
 
   Set<int> get selectedYears => Set.unmodifiable(_selectedYears);
   PolylineYearFilter get selectedYearFilter => _selectedYearFilter;
@@ -273,6 +281,24 @@ class PolylineProvider extends ChangeNotifier {
     _selectedYearFilterOption = 3;
     _selectedYears = {};
 
+    await _persistFilters();
+    _rebuildRenderedPolylines(notify: true);
+  }
+
+  /// Restores the default filter state: all time ranges and every available
+  /// vehicle type selected. Used by the "Reset" action in the filter sheet.
+  Future<void> resetFilters() async {
+    final trips = _trips;
+    final availableTypes = trips?.vehicleTypes.toSet() ?? <VehicleType>{};
+
+    _selectedYearFilter = PolylineYearFilter.all;
+    _selectedYearFilterOption = 0;
+    _selectedYears = availableYears.toSet();
+
+    _userDeselectedTypes.clear();
+    _selectedTypes = availableTypes;
+
+    _reconcileFiltersWithTrips();
     await _persistFilters();
     _rebuildRenderedPolylines(notify: true);
   }
@@ -580,6 +606,7 @@ class PolylineProvider extends ChangeNotifier {
       nowUtc: now,
     );
     PolylineStyling.sortInPlace(filtered, settings.pathDisplayOrder);
+    _visibleTripCount = filtered.length;
     _renderedPolylines = PolylineStyling.toRenderPolylines(filtered, now);
     _renderRevision++;
 

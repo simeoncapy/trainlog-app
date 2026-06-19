@@ -502,6 +502,29 @@ class AppLocalizationsJa extends AppLocalizations {
   String get mapFilterVehicleTypeNoneBtn => 'なし';
 
   @override
+  String get mapFilterTitle => '地図を絞り込む';
+
+  @override
+  String get mapFilterReset => 'リセット';
+
+  @override
+  String get mapFilterTimeRange => '期間';
+
+  @override
+  String get mapFilterSelectYears => '年を選択';
+
+  @override
+  String mapFilterShowTrips(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 件の旅行を表示',
+      zero: '旅行なし',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get tripPathLoading => '旅行のパスを読み込んでいます。お待ちください';
 
   @override
