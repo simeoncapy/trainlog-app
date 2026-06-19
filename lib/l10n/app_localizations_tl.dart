@@ -491,7 +491,6 @@ class AppLocalizationsTl extends AppLocalizations {
       count,
       locale: localeName,
       other: '$count biyahe',
-      one: '1 biyahe',
       zero: 'Walang biyahe',
     );
     return '$_temp0';
@@ -510,6 +509,29 @@ class AppLocalizationsTl extends AppLocalizations {
   String get mapFilterVehicleTypeNoneBtn => 'Wala';
 
   @override
+  String get mapFilterTitle => 'I-filter ang mapa';
+
+  @override
+  String get mapFilterReset => 'I-reset';
+
+  @override
+  String get mapFilterTimeRange => 'Saklaw ng panahon';
+
+  @override
+  String get mapFilterSelectYears => 'Pumili ng mga taon';
+
+  @override
+  String mapFilterShowTrips(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Ipakita ang $count byahe',
+      zero: 'Walang byahe',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get tripPathLoading =>
       'Ang byahe mo ay nag loload, mag hintay ng saglit';
 
@@ -526,7 +548,7 @@ class AppLocalizationsTl extends AppLocalizations {
   String get yearPastList => 'Nakaraan';
 
   @override
-  String get yearFutureList => 'Kinabukasan';
+  String get yearFutureList => 'Future';
 
   @override
   String get yearYearList => 'Taon...';

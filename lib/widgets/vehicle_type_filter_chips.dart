@@ -21,40 +21,60 @@ class VehicleTypeFilterChips extends StatelessWidget {
     final settings = context.watch<SettingsProvider>();
     final colours = MapColorPaletteHelper.getPalette(settings.mapColorPalette);
 
+    final theme = Theme.of(context);
+    const radius = 12.0;
+
     return Wrap(
       spacing: 8,
       runSpacing: 8,
       children: availableTypes.map((type) {
         final selected = selectedTypes.contains(type);
-        final backgroundColor = colours[type];
-        final brightness = backgroundColor != null
-            ? ThemeData.estimateBrightnessForColor(backgroundColor)
+        final paletteColor = colours[type];
+        final brightness = paletteColor != null
+            ? ThemeData.estimateBrightnessForColor(paletteColor)
             : Brightness.light;
-        final textColor = brightness == Brightness.dark ? Colors.white : Colors.black;
+        final selectedTextColor =
+            brightness == Brightness.dark ? Colors.white : Colors.black;
 
-        return FilterChip(
-          label: Text(
-            type.label(context),
-            style: TextStyle(
-              color: selected
-                  ? textColor
-                  : Theme.of(context).chipTheme.labelStyle?.color,
+        final contentColor =
+            selected ? selectedTextColor : theme.colorScheme.onSurface;
+        final fillColor = selected
+            ? (paletteColor ?? theme.colorScheme.primary)
+            : Colors.transparent;
+
+        // Rounded-square button (not a Material pill) matching the filter sheet.
+        return Material(
+          color: fillColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(radius),
+            side: selected
+                ? BorderSide.none
+                : BorderSide(color: theme.colorScheme.outline),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: () => onTypeToggle(type, !selected),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconTheme(
+                    data: IconThemeData(color: contentColor, size: 18),
+                    child: type.icon(),
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    type.label(context),
+                    style: TextStyle(
+                      color: contentColor,
+                      fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-          avatar: IconTheme(
-            data: IconThemeData(
-              color: selected
-                  ? textColor
-                  : Theme.of(context).chipTheme.labelStyle?.color,
-            ),
-            child: type.icon(),
-          ),
-          selectedColor: backgroundColor,
-          selected: selected,
-          showCheckmark: false,
-          onSelected: (bool isSelected) {
-            onTypeToggle(type, isSelected);
-          },
         );
       }).toList(),
     );

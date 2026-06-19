@@ -163,6 +163,18 @@
   "mapFilterVehicleTypeAllBtn": "Tous",
   "mapFilterVehicleTypeNoneBtn": "Aucun",
 
+  "mapFilterTitle": "Filtrer la carte",
+  "mapFilterReset": "Réinitialiser",
+  "mapFilterTimeRange": "Période",
+  "mapFilterSelectYears": "Choisir les années",
+  "mapFilterShowTrips": "{count, plural, =0 {Aucun trajet} =1 {Afficher 1 trajet} other {Afficher {count} trajets}}",
+  "@mapFilterShowTrips": {
+    "description": "Primary action button in the map filter sheet showing how many trips match the current filters",
+    "placeholders": {
+      "count": {}
+    }
+  },
+
   "tripPathLoading": "Trajets en cours de chargement, veuillez patienter",
   "mapLockedOnPosition": "La carte suit votre position",
   "yearTitle": "Années",

@@ -169,7 +169,7 @@
   "menuMenuSectionTitle": "MENU",
   "menuInboxTitle": "Inbox",
   "menuTripCountLabel": "{count, plural, other {biyahe}}",
-  "menuTripCount": "{count, plural, =0 {Walang biyahe} =1 {1 biyahe} other {{count} biyahe}}",
+  "menuTripCount": "{count, plural, =0 {Walang biyahe} other {{count} biyahe}}",
   "@menuTripCount": {
     "description": "Bilang ng biyahe na ipinapakita sa menu summary card",
     "placeholders": {
@@ -180,12 +180,24 @@
   "mapFilterYearsNoneBtn": "Wala",
   "mapFilterVehicleTypeAllBtn": "Lahat",
   "mapFilterVehicleTypeNoneBtn": "Wala",
+
+  "mapFilterTitle": "I-filter ang mapa",
+  "mapFilterReset": "I-reset",
+  "mapFilterTimeRange": "Saklaw ng panahon",
+  "mapFilterSelectYears": "Pumili ng mga taon",
+  "mapFilterShowTrips": "{count, plural, =0 {Walang byahe} other {Ipakita ang {count} byahe}}",
+  "@mapFilterShowTrips": {
+    "description": "Primary action button in the map filter sheet showing how many trips match the current filters",
+    "placeholders": {
+      "count": {}
+    }
+  },
   "tripPathLoading": "Ang byahe mo ay nag loload, mag hintay ng saglit",
   "mapLockedOnPosition": "Sinusundan ng mapa ang iyong posisyon",
   "yearTitle": "Taon",
   "yearAllList": "Lahat",
   "yearPastList": "Nakaraan",
-  "yearFutureList": "Kinabukasan",
+  "yearFutureList": "Future",
   "yearYearList": "Taon...",
   "typeTitle": "Uri ng sasakyan",
   "typeTrain": "Tren",

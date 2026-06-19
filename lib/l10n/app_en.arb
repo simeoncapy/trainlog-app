@@ -197,6 +197,18 @@
   "mapFilterVehicleTypeAllBtn": "All",
   "mapFilterVehicleTypeNoneBtn": "None",
 
+  "mapFilterTitle": "Filter map",
+  "mapFilterReset": "Reset",
+  "mapFilterTimeRange": "Time range",
+  "mapFilterSelectYears": "Select years",
+  "mapFilterShowTrips": "{count, plural, =0 {Show no trips} =1 {Show 1 trip} other {Show {count} trips}}",
+  "@mapFilterShowTrips": {
+    "description": "Primary action button in the map filter sheet showing how many trips match the current filters",
+    "placeholders": {
+      "count": {}
+    }
+  },
+
   "tripPathLoading": "Trips' path loading, please wait",
   "mapLockedOnPosition": "Map following your position",
   "yearTitle": "Years",
