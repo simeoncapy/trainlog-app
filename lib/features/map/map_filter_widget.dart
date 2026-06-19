@@ -246,7 +246,9 @@ class _MapFilterWidgetState extends State<MapFilterWidget> {
     final end = math.min(start + _yearsPerPage, years.length);
     final pageYears = years.sublist(start, end);
 
-    final grid = _yearGrid(context, poly, pageYears);
+    // When paginated, every page reserves the full 4×3 footprint so the sheet
+    // height stays constant when flipping to a shorter last page.
+    final grid = _yearGrid(context, poly, pageYears, fill: pageCount > 1);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -288,17 +290,26 @@ class _MapFilterWidgetState extends State<MapFilterWidget> {
     );
   }
 
-  Widget _yearGrid(BuildContext context, PolylineProvider poly, List<int> years) {
+  Widget _yearGrid(
+    BuildContext context,
+    PolylineProvider poly,
+    List<int> years, {
+    required bool fill,
+  }) {
     final currentYear = DateTime.now().year;
+    // When [fill] is set, always lay out a full 4×3 grid (12 slots); otherwise
+    // size to the available years only.
+    final slotCount = fill ? _yearsPerPage : years.length;
     final rows = <Widget>[];
-    for (int rowStart = 0; rowStart < years.length; rowStart += 4) {
+    for (int rowStart = 0; rowStart < slotCount; rowStart += 4) {
       if (rows.isNotEmpty) rows.add(const SizedBox(height: 8));
       final cells = <Widget>[];
       for (int col = 0; col < 4; col++) {
         if (col > 0) cells.add(const SizedBox(width: 8));
         final idx = rowStart + col;
         if (idx >= years.length) {
-          cells.add(const Expanded(child: SizedBox.shrink()));
+          // Empty placeholder keeps the 4×3 footprint (and row height) stable.
+          cells.add(const Expanded(child: SizedBox(height: _kYearChipHeight)));
           continue;
         }
         final year = years[idx];
@@ -386,6 +397,10 @@ class _MapFilterWidgetState extends State<MapFilterWidget> {
   }
 }
 
+/// Height of a single year chip, shared with the empty grid placeholders so a
+/// padded (filled) page keeps the exact same height as a full one.
+const double _kYearChipHeight = 44;
+
 // ─── Year chip ────────────────────────────────────────────────────────────────
 
 /// A single year cell. Past/current years get a solid border; future years a
@@ -413,7 +428,7 @@ class _YearChip extends StatelessWidget {
     final borderColor = selected ? cs.primary : cs.outline;
 
     Widget content = Container(
-      height: 44,
+      height: _kYearChipHeight,
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: bg,
