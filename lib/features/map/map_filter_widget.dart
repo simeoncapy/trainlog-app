@@ -3,21 +3,20 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
-import 'package:trainlog_app/platform/adaptive_bottom_navbar.dart' show kNavBarClearance;
 import 'package:trainlog_app/platform/adaptive_vehicle_type_filter_chips.dart';
 import 'package:trainlog_app/providers/polyline_provider.dart';
-import 'package:trainlog_app/utils/platform_utils.dart';
 import 'package:trainlog_app/widgets/app_steps_tab_bar.dart';
 
-/// Map filter sheet.
+/// Map filter bottom sheet.
 ///
 /// A single, theme-driven implementation shared across platforms — platform
-/// differences are delegated to adaptive sub-components (the vehicle chips) and
-/// to the bottom anchoring offset. The sheet pins a fixed action footer
-/// ("Show {count} trips") to its base while the form contents live inside a
-/// [Flexible] scroll area so they never overflow on short screens.
+/// differences are delegated to adaptive sub-components (the vehicle chips).
+/// The sheet pins a fixed action footer ("Show {count} trips") to its base
+/// while the form contents live inside a [Flexible] scroll area so they never
+/// overflow on short screens.
 ///
-/// Renders as a [Positioned] widget inside the map [Stack].
+/// Designed to be hosted by `showModalBottomSheet`; [onClose] should dismiss
+/// the sheet (e.g. `Navigator.pop`).
 class MapFilterWidget extends StatefulWidget {
   final VoidCallback onClose;
 
@@ -46,78 +45,66 @@ class _MapFilterWidgetState extends State<MapFilterWidget> {
     final mediaQuery = MediaQuery.of(context);
 
     final maxHeight =
-        (mediaQuery.size.height - mediaQuery.padding.top - mediaQuery.padding.bottom) * 0.82;
+        (mediaQuery.size.height - mediaQuery.padding.top) * 0.9;
 
-    // The map page lives inside a Padding(bottom: mq.padding.bottom). On Apple
-    // the primary-action FAB / nav bar sits at kNavBarClearance from the screen
-    // bottom; on Material the sheet floats just above the safe-area inset.
-    final double bottom = AppPlatform.isApple
-        ? kNavBarClearance - mediaQuery.padding.bottom + 8
-        : 16 + mediaQuery.padding.bottom;
-
-    return Positioned(
-      bottom: bottom,
-      left: 16,
-      right: 16,
-      child: Material(
+    return Container(
+      constraints: BoxConstraints(maxHeight: maxHeight),
+      decoration: BoxDecoration(
         color: theme.cardColor,
-        elevation: 8,
-        shadowColor: theme.colorScheme.shadow.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(24),
-        clipBehavior: Clip.antiAlias,
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxHeight: maxHeight),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _grabHandle(theme),
-              _header(context, l10n, theme),
-              Flexible(
-                fit: FlexFit.loose,
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _sectionTitle(theme, l10n.mapFilterTimeRange),
-                      const SizedBox(height: 10),
-                      _timeRangeSelector(context, l10n, poly),
-                      if (poly.selectedYearFilterOption == _yearsOptionIndex) ...[
-                        const SizedBox(height: 16),
-                        _yearSection(context, l10n, theme, poly),
-                      ],
-                      const SizedBox(height: 20),
-                      _sectionTitle(
-                        theme,
-                        l10n.typeTitle,
-                        trailing: _allNoneButtons(
-                          context,
-                          theme,
-                          l10n,
-                          onAll: () => context
-                              .read<PolylineProvider>()
-                              .selectAllVehicleTypes(poly.availableTypesWithoutPoi),
-                          onNone: () => context
-                              .read<PolylineProvider>()
-                              .unselectAllVehicleTypes(poly.availableTypesWithoutPoi),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      AdaptiveVehicleTypeFilterChips(
-                        availableTypes: poly.availableTypesWithoutPoi,
-                        selectedTypes: poly.selectedTypes,
-                        onTypeToggle: (type, selected) {
-                          context.read<PolylineProvider>().toggleType(type, selected);
-                        },
-                      ),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _grabHandle(theme),
+            _header(context, l10n, theme),
+            Flexible(
+              fit: FlexFit.loose,
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _sectionTitle(theme, l10n.mapFilterTimeRange),
+                    const SizedBox(height: 10),
+                    _timeRangeSelector(context, l10n, poly),
+                    if (poly.selectedYearFilterOption == _yearsOptionIndex) ...[
+                      const SizedBox(height: 16),
+                      _yearSection(context, l10n, theme, poly),
                     ],
-                  ),
+                    const SizedBox(height: 20),
+                    _sectionTitle(
+                      theme,
+                      l10n.typeTitle,
+                      trailing: _allNoneButtons(
+                        theme,
+                        allLabel: l10n.mapFilterVehicleTypeAllBtn,
+                        noneLabel: l10n.mapFilterVehicleTypeNoneBtn,
+                        onAll: () => context
+                            .read<PolylineProvider>()
+                            .selectAllVehicleTypes(poly.availableTypesWithoutPoi),
+                        onNone: () => context
+                            .read<PolylineProvider>()
+                            .unselectAllVehicleTypes(poly.availableTypesWithoutPoi),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    AdaptiveVehicleTypeFilterChips(
+                      availableTypes: poly.availableTypesWithoutPoi,
+                      selectedTypes: poly.selectedTypes,
+                      onTypeToggle: (type, selected) {
+                        context.read<PolylineProvider>().toggleType(type, selected);
+                      },
+                    ),
+                  ],
                 ),
               ),
-              _actionFooter(l10n, theme, poly),
-            ],
-          ),
+            ),
+            _actionFooter(l10n, theme, poly),
+          ],
         ),
       ),
     );
@@ -269,9 +256,9 @@ class _MapFilterWidgetState extends State<MapFilterWidget> {
           l10n.mapFilterSelectYears,
           dense: true,
           trailing: _allNoneButtons(
-            context,
             theme,
-            l10n,
+            allLabel: l10n.mapFilterYearsAllBtn,
+            noneLabel: l10n.mapFilterYearsNoneBtn,
             onAll: () => context.read<PolylineProvider>().selectAllYears(years),
             onNone: () => context.read<PolylineProvider>().unselectAllYears(),
           ),
@@ -361,18 +348,18 @@ class _MapFilterWidgetState extends State<MapFilterWidget> {
   }
 
   Widget _allNoneButtons(
-    BuildContext context,
-    ThemeData theme,
-    AppLocalizations l10n, {
+    ThemeData theme, {
+    required String allLabel,
+    required String noneLabel,
     required VoidCallback onAll,
     required VoidCallback onNone,
   }) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _miniButton(theme, l10n.mapFilterYearsAllBtn, onAll, emphasized: true),
+        _miniButton(theme, allLabel, onAll, emphasized: true),
         const SizedBox(width: 4),
-        _miniButton(theme, l10n.mapFilterYearsNoneBtn, onNone),
+        _miniButton(theme, noneLabel, onNone),
       ],
     );
   }

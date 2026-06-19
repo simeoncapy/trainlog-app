@@ -74,10 +74,15 @@ class _CupertinoVehicleTypeChips extends StatelessWidget {
         return GestureDetector(
           onTap: () => onTypeToggle(type, !selected),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
             decoration: BoxDecoration(
               color: bgColor,
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(12),
+              border: selected
+                  ? null
+                  : Border.all(
+                      color: CupertinoColors.separator.resolveFrom(context),
+                    ),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,

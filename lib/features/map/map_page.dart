@@ -51,7 +51,6 @@ class _MapPageState extends State<MapPage>
   bool _followUser = false;
 
   // --- UI state
-  bool _showFilterModal = false;
   final ValueNotifier<double> _rotationNotifier = ValueNotifier(0.0);
 
   // Drives the slow blink of the "locked on position" pill shown while
@@ -268,24 +267,7 @@ class _MapPageState extends State<MapPage>
           ],
         ),
         if (_followUser) _lockedOnPositionPill(appLocalizations),
-        if (!_showFilterModal || AppPlatform.isApple) _mapButtonHelper(),
-        if (_showFilterModal) ...[
-          GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () {
-              setState(() => _showFilterModal = false);
-              final action = _buildPrimaryAction(context);
-              widget.onPrimaryActionsReady(action == null ? const [] : [action]);
-            },
-          ),
-          MapFilterWidget(
-            onClose: () {
-              setState(() => _showFilterModal = false);
-              final action = _buildPrimaryAction(context);
-              widget.onPrimaryActionsReady(action == null ? const [] : [action]);
-            },
-          ),
-        ],
+        _mapButtonHelper(),
       ],
     );
   }
@@ -455,14 +437,22 @@ class _MapPageState extends State<MapPage>
   }
 
   AppPrimaryAction? _buildPrimaryAction(BuildContext context) {
-    if (_showFilterModal) return null;
     return AppPrimaryAction(
       icon: AdaptiveIcons.filter, // add if missing
       tooltip: AppLocalizations.of(context)!.filterButton,
-      onPressed: () {
-        setState(() => _showFilterModal = true);
-        widget.onPrimaryActionsReady(const []);
-      },
+      onPressed: _openFilterSheet,
+    );
+  }
+
+  void _openFilterSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      useRootNavigator: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) => MapFilterWidget(
+        onClose: () => Navigator.of(sheetContext).pop(),
+      ),
     );
   }
 }
