@@ -165,12 +165,12 @@ class _MapFilterWidgetState extends State<MapFilterWidget> {
             child: Text(l10n.mapFilterReset),
           ),
           const SizedBox(width: 4),
-          _CircleIconButton(
-            icon: Icons.close,
-            onTap: widget.onClose,
-            background: cs.onSurface.withValues(alpha: 0.08),
-            foreground: cs.onSurfaceVariant,
-          ),
+          // _CircleIconButton(
+          //   icon: Icons.close,
+          //   onTap: widget.onClose,
+          //   background: cs.onSurface.withValues(alpha: 0.08),
+          //   foreground: cs.onSurfaceVariant,
+          // ),
         ],
       ),
     );

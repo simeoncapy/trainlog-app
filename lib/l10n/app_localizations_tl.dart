@@ -550,7 +550,7 @@ class AppLocalizationsTl extends AppLocalizations {
   String get yearPastList => 'Nakaraan';
 
   @override
-  String get yearFutureList => 'Kinabukasan';
+  String get yearFutureList => 'Future';
 
   @override
   String get yearYearList => 'Taon...';
