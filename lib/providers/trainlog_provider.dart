@@ -344,7 +344,7 @@ class TrainlogProvider extends ChangeNotifier {
   Future<RailPercentageResult> fetchRankingForRailPercentage() =>
       _ranking.fetchRankingForRailPercentage();
 
-  Future<void> fetchRankingForWorldSquares() =>
+  Future<WorldSquaresResult> fetchRankingForWorldSquares() =>
       _ranking.fetchRankingForWorldSquares();
 
   /// Return up to [limit] operators that match [query] by

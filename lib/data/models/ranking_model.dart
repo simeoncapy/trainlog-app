@@ -213,6 +213,20 @@ class RailCoverage {
   final List<String> usernames;
 
   const RailCoverage({required this.percent, required this.usernames});
+
+  /// Parses one `{ "percent": .., "usernames": [..] }` tier, dropping users in
+  /// [nonPublic]. Returns `null` when no public users remain.
+  static RailCoverage? fromJson(
+    Map<String, dynamic> json, {
+    Set<String> nonPublic = const {},
+  }) {
+    final users = (json['usernames'] as List<dynamic>? ?? [])
+        .map((e) => e.toString())
+        .where((u) => !nonPublic.contains(u))
+        .toList();
+    if (users.isEmpty) return null;
+    return RailCoverage(percent: _toDouble(json['percent']), usernames: users);
+  }
 }
 
 /// Rail-coverage stats for one country or subdivision, from
@@ -266,13 +280,8 @@ class RailPercentageEntry {
     final coverages = <RailCoverage>[];
     for (final d in (json['data'] as List<dynamic>? ?? [])
         .whereType<Map<String, dynamic>>()) {
-      final users = (d['usernames'] as List<dynamic>? ?? [])
-          .map((e) => e.toString())
-          .where((u) => !nonPublic.contains(u))
-          .toList();
-      if (users.isEmpty) continue;
-      coverages
-          .add(RailCoverage(percent: _toDouble(d['percent']), usernames: users));
+      final coverage = RailCoverage.fromJson(d, nonPublic: nonPublic);
+      if (coverage != null) coverages.add(coverage);
     }
 
     if (coverages.isEmpty) return null;
@@ -346,6 +355,43 @@ List<RailPercentageEntry> _sortByName(
   final copy = List<RailPercentageEntry>.of(list);
   copy.sort((a, b) => name(a).toLowerCase().compareTo(name(b).toLowerCase()));
   return copy;
+}
+
+/// The result of the world-squares leaderboard
+/// (`/getLeaderboardUsers/world_squares`): coverage tiers (each listing the
+/// users who reached it), ordered by world-coverage percentage (highest
+/// first). Public users only.
+///
+/// The backend sends a single `{ "cc": "world_squares", "data": [...] }` block:
+/// ```json
+/// { "percent": 2.27, "usernames": ["John Doe"] }
+/// ```
+class WorldSquaresResult {
+  final List<RailCoverage> coverages;
+
+  const WorldSquaresResult(this.coverages);
+
+  bool get isEmpty => coverages.isEmpty;
+  bool get isNotEmpty => coverages.isNotEmpty;
+
+  /// Builds the result from the raw `leaderboard_data` rows, dropping users in
+  /// [nonPublic]. The tiers come back ordered by coverage percentage; this
+  /// re-sorts defensively to guarantee highest-first.
+  factory WorldSquaresResult.fromLeaderboard(
+    List<Map<String, dynamic>> rows,
+    Set<String> nonPublic,
+  ) {
+    final coverages = <RailCoverage>[];
+    for (final row in rows) {
+      for (final d in (row['data'] as List<dynamic>? ?? [])
+          .whereType<Map<String, dynamic>>()) {
+        final coverage = RailCoverage.fromJson(d, nonPublic: nonPublic);
+        if (coverage != null) coverages.add(coverage);
+      }
+    }
+    coverages.sort((a, b) => b.percent.compareTo(a.percent));
+    return WorldSquaresResult(coverages);
+  }
 }
 
 /// Parses a leaderboard `last_modified` value into a local [DateTime].

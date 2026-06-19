@@ -48,13 +48,10 @@ class RankingApi {
     return _fetchRailPercentageLeaderboard('train_countries');
   }
 
-  /// Ranking by world squares covered (`<type>` = `world_squares`).
-  ///
-  /// Placeholder: dedicated result model still to be defined.
-  Future<void> fetchRankingForWorldSquares() {
-    throw UnimplementedError(
-      'fetchRankingForWorldSquares (/getLeaderboardUsers/world_squares) is not implemented yet',
-    );
+  /// Ranking by share of the world's squares covered
+  /// (`<type>` = `world_squares`).
+  Future<WorldSquaresResult> fetchRankingForWorldSquares() {
+    return _fetchWorldSquaresLeaderboard('world_squares');
   }
 
   // ----------------------------
@@ -119,6 +116,13 @@ class RankingApi {
       countries: countries,
       subdivisions: subdivisions,
     );
+  }
+
+  /// The world-squares leaderboard: a single `world_squares` block of coverage
+  /// tiers, with public users only.
+  Future<WorldSquaresResult> _fetchWorldSquaresLeaderboard(String type) async {
+    final (rows, nonPublic) = await _fetchRaw(type);
+    return WorldSquaresResult.fromLeaderboard(rows, nonPublic);
   }
 
   /// Fetches and splits a `/getLeaderboardUsers/<type>` response into its
