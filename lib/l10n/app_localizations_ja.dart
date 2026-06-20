@@ -469,8 +469,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get rankingUnitCarbonPerKm => 'CO2e/km';
 
   @override
-  String get rankingCarbonExplanation =>
-      'g/kmが低いほど良い — 最も炭素効率の高い旅行者が上位になります。';
+  String get rankingCarbonExplanation => 'g/kmが低いほど良い — 最も炭素効率の高い旅行者が上位になります。';
 
   @override
   String get rankingSortAlphabetical => 'アルファベット順に並べ替え';

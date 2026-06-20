@@ -182,7 +182,7 @@ class RankingSelection {
       case RankingType.carbon:
         return AppColors.successLight;
       case RankingType.vehicles:
-        return AppColors.amber;
+        return AppColors.sky;
     }
   }
 
