@@ -135,6 +135,7 @@
   "menuTripsTitle": "旅行",
   "menuRankingTitle": "ランキング",
   "rankingYourPosition": "あなたの順位",
+  "rankingPositionValue": "{count, plural, other {{count}位}}",
   "rankingTypeTotal": "合計",
   "rankingTypeWorld": "世界",
   "rankingTypeRailwayCoverage": "鉄道カバー率",

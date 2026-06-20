@@ -113,6 +113,7 @@ class _RankBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final entry = this.entry;
+    final loc = AppLocalizations.of(context)!;
     if (entry == null) {
       return Icon(
         Icons.emoji_events_outlined,
@@ -142,7 +143,7 @@ class _RankBadge extends StatelessWidget {
               const SizedBox(width: 4),
             ],
             Text(
-              '#${entry.rank}',
+              loc.rankingPositionValue(entry.rank),
               style: AppTheme.monoFont.copyWith(
                 color: cs.onInverseSurface,
                 fontSize: 28,

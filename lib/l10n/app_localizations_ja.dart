@@ -429,6 +429,16 @@ class AppLocalizationsJa extends AppLocalizations {
   String get rankingYourPosition => 'あなたの順位';
 
   @override
+  String rankingPositionValue(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count位',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get rankingTypeTotal => '合計';
 
   @override

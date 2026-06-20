@@ -437,6 +437,16 @@ class AppLocalizationsTl extends AppLocalizations {
   String get rankingYourPosition => 'Iyong posisyon';
 
   @override
+  String rankingPositionValue(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '#$count',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get rankingTypeTotal => 'Kabuuan';
 
   @override

@@ -912,6 +912,12 @@ abstract class AppLocalizations {
   /// **'Your position'**
   String get rankingYourPosition;
 
+  /// The user's position in the ranking, displayed with a # in front of the number
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, other {#{count}}}'**
+  String rankingPositionValue(num count);
+
   /// No description provided for @rankingTypeTotal.
   ///
   /// In en, this message translates to:

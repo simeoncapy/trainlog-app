@@ -438,6 +438,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get rankingYourPosition => 'Your position';
 
   @override
+  String rankingPositionValue(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '#$count',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get rankingTypeTotal => 'Total';
 
   @override
