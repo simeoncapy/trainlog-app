@@ -146,28 +146,11 @@ class RankingSelection {
   /// otherwise.
   Icon get icon => isVehicle ? VehicleType.iconOf(vehicle!) : type.icon;
 
-  /// Accent colour for the pill dot, matching the transport-mode palette.
+  /// Accent colour for the (non-vehicle) category pills.
+  ///
+  /// Vehicle pills are coloured from the user's vehicle palette in
+  /// [RankingSelectorBar], so this only needs to cover the category types.
   Color get accentColor {
-    if (isVehicle) {
-      switch (vehicle!) {
-        case VehicleType.train:
-          return AppColors.modeTrain;
-        case VehicleType.bus:
-          return AppColors.modeBus;
-        case VehicleType.plane:
-          return AppColors.modeAir;
-        case VehicleType.ferry:
-          return AppColors.modeFerry;
-        case VehicleType.metro:
-          return AppColors.modeMetro;
-        case VehicleType.tram:
-          return AppColors.modeTram;
-        case VehicleType.aerialway:
-          return AppColors.violet;
-        default:
-          return AppColors.blue;
-      }
-    }
     switch (type) {
       case RankingType.all:
         return AppColors.amber;
