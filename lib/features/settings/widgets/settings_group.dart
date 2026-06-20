@@ -28,7 +28,7 @@ class SettingsGroup extends StatelessWidget {
                 thickness: 1,
                 indent: 68,
                 endIndent: 0,
-                color: cs.outlineVariant,
+                color: cs.outline,
               ),
           ],
         ],

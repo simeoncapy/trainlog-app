@@ -19,7 +19,7 @@ class MenuBlock extends StatelessWidget {
       decoration: BoxDecoration(
         color: cs.surface,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: cs.outlineVariant, width: 1),
+        border: Border.all(color: cs.outline, width: 1),
       ),
       child: Column(
         children: [
@@ -35,7 +35,7 @@ class MenuBlock extends StatelessWidget {
                 thickness: 1,
                 indent: 16 + 28 + 12, // aligns with label start
                 endIndent: 0,
-                color: cs.outlineVariant,
+                color: cs.outline,
               ),
           ],
         ],

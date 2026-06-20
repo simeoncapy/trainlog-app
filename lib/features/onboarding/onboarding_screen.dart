@@ -243,7 +243,7 @@ class _BottomControls extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: i == currentPage
                       ? colorScheme.primary
-                      : colorScheme.outlineVariant,
+                      : colorScheme.outline,
                   borderRadius: BorderRadius.circular(4),
                 ),
               ),

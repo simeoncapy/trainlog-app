@@ -88,7 +88,7 @@ class _UnitDropdown extends StatelessWidget {
           color: isDark ? cs.surface : Colors.white,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: cs.outline.withValues(alpha: 0.4),
+            color: cs.outlineVariant.withValues(alpha: 0.4),
             width: 1.2,
           ),
         ),
@@ -151,7 +151,7 @@ class _IconToggle extends StatelessWidget {
             border: Border.all(
               color: active
                   ? cs.primary.withValues(alpha: 0.6)
-                  : cs.outline.withValues(alpha: 0.4),
+                  : cs.outlineVariant.withValues(alpha: 0.4),
               width: 1.2,
             ),
           ),

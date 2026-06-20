@@ -219,9 +219,9 @@ class _RankingSelectorBarState extends State<RankingSelectorBar>
                     decoration: BoxDecoration(
                       color: cs.surface.withValues(alpha: 0.72),
                       borderRadius: BorderRadius.circular(18),
-                      border: Border.all(
-                        color: cs.outline.withValues(alpha: 0.25),
-                      ),
+                      // border: Border.all(
+                      //   color: cs.outline.withValues(alpha: 0.25),
+                      // ),
                       boxShadow: [
                         BoxShadow(
                           color: cs.shadow.withValues(alpha: 0.18),

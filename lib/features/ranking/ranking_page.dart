@@ -101,6 +101,7 @@ class _RankingPageState extends State<RankingPage> {
             RankingSelectorBar(
               selected: provider.selection,
               onSelected: provider.select,
+              isCompact: true,
             ),
             const SizedBox(height: 12),
 

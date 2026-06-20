@@ -924,7 +924,7 @@ abstract class AppLocalizations {
   /// **'Total'**
   String get rankingTypeTotal;
 
-  /// Ranking: vehicles group / dropdown pill.
+  /// No description provided for @rankingTypeVehicles.
   ///
   /// In en, this message translates to:
   /// **'Vehicle'**

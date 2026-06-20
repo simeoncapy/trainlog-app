@@ -38,7 +38,7 @@ class ExploreCardSubtitle {
 ///
 /// All colours are read directly from [Theme.of(context).colorScheme]:
 /// - background  → [ColorScheme.surface]
-/// - border      → [ColorScheme.outlineVariant]
+/// - border      → [ColorScheme.outline]
 /// - arrow icon  → [ColorScheme.onSurfaceVariant]
 /// - title text  → [ColorScheme.onSurface]
 /// - subtitle secondary text → [ColorScheme.onSurfaceVariant]
@@ -58,7 +58,7 @@ class ExploreCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: cs.surface,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: cs.outlineVariant, width: 1),
+          border: Border.all(color: cs.outline, width: 1),
         ),
         padding: const EdgeInsets.all(14),
         child: Column(

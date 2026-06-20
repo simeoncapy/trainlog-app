@@ -33,7 +33,7 @@ class RankingListView extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
           color: isDark
-              ? cs.outline.withValues(alpha: 0.25)
+              ? Colors.transparent//cs.outline.withValues(alpha: 0.25)
               : cs.outline.withValues(alpha: 0.18),
           width: 1.2,
         ),
