@@ -201,6 +201,14 @@
   "mapFilterReset": "Reset",
   "mapFilterTimeRange": "Time range",
   "mapFilterSelectYears": "Select years",
+  "mapFilterUnknownFuture": "Unknown future",
+  "@mapFilterUnknownFuture": {
+    "description": "Button in the year filter grid that toggles trips with an unknown future date"
+  },
+  "mapFilterUnknownPast": "Unknown past",
+  "@mapFilterUnknownPast": {
+    "description": "Button in the year filter grid that toggles trips with an unknown past date"
+  },
   "mapFilterShowTrips": "{count, plural, =0 {Show no trips} =1 {Show 1 trip} other {Show {count} trips}}",
   "@mapFilterShowTrips": {
     "description": "Primary action button in the map filter sheet showing how many trips match the current filters",

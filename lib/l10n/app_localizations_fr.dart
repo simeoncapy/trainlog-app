@@ -531,6 +531,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get mapFilterSelectYears => 'Choisir les années';
 
   @override
+  String get mapFilterUnknownFuture => 'Futur inconnu';
+
+  @override
+  String get mapFilterUnknownPast => 'Passé inconnu';
+
+  @override
   String mapFilterShowTrips(num count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

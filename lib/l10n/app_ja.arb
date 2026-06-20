@@ -166,6 +166,8 @@
   "mapFilterReset": "リセット",
   "mapFilterTimeRange": "期間",
   "mapFilterSelectYears": "年を選択",
+  "mapFilterUnknownFuture": "不明な未来",
+  "mapFilterUnknownPast": "不明な過去",
   "mapFilterShowTrips": "{count, plural, =0 {旅行なし} other {{count} 件の旅行を表示}}",
   "@mapFilterShowTrips": {
     "description": "Primary action button in the map filter sheet showing how many trips match the current filters",

@@ -167,6 +167,8 @@
   "mapFilterReset": "Réinitialiser",
   "mapFilterTimeRange": "Période",
   "mapFilterSelectYears": "Choisir les années",
+  "mapFilterUnknownFuture": "Futur inconnu",
+  "mapFilterUnknownPast": "Passé inconnu",
   "mapFilterShowTrips": "{count, plural, =0 {Aucun trajet} =1 {Afficher 1 trajet} other {Afficher {count} trajets}}",
   "@mapFilterShowTrips": {
     "description": "Primary action button in the map filter sheet showing how many trips match the current filters",

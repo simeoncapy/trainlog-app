@@ -185,6 +185,8 @@
   "mapFilterReset": "I-reset",
   "mapFilterTimeRange": "Saklaw ng panahon",
   "mapFilterSelectYears": "Pumili ng mga taon",
+  "mapFilterUnknownFuture": "Hindi alam na hinaharap",
+  "mapFilterUnknownPast": "Hindi alam na nakaraan",
   "mapFilterShowTrips": "{count, plural, =0 {Walang byahe} other {Ipakita ang {count} byahe}}",
   "@mapFilterShowTrips": {
     "description": "Primary action button in the map filter sheet showing how many trips match the current filters",

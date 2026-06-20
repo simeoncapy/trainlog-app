@@ -514,6 +514,12 @@ class AppLocalizationsJa extends AppLocalizations {
   String get mapFilterSelectYears => '年を選択';
 
   @override
+  String get mapFilterUnknownFuture => '不明な未来';
+
+  @override
+  String get mapFilterUnknownPast => '不明な過去';
+
+  @override
   String mapFilterShowTrips(num count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

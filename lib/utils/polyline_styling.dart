@@ -158,9 +158,11 @@ class PolylineStyling {
         }).toList();
 
       case PolylineYearFilter.years:
-        final allowedYears = {...selectedYears, unknownPast.year, unknownFuture.year};
+        // Unknown past/future trips (sentinel years 0 / 9999) are only included
+        // when their dedicated buttons are selected, i.e. present in
+        // [selectedYears] — they are no longer forced in.
         return polylines.where((e) {
-          return allowedYears.contains(e.startDate?.year) &&
+          return selectedYears.contains(e.startDate?.year) &&
               selectedTypes.contains(e.type);
         }).toList();
     }

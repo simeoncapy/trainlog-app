@@ -1050,6 +1050,18 @@ abstract class AppLocalizations {
   /// **'Select years'**
   String get mapFilterSelectYears;
 
+  /// Button in the year filter grid that toggles trips with an unknown future date
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown future'**
+  String get mapFilterUnknownFuture;
+
+  /// Button in the year filter grid that toggles trips with an unknown past date
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown past'**
+  String get mapFilterUnknownPast;
+
   /// Primary action button in the map filter sheet showing how many trips match the current filters
   ///
   /// In en, this message translates to:

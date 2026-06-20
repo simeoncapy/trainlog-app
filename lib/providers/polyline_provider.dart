@@ -11,6 +11,7 @@ import 'package:trainlog_app/data/polyline_cache.dart';
 import 'package:trainlog_app/data/polyline_loader.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
+import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
 import 'package:trainlog_app/utils/polyline_styling.dart';
 
@@ -65,6 +66,12 @@ class PolylineProvider extends ChangeNotifier {
   PolylineYearFilter _selectedYearFilter = PolylineYearFilter.all;
   int _selectedYearFilterOption = 0;
 
+  // Whether the loaded trips include any "unknown past" / "unknown future"
+  // entries (sentinel years 0 / 9999). Drives the dedicated toggle buttons in
+  // the year filter grid, which are only shown when such trips exist.
+  bool _hasUnknownPast = false;
+  bool _hasUnknownFuture = false;
+
   Set<VehicleType> _selectedTypes = {};
   Set<VehicleType> _userDeselectedTypes = {};
   Set<VehicleType> _lastAvailableTypes = {};
@@ -93,6 +100,12 @@ class PolylineProvider extends ChangeNotifier {
   Set<int> get selectedYears => Set.unmodifiable(_selectedYears);
   PolylineYearFilter get selectedYearFilter => _selectedYearFilter;
   int get selectedYearFilterOption => _selectedYearFilterOption;
+
+  /// Whether any loaded trip has an unknown (undated) past start.
+  bool get hasUnknownPast => _hasUnknownPast;
+
+  /// Whether any loaded trip has an unknown (undated) future start.
+  bool get hasUnknownFuture => _hasUnknownFuture;
 
   Set<VehicleType> get selectedTypes => Set.unmodifiable(_selectedTypes);
   Set<VehicleType> get userDeselectedTypes => Set.unmodifiable(_userDeselectedTypes);
@@ -198,8 +211,14 @@ class PolylineProvider extends ChangeNotifier {
       _selectedYearFilterOption = 0;
     } else if (_selectedYearFilter == PolylineYearFilter.years) {
       // Stay in explicit "years" mode, even if nothing is selected.
-      // Only remove years that no longer exist.
-      _selectedYears = _selectedYears.intersection(availableYears);
+      // Only remove years that no longer exist. The unknown-past/future
+      // sentinel years are valid selections too, so keep them around.
+      final allowedYears = {
+        ...availableYears,
+        unknownPast.year,
+        unknownFuture.year,
+      };
+      _selectedYears = _selectedYears.intersection(allowedYears);
     }
 
     // ---- Types
@@ -258,6 +277,10 @@ class PolylineProvider extends ChangeNotifier {
             .where((e) => e.value)
             .map((e) => years[e.key])
             .toSet();
+        // Entering explicit "years" mode starts with every available range
+        // selected, so include the unknown past/future ranges when present.
+        if (_hasUnknownPast) _selectedYears.add(unknownPast.year);
+        if (_hasUnknownFuture) _selectedYears.add(unknownFuture.year);
         break;
     }
 
@@ -270,7 +293,27 @@ class PolylineProvider extends ChangeNotifier {
   Future<void> selectAllYears(List<int> years) async {
     _selectedYearFilter = PolylineYearFilter.years;
     _selectedYearFilterOption = 3;
-    _selectedYears = years.toSet();
+    _selectedYears = {
+      ...years,
+      if (_hasUnknownPast) unknownPast.year,
+      if (_hasUnknownFuture) unknownFuture.year,
+    };
+
+    await _persistFilters();
+    _rebuildRenderedPolylines(notify: true);
+  }
+
+  /// Toggles a single year (or unknown-past/future sentinel year) in the
+  /// explicit "years" filter, leaving every other selection untouched. Used by
+  /// both the year chips and the unknown past/future buttons in the grid.
+  Future<void> toggleYear(int year) async {
+    _selectedYearFilter = PolylineYearFilter.years;
+    _selectedYearFilterOption = 3;
+    if (_selectedYears.contains(year)) {
+      _selectedYears.remove(year);
+    } else {
+      _selectedYears.add(year);
+    }
 
     await _persistFilters();
     _rebuildRenderedPolylines(notify: true);
@@ -597,6 +640,14 @@ class PolylineProvider extends ChangeNotifier {
     if (settings == null) return;
 
     final now = _nowUtc;
+
+    // Refresh whether unknown past/future trips exist so the filter UI can
+    // show/hide their dedicated buttons in step with the loaded data.
+    _hasUnknownPast =
+        _polylines.any((e) => e.startDate?.year == unknownPast.year);
+    _hasUnknownFuture =
+        _polylines.any((e) => e.startDate?.year == unknownFuture.year);
+
     final filtered = PolylineStyling.filterBySelection(
       _polylines,
       yearFilter: _selectedYearFilter,
