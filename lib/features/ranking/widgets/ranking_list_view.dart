@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
 import 'package:trainlog_app/app/theme/app_colors.dart';
+import 'package:trainlog_app/app/theme/app_theme.dart';
 import 'package:trainlog_app/features/ranking/ranking_type.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/providers/ranking_provider.dart';
@@ -153,7 +153,7 @@ class RankingRow extends StatelessWidget {
                 if (_secondaryMetric(context) != null)
                   Text(
                     _secondaryMetric(context)!,
-                    style: GoogleFonts.spaceMono(
+                    style: AppTheme.monoFont.copyWith(
                       fontSize: 12,
                       color: cs.onSurfaceVariant,
                     ),
@@ -162,7 +162,7 @@ class RankingRow extends StatelessWidget {
                 if (_lastConnection(context) != null)
                   Text(
                     _lastConnection(context)!,
-                    style: GoogleFonts.spaceMono(
+                    style: AppTheme.monoFont.copyWith(
                       fontSize: 11,
                       color: cs.onSurfaceVariant.withValues(alpha: 0.7),
                     ),
@@ -255,7 +255,7 @@ class _RankIndicator extends StatelessWidget {
       child: Text(
         '$rank',
         textAlign: TextAlign.center,
-        style: GoogleFonts.spaceMono(
+        style: AppTheme.monoFont.copyWith(
           fontSize: 15,
           fontWeight: FontWeight.w700,
           color: cs.onSurfaceVariant,
@@ -328,7 +328,7 @@ class _PrimaryValue extends StatelessWidget {
         Text(
           value,
           textAlign: TextAlign.right,
-          style: GoogleFonts.spaceMono(
+          style: AppTheme.monoFont.copyWith(
             fontSize: 20,
             fontWeight: FontWeight.w800,
             color: cs.onSurface,
@@ -337,7 +337,7 @@ class _PrimaryValue extends StatelessWidget {
         Text(
           unit,
           textAlign: TextAlign.right,
-          style: GoogleFonts.spaceMono(
+          style: AppTheme.monoFont.copyWith(
             fontSize: 11,
             fontWeight: FontWeight.w600,
             color: cs.onSurfaceVariant,

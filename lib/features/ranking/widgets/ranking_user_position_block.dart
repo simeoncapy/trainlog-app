@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'package:trainlog_app/app/theme/app_colors.dart';
-import 'package:trainlog_app/data/models/trips.dart';
+import 'package:trainlog_app/app/theme/app_theme.dart';
 import 'package:trainlog_app/features/ranking/ranking_type.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/providers/ranking_provider.dart';
@@ -61,7 +60,7 @@ class RankingUserPositionBlock extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   _subtitle(context, loc, entry),
-                  style: GoogleFonts.spaceMono(
+                  style: AppTheme.monoFont.copyWith(
                     fontSize: 12,
                     color: cs.onInverseSurface.withValues(alpha: 0.65),
                   ),
@@ -89,15 +88,12 @@ class RankingUserPositionBlock extends StatelessWidget {
       return loc.rankingWorldCovered;
     }
 
-    final tripsText =
-        '${formatNumber(context, entry.trips)} ${loc.menuTripCountLabel(entry.trips)}';
-    return tripsText;
-    // if (selection.isVehicle) {
-    //   final vehicle =
-    //       VehicleType.labelOf(selection.vehicle!, context).toLowerCase();
-    //   return loc.rankingVehicleTripsScope(tripsText, vehicle);
-    // }
-    // return '$tripsText · ${loc.rankingAllVehicles}';
+    // The subtitle shows the metric NOT used as the primary value, so the two
+    // complement each other as the selected unit changes.
+    if (provider.sortUnit == RankingSortUnit.trips) {
+      return '${formatCompactNumber(context, entry.distanceKm)} km';
+    }
+    return '${formatNumber(context, entry.trips)} ${loc.menuTripCountLabel(entry.trips)}';
   }
 }
 
@@ -142,7 +138,7 @@ class _RankBadge extends StatelessWidget {
             ],
             Text(
               '#${entry.rank}',
-              style: GoogleFonts.spaceMono(
+              style: AppTheme.monoFont.copyWith(
                 color: cs.onInverseSurface,
                 fontSize: 28,
                 fontWeight: FontWeight.w800,
@@ -153,7 +149,7 @@ class _RankBadge extends StatelessWidget {
         const SizedBox(height: 2),
         Text(
           _value(context),
-          style: GoogleFonts.spaceMono(
+          style: AppTheme.monoFont.copyWith(
             color: AppColors.amber,
             fontSize: 14,
             fontWeight: FontWeight.w700,
@@ -166,7 +162,7 @@ class _RankBadge extends StatelessWidget {
   String _value(BuildContext context) {
     final selection = provider.selection;
     if (selection.isWorldSquares) {
-      return '${formatNumber(context, entry!.percent ?? 0)}%';
+      return formatPercent(context, entry!.percent ?? 0);
     }
     if (provider.sortUnit == RankingSortUnit.trips) {
       return formatCompactNumber(context, entry!.trips);

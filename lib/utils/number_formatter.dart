@@ -40,6 +40,19 @@ String formatNumber(BuildContext context, num value, {bool noDecimal = false}) {
   return formatter.format(value);
 }
 
+/// Formats a percentage [value] (already expressed in the 0–100 range) using the
+/// locale's percent rules, including the space before `%` used by e.g. French.
+///
+/// Trailing zeros are stripped (`5 %`, `2,27 %` in fr / `5%`, `2.27%` in en).
+String formatPercent(BuildContext context, num value, {int maxDecimals = 2}) {
+  final locale = Localizations.localeOf(context).toString();
+  final formatter = NumberFormat.percentPattern(locale)
+    ..maximumFractionDigits = maxDecimals
+    ..minimumFractionDigits = 0;
+  // percentPattern multiplies by 100 internally, so undo the 0–100 scaling.
+  return formatter.format(value / 100);
+}
+
 /// Formats [value] for compact, leaderboard-style display.
 ///
 /// Values of one million or more are scaled and suffixed (`2.8M`, `1.3B`) with
