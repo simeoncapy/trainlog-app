@@ -447,6 +447,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get rankingTypeTotal => 'Total';
 
   @override
+  String get rankingTypeVehicles => 'Véhicule';
+
+  @override
   String get rankingTypeWorld => 'Monde';
 
   @override

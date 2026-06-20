@@ -432,6 +432,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get rankingTypeTotal => '合計';
 
   @override
+  String get rankingTypeVehicles => '乗り物';
+
+  @override
   String get rankingTypeWorld => '世界';
 
   @override

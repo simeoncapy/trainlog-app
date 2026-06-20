@@ -440,6 +440,9 @@ class AppLocalizationsTl extends AppLocalizations {
   String get rankingTypeTotal => 'Kabuuan';
 
   @override
+  String get rankingTypeVehicles => 'Sasakyan';
+
+  @override
   String get rankingTypeWorld => 'Mundo';
 
   @override

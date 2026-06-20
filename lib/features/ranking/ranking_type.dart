@@ -44,7 +44,7 @@ enum RankingType {
       case RankingType.all:
         return loc.rankingTypeTotal;
       case RankingType.vehicles:
-        return loc.rankingTypeTotal; // not shown directly; vehicles get their own
+        return loc.rankingTypeVehicles;
       case RankingType.railwayCoverage:
         return loc.rankingTypeRailwayCoverage;
       case RankingType.worldSquares:
