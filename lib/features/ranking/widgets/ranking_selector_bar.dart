@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/features/ranking/ranking_type.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
@@ -40,21 +39,12 @@ class RankingSelectorBar extends StatelessWidget {
             selection: pill,
             selected: pill == selected,
             enabled: pill.type.isImplemented,
-            accentColor: _accentFor(pill, palette),
+            accentColor: pill.accentColor(palette),
             onTap: () => onSelected(pill),
           );
         },
       ),
     );
-  }
-
-  /// Vehicle pills use the user palette colour; other categories keep their
-  /// fixed accent.
-  Color _accentFor(RankingSelection pill, Map<VehicleType, Color> palette) {
-    if (pill.isVehicle) {
-      return palette[pill.vehicle] ?? pill.accentColor;
-    }
-    return pill.accentColor;
   }
 }
 
