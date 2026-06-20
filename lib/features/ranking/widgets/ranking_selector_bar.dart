@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/features/ranking/ranking_type.dart';
+import 'package:trainlog_app/providers/settings_provider.dart';
+import 'package:trainlog_app/utils/map_color_palette.dart';
 
 /// Horizontally scrollable category selector ("pills").
 ///
@@ -19,6 +23,9 @@ class RankingSelectorBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final pills = buildRankingPills();
+    // Vehicle pill icons follow the user's chosen vehicle colour palette.
+    final settings = context.watch<SettingsProvider>();
+    final palette = MapColorPaletteHelper.getPalette(settings.mapColorPalette);
 
     return SizedBox(
       height: 44,
@@ -33,11 +40,21 @@ class RankingSelectorBar extends StatelessWidget {
             selection: pill,
             selected: pill == selected,
             enabled: pill.type.isImplemented,
+            accentColor: _accentFor(pill, palette),
             onTap: () => onSelected(pill),
           );
         },
       ),
     );
+  }
+
+  /// Vehicle pills use the user palette colour; other categories keep their
+  /// fixed accent.
+  Color _accentFor(RankingSelection pill, Map<VehicleType, Color> palette) {
+    if (pill.isVehicle) {
+      return palette[pill.vehicle] ?? pill.accentColor;
+    }
+    return pill.accentColor;
   }
 }
 
@@ -45,12 +62,14 @@ class _Pill extends StatelessWidget {
   final RankingSelection selection;
   final bool selected;
   final bool enabled;
+  final Color accentColor;
   final VoidCallback onTap;
 
   const _Pill({
     required this.selection,
     required this.selected,
     required this.enabled,
+    required this.accentColor,
     required this.onTap,
   });
 
@@ -64,11 +83,11 @@ class _Pill extends StatelessWidget {
     if (selected) {
       bg = cs.inverseSurface;
       fg = cs.onInverseSurface;
-      accent = selection.accentColor;
+      accent = accentColor;
     } else if (enabled) {
       bg = cs.surface;
       fg = cs.onSurface;
-      accent = selection.accentColor;
+      accent = accentColor;
     } else {
       bg = cs.surface.withValues(alpha: 0.5);
       fg = cs.onSurfaceVariant.withValues(alpha: 0.5);
