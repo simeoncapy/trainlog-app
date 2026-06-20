@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
 
 import 'package:trainlog_app/app/theme/app_colors.dart';
 import 'package:trainlog_app/app/theme/app_theme.dart';
+import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/features/ranking/ranking_type.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/providers/ranking_provider.dart';
+import 'package:trainlog_app/providers/settings_provider.dart';
+import 'package:trainlog_app/utils/map_color_palette.dart';
 import 'package:trainlog_app/utils/number_formatter.dart';
 
 /// Hero "Your position" card. Mirrors [MenuSummaryCard]'s inverted-background
@@ -22,6 +26,8 @@ class RankingUserPositionBlock extends StatelessWidget {
     final loc = AppLocalizations.of(context)!;
     final entry = provider.currentUserEntry;
     final username = provider.currentUsername ?? '';
+    final settings = context.watch<SettingsProvider>();
+    final palette = MapColorPaletteHelper.getPalette(settings.mapColorPalette);
 
     return Container(
       decoration: BoxDecoration(
@@ -32,7 +38,7 @@ class RankingUserPositionBlock extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const _TrainlogIcon(),
+          _RankingTypeIcon(rankingType: provider.selection, palette: palette),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
@@ -113,6 +119,7 @@ class _RankBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final entry = this.entry;
+    final loc = AppLocalizations.of(context)!;
     if (entry == null) {
       return Icon(
         Icons.emoji_events_outlined,
@@ -142,7 +149,7 @@ class _RankBadge extends StatelessWidget {
               const SizedBox(width: 4),
             ],
             Text(
-              '#${entry.rank}',
+              loc.rankingPositionValue(entry.rank),
               style: AppTheme.monoFont.copyWith(
                 color: cs.onInverseSurface,
                 fontSize: 28,
@@ -182,31 +189,32 @@ class _RankBadge extends StatelessWidget {
   }
 }
 
-/// Branded amber→navy→amber icon, identical to the one used by
-/// [MenuSummaryCard].
-class _TrainlogIcon extends StatelessWidget {
-  const _TrainlogIcon();
+class _RankingTypeIcon extends StatelessWidget {
+  final RankingSelection rankingType;
+  final Map<VehicleType, Color> palette;
+  const _RankingTypeIcon({required this.rankingType, required this.palette});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: 56,
       height: 56,
-      decoration: const BoxDecoration(
-        color: AppColors.amber,
+      decoration: BoxDecoration(
+        color: rankingType.accentColor(palette),
         shape: BoxShape.circle,
       ),
       padding: const EdgeInsets.all(5),
       child: Container(
-        decoration: const BoxDecoration(
-          color: AppColors.navy,
+        decoration: BoxDecoration(
+          color: rankingType.accentColor(palette),
           shape: BoxShape.circle,
         ),
         padding: const EdgeInsets.all(8),
-        child: SvgPicture.asset(
-          'assets/icon/trainlog_icon_foreground_only.svg',
-          colorFilter:
-              const ColorFilter.mode(AppColors.amber, BlendMode.srcIn),
+        child: IconTheme(
+          data: const IconThemeData(
+            color: Colors.white,
+          ),
+          child: rankingType.icon,
         ),
       ),
     );

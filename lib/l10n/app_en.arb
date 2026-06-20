@@ -164,6 +164,13 @@
   "menuTripsTitle": "Trips",
   "menuRankingTitle": "Ranking",
   "rankingYourPosition": "Your position",
+  "rankingPositionValue": "{count, plural, other {#{count}}}",
+  "@rankingPositionValue": {
+    "description": "The user's position in the ranking, displayed with a # in front of the number",
+    "placeholders": {
+      "count": {}
+    }
+  },
   "rankingTypeTotal": "Total",
   "rankingTypeVehicles": "Vehicle",
   "rankingTypeWorld": "World",

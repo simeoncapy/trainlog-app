@@ -136,6 +136,7 @@
   "menuTripsTitle": "Trajets",
   "menuRankingTitle": "Classement",
   "rankingYourPosition": "Votre position",
+  "rankingPositionValue": "{count, plural, =1 {1r} other {{count}e}}",
   "rankingTypeTotal": "Total",
   "rankingTypeVehicles": "Véhicule",
   "rankingTypeWorld": "Monde",

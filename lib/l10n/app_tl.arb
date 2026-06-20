@@ -155,6 +155,7 @@
   "menuTripsTitle": "Byahe",
   "menuRankingTitle": "Ranking",
   "rankingYourPosition": "Iyong posisyon",
+  "rankingPositionValue": "{count, plural, other {#{count}}}",
   "rankingTypeTotal": "Kabuuan",
   "rankingTypeVehicles": "Sasakyan",
   "rankingTypeWorld": "Mundo",

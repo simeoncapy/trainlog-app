@@ -444,6 +444,17 @@ class AppLocalizationsFr extends AppLocalizations {
   String get rankingYourPosition => 'Votre position';
 
   @override
+  String rankingPositionValue(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '${count}e',
+      one: '1r',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get rankingTypeTotal => 'Total';
 
   @override
