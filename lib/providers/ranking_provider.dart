@@ -197,6 +197,7 @@ class RankingProvider extends ChangeNotifier {
     RankingResult<CarbonLeaderboardEntry> res,
   ) {
     return res.entries
+        .where((e) => e.trips > 0)
         .map(
           (e) => RankingDisplayEntry(
             rank: 0,
@@ -216,6 +217,7 @@ class RankingProvider extends ChangeNotifier {
     RankingResult<LeaderboardEntry> res,
   ) {
     return res.entries
+        .where((e) => e.trips > 0)
         .map(
           (e) => RankingDisplayEntry(
             rank: 0,
@@ -262,11 +264,14 @@ class RankingProvider extends ChangeNotifier {
   }
 
   /// Orders entries "best first": lowest value when the active unit favours low
-  /// values (CO2e/km), highest otherwise.
+  /// values (CO2e/km), highest otherwise. Ties break deterministically by
+  /// username so the competitive rank and the displayed order stay in sync
+  /// (otherwise equal values — e.g. many 0 g/km rows — would sort arbitrarily).
   int _compareBest(RankingDisplayEntry a, RankingDisplayEntry b) {
     final lowerBetter = _sortUnit.lowerIsBetter && !_selection.isWorldSquares;
     final cmp = _metric(a).compareTo(_metric(b));
-    return lowerBetter ? cmp : -cmp;
+    if (cmp != 0) return lowerBetter ? cmp : -cmp;
+    return a.username.toLowerCase().compareTo(b.username.toLowerCase());
   }
 
   /// (Re)assigns competitive ranks by the active metric, best first.
