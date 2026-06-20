@@ -146,11 +146,14 @@ class RankingSelection {
   /// otherwise.
   Icon get icon => isVehicle ? VehicleType.iconOf(vehicle!) : type.icon;
 
-  /// Accent colour for the (non-vehicle) category pills.
+  /// Accent colour for the pill.
   ///
-  /// Vehicle pills are coloured from the user's vehicle palette in
-  /// [RankingSelectorBar], so this only needs to cover the category types.
-  Color get accentColor {
+  /// Vehicle selections take their colour from the user's vehicle [palette];
+  /// the category types use their own fixed accent.
+  Color accentColor(Map<VehicleType, Color> palette) {
+    if (isVehicle) {
+      return palette[vehicle] ?? AppColors.amber;
+    }
     switch (type) {
       case RankingType.all:
         return AppColors.amber;
