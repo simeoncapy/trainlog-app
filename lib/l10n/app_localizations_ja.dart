@@ -426,6 +426,62 @@ class AppLocalizationsJa extends AppLocalizations {
   String get menuRankingTitle => 'ランキング';
 
   @override
+  String get rankingYourPosition => 'あなたの順位';
+
+  @override
+  String get rankingTypeTotal => '合計';
+
+  @override
+  String get rankingTypeWorld => '世界';
+
+  @override
+  String get rankingTypeRailwayCoverage => '鉄道カバー率';
+
+  @override
+  String get rankingTypeCountries => '国';
+
+  @override
+  String get rankingTypeCarbon => 'CO2e';
+
+  @override
+  String get rankingUnitDistance => '距離';
+
+  @override
+  String get rankingUnitTrips => '旅行回数';
+
+  @override
+  String get rankingSortAlphabetical => 'アルファベット順に並べ替え';
+
+  @override
+  String get rankingSortByValue => '値で並べ替え';
+
+  @override
+  String get rankingOrderAscending => '昇順';
+
+  @override
+  String get rankingOrderDescending => '降順';
+
+  @override
+  String get rankingAllVehicles => 'すべての乗り物';
+
+  @override
+  String get rankingWorldCovered => 'カバー';
+
+  @override
+  String get rankingNoData => 'データなし';
+
+  @override
+  String get rankingNotRanked => 'ランク外';
+
+  @override
+  String get rankingSearchHint => 'ユーザーを検索…';
+
+  @override
+  String rankingVehicleTripsScope(String trips, String vehicle) {
+    return '$vehicle $trips 回';
+  }
+
+  @override
   String get menuStatisticsTitle => '統計';
 
   @override

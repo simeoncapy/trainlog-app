@@ -906,6 +906,114 @@ abstract class AppLocalizations {
   /// **'Ranking'**
   String get menuRankingTitle;
 
+  /// Ranking: "Your position" card overtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your position'**
+  String get rankingYourPosition;
+
+  /// Ranking: combined (all vehicles) category pill.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get rankingTypeTotal;
+
+  /// Ranking: world-squares category pill.
+  ///
+  /// In en, this message translates to:
+  /// **'World'**
+  String get rankingTypeWorld;
+
+  /// Ranking: railway-coverage category pill.
+  ///
+  /// In en, this message translates to:
+  /// **'Railway coverage'**
+  String get rankingTypeRailwayCoverage;
+
+  /// Ranking: countries-visited category pill.
+  ///
+  /// In en, this message translates to:
+  /// **'Countries'**
+  String get rankingTypeCountries;
+
+  /// Ranking: carbon-footprint category pill.
+  ///
+  /// In en, this message translates to:
+  /// **'CO2e'**
+  String get rankingTypeCarbon;
+
+  /// Ranking: sort-by-distance unit.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance'**
+  String get rankingUnitDistance;
+
+  /// Ranking: sort-by-trips unit.
+  ///
+  /// In en, this message translates to:
+  /// **'Trips'**
+  String get rankingUnitTrips;
+
+  /// Ranking: tooltip to switch to alphabetical sort.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort alphabetically'**
+  String get rankingSortAlphabetical;
+
+  /// Ranking: tooltip to switch back to value sort.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort by value'**
+  String get rankingSortByValue;
+
+  /// Ranking: tooltip for ascending order.
+  ///
+  /// In en, this message translates to:
+  /// **'Ascending'**
+  String get rankingOrderAscending;
+
+  /// Ranking: tooltip for descending order.
+  ///
+  /// In en, this message translates to:
+  /// **'Descending'**
+  String get rankingOrderDescending;
+
+  /// Ranking: scope suffix for the combined leaderboard.
+  ///
+  /// In en, this message translates to:
+  /// **'all vehicles'**
+  String get rankingAllVehicles;
+
+  /// Ranking: world-squares coverage suffix.
+  ///
+  /// In en, this message translates to:
+  /// **'covered'**
+  String get rankingWorldCovered;
+
+  /// Ranking: empty list placeholder.
+  ///
+  /// In en, this message translates to:
+  /// **'No data'**
+  String get rankingNoData;
+
+  /// Ranking: shown when the current user is not in the public leaderboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Not ranked'**
+  String get rankingNotRanked;
+
+  /// Ranking: search field hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search users…'**
+  String get rankingSearchHint;
+
+  /// Ranking: per-vehicle trips scope, e.g. "486 train trips".
+  ///
+  /// In en, this message translates to:
+  /// **'{trips} {vehicle} trips'**
+  String rankingVehicleTripsScope(String trips, String vehicle);
+
   /// No description provided for @menuStatisticsTitle.
   ///
   /// In en, this message translates to:

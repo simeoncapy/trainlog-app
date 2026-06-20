@@ -441,6 +441,62 @@ class AppLocalizationsFr extends AppLocalizations {
   String get menuRankingTitle => 'Classement';
 
   @override
+  String get rankingYourPosition => 'Votre position';
+
+  @override
+  String get rankingTypeTotal => 'Total';
+
+  @override
+  String get rankingTypeWorld => 'Monde';
+
+  @override
+  String get rankingTypeRailwayCoverage => 'Couverture ferroviaire';
+
+  @override
+  String get rankingTypeCountries => 'Pays';
+
+  @override
+  String get rankingTypeCarbon => 'CO2e';
+
+  @override
+  String get rankingUnitDistance => 'Distance';
+
+  @override
+  String get rankingUnitTrips => 'Trajets';
+
+  @override
+  String get rankingSortAlphabetical => 'Trier par ordre alphabétique';
+
+  @override
+  String get rankingSortByValue => 'Trier par valeur';
+
+  @override
+  String get rankingOrderAscending => 'Croissant';
+
+  @override
+  String get rankingOrderDescending => 'Décroissant';
+
+  @override
+  String get rankingAllVehicles => 'tous les véhicules';
+
+  @override
+  String get rankingWorldCovered => 'couvert';
+
+  @override
+  String get rankingNoData => 'Aucune donnée';
+
+  @override
+  String get rankingNotRanked => 'Non classé';
+
+  @override
+  String get rankingSearchHint => 'Rechercher des utilisateurs…';
+
+  @override
+  String rankingVehicleTripsScope(String trips, String vehicle) {
+    return '$trips trajets en $vehicle';
+  }
+
+  @override
   String get menuStatisticsTitle => 'Stat.';
 
   @override

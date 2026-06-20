@@ -40,6 +40,32 @@ String formatNumber(BuildContext context, num value, {bool noDecimal = false}) {
   return formatter.format(value);
 }
 
+/// Formats [value] for compact, leaderboard-style display.
+///
+/// Values of one million or more are scaled and suffixed (`2.8M`, `1.3B`) with
+/// [fractionDigits] decimals, while smaller values keep their full thousands
+/// separators (`938,685`). The decimal separator follows the active locale.
+String formatCompactNumber(
+  BuildContext context,
+  num value, {
+  int fractionDigits = 1,
+}) {
+  final locale = Localizations.localeOf(context).toString();
+  final abs = value.abs();
+
+  String scaled(num scaledValue, String suffix) {
+    final formatter = NumberFormat.decimalPatternDigits(
+      locale: locale,
+      decimalDigits: fractionDigits,
+    );
+    return '${formatter.format(scaledValue)}$suffix';
+  }
+
+  if (abs >= 1e9) return scaled(value / 1e9, 'B');
+  if (abs >= 1e6) return scaled(value / 1e6, 'M');
+  return NumberFormat('#,##0', locale).format(value);
+}
+
 class DecimalTextInputFormatter extends TextInputFormatter {
   final RegExp _regExp = RegExp(r'^\d*([.,]\d*)?$');
 

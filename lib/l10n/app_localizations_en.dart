@@ -435,6 +435,62 @@ class AppLocalizationsEn extends AppLocalizations {
   String get menuRankingTitle => 'Ranking';
 
   @override
+  String get rankingYourPosition => 'Your position';
+
+  @override
+  String get rankingTypeTotal => 'Total';
+
+  @override
+  String get rankingTypeWorld => 'World';
+
+  @override
+  String get rankingTypeRailwayCoverage => 'Railway coverage';
+
+  @override
+  String get rankingTypeCountries => 'Countries';
+
+  @override
+  String get rankingTypeCarbon => 'CO2e';
+
+  @override
+  String get rankingUnitDistance => 'Distance';
+
+  @override
+  String get rankingUnitTrips => 'Trips';
+
+  @override
+  String get rankingSortAlphabetical => 'Sort alphabetically';
+
+  @override
+  String get rankingSortByValue => 'Sort by value';
+
+  @override
+  String get rankingOrderAscending => 'Ascending';
+
+  @override
+  String get rankingOrderDescending => 'Descending';
+
+  @override
+  String get rankingAllVehicles => 'all vehicles';
+
+  @override
+  String get rankingWorldCovered => 'covered';
+
+  @override
+  String get rankingNoData => 'No data';
+
+  @override
+  String get rankingNotRanked => 'Not ranked';
+
+  @override
+  String get rankingSearchHint => 'Search users…';
+
+  @override
+  String rankingVehicleTripsScope(String trips, String vehicle) {
+    return '$trips $vehicle trips';
+  }
+
+  @override
   String get menuStatisticsTitle => 'Statistics';
 
   @override
