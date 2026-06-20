@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/platform/adaptive_vehicle_type_filter_chips.dart';
 import 'package:trainlog_app/providers/polyline_provider.dart';
+import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/widgets/app_steps_tab_bar.dart';
 
 /// Map filter bottom sheet.
@@ -240,15 +241,26 @@ class _MapFilterWidgetState extends State<MapFilterWidget> {
     PolylineProvider poly,
   ) {
     final years = poly.availableYears; // already sorted descending
-    final pageCount = math.max(1, (years.length / _yearsPerPage).ceil());
+
+    // The grid lays out a single ordered list of "slots": the unknown-future
+    // button first (rendered in the future/dashed style), then the real years
+    // (descending), then the unknown-past button last. The unknown buttons only
+    // appear when the user actually has such trips.
+    final items = <int>[
+      if (poly.hasUnknownFuture) unknownFuture.year,
+      ...years,
+      if (poly.hasUnknownPast) unknownPast.year,
+    ];
+
+    final pageCount = math.max(1, (items.length / _yearsPerPage).ceil());
     final page = _yearPage.clamp(0, pageCount - 1);
     final start = page * _yearsPerPage;
-    final end = math.min(start + _yearsPerPage, years.length);
-    final pageYears = years.sublist(start, end);
+    final end = math.min(start + _yearsPerPage, items.length);
+    final pageItems = items.sublist(start, end);
 
     // When paginated, every page reserves the full 4×3 footprint so the sheet
     // height stays constant when flipping to a shorter last page.
-    final grid = _yearGrid(context, poly, pageYears, fill: pageCount > 1);
+    final grid = _yearGrid(context, l10n, poly, pageItems, fill: pageCount > 1);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -292,14 +304,15 @@ class _MapFilterWidgetState extends State<MapFilterWidget> {
 
   Widget _yearGrid(
     BuildContext context,
+    AppLocalizations l10n,
     PolylineProvider poly,
-    List<int> years, {
+    List<int> items, {
     required bool fill,
   }) {
     final currentYear = DateTime.now().year;
     // When [fill] is set, always lay out a full 4×3 grid (12 slots); otherwise
-    // size to the available years only.
-    final slotCount = fill ? _yearsPerPage : years.length;
+    // size to the available items only.
+    final slotCount = fill ? _yearsPerPage : items.length;
     final rows = <Widget>[];
     for (int rowStart = 0; rowStart < slotCount; rowStart += 4) {
       if (rows.isNotEmpty) rows.add(const SizedBox(height: 8));
@@ -307,30 +320,29 @@ class _MapFilterWidgetState extends State<MapFilterWidget> {
       for (int col = 0; col < 4; col++) {
         if (col > 0) cells.add(const SizedBox(width: 8));
         final idx = rowStart + col;
-        if (idx >= years.length) {
+        if (idx >= items.length) {
           // Empty placeholder keeps the 4×3 footprint (and row height) stable.
           cells.add(const Expanded(child: SizedBox(height: _kYearChipHeight)));
           continue;
         }
-        final year = years[idx];
+        final year = items[idx];
+        final isUnknownFuture = year == unknownFuture.year;
+        final isUnknownPast = year == unknownPast.year;
+        final isUnknown = isUnknownFuture || isUnknownPast;
         cells.add(
           Expanded(
             child: _YearChip(
-              year: year,
+              label: isUnknownFuture
+                  ? l10n.mapFilterUnknownFuture
+                  : isUnknownPast
+                      ? l10n.mapFilterUnknownPast
+                      : year.toString(),
+              // Unknown labels are longer than a year number, so let them
+              // shrink/wrap to keep the shared year-chip footprint.
+              fitLabel: isUnknown,
               selected: poly.selectedYears.contains(year),
-              isFuture: year > currentYear,
-              onTap: () {
-                final allYears = poly.availableYears;
-                final newSub = allYears
-                    .map((y) =>
-                        y == year ? !poly.selectedYears.contains(y) : poly.selectedYears.contains(y))
-                    .toList();
-                context.read<PolylineProvider>().updateYearFilter(
-                      topIndex: _yearsOptionIndex,
-                      years: allYears,
-                      subSelection: newSub,
-                    );
-              },
+              isFuture: isUnknownFuture || (!isUnknown && year > currentYear),
+              onTap: () => context.read<PolylineProvider>().toggleYear(year),
             ),
           ),
         );
@@ -404,18 +416,22 @@ const double _kYearChipHeight = 44;
 // ─── Year chip ────────────────────────────────────────────────────────────────
 
 /// A single year cell. Past/current years get a solid border; future years a
-/// dashed border to distinguish planned excursions from completed trips.
+/// dashed border to distinguish planned excursions from completed trips. The
+/// same chip renders the "unknown past/future" buttons — with [fitLabel] set so
+/// their longer text shrinks/wraps into the shared footprint.
 class _YearChip extends StatelessWidget {
-  final int year;
+  final String label;
   final bool selected;
   final bool isFuture;
+  final bool fitLabel;
   final VoidCallback onTap;
 
   const _YearChip({
-    required this.year,
+    required this.label,
     required this.selected,
     required this.isFuture,
     required this.onTap,
+    this.fitLabel = false,
   });
 
   @override
@@ -427,19 +443,40 @@ class _YearChip extends StatelessWidget {
     final fg = selected ? cs.onPrimary : cs.onSurface;
     final borderColor = selected ? cs.primary : cs.outline;
 
+    Widget child = Text(
+      label,
+      textAlign: TextAlign.center,
+      maxLines: fitLabel ? 2 : 1,
+      style: TextStyle(
+        color: fg,
+        fontWeight: FontWeight.w600,
+        fontSize: fitLabel ? 12 : null,
+        height: fitLabel ? 1.05 : null,
+      ),
+    );
+    if (fitLabel) {
+      // Wrap to (at most) two lines within the cell, then scale down if the
+      // word itself is still too wide — guarantees the text always fits.
+      child = FittedBox(
+        fit: BoxFit.scaleDown,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 76),
+          child: child,
+        ),
+      );
+    }
+
     Widget content = Container(
       height: _kYearChipHeight,
       alignment: Alignment.center,
+      padding: const EdgeInsets.symmetric(horizontal: 4),
       decoration: BoxDecoration(
         color: bg,
         borderRadius: BorderRadius.circular(radius),
         // Future years draw their (dashed) border via the painter below.
         border: isFuture ? null : Border.all(color: borderColor, width: 1.2),
       ),
-      child: Text(
-        year.toString(),
-        style: TextStyle(color: fg, fontWeight: FontWeight.w600),
-      ),
+      child: child,
     );
 
     if (isFuture) {

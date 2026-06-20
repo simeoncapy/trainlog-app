@@ -521,6 +521,12 @@ class AppLocalizationsTl extends AppLocalizations {
   String get mapFilterSelectYears => 'Pumili ng mga taon';
 
   @override
+  String get mapFilterUnknownFuture => 'Hindi alam na hinaharap';
+
+  @override
+  String get mapFilterUnknownPast => 'Hindi alam na nakaraan';
+
+  @override
   String mapFilterShowTrips(num count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
