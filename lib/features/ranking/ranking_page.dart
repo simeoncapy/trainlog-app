@@ -6,6 +6,7 @@ import 'package:trainlog_app/features/ranking/widgets/ranking_list_view.dart';
 import 'package:trainlog_app/features/ranking/widgets/ranking_selector_bar.dart';
 import 'package:trainlog_app/features/ranking/widgets/ranking_user_position_block.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
+import 'package:trainlog_app/platform/adaptive_widget.dart';
 import 'package:trainlog_app/providers/ranking_provider.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 
@@ -69,9 +70,9 @@ class _RankingPageState extends State<RankingPage> {
                               ),
                     ),
                   ),
-                  IconButton(
+                  AdaptiveAppBarSquareButton(
                     onPressed: _toggleSearch,
-                    icon: Icon(_searchOpen ? Icons.close : Icons.search),
+                    icon: _searchOpen ? Icons.search_off : Icons.search,
                     tooltip: loc.rankingSearchHint,
                   ),
                 ],

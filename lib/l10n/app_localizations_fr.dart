@@ -480,7 +480,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get rankingAllVehicles => 'tous les véhicules';
 
   @override
-  String get rankingWorldCovered => 'couvert';
+  String get rankingWorldCovered => 'Cases du monde couvertes';
 
   @override
   String get rankingNoData => 'Aucune donnée';

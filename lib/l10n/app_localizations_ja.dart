@@ -465,7 +465,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get rankingAllVehicles => 'すべての乗り物';
 
   @override
-  String get rankingWorldCovered => 'カバー';
+  String get rankingWorldCovered => '世界マスの網羅率';
 
   @override
   String get rankingNoData => 'データなし';

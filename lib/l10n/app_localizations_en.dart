@@ -474,7 +474,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get rankingAllVehicles => 'all vehicles';
 
   @override
-  String get rankingWorldCovered => 'covered';
+  String get rankingWorldCovered => 'World squares covered';
 
   @override
   String get rankingNoData => 'No data';

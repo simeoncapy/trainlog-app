@@ -176,7 +176,7 @@
   "rankingOrderAscending": "Ascending",
   "rankingOrderDescending": "Descending",
   "rankingAllVehicles": "all vehicles",
-  "rankingWorldCovered": "covered",
+  "rankingWorldCovered": "World squares covered",
   "rankingNoData": "No data",
   "rankingNotRanked": "Not ranked",
   "rankingSearchHint": "Search users…",

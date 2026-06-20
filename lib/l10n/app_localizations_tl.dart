@@ -473,7 +473,7 @@ class AppLocalizationsTl extends AppLocalizations {
   String get rankingAllVehicles => 'lahat ng sasakyan';
 
   @override
-  String get rankingWorldCovered => 'nasaklaw';
+  String get rankingWorldCovered => 'Na-cover na mga squares sa mundo';
 
   @override
   String get rankingNoData => 'Walang datos';

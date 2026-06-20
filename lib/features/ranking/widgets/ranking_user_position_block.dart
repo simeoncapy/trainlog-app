@@ -50,7 +50,7 @@ class RankingUserPositionBlock extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  username.isEmpty ? '—' : '@$username',
+                  username.isEmpty ? '—' : username,
                   style: TextStyle(
                     color: cs.onInverseSurface,
                     fontSize: 20,
@@ -86,18 +86,18 @@ class RankingUserPositionBlock extends StatelessWidget {
     if (entry == null) return loc.rankingNotRanked;
 
     if (selection.isWorldSquares) {
-      final pct = formatNumber(context, entry.percent ?? 0);
-      return '$pct% · ${loc.rankingWorldCovered}';
+      return loc.rankingWorldCovered;
     }
 
     final tripsText =
         '${formatNumber(context, entry.trips)} ${loc.menuTripCountLabel(entry.trips)}';
-    if (selection.isVehicle) {
-      final vehicle =
-          VehicleType.labelOf(selection.vehicle!, context).toLowerCase();
-      return loc.rankingVehicleTripsScope(tripsText, vehicle);
-    }
-    return '$tripsText · ${loc.rankingAllVehicles}';
+    return tripsText;
+    // if (selection.isVehicle) {
+    //   final vehicle =
+    //       VehicleType.labelOf(selection.vehicle!, context).toLowerCase();
+    //   return loc.rankingVehicleTripsScope(tripsText, vehicle);
+    // }
+    // return '$tripsText · ${loc.rankingAllVehicles}';
   }
 }
 

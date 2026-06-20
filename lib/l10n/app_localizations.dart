@@ -906,109 +906,109 @@ abstract class AppLocalizations {
   /// **'Ranking'**
   String get menuRankingTitle;
 
-  /// Ranking: "Your position" card overtitle.
+  /// No description provided for @rankingYourPosition.
   ///
   /// In en, this message translates to:
   /// **'Your position'**
   String get rankingYourPosition;
 
-  /// Ranking: combined (all vehicles) category pill.
+  /// No description provided for @rankingTypeTotal.
   ///
   /// In en, this message translates to:
   /// **'Total'**
   String get rankingTypeTotal;
 
-  /// Ranking: world-squares category pill.
+  /// No description provided for @rankingTypeWorld.
   ///
   /// In en, this message translates to:
   /// **'World'**
   String get rankingTypeWorld;
 
-  /// Ranking: railway-coverage category pill.
+  /// No description provided for @rankingTypeRailwayCoverage.
   ///
   /// In en, this message translates to:
   /// **'Railway coverage'**
   String get rankingTypeRailwayCoverage;
 
-  /// Ranking: countries-visited category pill.
+  /// No description provided for @rankingTypeCountries.
   ///
   /// In en, this message translates to:
   /// **'Countries'**
   String get rankingTypeCountries;
 
-  /// Ranking: carbon-footprint category pill.
+  /// No description provided for @rankingTypeCarbon.
   ///
   /// In en, this message translates to:
   /// **'CO2e'**
   String get rankingTypeCarbon;
 
-  /// Ranking: sort-by-distance unit.
+  /// No description provided for @rankingUnitDistance.
   ///
   /// In en, this message translates to:
   /// **'Distance'**
   String get rankingUnitDistance;
 
-  /// Ranking: sort-by-trips unit.
+  /// No description provided for @rankingUnitTrips.
   ///
   /// In en, this message translates to:
   /// **'Trips'**
   String get rankingUnitTrips;
 
-  /// Ranking: tooltip to switch to alphabetical sort.
+  /// No description provided for @rankingSortAlphabetical.
   ///
   /// In en, this message translates to:
   /// **'Sort alphabetically'**
   String get rankingSortAlphabetical;
 
-  /// Ranking: tooltip to switch back to value sort.
+  /// No description provided for @rankingSortByValue.
   ///
   /// In en, this message translates to:
   /// **'Sort by value'**
   String get rankingSortByValue;
 
-  /// Ranking: tooltip for ascending order.
+  /// No description provided for @rankingOrderAscending.
   ///
   /// In en, this message translates to:
   /// **'Ascending'**
   String get rankingOrderAscending;
 
-  /// Ranking: tooltip for descending order.
+  /// No description provided for @rankingOrderDescending.
   ///
   /// In en, this message translates to:
   /// **'Descending'**
   String get rankingOrderDescending;
 
-  /// Ranking: scope suffix for the combined leaderboard.
+  /// No description provided for @rankingAllVehicles.
   ///
   /// In en, this message translates to:
   /// **'all vehicles'**
   String get rankingAllVehicles;
 
-  /// Ranking: world-squares coverage suffix.
+  /// No description provided for @rankingWorldCovered.
   ///
   /// In en, this message translates to:
-  /// **'covered'**
+  /// **'World squares covered'**
   String get rankingWorldCovered;
 
-  /// Ranking: empty list placeholder.
+  /// No description provided for @rankingNoData.
   ///
   /// In en, this message translates to:
   /// **'No data'**
   String get rankingNoData;
 
-  /// Ranking: shown when the current user is not in the public leaderboard.
+  /// No description provided for @rankingNotRanked.
   ///
   /// In en, this message translates to:
   /// **'Not ranked'**
   String get rankingNotRanked;
 
-  /// Ranking: search field hint.
+  /// No description provided for @rankingSearchHint.
   ///
   /// In en, this message translates to:
   /// **'Search users…'**
   String get rankingSearchHint;
 
-  /// Ranking: per-vehicle trips scope, e.g. "486 train trips".
+  /// No description provided for @rankingVehicleTripsScope.
   ///
   /// In en, this message translates to:
   /// **'{trips} {vehicle} trips'**
