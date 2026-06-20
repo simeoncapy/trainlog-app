@@ -172,40 +172,50 @@ class RankingRow extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          _PrimaryValue(value: _primaryValue(context), unit: _primaryUnit(context)),
+          Builder(builder: (context) {
+            final primary = _primary(context);
+            return _PrimaryValue(value: primary.value, unit: primary.unit);
+          }),
         ],
       ),
     );
   }
 
-  String _primaryValue(BuildContext context) {
-    if (selection.isWorldSquares) {
-      return formatNumber(context, entry.percent ?? 0);
-    }
-    if (sortUnit == RankingSortUnit.trips) {
-      return formatCompactNumber(context, entry.trips);
-    }
-    return formatCompactNumber(context, entry.distanceKm);
-  }
-
-  String _primaryUnit(BuildContext context) {
+  /// Primary value + unit. Distance uses SI prefixes (km/Mm/Gm…); trips and
+  /// world coverage keep their plain representation.
+  CompactNumber _primary(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
-    if (selection.isWorldSquares) return '%';
-    if (sortUnit == RankingSortUnit.trips) {
-      return loc.menuTripCountLabel(entry.trips);
+    final locale = Localizations.localeOf(context);
+    if (selection.isWorldSquares) {
+      return (value: NumberFormatter.decimal(entry.percent ?? 0, locale: locale), unit: '%');
     }
-    return 'km';
+    if (sortUnit == RankingSortUnit.trips) {
+      return (
+        value: NumberFormatter.decimal(entry.trips, locale: locale),
+        unit: loc.menuTripCountLabel(entry.trips),
+      );
+    }
+    return NumberFormatter.compactParts(
+      entry.distanceKm,
+      locale: locale,
+      unitsByFactor: MeasurementUnit.distance.unitsByFactor(loc),
+    );
   }
 
   /// Secondary supporting metric (the non-primary value).
   String? _secondaryMetric(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
+    final locale = Localizations.localeOf(context);
     if (selection.isWorldSquares) return null;
 
     if (sortUnit == RankingSortUnit.trips) {
-      return '${formatCompactNumber(context, entry.distanceKm)} km';
+      return NumberFormatter.compact(
+        entry.distanceKm,
+        locale: locale,
+        unitsByFactor: MeasurementUnit.distance.unitsByFactor(loc),
+      );
     }
-    return '${formatNumber(context, entry.trips)} ${loc.menuTripCountLabel(entry.trips)}';
+    return '${NumberFormatter.decimal(entry.trips, locale: locale)} ${loc.menuTripCountLabel(entry.trips)}';
   }
 
   /// Last connection (last activity) on its own line.

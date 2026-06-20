@@ -90,10 +90,15 @@ class RankingUserPositionBlock extends StatelessWidget {
 
     // The subtitle shows the metric NOT used as the primary value, so the two
     // complement each other as the selected unit changes.
+    final locale = Localizations.localeOf(context);
     if (provider.sortUnit == RankingSortUnit.trips) {
-      return '${formatCompactNumber(context, entry.distanceKm)} km';
+      return NumberFormatter.compact(
+        entry.distanceKm,
+        locale: locale,
+        unitsByFactor: MeasurementUnit.distance.unitsByFactor(loc),
+      );
     }
-    return '${formatNumber(context, entry.trips)} ${loc.menuTripCountLabel(entry.trips)}';
+    return '${NumberFormatter.decimal(entry.trips, locale: locale)} ${loc.menuTripCountLabel(entry.trips)}';
   }
 }
 
@@ -160,14 +165,20 @@ class _RankBadge extends StatelessWidget {
   }
 
   String _value(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+    final locale = Localizations.localeOf(context);
     final selection = provider.selection;
     if (selection.isWorldSquares) {
-      return formatPercent(context, entry!.percent ?? 0);
+      return NumberFormatter.percent(entry!.percent ?? 0, locale: locale);
     }
     if (provider.sortUnit == RankingSortUnit.trips) {
-      return formatCompactNumber(context, entry!.trips);
+      return '${NumberFormatter.decimal(entry!.trips, locale: locale)} ${loc.menuTripCountLabel(entry!.trips)}';
     }
-    return '${formatCompactNumber(context, entry!.distanceKm)} km';
+    return NumberFormatter.compact(
+      entry!.distanceKm,
+      locale: locale,
+      unitsByFactor: MeasurementUnit.distance.unitsByFactor(loc),
+    );
   }
 }
 

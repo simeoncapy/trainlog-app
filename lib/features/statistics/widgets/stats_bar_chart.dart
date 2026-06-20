@@ -2,7 +2,6 @@ import 'dart:math' as math;
 import 'dart:ui' show FontFeature;
 import 'package:flutter/material.dart';
 import 'package:trainlog_app/app/theme/app_theme.dart';
-import 'package:trainlog_app/features/statistics/widgets/logo_bar_chart.dart';
 import 'package:trainlog_app/utils/number_formatter.dart';
 
 /// Horizontal proportional bar chart.
