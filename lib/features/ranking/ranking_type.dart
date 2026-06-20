@@ -234,3 +234,28 @@ class RankingDisplayEntry {
         lastModified: lastModified,
       );
 }
+
+enum CarbonThreshold {
+  green,
+  medium,
+  high;
+
+  Color color() {
+    switch (this) {
+      case CarbonThreshold.green:
+        return AppColors.early;
+      case CarbonThreshold.medium:
+        return AppColors.amber;
+      case CarbonThreshold.high:
+        return AppColors.late;
+    }
+  }
+
+  static Color colorOf(num value) => forValue(value).color();
+
+  static CarbonThreshold forValue(num value) {
+    if (value < 50) return CarbonThreshold.green;
+    if (value < 200) return CarbonThreshold.medium;
+    return CarbonThreshold.high;
+  }  
+}
