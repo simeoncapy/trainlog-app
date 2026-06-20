@@ -1,3 +1,5 @@
+import 'dart:ui' show ImageFilter;
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -12,10 +14,11 @@ import 'package:trainlog_app/utils/map_color_palette.dart';
 /// out, non-interactive) so users can see what is coming.
 ///
 /// When [isCompact] is true the individual vehicle pills are collapsed behind a
-/// single "Vehicle ▾" pill that expands them in a column on tap; picking one
-/// collapses the column and relabels the pill to the chosen vehicle. Selecting
-/// any other category resets it back to "Vehicle ▾". With [isCompact] false the
-/// behaviour is unchanged (every pill shown inline).
+/// single "Vehicle ▾" pill that, on tap, opens a floating dropdown anchored
+/// under it (over the page content, without reflowing it). Picking one closes
+/// the dropdown and relabels the pill to the chosen vehicle; selecting any other
+/// category resets it back to "Vehicle ▾". With [isCompact] false the behaviour
+/// is unchanged (every pill shown inline).
 class RankingSelectorBar extends StatefulWidget {
   final RankingSelection selected;
   final ValueChanged<RankingSelection> onSelected;
@@ -32,15 +35,47 @@ class RankingSelectorBar extends StatefulWidget {
   State<RankingSelectorBar> createState() => _RankingSelectorBarState();
 }
 
-class _RankingSelectorBarState extends State<RankingSelectorBar> {
-  bool _vehiclesExpanded = false;
+class _RankingSelectorBarState extends State<RankingSelectorBar>
+    with SingleTickerProviderStateMixin {
+  final _overlayController = OverlayPortalController();
+  final _triggerLink = LayerLink();
+  late final AnimationController _anim;
 
-  void _collapse() {
-    if (_vehiclesExpanded) setState(() => _vehiclesExpanded = false);
+  @override
+  void initState() {
+    super.initState();
+    _anim = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 220),
+    );
   }
 
+  @override
+  void dispose() {
+    _anim.dispose();
+    super.dispose();
+  }
+
+  bool get _isOpen => _overlayController.isShowing;
+
+  void _openDropdown() {
+    _overlayController.show();
+    _anim.forward();
+    setState(() {});
+  }
+
+  Future<void> _closeDropdown() async {
+    if (!_isOpen) return;
+    await _anim.reverse();
+    if (!mounted) return;
+    _overlayController.hide();
+    setState(() {});
+  }
+
+  void _toggleDropdown() => _isOpen ? _closeDropdown() : _openDropdown();
+
   void _select(RankingSelection selection) {
-    _collapse();
+    _closeDropdown();
     widget.onSelected(selection);
   }
 
@@ -74,7 +109,7 @@ class _RankingSelectorBarState extends State<RankingSelectorBar> {
     );
   }
 
-  // ── Compact mode: vehicles folded behind a dropdown pill ───────────────────
+  // ── Compact mode: vehicles folded behind a floating dropdown ───────────────
 
   Widget _buildCompact(
     BuildContext context,
@@ -90,7 +125,7 @@ class _RankingSelectorBarState extends State<RankingSelectorBar> {
     for (final pill in pills) {
       if (pill.isVehicle) {
         if (!triggerAdded) {
-          rowChildren.add(_vehicleTrigger(palette));
+          rowChildren.add(_vehicleTrigger(vehiclePills, palette));
           triggerAdded = true;
         }
         continue;
@@ -98,63 +133,125 @@ class _RankingSelectorBarState extends State<RankingSelectorBar> {
       rowChildren.add(_pillFor(pill, palette));
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(
-          height: 44,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount: rowChildren.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 10),
-            itemBuilder: (context, i) => rowChildren[i],
-          ),
-        ),
-        ClipRect(
-          child: AnimatedSize(
-            duration: const Duration(milliseconds: 250),
-            curve: Curves.easeInOut,
-            alignment: Alignment.topCenter,
-            child: _vehiclesExpanded
-                ? Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        for (final v in vehiclePills)
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 8),
-                            child: _pillFor(v, palette),
-                          ),
-                      ],
-                    ),
-                  )
-                : const SizedBox(width: double.infinity),
-          ),
-        ),
-      ],
+    return SizedBox(
+      height: 44,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        // Allow the floating dropdown to paint outside the row bounds.
+        clipBehavior: Clip.none,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        itemCount: rowChildren.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 10),
+        itemBuilder: (context, i) => rowChildren[i],
+      ),
     );
   }
 
-  Widget _vehicleTrigger(Map<VehicleType, Color> palette) {
+  Widget _vehicleTrigger(
+    List<RankingSelection> vehiclePills,
+    Map<VehicleType, Color> palette,
+  ) {
     final isVehicleSelected = widget.selected.isVehicle;
     // Show the chosen vehicle once one is selected, otherwise the generic group.
     final triggerSelection = isVehicleSelected
         ? widget.selected
         : const RankingSelection.category(RankingType.vehicles);
 
-    return _Pill(
-      selection: triggerSelection,
-      selected: isVehicleSelected,
-      enabled: true,
-      accentColor: triggerSelection.accentColor(palette),
-      onTap: () => setState(() => _vehiclesExpanded = !_vehiclesExpanded),
-      trailing: AnimatedRotation(
-        turns: _vehiclesExpanded ? 0.5 : 0,
-        duration: const Duration(milliseconds: 200),
-        child: const Icon(Icons.keyboard_arrow_down, size: 18),
+    return CompositedTransformTarget(
+      link: _triggerLink,
+      child: OverlayPortal(
+        controller: _overlayController,
+        overlayChildBuilder: (context) =>
+            _buildDropdownOverlay(vehiclePills, palette),
+        child: AnimatedBuilder(
+          animation: _anim,
+          builder: (context, _) => _Pill(
+            selection: triggerSelection,
+            selected: isVehicleSelected,
+            enabled: true,
+            accentColor: triggerSelection.accentColor(palette),
+            onTap: _toggleDropdown,
+            trailing: Transform.rotate(
+              angle: _anim.value * 3.14159,
+              child: const Icon(Icons.keyboard_arrow_down, size: 18),
+            ),
+          ),
+        ),
       ),
+    );
+  }
+
+  Widget _buildDropdownOverlay(
+    List<RankingSelection> vehiclePills,
+    Map<VehicleType, Color> palette,
+  ) {
+    final cs = Theme.of(context).colorScheme;
+
+    return Stack(
+      children: [
+        // Tap-outside barrier.
+        Positioned.fill(
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: _closeDropdown,
+          ),
+        ),
+        // Dropdown anchored just under the trigger pill.
+        CompositedTransformFollower(
+          link: _triggerLink,
+          showWhenUnlinked: false,
+          targetAnchor: Alignment.bottomLeft,
+          followerAnchor: Alignment.topLeft,
+          offset: const Offset(0, 8),
+          child: FadeTransition(
+            opacity: _anim,
+            child: ScaleTransition(
+              scale: Tween<double>(begin: 0.92, end: 1).animate(
+                CurvedAnimation(parent: _anim, curve: Curves.easeOutCubic),
+              ),
+              alignment: Alignment.topLeft,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(18),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: cs.surface.withValues(alpha: 0.72),
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(
+                        color: cs.outline.withValues(alpha: 0.25),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: cs.shadow.withValues(alpha: 0.18),
+                          blurRadius: 16,
+                          offset: const Offset(0, 6),
+                        ),
+                      ],
+                    ),
+                    child: IntrinsicWidth(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          for (var i = 0; i < vehiclePills.length; i++) ...[
+                            if (i > 0) const SizedBox(height: 8),
+                            SizedBox(
+                              height: 44,
+                              child: _pillFor(vehiclePills[i], palette),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
