@@ -222,35 +222,40 @@ class RankingRow extends StatelessWidget {
     }
   }
 
-  /// Secondary supporting metric (the non-primary value(s)).
+  /// The two carbon metrics that aren't the primary, in display order.
+  List<String> _carbonSecondaries(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+    final locale = Localizations.localeOf(context);
+    final dist = NumberFormatter.compact(
+      entry.distanceKm,
+      locale: locale,
+      unitsByFactor: MeasurementUnit.distance.unitsByFactor(loc),
+    );
+    final total = NumberFormatter.compact(
+      entry.totalCarbonKg,
+      locale: locale,
+      unitsByFactor: MeasurementUnit.co2.unitsByFactor(loc),
+    );
+    final perKm =
+        '${NumberFormatter.decimal(entry.carbonPerKmG, locale: locale, noDecimal: true)} g/km';
+    switch (sortUnit) {
+      case RankingSortUnit.carbonPerKm:
+        return [dist, total];
+      case RankingSortUnit.totalCarbon:
+        return [dist, perKm];
+      default:
+        return [total, perKm];
+    }
+  }
+
+  /// Secondary supporting metric (first non-primary value).
   String? _secondaryMetric(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
     final locale = Localizations.localeOf(context);
     if (selection.isWorldSquares) return null;
 
-    if (_isCarbon) {
-      // Show the two carbon metrics that aren't the primary, joined by " · ".
-      final dist = NumberFormatter.compact(
-        entry.distanceKm,
-        locale: locale,
-        unitsByFactor: MeasurementUnit.distance.unitsByFactor(loc),
-      );
-      final total = NumberFormatter.compact(
-        entry.totalCarbonKg,
-        locale: locale,
-        unitsByFactor: MeasurementUnit.co2.unitsByFactor(loc),
-      );
-      final perKm =
-          '${NumberFormatter.decimal(entry.carbonPerKmG, locale: locale, noDecimal: true)} g/km';
-      switch (sortUnit) {
-        case RankingSortUnit.carbonPerKm:
-          return '$dist · $total';
-        case RankingSortUnit.totalCarbon:
-          return '$dist · $perKm';
-        default:
-          return '$total · $perKm';
-      }
-    }
+    // Carbon splits its two non-primary metrics across two lines.
+    if (_isCarbon) return _carbonSecondaries(context).first;
 
     if (sortUnit == RankingSortUnit.trips) {
       return NumberFormatter.compact(
@@ -262,10 +267,10 @@ class RankingRow extends StatelessWidget {
     return '${NumberFormatter.decimal(entry.trips, locale: locale)} ${loc.menuTripCountLabel(entry.trips)}';
   }
 
-  /// Last connection (last activity) on its own line. Hidden for carbon, whose
-  /// secondary line already carries two metrics.
+  /// Third line: the second carbon metric for carbon, otherwise the last
+  /// connection (last activity).
   String? _lastConnection(BuildContext context) {
-    if (_isCarbon) return null;
+    if (_isCarbon) return _carbonSecondaries(context).last;
     final date = entry.lastModified;
     if (date == null) return null;
     return DateFormat.yMMM(Localizations.localeOf(context).toString())
