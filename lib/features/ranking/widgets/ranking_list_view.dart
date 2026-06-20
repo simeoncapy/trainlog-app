@@ -150,12 +150,21 @@ class RankingRow extends StatelessWidget {
                       ),
                   overflow: TextOverflow.ellipsis,
                 ),
-                if (_secondaryText(context) != null)
+                if (_secondaryMetric(context) != null)
                   Text(
-                    _secondaryText(context)!,
+                    _secondaryMetric(context)!,
                     style: GoogleFonts.spaceMono(
                       fontSize: 12,
                       color: cs.onSurfaceVariant,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                if (_lastConnection(context) != null)
+                  Text(
+                    _lastConnection(context)!,
+                    style: GoogleFonts.spaceMono(
+                      fontSize: 11,
+                      color: cs.onSurfaceVariant.withValues(alpha: 0.7),
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -188,24 +197,23 @@ class RankingRow extends StatelessWidget {
     return 'km';
   }
 
-  String? _secondaryText(BuildContext context) {
+  /// Secondary supporting metric (the non-primary value).
+  String? _secondaryMetric(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
     if (selection.isWorldSquares) return null;
 
-    final date = entry.lastModified;
-    final dateText = date == null
-        ? null
-        : DateFormat.yMMM(Localizations.localeOf(context).toString())
-            .format(date);
-
-    String metric;
     if (sortUnit == RankingSortUnit.trips) {
-      metric = '${formatCompactNumber(context, entry.distanceKm)} km';
-    } else {
-      metric =
-          '${formatNumber(context, entry.trips)} ${loc.menuTripCountLabel(entry.trips)}';
+      return '${formatCompactNumber(context, entry.distanceKm)} km';
     }
-    return dateText == null ? metric : '$metric · $dateText';
+    return '${formatNumber(context, entry.trips)} ${loc.menuTripCountLabel(entry.trips)}';
+  }
+
+  /// Last connection (last activity) on its own line.
+  String? _lastConnection(BuildContext context) {
+    final date = entry.lastModified;
+    if (date == null) return null;
+    return DateFormat.yMMM(Localizations.localeOf(context).toString())
+        .format(date);
   }
 }
 

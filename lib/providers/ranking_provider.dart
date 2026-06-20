@@ -110,23 +110,40 @@ class RankingProvider extends ChangeNotifier {
 
   // ── Loading ──────────────────────────────────────────────────────────────────
 
+  bool _disposed = false;
+
+  @override
+  void dispose() {
+    _disposed = true;
+    super.dispose();
+  }
+
+  /// Safe [notifyListeners] that does nothing once the provider is disposed —
+  /// async loads may still resolve after the user has left the page.
+  void _safeNotify() {
+    if (_disposed) return;
+    notifyListeners();
+  }
+
   Future<void> load() async {
     _loading = true;
     _error = null;
     _ranked = const [];
-    notifyListeners();
+    _safeNotify();
 
     try {
       final entries = await _fetch(_selection);
+      if (_disposed) return;
       _ranked = entries;
       _assignRanks();
     } catch (e) {
+      if (_disposed) return;
       _error = e.toString();
       _ranked = const [];
     }
 
     _loading = false;
-    notifyListeners();
+    _safeNotify();
   }
 
   Future<List<RankingDisplayEntry>> _fetch(RankingSelection selection) async {

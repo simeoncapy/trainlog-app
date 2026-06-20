@@ -65,6 +65,7 @@ class _UnitDropdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return AdaptivePopup<RankingSortUnit>(
       initialValue: selected,
@@ -84,6 +85,7 @@ class _UnitDropdown extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         decoration: BoxDecoration(
+          color: isDark ? cs.surface : Colors.white,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
             color: cs.outline.withValues(alpha: 0.4),
@@ -135,6 +137,8 @@ class _IconToggle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardColor = isDark ? cs.surface : Colors.white;
     return Tooltip(
       message: tooltip,
       child: GestureDetector(
@@ -142,7 +146,7 @@ class _IconToggle extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(9),
           decoration: BoxDecoration(
-            color: active ? cs.primary.withValues(alpha: 0.15) : null,
+            color: active ? cs.primary.withValues(alpha: 0.15) : cardColor,
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
               color: active
