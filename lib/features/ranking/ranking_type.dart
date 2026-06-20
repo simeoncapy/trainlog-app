@@ -124,8 +124,10 @@ enum RankingSortUnit {
     }
   }
 
-  /// Whether a lower value ranks better (true only for CO2e/km).
-  bool get lowerIsBetter => this == RankingSortUnit.carbonPerKm;
+  /// Whether a lower value ranks better (true for both carbon metrics).
+  bool get lowerIsBetter =>
+      this == RankingSortUnit.carbonPerKm ||
+      this == RankingSortUnit.totalCarbon;
 }
 
 /// A concrete leaderboard selection: a [RankingType] plus, when the type is

@@ -217,7 +217,6 @@ class RankingProvider extends ChangeNotifier {
     RankingResult<LeaderboardEntry> res,
   ) {
     return res.entries
-        .where((e) => e.trips > 0)
         .map(
           (e) => RankingDisplayEntry(
             rank: 0,
