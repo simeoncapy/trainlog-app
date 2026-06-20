@@ -479,6 +479,16 @@ class AppLocalizationsFr extends AppLocalizations {
   String get rankingUnitTrips => 'Trajets';
 
   @override
+  String get rankingUnitTotalCarbon => 'CO2e total';
+
+  @override
+  String get rankingUnitCarbonPerKm => 'CO2e/km';
+
+  @override
+  String get rankingCarbonExplanation =>
+      'Un g/km plus bas est meilleur — les voyageurs les plus sobres en carbone arrivent en tête.';
+
+  @override
   String get rankingSortAlphabetical => 'Trier par ordre alphabétique';
 
   @override

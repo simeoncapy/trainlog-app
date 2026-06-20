@@ -30,12 +30,13 @@ enum RankingType {
 
   /// Whether a functional view exists for this category in the current batch.
   ///
-  /// Only [all], [vehicles] and [worldSquares] are implemented; the others are
-  /// rendered as disabled pills.
+  /// [all], [vehicles], [worldSquares] and [carbon] are implemented; the others
+  /// are rendered as disabled pills.
   bool get isImplemented =>
       this == RankingType.all ||
       this == RankingType.vehicles ||
-      this == RankingType.worldSquares;
+      this == RankingType.worldSquares ||
+      this == RankingType.carbon;
 
   /// Localized label for the category pill (vehicle pills use the vehicle name).
   String label(BuildContext context) {
@@ -89,10 +90,12 @@ const List<VehicleType> kRankingVehicleSubset = <VehicleType>[
   VehicleType.tram,
 ];
 
-/// The metric a distance-based leaderboard is sorted / displayed by.
+/// The metric a leaderboard is sorted / displayed by.
 enum RankingSortUnit {
   distance,
-  trips;
+  trips,
+  totalCarbon,
+  carbonPerKm;
 
   String label(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
@@ -101,6 +104,10 @@ enum RankingSortUnit {
         return loc.rankingUnitDistance;
       case RankingSortUnit.trips:
         return loc.rankingUnitTrips;
+      case RankingSortUnit.totalCarbon:
+        return loc.rankingUnitTotalCarbon;
+      case RankingSortUnit.carbonPerKm:
+        return loc.rankingUnitCarbonPerKm;
     }
   }
 
@@ -110,8 +117,15 @@ enum RankingSortUnit {
         return const Icon(Icons.straighten);
       case RankingSortUnit.trips:
         return const Icon(Icons.confirmation_number_outlined);
+      case RankingSortUnit.totalCarbon:
+        return const Icon(Icons.cloud_outlined);
+      case RankingSortUnit.carbonPerKm:
+        return const Icon(Icons.eco);
     }
   }
+
+  /// Whether a lower value ranks better (true only for CO2e/km).
+  bool get lowerIsBetter => this == RankingSortUnit.carbonPerKm;
 }
 
 /// A concrete leaderboard selection: a [RankingType] plus, when the type is
@@ -213,6 +227,12 @@ class RankingDisplayEntry {
   /// World-coverage percentage (null outside the world-squares view).
   final double? percent;
 
+  /// Total CO2e emitted, in kilograms (0 outside the carbon view).
+  final double totalCarbonKg;
+
+  /// CO2e intensity, in grams per kilometre (0 outside the carbon view).
+  final double carbonPerKmG;
+
   /// Last activity, when known (drives the "· Jun 2026" subtitle).
   final DateTime? lastModified;
 
@@ -222,6 +242,8 @@ class RankingDisplayEntry {
     this.distanceKm = 0,
     this.trips = 0,
     this.percent,
+    this.totalCarbonKg = 0,
+    this.carbonPerKmG = 0,
     this.lastModified,
   });
 
@@ -231,6 +253,8 @@ class RankingDisplayEntry {
         distanceKm: distanceKm,
         trips: trips,
         percent: percent,
+        totalCarbonKg: totalCarbonKg,
+        carbonPerKmG: carbonPerKmG,
         lastModified: lastModified,
       );
 }

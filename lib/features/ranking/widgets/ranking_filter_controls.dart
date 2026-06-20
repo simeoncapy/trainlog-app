@@ -23,6 +23,7 @@ class RankingFilterControls extends StatelessWidget {
         if (provider.showsUnitDropdown)
           Expanded(
             child: _UnitDropdown(
+              items: provider.availableUnits,
               selected: provider.sortUnit,
               onChanged: (u) => provider.sortUnit = u,
             ),
@@ -57,10 +58,15 @@ class RankingFilterControls extends StatelessWidget {
 }
 
 class _UnitDropdown extends StatelessWidget {
+  final List<RankingSortUnit> items;
   final RankingSortUnit selected;
   final ValueChanged<RankingSortUnit> onChanged;
 
-  const _UnitDropdown({required this.selected, required this.onChanged});
+  const _UnitDropdown({
+    required this.items,
+    required this.selected,
+    required this.onChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +76,7 @@ class _UnitDropdown extends StatelessWidget {
     return AdaptivePopup<RankingSortUnit>(
       initialValue: selected,
       onSelected: onChanged,
-      items: RankingSortUnit.values
+      items: items
           .map(
             (u) => AdaptivePopupItem(
               value: u,

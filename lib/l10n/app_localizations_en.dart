@@ -472,6 +472,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get rankingUnitTrips => 'Trips';
 
   @override
+  String get rankingUnitTotalCarbon => 'Total CO2e';
+
+  @override
+  String get rankingUnitCarbonPerKm => 'CO2e/km';
+
+  @override
+  String get rankingCarbonExplanation =>
+      'Lower g/km is better — most carbon-efficient travellers rank first.';
+
+  @override
   String get rankingSortAlphabetical => 'Sort alphabetically';
 
   @override

@@ -471,6 +471,16 @@ class AppLocalizationsTl extends AppLocalizations {
   String get rankingUnitTrips => 'Mga biyahe';
 
   @override
+  String get rankingUnitTotalCarbon => 'Kabuuang CO2e';
+
+  @override
+  String get rankingUnitCarbonPerKm => 'CO2e/km';
+
+  @override
+  String get rankingCarbonExplanation =>
+      'Mas mababang g/km ay mas mabuti — ang pinaka-carbon-efficient na manlalakbay ang nangunguna.';
+
+  @override
   String get rankingSortAlphabetical => 'Ayusin ayon sa alpabeto';
 
   @override

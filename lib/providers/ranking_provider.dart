@@ -33,7 +33,26 @@ class RankingProvider extends ChangeNotifier {
 
   /// World-squares has a single (percentage) unit, so the unit dropdown is
   /// hidden for it.
-  bool get showsUnitDropdown => !_selection.isWorldSquares;
+  bool get showsUnitDropdown => availableUnits.isNotEmpty;
+
+  /// The sort units offered for the current selection.
+  ///
+  /// Carbon exposes three (CO2e/km, total CO2e, distance); world-squares none
+  /// (percentage only); everything else distance/trips.
+  List<RankingSortUnit> get availableUnits {
+    switch (_selection.type) {
+      case RankingType.carbon:
+        return const [
+          RankingSortUnit.carbonPerKm,
+          RankingSortUnit.totalCarbon,
+          RankingSortUnit.distance,
+        ];
+      case RankingType.worldSquares:
+        return const [];
+      default:
+        return const [RankingSortUnit.distance, RankingSortUnit.trips];
+    }
+  }
 
   /// The current user's login name, used to highlight their row.
   String? get currentUsername => _trainlog.username;
@@ -70,8 +89,8 @@ class RankingProvider extends ChangeNotifier {
         (a, b) => a.username.toLowerCase().compareTo(b.username.toLowerCase()),
       );
     } else {
-      // Natural order: highest metric first.
-      list.sort((a, b) => _metric(b).compareTo(_metric(a)));
+      // Natural order: best metric first (lowest for CO2e/km, highest else).
+      list.sort(_compareBest);
     }
     if (!_descending) {
       return list.reversed.toList();
@@ -84,9 +103,15 @@ class RankingProvider extends ChangeNotifier {
   void select(RankingSelection selection) {
     if (selection == _selection || !selection.type.isImplemented) return;
     _selection = selection;
-    // World-squares only ranks by percentage; reset to distance otherwise.
-    if (selection.isWorldSquares) {
-      _sortUnit = RankingSortUnit.distance; // unused while hidden
+    // Carbon defaults to CO2e/km; otherwise keep the current unit when it is
+    // still valid, else fall back to the first available one.
+    if (selection.type == RankingType.carbon) {
+      _sortUnit = RankingSortUnit.carbonPerKm;
+    } else {
+      final units = availableUnits;
+      if (units.isNotEmpty && !units.contains(_sortUnit)) {
+        _sortUnit = units.first;
+      }
     }
     unawaited(load());
   }
@@ -158,12 +183,33 @@ class RankingProvider extends ChangeNotifier {
       case RankingType.worldSquares:
         final res = await _trainlog.fetchRankingForWorldSquares();
         return _fromWorldSquares(res);
+      case RankingType.carbon:
+        final res = await _trainlog.fetchRankingForCarbonFootprint();
+        return _fromCarbon(res);
       case RankingType.railwayCoverage:
       case RankingType.country:
-      case RankingType.carbon:
         // Not implemented in this batch; rendered as disabled pills.
         return const [];
     }
+  }
+
+  List<RankingDisplayEntry> _fromCarbon(
+    RankingResult<CarbonLeaderboardEntry> res,
+  ) {
+    return res.entries
+        .map(
+          (e) => RankingDisplayEntry(
+            rank: 0,
+            username: e.username,
+            distanceKm: e.totalDistance / 1000.0,
+            trips: e.trips,
+            totalCarbonKg: e.totalCarbon,
+            // Backend sends kg/km; the UI works in g/km.
+            carbonPerKmG: e.carbonPerKm * 1000.0,
+            lastModified: e.lastModified,
+          ),
+        )
+        .toList();
   }
 
   List<RankingDisplayEntry> _fromLeaderboard(
@@ -203,15 +249,29 @@ class RankingProvider extends ChangeNotifier {
   /// The value used both for ranking and for the natural (value) display order.
   double _metric(RankingDisplayEntry e) {
     if (_selection.isWorldSquares) return e.percent ?? 0;
-    return _sortUnit == RankingSortUnit.distance
-        ? e.distanceKm
-        : e.trips.toDouble();
+    switch (_sortUnit) {
+      case RankingSortUnit.distance:
+        return e.distanceKm;
+      case RankingSortUnit.trips:
+        return e.trips.toDouble();
+      case RankingSortUnit.totalCarbon:
+        return e.totalCarbonKg;
+      case RankingSortUnit.carbonPerKm:
+        return e.carbonPerKmG;
+    }
   }
 
-  /// (Re)assigns competitive ranks by the active metric, highest first.
+  /// Orders entries "best first": lowest value when the active unit favours low
+  /// values (CO2e/km), highest otherwise.
+  int _compareBest(RankingDisplayEntry a, RankingDisplayEntry b) {
+    final lowerBetter = _sortUnit.lowerIsBetter && !_selection.isWorldSquares;
+    final cmp = _metric(a).compareTo(_metric(b));
+    return lowerBetter ? cmp : -cmp;
+  }
+
+  /// (Re)assigns competitive ranks by the active metric, best first.
   void _assignRanks() {
-    final sorted = List<RankingDisplayEntry>.of(_ranked)
-      ..sort((a, b) => _metric(b).compareTo(_metric(a)));
+    final sorted = List<RankingDisplayEntry>.of(_ranked)..sort(_compareBest);
     for (var i = 0; i < sorted.length; i++) {
       sorted[i] = sorted[i].copyWithRank(i + 1);
     }

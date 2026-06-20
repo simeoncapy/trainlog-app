@@ -966,6 +966,24 @@ abstract class AppLocalizations {
   /// **'Trips'**
   String get rankingUnitTrips;
 
+  /// Ranking: total CO2e sort unit.
+  ///
+  /// In en, this message translates to:
+  /// **'Total CO2e'**
+  String get rankingUnitTotalCarbon;
+
+  /// Ranking: CO2e-per-km sort unit.
+  ///
+  /// In en, this message translates to:
+  /// **'CO2e/km'**
+  String get rankingUnitCarbonPerKm;
+
+  /// Ranking: carbon leaderboard explanation banner.
+  ///
+  /// In en, this message translates to:
+  /// **'Lower g/km is better — most carbon-efficient travellers rank first.'**
+  String get rankingCarbonExplanation;
+
   /// No description provided for @rankingSortAlphabetical.
   ///
   /// In en, this message translates to:

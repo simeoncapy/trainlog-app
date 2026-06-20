@@ -172,41 +172,85 @@ class RankingRow extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          Builder(builder: (context) {
-            final primary = _primary(context);
-            return _PrimaryValue(value: primary.value, unit: primary.unit);
-          }),
+          // CO2e/km is rendered as a coloured threshold pill; everything else
+          // as the large value + stacked unit.
+          if (_isCarbon && sortUnit == RankingSortUnit.carbonPerKm)
+            _CarbonPill(gPerKm: entry.carbonPerKmG)
+          else
+            Builder(builder: (context) {
+              final primary = _primary(context);
+              return _PrimaryValue(value: primary.value, unit: primary.unit);
+            }),
         ],
       ),
     );
   }
 
-  /// Primary value + unit. Distance uses SI prefixes (km/Mm/Gm…); trips and
-  /// world coverage keep their plain representation.
+  bool get _isCarbon => selection.type == RankingType.carbon;
+
+  /// Primary value + unit. Distance/CO2e use SI prefixes; trips and world
+  /// coverage keep their plain representation.
   CompactNumber _primary(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
     final locale = Localizations.localeOf(context);
     if (selection.isWorldSquares) {
       return (value: NumberFormatter.decimal(entry.percent ?? 0, locale: locale), unit: '%');
     }
-    if (sortUnit == RankingSortUnit.trips) {
-      return (
-        value: NumberFormatter.decimal(entry.trips, locale: locale),
-        unit: loc.menuTripCountLabel(entry.trips),
-      );
+    switch (sortUnit) {
+      case RankingSortUnit.trips:
+        return (
+          value: NumberFormatter.decimal(entry.trips, locale: locale),
+          unit: loc.menuTripCountLabel(entry.trips),
+        );
+      case RankingSortUnit.totalCarbon:
+        return NumberFormatter.compactParts(
+          entry.totalCarbonKg,
+          locale: locale,
+          unitsByFactor: MeasurementUnit.co2.unitsByFactor(loc),
+        );
+      case RankingSortUnit.carbonPerKm:
+        return (
+          value: NumberFormatter.decimal(entry.carbonPerKmG, locale: locale, noDecimal: true),
+          unit: 'g/km',
+        );
+      case RankingSortUnit.distance:
+        return NumberFormatter.compactParts(
+          entry.distanceKm,
+          locale: locale,
+          unitsByFactor: MeasurementUnit.distance.unitsByFactor(loc),
+        );
     }
-    return NumberFormatter.compactParts(
-      entry.distanceKm,
-      locale: locale,
-      unitsByFactor: MeasurementUnit.distance.unitsByFactor(loc),
-    );
   }
 
-  /// Secondary supporting metric (the non-primary value).
+  /// Secondary supporting metric (the non-primary value(s)).
   String? _secondaryMetric(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
     final locale = Localizations.localeOf(context);
     if (selection.isWorldSquares) return null;
+
+    if (_isCarbon) {
+      // Show the two carbon metrics that aren't the primary, joined by " · ".
+      final dist = NumberFormatter.compact(
+        entry.distanceKm,
+        locale: locale,
+        unitsByFactor: MeasurementUnit.distance.unitsByFactor(loc),
+      );
+      final total = NumberFormatter.compact(
+        entry.totalCarbonKg,
+        locale: locale,
+        unitsByFactor: MeasurementUnit.co2.unitsByFactor(loc),
+      );
+      final perKm =
+          '${NumberFormatter.decimal(entry.carbonPerKmG, locale: locale, noDecimal: true)} g/km';
+      switch (sortUnit) {
+        case RankingSortUnit.carbonPerKm:
+          return '$dist · $total';
+        case RankingSortUnit.totalCarbon:
+          return '$dist · $perKm';
+        default:
+          return '$total · $perKm';
+      }
+    }
 
     if (sortUnit == RankingSortUnit.trips) {
       return NumberFormatter.compact(
@@ -218,8 +262,10 @@ class RankingRow extends StatelessWidget {
     return '${NumberFormatter.decimal(entry.trips, locale: locale)} ${loc.menuTripCountLabel(entry.trips)}';
   }
 
-  /// Last connection (last activity) on its own line.
+  /// Last connection (last activity) on its own line. Hidden for carbon, whose
+  /// secondary line already carries two metrics.
   String? _lastConnection(BuildContext context) {
+    if (_isCarbon) return null;
     final date = entry.lastModified;
     if (date == null) return null;
     return DateFormat.yMMM(Localizations.localeOf(context).toString())
@@ -316,6 +362,56 @@ class _Monogram extends StatelessWidget {
           fontSize: 18,
           fontWeight: FontWeight.bold,
         ),
+      ),
+    );
+  }
+}
+
+/// CO2e/km value shown as a coloured threshold pill (green / amber / red),
+/// matching the design. Colour comes from [CarbonThreshold].
+class _CarbonPill extends StatelessWidget {
+  final double gPerKm;
+
+  const _CarbonPill({required this.gPerKm});
+
+  @override
+  Widget build(BuildContext context) {
+    final color = CarbonThreshold.colorOf(gPerKm);
+    final value = NumberFormatter.decimal(
+      gPerKm,
+      locale: Localizations.localeOf(context),
+      noDecimal: true,
+    );
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.eco, size: 16, color: color),
+          const SizedBox(width: 6),
+          Text(
+            value,
+            style: AppTheme.monoFont.copyWith(
+              fontSize: 18,
+              fontWeight: FontWeight.w800,
+              color: color,
+            ),
+          ),
+          const SizedBox(width: 3),
+          Text(
+            'g/km',
+            style: AppTheme.monoFont.copyWith(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: color.withValues(alpha: 0.85),
+            ),
+          ),
+        ],
       ),
     );
   }

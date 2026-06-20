@@ -463,6 +463,16 @@ class AppLocalizationsJa extends AppLocalizations {
   String get rankingUnitTrips => '旅行回数';
 
   @override
+  String get rankingUnitTotalCarbon => 'CO2e合計';
+
+  @override
+  String get rankingUnitCarbonPerKm => 'CO2e/km';
+
+  @override
+  String get rankingCarbonExplanation =>
+      'g/kmが低いほど良い — 最も炭素効率の高い旅行者が上位になります。';
+
+  @override
   String get rankingSortAlphabetical => 'アルファベット順に並べ替え';
 
   @override

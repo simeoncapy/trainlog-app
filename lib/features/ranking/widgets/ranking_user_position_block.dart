@@ -35,48 +35,56 @@ class RankingUserPositionBlock extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
       ),
       padding: const EdgeInsets.all(16),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _RankingTypeIcon(rankingType: provider.selection, palette: palette),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  loc.rankingYourPosition.toUpperCase(),
-                  style: TextStyle(
-                    color: AppColors.amber,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 1.2,
-                  ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              _RankingTypeIcon(
+                  rankingType: provider.selection, palette: palette),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      loc.rankingYourPosition.toUpperCase(),
+                      style: TextStyle(
+                        color: AppColors.amber,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      username.isEmpty ? '—' : username,
+                      style: TextStyle(
+                        color: cs.onInverseSurface,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      _subtitle(context, loc, entry),
+                      style: AppTheme.monoFont.copyWith(
+                        fontSize: 12,
+                        color: cs.onInverseSurface.withValues(alpha: 0.65),
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  username.isEmpty ? '—' : username,
-                  style: TextStyle(
-                    color: cs.onInverseSurface,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  _subtitle(context, loc, entry),
-                  style: AppTheme.monoFont.copyWith(
-                    fontSize: 12,
-                    color: cs.onInverseSurface.withValues(alpha: 0.65),
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
+              ),
+              const SizedBox(width: 12),
+              _RankBadge(provider: provider, entry: entry),
+            ],
           ),
-          const SizedBox(width: 12),
-          _RankBadge(provider: provider, entry: entry),
+          if (provider.selection.type == RankingType.carbon)
+            _CarbonExplanation(text: loc.rankingCarbonExplanation),
         ],
       ),
     );
@@ -94,9 +102,34 @@ class RankingUserPositionBlock extends StatelessWidget {
       return loc.rankingWorldCovered;
     }
 
+    final locale = Localizations.localeOf(context);
+
+    if (selection.type == RankingType.carbon) {
+      // Show the two carbon metrics that aren't the primary, joined by " · ".
+      final dist = NumberFormatter.compact(
+        entry.distanceKm,
+        locale: locale,
+        unitsByFactor: MeasurementUnit.distance.unitsByFactor(loc),
+      );
+      final total = NumberFormatter.compact(
+        entry.totalCarbonKg,
+        locale: locale,
+        unitsByFactor: MeasurementUnit.co2.unitsByFactor(loc),
+      );
+      final perKm =
+          '${NumberFormatter.decimal(entry.carbonPerKmG, locale: locale, noDecimal: true)} g/km';
+      switch (provider.sortUnit) {
+        case RankingSortUnit.carbonPerKm:
+          return '$dist · $total';
+        case RankingSortUnit.totalCarbon:
+          return '$dist · $perKm';
+        default:
+          return '$total · $perKm';
+      }
+    }
+
     // The subtitle shows the metric NOT used as the primary value, so the two
     // complement each other as the selected unit changes.
-    final locale = Localizations.localeOf(context);
     if (provider.sortUnit == RankingSortUnit.trips) {
       return NumberFormatter.compact(
         entry.distanceKm,
@@ -105,6 +138,39 @@ class RankingUserPositionBlock extends StatelessWidget {
       );
     }
     return '${NumberFormatter.decimal(entry.trips, locale: locale)} ${loc.menuTripCountLabel(entry.trips)}';
+  }
+}
+
+/// Info banner explaining that lower CO2e/km ranks better.
+class _CarbonExplanation extends StatelessWidget {
+  final String text;
+
+  const _CarbonExplanation({required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final color = cs.onInverseSurface.withValues(alpha: 0.7);
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 14),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.info_outline, size: 16, color: color),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              text,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: color,
+                    height: 1.3,
+                  ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -178,14 +244,24 @@ class _RankBadge extends StatelessWidget {
     if (selection.isWorldSquares) {
       return NumberFormatter.percent(entry!.percent ?? 0, locale: locale);
     }
-    if (provider.sortUnit == RankingSortUnit.trips) {
-      return '${NumberFormatter.decimal(entry!.trips, locale: locale)} ${loc.menuTripCountLabel(entry!.trips)}';
+    switch (provider.sortUnit) {
+      case RankingSortUnit.trips:
+        return '${NumberFormatter.decimal(entry!.trips, locale: locale)} ${loc.menuTripCountLabel(entry!.trips)}';
+      case RankingSortUnit.totalCarbon:
+        return NumberFormatter.compact(
+          entry!.totalCarbonKg,
+          locale: locale,
+          unitsByFactor: MeasurementUnit.co2.unitsByFactor(loc),
+        );
+      case RankingSortUnit.carbonPerKm:
+        return '${NumberFormatter.decimal(entry!.carbonPerKmG, locale: locale, noDecimal: true)} g/km';
+      case RankingSortUnit.distance:
+        return NumberFormatter.compact(
+          entry!.distanceKm,
+          locale: locale,
+          unitsByFactor: MeasurementUnit.distance.unitsByFactor(loc),
+        );
     }
-    return NumberFormatter.compact(
-      entry!.distanceKm,
-      locale: locale,
-      unitsByFactor: MeasurementUnit.distance.unitsByFactor(loc),
-    );
   }
 }
 
