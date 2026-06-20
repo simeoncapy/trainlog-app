@@ -30,9 +30,11 @@ class RankingFilterControls extends StatelessWidget {
         else
           const Spacer(),
         const SizedBox(width: 10),
+        // Icon + tooltip show the action the tap will perform, not the
+        // current state.
         _IconToggle(
           active: provider.alphabetical,
-          icon: provider.alphabetical ? Icons.sort_by_alpha : Icons.tag,
+          icon: provider.alphabetical ? Icons.tag : Icons.sort_by_alpha,
           tooltip: provider.alphabetical
               ? loc.rankingSortByValue
               : loc.rankingSortAlphabetical,
@@ -42,11 +44,11 @@ class RankingFilterControls extends StatelessWidget {
         _IconToggle(
           active: false,
           icon: provider.descending
-              ? Icons.arrow_downward
-              : Icons.arrow_upward,
+              ? Icons.arrow_upward
+              : Icons.arrow_downward,
           tooltip: provider.descending
-              ? loc.rankingOrderDescending
-              : loc.rankingOrderAscending,
+              ? loc.rankingOrderAscending
+              : loc.rankingOrderDescending,
           onTap: provider.toggleDirection,
         ),
       ],

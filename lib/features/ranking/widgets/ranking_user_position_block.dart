@@ -127,8 +127,17 @@ class _RankBadge extends StatelessWidget {
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (entry.rank == 1) ...[
-              const Icon(Icons.emoji_events, color: AppColors.amber, size: 22),
+            if (entry.rank >= 1 && entry.rank <= 3) ...[
+              Icon(
+                // Trophy for the winner, a medal for the runners-up.
+                entry.rank == 1 ? Icons.emoji_events : Icons.military_tech,
+                color: entry.rank == 1
+                    ? AppColors.amber
+                    : entry.rank == 2
+                        ? const Color(0xFFB8BCC4)
+                        : const Color(0xFFCD7F45),
+                size: 22,
+              ),
               const SizedBox(width: 4),
             ],
             Text(

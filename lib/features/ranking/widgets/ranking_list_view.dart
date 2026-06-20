@@ -23,6 +23,36 @@ class RankingListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+      decoration: BoxDecoration(
+        color: isDark ? cs.surface : Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(
+          color: isDark
+              ? cs.outline.withValues(alpha: 0.25)
+              : cs.outline.withValues(alpha: 0.18),
+          width: 1.2,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: cs.shadow.withValues(alpha: isDark ? 0.25 : 0.06),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(18),
+        child: _buildContent(context),
+      ),
+    );
+  }
+
+  Widget _buildContent(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
 
     if (provider.isLoading) {
@@ -56,9 +86,9 @@ class RankingListView extends StatelessWidget {
     final me = provider.currentUsername?.toLowerCase();
 
     return ListView.separated(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
       itemCount: rows.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 8),
+      separatorBuilder: (_, __) => const SizedBox(height: 4),
       itemBuilder: (context, i) {
         final e = rows[i];
         return RankingRow(
@@ -133,20 +163,29 @@ class RankingRow extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          _PrimaryValue(text: _primaryText(context)),
+          _PrimaryValue(value: _primaryValue(context), unit: _primaryUnit(context)),
         ],
       ),
     );
   }
 
-  String _primaryText(BuildContext context) {
+  String _primaryValue(BuildContext context) {
     if (selection.isWorldSquares) {
-      return '${formatNumber(context, entry.percent ?? 0)}%';
+      return formatNumber(context, entry.percent ?? 0);
     }
     if (sortUnit == RankingSortUnit.trips) {
       return formatCompactNumber(context, entry.trips);
     }
-    return '${formatCompactNumber(context, entry.distanceKm)} km';
+    return formatCompactNumber(context, entry.distanceKm);
+  }
+
+  String _primaryUnit(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+    if (selection.isWorldSquares) return '%';
+    if (sortUnit == RankingSortUnit.trips) {
+      return loc.menuTripCountLabel(entry.trips);
+    }
+    return 'km';
   }
 
   String? _secondaryText(BuildContext context) {
@@ -189,6 +228,8 @@ class _RankIndicator extends StatelessWidget {
           : rank == 2
               ? silver
               : bronze;
+      // Trophy for the winner, a medal for the runners-up.
+      final icon = rank == 1 ? Icons.emoji_events : Icons.military_tech;
       return Container(
         width: 34,
         height: 34,
@@ -197,7 +238,7 @@ class _RankIndicator extends StatelessWidget {
           color: color.withValues(alpha: 0.18),
           shape: BoxShape.circle,
         ),
-        child: Icon(Icons.emoji_events, size: 18, color: color),
+        child: Icon(icon, size: 18, color: color),
       );
     }
 
@@ -262,22 +303,39 @@ class _Monogram extends StatelessWidget {
   }
 }
 
-/// Large monospace primary metric.
+/// Large monospace primary metric with the unit stacked beneath it.
 class _PrimaryValue extends StatelessWidget {
-  final String text;
+  final String value;
+  final String unit;
 
-  const _PrimaryValue({required this.text});
+  const _PrimaryValue({required this.value, required this.unit});
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      text,
-      textAlign: TextAlign.right,
-      style: GoogleFonts.spaceMono(
-        fontSize: 20,
-        fontWeight: FontWeight.w800,
-        color: Theme.of(context).colorScheme.onSurface,
-      ),
+    final cs = Theme.of(context).colorScheme;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Text(
+          value,
+          textAlign: TextAlign.right,
+          style: GoogleFonts.spaceMono(
+            fontSize: 20,
+            fontWeight: FontWeight.w800,
+            color: cs.onSurface,
+          ),
+        ),
+        Text(
+          unit,
+          textAlign: TextAlign.right,
+          style: GoogleFonts.spaceMono(
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+            color: cs.onSurfaceVariant,
+          ),
+        ),
+      ],
     );
   }
 }
