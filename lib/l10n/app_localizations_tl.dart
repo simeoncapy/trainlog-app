@@ -434,6 +434,85 @@ class AppLocalizationsTl extends AppLocalizations {
   String get menuRankingTitle => 'Ranking';
 
   @override
+  String get rankingYourPosition => 'Iyong posisyon';
+
+  @override
+  String rankingPositionValue(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '#$count',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get rankingTypeTotal => 'Kabuuan';
+
+  @override
+  String get rankingTypeVehicles => 'Sasakyan';
+
+  @override
+  String get rankingTypeWorld => 'Mundo';
+
+  @override
+  String get rankingTypeRailwayCoverage => 'Saklaw ng riles';
+
+  @override
+  String get rankingTypeCountries => 'Mga bansa';
+
+  @override
+  String get rankingTypeCarbon => 'CO2e';
+
+  @override
+  String get rankingUnitDistance => 'Distansya';
+
+  @override
+  String get rankingUnitTrips => 'Mga biyahe';
+
+  @override
+  String get rankingUnitTotalCarbon => 'Kabuuang CO2e';
+
+  @override
+  String get rankingUnitCarbonPerKm => 'CO2e/km';
+
+  @override
+  String get rankingCarbonExplanation =>
+      'Mas mababang g/km ay mas mabuti — ang pinaka-carbon-efficient na manlalakbay ang nangunguna.';
+
+  @override
+  String get rankingSortAlphabetical => 'Ayusin ayon sa alpabeto';
+
+  @override
+  String get rankingSortByValue => 'Ayusin ayon sa halaga';
+
+  @override
+  String get rankingOrderAscending => 'Pataas';
+
+  @override
+  String get rankingOrderDescending => 'Pababa';
+
+  @override
+  String get rankingAllVehicles => 'lahat ng sasakyan';
+
+  @override
+  String get rankingWorldCovered => 'Na-cover na mga squares sa mundo';
+
+  @override
+  String get rankingNoData => 'Walang datos';
+
+  @override
+  String get rankingNotRanked => 'Hindi naka-ranggo';
+
+  @override
+  String get rankingSearchHint => 'Maghanap ng user…';
+
+  @override
+  String rankingVehicleTripsScope(String trips, String vehicle) {
+    return '$trips na biyahe sa $vehicle';
+  }
+
+  @override
   String get menuStatisticsTitle => 'Istatistika';
 
   @override

@@ -163,6 +163,41 @@
   "menuMapTitle": "Map",
   "menuTripsTitle": "Trips",
   "menuRankingTitle": "Ranking",
+  "rankingYourPosition": "Your position",
+  "rankingPositionValue": "{count, plural, other {#{count}}}",
+  "@rankingPositionValue": {
+    "description": "The user's position in the ranking, displayed with a # in front of the number",
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "rankingTypeTotal": "Total",
+  "rankingTypeVehicles": "Vehicle",
+  "rankingTypeWorld": "World",
+  "rankingTypeRailwayCoverage": "Railway coverage",
+  "rankingTypeCountries": "Countries",
+  "rankingTypeCarbon": "CO2e",
+  "rankingUnitDistance": "Distance",
+  "rankingUnitTrips": "Trips",
+  "rankingUnitTotalCarbon": "Total CO2e",
+  "rankingUnitCarbonPerKm": "CO2e/km",
+  "rankingCarbonExplanation": "Lower g/km is better — most carbon-efficient travellers rank first.",
+  "rankingSortAlphabetical": "Sort alphabetically",
+  "rankingSortByValue": "Sort by value",
+  "rankingOrderAscending": "Ascending",
+  "rankingOrderDescending": "Descending",
+  "rankingAllVehicles": "all vehicles",
+  "rankingWorldCovered": "World squares covered",
+  "rankingNoData": "No data",
+  "rankingNotRanked": "Not ranked",
+  "rankingSearchHint": "Search users…",
+  "rankingVehicleTripsScope": "{trips} {vehicle} trips",
+  "@rankingVehicleTripsScope": {
+    "placeholders": {
+      "trips": { "type": "String" },
+      "vehicle": { "type": "String" }
+    }
+  },
   "menuStatisticsTitle": "Statistics",
   "menuDashboardTitle": "Dashboard",
   "menuCoverageTitle": "Coverage",

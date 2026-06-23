@@ -7,19 +7,9 @@ import 'package:trainlog_app/utils/number_formatter.dart';
 
 /// Deprecated: now use [StatsBarChart] instead, which has a more compact layout and better mobile support.
 /// The UnitFactor logic is still relevant and is reused in StatsBarChart, but the overall widget structure is different.
-
-enum UnitFactor {
-  //thousandth    (1e-3,'m'),
-  base          (1,   ''),
-  thousand      (1e3, 'k'),
-  million       (1e6, 'M'),
-  billion       (1e9, 'G');
-
-  const UnitFactor(this.multiplier, this.suffix);
-  final double multiplier;
-  final String suffix;
-  double apply(double value) => value / multiplier;
-}
+///
+/// [UnitFactor] now lives in `utils/number_formatter.dart` (imported above) as
+/// the single source of truth.
 
 class LogoBarChart extends StatefulWidget {
   /// label -> (past, future). Order respected (LinkedHashMap preferred).

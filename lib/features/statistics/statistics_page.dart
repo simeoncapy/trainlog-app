@@ -15,7 +15,6 @@ import 'package:trainlog_app/utils/number_formatter.dart';
 import 'package:trainlog_app/utils/text_utils.dart';
 import 'package:trainlog_app/widgets/app_steps_tab_bar.dart';
 
-import 'package:trainlog_app/features/statistics/widgets/logo_bar_chart.dart';
 import 'package:trainlog_app/features/statistics/widgets/stats_bar_chart.dart';
 import 'package:trainlog_app/features/statistics/widgets/stats_pie_chart.dart';
 import 'package:trainlog_app/features/statistics/widgets/stats_table_chart.dart';

@@ -30,7 +30,7 @@ class InstanceSelectorWidget extends StatelessWidget {
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: cs.outlineVariant),
+        side: BorderSide(color: cs.outline),
       ),
       child: InkWell(
         onTap: () => _showBottomSheet(context),
@@ -169,7 +169,7 @@ class _InstanceBottomSheetState extends State<_InstanceBottomSheet> {
                   height: 4,
                   margin: const EdgeInsets.only(bottom: 20),
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.outlineVariant,
+                    color: theme.colorScheme.outline,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),

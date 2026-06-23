@@ -38,7 +38,7 @@ class AdaptiveAppBarSquareButton extends AdaptiveWidget {
           decoration: BoxDecoration(
             color: cs.surface,
             borderRadius: _radius,
-            border: Border.all(color: cs.outlineVariant),
+            border: Border.all(color: cs.outline),
           ),
           child: Icon(icon, size: iconSize, color: cs.onSurface),
         ),
@@ -57,7 +57,7 @@ class AdaptiveAppBarSquareButton extends AdaptiveWidget {
         decoration: BoxDecoration(
           color: cs.surface,
           borderRadius: _radius,
-          border: Border.all(color: cs.outlineVariant),
+          border: Border.all(color: cs.outline),
         ),
         child: Icon(icon, size: iconSize, color: cs.onSurface),
       ),

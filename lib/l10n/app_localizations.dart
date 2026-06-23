@@ -906,6 +906,144 @@ abstract class AppLocalizations {
   /// **'Ranking'**
   String get menuRankingTitle;
 
+  /// No description provided for @rankingYourPosition.
+  ///
+  /// In en, this message translates to:
+  /// **'Your position'**
+  String get rankingYourPosition;
+
+  /// The user's position in the ranking, displayed with a # in front of the number
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, other {#{count}}}'**
+  String rankingPositionValue(num count);
+
+  /// No description provided for @rankingTypeTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get rankingTypeTotal;
+
+  /// No description provided for @rankingTypeVehicles.
+  ///
+  /// In en, this message translates to:
+  /// **'Vehicle'**
+  String get rankingTypeVehicles;
+
+  /// No description provided for @rankingTypeWorld.
+  ///
+  /// In en, this message translates to:
+  /// **'World'**
+  String get rankingTypeWorld;
+
+  /// No description provided for @rankingTypeRailwayCoverage.
+  ///
+  /// In en, this message translates to:
+  /// **'Railway coverage'**
+  String get rankingTypeRailwayCoverage;
+
+  /// No description provided for @rankingTypeCountries.
+  ///
+  /// In en, this message translates to:
+  /// **'Countries'**
+  String get rankingTypeCountries;
+
+  /// No description provided for @rankingTypeCarbon.
+  ///
+  /// In en, this message translates to:
+  /// **'CO2e'**
+  String get rankingTypeCarbon;
+
+  /// No description provided for @rankingUnitDistance.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance'**
+  String get rankingUnitDistance;
+
+  /// No description provided for @rankingUnitTrips.
+  ///
+  /// In en, this message translates to:
+  /// **'Trips'**
+  String get rankingUnitTrips;
+
+  /// No description provided for @rankingUnitTotalCarbon.
+  ///
+  /// In en, this message translates to:
+  /// **'Total CO2e'**
+  String get rankingUnitTotalCarbon;
+
+  /// No description provided for @rankingUnitCarbonPerKm.
+  ///
+  /// In en, this message translates to:
+  /// **'CO2e/km'**
+  String get rankingUnitCarbonPerKm;
+
+  /// No description provided for @rankingCarbonExplanation.
+  ///
+  /// In en, this message translates to:
+  /// **'Lower g/km is better — most carbon-efficient travellers rank first.'**
+  String get rankingCarbonExplanation;
+
+  /// No description provided for @rankingSortAlphabetical.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort alphabetically'**
+  String get rankingSortAlphabetical;
+
+  /// No description provided for @rankingSortByValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort by value'**
+  String get rankingSortByValue;
+
+  /// No description provided for @rankingOrderAscending.
+  ///
+  /// In en, this message translates to:
+  /// **'Ascending'**
+  String get rankingOrderAscending;
+
+  /// No description provided for @rankingOrderDescending.
+  ///
+  /// In en, this message translates to:
+  /// **'Descending'**
+  String get rankingOrderDescending;
+
+  /// No description provided for @rankingAllVehicles.
+  ///
+  /// In en, this message translates to:
+  /// **'all vehicles'**
+  String get rankingAllVehicles;
+
+  /// No description provided for @rankingWorldCovered.
+  ///
+  /// In en, this message translates to:
+  /// **'World squares covered'**
+  String get rankingWorldCovered;
+
+  /// No description provided for @rankingNoData.
+  ///
+  /// In en, this message translates to:
+  /// **'No data'**
+  String get rankingNoData;
+
+  /// No description provided for @rankingNotRanked.
+  ///
+  /// In en, this message translates to:
+  /// **'Not ranked'**
+  String get rankingNotRanked;
+
+  /// No description provided for @rankingSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search users…'**
+  String get rankingSearchHint;
+
+  /// No description provided for @rankingVehicleTripsScope.
+  ///
+  /// In en, this message translates to:
+  /// **'{trips} {vehicle} trips'**
+  String rankingVehicleTripsScope(String trips, String vehicle);
+
   /// No description provided for @menuStatisticsTitle.
   ///
   /// In en, this message translates to:

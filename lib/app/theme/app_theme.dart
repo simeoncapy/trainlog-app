@@ -39,7 +39,7 @@ abstract final class AppTheme {
       onSurface: AppColors.lightText,
       onSurfaceVariant: AppColors.lightText2,
       outline: AppColors.lightLine,
-      outlineVariant: AppColors.lightLine,
+      outlineVariant: AppColors.amberSoft,
       shadow: AppColors.navy,
       // inverseSurface = the always-dark branded summary card background
       inverseSurface: AppColors.navy,
@@ -140,7 +140,7 @@ abstract final class AppTheme {
       onSurface: AppColors.darkText,
       onSurfaceVariant: AppColors.darkText2,
       outline: AppColors.darkLine,
-      outlineVariant: AppColors.darkLine,
+      outlineVariant: AppColors.navy,
       shadow: Colors.black,
       // inverseSurface = the always-light branded summary card background
       inverseSurface: AppColors.lightBg,

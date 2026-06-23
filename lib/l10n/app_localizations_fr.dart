@@ -441,6 +441,86 @@ class AppLocalizationsFr extends AppLocalizations {
   String get menuRankingTitle => 'Classement';
 
   @override
+  String get rankingYourPosition => 'Votre position';
+
+  @override
+  String rankingPositionValue(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '${count}e',
+      one: '1r',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get rankingTypeTotal => 'Total';
+
+  @override
+  String get rankingTypeVehicles => 'Véhicule';
+
+  @override
+  String get rankingTypeWorld => 'Monde';
+
+  @override
+  String get rankingTypeRailwayCoverage => 'Couverture ferroviaire';
+
+  @override
+  String get rankingTypeCountries => 'Pays';
+
+  @override
+  String get rankingTypeCarbon => 'CO2e';
+
+  @override
+  String get rankingUnitDistance => 'Distance';
+
+  @override
+  String get rankingUnitTrips => 'Trajets';
+
+  @override
+  String get rankingUnitTotalCarbon => 'CO2e total';
+
+  @override
+  String get rankingUnitCarbonPerKm => 'CO2e/km';
+
+  @override
+  String get rankingCarbonExplanation =>
+      'Un g/km plus bas est meilleur — les voyageurs les plus sobres en carbone arrivent en tête.';
+
+  @override
+  String get rankingSortAlphabetical => 'Trier par ordre alphabétique';
+
+  @override
+  String get rankingSortByValue => 'Trier par valeur';
+
+  @override
+  String get rankingOrderAscending => 'Croissant';
+
+  @override
+  String get rankingOrderDescending => 'Décroissant';
+
+  @override
+  String get rankingAllVehicles => 'tous les véhicules';
+
+  @override
+  String get rankingWorldCovered => 'Cases du monde couvertes';
+
+  @override
+  String get rankingNoData => 'Aucune donnée';
+
+  @override
+  String get rankingNotRanked => 'Non classé';
+
+  @override
+  String get rankingSearchHint => 'Rechercher des utilisateurs…';
+
+  @override
+  String rankingVehicleTripsScope(String trips, String vehicle) {
+    return '$trips trajets en $vehicle';
+  }
+
+  @override
   String get menuStatisticsTitle => 'Stat.';
 
   @override

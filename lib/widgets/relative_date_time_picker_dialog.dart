@@ -262,7 +262,7 @@ class _CompactTimePicker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final lineColor = theme.colorScheme.outlineVariant;
+    final lineColor = theme.colorScheme.outline;
 
     return Container(
       decoration: BoxDecoration(
@@ -327,7 +327,7 @@ class _DateRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final lineColor = theme.colorScheme.outlineVariant;
+    final lineColor = theme.colorScheme.outline;
 
     return Container(
       height: 64,
@@ -426,7 +426,7 @@ class _RollSelectorState extends State<_RollSelector> {
           color: theme.colorScheme.onSurfaceVariant,
           fontWeight: FontWeight.w400,
         );
-    final lineColor = theme.colorScheme.outlineVariant;
+    final lineColor = theme.colorScheme.outline;
 
     return Listener(
       onPointerSignal: (event) {
