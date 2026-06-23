@@ -93,15 +93,37 @@ class RankingListView extends StatelessWidget {
       separatorBuilder: (_, __) => const SizedBox(height: 4),
       itemBuilder: (context, i) {
         final e = rows[i];
+        // A tie shows its rank only on the first of the equal-valued rows that
+        // are displayed next to each other; the rest leave the rank blank. This
+        // works for every order (value/reversed/alphabetical) and unit because
+        // it compares the value actually shown to adjacent displayed rows.
+        final showRank = i == 0 ||
+            _primaryKey(context, provider, rows[i - 1]) !=
+                _primaryKey(context, provider, e);
         return RankingRow(
           entry: e,
           selection: provider.selection,
           sortUnit: provider.sortUnit,
           isCurrentUser: me != null && e.username.toLowerCase() == me,
+          showRank: showRank,
         );
       },
     );
   }
+
+  /// The displayed primary value (value + unit) for [entry], used to detect
+  /// consecutive rows that share the same value.
+  String _primaryKey(
+    BuildContext context,
+    RankingProvider provider,
+    RankingDisplayEntry entry,
+  ) =>
+      RankingMetrics.primaryInline(
+        context,
+        entry,
+        provider.selection,
+        provider.sortUnit,
+      );
 }
 
 /// A single leaderboard row.
@@ -111,12 +133,17 @@ class RankingRow extends StatelessWidget {
   final RankingSortUnit sortUnit;
   final bool isCurrentUser;
 
+  /// Whether to show the rank indicator. Tied rows displayed next to each other
+  /// only show the rank on the first one (see [RankingListView]).
+  final bool showRank;
+
   const RankingRow({
     super.key,
     required this.entry,
     required this.selection,
     required this.sortUnit,
     required this.isCurrentUser,
+    this.showRank = true,
   });
 
   @override
@@ -136,7 +163,7 @@ class RankingRow extends StatelessWidget {
       ),
       child: Row(
         children: [
-          _RankIndicator(rank: entry.rank),
+          _RankIndicator(rank: entry.rank, showRank: showRank),
           const SizedBox(width: 10),
           _Monogram(username: entry.username, highlight: isCurrentUser),
           const SizedBox(width: 12),
@@ -217,12 +244,19 @@ class RankingRow extends StatelessWidget {
 /// Medal for the top three, plain number otherwise.
 class _RankIndicator extends StatelessWidget {
   final int rank;
+  final bool showRank;
 
-  const _RankIndicator({required this.rank});
+  const _RankIndicator({required this.rank, this.showRank = true});
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+
+    // Tied row that follows another with the same value: leave the rank slot
+    // blank but preserve its width so the rows stay aligned.
+    if (!showRank) {
+      return const SizedBox(width: 34);
+    }
 
     if (RankingMedal.isMedal(rank)) {
       return Container(
