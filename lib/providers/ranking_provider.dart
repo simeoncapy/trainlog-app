@@ -277,11 +277,22 @@ class RankingProvider extends ChangeNotifier {
     return a.username.toLowerCase().compareTo(b.username.toLowerCase());
   }
 
-  /// (Re)assigns competitive ranks by the active metric, best first.
+  /// (Re)assigns competitive ranks by the active metric, best first, using
+  /// standard competition ranking ("1224"): rows with the exact same metric
+  /// value share one rank, and the next distinct value resumes at its absolute
+  /// position. This keeps the rank stable across the alphabetical and direction
+  /// toggles — tied users always carry the same number wherever they appear.
   void _assignRanks() {
     final sorted = List<RankingDisplayEntry>.of(_ranked)..sort(_compareBest);
+    var rank = 0;
+    double? previous;
     for (var i = 0; i < sorted.length; i++) {
-      sorted[i] = sorted[i].copyWithRank(i + 1);
+      final value = _metric(sorted[i]);
+      if (i == 0 || value != previous) {
+        rank = i + 1;
+        previous = value;
+      }
+      sorted[i] = sorted[i].copyWithRank(rank);
     }
     _ranked = sorted;
   }
