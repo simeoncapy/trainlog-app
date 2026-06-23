@@ -5,12 +5,13 @@ import 'package:provider/provider.dart';
 import 'package:trainlog_app/app/theme/app_colors.dart';
 import 'package:trainlog_app/app/theme/app_theme.dart';
 import 'package:trainlog_app/data/models/trips.dart';
+import 'package:trainlog_app/features/ranking/ranking_metrics.dart';
 import 'package:trainlog_app/features/ranking/ranking_type.dart';
+import 'package:trainlog_app/features/ranking/widgets/ranking_medal.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/providers/ranking_provider.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
-import 'package:trainlog_app/utils/number_formatter.dart';
 
 /// Hero "Your position" card. Mirrors [MenuSummaryCard]'s inverted-background
 /// styling ([ColorScheme.inverseSurface]) so it reads as a strong branded
@@ -97,47 +98,17 @@ class RankingUserPositionBlock extends StatelessWidget {
   ) {
     final selection = provider.selection;
     if (entry == null) return loc.rankingNotRanked;
+    if (selection.isWorldSquares) return loc.rankingWorldCovered;
 
-    if (selection.isWorldSquares) {
-      return loc.rankingWorldCovered;
-    }
-
-    final locale = Localizations.localeOf(context);
-
-    if (selection.type == RankingType.carbon) {
-      // Show the two carbon metrics that aren't the primary, joined by " · ".
-      final dist = NumberFormatter.compact(
-        entry.distanceKm,
-        locale: locale,
-        unitsByFactor: MeasurementUnit.distance.unitsByFactor(loc),
-      );
-      final total = NumberFormatter.compact(
-        entry.totalCarbonKg,
-        locale: locale,
-        unitsByFactor: MeasurementUnit.co2.unitsByFactor(loc),
-      );
-      final perKm =
-          '${NumberFormatter.decimal(entry.carbonPerKmG, locale: locale, noDecimal: true)} g/km';
-      switch (provider.sortUnit) {
-        case RankingSortUnit.carbonPerKm:
-          return '$dist · $total';
-        case RankingSortUnit.totalCarbon:
-          return '$dist · $perKm';
-        default:
-          return '$total · $perKm';
-      }
-    }
-
-    // The subtitle shows the metric NOT used as the primary value, so the two
-    // complement each other as the selected unit changes.
-    if (provider.sortUnit == RankingSortUnit.trips) {
-      return NumberFormatter.compact(
-        entry.distanceKm,
-        locale: locale,
-        unitsByFactor: MeasurementUnit.distance.unitsByFactor(loc),
-      );
-    }
-    return '${NumberFormatter.decimal(entry.trips, locale: locale)} ${loc.menuTripCountLabel(entry.trips)}';
+    // The subtitle shows the metric(s) NOT used as the primary value, so they
+    // complement each other as the selected unit changes (joined for carbon,
+    // a single complementary metric otherwise).
+    return RankingMetrics.secondaries(
+      context,
+      entry,
+      selection,
+      provider.sortUnit,
+    ).join(' · ');
   }
 }
 
@@ -201,17 +172,8 @@ class _RankBadge extends StatelessWidget {
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (entry.rank >= 1 && entry.rank <= 3) ...[
-              Icon(
-                // Trophy for the winner, a medal for the runners-up.
-                entry.rank == 1 ? Icons.emoji_events : Icons.military_tech,
-                color: entry.rank == 1
-                    ? AppColors.amber
-                    : entry.rank == 2
-                        ? const Color(0xFFB8BCC4)
-                        : const Color(0xFFCD7F45),
-                size: 22,
-              ),
+            if (RankingMedal.isMedal(entry.rank)) ...[
+              RankingMedal(rank: entry.rank, size: 22),
               const SizedBox(width: 4),
             ],
             Text(
@@ -237,32 +199,12 @@ class _RankBadge extends StatelessWidget {
     );
   }
 
-  String _value(BuildContext context) {
-    final loc = AppLocalizations.of(context)!;
-    final locale = Localizations.localeOf(context);
-    final selection = provider.selection;
-    if (selection.isWorldSquares) {
-      return NumberFormatter.percent(entry!.percent ?? 0, locale: locale);
-    }
-    switch (provider.sortUnit) {
-      case RankingSortUnit.trips:
-        return '${NumberFormatter.decimal(entry!.trips, locale: locale)} ${loc.menuTripCountLabel(entry!.trips)}';
-      case RankingSortUnit.totalCarbon:
-        return NumberFormatter.compact(
-          entry!.totalCarbonKg,
-          locale: locale,
-          unitsByFactor: MeasurementUnit.co2.unitsByFactor(loc),
-        );
-      case RankingSortUnit.carbonPerKm:
-        return '${NumberFormatter.decimal(entry!.carbonPerKmG, locale: locale, noDecimal: true)} g/km';
-      case RankingSortUnit.distance:
-        return NumberFormatter.compact(
-          entry!.distanceKm,
-          locale: locale,
-          unitsByFactor: MeasurementUnit.distance.unitsByFactor(loc),
-        );
-    }
-  }
+  String _value(BuildContext context) => RankingMetrics.primaryInline(
+        context,
+        entry!,
+        provider.selection,
+        provider.sortUnit,
+      );
 }
 
 class _RankingTypeIcon extends StatelessWidget {

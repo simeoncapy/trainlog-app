@@ -3,7 +3,9 @@ import 'package:intl/intl.dart';
 
 import 'package:trainlog_app/app/theme/app_colors.dart';
 import 'package:trainlog_app/app/theme/app_theme.dart';
+import 'package:trainlog_app/features/ranking/ranking_metrics.dart';
 import 'package:trainlog_app/features/ranking/ranking_type.dart';
+import 'package:trainlog_app/features/ranking/widgets/ranking_medal.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/providers/ranking_provider.dart';
 import 'package:trainlog_app/utils/number_formatter.dart';
@@ -188,89 +190,23 @@ class RankingRow extends StatelessWidget {
 
   bool get _isCarbon => selection.type == RankingType.carbon;
 
-  /// Primary value + unit. Distance/CO2e use SI prefixes; trips and world
-  /// coverage keep their plain representation.
-  CompactNumber _primary(BuildContext context) {
-    final loc = AppLocalizations.of(context)!;
-    final locale = Localizations.localeOf(context);
-    if (selection.isWorldSquares) {
-      return (value: NumberFormatter.decimal(entry.percent ?? 0, locale: locale), unit: '%');
-    }
-    switch (sortUnit) {
-      case RankingSortUnit.trips:
-        return (
-          value: NumberFormatter.decimal(entry.trips, locale: locale),
-          unit: loc.menuTripCountLabel(entry.trips),
-        );
-      case RankingSortUnit.totalCarbon:
-        return NumberFormatter.compactParts(
-          entry.totalCarbonKg,
-          locale: locale,
-          unitsByFactor: MeasurementUnit.co2.unitsByFactor(loc),
-        );
-      case RankingSortUnit.carbonPerKm:
-        return (
-          value: NumberFormatter.decimal(entry.carbonPerKmG, locale: locale, noDecimal: true),
-          unit: 'g/km',
-        );
-      case RankingSortUnit.distance:
-        return NumberFormatter.compactParts(
-          entry.distanceKm,
-          locale: locale,
-          unitsByFactor: MeasurementUnit.distance.unitsByFactor(loc),
-        );
-    }
-  }
-
-  /// The two carbon metrics that aren't the primary, in display order.
-  List<String> _carbonSecondaries(BuildContext context) {
-    final loc = AppLocalizations.of(context)!;
-    final locale = Localizations.localeOf(context);
-    final dist = NumberFormatter.compact(
-      entry.distanceKm,
-      locale: locale,
-      unitsByFactor: MeasurementUnit.distance.unitsByFactor(loc),
-    );
-    final total = NumberFormatter.compact(
-      entry.totalCarbonKg,
-      locale: locale,
-      unitsByFactor: MeasurementUnit.co2.unitsByFactor(loc),
-    );
-    final perKm =
-        '${NumberFormatter.decimal(entry.carbonPerKmG, locale: locale, noDecimal: true)} g/km';
-    switch (sortUnit) {
-      case RankingSortUnit.carbonPerKm:
-        return [dist, total];
-      case RankingSortUnit.totalCarbon:
-        return [dist, perKm];
-      default:
-        return [total, perKm];
-    }
-  }
+  /// Primary value + unit (CO2e/km handled by [_CarbonPill] in the row).
+  CompactNumber _primary(BuildContext context) =>
+      RankingMetrics.primary(context, entry, selection, sortUnit);
 
   /// Secondary supporting metric (first non-primary value).
   String? _secondaryMetric(BuildContext context) {
-    final loc = AppLocalizations.of(context)!;
-    final locale = Localizations.localeOf(context);
-    if (selection.isWorldSquares) return null;
-
-    // Carbon splits its two non-primary metrics across two lines.
-    if (_isCarbon) return _carbonSecondaries(context).first;
-
-    if (sortUnit == RankingSortUnit.trips) {
-      return NumberFormatter.compact(
-        entry.distanceKm,
-        locale: locale,
-        unitsByFactor: MeasurementUnit.distance.unitsByFactor(loc),
-      );
-    }
-    return '${NumberFormatter.decimal(entry.trips, locale: locale)} ${loc.menuTripCountLabel(entry.trips)}';
+    final secondaries =
+        RankingMetrics.secondaries(context, entry, selection, sortUnit);
+    return secondaries.isEmpty ? null : secondaries.first;
   }
 
-  /// Third line: the second carbon metric for carbon, otherwise the last
-  /// connection (last activity).
+  /// Third line: the second carbon metric for carbon (two secondaries),
+  /// otherwise the last connection (last activity).
   String? _lastConnection(BuildContext context) {
-    if (_isCarbon) return _carbonSecondaries(context).last;
+    final secondaries =
+        RankingMetrics.secondaries(context, entry, selection, sortUnit);
+    if (secondaries.length >= 2) return secondaries.last;
     final date = entry.lastModified;
     if (date == null) return null;
     return DateFormat.yMMM(Localizations.localeOf(context).toString())
@@ -287,27 +223,17 @@ class _RankIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    const gold = AppColors.amber;
-    const silver = Color(0xFFB8BCC4);
-    const bronze = Color(0xFFCD7F45);
 
-    if (rank >= 1 && rank <= 3) {
-      final color = rank == 1
-          ? gold
-          : rank == 2
-              ? silver
-              : bronze;
-      // Trophy for the winner, a medal for the runners-up.
-      final icon = rank == 1 ? Icons.emoji_events : Icons.military_tech;
+    if (RankingMedal.isMedal(rank)) {
       return Container(
         width: 34,
         height: 34,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.18),
+          color: RankingMedal.colorOf(rank).withValues(alpha: 0.18),
           shape: BoxShape.circle,
         ),
-        child: Icon(icon, size: 18, color: color),
+        child: RankingMedal(rank: rank, size: 18),
       );
     }
 
