@@ -96,10 +96,11 @@ class RankingListView extends StatelessWidget {
         // A tie shows its rank only on the first of the equal-valued rows that
         // are displayed next to each other; the rest leave the rank blank. This
         // works for every order (value/reversed/alphabetical) and unit because
-        // it compares the value actually shown to adjacent displayed rows.
+        // it compares the raw ranking value of adjacent displayed rows — rows
+        // are tied only when that value is exactly equal, not merely rounded
+        // to the same displayed number.
         final showRank = i == 0 ||
-            _primaryKey(context, provider, rows[i - 1]) !=
-                _primaryKey(context, provider, e);
+            provider.metricOf(rows[i - 1]) != provider.metricOf(e);
         return RankingRow(
           entry: e,
           selection: provider.selection,
@@ -110,20 +111,6 @@ class RankingListView extends StatelessWidget {
       },
     );
   }
-
-  /// The displayed primary value (value + unit) for [entry], used to detect
-  /// consecutive rows that share the same value.
-  String _primaryKey(
-    BuildContext context,
-    RankingProvider provider,
-    RankingDisplayEntry entry,
-  ) =>
-      RankingMetrics.primaryInline(
-        context,
-        entry,
-        provider.selection,
-        provider.sortUnit,
-      );
 }
 
 /// A single leaderboard row.

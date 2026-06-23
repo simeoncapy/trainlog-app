@@ -247,9 +247,13 @@ class RankingProvider extends ChangeNotifier {
     return rows;
   }
 
+  /// The raw value used for ranking under the active selection/unit. Two rows
+  /// are tied only when this is exactly equal (regardless of how it is rounded
+  /// for display).
+  double metricOf(RankingDisplayEntry e) => _metric(e);
+
   /// The value used both for ranking and for the natural (value) display order.
-  double _metric(RankingDisplayEntry e) {
-    if (_selection.isWorldSquares) return e.percent ?? 0;
+  double _metric(RankingDisplayEntry e) {    if (_selection.isWorldSquares) return e.percent ?? 0;
     switch (_sortUnit) {
       case RankingSortUnit.distance:
         return e.distanceKm;
