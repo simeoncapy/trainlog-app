@@ -69,7 +69,7 @@ class RankingProvider extends ChangeNotifier {
   /// All rows with their competitive rank assigned.
   List<RankingDisplayEntry> get entries => _ranked;
 
-  /// The current user's row, if they appear in the public leaderboard.
+  /// The current user's row, if they appear in the leaderboard.
   RankingDisplayEntry? get currentUserEntry {
     final me = _trainlog.username;
     if (me == null) return null;
@@ -202,6 +202,7 @@ class RankingProvider extends ChangeNotifier {
           (e) => RankingDisplayEntry(
             rank: 0,
             username: e.username,
+            isNonPublic: e.isNonPublic,
             distanceKm: e.totalDistance / 1000.0,
             trips: e.trips,
             totalCarbonKg: e.totalCarbon,
@@ -221,6 +222,7 @@ class RankingProvider extends ChangeNotifier {
           (e) => RankingDisplayEntry(
             rank: 0,
             username: e.username,
+            isNonPublic: e.isNonPublic,
             distanceKm: e.length / 1000.0,
             trips: e.trips,
             lastModified: e.lastModified,
@@ -234,11 +236,12 @@ class RankingProvider extends ChangeNotifier {
     // to one row per user.
     final rows = <RankingDisplayEntry>[];
     for (final tier in res.coverages) {
-      for (final user in tier.usernames) {
+      for (final user in tier.users) {
         rows.add(
           RankingDisplayEntry(
             rank: 0,
-            username: user,
+            username: user.username,
+            isNonPublic: user.isNonPublic,
             percent: tier.percent,
           ),
         );

@@ -9,8 +9,9 @@ import 'package:trainlog_app/services/api/trainlog_http_client.dart';
 /// one of a vehicle short string (`train`, `air`, …), `all`, `carbon`,
 /// `country`, `train_countries` or `world_squares`.
 ///
-/// Every response carries a `non_public_users` list; those usernames are
-/// filtered out of the returned entries so the UI never exposes private users.
+/// Every response carries a `non_public_users` list; those usernames are kept
+/// in the returned entries but tagged as non-public (via `isNonPublic` /
+/// `RankedUser.isNonPublic`) for a later feature, rather than filtered out.
 class RankingApi {
   final TrainlogHttpClient _client;
 
@@ -62,8 +63,10 @@ class RankingApi {
   Future<RankingResult<LeaderboardEntry>> _fetchLeaderboard(String type) async {
     final (rows, nonPublic) = await _fetchRaw(type);
     final entries = rows
-        .where((r) => !nonPublic.contains(r['username']?.toString()))
-        .map(LeaderboardEntry.fromJson)
+        .map((r) => LeaderboardEntry.fromJson(
+              r,
+              isNonPublic: nonPublic.contains(r['username']?.toString()),
+            ))
         .toList();
     return RankingResult(entries);
   }
@@ -74,8 +77,10 @@ class RankingApi {
   ) async {
     final (rows, nonPublic) = await _fetchRaw(type);
     final entries = rows
-        .where((r) => !nonPublic.contains(r['username']?.toString()))
-        .map(CarbonLeaderboardEntry.fromJson)
+        .map((r) => CarbonLeaderboardEntry.fromJson(
+              r,
+              isNonPublic: nonPublic.contains(r['username']?.toString()),
+            ))
         .toList();
     return RankingResult(entries);
   }
@@ -86,15 +91,17 @@ class RankingApi {
   ) async {
     final (rows, nonPublic) = await _fetchRaw(type);
     final entries = rows
-        .where((r) => !nonPublic.contains(r['username']?.toString()))
-        .map(CountryLeaderboardEntry.fromJson)
+        .map((r) => CountryLeaderboardEntry.fromJson(
+              r,
+              isNonPublic: nonPublic.contains(r['username']?.toString()),
+            ))
         .toList();
     return RankingResult(entries);
   }
 
   /// The rail-percentage leaderboard: rows keyed by country / subdivision
-  /// rather than by user. Public users are filtered out per coverage tier and
-  /// country- and subdivision-level rows are kept apart.
+  /// rather than by user. Non-public users are tagged per coverage tier (not
+  /// filtered out) and country- and subdivision-level rows are kept apart.
   Future<RailPercentageResult> _fetchRailPercentageLeaderboard(
     String type,
   ) async {
@@ -104,7 +111,7 @@ class RankingApi {
 
     for (final row in rows) {
       final entry = RailPercentageEntry.fromJson(row, nonPublic: nonPublic);
-      if (entry == null) continue; // no public users left for this area
+      if (entry == null) continue; // no users listed for this area
       if (entry.isSubdivision) {
         subdivisions.add(entry);
       } else {
@@ -119,7 +126,7 @@ class RankingApi {
   }
 
   /// The world-squares leaderboard: a single `world_squares` block of coverage
-  /// tiers, with public users only.
+  /// tiers; non-public users are tagged, not filtered out.
   Future<WorldSquaresResult> _fetchWorldSquaresLeaderboard(String type) async {
     final (rows, nonPublic) = await _fetchRaw(type);
     return WorldSquaresResult.fromLeaderboard(rows, nonPublic);

@@ -5,12 +5,17 @@ import 'package:trainlog_app/data/models/country_detail.dart';
 
 /// Base class shared by every leaderboard entry.
 ///
-/// The only field common to all ranking variants is the [username]; each
-/// concrete subclass adds the metric-specific fields.
+/// The fields common to all ranking variants are the [username] and the
+/// [isNonPublic] flag; each concrete subclass adds the metric-specific fields.
 abstract class RankingEntry {
   final String username;
 
-  const RankingEntry({required this.username});
+  /// Whether the user opted out of being public. Non-public users are still
+  /// included in the leaderboards; this flag is reserved for a later feature
+  /// (e.g. anonymising their row in the UI).
+  final bool isNonPublic;
+
+  const RankingEntry({required this.username, this.isNonPublic = false});
 }
 
 /// Intermediate class for the trip-based leaderboards (vehicle, `all`,
@@ -22,6 +27,7 @@ abstract class TripRankingEntry extends RankingEntry {
 
   const TripRankingEntry({
     required super.username,
+    super.isNonPublic,
     required this.lastModified,
     required this.trips,
   });
@@ -39,14 +45,19 @@ class LeaderboardEntry extends TripRankingEntry {
 
   const LeaderboardEntry({
     required super.username,
+    super.isNonPublic,
     required super.lastModified,
     required super.trips,
     required this.length,
   });
 
-  factory LeaderboardEntry.fromJson(Map<String, dynamic> json) {
+  factory LeaderboardEntry.fromJson(
+    Map<String, dynamic> json, {
+    bool isNonPublic = false,
+  }) {
     return LeaderboardEntry(
       username: json['username']?.toString() ?? '',
+      isNonPublic: isNonPublic,
       lastModified: parseLeaderboardDate(json['last_modified']),
       trips: _toInt(json['trips']),
       length: _toDouble(json['length']),
@@ -73,6 +84,7 @@ class CarbonLeaderboardEntry extends TripRankingEntry {
 
   const CarbonLeaderboardEntry({
     required super.username,
+    super.isNonPublic,
     required super.lastModified,
     required super.trips,
     required this.carbonPerKm,
@@ -80,9 +92,13 @@ class CarbonLeaderboardEntry extends TripRankingEntry {
     required this.totalDistance,
   });
 
-  factory CarbonLeaderboardEntry.fromJson(Map<String, dynamic> json) {
+  factory CarbonLeaderboardEntry.fromJson(
+    Map<String, dynamic> json, {
+    bool isNonPublic = false,
+  }) {
     return CarbonLeaderboardEntry(
       username: json['username']?.toString() ?? '',
+      isNonPublic: isNonPublic,
       lastModified: parseLeaderboardDate(json['last_modified']),
       trips: _toInt(json['trips']),
       carbonPerKm: _toDouble(json['carbon_per_km']),
@@ -107,16 +123,21 @@ class CountryLeaderboardEntry extends RankingEntry {
 
   const CountryLeaderboardEntry({
     required super.username,
+    super.isNonPublic,
     required this.countryCount,
     required this.countriesVisited,
   });
 
-  factory CountryLeaderboardEntry.fromJson(Map<String, dynamic> json) {
+  factory CountryLeaderboardEntry.fromJson(
+    Map<String, dynamic> json, {
+    bool isNonPublic = false,
+  }) {
     final visited = (json['countries_visited'] as List<dynamic>? ?? [])
         .map((e) => e.toString())
         .toList();
     return CountryLeaderboardEntry(
       username: json['username']?.toString() ?? '',
+      isNonPublic: isNonPublic,
       countryCount: _toInt(json['country_count']),
       countriesVisited: visited,
     );
@@ -141,8 +162,9 @@ class CountryLeaderboardEntry extends RankingEntry {
   }
 }
 
-/// The result of a leaderboard request: the public entries only (users listed
-/// in `non_public_users` are already filtered out by `RankingApi`).
+/// The result of a leaderboard request: every entry, including users listed in
+/// `non_public_users` (tagged via [RankingEntry.isNonPublic] by `RankingApi`
+/// rather than dropped).
 ///
 /// Sorting is intentionally not baked in — the same data is shown sorted by
 /// length, trips, carbon, … depending on the screen. Use [sortedBy] with a
@@ -206,26 +228,37 @@ extension CountryResultSorting on RankingResult<CountryLeaderboardEntry> {
       sortedBy((e) => e.countryCount, descending: descending);
 }
 
+/// A username appearing in a leaderboard, tagged with whether the user opted
+/// out of being public. Non-public users are still listed; [isNonPublic] is
+/// reserved for a later feature (e.g. anonymising their row in the UI).
+class RankedUser {
+  final String username;
+  final bool isNonPublic;
+
+  const RankedUser({required this.username, this.isNonPublic = false});
+}
+
 /// A single coverage tier within a country/subdivision: the [percent] of the
-/// rail network covered and the [usernames] of the users who reached it.
+/// rail network covered and the [users] who reached it.
 class RailCoverage {
   final double percent;
-  final List<String> usernames;
+  final List<RankedUser> users;
 
-  const RailCoverage({required this.percent, required this.usernames});
+  const RailCoverage({required this.percent, required this.users});
 
-  /// Parses one `{ "percent": .., "usernames": [..] }` tier, dropping users in
-  /// [nonPublic]. Returns `null` when no public users remain.
+  /// Parses one `{ "percent": .., "usernames": [..] }` tier, tagging users in
+  /// [nonPublic] via [RankedUser.isNonPublic] (they are kept, not dropped).
+  /// Returns `null` only when the tier lists no users at all.
   static RailCoverage? fromJson(
     Map<String, dynamic> json, {
     Set<String> nonPublic = const {},
   }) {
     final users = (json['usernames'] as List<dynamic>? ?? [])
         .map((e) => e.toString())
-        .where((u) => !nonPublic.contains(u))
+        .map((u) => RankedUser(username: u, isNonPublic: nonPublic.contains(u)))
         .toList();
     if (users.isEmpty) return null;
-    return RailCoverage(percent: _toDouble(json['percent']), usernames: users);
+    return RailCoverage(percent: _toDouble(json['percent']), users: users);
   }
 }
 
@@ -267,9 +300,8 @@ class RailPercentageEntry {
   CountryDetail country(BuildContext context) =>
       CountryDetail.fromCode(countryCode, context);
 
-  /// Parses one `leaderboard_data` row, dropping users in [nonPublic] (and any
-  /// tier or whole entry left empty as a result). Returns `null` when no public
-  /// users remain.
+  /// Parses one `leaderboard_data` row, tagging users in [nonPublic] (they are
+  /// kept, not dropped). Returns `null` only when the row lists no users at all.
   static RailPercentageEntry? fromJson(
     Map<String, dynamic> json, {
     Set<String> nonPublic = const {},
@@ -290,7 +322,8 @@ class RailPercentageEntry {
 }
 
 /// The result of the rail-percentage leaderboard, with country-level and
-/// subdivision-level entries kept apart (public users only).
+/// subdivision-level entries kept apart. Non-public users are included, tagged
+/// via [RankedUser.isNonPublic].
 class RailPercentageResult {
   /// Country-level entries (`cc` without a hyphen).
   final List<RailPercentageEntry> countries;
@@ -360,7 +393,7 @@ List<RailPercentageEntry> _sortByName(
 /// The result of the world-squares leaderboard
 /// (`/getLeaderboardUsers/world_squares`): coverage tiers (each listing the
 /// users who reached it), ordered by world-coverage percentage (highest
-/// first). Public users only.
+/// first). Non-public users are included, tagged via [RankedUser.isNonPublic].
 ///
 /// The backend sends a single `{ "cc": "world_squares", "data": [...] }` block:
 /// ```json
@@ -374,9 +407,9 @@ class WorldSquaresResult {
   bool get isEmpty => coverages.isEmpty;
   bool get isNotEmpty => coverages.isNotEmpty;
 
-  /// Builds the result from the raw `leaderboard_data` rows, dropping users in
-  /// [nonPublic]. The tiers come back ordered by coverage percentage; this
-  /// re-sorts defensively to guarantee highest-first.
+  /// Builds the result from the raw `leaderboard_data` rows, tagging users in
+  /// [nonPublic] via [RankedUser.isNonPublic]. The tiers come back ordered by
+  /// coverage percentage; this re-sorts defensively to guarantee highest-first.
   factory WorldSquaresResult.fromLeaderboard(
     List<Map<String, dynamic>> rows,
     Set<String> nonPublic,
