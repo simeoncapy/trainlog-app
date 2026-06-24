@@ -185,9 +185,9 @@ class _RankBadge extends StatelessWidget {
                   fontWeight: FontWeight.w800,
                 ),
                 children: [
-                  if (provider.maxRank > 0)
+                  if (provider.participantCount > 0)
                     TextSpan(
-                      text: '/${provider.maxRank}',
+                      text: '/${provider.participantCount}',
                       style: AppTheme.monoFont.copyWith(
                         color: cs.onInverseSurface.withValues(alpha: 0.6),
                         fontSize: 16,

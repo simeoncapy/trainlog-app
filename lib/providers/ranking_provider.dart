@@ -69,6 +69,9 @@ class RankingProvider extends ChangeNotifier {
   /// All rows with their competitive rank assigned.
   List<RankingDisplayEntry> get entries => _ranked;
 
+  /// The number of users on the current leaderboard.
+  int get participantCount => _ranked.length;
+
   /// The highest rank number on the current leaderboard. With competition
   /// ("1224") ranking, tied rows share a rank, so this can be lower than the
   /// number of ranked users.
