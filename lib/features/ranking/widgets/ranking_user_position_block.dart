@@ -8,6 +8,7 @@ import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/features/ranking/ranking_metrics.dart';
 import 'package:trainlog_app/features/ranking/ranking_type.dart';
 import 'package:trainlog_app/features/ranking/widgets/ranking_medal.dart';
+import 'package:trainlog_app/features/ranking/widgets/raw_value_tooltip.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/providers/ranking_provider.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
@@ -200,12 +201,20 @@ class _RankBadge extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 2),
-        Text(
-          _value(context),
-          style: AppTheme.monoFont.copyWith(
-            color: AppColors.amber,
-            fontSize: 14,
-            fontWeight: FontWeight.w700,
+        RawValueTooltip(
+          message: RankingMetrics.primaryTooltip(
+            context,
+            entry,
+            provider.selection,
+            provider.sortUnit,
+          ),
+          child: Text(
+            _value(context),
+            style: AppTheme.monoFont.copyWith(
+              color: AppColors.amber,
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ),
       ],

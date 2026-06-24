@@ -108,6 +108,19 @@ abstract final class NumberFormatter {
     return NumberFormat(pattern, locale.toString()).format(value);
   }
 
+  /// Full-precision grouped number, used for "raw value" tooltips: keeps up to
+  /// [maxDecimals] fractional digits (trailing zeros stripped) so the underlying
+  /// value is shown without SI scaling or the display rounding applied by
+  /// [decimal] / [compactParts].
+  static String precise(
+    num value, {
+    required Locale locale,
+    int maxDecimals = 6,
+  }) {
+    final pattern = '#,##0.${'#' * maxDecimals}';
+    return NumberFormat(pattern, locale.toString()).format(value);
+  }
+
   /// Currency-style grouped number with an optional explicit sign.
   static String currency(
     num amount, {
