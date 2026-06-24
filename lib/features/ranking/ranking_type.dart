@@ -220,6 +220,10 @@ class RankingDisplayEntry {
   final int rank;
   final String username;
 
+  /// Whether the user opted out of being public. Such users are still shown in
+  /// the leaderboard; this flag is reserved for a later feature.
+  final bool isNonPublic;
+
   /// Total distance in kilometres (0 when not applicable).
   final double distanceKm;
 
@@ -241,6 +245,7 @@ class RankingDisplayEntry {
   const RankingDisplayEntry({
     required this.rank,
     required this.username,
+    this.isNonPublic = false,
     this.distanceKm = 0,
     this.trips = 0,
     this.percent,
@@ -252,6 +257,7 @@ class RankingDisplayEntry {
   RankingDisplayEntry copyWithRank(int newRank) => RankingDisplayEntry(
         rank: newRank,
         username: username,
+        isNonPublic: isNonPublic,
         distanceKm: distanceKm,
         trips: trips,
         percent: percent,

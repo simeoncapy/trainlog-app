@@ -69,7 +69,7 @@ class RankingProvider extends ChangeNotifier {
   /// All rows with their competitive rank assigned.
   List<RankingDisplayEntry> get entries => _ranked;
 
-  /// The current user's row, if they appear in the public leaderboard.
+  /// The current user's row, if they appear in the leaderboard.
   RankingDisplayEntry? get currentUserEntry {
     final me = _trainlog.username;
     if (me == null) return null;
@@ -202,6 +202,7 @@ class RankingProvider extends ChangeNotifier {
           (e) => RankingDisplayEntry(
             rank: 0,
             username: e.username,
+            isNonPublic: e.isNonPublic,
             distanceKm: e.totalDistance / 1000.0,
             trips: e.trips,
             totalCarbonKg: e.totalCarbon,
@@ -221,6 +222,7 @@ class RankingProvider extends ChangeNotifier {
           (e) => RankingDisplayEntry(
             rank: 0,
             username: e.username,
+            isNonPublic: e.isNonPublic,
             distanceKm: e.length / 1000.0,
             trips: e.trips,
             lastModified: e.lastModified,
@@ -234,11 +236,12 @@ class RankingProvider extends ChangeNotifier {
     // to one row per user.
     final rows = <RankingDisplayEntry>[];
     for (final tier in res.coverages) {
-      for (final user in tier.usernames) {
+      for (final user in tier.users) {
         rows.add(
           RankingDisplayEntry(
             rank: 0,
-            username: user,
+            username: user.username,
+            isNonPublic: user.isNonPublic,
             percent: tier.percent,
           ),
         );
@@ -247,9 +250,13 @@ class RankingProvider extends ChangeNotifier {
     return rows;
   }
 
+  /// The raw value used for ranking under the active selection/unit. Two rows
+  /// are tied only when this is exactly equal (regardless of how it is rounded
+  /// for display).
+  double metricOf(RankingDisplayEntry e) => _metric(e);
+
   /// The value used both for ranking and for the natural (value) display order.
-  double _metric(RankingDisplayEntry e) {
-    if (_selection.isWorldSquares) return e.percent ?? 0;
+  double _metric(RankingDisplayEntry e) {    if (_selection.isWorldSquares) return e.percent ?? 0;
     switch (_sortUnit) {
       case RankingSortUnit.distance:
         return e.distanceKm;
@@ -273,11 +280,22 @@ class RankingProvider extends ChangeNotifier {
     return a.username.toLowerCase().compareTo(b.username.toLowerCase());
   }
 
-  /// (Re)assigns competitive ranks by the active metric, best first.
+  /// (Re)assigns competitive ranks by the active metric, best first, using
+  /// standard competition ranking ("1224"): rows with the exact same metric
+  /// value share one rank, and the next distinct value resumes at its absolute
+  /// position. This keeps the rank stable across the alphabetical and direction
+  /// toggles — tied users always carry the same number wherever they appear.
   void _assignRanks() {
     final sorted = List<RankingDisplayEntry>.of(_ranked)..sort(_compareBest);
+    var rank = 0;
+    double? previous;
     for (var i = 0; i < sorted.length; i++) {
-      sorted[i] = sorted[i].copyWithRank(i + 1);
+      final value = _metric(sorted[i]);
+      if (i == 0 || value != previous) {
+        rank = i + 1;
+        previous = value;
+      }
+      sorted[i] = sorted[i].copyWithRank(rank);
     }
     _ranked = sorted;
   }
