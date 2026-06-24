@@ -115,7 +115,7 @@ abstract final class NumberFormatter {
   static String precise(
     num value, {
     required Locale locale,
-    int maxDecimals = 6,
+    int maxDecimals = 3,
   }) {
     final pattern = '#,##0.${'#' * maxDecimals}';
     return NumberFormat(pattern, locale.toString()).format(value);
