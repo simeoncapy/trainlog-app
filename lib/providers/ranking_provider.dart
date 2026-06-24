@@ -69,6 +69,17 @@ class RankingProvider extends ChangeNotifier {
   /// All rows with their competitive rank assigned.
   List<RankingDisplayEntry> get entries => _ranked;
 
+  /// The highest rank number on the current leaderboard. With competition
+  /// ("1224") ranking, tied rows share a rank, so this can be lower than the
+  /// number of ranked users.
+  int get maxRank {
+    var max = 0;
+    for (final e in _ranked) {
+      if (e.rank > max) max = e.rank;
+    }
+    return max;
+  }
+
   /// The current user's row, if they appear in the leaderboard.
   RankingDisplayEntry? get currentUserEntry {
     final me = _trainlog.username;

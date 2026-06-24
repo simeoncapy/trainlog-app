@@ -176,12 +176,25 @@ class _RankBadge extends StatelessWidget {
               RankingMedal(rank: entry.rank, size: 22),
               const SizedBox(width: 4),
             ],
-            Text(
-              loc.rankingPositionValue(entry.rank),
-              style: AppTheme.monoFont.copyWith(
-                color: cs.onInverseSurface,
-                fontSize: 28,
-                fontWeight: FontWeight.w800,
+            Text.rich(
+              TextSpan(
+                text: loc.rankingPositionValue(entry.rank),
+                style: AppTheme.monoFont.copyWith(
+                  color: cs.onInverseSurface,
+                  fontSize: 28,
+                  fontWeight: FontWeight.w800,
+                ),
+                children: [
+                  if (provider.maxRank > 0)
+                    TextSpan(
+                      text: '/${provider.maxRank}',
+                      style: AppTheme.monoFont.copyWith(
+                        color: cs.onInverseSurface.withValues(alpha: 0.6),
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                ],
               ),
             ),
           ],
