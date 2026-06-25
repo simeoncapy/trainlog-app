@@ -6,6 +6,7 @@ import 'package:trainlog_app/providers/polyline_provider.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
+import 'package:trainlog_app/services/flag_cache.dart';
 
 class AppProviders extends StatelessWidget {
   final SettingsProvider settings;
@@ -28,6 +29,13 @@ class AppProviders extends StatelessWidget {
       providers: [
         ChangeNotifierProvider<SettingsProvider>.value(value: settings),
         ChangeNotifierProvider<TrainlogProvider>.value(value: auth),
+
+        // Flag SVGs are fetched once, sanitised and cached (memory + disk) so
+        // the leaderboard lists never re-hit the network while scrolling.
+        Provider<FlagCache>(
+          create: (ctx) =>
+              FlagCache(ctx.read<TrainlogProvider>().fetchFlagSvg),
+        ),
 
         ChangeNotifierProxyProvider2<TrainlogProvider, SettingsProvider, TripsProvider>(
           create: (_) => TripsProvider(),

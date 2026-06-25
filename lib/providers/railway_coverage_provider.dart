@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 
 import 'package:trainlog_app/data/models/country_detail.dart';
 import 'package:trainlog_app/data/models/ranking_model.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
+import 'package:trainlog_app/services/flag_cache.dart';
 
 /// The two sub-views of the Railway Coverage feature.
 enum RailCoverageTab { countries, regions }
@@ -37,7 +40,12 @@ typedef RailUserStanding = ({int rank, int contenders, int ledCount});
 class RailwayCoverageProvider extends ChangeNotifier {
   final TrainlogProvider _trainlog;
 
-  RailwayCoverageProvider(this._trainlog);
+  /// Optional flag cache; when provided, every area's flag is preloaded in the
+  /// background once the leaderboard data arrives.
+  final FlagCache? _flagCache;
+
+  RailwayCoverageProvider(this._trainlog, {FlagCache? flagCache})
+      : _flagCache = flagCache;
 
   // ── UI state ───────────────────────────────────────────────────────────────
 
@@ -117,6 +125,7 @@ class RailwayCoverageProvider extends ChangeNotifier {
       final res = await _trainlog.fetchRankingForRailPercentage();
       if (_disposed) return;
       _result = res;
+      _preloadFlags(res);
     } catch (e) {
       if (_disposed) return;
       _error = e.toString();
@@ -125,6 +134,18 @@ class RailwayCoverageProvider extends ChangeNotifier {
 
     _loading = false;
     _safeNotify();
+  }
+
+  /// Warms the flag cache for every country and subdivision in [result] so the
+  /// list rows render instantly from memory instead of fetching while scrolling.
+  void _preloadFlags(RailPercentageResult result) {
+    final cache = _flagCache;
+    if (cache == null) return;
+    final codes = <String>{
+      for (final e in result.countries) e.countryCode,
+      for (final e in result.subdivisions) e.code,
+    };
+    if (codes.isNotEmpty) unawaited(cache.preload(codes));
   }
 
   // ── Derived lists ────────────────────────────────────────────────────────────

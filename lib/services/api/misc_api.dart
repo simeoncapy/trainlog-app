@@ -123,6 +123,26 @@ class MiscApi {
     return _prefixLogo(_client.logoPath, 'images/flags/$normalized.svg');
   }
 
+  /// Downloads the raw SVG markup for a flag [code] (country or ISO 3166-2
+  /// subdivision), or `null` when the backend has no asset for it. Used by the
+  /// flag cache so vectors are fetched once and reused/persisted, rather than
+  /// re-requested over the network on every scroll.
+  Future<String?> fetchFlagSvg(String code) async {
+    final path = '/static/images/flags/${code.trim().toLowerCase()}.svg';
+    try {
+      final res = await _client.safeGet<String>(
+        path,
+        responseType: ResponseType.plain,
+      );
+      final data = res.data;
+      if (data == null || data.trim().isEmpty) return null;
+      return data;
+    } catch (e) {
+      debugPrint('🛑 fetchFlagSvg($code) failed: $e');
+      return null;
+    }
+  }
+
   // ---- helpers ----
   String _prefixLogo(String base, String path) {
     if (path.isEmpty) return path;

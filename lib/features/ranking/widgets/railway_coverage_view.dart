@@ -13,6 +13,7 @@ import 'package:trainlog_app/platform/adaptive_page_route.dart';
 import 'package:trainlog_app/platform/widget/adaptive_popup.dart';
 import 'package:trainlog_app/providers/railway_coverage_provider.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
+import 'package:trainlog_app/services/flag_cache.dart';
 import 'package:trainlog_app/utils/number_formatter.dart';
 import 'package:trainlog_app/utils/text_utils.dart';
 import 'package:trainlog_app/widgets/app_steps_tab_bar.dart';
@@ -29,8 +30,10 @@ class RailwayCoverageView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (ctx) =>
-          RailwayCoverageProvider(ctx.read<TrainlogProvider>())..load(),
+      create: (ctx) => RailwayCoverageProvider(
+        ctx.read<TrainlogProvider>(),
+        flagCache: ctx.read<FlagCache>(),
+      )..load(),
       child: const _RailwayCoverageBody(),
     );
   }
