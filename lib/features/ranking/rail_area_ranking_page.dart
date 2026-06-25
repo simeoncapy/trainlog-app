@@ -240,8 +240,6 @@ class _AreaUserRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final isComplete = row.percent >= 100.0 - 1e-9;
-    final valueColor = isComplete ? AppColors.early : cs.primary;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
@@ -285,7 +283,7 @@ class _AreaUserRow extends StatelessWidget {
             style: AppTheme.monoFont.copyWith(
               fontSize: 16,
               fontWeight: FontWeight.w800,
-              color: valueColor,
+              color: cs.onSurface,
             ),
           ),
         ],

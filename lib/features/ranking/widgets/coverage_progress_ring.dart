@@ -8,10 +8,9 @@ import 'package:trainlog_app/utils/number_formatter.dart';
 
 /// Circular coverage indicator used in the Countries / Regions list rows.
 ///
-/// At exactly 100% it renders a solid green ([AppColors.early]) disc with the
-/// white "100" centered inside. Below 100% it draws a primary-themed arc sector
-/// matching the completion ratio over a faint track, with the rounded
-/// percentage centered.
+/// Always rendered as a ring: a primary-themed arc sector matching the
+/// completion ratio over a faint track, with the rounded percentage centered.
+/// At exactly 100% the arc is a complete green ([AppColors.early]) ring.
 class CoverageProgressRing extends StatelessWidget {
   /// Coverage in the 0–100 range.
   final double percent;
@@ -42,7 +41,6 @@ class CoverageProgressRing extends StatelessWidget {
           fraction: (percent / 100).clamp(0.0, 1.0),
           color: color,
           track: cs.onSurface.withValues(alpha: 0.10),
-          filled: _isComplete,
         ),
         child: Center(
           child: Text(
@@ -50,7 +48,7 @@ class CoverageProgressRing extends StatelessWidget {
             style: AppTheme.monoFont.copyWith(
               fontSize: size * 0.30,
               fontWeight: FontWeight.w800,
-              color: _isComplete ? Colors.white : color,
+              color: color,
             ),
           ),
         ),
@@ -63,24 +61,17 @@ class _RingPainter extends CustomPainter {
   final double fraction;
   final Color color;
   final Color track;
-  final bool filled;
 
   _RingPainter({
     required this.fraction,
     required this.color,
     required this.track,
-    required this.filled,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
     final center = size.center(Offset.zero);
     final radius = size.width / 2;
-
-    if (filled) {
-      canvas.drawCircle(center, radius, Paint()..color = color);
-      return;
-    }
 
     final strokeWidth = size.width * 0.12;
     final r = radius - strokeWidth / 2;
@@ -108,8 +99,5 @@ class _RingPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_RingPainter old) =>
-      old.fraction != fraction ||
-      old.color != color ||
-      old.track != track ||
-      old.filled != filled;
+      old.fraction != fraction || old.color != color || old.track != track;
 }

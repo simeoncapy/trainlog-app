@@ -14,6 +14,7 @@ import 'package:trainlog_app/platform/widget/adaptive_popup.dart';
 import 'package:trainlog_app/providers/railway_coverage_provider.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/utils/number_formatter.dart';
+import 'package:trainlog_app/utils/text_utils.dart';
 import 'package:trainlog_app/widgets/app_steps_tab_bar.dart';
 
 /// The Railway Coverage sub-feature: a user-position block, a Countries/Regions
@@ -289,8 +290,7 @@ class _CoverageRow extends StatelessWidget {
                     const SizedBox(height: 3),
                     Row(
                       children: [
-                        Icon(Icons.emoji_events,
-                            size: 13, color: cs.onSurfaceVariant),
+                        Icon(Icons.emoji_events, size: 13, color: cs.primary),
                         const SizedBox(width: 4),
                         Expanded(
                           child: Text(
@@ -355,7 +355,10 @@ class _RegionCountryDropdown extends StatelessWidget {
           AdaptivePopupItem<String>(
             value: o.code,
             label: '${o.name} (${loc.railCoverageRegionCount(o.count)})',
-            leading: FlagImage(code: o.code, size: 24),
+            leading: Text(
+              countryCodeToEmoji(o.code),
+              style: const TextStyle(fontSize: 20),
+            ),
           ),
       ],
       child: Container(
@@ -371,7 +374,10 @@ class _RegionCountryDropdown extends StatelessWidget {
         child: Row(
           children: [
             if (selected != null) ...[
-              FlagImage(code: selected.code, size: 26),
+              Text(
+                countryCodeToEmoji(selected.code),
+                style: const TextStyle(fontSize: 22),
+              ),
               const SizedBox(width: 10),
             ] else ...[
               Icon(Icons.public, size: 20, color: cs.onSurfaceVariant),

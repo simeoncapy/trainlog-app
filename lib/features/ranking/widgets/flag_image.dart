@@ -20,6 +20,7 @@ class FlagImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     final url = context.read<TrainlogProvider>().flagUrl(code);
     final countryCode = code.split('-').first;
 
@@ -30,16 +31,21 @@ class FlagImage extends StatelessWidget {
       ),
     );
 
-    return SizedBox(
+    return Container(
       width: size,
       height: size * 0.72,
-      child: ClipRRect(
+      decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(4),
-        child: SvgPicture.network(
-          url,
-          fit: BoxFit.cover,
-          placeholderBuilder: (_) => fallback,
+        border: Border.all(
+          color: cs.outline.withValues(alpha: 0.4),
+          width: 0.8,
         ),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: SvgPicture.network(
+        url,
+        fit: BoxFit.cover,
+        placeholderBuilder: (_) => fallback,
       ),
     );
   }
