@@ -6,6 +6,7 @@ import 'package:trainlog_app/app/theme/app_theme.dart';
 import 'package:trainlog_app/features/ranking/ranking_metrics.dart';
 import 'package:trainlog_app/features/ranking/ranking_type.dart';
 import 'package:trainlog_app/features/ranking/widgets/ranking_medal.dart';
+import 'package:trainlog_app/features/ranking/widgets/raw_value_tooltip.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/providers/ranking_provider.dart';
 import 'package:trainlog_app/utils/number_formatter.dart';
@@ -166,36 +167,29 @@ class RankingRow extends StatelessWidget {
                       ),
                   overflow: TextOverflow.ellipsis,
                 ),
-                if (_secondaryMetric(context) != null)
-                  Text(
-                    _secondaryMetric(context)!,
-                    style: AppTheme.monoFont.copyWith(
-                      fontSize: 12,
-                      color: cs.onSurfaceVariant,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                if (_lastConnection(context) != null)
-                  Text(
-                    _lastConnection(context)!,
-                    style: AppTheme.monoFont.copyWith(
-                      fontSize: 11,
-                      color: cs.onSurfaceVariant.withValues(alpha: 0.7),
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
+                ..._supportingLines(context, cs),
               ],
             ),
           ),
           const SizedBox(width: 8),
           // CO2e/km is rendered as a coloured threshold pill; everything else
-          // as the large value + stacked unit.
+          // as the large value + stacked unit. Both reveal the raw base-unit
+          // value on tap (see [RawValueTooltip]).
           if (_isCarbon && sortUnit == RankingSortUnit.carbonPerKm)
-            _CarbonPill(gPerKm: entry.carbonPerKmG)
+            _CarbonPill(
+              gPerKm: entry.carbonPerKmG,
+              tooltip: RankingMetrics.rawTooltip(
+                  context, entry, RankingSortUnit.carbonPerKm),
+            )
           else
             Builder(builder: (context) {
               final primary = _primary(context);
-              return _PrimaryValue(value: primary.value, unit: primary.unit);
+              return _PrimaryValue(
+                value: primary.value,
+                unit: primary.unit,
+                tooltip: RankingMetrics.primaryTooltip(
+                    context, entry, selection, sortUnit),
+              );
             }),
         ],
       ),
@@ -208,23 +202,53 @@ class RankingRow extends StatelessWidget {
   CompactNumber _primary(BuildContext context) =>
       RankingMetrics.primary(context, entry, selection, sortUnit);
 
-  /// Secondary supporting metric (first non-primary value).
-  String? _secondaryMetric(BuildContext context) {
+  /// The supporting lines beneath the username: the first non-primary metric,
+  /// then either the second metric (carbon has two secondaries) or the last
+  /// activity date. Metric lines reveal their raw base-unit value on tap; the
+  /// date does not.
+  List<Widget> _supportingLines(BuildContext context, ColorScheme cs) {
     final secondaries =
-        RankingMetrics.secondaries(context, entry, selection, sortUnit);
-    return secondaries.isEmpty ? null : secondaries.first;
-  }
+        RankingMetrics.secondaryMetrics(context, entry, selection, sortUnit);
+    final lines = <Widget>[];
 
-  /// Third line: the second carbon metric for carbon (two secondaries),
-  /// otherwise the last connection (last activity).
-  String? _lastConnection(BuildContext context) {
-    final secondaries =
-        RankingMetrics.secondaries(context, entry, selection, sortUnit);
-    if (secondaries.length >= 2) return secondaries.last;
-    final date = entry.lastModified;
-    if (date == null) return null;
-    return DateFormat.yMMM(Localizations.localeOf(context).toString())
-        .format(date);
+    if (secondaries.isNotEmpty) {
+      final m = secondaries.first;
+      lines.add(RawValueTooltip(
+        message: m.tooltip,
+        child: Text(
+          m.inline,
+          style: AppTheme.monoFont.copyWith(
+            fontSize: 12,
+            color: cs.onSurfaceVariant,
+          ),
+          overflow: TextOverflow.ellipsis,
+        ),
+      ));
+    }
+
+    final lineStyle = AppTheme.monoFont.copyWith(
+      fontSize: 11,
+      color: cs.onSurfaceVariant.withValues(alpha: 0.7),
+    );
+    if (secondaries.length >= 2) {
+      final m = secondaries.last;
+      lines.add(RawValueTooltip(
+        message: m.tooltip,
+        child: Text(m.inline, style: lineStyle, overflow: TextOverflow.ellipsis),
+      ));
+    } else {
+      final date = entry.lastModified;
+      if (date != null) {
+        lines.add(Text(
+          DateFormat.yMMM(Localizations.localeOf(context).toString())
+              .format(date),
+          style: lineStyle,
+          overflow: TextOverflow.ellipsis,
+        ));
+      }
+    }
+
+    return lines;
   }
 }
 
@@ -324,7 +348,10 @@ class _Monogram extends StatelessWidget {
 class _CarbonPill extends StatelessWidget {
   final double gPerKm;
 
-  const _CarbonPill({required this.gPerKm});
+  /// Raw, full-precision `g/km` value revealed on tap (the pill itself rounds).
+  final String? tooltip;
+
+  const _CarbonPill({required this.gPerKm, this.tooltip});
 
   @override
   Widget build(BuildContext context) {
@@ -335,7 +362,9 @@ class _CarbonPill extends StatelessWidget {
       noDecimal: true,
     );
 
-    return Container(
+    return RawValueTooltip(
+      message: tooltip,
+      child: Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.15),
@@ -365,6 +394,7 @@ class _CarbonPill extends StatelessWidget {
           ),
         ],
       ),
+      ),
     );
   }
 }
@@ -374,12 +404,18 @@ class _PrimaryValue extends StatelessWidget {
   final String value;
   final String unit;
 
-  const _PrimaryValue({required this.value, required this.unit});
+  /// Raw, full-precision base-unit value revealed on tap (null when the value
+  /// is shown exactly, e.g. a plain trip count).
+  final String? tooltip;
+
+  const _PrimaryValue({required this.value, required this.unit, this.tooltip});
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return Column(
+    return RawValueTooltip(
+      message: tooltip,
+      child: Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
@@ -402,6 +438,7 @@ class _PrimaryValue extends StatelessWidget {
           ),
         ),
       ],
+      ),
     );
   }
 }

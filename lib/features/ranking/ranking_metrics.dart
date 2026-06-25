@@ -67,6 +67,46 @@ abstract final class RankingMetrics {
   static String inline(CompactNumber n) =>
       n.unit.isEmpty ? n.value : '${n.value} ${n.unit}';
 
+  /// The raw, full-precision value of [unit] for [entry], expressed in the base
+  /// unit (km, kg, g/km…), for a "tap to reveal" tooltip.
+  ///
+  /// Returns null for metrics that are already shown exactly — a plain trip
+  /// count is neither rounded nor SI-prefixed, so it needs no tooltip.
+  static String? rawTooltip(
+    BuildContext context,
+    RankingDisplayEntry entry,
+    RankingSortUnit unit,
+  ) {
+    final loc = AppLocalizations.of(context)!;
+    final locale = Localizations.localeOf(context);
+    switch (unit) {
+      case RankingSortUnit.distance:
+        return '${NumberFormatter.precise(entry.distanceKm, locale: locale)} '
+            '${MeasurementUnit.distance.baseUnit(loc)}';
+      case RankingSortUnit.totalCarbon:
+        return '${NumberFormatter.precise(entry.totalCarbonKg, locale: locale)} '
+            '${MeasurementUnit.co2.baseUnit(loc)}';
+      case RankingSortUnit.carbonPerKm:
+        return '${NumberFormatter.precise(entry.carbonPerKmG, locale: locale)} '
+            'g/km';
+      case RankingSortUnit.trips:
+        return null;
+    }
+  }
+
+  /// The raw-value tooltip for the primary metric, or null when the displayed
+  /// value is already exact. World-squares shows a percentage with no SI prefix,
+  /// so it needs no tooltip.
+  static String? primaryTooltip(
+    BuildContext context,
+    RankingDisplayEntry entry,
+    RankingSelection selection,
+    RankingSortUnit unit,
+  ) {
+    if (selection.isWorldSquares) return null;
+    return rawTooltip(context, entry, unit);
+  }
+
   /// The primary metric (the active [unit], or the percentage for
   /// world-squares) as a value + unit pair.
   static CompactNumber primary(
@@ -102,9 +142,9 @@ abstract final class RankingMetrics {
     return inline(format(context, entry, unit));
   }
 
-  /// The non-primary metrics, formatted inline, in display order. Empty for
-  /// world-squares.
-  static List<String> secondaries(
+  /// The non-primary metrics, each as its inline string plus the optional
+  /// raw-value tooltip, in display order. Empty for world-squares.
+  static List<RankingMetricText> secondaryMetrics(
     BuildContext context,
     RankingDisplayEntry entry,
     RankingSelection selection,
@@ -113,7 +153,28 @@ abstract final class RankingMetrics {
     if (selection.isWorldSquares) return const [];
     return [
       for (final u in unitsFor(selection.type))
-        if (u != unit) inline(format(context, entry, u)),
+        if (u != unit)
+          (
+            inline: inline(format(context, entry, u)),
+            tooltip: rawTooltip(context, entry, u),
+          ),
     ];
   }
+
+  /// The non-primary metrics, formatted inline, in display order. Empty for
+  /// world-squares.
+  static List<String> secondaries(
+    BuildContext context,
+    RankingDisplayEntry entry,
+    RankingSelection selection,
+    RankingSortUnit unit,
+  ) =>
+      [
+        for (final m in secondaryMetrics(context, entry, selection, unit))
+          m.inline,
+      ];
 }
+
+/// A formatted metric: the [inline] display string and, when the displayed value
+/// is rounded or SI-prefixed, the raw base-unit [tooltip] to reveal on tap.
+typedef RankingMetricText = ({String inline, String? tooltip});
