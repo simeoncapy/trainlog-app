@@ -30,12 +30,13 @@ enum RankingType {
 
   /// Whether a functional view exists for this category in the current batch.
   ///
-  /// [all], [vehicles], [worldSquares] and [carbon] are implemented; the others
-  /// are rendered as disabled pills.
+  /// [all], [vehicles], [worldSquares], [railwayCoverage] and [carbon] are
+  /// implemented; the remaining ones are rendered as disabled pills.
   bool get isImplemented =>
       this == RankingType.all ||
       this == RankingType.vehicles ||
       this == RankingType.worldSquares ||
+      this == RankingType.railwayCoverage ||
       this == RankingType.carbon;
 
   /// Localized label for the category pill (vehicle pills use the vehicle name).

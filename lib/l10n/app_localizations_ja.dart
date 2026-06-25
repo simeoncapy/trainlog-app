@@ -504,6 +504,41 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
+  String get railCoverageCountriesTab => '国';
+
+  @override
+  String get railCoverageRegionsTab => '地域';
+
+  @override
+  String get railCoverageSelectRegion => '地域を選択';
+
+  @override
+  String railCoverageRegionCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 地域',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String railCoverageLeadCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      zero: '首位の国はありません',
+      other: '$count か国で首位',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String railCoverageAreaSubtitle(String area) {
+    return '$area の鉄道カバー率';
+  }
+
+  @override
   String get menuStatisticsTitle => '統計';
 
   @override

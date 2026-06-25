@@ -198,6 +198,30 @@
       "vehicle": { "type": "String" }
     }
   },
+  "railCoverageCountriesTab": "Countries",
+  "railCoverageRegionsTab": "Regions",
+  "railCoverageSelectRegion": "Select a region",
+  "railCoverageRegionCount": "{count, plural, =1 {{count} region} other {{count} regions}}",
+  "@railCoverageRegionCount": {
+    "description": "Number of regions (subdivisions) of a country in the railway coverage dropdown",
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "railCoverageLeadCount": "{count, plural, =0 {You lead no countries} =1 {You lead 1 country} other {You lead {count} countries}}",
+  "@railCoverageLeadCount": {
+    "description": "Summary of how many countries the user is the leader of in railway coverage",
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "railCoverageAreaSubtitle": "{area} railway coverage",
+  "@railCoverageAreaSubtitle": {
+    "description": "Subtitle on the railway coverage drill-down page, e.g. 'Japan railway coverage'",
+    "placeholders": {
+      "area": { "type": "String" }
+    }
+  },
   "menuStatisticsTitle": "Statistics",
   "menuDashboardTitle": "Dashboard",
   "menuCoverageTitle": "Coverage",

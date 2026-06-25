@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:trainlog_app/features/ranking/ranking_type.dart';
+import 'package:trainlog_app/features/ranking/widgets/railway_coverage_view.dart';
 import 'package:trainlog_app/features/ranking/widgets/ranking_filter_controls.dart';
 import 'package:trainlog_app/features/ranking/widgets/ranking_list_view.dart';
 import 'package:trainlog_app/features/ranking/widgets/ranking_selector_bar.dart';
@@ -52,6 +54,11 @@ class _RankingPageState extends State<RankingPage> {
       create: (ctx) => RankingProvider(ctx.read<TrainlogProvider>())..load(),
       builder: (context, _) {
         final provider = context.watch<RankingProvider>();
+        // The Railway Coverage category has its own self-contained layout
+        // (tabs + lists) and hides the page-level search action — search lives
+        // on its drill-down ranking pages instead.
+        final isRail =
+            provider.selection.type == RankingType.railwayCoverage;
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -70,16 +77,17 @@ class _RankingPageState extends State<RankingPage> {
                               ),
                     ),
                   ),
-                  AdaptiveAppBarSquareButton(
-                    onPressed: _toggleSearch,
-                    icon: _searchOpen ? Icons.search_off : Icons.search,
-                    tooltip: loc.rankingSearchHint,
-                  ),
+                  if (!isRail)
+                    AdaptiveAppBarSquareButton(
+                      onPressed: _toggleSearch,
+                      icon: _searchOpen ? Icons.search_off : Icons.search,
+                      tooltip: loc.rankingSearchHint,
+                    ),
                 ],
               ),
             ),
 
-            if (_searchOpen)
+            if (_searchOpen && !isRail)
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                 child: TextField(
@@ -105,27 +113,28 @@ class _RankingPageState extends State<RankingPage> {
             ),
             const SizedBox(height: 12),
 
-            // ── User position block ───────────────────────────────────────
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: RankingUserPositionBlock(provider: provider),
-            ),
-            const SizedBox(height: 12),
-
-            // ── Filter controls ───────────────────────────────────────────
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: RankingFilterControls(provider: provider),
-            ),
-            const SizedBox(height: 8),
-
-            // ── Ranking list ──────────────────────────────────────────────
-            Expanded(
-              child: RankingListView(
-                provider: provider,
-                searchQuery: _searchQuery,
+            // ── Body: Railway Coverage has its own layout; every other
+            //    category shares the position block + filters + list. ───────
+            if (isRail)
+              const Expanded(child: RailwayCoverageView())
+            else ...[
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: RankingUserPositionBlock(provider: provider),
               ),
-            ),
+              const SizedBox(height: 12),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: RankingFilterControls(provider: provider),
+              ),
+              const SizedBox(height: 8),
+              Expanded(
+                child: RankingListView(
+                  provider: provider,
+                  searchQuery: _searchQuery,
+                ),
+              ),
+            ],
             SizedBox(height: navClearance),
           ],
         );

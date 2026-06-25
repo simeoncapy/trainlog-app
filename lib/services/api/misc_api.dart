@@ -111,6 +111,18 @@ class MiscApi {
     }
   }
 
+  /// Resolves the static SVG flag asset for an ISO country code (`"JP"`) or an
+  /// ISO 3166-2 subdivision code (`"JP-13"`), normalising it to lowercase and
+  /// mapping it onto the backend vector route:
+  /// `/static/images/flags/<code>.svg`.
+  ///
+  /// Returns the fully-qualified URL so it can be handed straight to a network
+  /// SVG widget. Mirrors the logo-URL resolution used for operator logos.
+  String fetchFlag(String code) {
+    final normalized = code.trim().toLowerCase();
+    return _prefixLogo(_client.logoPath, 'images/flags/$normalized.svg');
+  }
+
   // ---- helpers ----
   String _prefixLogo(String base, String path) {
     if (path.isEmpty) return path;
