@@ -234,7 +234,7 @@ class _TripsDataSource extends DataTableSource {
           Row(
             children: [
               Text(time),
-              if (delay != null && delayFormatted != null)
+              if (delay != null && delayFormatted != null && delay != 0)
                 Text(
                   ' ($delayFormatted)',
                   style: TextStyle(

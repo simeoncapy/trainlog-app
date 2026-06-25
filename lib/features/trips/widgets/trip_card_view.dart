@@ -452,7 +452,7 @@ class _TimeLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (delay != null && delayText != null) {
+    if (delay != null && delayText != null && delay != 0) {
       return Text.rich(
         TextSpan(children: [
           TextSpan(text: time, style: style),
