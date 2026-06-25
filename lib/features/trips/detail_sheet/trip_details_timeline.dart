@@ -52,7 +52,7 @@ class TripDetailsTimeline extends StatelessWidget {
               children: [
                 _TimeBlock(
                   main: _time(context, trip.realStartDate),
-                  scheduled: trip.hasDepartureDelay
+                  scheduled: trip.hasDepartureDelay && trip.departureDelayInMinutes != 0
                       ? _time(context, trip.startDatetime)
                       : null,
                   delta: trip.departureDelayFormatted,
@@ -60,7 +60,7 @@ class TripDetailsTimeline extends StatelessWidget {
                 ),
                 _TimeBlock(
                   main: _time(context, trip.realEndDate),
-                  scheduled: trip.hasArrivalDelay
+                  scheduled: trip.hasArrivalDelay && trip.arrivalDelayInMinutes != 0
                       ? _time(context, trip.endDatetime)
                       : null,
                   delta: trip.arrivalDelayFormatted,
