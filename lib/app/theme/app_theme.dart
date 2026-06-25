@@ -45,7 +45,6 @@ abstract final class AppTheme {
       inverseSurface: AppColors.navy,
       onInverseSurface: AppColors.darkText,
       inversePrimary: AppColors.amberDk,
-      surfaceContainerHighest:AppColors.amberSoft
     );
 
     final textTheme = _baseTextTheme.apply(
@@ -147,7 +146,6 @@ abstract final class AppTheme {
       inverseSurface: AppColors.lightBg,
       onInverseSurface: AppColors.lightText,
       inversePrimary: AppColors.amberDk,
-      surfaceContainerHighest:AppColors.lightText2
     );
 
     final textTheme = _baseTextTheme.apply(
