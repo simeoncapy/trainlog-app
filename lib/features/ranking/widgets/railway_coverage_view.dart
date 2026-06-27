@@ -51,12 +51,6 @@ class _RailwayCoverageBody extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // ── User position block ───────────────────────────────────────────
-        // Padding(
-        //   padding: const EdgeInsets.symmetric(horizontal: 16),
-        //   child: _positionBlock(context, provider, loc),
-        // ),
-        // const SizedBox(height: 12),
 
         // ── Tab bar + inline sorting ──────────────────────────────────────
         Padding(
@@ -100,40 +94,6 @@ class _RailwayCoverageBody extends StatelessWidget {
         // ── List ──────────────────────────────────────────────────────────
         Expanded(child: _buildList(context, provider, loc)),
       ],
-    );
-  }
-
-  Widget _positionBlock(
-    BuildContext context,
-    RailwayCoverageProvider provider,
-    AppLocalizations loc,
-  ) {
-    final standing = provider.userStanding();
-    final led = provider.userLedCountries();
-    final flagCodes = led.take(3).map((e) => e.countryCode).toList();
-
-    String? info;
-    if (standing != null) {
-      final examples = led.take(2).map((e) {
-        final name = e.country(context).name;
-        final pct = NumberFormatter.percent(
-          e.highestPercent,
-          locale: Localizations.localeOf(context),
-        );
-        return '$name $pct';
-      }).join(', ');
-      info = loc.railCoverageLeadCount(standing.ledCount);
-      if (examples.isNotEmpty) info = '$info · $examples';
-    }
-
-    return RailUserPositionBlock(
-      username: provider.currentUsername ?? '',
-      subtitle: loc.rankingTypeRailwayCoverage,
-      rank: standing?.rank,
-      contenders: standing?.contenders,
-      ledFlagCodes: flagCodes,
-      ledMore: led.length > 3,
-      infoLine: info,
     );
   }
 
