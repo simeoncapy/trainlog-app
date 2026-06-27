@@ -105,6 +105,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.0.8"
+  country_codes_plus:
+    dependency: "direct main"
+    description:
+      name: country_codes_plus
+      sha256: b90c9749f9e9f3764623f94f1507ac637ac8ffaeed1ade8b00dd9c569ad93aba
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.1.1"
   country_picker:
     dependency: "direct main"
     description:

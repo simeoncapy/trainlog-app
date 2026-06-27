@@ -534,8 +534,8 @@ class AppLocalizationsFr extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      one: '$count région',
       other: '$count régions',
+      one: '$count région',
     );
     return '$_temp0';
   }
@@ -545,9 +545,9 @@ class AppLocalizationsFr extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      zero: 'Vous ne menez aucun pays',
-      one: 'Vous menez 1 pays',
       other: 'Vous menez $count pays',
+      one: 'Vous menez 1 pays',
+      zero: 'Vous ne menez aucun pays',
     );
     return '$_temp0';
   }

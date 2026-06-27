@@ -15,6 +15,8 @@ import 'package:trainlog_app/utils/cached_data_utils.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
+import 'package:country_codes_plus/country_codes_plus.dart';
+
 bool _isOsmTileNetworkError(Object error) {
   final msg = error.toString();
   return msg.contains('tile.openstreetmap.org') &&
@@ -46,6 +48,8 @@ Future<void> main() async {
 
   await AppCacheFilePath.init();
   tz.initializeTimeZones();
+
+  await CountryCodes.init();
 
   final settings = SettingsProvider();
   // Settings must be fully loaded before tryRestoreSession reads the

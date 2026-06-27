@@ -526,8 +526,8 @@ class AppLocalizationsTl extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      one: '$count rehiyon',
       other: '$count na rehiyon',
+      one: '$count rehiyon',
     );
     return '$_temp0';
   }
@@ -537,9 +537,9 @@ class AppLocalizationsTl extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      zero: 'Wala kang pinangungunahang bansa',
-      one: 'Nangunguna ka sa 1 bansa',
       other: 'Nangunguna ka sa $count bansa',
+      one: 'Nangunguna ka sa 1 bansa',
+      zero: 'Wala kang pinangungunahang bansa',
     );
     return '$_temp0';
   }

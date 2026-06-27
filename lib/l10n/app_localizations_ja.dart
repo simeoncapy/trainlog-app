@@ -527,8 +527,8 @@ class AppLocalizationsJa extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      zero: '首位の国はありません',
       other: '$count か国で首位',
+      zero: '首位の国はありません',
     );
     return '$_temp0';
   }
