@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:trainlog_app/utils/cached_data_utils.dart';
 
 /// In-memory + on-disk cache for flag SVGs.
 ///
@@ -117,11 +118,17 @@ class FlagCache {
 
   Future<Directory> _ensureDir() {
     return _dirFuture ??= () async {
-      final base = await getApplicationSupportDirectory();
-      final dir = Directory(p.join(base.path, 'flag_cache'));
+      final dir = Directory(AppCacheFilePath.flagFolder);
       if (!await dir.exists()) await dir.create(recursive: true);
       return dir;
     }();
+  }
+
+  static void clearCache() {
+    final dir = Directory(AppCacheFilePath.flagFolder);
+    if (!dir.existsSync()) return;
+
+    dir.delete(recursive: true);
   }
 }
 
