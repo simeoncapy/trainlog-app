@@ -43,6 +43,24 @@ class FlagCache {
     return future;
   }
 
+  bool _warmStarted = false;
+
+  /// One-shot background warm-up, safe to call repeatedly: resolves the set of
+  /// area codes via [codesLoader] (e.g. the rail-coverage leaderboard) and
+  /// preloads every flag, so the Ranking page opens with flags already cached.
+  /// Only the first call does any work.
+  Future<void> warmUp(Future<List<String>> Function() codesLoader) async {
+    if (_warmStarted) return;
+    _warmStarted = true;
+    try {
+      final codes = await codesLoader();
+      await preload(codes);
+    } catch (_) {
+      // Best-effort; flags still load lazily when the page is opened.
+      _warmStarted = false;
+    }
+  }
+
   /// Warms the cache for [codes] in the background with bounded concurrency.
   Future<void> preload(Iterable<String> codes, {int concurrency = 4}) async {
     final queue = <String>{

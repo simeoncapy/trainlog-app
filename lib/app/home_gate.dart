@@ -5,6 +5,7 @@ import 'package:trainlog_app/features/onboarding/onboarding_screen.dart';
 import 'package:trainlog_app/features/user/login_page.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
+import 'package:trainlog_app/services/flag_cache.dart';
 import 'package:trainlog_app/widgets/trips_loader.dart';
 
 class HomeGate extends StatelessWidget {
@@ -26,6 +27,17 @@ class HomeGate extends StatelessWidget {
         if (!auth.isAuthenticated) {
           return const LoginPage();
         }
+
+        // Warm the flag cache in the background once signed in, so opening the
+        // Ranking → Railway Coverage page doesn't wait on flag downloads. The
+        // call is idempotent (only the first one does any work).
+        context.read<FlagCache>().warmUp(() async {
+          final res = await auth.fetchRankingForRailPercentage();
+          return <String>{
+            for (final e in res.countries) e.countryCode,
+            for (final e in res.subdivisions) e.code,
+          }.toList();
+        });
 
         return TripsLoader(
           builder: signedInBuilder,

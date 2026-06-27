@@ -78,6 +78,7 @@ class _FlagImageState extends State<FlagImage> {
 
   void _apply(String code, String? svg) {
     if (svg == null) {
+      debugPrint('🏳️ FlagImage: no SVG available for "$code" (emoji fallback)');
       _si = null;
       return;
     }
@@ -85,8 +86,14 @@ class _FlagImageState extends State<FlagImage> {
     try {
       _si = _siCache[key] ??= ScalableImage.fromSvgString(svg);
       _ratio = _ratioCache[key] ??= svgAspectRatio(svg);
-    } catch (_) {
-      // Unparseable SVG: keep the emoji fallback.
+    } catch (e, st) {
+      // Unparseable SVG: keep the emoji fallback. Logged so problematic flags
+      // (e.g. unsupported features) can be investigated.
+      final head = svg.length <= 400 ? svg : svg.substring(0, 400);
+      debugPrint('🏳️ FlagImage: failed to parse "$code" '
+          '(${svg.length} chars): $e');
+      debugPrint('🏳️ FlagImage["$code"] SVG head:\n$head');
+      debugPrintStack(stackTrace: st, label: 'FlagImage parse "$code"');
       _si = null;
     }
   }
@@ -94,7 +101,9 @@ class _FlagImageState extends State<FlagImage> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final height = widget.size * 0.72;
+    // Bounding height; flags are a touch taller than their nominal width-ish size
+    // so coats of arms and detailed flags stay legible.
+    final height = widget.size * 0.92;
     final border = Border.all(
       color: cs.outline.withValues(alpha: 0.4),
       width: 0.8,
