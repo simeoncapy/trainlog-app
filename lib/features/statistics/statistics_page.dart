@@ -428,7 +428,7 @@ class _StatsCard extends StatelessWidget {
                 if (view != StatisticsView.pie) ...[
                   const SizedBox(width: 10),
                   IconToggleButton(
-                    onCard: false,
+                    onScaffold: false,
                     icon: sortedAlpha ? Icons.filter_list : Icons.sort_by_alpha,
                     tooltip:
                         sortedAlpha ? 'Sort by total' : 'Sort alphabetically',

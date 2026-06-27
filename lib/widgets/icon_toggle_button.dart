@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 /// (alphabetical/value, sort direction, …) across the Ranking and Statistics
 /// features.
 ///
-/// Two visual variants, selected with [onCard], keep the original looks:
-///  * [onCard] true (default) — sits on a card: an opaque surface/white fill
+/// Two visual variants, selected with [onScaffold], keep the original looks:
+///  * [onScaffold] true (default) — sits on the scaffold: an opaque surface/white fill
 ///    when inactive and an [ColorScheme.outlineVariant] border (used by the
 ///    ranking filter rows).
-///  * [onCard] false — sits directly on the scaffold: a transparent fill and an
+///  * [onScaffold] false — sits on a card: a transparent fill and an
 ///    [ColorScheme.outline] border (used by the statistics sort button).
 ///
 /// When [active] the button takes a primary-tinted fill and border. When not
@@ -24,9 +24,9 @@ class IconToggleButton extends StatelessWidget {
   /// When false the button is dimmed and ignores taps.
   final bool enabled;
 
-  /// Whether the button sits on a card (opaque fill, [outlineVariant] border)
-  /// or directly on the scaffold (transparent fill, [outline] border).
-  final bool onCard;
+  /// Whether the button sits on the scaffold (opaque fill, [outlineVariant] border)
+  /// or on a card (transparent fill, [outline] border).
+  final bool onScaffold;
 
   const IconToggleButton({
     super.key,
@@ -35,7 +35,7 @@ class IconToggleButton extends StatelessWidget {
     required this.onTap,
     this.active = false,
     this.enabled = true,
-    this.onCard = true,
+    this.onScaffold = true,
   });
 
   @override
@@ -44,16 +44,16 @@ class IconToggleButton extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final inactiveFill =
-        onCard ? (isDark ? cs.surface : Colors.white) : Colors.transparent;
+        onScaffold ? (isDark ? cs.surface : Colors.white) : Colors.transparent;
     final inactiveBorder =
-        (onCard ? cs.outlineVariant : cs.outline).withValues(alpha: 0.4);
+        (onScaffold ? cs.outlineVariant : cs.outline).withValues(alpha: 0.4);
 
     final button = Tooltip(
       message: tooltip,
       child: GestureDetector(
         onTap: enabled ? onTap : null,
         child: Container(
-          padding: EdgeInsets.all(onCard ? 9 : 8),
+          padding: EdgeInsets.all(onScaffold ? 9 : 8),
           decoration: BoxDecoration(
             color: active ? cs.primary.withValues(alpha: 0.15) : inactiveFill,
             borderRadius: BorderRadius.circular(10),
