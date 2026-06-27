@@ -31,15 +31,6 @@ class _RankingPageState extends State<RankingPage> {
   String _searchQuery = '';
   final _searchController = TextEditingController();
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   WidgetsBinding.instance.addPostFrameCallback((_) async {
-  //     final initialized = await CountryCodes.init();
-  //     if (!initialized) debugPrint('Country Code plus init failed');
-  //   });
-  // }
-
   @override
   void dispose() {
     _searchController.dispose();
