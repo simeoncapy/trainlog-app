@@ -52,11 +52,11 @@ class _RailwayCoverageBody extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // ── User position block ───────────────────────────────────────────
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: _positionBlock(context, provider, loc),
-        ),
-        const SizedBox(height: 12),
+        // Padding(
+        //   padding: const EdgeInsets.symmetric(horizontal: 16),
+        //   child: _positionBlock(context, provider, loc),
+        // ),
+        // const SizedBox(height: 12),
 
         // ── Tab bar + inline sorting ──────────────────────────────────────
         Padding(
@@ -364,7 +364,7 @@ class _RegionCountryDropdown extends StatelessWidget {
                       value: o.code,
                       label: o.name,
                       subtitle: loc.railCoverageRegionCount(o.count),
-                      trailing: Text(
+                      leading: Text(
                         countryCodeToEmoji(o.code),
                         style: const TextStyle(fontSize: 22),
                       ),

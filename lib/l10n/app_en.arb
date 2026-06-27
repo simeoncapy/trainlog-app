@@ -200,7 +200,7 @@
   },
   "railCoverageCountriesTab": "Countries",
   "railCoverageRegionsTab": "Regions",
-  "railCoverageSelectRegion": "Select a region",
+  "railCoverageSelectRegion": "Select a country",
   "railCoverageRegionCount": "{count, plural, =1 {{count} region} other {{count} regions}}",
   "@railCoverageRegionCount": {
     "description": "Number of regions (subdivisions) of a country in the railway coverage dropdown",

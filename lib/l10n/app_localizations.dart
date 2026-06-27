@@ -1059,7 +1059,7 @@ abstract class AppLocalizations {
   /// No description provided for @railCoverageSelectRegion.
   ///
   /// In en, this message translates to:
-  /// **'Select a region'**
+  /// **'Select a country'**
   String get railCoverageSelectRegion;
 
   /// Number of regions (subdivisions) of a country in the railway coverage dropdown

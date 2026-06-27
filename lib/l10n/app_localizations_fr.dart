@@ -527,7 +527,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get railCoverageRegionsTab => 'Régions';
 
   @override
-  String get railCoverageSelectRegion => 'Sélectionner une région';
+  String get railCoverageSelectRegion => 'Sélectionner un pays';
 
   @override
   String railCoverageRegionCount(int count) {

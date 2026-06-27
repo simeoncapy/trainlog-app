@@ -520,7 +520,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get railCoverageRegionsTab => 'Regions';
 
   @override
-  String get railCoverageSelectRegion => 'Select a region';
+  String get railCoverageSelectRegion => 'Select a country';
 
   @override
   String railCoverageRegionCount(int count) {

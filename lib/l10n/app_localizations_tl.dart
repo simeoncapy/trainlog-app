@@ -519,7 +519,7 @@ class AppLocalizationsTl extends AppLocalizations {
   String get railCoverageRegionsTab => 'Mga rehiyon';
 
   @override
-  String get railCoverageSelectRegion => 'Pumili ng rehiyon';
+  String get railCoverageSelectRegion => 'Pumili ng bansa';
 
   @override
   String railCoverageRegionCount(int count) {
