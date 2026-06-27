@@ -13,6 +13,7 @@ import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/platform/adaptive_app_bar.dart';
 import 'package:trainlog_app/platform/adaptive_widget.dart';
 import 'package:trainlog_app/utils/number_formatter.dart';
+import 'package:trainlog_app/widgets/monogram.dart';
 
 /// Drill-down sub-page for a single country or subdivision's rail-coverage
 /// leaderboard. Pushed onto the stack (hiding the bottom navigation), it shows
@@ -253,9 +254,9 @@ class _AreaUserRow extends StatelessWidget {
       ),
       child: Row(
         children: [
-          _RankIndicator(rank: row.rank, showRank: showRank),
+          RankIndicator(rank: row.rank, showRank: showRank),
           const SizedBox(width: 10),
-          _Monogram(username: row.username, highlight: isCurrentUser),
+          Monogram(username: row.username, highlight: isCurrentUser),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -292,86 +293,3 @@ class _AreaUserRow extends StatelessWidget {
   }
 }
 
-class _RankIndicator extends StatelessWidget {
-  final int rank;
-  final bool showRank;
-
-  const _RankIndicator({required this.rank, required this.showRank});
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
-    if (!showRank) return const SizedBox(width: 34);
-
-    if (RankingMedal.isMedal(rank)) {
-      return Container(
-        width: 34,
-        height: 34,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: RankingMedal.colorOf(rank).withValues(alpha: 0.18),
-          shape: BoxShape.circle,
-        ),
-        child: RankingMedal(rank: rank, size: 18),
-      );
-    }
-
-    return SizedBox(
-      width: 34,
-      child: Text(
-        '$rank',
-        textAlign: TextAlign.center,
-        style: AppTheme.monoFont.copyWith(
-          fontSize: 15,
-          fontWeight: FontWeight.w700,
-          color: cs.onSurfaceVariant,
-        ),
-      ),
-    );
-  }
-}
-
-class _Monogram extends StatelessWidget {
-  final String username;
-  final bool highlight;
-
-  const _Monogram({required this.username, required this.highlight});
-
-  static const _palette = <Color>[
-    AppColors.blue,
-    AppColors.modeBus,
-    AppColors.modeTram,
-    AppColors.modeAir,
-    AppColors.modeFerry,
-    AppColors.violet,
-    AppColors.amberDk,
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    final letter =
-        username.isEmpty ? '?' : username.substring(0, 1).toUpperCase();
-    final color = _palette[username.hashCode.abs() % _palette.length];
-
-    return Container(
-      width: 44,
-      height: 44,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: color,
-        shape: BoxShape.circle,
-        border:
-            highlight ? Border.all(color: AppColors.amber, width: 2) : null,
-      ),
-      child: Text(
-        letter,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
-  }
-}
