@@ -1,4 +1,6 @@
+import 'package:country_codes_plus/country_codes_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:provider/provider.dart';
 
 import 'package:trainlog_app/features/ranking/ranking_type.dart';
@@ -28,6 +30,15 @@ class _RankingPageState extends State<RankingPage> {
   bool _searchOpen = false;
   String _searchQuery = '';
   final _searchController = TextEditingController();
+
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   WidgetsBinding.instance.addPostFrameCallback((_) async {
+  //     final initialized = await CountryCodes.init();
+  //     if (!initialized) debugPrint('Country Code plus init failed');
+  //   });
+  // }
 
   @override
   void dispose() {

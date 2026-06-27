@@ -1,3 +1,4 @@
+import 'package:country_codes_plus/country_codes_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:geodesy/geodesy.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -204,6 +205,7 @@ class SettingsProvider with ChangeNotifier {
     _locale = locale;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('language_code', locale.languageCode);
+    await CountryCodes.init(_locale);
     notifyListeners();
   }
 

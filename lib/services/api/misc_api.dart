@@ -128,15 +128,37 @@ class MiscApi {
   /// flag cache so vectors are fetched once and reused/persisted, rather than
   /// re-requested over the network on every scroll.
   Future<String?> fetchFlagSvg(String code) async {
-    final path = '/static/images/flags/${code.trim().toLowerCase()}.svg';
-    try {
+    Future<String?> fetch(String flagCode) async {
+      final path = '/static/images/flags/${flagCode.trim().toLowerCase()}.svg';
+
       final res = await _client.safeGet<String>(
         path,
         responseType: ResponseType.plain,
       );
+
       final data = res.data;
       if (data == null || data.trim().isEmpty) return null;
       return data;
+    }
+
+    final normalizedCode = code.trim().toLowerCase();
+
+    try {
+      return await fetch(normalizedCode);
+    } on DioException catch (e) {
+      // If the subdivision flag doesn't exist, fall back to the country flag.
+      if (e.response?.statusCode == 404 && normalizedCode.contains('-')) {
+        final countryCode = normalizedCode.split('-').first;
+
+        try {
+          return await fetch(countryCode);
+        } catch (_) {
+          // Ignore and let the outer handler return null.
+        }
+      }
+
+      debugPrint('🛑 fetchFlagSvg($code) failed: $e');
+      return null;
     } catch (e) {
       debugPrint('🛑 fetchFlagSvg($code) failed: $e');
       return null;

@@ -2,6 +2,7 @@ import 'package:country_picker/country_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:country_codes_plus/country_codes_plus.dart';
+import 'package:trainlog_app/utils/platform_utils.dart';
 
 String countryCodeToEmoji(String code) {
   return String.fromCharCodes(
@@ -23,7 +24,8 @@ String removeFlagPrefix(String s) {
   return parts.sublist(1).join(' ');
 }
 
-String countrySubdivisionCodeToName(String code, BuildContext context){
+String countrySubdivisionCodeToName(String code){
+  if (!AppPlatform.isMobile) return code;
   final subDivision = CountryCodes.subdivisionFromCode(code);
   return subDivision?.name ?? code;
 }

@@ -311,6 +311,8 @@ class RailPercentageEntry {
   CountryDetail country(BuildContext context) =>
       CountryDetail.fromCode(countryCode, context);
 
+  CountrySubdivisionDetail get subdivision => CountrySubdivisionDetail.fromCode(code);
+
   /// Parses one `leaderboard_data` row, tagging users in [nonPublic] (they are
   /// kept, not dropped). Returns `null` only when the row lists no users at all.
   static RailPercentageEntry? fromJson(

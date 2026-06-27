@@ -12,6 +12,8 @@ class AppPlatform {
 
   static final bool isMaterial = !isApple;
 
+  static final isMobile = Platform.isIOS || Platform.isAndroid;
+
   static Widget bottomPadding(BuildContext context, {double? offset}) {
     if(AppPlatform.isApple) {
       final mq = MediaQuery.of(context);

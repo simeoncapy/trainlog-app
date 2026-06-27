@@ -172,7 +172,7 @@ class _RailwayCoverageBody extends StatelessWidget {
       return _CoverageList(
         entries: regions,
         currentUsername: provider.currentUsername,
-        nameOf: (e) => e.code,
+        nameOf: (e) => e.subdivision.name,
         flagOf: (e) => e.code,
         emptyText: loc.rankingNoData,
       );
