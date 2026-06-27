@@ -127,7 +127,7 @@ class _FlagImageState extends State<FlagImage> {
         border: border,
       ),
       clipBehavior: Clip.antiAlias,
-      child: ScalableImageWidget(si, fit: BoxFit.contain),
+      child: ScalableImageWidget(si:si, fit: BoxFit.contain),
     );
   }
 }
