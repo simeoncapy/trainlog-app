@@ -23,6 +23,7 @@ import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
+import 'package:trainlog_app/widgets/bottom_sheet_picker.dart';
 
 import 'settings_vm.dart';
 
@@ -111,81 +112,16 @@ class _SettingsPageState extends State<SettingsPage> {
     required List<({String label, T value})> options,
     required T selected,
     required ValueChanged<T> onChanged,
-  }) async {
-    await showModalBottomSheet<void>(
+  }) {
+    return showBottomSheetPicker<T>(
       context: context,
-      isScrollControlled: true,
-      builder: (ctx) {
-        final maxHeight = MediaQuery.sizeOf(ctx).height * 0.8;
-
-        return SafeArea(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              maxHeight: maxHeight,
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
-                  child: Text(
-                    title,
-                    textAlign: TextAlign.center,
-                    style: Theme.of(ctx).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
-                  ),
-                ),
-
-                const Divider(height: 1),
-
-                Flexible(
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: options.length,
-                    itemBuilder: (context, index) {
-                      final option = options[index];
-                      final isSelected = option.value == selected;
-
-                      return InkWell(
-                        onTap: () {
-                          Navigator.pop(ctx);
-                          onChanged(option.value);
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 14,
-                          ),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  option.label,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                              if (isSelected) ...[
-                                const SizedBox(width: 12),
-                                Icon(
-                                  Icons.check_rounded,
-                                  color:
-                                      Theme.of(ctx).colorScheme.primary,
-                                ),
-                              ],
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
+      title: title,
+      selected: selected,
+      onChanged: onChanged,
+      options: [
+        for (final o in options)
+          BottomSheetPickerOption<T>(value: o.value, label: o.label),
+      ],
     );
   }
 

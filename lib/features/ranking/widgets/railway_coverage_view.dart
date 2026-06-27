@@ -10,13 +10,13 @@ import 'package:trainlog_app/features/ranking/widgets/flag_image.dart';
 import 'package:trainlog_app/features/ranking/widgets/rail_user_position_block.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/platform/adaptive_page_route.dart';
-import 'package:trainlog_app/platform/widget/adaptive_popup.dart';
 import 'package:trainlog_app/providers/railway_coverage_provider.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/services/flag_cache.dart';
 import 'package:trainlog_app/utils/number_formatter.dart';
 import 'package:trainlog_app/utils/text_utils.dart';
 import 'package:trainlog_app/widgets/app_steps_tab_bar.dart';
+import 'package:trainlog_app/widgets/bottom_sheet_picker.dart';
 
 /// The Railway Coverage sub-feature: a user-position block, a Countries/Regions
 /// segmented tab bar with inline sorting, and the matching list (a country list,
@@ -349,21 +349,28 @@ class _RegionCountryDropdown extends StatelessWidget {
         ? loc.railCoverageSelectRegion
         : '${selected.name} (${loc.railCoverageRegionCount(selected.count)})';
 
-    return AdaptivePopup<String>(
-      enabled: options.isNotEmpty,
-      initialValue: provider.selectedCountry,
-      onSelected: provider.selectCountry,
-      items: [
-        for (final o in options)
-          AdaptivePopupItem<String>(
-            value: o.code,
-            label: '${o.name} (${loc.railCoverageRegionCount(o.count)})',
-            leading: Text(
-              countryCodeToEmoji(o.code),
-              style: const TextStyle(fontSize: 20),
-            ),
-          ),
-      ],
+    return InkWell(
+      borderRadius: BorderRadius.circular(12),
+      onTap: options.isEmpty
+          ? null
+          : () => showBottomSheetPicker<String>(
+                context: context,
+                title: loc.railCoverageSelectRegion,
+                selected: provider.selectedCountry ?? '',
+                onChanged: provider.selectCountry,
+                options: [
+                  for (final o in options)
+                    BottomSheetPickerOption<String>(
+                      value: o.code,
+                      label: o.name,
+                      subtitle: loc.railCoverageRegionCount(o.count),
+                      trailing: Text(
+                        countryCodeToEmoji(o.code),
+                        style: const TextStyle(fontSize: 22),
+                      ),
+                    ),
+                ],
+              ),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
