@@ -4,6 +4,7 @@ import 'package:trainlog_app/features/ranking/ranking_type.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/platform/widget/adaptive_popup.dart';
 import 'package:trainlog_app/providers/ranking_provider.dart';
+import 'package:trainlog_app/widgets/icon_toggle_button.dart';
 
 /// Filter row beneath the user-position block: unit dropdown (Distance / Trips),
 /// an alphabetical toggle and an order-direction toggle. Styling matches the
@@ -33,7 +34,7 @@ class RankingFilterControls extends StatelessWidget {
         const SizedBox(width: 10),
         // Icon + tooltip show the action the tap will perform, not the
         // current state.
-        _IconToggle(
+        IconToggleButton(
           active: provider.alphabetical,
           icon: provider.alphabetical ? Icons.tag : Icons.sort_by_alpha,
           tooltip: provider.alphabetical
@@ -42,7 +43,7 @@ class RankingFilterControls extends StatelessWidget {
           onTap: provider.toggleAlphabetical,
         ),
         const SizedBox(width: 8),
-        _IconToggle(
+        IconToggleButton(
           active: false,
           icon: provider.descending
               ? Icons.arrow_upward
@@ -127,43 +128,3 @@ class _UnitDropdown extends StatelessWidget {
   }
 }
 
-class _IconToggle extends StatelessWidget {
-  final bool active;
-  final IconData icon;
-  final String tooltip;
-  final VoidCallback onTap;
-
-  const _IconToggle({
-    required this.active,
-    required this.icon,
-    required this.tooltip,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardColor = isDark ? cs.surface : Colors.white;
-    return Tooltip(
-      message: tooltip,
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.all(9),
-          decoration: BoxDecoration(
-            color: active ? cs.primary.withValues(alpha: 0.15) : cardColor,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: active
-                  ? cs.primary.withValues(alpha: 0.6)
-                  : cs.outlineVariant.withValues(alpha: 0.4),
-              width: 1.2,
-            ),
-          ),
-          child: Icon(icon, size: 18, color: cs.primary),
-        ),
-      ),
-    );
-  }
-}
