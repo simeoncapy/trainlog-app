@@ -7,7 +7,7 @@ import 'package:trainlog_app/features/ranking/widgets/coverage_list_card.dart';
 import 'package:trainlog_app/features/ranking/widgets/coverage_progress_bar.dart';
 import 'package:trainlog_app/features/ranking/widgets/ranking_filter_controls.dart';
 import 'package:trainlog_app/features/ranking/widgets/flag_image.dart';
-import 'package:trainlog_app/features/ranking/widgets/rail_user_position_block.dart';
+import 'package:trainlog_app/features/ranking/widgets/ranking_user_position_block.dart';
 import 'package:trainlog_app/features/ranking/widgets/ranking_medal.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/platform/adaptive_app_bar.dart';
@@ -141,11 +141,15 @@ class _RailAreaRankingPageState extends State<RailAreaRankingPage> {
           children: [
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-              child: RailUserPositionBlock(
+              child: RankingUserPositionBlock(
+                icon: const RankingPositionIcon(
+                  icon: Icon(Icons.percent),
+                  color: AppColors.amber,
+                ),
                 username: widget.currentUsername ?? '',
                 subtitle: loc.railCoverageAreaSubtitle(widget.displayName),
                 rank: myRow?.rank,
-                contenders: _ranked.length,
+                participantCount: _ranked.length,
                 valueText: myRow == null
                     ? null
                     : NumberFormatter.percent(

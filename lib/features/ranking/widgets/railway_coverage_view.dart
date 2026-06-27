@@ -7,7 +7,6 @@ import 'package:trainlog_app/features/ranking/widgets/coverage_list_card.dart';
 import 'package:trainlog_app/features/ranking/widgets/coverage_progress_ring.dart';
 import 'package:trainlog_app/features/ranking/widgets/ranking_filter_controls.dart';
 import 'package:trainlog_app/features/ranking/widgets/flag_image.dart';
-import 'package:trainlog_app/features/ranking/widgets/rail_user_position_block.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/platform/adaptive_page_route.dart';
 import 'package:trainlog_app/providers/railway_coverage_provider.dart';

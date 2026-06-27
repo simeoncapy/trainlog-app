@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:provider/provider.dart';
 
+import 'package:trainlog_app/features/ranking/ranking_metrics.dart';
 import 'package:trainlog_app/features/ranking/ranking_type.dart';
 import 'package:trainlog_app/features/ranking/widgets/railway_coverage_view.dart';
 import 'package:trainlog_app/features/ranking/widgets/ranking_filter_controls.dart';
@@ -12,7 +13,9 @@ import 'package:trainlog_app/features/ranking/widgets/ranking_user_position_bloc
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/platform/adaptive_widget.dart';
 import 'package:trainlog_app/providers/ranking_provider.dart';
+import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
+import 'package:trainlog_app/utils/map_color_palette.dart';
 
 /// Native, adaptive leaderboard entry point.
 ///
@@ -45,6 +48,54 @@ class _RankingPageState extends State<RankingPage> {
         _searchController.clear();
       }
     });
+  }
+
+  /// Assembles the shared [RankingUserPositionBlock] from the [provider]'s
+  /// current state (the widget itself is presentational).
+  Widget _userPositionBlock(BuildContext context, RankingProvider provider) {
+    final loc = AppLocalizations.of(context)!;
+    final selection = provider.selection;
+    final entry = provider.currentUserEntry;
+    final palette = MapColorPaletteHelper.getPalette(
+      context.watch<SettingsProvider>().mapColorPalette,
+    );
+
+    final String subtitle;
+    if (entry == null) {
+      subtitle = loc.rankingNotRanked;
+    } else if (selection.isWorldSquares) {
+      subtitle = loc.rankingWorldCovered;
+    } else {
+      // The complementary metric(s) not used as the primary value.
+      subtitle = RankingMetrics.secondaries(
+        context,
+        entry,
+        selection,
+        provider.sortUnit,
+      ).join(' · ');
+    }
+
+    return RankingUserPositionBlock(
+      icon: RankingPositionIcon(
+        icon: selection.icon,
+        color: selection.accentColor(palette),
+      ),
+      username: provider.currentUsername ?? '',
+      subtitle: subtitle,
+      rank: entry?.rank,
+      participantCount: provider.participantCount,
+      valueText: entry == null
+          ? null
+          : RankingMetrics.primaryInline(
+              context, entry, selection, provider.sortUnit),
+      valueTooltip: entry == null
+          ? null
+          : RankingMetrics.primaryTooltip(
+              context, entry, selection, provider.sortUnit),
+      carbonExplanation: selection.type == RankingType.carbon
+          ? loc.rankingCarbonExplanation
+          : null,
+    );
   }
 
   @override
@@ -122,7 +173,7 @@ class _RankingPageState extends State<RankingPage> {
             else ...[
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: RankingUserPositionBlock(provider: provider),
+                child: _userPositionBlock(context, provider),
               ),
               const SizedBox(height: 12),
               Padding(
