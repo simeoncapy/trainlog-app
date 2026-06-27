@@ -16,8 +16,6 @@ class RankingFilterControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context)!;
-
     return Row(
       children: [
         // Sorting unit — hidden for world-squares (percentage only).
@@ -32,26 +30,64 @@ class RankingFilterControls extends StatelessWidget {
         else
           const Spacer(),
         const SizedBox(width: 10),
-        // Icon + tooltip show the action the tap will perform, not the
-        // current state.
+        RankingSortButtons(
+          alphabetical: provider.alphabetical,
+          descending: provider.descending,
+          onToggleAlphabetical: provider.toggleAlphabetical,
+          onToggleDirection: provider.toggleDirection,
+        ),
+      ],
+    );
+  }
+}
+
+/// The two compact sorting toggles shared across the ranking screens:
+/// an Alphabetical/Value toggle and an Ascending/Descending toggle. The icon and
+/// tooltip show the action the tap will perform, not the current state.
+///
+/// When [enabled] is false both toggles are dimmed and non-interactive (e.g. on
+/// the railway-coverage Regions tab before a country is picked).
+class RankingSortButtons extends StatelessWidget {
+  final bool alphabetical;
+  final bool descending;
+  final bool enabled;
+  final VoidCallback onToggleAlphabetical;
+  final VoidCallback onToggleDirection;
+
+  const RankingSortButtons({
+    super.key,
+    required this.alphabetical,
+    required this.descending,
+    required this.onToggleAlphabetical,
+    required this.onToggleDirection,
+    this.enabled = true,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
         IconToggleButton(
-          active: provider.alphabetical,
-          icon: provider.alphabetical ? Icons.tag : Icons.sort_by_alpha,
-          tooltip: provider.alphabetical
+          active: alphabetical,
+          enabled: enabled,
+          icon: alphabetical ? Icons.tag : Icons.sort_by_alpha,
+          tooltip: alphabetical
               ? loc.rankingSortByValue
               : loc.rankingSortAlphabetical,
-          onTap: provider.toggleAlphabetical,
+          onTap: onToggleAlphabetical,
         ),
         const SizedBox(width: 8),
         IconToggleButton(
           active: false,
-          icon: provider.descending
-              ? Icons.arrow_upward
-              : Icons.arrow_downward,
-          tooltip: provider.descending
+          enabled: enabled,
+          icon: descending ? Icons.arrow_upward : Icons.arrow_downward,
+          tooltip: descending
               ? loc.rankingOrderAscending
               : loc.rankingOrderDescending,
-          onTap: provider.toggleDirection,
+          onTap: onToggleDirection,
         ),
       ],
     );

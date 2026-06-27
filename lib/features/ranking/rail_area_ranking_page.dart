@@ -5,7 +5,7 @@ import 'package:trainlog_app/app/theme/app_theme.dart';
 import 'package:trainlog_app/data/models/ranking_model.dart';
 import 'package:trainlog_app/features/ranking/widgets/coverage_list_card.dart';
 import 'package:trainlog_app/features/ranking/widgets/coverage_progress_bar.dart';
-import 'package:trainlog_app/features/ranking/widgets/coverage_sort_controls.dart';
+import 'package:trainlog_app/features/ranking/widgets/ranking_filter_controls.dart';
 import 'package:trainlog_app/features/ranking/widgets/flag_image.dart';
 import 'package:trainlog_app/features/ranking/widgets/rail_user_position_block.dart';
 import 'package:trainlog_app/features/ranking/widgets/ranking_medal.dart';
@@ -160,7 +160,7 @@ class _RailAreaRankingPageState extends State<RailAreaRankingPage> {
               child: Row(
                 children: [
                   const Spacer(),
-                  CoverageSortControls(
+                  RankingSortButtons(
                     alphabetical: _alphabetical,
                     descending: _descending,
                     onToggleAlphabetical: () =>

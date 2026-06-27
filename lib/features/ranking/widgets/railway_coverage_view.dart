@@ -5,7 +5,7 @@ import 'package:trainlog_app/data/models/ranking_model.dart';
 import 'package:trainlog_app/features/ranking/rail_area_ranking_page.dart';
 import 'package:trainlog_app/features/ranking/widgets/coverage_list_card.dart';
 import 'package:trainlog_app/features/ranking/widgets/coverage_progress_ring.dart';
-import 'package:trainlog_app/features/ranking/widgets/coverage_sort_controls.dart';
+import 'package:trainlog_app/features/ranking/widgets/ranking_filter_controls.dart';
 import 'package:trainlog_app/features/ranking/widgets/flag_image.dart';
 import 'package:trainlog_app/features/ranking/widgets/rail_user_position_block.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
@@ -76,7 +76,7 @@ class _RailwayCoverageBody extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 10),
-              CoverageSortControls(
+              RankingSortButtons(
                 alphabetical: provider.alphabetical,
                 descending: provider.descending,
                 enabled: provider.sortingEnabled,
