@@ -107,9 +107,9 @@ class FlagCache {
   }
 }
 
-/// Strips editor-only elements that the SVG renderer cannot handle and warns
-/// about on every parse (Inkscape `<script>`, `<metadata>` and
-/// `<sodipodi:namedview>` blocks). The visual flag is unaffected.
+/// Strips editor-only elements (Inkscape `<script>`, `<metadata>` and
+/// `<sodipodi:namedview>` blocks) that add noise without affecting the visual
+/// flag. Kept so cached SVGs stay lean across renderers.
 String sanitizeSvg(String svg) {
   var s = svg;
   // Paired blocks first, then any self-closing variants the renderer reports
@@ -125,4 +125,46 @@ String sanitizeSvg(String svg) {
     );
   }
   return s;
+}
+
+/// Computes the natural width/height aspect ratio of an SVG so flags can be laid
+/// out at their real proportions (a wide national flag vs. a near-square coat of
+/// arms) instead of being forced into a fixed rectangle.
+///
+/// Prefers the `viewBox`, falling back to the root `width`/`height` attributes,
+/// then to [fallback]. The result is clamped to a sane range.
+double svgAspectRatio(String svg, {double fallback = 1.5}) {
+  final viewBox = RegExp(
+    r'viewBox\s*=\s*"([\d.eE+\-\s,]+)"',
+    caseSensitive: false,
+  ).firstMatch(svg);
+  if (viewBox != null) {
+    final parts = viewBox.group(1)!.trim().split(RegExp(r'[\s,]+'));
+    if (parts.length == 4) {
+      final w = double.tryParse(parts[2]);
+      final h = double.tryParse(parts[3]);
+      if (w != null && h != null && w > 0 && h > 0) {
+        return (w / h).clamp(0.25, 4.0).toDouble();
+      }
+    }
+  }
+
+  final w = _svgRootDimension(svg, 'width');
+  final h = _svgRootDimension(svg, 'height');
+  if (w != null && h != null && h > 0) {
+    return (w / h).clamp(0.25, 4.0).toDouble();
+  }
+
+  return fallback;
+}
+
+/// Reads a numeric root `<svg>` dimension attribute ([name]), ignoring any unit
+/// suffix (`px`, `pt`, …). Returns null when absent or percentage-based.
+double? _svgRootDimension(String svg, String name) {
+  final match = RegExp(
+    '<svg[^>]*?\\b$name\\s*=\\s*"([\\d.eE+\\-]+)',
+    caseSensitive: false,
+  ).firstMatch(svg);
+  if (match == null) return null;
+  return double.tryParse(match.group(1)!);
 }

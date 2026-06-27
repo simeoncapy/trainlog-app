@@ -1,20 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:jovial_svg/jovial_svg.dart';
 import 'package:provider/provider.dart';
 
 import 'package:trainlog_app/services/flag_cache.dart';
 import 'package:trainlog_app/utils/text_utils.dart';
 
+/// Parsed-image cache, keyed by lowercased area code. Each unique flag is parsed
+/// once per app session and reused across every row that shows it.
+final Map<String, ScalableImage> _siCache = {};
+final Map<String, double> _ratioCache = {};
+
 /// Renders an area flag from the [FlagCache] (memory/disk, backed by the backend
-/// static SVG vector service).
+/// static SVG vector service) using [jovial_svg], which renders complex flags
+/// (CSS styles, gradients, fill-rule) faithfully where flutter_svg does not.
 ///
 /// [code] is an ISO country code (`"JP"`) or an ISO 3166-2 subdivision code
-/// (`"JP-13"`). While the vector loads — or if the backend has no asset for it —
-/// the widget falls back to the unicode flag emoji derived from the parent
-/// country code, so a row never renders blank. Cached SVGs render instantly and
-/// without re-fetching, which keeps fast scrolling smooth.
+/// (`"JP-13"`). The flag is laid out at its natural aspect ratio (so wide flags
+/// and near-square coats of arms both render undistorted), bounded by [size] in
+/// height. While the vector loads — or if the backend has no asset for it — the
+/// widget falls back to the unicode flag emoji, so a row never renders blank.
 class FlagImage extends StatefulWidget {
   final String code;
+
+  /// Bounding height for the rendered flag; the width follows the flag's ratio.
   final double size;
 
   const FlagImage({super.key, required this.code, this.size = 30});
@@ -24,7 +32,8 @@ class FlagImage extends StatefulWidget {
 }
 
 class _FlagImageState extends State<FlagImage> {
-  String? _svg;
+  ScalableImage? _si;
+  double _ratio = 1.5;
 
   @override
   void initState() {
@@ -36,53 +45,89 @@ class _FlagImageState extends State<FlagImage> {
   void didUpdateWidget(FlagImage oldWidget) {
     super.didUpdateWidget(oldWidget);
     // ListView recycles row Elements: when the code changes, reload so a scrolled
-    // row never shows the previous country's flag.
+    // row never shows the previous area's flag.
     if (oldWidget.code != widget.code) {
-      _svg = null;
+      _si = null;
       _resolve();
     }
   }
 
+  String get _key => widget.code.toLowerCase();
+
   void _resolve() {
-    final cache = context.read<FlagCache>();
-    final cached = cache.cached(widget.code);
-    if (cached != null) {
-      _svg = cached;
+    final cachedSi = _siCache[_key];
+    if (cachedSi != null) {
+      _si = cachedSi;
+      _ratio = _ratioCache[_key] ?? 1.5;
       return;
     }
+
+    final cache = context.read<FlagCache>();
+    final cachedSvg = cache.cached(widget.code);
+    if (cachedSvg != null) {
+      _apply(widget.code, cachedSvg);
+      return;
+    }
+
     final code = widget.code;
     cache.load(code).then((svg) {
       if (!mounted || code != widget.code) return;
-      setState(() => _svg = svg);
+      setState(() => _apply(code, svg));
     });
+  }
+
+  void _apply(String code, String? svg) {
+    if (svg == null) {
+      _si = null;
+      return;
+    }
+    final key = code.toLowerCase();
+    try {
+      _si = _siCache[key] ??= ScalableImage.fromSvgString(svg);
+      _ratio = _ratioCache[key] ??= svgAspectRatio(svg);
+    } catch (_) {
+      // Unparseable SVG: keep the emoji fallback.
+      _si = null;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final svg = _svg;
+    final height = widget.size * 0.72;
+    final border = Border.all(
+      color: cs.outline.withValues(alpha: 0.4),
+      width: 0.8,
+    );
+    final si = _si;
 
-    final Widget child = svg != null
-        ? SvgPicture.string(svg, fit: BoxFit.cover)
-        : Center(
-            child: Text(
-              countryCodeToEmoji(widget.code.split('-').first),
-              style: TextStyle(fontSize: widget.size * 0.82),
-            ),
-          );
+    if (si == null) {
+      // Emoji fallback uses a conventional flag ratio while loading.
+      return Container(
+        height: height,
+        width: height * 1.4,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(3),
+          border: border,
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Text(
+          countryCodeToEmoji(widget.code.split('-').first),
+          style: TextStyle(fontSize: height * 0.95),
+        ),
+      );
+    }
 
     return Container(
-      width: widget.size,
-      height: widget.size * 0.72,
+      height: height,
+      width: height * _ratio,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(
-          color: cs.outline.withValues(alpha: 0.4),
-          width: 0.8,
-        ),
+        borderRadius: BorderRadius.circular(3),
+        border: border,
       ),
       clipBehavior: Clip.antiAlias,
-      child: child,
+      child: ScalableImageWidget(si, fit: BoxFit.contain),
     );
   }
 }
