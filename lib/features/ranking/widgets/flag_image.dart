@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:jovial_svg/jovial_svg.dart';
 import 'package:provider/provider.dart';
 
@@ -10,15 +11,23 @@ import 'package:trainlog_app/utils/text_utils.dart';
 final Map<String, ScalableImage> _siCache = {};
 final Map<String, double> _ratioCache = {};
 
+/// Codes that jovial_svg cannot parse (e.g. the Georgian flag's nested
+/// clip-path + use construction triggers an internal assertion). These render
+/// through flutter_svg instead, so we only attempt the jovial parse once.
+final Set<String> _jovialFailed = {};
+
 /// Renders an area flag from the [FlagCache] (memory/disk, backed by the backend
-/// static SVG vector service) using [jovial_svg], which renders complex flags
-/// (CSS styles, gradients, fill-rule) faithfully where flutter_svg does not.
+/// static SVG vector service).
+///
+/// Rendering uses a fallback chain: [jovial_svg] first (renders complex flags —
+/// CSS, gradients, fill-rule — faithfully where flutter_svg does not), then
+/// flutter_svg for the few SVGs jovial can't handle, then the unicode flag emoji
+/// so a row never renders blank.
 ///
 /// [code] is an ISO country code (`"JP"`) or an ISO 3166-2 subdivision code
 /// (`"JP-13"`). The flag is laid out at its natural aspect ratio (so wide flags
 /// and near-square coats of arms both render undistorted), bounded by [size] in
-/// height. While the vector loads — or if the backend has no asset for it — the
-/// widget falls back to the unicode flag emoji, so a row never renders blank.
+/// height.
 class FlagImage extends StatefulWidget {
   final String code;
 
@@ -33,6 +42,9 @@ class FlagImage extends StatefulWidget {
 
 class _FlagImageState extends State<FlagImage> {
   ScalableImage? _si;
+
+  /// Raw SVG used by the flutter_svg fallback when jovial can't parse it.
+  String? _fallbackSvg;
   double _ratio = 1.5;
 
   @override
@@ -48,20 +60,12 @@ class _FlagImageState extends State<FlagImage> {
     // row never shows the previous area's flag.
     if (oldWidget.code != widget.code) {
       _si = null;
+      _fallbackSvg = null;
       _resolve();
     }
   }
 
-  String get _key => widget.code.toLowerCase();
-
   void _resolve() {
-    final cachedSi = _siCache[_key];
-    if (cachedSi != null) {
-      _si = cachedSi;
-      _ratio = _ratioCache[_key] ?? 1.5;
-      return;
-    }
-
     final cache = context.read<FlagCache>();
     final cachedSvg = cache.cached(widget.code);
     if (cachedSvg != null) {
@@ -77,25 +81,37 @@ class _FlagImageState extends State<FlagImage> {
   }
 
   void _apply(String code, String? svg) {
+    _si = null;
+    _fallbackSvg = null;
+
     if (svg == null) {
       debugPrint('🏳️ FlagImage: no SVG available for "$code" (emoji fallback)');
-      _si = null;
       return;
     }
+
     final key = code.toLowerCase();
-    try {
-      _si = _siCache[key] ??= ScalableImage.fromSvgString(svg);
-      _ratio = _ratioCache[key] ??= svgAspectRatio(svg);
-    } catch (e, st) {
-      // Unparseable SVG: keep the emoji fallback. Logged so problematic flags
-      // (e.g. unsupported features) can be investigated.
-      final head = svg.length <= 400 ? svg : svg.substring(0, 400);
-      debugPrint('🏳️ FlagImage: failed to parse "$code" '
-          '(${svg.length} chars): $e');
-      debugPrint('🏳️ FlagImage["$code"] SVG head:\n$head');
-      debugPrintStack(stackTrace: st, label: 'FlagImage parse "$code"');
-      _si = null;
+    _ratio = _ratioCache[key] ??= svgAspectRatio(svg);
+
+    final cachedSi = _siCache[key];
+    if (cachedSi != null) {
+      _si = cachedSi;
+      return;
     }
+
+    if (!_jovialFailed.contains(key)) {
+      try {
+        _si = _siCache[key] = ScalableImage.fromSvgString(svg);
+        return;
+      } catch (e) {
+        // jovial can't render this one — remember it and fall back to
+        // flutter_svg (a different engine that may handle it).
+        _jovialFailed.add(key);
+        debugPrint('🏳️ FlagImage: jovial_svg failed to parse "$code" '
+            '($e) — falling back to flutter_svg');
+      }
+    }
+
+    _fallbackSvg = svg;
   }
 
   @override
@@ -108,10 +124,13 @@ class _FlagImageState extends State<FlagImage> {
       color: cs.outline.withValues(alpha: 0.4),
       width: 0.8,
     );
-    final si = _si;
 
-    if (si == null) {
-      // Emoji fallback uses a conventional flag ratio while loading.
+    final si = _si;
+    final fallbackSvg = _fallbackSvg;
+
+    if (si == null && fallbackSvg == null) {
+      // Emoji fallback uses a conventional flag ratio while loading / when no
+      // renderer can handle the SVG.
       return Container(
         height: height,
         width: height * 1.4,
@@ -128,6 +147,10 @@ class _FlagImageState extends State<FlagImage> {
       );
     }
 
+    final Widget child = si != null
+        ? ScalableImageWidget(si: si, fit: BoxFit.contain)
+        : SvgPicture.string(fallbackSvg!, fit: BoxFit.contain);
+
     return Container(
       height: height,
       width: height * _ratio,
@@ -136,7 +159,7 @@ class _FlagImageState extends State<FlagImage> {
         border: border,
       ),
       clipBehavior: Clip.antiAlias,
-      child: ScalableImageWidget(si:si, fit: BoxFit.contain),
+      child: child,
     );
   }
 }
