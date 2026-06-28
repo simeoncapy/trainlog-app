@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:diacritic/diacritic.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:trainlog_app/data/models/country_detail.dart';
@@ -160,7 +161,7 @@ class RailwayCoverageProvider extends ChangeNotifier {
     final sel = _selectedCountry;
     final result = _result;
     if (sel == null || result == null) return const [];
-    return _ordered(result.subdivisionsOf(sel), (e) => e.code);
+    return _ordered(result.subdivisionsOf(sel), (e) => e.subdivision.name);
   }
 
   /// Countries that have subdivision data, for the Regions-tab dropdown, sorted
@@ -178,25 +179,31 @@ class RailwayCoverageProvider extends ChangeNotifier {
       final detail = CountryDetail.fromCode(e.key, context);
       return RailCountryOption(code: e.key, name: detail.name, count: e.value);
     }).toList();
-    options.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+    options.sort((a, b) => _collate(a.name).compareTo(_collate(b.name)));
     return options;
   }
 
+  /// Normalises a name for alphabetical comparison: case- and diacritic-
+  /// insensitive, so e.g. "Île de Man" and "États-Unis" sort under I and E
+  /// rather than at the end of the list.
+  static String _collate(String s) => removeDiacritics(s).toLowerCase();
+
   /// Applies the alphabetical / direction toggles to [list]. The natural order
   /// is "best first" (highest coverage, ties alphabetical) or A→Z when
-  /// alphabetical; the direction toggle reverses it.
+  /// alphabetical; the direction toggle reverses it. Alphabetical comparisons
+  /// ignore case and diacritics.
   List<RailPercentageEntry> _ordered(
     List<RailPercentageEntry> list,
     String Function(RailPercentageEntry entry) name,
   ) {
     final copy = List<RailPercentageEntry>.of(list);
     if (_alphabetical) {
-      copy.sort((a, b) => name(a).toLowerCase().compareTo(name(b).toLowerCase()));
+      copy.sort((a, b) => _collate(name(a)).compareTo(_collate(name(b))));
     } else {
       copy.sort((a, b) {
         final cmp = b.highestPercent.compareTo(a.highestPercent);
         if (cmp != 0) return cmp;
-        return name(a).toLowerCase().compareTo(name(b).toLowerCase());
+        return _collate(name(a)).compareTo(_collate(name(b)));
       });
     }
     return _descending ? copy : copy.reversed.toList();
