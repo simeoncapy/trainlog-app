@@ -110,16 +110,14 @@ class FlagImage extends StatefulWidget {
     if (si == null) return Future.value();
 
     final pixelHeight = (logicalHeight * dpr).round();
-    final pixelWidth =
-        (logicalHeight * (_ratioCache[key] ?? 1.5) * dpr).round();
-    if (pixelHeight <= 0 || pixelWidth <= 0) return Future.value();
+    if (pixelHeight <= 0) return Future.value();
 
     final rk = _rasterKey(key, pixelHeight);
     if (_rasterCache.containsKey(rk)) return Future.value();
     final pending = _rasterPending[rk];
     if (pending != null) return pending;
 
-    final future = _rasterizeImage(si, pixelWidth, pixelHeight).then((img) {
+    final future = _rasterizeImage(si, pixelHeight).then((img) {
       if (img != null) _rasterCache[rk] = img;
     });
     _rasterPending[rk] = future;
@@ -127,23 +125,30 @@ class FlagImage extends StatefulWidget {
     return future;
   }
 
+  /// Rasterises [si] at [pixelHeight], scaling its viewport *uniformly* (the
+  /// width follows the viewport's own aspect ratio) so the flag is never
+  /// stretched — even when the SVG declares its size oddly (e.g. no root
+  /// viewBox).
   static Future<ui.Image?> _rasterizeImage(
     ScalableImage si,
-    int width,
-    int height,
+    int pixelHeight,
   ) async {
     try {
       await si.prepareImages(); // decode any embedded raster (no-op for vectors)
       final vp = si.viewport;
       if (vp.width <= 0 || vp.height <= 0) return null;
 
+      final scale = pixelHeight / vp.height;
+      final pixelWidth = (vp.width * scale).round();
+      if (pixelWidth <= 0) return null;
+
       final recorder = ui.PictureRecorder();
       final canvas = ui.Canvas(recorder);
-      canvas.scale(width / vp.width, height / vp.height);
+      canvas.scale(scale, scale);
       canvas.translate(-vp.left, -vp.top);
       si.paint(canvas);
       final picture = recorder.endRecording();
-      final image = await picture.toImage(width, height);
+      final image = await picture.toImage(pixelWidth, pixelHeight);
       picture.dispose();
       return image;
     } catch (e) {
@@ -242,6 +247,7 @@ class _FlagImageState extends State<FlagImage> {
     final existing = FlagImage.rasterFor(widget.code, height, _dpr);
     if (existing != null) {
       _raster = existing;
+      _ratio = existing.width / existing.height;
       return;
     }
 
@@ -249,7 +255,14 @@ class _FlagImageState extends State<FlagImage> {
     FlagImage.rasterize(code, height, _dpr).then((_) {
       if (!mounted || code != widget.code) return;
       final img = FlagImage.rasterFor(code, height, _dpr);
-      if (img != null) setState(() => _raster = img);
+      if (img != null) {
+        setState(() {
+          _raster = img;
+          // Match the layout box to the bitmap's true geometry so the flag is
+          // shown at its exact ratio (no stretch, no letterbox).
+          _ratio = img.width / img.height;
+        });
+      }
     });
   }
 

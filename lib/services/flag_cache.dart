@@ -226,13 +226,21 @@ String sanitizeSvg(String svg) {
 /// out at their real proportions (a wide national flag vs. a near-square coat of
 /// arms) instead of being forced into a fixed rectangle.
 ///
-/// Prefers the `viewBox`, falling back to the root `width`/`height` attributes,
-/// then to [fallback]. The result is clamped to a sane range.
+/// Only the root `<svg>` opening tag is inspected — nested `viewBox`/`width`
+/// attributes on `<marker>`, `<pattern>`, `<symbol>`, … must be ignored (e.g.
+/// the Nebraska flag has no root viewBox but defines markers with
+/// `viewBox="0 0 10 10"`, which would otherwise be mistaken for a square flag).
+/// Prefers the root `viewBox`, falling back to its `width`/`height`, then to
+/// [fallback]. The result is clamped to a sane range.
 double svgAspectRatio(String svg, {double fallback = 1.5}) {
+  final rootTag =
+      RegExp(r'<svg\b[^>]*>', caseSensitive: false).firstMatch(svg)?.group(0) ??
+          svg;
+
   final viewBox = RegExp(
     r'viewBox\s*=\s*"([\d.eE+\-\s,]+)"',
     caseSensitive: false,
-  ).firstMatch(svg);
+  ).firstMatch(rootTag);
   if (viewBox != null) {
     final parts = viewBox.group(1)!.trim().split(RegExp(r'[\s,]+'));
     if (parts.length == 4) {
@@ -244,8 +252,8 @@ double svgAspectRatio(String svg, {double fallback = 1.5}) {
     }
   }
 
-  final w = _svgRootDimension(svg, 'width');
-  final h = _svgRootDimension(svg, 'height');
+  final w = _svgRootDimension(rootTag, 'width');
+  final h = _svgRootDimension(rootTag, 'height');
   if (w != null && h != null && h > 0) {
     return (w / h).clamp(0.25, 4.0).toDouble();
   }
@@ -253,13 +261,14 @@ double svgAspectRatio(String svg, {double fallback = 1.5}) {
   return fallback;
 }
 
-/// Reads a numeric root `<svg>` dimension attribute ([name]), ignoring any unit
-/// suffix (`px`, `pt`, …). Returns null when absent or percentage-based.
-double? _svgRootDimension(String svg, String name) {
+/// Reads a numeric dimension attribute ([name]) from the root `<svg>` tag,
+/// ignoring any unit suffix (`px`, `pt`, …). Returns null when absent or
+/// percentage-based.
+double? _svgRootDimension(String rootTag, String name) {
   final match = RegExp(
-    '<svg[^>]*?\\b$name\\s*=\\s*"([\\d.eE+\\-]+)',
+    '\\b$name\\s*=\\s*"([\\d.eE+\\-]+)',
     caseSensitive: false,
-  ).firstMatch(svg);
+  ).firstMatch(rootTag);
   if (match == null) return null;
   return double.tryParse(match.group(1)!);
 }
