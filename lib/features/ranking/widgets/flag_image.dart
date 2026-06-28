@@ -1,3 +1,5 @@
+import 'dart:ui' show ImageFilter;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:jovial_svg/jovial_svg.dart';
@@ -116,14 +118,9 @@ class _FlagImageState extends State<FlagImage> {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
     // Bounding height; flags are a touch taller than their nominal width-ish size
     // so coats of arms and detailed flags stay legible.
     final height = widget.size * 0.92;
-    final border = Border.all(
-      color: cs.outline.withValues(alpha: 0.4),
-      width: 0.8,
-    );
 
     final si = _si;
     final fallbackSvg = _fallbackSvg;
@@ -131,35 +128,60 @@ class _FlagImageState extends State<FlagImage> {
     if (si == null && fallbackSvg == null) {
       // Emoji fallback uses a conventional flag ratio while loading / when no
       // renderer can handle the SVG.
-      return Container(
+      return SizedBox(
         height: height,
         width: height * 1.4,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(3),
-          border: border,
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: Text(
-          countryCodeToEmoji(widget.code.split('-').first),
-          style: TextStyle(fontSize: height * 0.95),
+        child: Center(
+          child: Text(
+            countryCodeToEmoji(widget.code.split('-').first),
+            style: TextStyle(
+              fontSize: height * 0.95,
+              shadows: const [
+                Shadow(color: Colors.black38, blurRadius: 1.5, offset: Offset(0, 1)),
+              ],
+            ),
+          ),
         ),
       );
     }
 
-    final Widget child = si != null
-        ? ScalableImageWidget(si: si, fit: BoxFit.contain)
-        : SvgPicture.string(fallbackSvg!, fit: BoxFit.contain);
+    // A fresh flag widget each call (a Widget can't be shared between the shadow
+    // and foreground layers in the same Stack).
+    SizedBox flag() => SizedBox(
+          height: height,
+          width: height * _ratio,
+          child: si != null
+              ? ScalableImageWidget(si: si, fit: BoxFit.contain)
+              : SvgPicture.string(fallbackSvg!, fit: BoxFit.contain),
+        );
 
-    return Container(
-      height: height,
-      width: height * _ratio,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(3),
-        border: border,
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: child,
+    // Drop shadow that follows the painted silhouette rather than the bounding
+    // rectangle: the flag is recoloured to a black silhouette, blurred, offset
+    // and faded, then the real flag is drawn on top. A coat of arms therefore
+    // casts a shield-shaped shadow.
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Opacity(
+          opacity: 0.45,
+          child: Transform.translate(
+            offset: const Offset(0, 1.2),
+            child: ImageFiltered(
+              imageFilter: ImageFilter.blur(sigmaX: 1.4, sigmaY: 1.4),
+              // srcATop with opaque black recolours the painted pixels to a
+              // solid silhouette while preserving their alpha shape.
+              child: ColorFiltered(
+                colorFilter: const ColorFilter.mode(
+                  Colors.black,
+                  BlendMode.srcATop,
+                ),
+                child: flag(),
+              ),
+            ),
+          ),
+        ),
+        flag(),
+      ],
     );
   }
 }
