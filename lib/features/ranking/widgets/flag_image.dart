@@ -38,6 +38,14 @@ class FlagImage extends StatefulWidget {
 
   const FlagImage({super.key, required this.code, this.size = 30});
 
+  /// Fraction of [size] used as the rendered flag height (the rest leaves a
+  /// little breathing room). Exposed so callers can reserve a consistent flag
+  /// column without duplicating the constant.
+  static const double heightFactor = 0.92;
+
+  /// The rendered flag height for a given [size].
+  static double heightForSize(double size) => size * heightFactor;
+
   @override
   State<FlagImage> createState() => _FlagImageState();
 }
@@ -120,7 +128,7 @@ class _FlagImageState extends State<FlagImage> {
   Widget build(BuildContext context) {
     // Bounding height; flags are a touch taller than their nominal width-ish size
     // so coats of arms and detailed flags stay legible.
-    final height = widget.size * 0.92;
+    final height = FlagImage.heightForSize(widget.size);
 
     final si = _si;
     final fallbackSvg = _fallbackSvg;

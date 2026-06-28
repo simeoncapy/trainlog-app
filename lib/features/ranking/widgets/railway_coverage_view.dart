@@ -149,7 +149,7 @@ class _RailwayCoverageBody extends StatelessWidget {
 }
 
 /// The shared, unified card list of coverage rows (countries or subdivisions).
-class _CoverageList extends StatelessWidget {
+class _CoverageList extends StatefulWidget {
   final List<RailPercentageEntry> entries;
   final String? currentUsername;
   final String Function(RailPercentageEntry entry) nameOf;
@@ -165,17 +165,69 @@ class _CoverageList extends StatelessWidget {
   });
 
   @override
+  State<_CoverageList> createState() => _CoverageListState();
+}
+
+class _CoverageListState extends State<_CoverageList> {
+  /// Nominal flag size passed to [FlagImage] (its height is derived from this).
+  static const double _flagSize = 34;
+
+  @override
+  void initState() {
+    super.initState();
+    _ensureFlagsLoaded();
+  }
+
+  @override
+  void didUpdateWidget(_CoverageList oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // The entry set changes on tab / sort / country switches.
+    _ensureFlagsLoaded();
+  }
+
+  /// Loads any not-yet-cached flags for the current entries, then rebuilds so
+  /// the reserved flag-column width reflects every flag (not just the ones first
+  /// rendered). The set is fixed per entry list, so the width stays stable while
+  /// scrolling.
+  Future<void> _ensureFlagsLoaded() async {
+    final cache = context.read<FlagCache>();
+    final missing = <String>{
+      for (final e in widget.entries)
+        if (cache.cached(widget.flagOf(e)) == null) widget.flagOf(e),
+    };
+    if (missing.isEmpty) return;
+    await Future.wait(missing.map(cache.load));
+    if (mounted) setState(() {});
+  }
+
+  /// Width reserved for the flag column: the widest flag across *all* entries
+  /// (the largest aspect ratio × the flag height), so names stay aligned and the
+  /// column never shifts as different flags scroll into view.
+  double _flagColumnWidth(FlagCache cache) {
+    final height = FlagImage.heightForSize(_flagSize);
+    var maxRatio = 0.0;
+    for (final e in widget.entries) {
+      // svgAspectRatio('') returns the default ratio for not-yet-loaded flags.
+      final ratio = svgAspectRatio(cache.cached(widget.flagOf(e)) ?? '');
+      if (ratio > maxRatio) maxRatio = ratio;
+    }
+    return height * maxRatio;
+  }
+
+  @override
   Widget build(BuildContext context) {
-    if (entries.isEmpty) {
-      return Center(child: Text(emptyText));
+    if (widget.entries.isEmpty) {
+      return Center(child: Text(widget.emptyText));
     }
 
     final cs = Theme.of(context).colorScheme;
+    final cache = context.read<FlagCache>();
+    final flagColumnWidth = _flagColumnWidth(cache);
 
     return CoverageListCard(
       child: ListView.separated(
         padding: EdgeInsets.zero,
-        itemCount: entries.length,
+        itemCount: widget.entries.length,
         separatorBuilder: (_, __) => Divider(
           height: 1,
           thickness: 1,
@@ -184,10 +236,12 @@ class _CoverageList extends StatelessWidget {
           color: cs.outlineVariant.withValues(alpha: 0.4),
         ),
         itemBuilder: (context, i) {
-          final e = entries[i];
-          final name = nameOf(e);
+          final e = widget.entries[i];
+          final name = widget.nameOf(e);
           return _CoverageRow(
-            flagCode: flagOf(e),
+            flagCode: widget.flagOf(e),
+            flagSize: _flagSize,
+            flagColumnWidth: flagColumnWidth,
             title: name,
             leaders: e.leaders.map((u) => u.username).toList(),
             percent: e.highestPercent,
@@ -196,8 +250,8 @@ class _CoverageList extends StatelessWidget {
               (_) => RailAreaRankingPage(
                 entry: e,
                 displayName: name,
-                flagCode: flagOf(e),
-                currentUsername: currentUsername,
+                flagCode: widget.flagOf(e),
+                currentUsername: widget.currentUsername,
               ),
             ),
           );
@@ -211,6 +265,10 @@ class _CoverageList extends StatelessWidget {
 /// coverage ring and a navigation chevron.
 class _CoverageRow extends StatelessWidget {
   final String flagCode;
+  final double flagSize;
+
+  /// Fixed width reserved for the flag, shared by every row, so the names align.
+  final double flagColumnWidth;
   final String title;
   final List<String> leaders;
   final double percent;
@@ -218,6 +276,8 @@ class _CoverageRow extends StatelessWidget {
 
   const _CoverageRow({
     required this.flagCode,
+    required this.flagSize,
+    required this.flagColumnWidth,
     required this.title,
     required this.leaders,
     required this.percent,
@@ -234,7 +294,10 @@ class _CoverageRow extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(
           children: [
-            FlagImage(code: flagCode, size: 34),
+            SizedBox(
+              width: flagColumnWidth,
+              child: Center(child: FlagImage(code: flagCode, size: flagSize)),
+            ),
             const SizedBox(width: 14),
             Expanded(
               child: Column(
