@@ -172,10 +172,19 @@ class _CoverageListState extends State<_CoverageList> {
   /// Nominal flag size passed to [FlagImage] (its height is derived from this).
   static const double _flagSize = 34;
 
+  /// Device pixel ratio, read in [didChangeDependencies] (reading MediaQuery in
+  /// initState is illegal) and used to rasterise flags at the right resolution.
+  double _dpr = 1;
+  bool _flagsRequested = false;
+
   @override
-  void initState() {
-    super.initState();
-    _ensureFlagsLoaded();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _dpr = MediaQuery.devicePixelRatioOf(context);
+    if (!_flagsRequested) {
+      _flagsRequested = true;
+      _ensureFlagsLoaded();
+    }
   }
 
   @override
@@ -198,7 +207,7 @@ class _CoverageListState extends State<_CoverageList> {
   /// every subsequent paint into a cheap blit.
   Future<void> _ensureFlagsLoaded() async {
     final cache = context.read<FlagCache>();
-    final dpr = MediaQuery.devicePixelRatioOf(context);
+    final dpr = _dpr;
     final rasterHeight = FlagImage.heightForSize(_flagSize);
     final codes = <String>{for (final e in widget.entries) widget.flagOf(e)};
 
