@@ -185,17 +185,21 @@ class _CoverageListState extends State<_CoverageList> {
     _ensureFlagsLoaded();
   }
 
-  /// Loads any not-yet-cached flags for the current entries and pre-parses them,
-  /// then rebuilds so the reserved flag-column width reflects every flag (not
-  /// just the ones first rendered). The set is fixed per entry list, so the
-  /// width stays stable while scrolling.
+  /// Loads any not-yet-cached flags for the current entries, then pre-parses and
+  /// pre-rasterises them, then rebuilds so the reserved flag-column width
+  /// reflects every flag (not just the ones first rendered). The set is fixed
+  /// per entry list, so the width stays stable while scrolling.
   ///
-  /// Pre-parsing here is what keeps scrolling smooth: a complex regional coat of
-  /// arms is otherwise parsed synchronously the first time its row appears,
-  /// stuttering that frame. Parsing during load (yielding between flags so one
-  /// frame isn't blocked) moves that cost off the scroll path.
+  /// Pre-rasterising here is what keeps scrolling and page transitions smooth:
+  /// some flags (e.g. US state flags with detailed seals) are very expensive to
+  /// paint as vectors, and we'd otherwise re-render each one — twice, for its
+  /// shadow — every time its row first appears. Rendering each to a bitmap once,
+  /// off the scroll path (yielding between flags so a frame isn't blocked), turns
+  /// every subsequent paint into a cheap blit.
   Future<void> _ensureFlagsLoaded() async {
     final cache = context.read<FlagCache>();
+    final dpr = MediaQuery.devicePixelRatioOf(context);
+    final rasterHeight = FlagImage.heightForSize(_flagSize);
     final codes = <String>{for (final e in widget.entries) widget.flagOf(e)};
 
     // Fetch (disk/network) in parallel.
@@ -204,11 +208,18 @@ class _CoverageListState extends State<_CoverageList> {
     }));
     if (!mounted) return;
 
-    // Pre-parse off the scroll path, yielding between flags so a long list of
-    // complex SVGs doesn't block a single frame.
+    // Pre-parse + pre-rasterise off the scroll path, yielding between flags so a
+    // long list of complex SVGs doesn't block a single frame.
     for (final code in codes) {
       final svg = cache.cached(code);
-      if (svg != null) FlagImage.precache(code, svg);
+      if (svg != null) {
+        await FlagImage.precache(
+          code,
+          svg,
+          rasterHeight: rasterHeight,
+          devicePixelRatio: dpr,
+        );
+      }
       await Future<void>.delayed(Duration.zero);
       if (!mounted) return;
     }
