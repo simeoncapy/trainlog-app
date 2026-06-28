@@ -82,6 +82,76 @@ class FlagCache {
     await Future.wait([for (var i = 0; i < workers; i++) worker()]);
   }
 
+  // ── Force refresh ──────────────────────────────────────────────────────────
+
+  /// Forces a single flag [code] to be re-downloaded from the backend, bypassing
+  /// the in-memory and on-disk caches, and overwrites both with the fresh copy.
+  ///
+  /// If the backend is unavailable the existing cached copy is kept (a transient
+  /// failure never wipes a flag). Returns the refreshed SVG, or the previous one
+  /// on failure.
+  Future<String?> forceReload(String code) {
+    final key = _key(code);
+    // Share with a concurrent force-refresh of the same code, but always go to
+    // the network (unlike [load], which may resolve from disk).
+    final pending = _pending[key];
+    if (pending != null) return pending;
+
+    final future = _refetch(key);
+    _pending[key] = future;
+    future.whenComplete(() => _pending.remove(key));
+    return future;
+  }
+
+  /// Forces every known flag (everything currently in memory or persisted on
+  /// disk) to be re-downloaded from the backend and overwritten, with bounded
+  /// concurrency. Flags that fail to re-download keep their existing copy.
+  Future<void> forceReloadAll({int concurrency = 4}) async {
+    final codes = (await _knownCodes()).toList();
+    if (codes.isEmpty) return;
+
+    var index = 0;
+    Future<void> worker() async {
+      while (index < codes.length) {
+        await forceReload(codes[index++]);
+      }
+    }
+
+    final workers = concurrency.clamp(1, 8);
+    await Future.wait([for (var i = 0; i < workers; i++) worker()]);
+  }
+
+  /// Re-downloads [key] from the backend and overwrites the caches. Keeps the
+  /// existing copy when the fetch yields nothing.
+  Future<String?> _refetch(String key) async {
+    final raw = await _fetch(key);
+    if (raw == null) return _memory[key];
+
+    final clean = sanitizeSvg(raw);
+    _memory[key] = clean;
+    await _persist(key, clean);
+    return clean;
+  }
+
+  /// The set of flag codes known to the cache: the union of in-memory entries
+  /// and persisted `<code>.svg` files.
+  Future<Set<String>> _knownCodes() async {
+    final codes = <String>{..._memory.keys};
+    try {
+      final dir = await _ensureDir();
+      if (await dir.exists()) {
+        await for (final entity in dir.list()) {
+          if (entity is File && entity.path.toLowerCase().endsWith('.svg')) {
+            codes.add(p.basenameWithoutExtension(entity.path));
+          }
+        }
+      }
+    } catch (_) {
+      // Disk unavailable — fall back to whatever is in memory.
+    }
+    return codes;
+  }
+
   Future<String?> _loadUncached(String key) async {
     // Disk first — survives restarts without a network round-trip.
     try {
