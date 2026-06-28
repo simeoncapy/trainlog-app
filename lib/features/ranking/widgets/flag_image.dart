@@ -46,6 +46,35 @@ class FlagImage extends StatefulWidget {
   /// The rendered flag height for a given [size].
   static double heightForSize(double size) => size * heightFactor;
 
+  /// Pre-parses a flag's SVG into the shared caches off the build/scroll path.
+  ///
+  /// Parsing a complex SVG (e.g. a regional coat of arms) with jovial_svg is a
+  /// synchronous, main-thread cost. Doing it during warm-up — rather than
+  /// lazily the first time a row scrolls into view — keeps scrolling smooth.
+  /// Cheap and idempotent: a no-op once the flag is already parsed.
+  static void precache(String code, String svg) =>
+      ensureParsed(code.trim().toLowerCase(), svg);
+
+  /// Parses [svg] into the shared caches (keyed by the already-normalised [key])
+  /// if not already done. Returns the parsed image, or null when jovial can't
+  /// handle it (the caller renders via flutter_svg instead).
+  static ScalableImage? ensureParsed(String key, String svg) {
+    _ratioCache[key] ??= svgAspectRatio(svg);
+
+    final cached = _siCache[key];
+    if (cached != null) return cached;
+    if (_jovialFailed.contains(key)) return null;
+
+    try {
+      return _siCache[key] = ScalableImage.fromSvgString(svg);
+    } catch (e) {
+      _jovialFailed.add(key);
+      debugPrint('🏳️ FlagImage: jovial_svg failed to parse "$key" '
+          '($e) — falling back to flutter_svg');
+      return null;
+    }
+  }
+
   @override
   State<FlagImage> createState() => _FlagImageState();
 }
@@ -100,28 +129,13 @@ class _FlagImageState extends State<FlagImage> {
     }
 
     final key = code.toLowerCase();
-    _ratio = _ratioCache[key] ??= svgAspectRatio(svg);
-
-    final cachedSi = _siCache[key];
-    if (cachedSi != null) {
-      _si = cachedSi;
-      return;
+    final si = FlagImage.ensureParsed(key, svg);
+    _ratio = _ratioCache[key] ?? 1.5;
+    if (si != null) {
+      _si = si;
+    } else {
+      _fallbackSvg = svg; // jovial can't handle it — render via flutter_svg.
     }
-
-    if (!_jovialFailed.contains(key)) {
-      try {
-        _si = _siCache[key] = ScalableImage.fromSvgString(svg);
-        return;
-      } catch (e) {
-        // jovial can't render this one — remember it and fall back to
-        // flutter_svg (a different engine that may handle it).
-        _jovialFailed.add(key);
-        debugPrint('🏳️ FlagImage: jovial_svg failed to parse "$code" '
-            '($e) — falling back to flutter_svg');
-      }
-    }
-
-    _fallbackSvg = svg;
   }
 
   @override

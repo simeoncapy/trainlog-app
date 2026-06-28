@@ -185,18 +185,34 @@ class _CoverageListState extends State<_CoverageList> {
     _ensureFlagsLoaded();
   }
 
-  /// Loads any not-yet-cached flags for the current entries, then rebuilds so
-  /// the reserved flag-column width reflects every flag (not just the ones first
-  /// rendered). The set is fixed per entry list, so the width stays stable while
-  /// scrolling.
+  /// Loads any not-yet-cached flags for the current entries and pre-parses them,
+  /// then rebuilds so the reserved flag-column width reflects every flag (not
+  /// just the ones first rendered). The set is fixed per entry list, so the
+  /// width stays stable while scrolling.
+  ///
+  /// Pre-parsing here is what keeps scrolling smooth: a complex regional coat of
+  /// arms is otherwise parsed synchronously the first time its row appears,
+  /// stuttering that frame. Parsing during load (yielding between flags so one
+  /// frame isn't blocked) moves that cost off the scroll path.
   Future<void> _ensureFlagsLoaded() async {
     final cache = context.read<FlagCache>();
-    final missing = <String>{
-      for (final e in widget.entries)
-        if (cache.cached(widget.flagOf(e)) == null) widget.flagOf(e),
-    };
-    if (missing.isEmpty) return;
-    await Future.wait(missing.map(cache.load));
+    final codes = <String>{for (final e in widget.entries) widget.flagOf(e)};
+
+    // Fetch (disk/network) in parallel.
+    await Future.wait(codes.map((c) async {
+      if (cache.cached(c) == null) await cache.load(c);
+    }));
+    if (!mounted) return;
+
+    // Pre-parse off the scroll path, yielding between flags so a long list of
+    // complex SVGs doesn't block a single frame.
+    for (final code in codes) {
+      final svg = cache.cached(code);
+      if (svg != null) FlagImage.precache(code, svg);
+      await Future<void>.delayed(Duration.zero);
+      if (!mounted) return;
+    }
+
     if (mounted) setState(() {});
   }
 
