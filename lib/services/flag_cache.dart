@@ -160,8 +160,13 @@ class FlagCache {
       if (await file.exists()) {
         final disk = await file.readAsString();
         if (disk.trim().isNotEmpty) {
-          _memory[key] = disk;
-          return disk;
+          // Re-sanitise on read so flags persisted by an earlier app version are
+          // normalised too (idempotent; e.g. strips ambiguous percentage root
+          // dimensions). Re-persist only when something actually changed.
+          final clean = sanitizeSvg(disk);
+          _memory[key] = clean;
+          if (clean != disk) unawaited(_persist(key, clean));
+          return clean;
         }
       }
     } catch (_) {
@@ -219,7 +224,39 @@ String sanitizeSvg(String svg) {
       '',
     );
   }
-  return s;
+  return _normalizeRootDimensions(s);
+}
+
+/// Drops percentage `width`/`height` attributes from the root `<svg>` tag (when
+/// a `viewBox` is present to govern sizing).
+///
+/// A standalone flag occasionally declares `width="100%" height="100%"` (e.g.
+/// the Saarland `DE-SL` flag). Percentages are meaningless without a containing
+/// block, and renderers disagree on them: flutter_svg sizes the picture from the
+/// unresolved percentage and letterboxes the viewBox content inside it, so the
+/// flag draws smaller than its neighbours while keeping the right proportion.
+/// Removing the percentages forces every renderer to size purely from the
+/// viewBox, matching the natural proportions used for all the other flags.
+/// Absolute dimensions are left untouched.
+String _normalizeRootDimensions(String svg) {
+  final match =
+      RegExp(r'<svg\b[^>]*>', caseSensitive: false).firstMatch(svg);
+  if (match == null) return svg;
+
+  final rootTag = match.group(0)!;
+  if (!RegExp(r'viewBox\s*=', caseSensitive: false).hasMatch(rootTag)) {
+    return svg; // No viewBox to fall back to — leave sizing as-is.
+  }
+
+  var cleaned = rootTag;
+  for (final name in const ['width', 'height']) {
+    cleaned = cleaned.replaceAll(
+      RegExp('\\s$name\\s*=\\s*"[^"]*%"', caseSensitive: false),
+      '',
+    );
+  }
+  if (cleaned == rootTag) return svg;
+  return svg.replaceRange(match.start, match.end, cleaned);
 }
 
 /// Computes the natural width/height aspect ratio of an SVG so flags can be laid
