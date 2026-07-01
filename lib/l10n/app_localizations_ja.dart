@@ -490,6 +490,19 @@ class AppLocalizationsJa extends AppLocalizations {
   String get rankingWorldCovered => '世界マスの網羅率';
 
   @override
+  String get rankingCountriesVisited => '訪問した国';
+
+  @override
+  String rankingCountryCountLabel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'か国',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get rankingNoData => 'データなし';
 
   @override

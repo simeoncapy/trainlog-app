@@ -95,20 +95,20 @@ abstract final class RankingMetrics {
   }
 
   /// The raw-value tooltip for the primary metric, or null when the displayed
-  /// value is already exact. World-squares shows a percentage with no SI prefix,
-  /// so it needs no tooltip.
+  /// value is already exact. World-squares shows a percentage with no SI prefix
+  /// and the country view a plain count, so neither needs a tooltip.
   static String? primaryTooltip(
     BuildContext context,
     RankingDisplayEntry entry,
     RankingSelection selection,
     RankingSortUnit unit,
   ) {
-    if (selection.isWorldSquares) return null;
+    if (selection.isWorldSquares || selection.isCountry) return null;
     return rawTooltip(context, entry, unit);
   }
 
-  /// The primary metric (the active [unit], or the percentage for
-  /// world-squares) as a value + unit pair.
+  /// The primary metric (the active [unit], the percentage for world-squares,
+  /// or the country count for the country view) as a value + unit pair.
   static CompactNumber primary(
     BuildContext context,
     RankingDisplayEntry entry,
@@ -120,6 +120,14 @@ abstract final class RankingMetrics {
         value: NumberFormatter.decimal(entry.percent ?? 0,
             locale: Localizations.localeOf(context)),
         unit: '%',
+      );
+    }
+    if (selection.isCountry) {
+      final loc = AppLocalizations.of(context)!;
+      return (
+        value: NumberFormatter.decimal(entry.countryCount,
+            locale: Localizations.localeOf(context)),
+        unit: loc.rankingCountryCountLabel(entry.countryCount),
       );
     }
     return format(context, entry, unit);
@@ -139,18 +147,19 @@ abstract final class RankingMetrics {
         locale: Localizations.localeOf(context),
       );
     }
-    return inline(format(context, entry, unit));
+    return inline(primary(context, entry, selection, unit));
   }
 
   /// The non-primary metrics, each as its inline string plus the optional
-  /// raw-value tooltip, in display order. Empty for world-squares.
+  /// raw-value tooltip, in display order. Empty for world-squares and the
+  /// country view (both are single-metric).
   static List<RankingMetricText> secondaryMetrics(
     BuildContext context,
     RankingDisplayEntry entry,
     RankingSelection selection,
     RankingSortUnit unit,
   ) {
-    if (selection.isWorldSquares) return const [];
+    if (selection.isWorldSquares || selection.isCountry) return const [];
     return [
       for (final u in unitsFor(selection.type))
         if (u != unit)

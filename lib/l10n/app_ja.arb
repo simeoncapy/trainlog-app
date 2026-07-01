@@ -153,6 +153,8 @@
   "rankingOrderDescending": "降順",
   "rankingAllVehicles": "すべての乗り物",
   "rankingWorldCovered": "世界マスの網羅率",
+  "rankingCountriesVisited": "訪問した国",
+  "rankingCountryCountLabel": "{count, plural, other {か国}}",
   "rankingNoData": "データなし",
   "rankingNotRanked": "ランク外",
   "rankingSearchHint": "ユーザーを検索…",

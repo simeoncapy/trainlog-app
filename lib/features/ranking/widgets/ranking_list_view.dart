@@ -5,9 +5,11 @@ import 'package:trainlog_app/app/theme/app_colors.dart';
 import 'package:trainlog_app/app/theme/app_theme.dart';
 import 'package:trainlog_app/features/ranking/ranking_metrics.dart';
 import 'package:trainlog_app/features/ranking/ranking_type.dart';
+import 'package:trainlog_app/features/ranking/user_countries_page.dart';
 import 'package:trainlog_app/features/ranking/widgets/ranking_medal.dart';
 import 'package:trainlog_app/features/ranking/widgets/raw_value_tooltip.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
+import 'package:trainlog_app/platform/adaptive_page_route.dart';
 import 'package:trainlog_app/providers/ranking_provider.dart';
 import 'package:trainlog_app/utils/number_formatter.dart';
 import 'package:trainlog_app/widgets/monogram.dart';
@@ -109,6 +111,16 @@ class RankingListView extends StatelessWidget {
           sortUnit: provider.sortUnit,
           isCurrentUser: me != null && e.username.toLowerCase() == me,
           showRank: showRank,
+          // Country rows drill into the user's full visited-country list.
+          onTap: provider.selection.isCountry
+              ? () => AdaptivePageRoute.push(
+                    context,
+                    (_) => UserCountriesPage(
+                      username: e.username,
+                      countryCodes: e.countriesVisited,
+                    ),
+                  )
+              : null,
         );
       },
     );
@@ -126,6 +138,10 @@ class RankingRow extends StatelessWidget {
   /// only show the rank on the first one (see [RankingListView]).
   final bool showRank;
 
+  /// When set, the row is tappable and shows a trailing navigation chevron
+  /// (used by the country ranking to drill into the visited-country list).
+  final VoidCallback? onTap;
+
   const RankingRow({
     super.key,
     required this.entry,
@@ -133,13 +149,14 @@ class RankingRow extends StatelessWidget {
     required this.sortUnit,
     required this.isCurrentUser,
     this.showRank = true,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
-    return Container(
+    final row = Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       decoration: BoxDecoration(
         color: isCurrentUser
@@ -192,8 +209,19 @@ class RankingRow extends StatelessWidget {
                     context, entry, selection, sortUnit),
               );
             }),
+          if (onTap != null) ...[
+            const SizedBox(width: 6),
+            Icon(Icons.chevron_right, color: cs.onSurfaceVariant),
+          ],
         ],
       ),
+    );
+
+    if (onTap == null) return row;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(14),
+      child: row,
     );
   }
 

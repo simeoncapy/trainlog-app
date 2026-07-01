@@ -173,6 +173,8 @@
   "rankingOrderDescending": "Pababa",
   "rankingAllVehicles": "lahat ng sasakyan",
   "rankingWorldCovered": "Na-cover na mga squares sa mundo",
+  "rankingCountriesVisited": "Mga bansang nabisita",
+  "rankingCountryCountLabel": "{count, plural, =1 {bansa} other {mga bansa}}",
   "rankingNoData": "Walang datos",
   "rankingNotRanked": "Hindi naka-ranggo",
   "rankingSearchHint": "Maghanap ng user…",

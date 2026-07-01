@@ -1020,6 +1020,18 @@ abstract class AppLocalizations {
   /// **'World squares covered'**
   String get rankingWorldCovered;
 
+  /// Subtitle of the user position block in the countries ranking
+  ///
+  /// In en, this message translates to:
+  /// **'Countries visited'**
+  String get rankingCountriesVisited;
+
+  /// Unit label shown under the number of countries visited in the ranking list
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1 {country} other {countries}}'**
+  String rankingCountryCountLabel(int count);
+
   /// No description provided for @rankingNoData.
   ///
   /// In en, this message translates to:

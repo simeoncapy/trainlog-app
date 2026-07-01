@@ -22,7 +22,7 @@ enum RankingType {
   /// Share of the world's squares covered.
   worldSquares,
 
-  /// Number of distinct countries visited. (Built later.)
+  /// Number of distinct countries visited.
   country,
 
   /// Carbon-footprint leaderboard. (Built later.)
@@ -30,14 +30,8 @@ enum RankingType {
 
   /// Whether a functional view exists for this category in the current batch.
   ///
-  /// [all], [vehicles], [worldSquares], [railwayCoverage] and [carbon] are
-  /// implemented; the remaining ones are rendered as disabled pills.
-  bool get isImplemented =>
-      this == RankingType.all ||
-      this == RankingType.vehicles ||
-      this == RankingType.worldSquares ||
-      this == RankingType.railwayCoverage ||
-      this == RankingType.carbon;
+  /// Every category is implemented.
+  bool get isImplemented => true;
 
   /// Localized label for the category pill (vehicle pills use the vehicle name).
   String label(BuildContext context) {
@@ -176,6 +170,7 @@ class RankingSelection {
   const RankingSelection.category(RankingType type) : this._(type, null);
 
   bool get isWorldSquares => type == RankingType.worldSquares;
+  bool get isCountry => type == RankingType.country;
   bool get isVehicle => type == RankingType.vehicles && vehicle != null;
 
   /// Pill label: the vehicle name for vehicle selections, the type label
@@ -248,6 +243,13 @@ class RankingDisplayEntry {
   /// CO2e intensity, in grams per kilometre (0 outside the carbon view).
   final double carbonPerKmG;
 
+  /// Number of distinct countries visited (0 outside the country view).
+  final int countryCount;
+
+  /// ISO country codes visited, in the backend order (by trip count, most
+  /// visited first). Empty outside the country view.
+  final List<String> countriesVisited;
+
   /// Last activity, when known (drives the "· Jun 2026" subtitle).
   final DateTime? lastModified;
 
@@ -260,6 +262,8 @@ class RankingDisplayEntry {
     this.percent,
     this.totalCarbonKg = 0,
     this.carbonPerKmG = 0,
+    this.countryCount = 0,
+    this.countriesVisited = const [],
     this.lastModified,
   });
 
@@ -272,6 +276,8 @@ class RankingDisplayEntry {
         percent: percent,
         totalCarbonKg: totalCarbonKg,
         carbonPerKmG: carbonPerKmG,
+        countryCount: countryCount,
+        countriesVisited: countriesVisited,
         lastModified: lastModified,
       );
 }

@@ -37,8 +37,8 @@ class RankingProvider extends ChangeNotifier {
 
   /// The sort units offered for the current selection.
   ///
-  /// Carbon exposes three (CO2e/km, total CO2e, distance); world-squares none
-  /// (percentage only); everything else distance/trips.
+  /// Carbon exposes three (CO2e/km, total CO2e, distance); world-squares and
+  /// country none (single metric); everything else distance/trips.
   List<RankingSortUnit> get availableUnits {
     switch (_selection.type) {
       case RankingType.carbon:
@@ -48,6 +48,7 @@ class RankingProvider extends ChangeNotifier {
           RankingSortUnit.distance,
         ];
       case RankingType.worldSquares:
+      case RankingType.country:
         return const [];
       default:
         return const [RankingSortUnit.distance, RankingSortUnit.trips];
@@ -200,11 +201,29 @@ class RankingProvider extends ChangeNotifier {
       case RankingType.carbon:
         final res = await _trainlog.fetchRankingForCarbonFootprint();
         return _fromCarbon(res);
-      case RankingType.railwayCoverage:
       case RankingType.country:
-        // Not implemented in this batch; rendered as disabled pills.
+        final res = await _trainlog.fetchRankingForCountry();
+        return _fromCountry(res);
+      case RankingType.railwayCoverage:
+        // Railway Coverage has its own view and provider.
         return const [];
     }
+  }
+
+  List<RankingDisplayEntry> _fromCountry(
+    RankingResult<CountryLeaderboardEntry> res,
+  ) {
+    return res.entries
+        .map(
+          (e) => RankingDisplayEntry(
+            rank: 0,
+            username: e.username,
+            isNonPublic: e.isNonPublic,
+            countryCount: e.countryCount,
+            countriesVisited: e.countriesVisited,
+          ),
+        )
+        .toList();
   }
 
   List<RankingDisplayEntry> _fromCarbon(
@@ -270,7 +289,9 @@ class RankingProvider extends ChangeNotifier {
   double metricOf(RankingDisplayEntry e) => _metric(e);
 
   /// The value used both for ranking and for the natural (value) display order.
-  double _metric(RankingDisplayEntry e) {    if (_selection.isWorldSquares) return e.percent ?? 0;
+  double _metric(RankingDisplayEntry e) {
+    if (_selection.isWorldSquares) return e.percent ?? 0;
+    if (_selection.isCountry) return e.countryCount.toDouble();
     switch (_sortUnit) {
       case RankingSortUnit.distance:
         return e.distanceKm;
@@ -288,7 +309,9 @@ class RankingProvider extends ChangeNotifier {
   /// username so the competitive rank and the displayed order stay in sync
   /// (otherwise equal values — e.g. many 0 g/km rows — would sort arbitrarily).
   int _compareBest(RankingDisplayEntry a, RankingDisplayEntry b) {
-    final lowerBetter = _sortUnit.lowerIsBetter && !_selection.isWorldSquares;
+    final lowerBetter = _sortUnit.lowerIsBetter &&
+        !_selection.isWorldSquares &&
+        !_selection.isCountry;
     final cmp = _metric(a).compareTo(_metric(b));
     if (cmp != 0) return lowerBetter ? cmp : -cmp;
     return a.username.toLowerCase().compareTo(b.username.toLowerCase());
