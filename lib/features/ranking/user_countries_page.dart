@@ -57,32 +57,30 @@ class _UserCountriesPageState extends State<UserCountriesPage> {
     final loc = AppLocalizations.of(context)!;
     final countries = _displayCountries(context);
 
+    final sortingButtons = Padding(
+      padding: const EdgeInsets.only(right: 16),
+      child: RankingSortButtons(
+        alphabetical: _alphabetical,
+        descending: _descending,
+        onToggleAlphabetical: () =>
+            setState(() => _alphabetical = !_alphabetical),
+        onToggleDirection: () =>
+            setState(() => _descending = !_descending),
+      ),
+    );
+
     return Scaffold(
       appBar: AdaptiveAppBar(
         title: widget.username,
         onBack: () => Navigator.of(context).pop(),
+        materialActions: [sortingButtons],
+        cupertinoTrailing: sortingButtons,
       ),
       body: SafeArea(
         top: false,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-              child: Row(
-                children: [
-                  const Spacer(),
-                  RankingSortButtons(
-                    alphabetical: _alphabetical,
-                    descending: _descending,
-                    onToggleAlphabetical: () =>
-                        setState(() => _alphabetical = !_alphabetical),
-                    onToggleDirection: () =>
-                        setState(() => _descending = !_descending),
-                  ),
-                ],
-              ),
-            ),
             const SizedBox(height: 12),
             Expanded(
               child: countries.isEmpty
