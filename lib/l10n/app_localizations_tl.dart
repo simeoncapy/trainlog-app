@@ -513,6 +513,46 @@ class AppLocalizationsTl extends AppLocalizations {
   }
 
   @override
+  String get railCoverageCountriesTab => 'Mga bansa';
+
+  @override
+  String get railCoverageRegionsTab => 'Mga rehiyon';
+
+  @override
+  String get railCoverageSelectRegion => 'Pumili ng bansa';
+
+  @override
+  String railCoverageRegionCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count na rehiyon',
+      one: '$count rehiyon',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String railCoverageLeadCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Nangunguna ka sa $count bansa',
+      one: 'Nangunguna ka sa 1 bansa',
+      zero: 'Wala kang pinangungunahang bansa',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String railCoverageAreaSubtitle(String area) {
+    return 'Saklaw ng riles ng $area';
+  }
+
+  @override
+  String get railCoverageYou => 'Ikaw';
+
+  @override
   String get menuStatisticsTitle => 'Istatistika';
 
   @override

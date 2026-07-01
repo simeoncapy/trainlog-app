@@ -1044,6 +1044,48 @@ abstract class AppLocalizations {
   /// **'{trips} {vehicle} trips'**
   String rankingVehicleTripsScope(String trips, String vehicle);
 
+  /// No description provided for @railCoverageCountriesTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Countries'**
+  String get railCoverageCountriesTab;
+
+  /// No description provided for @railCoverageRegionsTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Regions'**
+  String get railCoverageRegionsTab;
+
+  /// No description provided for @railCoverageSelectRegion.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a country'**
+  String get railCoverageSelectRegion;
+
+  /// Number of regions (subdivisions) of a country in the railway coverage dropdown
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1 {{count} region} other {{count} regions}}'**
+  String railCoverageRegionCount(int count);
+
+  /// Summary of how many countries the user is the leader of in railway coverage
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0 {You lead no countries} =1 {You lead 1 country} other {You lead {count} countries}}'**
+  String railCoverageLeadCount(int count);
+
+  /// Subtitle on the railway coverage drill-down page, e.g. 'Japan railway coverage'
+  ///
+  /// In en, this message translates to:
+  /// **'{area} railway coverage'**
+  String railCoverageAreaSubtitle(String area);
+
+  /// Label shown in place of the current user's own name in leader lists
+  ///
+  /// In en, this message translates to:
+  /// **'You'**
+  String get railCoverageYou;
+
   /// No description provided for @menuStatisticsTitle.
   ///
   /// In en, this message translates to:

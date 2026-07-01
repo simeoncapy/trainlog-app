@@ -296,9 +296,22 @@ class RailPercentageEntry {
       ? 0
       : data.map((c) => c.percent).reduce((a, b) => a > b ? a : b);
 
+  /// The users who reached the highest coverage tier — the area's current
+  /// leader(s). Empty when the area lists no coverage data.
+  List<RankedUser> get leaders {
+    if (data.isEmpty) return const [];
+    final top = highestPercent;
+    for (final c in data) {
+      if (c.percent == top) return c.users;
+    }
+    return data.first.users;
+  }
+
   /// The country resolved to a [CountryDetail] (code, localized name, emoji).
   CountryDetail country(BuildContext context) =>
       CountryDetail.fromCode(countryCode, context);
+
+  CountrySubdivisionDetail get subdivision => CountrySubdivisionDetail.fromCode(code);
 
   /// Parses one `leaderboard_data` row, tagging users in [nonPublic] (they are
   /// kept, not dropped). Returns `null` only when the row lists no users at all.
@@ -388,6 +401,58 @@ List<RailPercentageEntry> _sortByName(
   final copy = List<RailPercentageEntry>.of(list);
   copy.sort((a, b) => name(a).toLowerCase().compareTo(name(b).toLowerCase()));
   return copy;
+}
+
+/// One contender within a single area's rail-coverage leaderboard: the user,
+/// the [percent] of the network they covered and their competitive [rank]
+/// (by percentage, highest first; ties share a rank).
+class RailUserRow {
+  final int rank;
+  final String username;
+  final double percent;
+  final bool isNonPublic;
+
+  const RailUserRow({
+    required this.rank,
+    required this.username,
+    required this.percent,
+    this.isNonPublic = false,
+  });
+}
+
+/// Flattens a [RailPercentageEntry]'s coverage tiers into one ranked row per
+/// user (highest percentage first; ties broken alphabetically and sharing a
+/// competition rank). This is the contender pool shown on the drill-down page.
+List<RailUserRow> buildRailUserRows(RailPercentageEntry entry) {
+  final flat = <({RankedUser user, double percent})>[];
+  for (final tier in entry.data) {
+    for (final user in tier.users) {
+      flat.add((user: user, percent: tier.percent));
+    }
+  }
+  flat.sort((a, b) {
+    final cmp = b.percent.compareTo(a.percent);
+    if (cmp != 0) return cmp;
+    return a.user.username.toLowerCase().compareTo(b.user.username.toLowerCase());
+  });
+
+  final rows = <RailUserRow>[];
+  var rank = 0;
+  double? previous;
+  for (var i = 0; i < flat.length; i++) {
+    final value = flat[i].percent;
+    if (i == 0 || value != previous) {
+      rank = i + 1;
+      previous = value;
+    }
+    rows.add(RailUserRow(
+      rank: rank,
+      username: flat[i].user.username,
+      percent: value,
+      isNonPublic: flat[i].user.isNonPublic,
+    ));
+  }
+  return rows;
 }
 
 /// The result of the world-squares leaderboard

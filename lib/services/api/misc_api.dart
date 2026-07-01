@@ -111,6 +111,60 @@ class MiscApi {
     }
   }
 
+  /// Resolves the static SVG flag asset for an ISO country code (`"JP"`) or an
+  /// ISO 3166-2 subdivision code (`"JP-13"`), normalising it to lowercase and
+  /// mapping it onto the backend vector route:
+  /// `/static/images/flags/<code>.svg`.
+  ///
+  /// Returns the fully-qualified URL so it can be handed straight to a network
+  /// SVG widget. Mirrors the logo-URL resolution used for operator logos.
+  String fetchFlag(String code) {
+    final normalized = code.trim().toLowerCase();
+    return _prefixLogo(_client.logoPath, 'images/flags/$normalized.svg');
+  }
+
+  /// Downloads the raw SVG markup for a flag [code] (country or ISO 3166-2
+  /// subdivision), or `null` when the backend has no asset for it. Used by the
+  /// flag cache so vectors are fetched once and reused/persisted, rather than
+  /// re-requested over the network on every scroll.
+  Future<String?> fetchFlagSvg(String code) async {
+    Future<String?> fetch(String flagCode) async {
+      final path = '/static/images/flags/${flagCode.trim().toLowerCase()}.svg';
+
+      final res = await _client.safeGet<String>(
+        path,
+        responseType: ResponseType.plain,
+      );
+
+      final data = res.data;
+      if (data == null || data.trim().isEmpty) return null;
+      return data;
+    }
+
+    final normalizedCode = code.trim().toLowerCase();
+
+    try {
+      return await fetch(normalizedCode);
+    } on DioException catch (e) {
+      // If the subdivision flag doesn't exist, fall back to the country flag.
+      if (e.response?.statusCode == 404 && normalizedCode.contains('-')) {
+        final countryCode = normalizedCode.split('-').first;
+
+        try {
+          return await fetch(countryCode);
+        } catch (_) {
+          // Ignore and let the outer handler return null.
+        }
+      }
+
+      debugPrint('🛑 fetchFlagSvg($code) failed: $e');
+      return null;
+    } catch (e) {
+      debugPrint('🛑 fetchFlagSvg($code) failed: $e');
+      return null;
+    }
+  }
+
   // ---- helpers ----
   String _prefixLogo(String base, String path) {
     if (path.isEmpty) return path;

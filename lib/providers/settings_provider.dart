@@ -1,3 +1,4 @@
+import 'package:country_codes_plus/country_codes_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:geodesy/geodesy.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -8,6 +9,7 @@ import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
 import 'package:trainlog_app/services/geo_permission_service.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
+import 'package:trainlog_app/utils/platform_utils.dart';
 
 enum PathDisplayOrder {
   creationDate,
@@ -204,6 +206,7 @@ class SettingsProvider with ChangeNotifier {
     _locale = locale;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('language_code', locale.languageCode);
+    if(AppPlatform.isMobile) await CountryCodes.init(_locale);
     notifyListeners();
   }
 

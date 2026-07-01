@@ -10,6 +10,7 @@ import 'package:trainlog_app/features/ranking/widgets/raw_value_tooltip.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/providers/ranking_provider.dart';
 import 'package:trainlog_app/utils/number_formatter.dart';
+import 'package:trainlog_app/widgets/monogram.dart';
 
 /// Scrollable leaderboard list. Renders the provider's display-ordered rows,
 /// highlighting the current user inline, and applies the optional [searchQuery]
@@ -151,9 +152,9 @@ class RankingRow extends StatelessWidget {
       ),
       child: Row(
         children: [
-          _RankIndicator(rank: entry.rank, showRank: showRank),
+          RankIndicator(rank: entry.rank, showRank: showRank),
           const SizedBox(width: 10),
-          _Monogram(username: entry.username, highlight: isCurrentUser),
+          Monogram(username: entry.username, highlight: isCurrentUser),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -249,97 +250,6 @@ class RankingRow extends StatelessWidget {
     }
 
     return lines;
-  }
-}
-
-/// Medal for the top three, plain number otherwise.
-class _RankIndicator extends StatelessWidget {
-  final int rank;
-  final bool showRank;
-
-  const _RankIndicator({required this.rank, this.showRank = true});
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
-    // Tied row that follows another with the same value: leave the rank slot
-    // blank but preserve its width so the rows stay aligned.
-    if (!showRank) {
-      return const SizedBox(width: 34);
-    }
-
-    if (RankingMedal.isMedal(rank)) {
-      return Container(
-        width: 34,
-        height: 34,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: RankingMedal.colorOf(rank).withValues(alpha: 0.18),
-          shape: BoxShape.circle,
-        ),
-        child: RankingMedal(rank: rank, size: 18),
-      );
-    }
-
-    return SizedBox(
-      width: 34,
-      child: Text(
-        '$rank',
-        textAlign: TextAlign.center,
-        style: AppTheme.monoFont.copyWith(
-          fontSize: 15,
-          fontWeight: FontWeight.w700,
-          color: cs.onSurfaceVariant,
-        ),
-      ),
-    );
-  }
-}
-
-/// Text-monogram avatar placeholder (first letter, colour derived from name).
-class _Monogram extends StatelessWidget {
-  final String username;
-  final bool highlight;
-
-  const _Monogram({required this.username, required this.highlight});
-
-  static const _palette = <Color>[
-    AppColors.blue,
-    AppColors.modeBus,
-    AppColors.modeTram,
-    AppColors.modeAir,
-    AppColors.modeFerry,
-    AppColors.violet,
-    AppColors.amberDk,
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    final letter =
-        username.isEmpty ? '?' : username.substring(0, 1).toUpperCase();
-    final color = _palette[username.hashCode.abs() % _palette.length];
-
-    return Container(
-      width: 44,
-      height: 44,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: color,
-        shape: BoxShape.circle,
-        border: highlight
-            ? Border.all(color: AppColors.amber, width: 2)
-            : null,
-      ),
-      child: Text(
-        letter,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
   }
 }
 

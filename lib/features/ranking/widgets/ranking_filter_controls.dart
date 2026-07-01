@@ -4,6 +4,7 @@ import 'package:trainlog_app/features/ranking/ranking_type.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/platform/widget/adaptive_popup.dart';
 import 'package:trainlog_app/providers/ranking_provider.dart';
+import 'package:trainlog_app/widgets/icon_toggle_button.dart';
 
 /// Filter row beneath the user-position block: unit dropdown (Distance / Trips),
 /// an alphabetical toggle and an order-direction toggle. Styling matches the
@@ -15,8 +16,6 @@ class RankingFilterControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context)!;
-
     return Row(
       children: [
         // Sorting unit — hidden for world-squares (percentage only).
@@ -31,26 +30,64 @@ class RankingFilterControls extends StatelessWidget {
         else
           const Spacer(),
         const SizedBox(width: 10),
-        // Icon + tooltip show the action the tap will perform, not the
-        // current state.
-        _IconToggle(
-          active: provider.alphabetical,
-          icon: provider.alphabetical ? Icons.tag : Icons.sort_by_alpha,
-          tooltip: provider.alphabetical
+        RankingSortButtons(
+          alphabetical: provider.alphabetical,
+          descending: provider.descending,
+          onToggleAlphabetical: provider.toggleAlphabetical,
+          onToggleDirection: provider.toggleDirection,
+        ),
+      ],
+    );
+  }
+}
+
+/// The two compact sorting toggles shared across the ranking screens:
+/// an Alphabetical/Value toggle and an Ascending/Descending toggle. The icon and
+/// tooltip show the action the tap will perform, not the current state.
+///
+/// When [enabled] is false both toggles are dimmed and non-interactive (e.g. on
+/// the railway-coverage Regions tab before a country is picked).
+class RankingSortButtons extends StatelessWidget {
+  final bool alphabetical;
+  final bool descending;
+  final bool enabled;
+  final VoidCallback onToggleAlphabetical;
+  final VoidCallback onToggleDirection;
+
+  const RankingSortButtons({
+    super.key,
+    required this.alphabetical,
+    required this.descending,
+    required this.onToggleAlphabetical,
+    required this.onToggleDirection,
+    this.enabled = true,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        IconToggleButton(
+          active: alphabetical,
+          enabled: enabled,
+          icon: alphabetical ? Icons.tag : Icons.sort_by_alpha,
+          tooltip: alphabetical
               ? loc.rankingSortByValue
               : loc.rankingSortAlphabetical,
-          onTap: provider.toggleAlphabetical,
+          onTap: onToggleAlphabetical,
         ),
         const SizedBox(width: 8),
-        _IconToggle(
+        IconToggleButton(
           active: false,
-          icon: provider.descending
-              ? Icons.arrow_upward
-              : Icons.arrow_downward,
-          tooltip: provider.descending
+          enabled: enabled,
+          icon: descending ? Icons.arrow_upward : Icons.arrow_downward,
+          tooltip: descending
               ? loc.rankingOrderAscending
               : loc.rankingOrderDescending,
-          onTap: provider.toggleDirection,
+          onTap: onToggleDirection,
         ),
       ],
     );
@@ -127,43 +164,3 @@ class _UnitDropdown extends StatelessWidget {
   }
 }
 
-class _IconToggle extends StatelessWidget {
-  final bool active;
-  final IconData icon;
-  final String tooltip;
-  final VoidCallback onTap;
-
-  const _IconToggle({
-    required this.active,
-    required this.icon,
-    required this.tooltip,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardColor = isDark ? cs.surface : Colors.white;
-    return Tooltip(
-      message: tooltip,
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.all(9),
-          decoration: BoxDecoration(
-            color: active ? cs.primary.withValues(alpha: 0.15) : cardColor,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: active
-                  ? cs.primary.withValues(alpha: 0.6)
-                  : cs.outlineVariant.withValues(alpha: 0.4),
-              width: 1.2,
-            ),
-          ),
-          child: Icon(icon, size: 18, color: cs.primary),
-        ),
-      ),
-    );
-  }
-}

@@ -30,12 +30,13 @@ enum RankingType {
 
   /// Whether a functional view exists for this category in the current batch.
   ///
-  /// [all], [vehicles], [worldSquares] and [carbon] are implemented; the others
-  /// are rendered as disabled pills.
+  /// [all], [vehicles], [worldSquares], [railwayCoverage] and [carbon] are
+  /// implemented; the remaining ones are rendered as disabled pills.
   bool get isImplemented =>
       this == RankingType.all ||
       this == RankingType.vehicles ||
       this == RankingType.worldSquares ||
+      this == RankingType.railwayCoverage ||
       this == RankingType.carbon;
 
   /// Localized label for the category pill (vehicle pills use the vehicle name).
@@ -58,8 +59,10 @@ enum RankingType {
   }
 
   /// Contextually relevant icon for the non-vehicle categories.
-  Icon get icon {
-    switch (this) {
+  Icon get icon => iconOf(this);
+
+  static Icon iconOf(RankingType type) {
+    switch (type) {
       case RankingType.all:
         return const Icon(Icons.emoji_events);
       case RankingType.vehicles:
@@ -72,6 +75,28 @@ enum RankingType {
         return const Icon(Icons.public);
       case RankingType.carbon:
         return const Icon(Icons.eco);
+    }
+  }
+
+  Color accentColor(VehicleType? vehicle, Map<VehicleType, Color>? palette) => accentColorOf(this, vehicle:vehicle, palette:palette);
+
+  static Color accentColorOf(RankingType type, {VehicleType? vehicle, Map<VehicleType, Color>? palette}) {
+    if (type == RankingType.vehicles && vehicle != null && palette != null) {
+      return palette[vehicle] ?? AppColors.amber;
+    }
+    switch (type) {
+      case RankingType.all:
+        return AppColors.amber;
+      case RankingType.worldSquares:
+        return AppColors.modeFerry;
+      case RankingType.railwayCoverage:
+        return AppColors.modeTram;
+      case RankingType.country:
+        return AppColors.blue;
+      case RankingType.carbon:
+        return AppColors.successLight;
+      case RankingType.vehicles:
+        return AppColors.sky;
     }
   }
 }
@@ -167,23 +192,7 @@ class RankingSelection {
   /// Vehicle selections take their colour from the user's vehicle [palette];
   /// the category types use their own fixed accent.
   Color accentColor(Map<VehicleType, Color> palette) {
-    if (isVehicle) {
-      return palette[vehicle] ?? AppColors.amber;
-    }
-    switch (type) {
-      case RankingType.all:
-        return AppColors.amber;
-      case RankingType.worldSquares:
-        return AppColors.modeFerry;
-      case RankingType.railwayCoverage:
-        return AppColors.modeTram;
-      case RankingType.country:
-        return AppColors.blue;
-      case RankingType.carbon:
-        return AppColors.successLight;
-      case RankingType.vehicles:
-        return AppColors.sky;
-    }
+    return type.accentColor(vehicle, palette);
   }
 
   @override

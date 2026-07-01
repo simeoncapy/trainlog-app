@@ -70,6 +70,14 @@ class TrainlogProvider extends ChangeNotifier {
   /// The leaderboard / ranking API.
   RankingApi get rankingApi => _ranking;
 
+  /// Resolves the static SVG flag asset URL for an ISO country or ISO 3166-2
+  /// subdivision [code] (see [MiscApi.fetchFlag]).
+  String flagUrl(String code) => _misc.fetchFlag(code);
+
+  /// Downloads the raw SVG markup for a flag [code], or null when unavailable
+  /// (see [MiscApi.fetchFlagSvg]). Used by the flag cache.
+  Future<String?> fetchFlagSvg(String code) => _misc.fetchFlagSvg(code);
+
   Map<String, String> get listOperators => _listOperators;
   List<String> get availableCurrencies => _availableCurrencies;
 

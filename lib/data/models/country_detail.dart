@@ -25,3 +25,31 @@ class CountryDetail {
     );
   }
 }
+
+/// A country resolved for display: its ISO 3166-1 alpha-2 [code], the
+/// localized [name] (according to the user's locale) and the flag [emoji].
+class CountrySubdivisionDetail {
+  final String code;
+  final String name;
+  final String? emoji;
+
+  const CountrySubdivisionDetail({
+    required this.code,
+    required this.name,
+    this.emoji,
+  });
+
+  String get countryCode => code.split('-').first;
+  String get subdivisionCode => code.split('-').sublist(1).join('-');
+
+  /// Builds a [CountrySubdivisionDetail] from an ISO country [code], resolving the
+  /// localized name through the active [CountryCodesPlus] and deriving the
+  /// flag emoji from the code.
+  factory CountrySubdivisionDetail.fromCode(String code) {
+    return CountrySubdivisionDetail(
+      code: code,
+      name: countrySubdivisionCodeToName(code),
+      emoji: countryCodeToEmoji(code),
+    );
+  }
+}

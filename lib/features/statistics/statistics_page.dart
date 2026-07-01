@@ -14,6 +14,7 @@ import 'package:trainlog_app/utils/map_color_palette.dart';
 import 'package:trainlog_app/utils/number_formatter.dart';
 import 'package:trainlog_app/utils/text_utils.dart';
 import 'package:trainlog_app/widgets/app_steps_tab_bar.dart';
+import 'package:trainlog_app/widgets/icon_toggle_button.dart';
 
 import 'package:trainlog_app/features/statistics/widgets/stats_bar_chart.dart';
 import 'package:trainlog_app/features/statistics/widgets/stats_pie_chart.dart';
@@ -426,7 +427,13 @@ class _StatsCard extends StatelessWidget {
                 // Sort toggle — hidden for Pie view
                 if (view != StatisticsView.pie) ...[
                   const SizedBox(width: 10),
-                  _SortButton(alpha: sortedAlpha, onTap: onSortToggle),
+                  IconToggleButton(
+                    onScaffold: false,
+                    icon: sortedAlpha ? Icons.filter_list : Icons.sort_by_alpha,
+                    tooltip:
+                        sortedAlpha ? 'Sort by total' : 'Sort alphabetically',
+                    onTap: onSortToggle,
+                  ),
                 ],
               ],
             ),
@@ -641,40 +648,6 @@ class _OutlinedDropdown<T> extends StatelessWidget {
 // ═══════════════════════════════════════════════════════════════════════════
 // Sort toggle button — icon changes with state
 // ═══════════════════════════════════════════════════════════════════════════
-
-class _SortButton extends StatelessWidget {
-  final bool alpha;
-  final VoidCallback onTap;
-
-  const _SortButton({required this.alpha, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Tooltip(
-      message: alpha ? 'Sort by total' : 'Sort alphabetically',
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: Colors.transparent,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: cs.outline.withValues(alpha: 0.4),
-              width: 1.2,
-            ),
-          ),
-          child: Icon(
-            alpha ? Icons.filter_list : Icons.sort_by_alpha,
-            size: 18,
-            color: cs.primary,
-          ),
-        ),
-      ),
-    );
-  }
-}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Year chip (header)

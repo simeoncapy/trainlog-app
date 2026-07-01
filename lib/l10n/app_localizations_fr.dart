@@ -521,6 +521,46 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String get railCoverageCountriesTab => 'Pays';
+
+  @override
+  String get railCoverageRegionsTab => 'Régions';
+
+  @override
+  String get railCoverageSelectRegion => 'Sélectionner un pays';
+
+  @override
+  String railCoverageRegionCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count régions',
+      one: '$count région',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String railCoverageLeadCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Vous menez $count pays',
+      one: 'Vous menez 1 pays',
+      zero: 'Vous ne menez aucun pays',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String railCoverageAreaSubtitle(String area) {
+    return 'Couverture ferroviaire de $area';
+  }
+
+  @override
+  String get railCoverageYou => 'Vous';
+
+  @override
   String get menuStatisticsTitle => 'Stat.';
 
   @override

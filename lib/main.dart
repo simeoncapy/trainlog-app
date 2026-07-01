@@ -13,7 +13,10 @@ import 'package:trainlog_app/services/secure_cookie_storage.dart';
 import 'package:trainlog_app/utils/cached_data_utils.dart';
 
 import 'package:firebase_core/firebase_core.dart';
+import 'package:trainlog_app/utils/platform_utils.dart';
 import 'firebase_options.dart';
+
+import 'package:country_codes_plus/country_codes_plus.dart';
 
 bool _isOsmTileNetworkError(Object error) {
   final msg = error.toString();
@@ -65,6 +68,8 @@ Future<void> main() async {
   final client = await TrainlogHttpClient.persistent();
   final auth = TrainlogProvider(client: client);
   await auth.tryRestoreSession(settings: settings);
+
+  if (AppPlatform.isMobile) await CountryCodes.init(settings.locale);
 
   LicenseRegistry.addLicense(() async* {
     final licenseText = await rootBundle.loadString('assets/licenses/lottie_simple.txt');

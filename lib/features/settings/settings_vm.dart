@@ -6,6 +6,7 @@ import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
+import 'package:trainlog_app/services/flag_cache.dart';
 import 'package:trainlog_app/utils/app_info_utils.dart';
 import 'package:trainlog_app/utils/cached_data_utils.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
@@ -165,6 +166,7 @@ class SettingsVm extends ChangeNotifier {
     settings.setShouldReloadPolylines(true);
     settings.setLastFetchingTrips(forceRefreshDate.toUtc());
     await tripsProvider.clearAll();
+    FlagCache.clearCache();
 
     await AppCacheFilePath.deleteFile(AppCacheFilePath.polylines);
     await AppCacheFilePath.deleteFile(AppCacheFilePath.preRecord);
