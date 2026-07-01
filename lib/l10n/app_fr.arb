@@ -154,6 +154,8 @@
   "rankingOrderDescending": "Décroissant",
   "rankingAllVehicles": "tous les véhicules",
   "rankingWorldCovered": "Cases du monde couvertes",
+  "rankingCountriesVisited": "Pays visités",
+  "rankingCountryCountLabel": "{count, plural, =1 {pays} other {pays}}",
   "rankingNoData": "Aucune donnée",
   "rankingNotRanked": "Non classé",
   "rankingSearchHint": "Rechercher des utilisateurs…",

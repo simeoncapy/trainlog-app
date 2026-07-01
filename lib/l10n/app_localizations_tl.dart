@@ -499,6 +499,20 @@ class AppLocalizationsTl extends AppLocalizations {
   String get rankingWorldCovered => 'Na-cover na mga squares sa mundo';
 
   @override
+  String get rankingCountriesVisited => 'Mga bansang nabisita';
+
+  @override
+  String rankingCountryCountLabel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'mga bansa',
+      one: 'bansa',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get rankingNoData => 'Walang datos';
 
   @override

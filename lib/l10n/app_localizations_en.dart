@@ -500,6 +500,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get rankingWorldCovered => 'World squares covered';
 
   @override
+  String get rankingCountriesVisited => 'Countries visited';
+
+  @override
+  String rankingCountryCountLabel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'countries',
+      one: 'country',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get rankingNoData => 'No data';
 
   @override

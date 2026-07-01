@@ -65,6 +65,8 @@ class _RankingPageState extends State<RankingPage> {
       subtitle = loc.rankingNotRanked;
     } else if (selection.isWorldSquares) {
       subtitle = loc.rankingWorldCovered;
+    } else if (selection.isCountry) {
+      subtitle = loc.rankingCountriesVisited;
     } else {
       // The complementary metric(s) not used as the primary value.
       subtitle = RankingMetrics.secondaries(

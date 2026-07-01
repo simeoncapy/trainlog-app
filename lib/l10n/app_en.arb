@@ -188,6 +188,17 @@
   "rankingOrderDescending": "Descending",
   "rankingAllVehicles": "all vehicles",
   "rankingWorldCovered": "World squares covered",
+  "rankingCountriesVisited": "Countries visited",
+  "@rankingCountriesVisited": {
+    "description": "Subtitle of the user position block in the countries ranking"
+  },
+  "rankingCountryCountLabel": "{count, plural, =1 {country} other {countries}}",
+  "@rankingCountryCountLabel": {
+    "description": "Unit label shown under the number of countries visited in the ranking list",
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
   "rankingNoData": "No data",
   "rankingNotRanked": "Not ranked",
   "rankingSearchHint": "Search users…",
