@@ -222,6 +222,10 @@
       "area": { "type": "String" }
     }
   },
+  "railCoverageYou": "You",
+  "@railCoverageYou": {
+    "description": "Label shown in place of the current user's own name in leader lists"
+  },
   "menuStatisticsTitle": "Statistics",
   "menuDashboardTitle": "Dashboard",
   "menuCoverageTitle": "Coverage",

@@ -1080,6 +1080,12 @@ abstract class AppLocalizations {
   /// **'{area} railway coverage'**
   String railCoverageAreaSubtitle(String area);
 
+  /// Label shown in place of the current user's own name in leader lists
+  ///
+  /// In en, this message translates to:
+  /// **'You'**
+  String get railCoverageYou;
+
   /// No description provided for @menuStatisticsTitle.
   ///
   /// In en, this message translates to:

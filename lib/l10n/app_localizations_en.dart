@@ -551,6 +551,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get railCoverageYou => 'You';
+
+  @override
   String get menuStatisticsTitle => 'Statistics';
 
   @override

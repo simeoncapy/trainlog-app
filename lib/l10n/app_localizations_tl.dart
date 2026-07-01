@@ -550,6 +550,9 @@ class AppLocalizationsTl extends AppLocalizations {
   }
 
   @override
+  String get railCoverageYou => 'Ikaw';
+
+  @override
   String get menuStatisticsTitle => 'Istatistika';
 
   @override

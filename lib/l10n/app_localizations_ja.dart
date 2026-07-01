@@ -539,6 +539,9 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
+  String get railCoverageYou => 'あなた';
+
+  @override
   String get menuStatisticsTitle => '統計';
 
   @override

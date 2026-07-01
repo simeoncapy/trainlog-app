@@ -183,6 +183,7 @@
   "railCoverageRegionCount": "{count, plural, =1 {{count} rehiyon} other {{count} na rehiyon}}",
   "railCoverageLeadCount": "{count, plural, =0 {Wala kang pinangungunahang bansa} =1 {Nangunguna ka sa 1 bansa} other {Nangunguna ka sa {count} bansa}}",
   "railCoverageAreaSubtitle": "Saklaw ng riles ng {area}",
+  "railCoverageYou": "Ikaw",
   "menuStatisticsTitle": "Istatistika",
   "menuDashboardTitle": "Dashboard",
   "menuCoverageTitle": "Sakop",

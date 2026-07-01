@@ -280,6 +280,7 @@ class _CoverageListState extends State<_CoverageList> {
             flagColumnWidth: flagColumnWidth,
             title: name,
             leaders: e.leaders.map((u) => u.username).toList(),
+            currentUsername: widget.currentUsername,
             percent: e.highestPercent,
             onTap: () => AdaptivePageRoute.push(
               context,
@@ -307,6 +308,10 @@ class _CoverageRow extends StatelessWidget {
   final double flagColumnWidth;
   final String title;
   final List<String> leaders;
+
+  /// The current user's login name, so their entry in [leaders] can be pulled to
+  /// the front and shown as a localized "You" chip.
+  final String? currentUsername;
   final double percent;
   final VoidCallback onTap;
 
@@ -316,6 +321,7 @@ class _CoverageRow extends StatelessWidget {
     required this.flagColumnWidth,
     required this.title,
     required this.leaders,
+    required this.currentUsername,
     required this.percent,
     required this.onTap,
   });
@@ -323,6 +329,13 @@ class _CoverageRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final loc = AppLocalizations.of(context)!;
+
+    // Pull the current user to the front and render them as a "You" chip.
+    final me = currentUsername?.toLowerCase();
+    final iAmLeader = me != null && leaders.any((l) => l.toLowerCase() == me);
+    final others =
+        iAmLeader ? leaders.where((l) => l.toLowerCase() != me).toList() : leaders;
 
     return InkWell(
       onTap: onTap,
@@ -353,16 +366,39 @@ class _CoverageRow extends StatelessWidget {
                       children: [
                         Icon(Icons.emoji_events, size: 13, color: cs.primary),
                         const SizedBox(width: 4),
-                        Expanded(
-                          child: Text(
-                            leaders.join(', '),
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall
-                                ?.copyWith(color: cs.onSurfaceVariant),
-                            overflow: TextOverflow.ellipsis,
+                        if (iAmLeader) ...[
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 6, vertical: 1),
+                            decoration: BoxDecoration(
+                              color: cs.primary,
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              loc.railCoverageYou,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                    color: cs.onPrimary,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                            ),
                           ),
-                        ),
+                        ],
+                        if (others.isNotEmpty)
+                          Expanded(
+                            child: Text(
+                              iAmLeader
+                                  ? ', ${others.join(', ')}'
+                                  : others.join(', '),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(color: cs.onSurfaceVariant),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
                       ],
                     ),
                   ],
