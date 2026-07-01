@@ -35,9 +35,11 @@ class RankingUserPositionBlock extends StatelessWidget {
   /// Optional raw-value tooltip revealed on tapping [valueText].
   final String? valueTooltip;
 
-  /// When set, an info banner with this text is shown beneath the row (used by
-  /// the carbon leaderboard to explain that lower g/km ranks better).
-  final String? carbonExplanation;
+  /// Extra content shown beneath the row. A [String] is rendered as an
+  /// [ExplanationDetails] info banner (used by the carbon leaderboard to
+  /// explain that lower g/km ranks better); a [Widget] is rendered as-is
+  /// (used by the country ranking for the visited-flags list).
+  final Object? details;
 
   const RankingUserPositionBlock({
     super.key,
@@ -48,8 +50,9 @@ class RankingUserPositionBlock extends StatelessWidget {
     this.participantCount = 0,
     this.valueText,
     this.valueTooltip,
-    this.carbonExplanation,
-  });
+    this.details,
+  })  : assert(details == null || details is String || details is Widget,
+            'details must be a String or a Widget');
 
   @override
   Widget build(BuildContext context) {
@@ -116,19 +119,26 @@ class RankingUserPositionBlock extends StatelessWidget {
               ),
             ],
           ),
-          if (carbonExplanation != null)
-            _CarbonExplanation(text: carbonExplanation!),
+          if (details != null) _detailsChild(details!),
         ],
       ),
     );
   }
+
+  /// Resolves [details] to its widget: a plain string becomes the
+  /// [ExplanationDetails] banner, a widget is rendered as-is.
+  Widget _detailsChild(Object details) {
+    if (details is String) return ExplanationDetails(text: details);
+    return details as Widget;
+  }
 }
 
-/// Info banner explaining that lower CO2e/km ranks better.
-class _CarbonExplanation extends StatelessWidget {
+/// Info banner shown beneath the position row (e.g. explaining that lower
+/// CO2e/km ranks better on the carbon leaderboard).
+class ExplanationDetails extends StatelessWidget {
   final String text;
 
-  const _CarbonExplanation({required this.text});
+  const ExplanationDetails({super.key, required this.text});
 
   @override
   Widget build(BuildContext context) {

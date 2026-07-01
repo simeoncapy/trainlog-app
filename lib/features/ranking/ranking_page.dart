@@ -5,17 +5,20 @@ import 'package:provider/provider.dart';
 
 import 'package:trainlog_app/features/ranking/ranking_metrics.dart';
 import 'package:trainlog_app/features/ranking/ranking_type.dart';
+import 'package:trainlog_app/features/ranking/user_countries_page.dart';
 import 'package:trainlog_app/features/ranking/widgets/railway_coverage_view.dart';
 import 'package:trainlog_app/features/ranking/widgets/ranking_filter_controls.dart';
 import 'package:trainlog_app/features/ranking/widgets/ranking_list_view.dart';
 import 'package:trainlog_app/features/ranking/widgets/ranking_selector_bar.dart';
 import 'package:trainlog_app/features/ranking/widgets/ranking_user_position_block.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
+import 'package:trainlog_app/platform/adaptive_page_route.dart';
 import 'package:trainlog_app/platform/adaptive_widget.dart';
 import 'package:trainlog_app/providers/ranking_provider.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
+import 'package:trainlog_app/utils/text_utils.dart';
 
 /// Native, adaptive leaderboard entry point.
 ///
@@ -77,6 +80,28 @@ class _RankingPageState extends State<RankingPage> {
       ).join(' · ');
     }
 
+    // Extra content beneath the row: the carbon info banner, or the visited
+    // country flags (tappable, drilling into the full country list).
+    final Object? details;
+    if (selection.type == RankingType.carbon) {
+      details = loc.rankingCarbonExplanation;
+    } else if (selection.isCountry &&
+        entry != null &&
+        entry.countriesVisited.isNotEmpty) {
+      details = _VisitedCountryFlags(
+        countryCodes: entry.countriesVisited,
+        onTap: () => AdaptivePageRoute.push(
+          context,
+          (_) => UserCountriesPage(
+            username: entry.username,
+            countryCodes: entry.countriesVisited,
+          ),
+        ),
+      );
+    } else {
+      details = null;
+    }
+
     return RankingUserPositionBlock(
       icon: RankingPositionIcon(
         icon: selection.icon,
@@ -94,9 +119,7 @@ class _RankingPageState extends State<RankingPage> {
           ? null
           : RankingMetrics.primaryTooltip(
               context, entry, selection, provider.sortUnit),
-      carbonExplanation: selection.type == RankingType.carbon
-          ? loc.rankingCarbonExplanation
-          : null,
+      details: details,
     );
   }
 
@@ -194,6 +217,58 @@ class _RankingPageState extends State<RankingPage> {
           ],
         );
       },
+    );
+  }
+}
+
+/// The country-ranking details of [RankingUserPositionBlock]: the flags of the
+/// countries the user has visited (backend order — most visited first), capped
+/// at two lines with an ellipsis, plus a trailing chevron. Tapping it opens the
+/// user's full [UserCountriesPage].
+class _VisitedCountryFlags extends StatelessWidget {
+  /// ISO country codes in the backend order (by trip count, most visited
+  /// first).
+  final List<String> countryCodes;
+
+  final VoidCallback onTap;
+
+  const _VisitedCountryFlags({
+    required this.countryCodes,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(10),
+      child: Padding(
+        padding: const EdgeInsets.only(top: 14),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                countryCodes.map(countryCodeToEmoji).join(' '),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 18,
+                  height: 1.5,
+                  letterSpacing: 2,
+                  color: cs.onInverseSurface,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Icon(
+              Icons.chevron_right,
+              color: cs.onInverseSurface.withValues(alpha: 0.7),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
