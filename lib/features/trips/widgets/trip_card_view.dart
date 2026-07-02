@@ -98,7 +98,7 @@ class _TripCardViewState extends State<TripCardView> {
     final nextNull = _items.indexWhere((t) => t == null);
     if (nextNull == -1) return;
     final pageIndex = nextNull ~/ _pageSize;
-    setState(() => _isLoadingMore = true);
+    if (mounted) setState(() => _isLoadingMore = true);
     await _loadPage(pageIndex);
     if (mounted) setState(() => _isLoadingMore = false);
   }
