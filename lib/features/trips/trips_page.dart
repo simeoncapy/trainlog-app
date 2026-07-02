@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:trainlog_app/data/models/trip_form_model.dart';
+import 'package:trainlog_app/data/models/trips_filter.dart';
 import 'package:trainlog_app/features/menu/menu_summary_card.dart';
 import 'package:trainlog_app/features/trips/add_trip_page.dart';
+import 'package:trainlog_app/features/trips/search_filter_sheet/trips_search_filter_sheet.dart';
 import 'package:trainlog_app/features/trips/widgets/trip_card_view.dart';
 import 'package:trainlog_app/features/trips/widgets/trip_table_view.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
@@ -14,7 +16,6 @@ import 'package:trainlog_app/utils/platform_utils.dart';
 import 'package:trainlog_app/widgets/app_steps_tab_bar.dart';
 import 'package:trainlog_app/widgets/past_future_selector.dart';
 import 'package:trainlog_app/platform/adaptive_widget.dart';
-import 'package:trainlog_app/widgets/trips_filter_dialog.dart';
 
 const _kViewPrefKey = 'trips_view_mode'; // 'card' or 'table'
 
@@ -116,21 +117,22 @@ class _TripsPageState extends State<TripsPage> {
               onToggleView: () => _setCardView(!_isCardView),
               onFilterTap: () async {
                 final locale = Localizations.localeOf(context);
-                final operators = tripsProvider.operators;
                 final countries = await tripsProvider.getMapCountryCodesSafe(locale: locale);
                 final types = tripsProvider.vehicleTypes;
 
                 if (!context.mounted) return;
-                final result = await showAdaptiveTripsFilterDialog(
+                final result = await showTripsSearchFilterSheet(
                   context,
-                  operatorOptions: operators,
+                  repo: repo,
                   countryOptions: countries,
                   typeOptions: types,
+                  showFutureTrips: _timeMoment == TimeMoment.future,
                   initialFilter: _activeFilter,
                 );
 
                 if (result != null) {
-                  setState(() => _activeFilter = result);
+                  // An all-defaults result is equivalent to "no filter".
+                  setState(() => _activeFilter = result.isEmpty ? null : result);
                   _refreshSummaryCount(tripsProvider);
                 }
               },

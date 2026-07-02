@@ -1668,6 +1668,126 @@ abstract class AppLocalizations {
   /// **'Vehicle Type'**
   String get tripsFilterType;
 
+  /// No description provided for @tripsSearchFilterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Search trips'**
+  String get tripsSearchFilterTitle;
+
+  /// No description provided for @tripsSearchFilterSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Stations, lines, tags...'**
+  String get tripsSearchFilterSearchHint;
+
+  /// No description provided for @tripsSearchFilterWhen.
+  ///
+  /// In en, this message translates to:
+  /// **'When'**
+  String get tripsSearchFilterWhen;
+
+  /// Label above the custom From/To date pickers in the trips search & filter sheet
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get tripsSearchFilterCustom;
+
+  /// No description provided for @tripsSearchFilterAllTime.
+  ///
+  /// In en, this message translates to:
+  /// **'All time'**
+  String get tripsSearchFilterAllTime;
+
+  /// No description provided for @tripsSearchFilterThisYear.
+  ///
+  /// In en, this message translates to:
+  /// **'This year'**
+  String get tripsSearchFilterThisYear;
+
+  /// No description provided for @tripsSearchFilterPast30Days.
+  ///
+  /// In en, this message translates to:
+  /// **'Past 30 days'**
+  String get tripsSearchFilterPast30Days;
+
+  /// No description provided for @tripsSearchFilterFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get tripsSearchFilterFrom;
+
+  /// No description provided for @tripsSearchFilterTo.
+  ///
+  /// In en, this message translates to:
+  /// **'To'**
+  String get tripsSearchFilterTo;
+
+  /// Replaces the 'From' date label when no 'To' date is set, meaning the filter matches that exact day
+  ///
+  /// In en, this message translates to:
+  /// **'On'**
+  String get tripsSearchFilterOn;
+
+  /// Helper text shown under the date pickers while the From date acts as an exact-day filter
+  ///
+  /// In en, this message translates to:
+  /// **'Only trips on this exact day'**
+  String get tripsSearchFilterOnHelper;
+
+  /// No description provided for @tripsSearchFilterCountries.
+  ///
+  /// In en, this message translates to:
+  /// **'Countries'**
+  String get tripsSearchFilterCountries;
+
+  /// No description provided for @tripsSearchFilterOperators.
+  ///
+  /// In en, this message translates to:
+  /// **'Operators'**
+  String get tripsSearchFilterOperators;
+
+  /// No description provided for @tripsSearchFilterAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get tripsSearchFilterAdd;
+
+  /// No description provided for @tripsSearchFilterAddOperator.
+  ///
+  /// In en, this message translates to:
+  /// **'Add operator'**
+  String get tripsSearchFilterAddOperator;
+
+  /// Sub-headline above the country list in the picker (rendered uppercase)
+  ///
+  /// In en, this message translates to:
+  /// **'All countries from your trips'**
+  String get tripsSearchFilterAllCountriesFromTrips;
+
+  /// Sub-headline above the operator list in the picker (rendered uppercase)
+  ///
+  /// In en, this message translates to:
+  /// **'All operators from your trips'**
+  String get tripsSearchFilterAllOperatorsFromTrips;
+
+  /// No description provided for @tripsSearchFilterSearchCountries.
+  ///
+  /// In en, this message translates to:
+  /// **'Search countries...'**
+  String get tripsSearchFilterSearchCountries;
+
+  /// No description provided for @tripsSearchFilterSearchOperators.
+  ///
+  /// In en, this message translates to:
+  /// **'Search operators...'**
+  String get tripsSearchFilterSearchOperators;
+
+  /// No description provided for @tripsSearchFilterDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get tripsSearchFilterDone;
+
   /// No description provided for @filterClearButton.
   ///
   /// In en, this message translates to:

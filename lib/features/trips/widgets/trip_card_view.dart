@@ -12,9 +12,9 @@ import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/utils/date_utils.dart' as date_utils;
 import 'package:trainlog_app/utils/map_color_palette.dart';
 import 'package:trainlog_app/utils/style_utils.dart';
+import 'package:trainlog_app/data/models/trips_filter.dart';
 import 'package:trainlog_app/widgets/divider_with_widget.dart';
 import 'package:trainlog_app/widgets/past_future_selector.dart';
-import 'package:trainlog_app/widgets/trips_filter_dialog.dart';
 
 class TripCardView extends StatefulWidget {
   final TripsRepository repo;

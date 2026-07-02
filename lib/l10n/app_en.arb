@@ -390,6 +390,43 @@
   "tripsFilterCountry": "Country",
   "tripsFilterOperator": "Operator",
   "tripsFilterType": "Vehicle Type",
+
+  "tripsSearchFilterTitle": "Search trips",
+  "tripsSearchFilterSearchHint": "Stations, lines, tags...",
+  "tripsSearchFilterWhen": "When",
+  "tripsSearchFilterCustom": "Custom",
+  "@tripsSearchFilterCustom": {
+    "description": "Label above the custom From/To date pickers in the trips search & filter sheet"
+  },
+  "tripsSearchFilterAllTime": "All time",
+  "tripsSearchFilterThisYear": "This year",
+  "tripsSearchFilterPast30Days": "Past 30 days",
+  "tripsSearchFilterFrom": "From",
+  "tripsSearchFilterTo": "To",
+  "tripsSearchFilterOn": "On",
+  "@tripsSearchFilterOn": {
+    "description": "Replaces the 'From' date label when no 'To' date is set, meaning the filter matches that exact day"
+  },
+  "tripsSearchFilterOnHelper": "Only trips on this exact day",
+  "@tripsSearchFilterOnHelper": {
+    "description": "Helper text shown under the date pickers while the From date acts as an exact-day filter"
+  },
+  "tripsSearchFilterCountries": "Countries",
+  "tripsSearchFilterOperators": "Operators",
+  "tripsSearchFilterAdd": "Add",
+  "tripsSearchFilterAddOperator": "Add operator",
+  "tripsSearchFilterAllCountriesFromTrips": "All countries from your trips",
+  "@tripsSearchFilterAllCountriesFromTrips": {
+    "description": "Sub-headline above the country list in the picker (rendered uppercase)"
+  },
+  "tripsSearchFilterAllOperatorsFromTrips": "All operators from your trips",
+  "@tripsSearchFilterAllOperatorsFromTrips": {
+    "description": "Sub-headline above the operator list in the picker (rendered uppercase)"
+  },
+  "tripsSearchFilterSearchCountries": "Search countries...",
+  "tripsSearchFilterSearchOperators": "Search operators...",
+  "tripsSearchFilterDone": "Done",
+
   "filterClearButton": "Clear filter",
   "tripsAddButton": "New trip",
 

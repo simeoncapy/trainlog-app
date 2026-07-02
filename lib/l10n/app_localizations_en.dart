@@ -901,6 +901,68 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tripsFilterType => 'Vehicle Type';
 
   @override
+  String get tripsSearchFilterTitle => 'Search trips';
+
+  @override
+  String get tripsSearchFilterSearchHint => 'Stations, lines, tags...';
+
+  @override
+  String get tripsSearchFilterWhen => 'When';
+
+  @override
+  String get tripsSearchFilterCustom => 'Custom';
+
+  @override
+  String get tripsSearchFilterAllTime => 'All time';
+
+  @override
+  String get tripsSearchFilterThisYear => 'This year';
+
+  @override
+  String get tripsSearchFilterPast30Days => 'Past 30 days';
+
+  @override
+  String get tripsSearchFilterFrom => 'From';
+
+  @override
+  String get tripsSearchFilterTo => 'To';
+
+  @override
+  String get tripsSearchFilterOn => 'On';
+
+  @override
+  String get tripsSearchFilterOnHelper => 'Only trips on this exact day';
+
+  @override
+  String get tripsSearchFilterCountries => 'Countries';
+
+  @override
+  String get tripsSearchFilterOperators => 'Operators';
+
+  @override
+  String get tripsSearchFilterAdd => 'Add';
+
+  @override
+  String get tripsSearchFilterAddOperator => 'Add operator';
+
+  @override
+  String get tripsSearchFilterAllCountriesFromTrips =>
+      'All countries from your trips';
+
+  @override
+  String get tripsSearchFilterAllOperatorsFromTrips =>
+      'All operators from your trips';
+
+  @override
+  String get tripsSearchFilterSearchCountries => 'Search countries...';
+
+  @override
+  String get tripsSearchFilterSearchOperators => 'Search operators...';
+
+  @override
+  String get tripsSearchFilterDone => 'Done';
+
+  @override
   String get filterClearButton => 'Clear filter';
 
   @override
