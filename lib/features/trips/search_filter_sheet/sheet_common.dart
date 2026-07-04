@@ -339,36 +339,6 @@ class _DashedBorderPainter extends CustomPainter {
       old.color != color || old.radius != radius;
 }
 
-/// Small rounded badge showing an ISO country code (as in the design mocks).
-class CountryCodeBadge extends StatelessWidget {
-  const CountryCodeBadge({super.key, required this.code, this.size = 12});
-
-  final String code;
-  final double size;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-      decoration: BoxDecoration(
-        color: cs.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(5),
-        border: Border.all(color: cs.outline.withValues(alpha: 0.4)),
-      ),
-      child: Text(
-        code.toUpperCase(),
-        style: TextStyle(
-          fontSize: size - 2,
-          fontWeight: FontWeight.w800,
-          letterSpacing: 0.5,
-          color: cs.onSurfaceVariant,
-        ),
-      ),
-    );
-  }
-}
-
 /// Count badge shown next to section titles ("Countries ②").
 class SheetCountBadge extends StatelessWidget {
   const SheetCountBadge({super.key, required this.count});

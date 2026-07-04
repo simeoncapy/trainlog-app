@@ -15,6 +15,7 @@ import 'package:trainlog_app/platform/adaptive_vehicle_type_filter_chips.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 import 'package:trainlog_app/utils/style_utils.dart';
+import 'package:trainlog_app/utils/text_utils.dart';
 
 /// Opens the trips search & filter interface as a bottom sheet, using the
 /// same native presentation hooks as `showAdaptiveTripBottomSheet` (the trip
@@ -231,7 +232,10 @@ class _TripsSearchFilterSheetState extends State<TripsSearchFilterSheet> {
     GroupEntry build(String code, int count) => GroupEntry(
           value: code,
           label: widget.countryOptions[code] ?? code,
-          leading: CountryCodeBadge(code: code),
+          leading: Text(
+            countryCodeToEmoji(code),
+            style: const TextStyle(fontSize: 18),
+          ),
           tripCount: count,
         );
 
