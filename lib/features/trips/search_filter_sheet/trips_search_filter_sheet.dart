@@ -231,7 +231,9 @@ class _TripsSearchFilterSheetState extends State<TripsSearchFilterSheet> {
 
     GroupEntry build(String code, int count) => GroupEntry(
           value: code,
-          label: widget.countryOptions[code] ?? code,
+          // Context-aware rendering: translates codes CountryLocalizations
+          // doesn't know (e.g. "UN" → international waters).
+          label: countryCodeToName(code, context),
           leading: Text(
             countryCodeToEmoji(code),
             style: const TextStyle(fontSize: 18),
