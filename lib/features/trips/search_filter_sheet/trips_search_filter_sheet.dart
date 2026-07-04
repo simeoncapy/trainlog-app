@@ -326,15 +326,21 @@ class _TripsSearchFilterSheetState extends State<TripsSearchFilterSheet> {
     // Keep the sheet (notably its text fields and footer) above the keyboard.
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
-    return AnimatedPadding(
-      duration: const Duration(milliseconds: 150),
-      padding: EdgeInsets.only(bottom: bottomInset),
-      child: Column(
-        children: [
-          _grabHandle(context),
-          Expanded(child: body),
-          if (_view == _SheetView.main) _actionFooter(context, l10n),
-        ],
+    // The SafeArea keeps the footer above the system navigation bar — the
+    // Material host only avoids the status bar. On Apple the hosting popup
+    // has already consumed the bottom inset, so it is a no-op there.
+    return SafeArea(
+      top: false,
+      child: AnimatedPadding(
+        duration: const Duration(milliseconds: 150),
+        padding: EdgeInsets.only(bottom: bottomInset),
+        child: Column(
+          children: [
+            _grabHandle(context),
+            Expanded(child: body),
+            if (_view == _SheetView.main) _actionFooter(context, l10n),
+          ],
+        ),
       ),
     );
   }
