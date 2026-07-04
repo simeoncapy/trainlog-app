@@ -891,9 +891,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get tripsSearchFilterWhen => '期間';
 
   @override
-  String get tripsSearchFilterCustom => 'カスタム';
-
-  @override
   String get tripsSearchFilterAllTime => '全期間';
 
   @override
@@ -922,9 +919,6 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get tripsSearchFilterAdd => '追加';
-
-  @override
-  String get tripsSearchFilterAddOperator => '事業者を追加';
 
   @override
   String get tripsSearchFilterAllCountriesFromTrips => '旅行したすべての国';

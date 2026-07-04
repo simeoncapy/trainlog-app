@@ -472,7 +472,7 @@ class _TripsSearchFilterSheetState extends State<TripsSearchFilterSheet> {
                 // Operators
                 FilterGroupSection(
                   title: l10n.tripsSearchFilterOperators,
-                  addLabel: l10n.tripsSearchFilterAddOperator,
+                  addLabel: l10n.tripsSearchFilterAdd,
                   selectedEntries: selectedOperatorEntries,
                   onAdd: () => setState(() => _view = _SheetView.operators),
                   onRemove: (value) {

@@ -53,17 +53,7 @@ class WhenSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SheetSectionTitle(
-          text: l10n.tripsSearchFilterWhen,
-          trailing: Text(
-            l10n.tripsSearchFilterCustom,
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: cs.onSurfaceVariant,
-            ),
-          ),
-        ),
+        SheetSectionTitle(text: l10n.tripsSearchFilterWhen),
         const SizedBox(height: 10),
         Wrap(
           spacing: 8,

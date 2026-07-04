@@ -918,9 +918,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get tripsSearchFilterWhen => 'Quand';
 
   @override
-  String get tripsSearchFilterCustom => 'Personnalisé';
-
-  @override
   String get tripsSearchFilterAllTime => 'Toute la période';
 
   @override
@@ -950,9 +947,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get tripsSearchFilterAdd => 'Ajouter';
-
-  @override
-  String get tripsSearchFilterAddOperator => 'Ajouter un opérateur';
 
   @override
   String get tripsSearchFilterAllCountriesFromTrips =>

@@ -906,9 +906,6 @@ class AppLocalizationsTl extends AppLocalizations {
   String get tripsSearchFilterWhen => 'Kailan';
 
   @override
-  String get tripsSearchFilterCustom => 'Custom';
-
-  @override
   String get tripsSearchFilterAllTime => 'Lahat ng panahon';
 
   @override
@@ -938,9 +935,6 @@ class AppLocalizationsTl extends AppLocalizations {
 
   @override
   String get tripsSearchFilterAdd => 'Idagdag';
-
-  @override
-  String get tripsSearchFilterAddOperator => 'Magdagdag ng operator';
 
   @override
   String get tripsSearchFilterAllCountriesFromTrips =>

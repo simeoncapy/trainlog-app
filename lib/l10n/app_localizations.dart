@@ -1686,12 +1686,6 @@ abstract class AppLocalizations {
   /// **'When'**
   String get tripsSearchFilterWhen;
 
-  /// Label above the custom From/To date pickers in the trips search & filter sheet
-  ///
-  /// In en, this message translates to:
-  /// **'Custom'**
-  String get tripsSearchFilterCustom;
-
   /// No description provided for @tripsSearchFilterAllTime.
   ///
   /// In en, this message translates to:
@@ -1751,12 +1745,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add'**
   String get tripsSearchFilterAdd;
-
-  /// No description provided for @tripsSearchFilterAddOperator.
-  ///
-  /// In en, this message translates to:
-  /// **'Add operator'**
-  String get tripsSearchFilterAddOperator;
 
   /// Sub-headline above the country list in the picker (rendered uppercase)
   ///

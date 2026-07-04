@@ -394,10 +394,6 @@
   "tripsSearchFilterTitle": "Search trips",
   "tripsSearchFilterSearchHint": "Stations, lines, tags...",
   "tripsSearchFilterWhen": "When",
-  "tripsSearchFilterCustom": "Custom",
-  "@tripsSearchFilterCustom": {
-    "description": "Label above the custom From/To date pickers in the trips search & filter sheet"
-  },
   "tripsSearchFilterAllTime": "All time",
   "tripsSearchFilterThisYear": "This year",
   "tripsSearchFilterPast30Days": "Past 30 days",
@@ -414,7 +410,6 @@
   "tripsSearchFilterCountries": "Countries",
   "tripsSearchFilterOperators": "Operators",
   "tripsSearchFilterAdd": "Add",
-  "tripsSearchFilterAddOperator": "Add operator",
   "tripsSearchFilterAllCountriesFromTrips": "All countries from your trips",
   "@tripsSearchFilterAllCountriesFromTrips": {
     "description": "Sub-headline above the country list in the picker (rendered uppercase)"
