@@ -25,8 +25,10 @@ extension _OpSplitExt on String {
       decoded = this; // fall back to raw value if not valid percent-encoding
     }
 
+    // Multi-operator trips separate names with "&&" or a comma (the same
+    // convention the trip views use when splitting `operatorName`).
     return decoded
-        .split(RegExp(r'\s*(?:&&|%26%26)\s*'))
+        .split(RegExp(r'\s*(?:&&|%26%26|,)\s*'))
         .map((s) => s.trim())
         .where((s) => s.isNotEmpty)
         .toList();
