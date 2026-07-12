@@ -1,3 +1,4 @@
+import 'package:diacritic/diacritic.dart';
 import 'package:flutter/material.dart';
 
 import 'package:trainlog_app/data/models/country_detail.dart';
@@ -36,6 +37,11 @@ class _UserCountriesPageState extends State<UserCountriesPage> {
   bool _alphabetical = false;
   bool _descending = true;
 
+  /// Normalises a name for alphabetical comparison: case- and diacritic-
+  /// insensitive, so e.g. "Île de Man" and "États-Unis" sort under I and E
+  /// rather than at the end of the list.
+  static String _collate(String s) => removeDiacritics(s).toLowerCase();
+
   /// Countries in display order: the backend order by default (the "value"
   /// order), or sorted by localized name when the alphabetical toggle is on;
   /// the direction toggle reverses either order.
@@ -46,7 +52,7 @@ class _UserCountriesPageState extends State<UserCountriesPage> {
     ];
     if (_alphabetical) {
       details.sort(
-        (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()),
+        (a, b) => _collate(a.name).compareTo(_collate(b.name)),
       );
     }
     return _descending ? details : details.reversed.toList();

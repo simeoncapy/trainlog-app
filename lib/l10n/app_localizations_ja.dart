@@ -882,6 +882,60 @@ class AppLocalizationsJa extends AppLocalizations {
   String get tripsFilterType => '乗り物のタイプ';
 
   @override
+  String get tripsSearchFilterTitle => '旅行を検索';
+
+  @override
+  String get tripsSearchFilterSearchHint => '駅・路線・タグ...';
+
+  @override
+  String get tripsSearchFilterWhen => '期間';
+
+  @override
+  String get tripsSearchFilterAllTime => '全期間';
+
+  @override
+  String get tripsSearchFilterThisYear => '今年';
+
+  @override
+  String get tripsSearchFilterPast30Days => '過去30日間';
+
+  @override
+  String get tripsSearchFilterFrom => '開始日';
+
+  @override
+  String get tripsSearchFilterTo => '終了日';
+
+  @override
+  String get tripsSearchFilterOn => '当日';
+
+  @override
+  String get tripsSearchFilterOnHelper => 'この日の旅行のみを表示します';
+
+  @override
+  String get tripsSearchFilterCountries => '国';
+
+  @override
+  String get tripsSearchFilterOperators => '事業者';
+
+  @override
+  String get tripsSearchFilterAdd => '追加';
+
+  @override
+  String get tripsSearchFilterAllCountriesFromTrips => '旅行したすべての国';
+
+  @override
+  String get tripsSearchFilterAllOperatorsFromTrips => '利用したすべての事業者';
+
+  @override
+  String get tripsSearchFilterSearchCountries => '国を検索...';
+
+  @override
+  String get tripsSearchFilterSearchOperators => '事業者を検索...';
+
+  @override
+  String get tripsSearchFilterDone => '完了';
+
+  @override
   String get filterClearButton => 'フィルターを消す';
 
   @override

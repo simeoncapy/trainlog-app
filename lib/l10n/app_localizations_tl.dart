@@ -897,6 +897,63 @@ class AppLocalizationsTl extends AppLocalizations {
   String get tripsFilterType => 'Uri ng sasakyan';
 
   @override
+  String get tripsSearchFilterTitle => 'Maghanap ng biyahe';
+
+  @override
+  String get tripsSearchFilterSearchHint => 'Mga istasyon, linya, tag...';
+
+  @override
+  String get tripsSearchFilterWhen => 'Kailan';
+
+  @override
+  String get tripsSearchFilterAllTime => 'Lahat ng panahon';
+
+  @override
+  String get tripsSearchFilterThisYear => 'Ngayong taon';
+
+  @override
+  String get tripsSearchFilterPast30Days => 'Nakaraang 30 araw';
+
+  @override
+  String get tripsSearchFilterFrom => 'Mula';
+
+  @override
+  String get tripsSearchFilterTo => 'Hanggang';
+
+  @override
+  String get tripsSearchFilterOn => 'Sa';
+
+  @override
+  String get tripsSearchFilterOnHelper =>
+      'Mga biyahe lang sa eksaktong araw na ito';
+
+  @override
+  String get tripsSearchFilterCountries => 'Mga bansa';
+
+  @override
+  String get tripsSearchFilterOperators => 'Mga operator';
+
+  @override
+  String get tripsSearchFilterAdd => 'Idagdag';
+
+  @override
+  String get tripsSearchFilterAllCountriesFromTrips =>
+      'Lahat ng bansa mula sa iyong mga biyahe';
+
+  @override
+  String get tripsSearchFilterAllOperatorsFromTrips =>
+      'Lahat ng operator mula sa iyong mga biyahe';
+
+  @override
+  String get tripsSearchFilterSearchCountries => 'Maghanap ng bansa...';
+
+  @override
+  String get tripsSearchFilterSearchOperators => 'Maghanap ng operator...';
+
+  @override
+  String get tripsSearchFilterDone => 'Tapos na';
+
+  @override
   String get filterClearButton => 'Ibura ang filter';
 
   @override

@@ -11,7 +11,7 @@ import 'package:diacritic/diacritic.dart';
 import 'dart:convert';
 import 'package:country_picker/country_picker.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
-import 'package:trainlog_app/widgets/trips_filter_dialog.dart';
+import 'package:trainlog_app/data/models/trips_filter.dart';
 
 // TripsTable defined lower
 
@@ -25,8 +25,10 @@ extension _OpSplitExt on String {
       decoded = this; // fall back to raw value if not valid percent-encoding
     }
 
+    // Multi-operator trips separate names with "&&" or a comma (the same
+    // convention the trip views use when splitting `operatorName`).
     return decoded
-        .split(RegExp(r'\s*(?:&&|%26%26)\s*'))
+        .split(RegExp(r'\s*(?:&&|%26%26|,)\s*'))
         .map((s) => s.trim())
         .where((s) => s.isNotEmpty)
         .toList();
@@ -181,35 +183,67 @@ class TripsRepository {
     final clauses = <String>[];
     final args = <dynamic>[];
 
-    // Time filter
-    clauses.add('utc_start_datetime ${showFutureTrips ? '>' : '<='} ?');
-    args.add(now);
+    // Date filter — a quick chip or a custom From/To range. When present it
+    // overrides the page-level past/future scoping (the "When" section is the
+    // single source of truth for time).
+    final range = filter?.dateRange();
+    final hasDateFilter = range != null && (range.start != null || range.end != null);
 
-    // Keyword
+    if (hasDateFilter) {
+      if (range.start != null) {
+        clauses.add('start_datetime >= ?');
+        args.add(range.start!.toIso8601String());
+      }
+      if (range.end != null) {
+        clauses.add('start_datetime < ?');
+        args.add(range.end!.toIso8601String());
+      }
+    } else {
+      // Page-level time scoping (Past / Future tabs)
+      clauses.add('utc_start_datetime ${showFutureTrips ? '>' : '<='} ?');
+      args.add(now);
+    }
+
+    // Keyword (text search over stations, line, material and operator)
     if (filter?.keyword.trim().isNotEmpty ?? false) {
       final keyword = removeDiacritics(filter!.keyword.trim().toLowerCase());
       clauses.add('('
           'LOWER(origin_station) LIKE ? OR '
           'LOWER(destination_station) LIKE ? OR '
           'LOWER(material_type) LIKE ? OR '
-          'LOWER(line_name) LIKE ?'
+          'LOWER(line_name) LIKE ? OR '
+          'LOWER(operator) LIKE ?'
           ')');
-      for (int i = 0; i < 4; i++) {
+      for (int i = 0; i < 5; i++) {
         args.add('%$keyword%');
       }
     }
 
-    // Operator
-    if (filter?.operatorName != null && filter!.operatorName != 'All') {
-      clauses.add('operator = ?');
-      args.add(Uri.encodeComponent(filter.operatorName!));
+    // Operators (multi-select, OR'd). The column stores percent-encoded
+    // names joined by "&&", so match both the raw and the encoded form.
+    if (filter != null && filter.operators.isNotEmpty) {
+      final sub = <String>[];
+      for (final op in filter.operators) {
+        sub.add('operator LIKE ?');
+        args.add('%$op%');
+        final encoded = Uri.encodeComponent(op);
+        if (encoded != op) {
+          sub.add('operator LIKE ?');
+          args.add('%$encoded%');
+        }
+      }
+      clauses.add('(${sub.join(' OR ')})');
     }
 
-    // Country
-    if (filter?.country != null && filter!.country != 'All') {
-      // JSON string contains country code as key like "JP"
-      clauses.add('countries LIKE ?');
-      args.add('%"${filter.country}"%');
+    // Countries (multi-select, OR'd) — the JSON string contains the country
+    // code as a key like "JP".
+    if (filter != null && filter.countries.isNotEmpty) {
+      final sub = <String>[];
+      for (final code in filter.countries) {
+        sub.add('countries LIKE ?');
+        args.add('%"$code"%');
+      }
+      clauses.add('(${sub.join(' OR ')})');
     }
 
     // Types
@@ -218,16 +252,6 @@ class TripsRepository {
       final placeholders = List.filled(types.length, '?').join(',');
       clauses.add('type IN ($placeholders)');
       args.addAll(types);
-    }
-
-    // Dates
-    if (filter?.startDate != null) {
-      clauses.add('start_datetime >= ?');
-      args.add(filter!.startDate!.toIso8601String());
-    }
-    if (filter?.endDate != null) {
-      clauses.add('end_datetime <= ?');
-      args.add(filter!.endDate!.toIso8601String());
     }
 
     return {

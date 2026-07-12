@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/data/models/trips.dart';
+import 'package:trainlog_app/data/models/trips_filter.dart';
 import 'package:trainlog_app/data/trips_repository.dart';
 import 'package:trainlog_app/platform/adaptive_trip_card.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
@@ -11,7 +12,6 @@ import 'package:trainlog_app/utils/map_color_palette.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 import 'package:trainlog_app/utils/style_utils.dart';
 import 'package:trainlog_app/widgets/past_future_selector.dart';
-import 'package:trainlog_app/widgets/trips_filter_dialog.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 
 class TripTableView extends StatefulWidget {

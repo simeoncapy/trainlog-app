@@ -909,6 +909,63 @@ class AppLocalizationsFr extends AppLocalizations {
   String get tripsFilterType => 'Types de véhicule';
 
   @override
+  String get tripsSearchFilterTitle => 'Rechercher des trajets';
+
+  @override
+  String get tripsSearchFilterSearchHint => 'Gares, lignes, tags...';
+
+  @override
+  String get tripsSearchFilterWhen => 'Quand';
+
+  @override
+  String get tripsSearchFilterAllTime => 'Toute la période';
+
+  @override
+  String get tripsSearchFilterThisYear => 'Cette année';
+
+  @override
+  String get tripsSearchFilterPast30Days => '30 derniers jours';
+
+  @override
+  String get tripsSearchFilterFrom => 'Du';
+
+  @override
+  String get tripsSearchFilterTo => 'Au';
+
+  @override
+  String get tripsSearchFilterOn => 'Le';
+
+  @override
+  String get tripsSearchFilterOnHelper =>
+      'Uniquement les trajets de ce jour précis';
+
+  @override
+  String get tripsSearchFilterCountries => 'Pays';
+
+  @override
+  String get tripsSearchFilterOperators => 'Opérateurs';
+
+  @override
+  String get tripsSearchFilterAdd => 'Ajouter';
+
+  @override
+  String get tripsSearchFilterAllCountriesFromTrips =>
+      'Tous les pays de vos trajets';
+
+  @override
+  String get tripsSearchFilterAllOperatorsFromTrips =>
+      'Tous les opérateurs de vos trajets';
+
+  @override
+  String get tripsSearchFilterSearchCountries => 'Rechercher un pays...';
+
+  @override
+  String get tripsSearchFilterSearchOperators => 'Rechercher un opérateur...';
+
+  @override
+  String get tripsSearchFilterDone => 'Terminé';
+
+  @override
   String get filterClearButton => 'Supprimer les filtres';
 
   @override

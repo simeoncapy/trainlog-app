@@ -12,9 +12,9 @@ import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/utils/date_utils.dart' as date_utils;
 import 'package:trainlog_app/utils/map_color_palette.dart';
 import 'package:trainlog_app/utils/style_utils.dart';
+import 'package:trainlog_app/data/models/trips_filter.dart';
 import 'package:trainlog_app/widgets/divider_with_widget.dart';
 import 'package:trainlog_app/widgets/past_future_selector.dart';
-import 'package:trainlog_app/widgets/trips_filter_dialog.dart';
 
 class TripCardView extends StatefulWidget {
   final TripsRepository repo;
@@ -520,7 +520,9 @@ class _MetaRow extends StatelessWidget {
           const SizedBox(width: 12),
           Icon(Icons.calendar_today_outlined, size: 13, color: iconColor),
           const SizedBox(width: 4),
-          Text(dateStr, style: metaStyle),
+          Flexible(
+            child: Text(dateStr, style: metaStyle, overflow: TextOverflow.ellipsis),
+          ),
         ],
       ],
     );
