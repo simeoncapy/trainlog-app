@@ -132,22 +132,24 @@ class _GroupPickerViewState extends State<GroupPickerView> {
           ),
         ),
 
-        // ── Current selection ──────────────────────────────────────────────
+        // ── Current selection — one horizontally scrollable line, so a large
+        // selection can never push the list off screen ──────────────────────
         if (selectedEntries.isNotEmpty)
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Wrap(
-                spacing: 8,
-                runSpacing: 8,
+            padding: const EdgeInsets.only(bottom: 10),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
                 children: [
-                  for (final entry in selectedEntries)
+                  for (final entry in selectedEntries) ...[
                     SelectedValueChip(
                       label: entry.label,
                       leading: entry.leading,
                       onRemove: () => widget.onToggle(entry.value, false),
                     ),
+                    if (entry != selectedEntries.last) const SizedBox(width: 8),
+                  ],
                 ],
               ),
             ),
