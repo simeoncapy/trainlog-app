@@ -6,11 +6,35 @@ import 'package:trainlog_app/features/about/privacy_tab.dart';
 import 'package:trainlog_app/platform/adaptive_button.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
+import 'package:trainlog_app/widgets/app_steps_tab_bar.dart';
 import 'package:trainlog_app/widgets/localised_markdown.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class AboutPage extends StatelessWidget {
+class AboutPage extends StatefulWidget {
   const AboutPage({super.key});
+
+  @override
+  State<AboutPage> createState() => _AboutPageState();
+}
+
+class _AboutPageState extends State<AboutPage>
+    with SingleTickerProviderStateMixin {
+  late final TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 3, vsync: this);
+    _tabController.addListener(() {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,34 +43,36 @@ class AboutPage extends StatelessWidget {
     final languageCode = locale.languageCode;
     final trainlog = Provider.of<TrainlogProvider>(context, listen: false);
 
-    return DefaultTabController(
-      length: 3,
-      child: Column(
-        children: [
-          Material(
-            child: TabBar(
-              tabs: [
-                Tab(text: loc.aboutPageAboutSubPageTitle),
-                Tab(text: loc.aboutPageHowToSubPageTitle),
-                Tab(text: loc.aboutPagePrivacySubPageTitle),
-              ],
-            ),
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8),
+          child: AppStepsTabBar(
+            fullWidth: true,
+            selectedIndex: _tabController.index,
+            onTabChanged: (i) => _tabController.animateTo(i),
+            tabs: [
+              AppStepsTab(label: loc.aboutPageAboutSubPageTitle),
+              AppStepsTab(label: loc.aboutPageHowToSubPageTitle),
+              AppStepsTab(label: loc.aboutPagePrivacySubPageTitle),
+            ],
           ),
-          Expanded(
-            child: TabBarView(
-              children: [
-                TrainlogProjectDescription(), // About Trainlog
-                SingleChildScrollView(
-                  padding: const EdgeInsets.all(16),
-                  child: LocalisedMarkdown(assetBaseName: 'howto', displayToc: false,),
-                ),
-                PrivacyHtmlTab(url: Uri.parse('${trainlog.instanceUrl}/privacy/$languageCode')),
-              ],
-            ),
+        ),
+        Expanded(
+          child: TabBarView(
+            controller: _tabController,
+            children: [
+              TrainlogProjectDescription(), // About Trainlog
+              SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: LocalisedMarkdown(assetBaseName: 'howto', displayToc: false,),
+              ),
+              PrivacyHtmlTab(url: Uri.parse('${trainlog.instanceUrl}/privacy/$languageCode')),
+            ],
           ),
-          AppPlatform.bottomPadding(context),
-        ],
-      ),
+        ),
+        AppPlatform.bottomPadding(context),
+      ],
     );
   }
 }
