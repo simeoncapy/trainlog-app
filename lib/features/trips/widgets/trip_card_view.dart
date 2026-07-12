@@ -520,7 +520,9 @@ class _MetaRow extends StatelessWidget {
           const SizedBox(width: 12),
           Icon(Icons.calendar_today_outlined, size: 13, color: iconColor),
           const SizedBox(width: 4),
-          Text(dateStr, style: metaStyle),
+          Flexible(
+            child: Text(dateStr, style: metaStyle, overflow: TextOverflow.ellipsis),
+          ),
         ],
       ],
     );

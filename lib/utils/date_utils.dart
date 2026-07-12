@@ -73,7 +73,7 @@ String formatDateTime(
 String formatDateShort(BuildContext context, DateTime dateTime) {
   final locale = Localizations.localeOf(context);
   final localeStr = locale.languageCode == 'en' ? 'en_GB' : locale.toString();
-  return DateFormat.MMMd(localeStr).format(dateTime);
+  return _formatDateWithYearIfNotCurrent(dateTime, localeStr);
 }
 
 /// Formats a date range between [start] and [end] as a compact string.
@@ -90,11 +90,20 @@ String formatDateRange(BuildContext context, DateTime start, DateTime end) {
       start.day == end.day;
 
   if (isSameDay) {
-    return DateFormat.MMMd(localeStr).format(start);
+    return _formatDateWithYearIfNotCurrent(start, localeStr);
   }
 
   return '${DateFormat.MMMd(localeStr).format(start)}–'
-      '${DateFormat.MMMd(localeStr).format(end)}';
+      '${_formatDateWithYearIfNotCurrent(end, localeStr)}';
+}
+
+String _formatDateWithYearIfNotCurrent(DateTime dateTime, String localeStr) {
+  final now = DateTime.now();
+  if (dateTime.year == now.year) {
+    return DateFormat.MMMd(localeStr).format(dateTime);
+  } else {
+    return DateFormat.yMMMd(localeStr).format(dateTime);
+  }
 }
 
 String formatDurationFixed(Duration d) {

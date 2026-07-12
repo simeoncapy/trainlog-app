@@ -63,7 +63,7 @@ Future<TripsFilterResult?> showTripsSearchFilterSheet(
     context: context,
     useSafeArea: true,
     isScrollControlled: true,
-    backgroundColor: Theme.of(context).colorScheme.surface,
+    backgroundColor: Theme.of(context).scaffoldBackgroundColor,//Theme.of(context).colorScheme.surface,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
     ),
