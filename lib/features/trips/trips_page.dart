@@ -290,7 +290,7 @@ class _PageHeader extends StatelessWidget {
 
           // Filter button
           AdaptiveAppBarSquareButton(
-            icon: AdaptiveIcons.filter,
+            icon: AdaptiveIcons.search,
             onPressed: onFilterTap,
             tooltip: AppLocalizations.of(context)!.filterButton,
             size: 36,

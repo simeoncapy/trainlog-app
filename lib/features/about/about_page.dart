@@ -73,8 +73,8 @@ class TrainlogProjectDescription extends StatelessWidget {
             );
           }
         },
-        backgroundColor: background ?? Theme.of(context).colorScheme.primaryContainer,
-        foregroundColor: color ?? Theme.of(context).colorScheme.onPrimaryContainer,
+        backgroundColor: background ?? Theme.of(context).colorScheme.primary,
+        foregroundColor: color ?? Theme.of(context).colorScheme.onPrimary,
         padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
         elevation: 3,
         size: AdaptiveButton.large,
