@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/utils/style_utils.dart';
-import 'package:trainlog_app/widgets/full_screen_search_overlay.dart';
+import 'package:trainlog_app/features/trips_add/widgets/full_screen_search_overlay.dart';
 
 class OperatorSelector extends StatefulWidget {
   final List<String>? initialOperators;

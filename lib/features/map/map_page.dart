@@ -25,6 +25,7 @@ import 'package:trainlog_app/providers/trips_provider.dart';
 import 'package:trainlog_app/services/geo_permission_service.dart';
 import 'package:trainlog_app/utils/location_utils.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
+import 'package:trainlog_app/widgets/osm_mark.dart';
 import 'package:trainlog_app/widgets/rendered_polyline_layer.dart';
 
 class MapPage extends StatefulWidget {
@@ -266,8 +267,16 @@ class _MapPageState extends State<MapPage>
               ),
           ],
         ),
+
+        const OsmMark(
+          isCompact: false,
+          alignment: Alignment.topLeft,
+          //orientation: MarkOrientation.vertical,
+          //margin: EdgeInsets.only(left: 6, bottom: 80, right: 6, top: 6),
+        ),
+
         if (_followUser) _lockedOnPositionPill(appLocalizations),
-        _mapButtonHelper(),
+        _mapButtonHelper(),        
       ],
     );
   }

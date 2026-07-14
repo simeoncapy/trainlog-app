@@ -5,7 +5,7 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
-import 'package:trainlog_app/widgets/full_screen_search_overlay.dart';
+import 'package:trainlog_app/features/trips_add/widgets/full_screen_search_overlay.dart';
 
 class StationFieldsSwitcher extends StatefulWidget {
   const StationFieldsSwitcher({

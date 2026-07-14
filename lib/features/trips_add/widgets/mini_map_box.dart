@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:trainlog_app/widgets/osm_mark.dart';
 
 // ---------------------------------------------------------------------------
 // MINI MAP BOX (WITH OPTIONAL MOVABLE COORDINATES + FULLSCREEN)
@@ -141,6 +142,11 @@ class _MiniMapBoxState extends State<MiniMapBox> {
               ),
             ),
           ),
+        ),
+
+        const OsmMark(
+          isCompact: true,
+          alignment: Alignment.bottomRight,
         ),
       ],
     );
@@ -317,6 +323,11 @@ class _FullscreenMapOverlayState extends State<FullscreenMapOverlay> {
                 ),
               ),
             ),
+
+          const OsmMark(
+            isCompact: false,
+            alignment: Alignment.bottomRight,
+          ),
 
           // Exit fullscreen
           Positioned(
