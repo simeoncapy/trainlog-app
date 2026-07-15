@@ -2046,6 +2046,24 @@ abstract class AppLocalizations {
   /// **'Pick the vehicle type for this trip'**
   String get addTripVehicleTypeSubtitle;
 
+  /// Headline of the departure/arrival selection step of the add-trip wizard
+  ///
+  /// In en, this message translates to:
+  /// **'Where did you go?'**
+  String get addTripRouteTitle;
+
+  /// Muted instruction subtitle under the headline of the departure/arrival selection step
+  ///
+  /// In en, this message translates to:
+  /// **'Search by name, or switch to Manual to drop a pin'**
+  String get addTripRouteSubtitle;
+
+  /// Tooltip of the button swapping the departure and arrival of the trip being created
+  ///
+  /// In en, this message translates to:
+  /// **'Swap departure and arrival'**
+  String get addTripSwapTooltip;
+
   /// No description provided for @addTripExitConfirmationDialogueTitle.
   ///
   /// In en, this message translates to:

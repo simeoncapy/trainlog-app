@@ -1197,6 +1197,16 @@ class AppLocalizationsTl extends AppLocalizations {
       'Piliin ang uri ng sasakyan para sa biyaheng ito';
 
   @override
+  String get addTripRouteTitle => 'Saan ka nagpunta?';
+
+  @override
+  String get addTripRouteSubtitle =>
+      'Maghanap gamit ang pangalan, o lumipat sa Manual para maglagay ng pin';
+
+  @override
+  String get addTripSwapTooltip => 'Ipagpalit ang departure at arrival';
+
+  @override
   String get addTripExitConfirmationDialogueTitle => 'Gusto mo umexit?';
 
   @override

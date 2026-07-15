@@ -1194,6 +1194,15 @@ class AppLocalizationsJa extends AppLocalizations {
   String get addTripVehicleTypeSubtitle => 'この旅行の交通手段を選択してください';
 
   @override
+  String get addTripRouteTitle => 'どこへ行きましたか？';
+
+  @override
+  String get addTripRouteSubtitle => '名前で検索するか、手動に切り替えて地図上で位置を指定してください';
+
+  @override
+  String get addTripSwapTooltip => '出発地と到着地を入れ替える';
+
+  @override
   String get addTripExitConfirmationDialogueTitle => '終了しますか？';
 
   @override

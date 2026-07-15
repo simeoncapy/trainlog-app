@@ -449,6 +449,18 @@
   "@addTripVehicleTypeSubtitle": {
     "description": "Muted instruction subtitle under the headline of the vehicle type selection step"
   },
+  "addTripRouteTitle": "Saan ka nagpunta?",
+  "@addTripRouteTitle": {
+    "description": "Headline of the departure/arrival selection step of the add-trip wizard"
+  },
+  "addTripRouteSubtitle": "Maghanap gamit ang pangalan, o lumipat sa Manual para maglagay ng pin",
+  "@addTripRouteSubtitle": {
+    "description": "Muted instruction subtitle under the headline of the departure/arrival selection step"
+  },
+  "addTripSwapTooltip": "Ipagpalit ang departure at arrival",
+  "@addTripSwapTooltip": {
+    "description": "Tooltip of the button swapping the departure and arrival of the trip being created"
+  },
   "addTripTransportationMode": "Byahe mode",
   "addTripImportFr24": "Import ang flight data sa FR24",
   "addTripManualDeparture": "I set ang pag depart manually",

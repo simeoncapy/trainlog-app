@@ -1216,6 +1216,16 @@ class AppLocalizationsEn extends AppLocalizations {
       'Pick the vehicle type for this trip';
 
   @override
+  String get addTripRouteTitle => 'Where did you go?';
+
+  @override
+  String get addTripRouteSubtitle =>
+      'Search by name, or switch to Manual to drop a pin';
+
+  @override
+  String get addTripSwapTooltip => 'Swap departure and arrival';
+
+  @override
   String get addTripExitConfirmationDialogueTitle => 'Do you want to exit?';
 
   @override

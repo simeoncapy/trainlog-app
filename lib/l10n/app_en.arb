@@ -548,6 +548,18 @@
   "@addTripVehicleTypeSubtitle": {
     "description": "Muted instruction subtitle under the headline of the vehicle type selection step"
   },
+  "addTripRouteTitle": "Where did you go?",
+  "@addTripRouteTitle": {
+    "description": "Headline of the departure/arrival selection step of the add-trip wizard"
+  },
+  "addTripRouteSubtitle": "Search by name, or switch to Manual to drop a pin",
+  "@addTripRouteSubtitle": {
+    "description": "Muted instruction subtitle under the headline of the departure/arrival selection step"
+  },
+  "addTripSwapTooltip": "Swap departure and arrival",
+  "@addTripSwapTooltip": {
+    "description": "Tooltip of the button swapping the departure and arrival of the trip being created"
+  },
   "addTripExitConfirmationDialogueTitle": "Do you want to exit?",
   "addTripExitConfirmationDialogueContent": "The trip data have been modified, they will be lost. Do you really want to exit the creation of the trip?",
   "addTripTransportationMode": "Transportation mode",

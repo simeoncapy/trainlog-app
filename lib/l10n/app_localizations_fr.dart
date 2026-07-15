@@ -1225,6 +1225,16 @@ class AppLocalizationsFr extends AppLocalizations {
       'Choisissez le moyen de transport pour ce trajet';
 
   @override
+  String get addTripRouteTitle => 'Où êtes-vous allé ?';
+
+  @override
+  String get addTripRouteSubtitle =>
+      'Recherchez par nom, ou passez en manuel pour placer un repère';
+
+  @override
+  String get addTripSwapTooltip => 'Inverser le départ et l\'arrivée';
+
+  @override
   String get addTripExitConfirmationDialogueTitle => 'Arrêter la création ?';
 
   @override

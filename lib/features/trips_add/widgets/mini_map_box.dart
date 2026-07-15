@@ -16,6 +16,10 @@ class MiniMapBox extends StatefulWidget {
   final double zoom;
   final double? size;
 
+  /// Optional fixed height. When set, the box spans the available width with
+  /// this height instead of being square. Ignored when [size] is set.
+  final double? height;
+
   // NEW
   final bool isCoordinateMovable;
   final void Function(double lat, double long)? onCoordinateChanged;
@@ -29,6 +33,7 @@ class MiniMapBox extends StatefulWidget {
     this.marker = Icons.location_pin,
     this.zoom = 13,
     this.size,
+    this.height,
 
     // NEW defaults
     this.isCoordinateMovable = false,
@@ -75,7 +80,7 @@ class _MiniMapBoxState extends State<MiniMapBox> {
         final width = constraints.maxWidth;
         return SizedBox(
           width: width,
-          height: width,
+          height: widget.height ?? width,
           child: _buildContent(),
         );
       },
