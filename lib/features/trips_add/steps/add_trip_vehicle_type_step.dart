@@ -92,7 +92,7 @@ class AddTripVehicleTypeStep extends StatelessWidget {
             physics: const NeverScrollableScrollPhysics(),
             mainAxisSpacing: 12,
             crossAxisSpacing: 12,
-            childAspectRatio: 1.75,
+            childAspectRatio: 1.6,
             children: [
               for (final type in vehicleTypes)
                 _VehicleTypeCard(
@@ -153,11 +153,19 @@ class _VehicleTypeCard extends StatelessWidget {
               child: type.icon(),
             ),
             const SizedBox(height: 8),
-            Text(
-              type.label(context),
-              style: theme.textTheme.labelLarge?.copyWith(
-                color: contentColor,
-                fontWeight: FontWeight.w600,
+            Flexible(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Text(
+                  type.label(context),
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.labelLarge?.copyWith(
+                    color: contentColor,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ),
             ),
           ],
