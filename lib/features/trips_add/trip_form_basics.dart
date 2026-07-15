@@ -6,7 +6,7 @@ import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 
-import 'package:trainlog_app/features/trips_add/widgets/station_fields_switcher.dart';
+import 'package:trainlog_app/features/trips_add/deprecated/station_fields_switcher.dart';
 import 'package:trainlog_app/features/trips_add/widgets/operator_selector.dart';
 import 'package:trainlog_app/features/trips_add/widgets/mini_map_box.dart';
 import 'package:trainlog_app/widgets/titled_container.dart';

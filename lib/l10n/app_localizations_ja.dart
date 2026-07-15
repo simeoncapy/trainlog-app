@@ -1203,6 +1203,12 @@ class AppLocalizationsJa extends AppLocalizations {
   String get addTripSwapTooltip => '出発地と到着地を入れ替える';
 
   @override
+  String get addTripModeByName => '名前で';
+
+  @override
+  String get addTripModeManual => '手動';
+
+  @override
   String get addTripExitConfirmationDialogueTitle => '終了しますか？';
 
   @override

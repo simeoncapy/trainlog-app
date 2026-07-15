@@ -560,6 +560,14 @@
   "@addTripSwapTooltip": {
     "description": "Tooltip of the button swapping the departure and arrival of the trip being created"
   },
+  "addTripModeByName": "By name",
+  "@addTripModeByName": {
+    "description": "Tab selecting the by-name station search mode on the route step"
+  },
+  "addTripModeManual": "Manual",
+  "@addTripModeManual": {
+    "description": "Tab selecting the manual coordinates mode on the route step"
+  },
   "addTripExitConfirmationDialogueTitle": "Do you want to exit?",
   "addTripExitConfirmationDialogueContent": "The trip data have been modified, they will be lost. Do you really want to exit the creation of the trip?",
   "addTripTransportationMode": "Transportation mode",

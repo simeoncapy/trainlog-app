@@ -1,14 +1,22 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:material_symbols_icons/symbols.dart';
+import 'package:trainlog_app/app/theme/app_theme.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/features/trips_add/widgets/full_screen_search_overlay.dart';
 
-class StationFieldsSwitcher extends StatefulWidget {
-  const StationFieldsSwitcher({
+/// Departure/arrival station fields of the "Add Trip" route step.
+///
+/// Renders either the by-name search field (read-only; tapping opens the
+/// full-screen suggestion overlay) with the resolved address underneath, or
+/// the manual fields (name with a label icon, then monospaced latitude /
+/// longitude inputs). Unlike the deprecated StationFieldsSwitcher, the mode
+/// is controlled externally via [geoMode] — the parent hosts the mode
+/// selector (an AppStepsTabBar in the block header).
+class StationEndpointFields extends StatefulWidget {
+  const StationEndpointFields({
     super.key,
 
     required this.trainlog,
@@ -16,22 +24,22 @@ class StationFieldsSwitcher extends StatefulWidget {
     required this.addressDefaultText,
     required this.manualNameFieldHint,
 
+    // Externally controlled mode: false = by name, true = manual.
+    this.geoMode = false,
+
     // Initial values (for restore)
-    this.initialGeoMode = false,
     this.initialStationName,
     this.initialLat,
     this.initialLng,
     this.initialAddress,
 
     this.onChanged,
-    this.searchIcon,
-    this.globePinIcon,
   });
 
   final TrainlogProvider trainlog;
   final VehicleType vehicleType;
 
-  final bool initialGeoMode;
+  final bool geoMode;
   final String? initialStationName;
   final double? initialLat;
   final double? initialLng;
@@ -42,27 +50,21 @@ class StationFieldsSwitcher extends StatefulWidget {
 
   final ValueChanged<Map<String, String>>? onChanged;
 
-  final IconData? searchIcon;
-  final IconData? globePinIcon;
-
   @override
-  State<StationFieldsSwitcher> createState() => _StationFieldsSwitcherState();
+  State<StationEndpointFields> createState() => _StationEndpointFieldsState();
 }
 
-class _StationFieldsSwitcherState extends State<StationFieldsSwitcher>
-    with TickerProviderStateMixin {
-
+class _StationEndpointFieldsState extends State<StationEndpointFields> {
   late final TextEditingController _nameCtl = TextEditingController();
   late final TextEditingController _latCtl = TextEditingController();
   late final TextEditingController _longCtl = TextEditingController();
   late final TextEditingController _manualNameCtl = TextEditingController();
 
-  late bool _geoMode = widget.initialGeoMode;
+  late bool _geoMode = widget.geoMode;
   double? _savedLat;
   double? _savedLng;
   String? _savedBaseName;
 
-  static const double _extraFieldHeight = 48;
   int _direction = -1;
 
   String _currentAddress = "";
@@ -79,6 +81,17 @@ class _StationFieldsSwitcherState extends State<StationFieldsSwitcher>
 
   Timer? _debounceTimer;
 
+  /// Compact field decoration following the app guidelines (dense fields with
+  /// the label inside the decoration).
+  InputDecoration _decoration(String label, {Widget? prefixIcon}) {
+    return InputDecoration(
+      labelText: label,
+      prefixIcon: prefixIcon,
+      isDense: true,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+    );
+  }
+
   // ------------------------------
   // INIT: restore values properly
   // ------------------------------
@@ -86,7 +99,7 @@ class _StationFieldsSwitcherState extends State<StationFieldsSwitcher>
   void initState() {
     super.initState();
 
-    _geoMode = widget.initialGeoMode;
+    _geoMode = widget.geoMode;
 
     if (_geoMode) {
       _latCtl.text = (widget.initialLat ?? 0.0).toString();
@@ -103,15 +116,15 @@ class _StationFieldsSwitcherState extends State<StationFieldsSwitcher>
   }
 
   @override
-  void didUpdateWidget(covariant StationFieldsSwitcher oldWidget) {
+  void didUpdateWidget(covariant StationEndpointFields oldWidget) {
     super.didUpdateWidget(oldWidget);
 
     // Do NOT resync if this widget triggered the update
     if (_updatingFromSelf) return;
 
-    // Detect a meaningful external change (switch or reset)
+    // Detect a meaningful external change (mode switch or reset)
     final shouldUpdate =
-        widget.initialGeoMode != oldWidget.initialGeoMode ||
+        widget.geoMode != oldWidget.geoMode ||
         widget.initialStationName != oldWidget.initialStationName ||
         widget.initialLat != oldWidget.initialLat ||
         widget.initialLng != oldWidget.initialLng ||
@@ -119,10 +132,13 @@ class _StationFieldsSwitcherState extends State<StationFieldsSwitcher>
 
     if (!shouldUpdate) return;
 
-    // --- sync geo mode ---
-    _geoMode = widget.initialGeoMode;
+    // --- sync mode (animation slides according to the direction) ---
+    if (widget.geoMode != oldWidget.geoMode) {
+      _direction = widget.geoMode ? -1 : 1;
+    }
+    _geoMode = widget.geoMode;
 
-    if(_geoMode) {
+    if (_geoMode) {
       _manualNameCtl.text = widget.initialStationName ?? '';
       _latCtl.text = widget.initialLat?.toString() ?? '0.0';
       _longCtl.text = widget.initialLng?.toString() ?? '0.0';
@@ -130,8 +146,7 @@ class _StationFieldsSwitcherState extends State<StationFieldsSwitcher>
       _savedLat = null;
       _savedLng = null;
       _savedBaseName = null;
-    }
-    else {
+    } else {
       _nameCtl.text = widget.initialStationName ?? '';
       _manualNameCtl.text = "";
       _latCtl.text = "0.0";
@@ -179,17 +194,6 @@ class _StationFieldsSwitcherState extends State<StationFieldsSwitcher>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _updatingFromSelf = false;
     });
-  }
-
-  // ------------------------------
-  // Toggle mode
-  // ------------------------------
-  void _toggleMode() {
-    setState(() {
-      _geoMode = !_geoMode;
-      _direction = _geoMode ? -1 : 1;
-    });
-    _emitValues();
   }
 
   // ------------------------------
@@ -313,102 +317,88 @@ class _StationFieldsSwitcherState extends State<StationFieldsSwitcher>
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
-    final border = const OutlineInputBorder();
-    final searchIcon = widget.searchIcon ?? Icons.search;
-    final globeIcon = widget.globePinIcon ?? Symbols.globe_location_pin;
+    final theme = Theme.of(context);
+    final monoStyle = AppTheme.monoFont.copyWith(
+      fontSize: 14,
+      color: theme.colorScheme.onSurface,
+    );
 
-    Widget actionButton(IconData icon, VoidCallback onTap) {
-      final theme = Theme.of(context);
-
-      return IconButton(
-        onPressed: onTap,
-        icon: Icon(icon),
-        style: IconButton.styleFrom(
-          backgroundColor: theme.colorScheme.primary,
-          foregroundColor: theme.colorScheme.onPrimary,
-          fixedSize: const Size(44, 44),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-      );
-    }
-
-
-    // ---------------- NAME MODE ------------------
+    // ---------------- BY NAME MODE ------------------
     final nameMode = Column(
       key: const ValueKey('name-mode'),
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        TextFormField(
+          controller: _nameCtl,
+          readOnly: true,
+          onTap: _openOverlay,
+          decoration: _decoration(
+            loc.nameField,
+            prefixIcon: const Icon(Icons.search),
+          ),
+        ),
+        const SizedBox(height: 8),
+        // Space for the resolved address of the selected station.
         Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Icon(
+              Icons.place_outlined,
+              size: 14,
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+            const SizedBox(width: 6),
             Expanded(
-              child: TextFormField(
-                controller: _nameCtl,
-                readOnly: true,
-                onTap: _openOverlay,
-                decoration: InputDecoration(
-                  labelText: loc.nameField,
-                  border: border,
+              child: Text(
+                _currentAddress.isEmpty
+                    ? widget.addressDefaultText
+                    : _currentAddress,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
                 ),
               ),
             ),
-            const SizedBox(width: 8),
-            actionButton(globeIcon, _toggleMode),
           ],
-        ),
-        const SizedBox(height: 8),
-        SizedBox(
-          height: _extraFieldHeight,
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              _currentAddress.isEmpty
-                  ? widget.addressDefaultText
-                  : _currentAddress,
-              style: TextStyle(
-                color: Theme.of(context)
-                    .colorScheme
-                    .onSurfaceVariant,
-              ),
-            ),
-          ),
         ),
       ],
     );
 
-    // ---------------- GEO MODE ------------------
+    // ---------------- MANUAL MODE ------------------
     final geoMode = Column(
       key: const ValueKey('geo-mode'),
       children: [
+        TextFormField(
+          controller: _manualNameCtl,
+          decoration: _decoration(
+            widget.manualNameFieldHint,
+            prefixIcon: const Icon(Icons.label_outline),
+          ),
+          onChanged: (_) => _emitValues(),
+        ),
+        const SizedBox(height: 12),
         Row(
           children: [
-            actionButton(searchIcon, _toggleMode),
-            const SizedBox(width: 8),
             Expanded(
               child: TextFormField(
                 controller: _latCtl,
+                style: monoStyle,
                 keyboardType:
                     const TextInputType.numberWithOptions(decimal: true),
-                decoration: InputDecoration(
-                  labelText: loc.addTripLatitudeShort,
-                  border: border,
-                ),
+                decoration: _decoration(loc.addTripLatitudeShort),
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),
                 ],
                 onChanged: (_) => _emitValues(),
               ),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 12),
             Expanded(
               child: TextFormField(
                 controller: _longCtl,
+                style: monoStyle,
                 keyboardType:
                     const TextInputType.numberWithOptions(decimal: true),
-                decoration: InputDecoration(
-                  labelText: loc.addTripLongitudeShort,
-                  border: border,
-                ),
+                decoration: _decoration(loc.addTripLongitudeShort),
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),
                 ],
@@ -416,18 +406,6 @@ class _StationFieldsSwitcherState extends State<StationFieldsSwitcher>
               ),
             ),
           ],
-        ),
-        const SizedBox(height: 8),
-        SizedBox(
-          height: _extraFieldHeight,
-          child: TextFormField(
-            controller: _manualNameCtl,
-            decoration: InputDecoration(
-              labelText: widget.manualNameFieldHint,
-              border: border,
-            ),
-            onChanged: (_) => _emitValues(),
-          ),
         ),
       ],
     );

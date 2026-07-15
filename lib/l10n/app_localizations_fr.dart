@@ -1235,6 +1235,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get addTripSwapTooltip => 'Inverser le départ et l\'arrivée';
 
   @override
+  String get addTripModeByName => 'Par nom';
+
+  @override
+  String get addTripModeManual => 'Manuel';
+
+  @override
   String get addTripExitConfirmationDialogueTitle => 'Arrêter la création ?';
 
   @override

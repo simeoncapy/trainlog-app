@@ -8,15 +8,16 @@ import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
 import 'package:trainlog_app/features/trips_add/widgets/mini_map_box.dart';
-import 'package:trainlog_app/features/trips_add/widgets/station_fields_switcher.dart';
+import 'package:trainlog_app/features/trips_add/widgets/station_endpoint_fields.dart';
+import 'package:trainlog_app/widgets/app_steps_tab_bar.dart';
 
 /// Step 2 of the "Add Trip" wizard: departure and arrival selection.
 ///
-/// One block per trip endpoint, each with a timeline marker (hollow rounded
-/// square for the departure, filled for the arrival, tinted with the selected
-/// vehicle's palette colour), the station fields (by-name search with the
-/// full-screen suggestion overlay, or manual coordinates) and a mini map
-/// below the fields. A swap button sits between the two blocks.
+/// One block per trip endpoint, each with a timeline marker and an
+/// [AppStepsTabBar] mode selector (by name / manual) in the header, the
+/// station fields (by-name search with the full-screen suggestion overlay,
+/// or manual coordinates) and a mini map below the fields. A swap button
+/// sits between the two blocks.
 class AddTripRouteStep extends StatelessWidget {
   const AddTripRouteStep({super.key});
 
@@ -74,12 +75,10 @@ class AddTripRouteStep extends StatelessWidget {
                 icon: const Icon(Icons.swap_vert),
                 tooltip: loc.addTripSwapTooltip,
                 style: IconButton.styleFrom(
-                  backgroundColor: theme.colorScheme.tertiary,
-                  foregroundColor: theme.colorScheme.onTertiary,
+                  backgroundColor: theme.colorScheme.inverseSurface,
+                  foregroundColor: theme.colorScheme.onInverseSurface,
                   fixedSize: const Size(44, 44),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                  shape: const CircleBorder(),
                 ),
               ),
             ),
@@ -99,8 +98,8 @@ class AddTripRouteStep extends StatelessWidget {
   }
 }
 
-/// One departure/arrival block: header with timeline marker and label,
-/// station fields, and the mini map underneath.
+/// One departure/arrival block: header with timeline marker, label and mode
+/// tab bar; station fields; and the mini map underneath.
 class _EndpointBlock extends StatelessWidget {
   const _EndpointBlock({
     required this.isDeparture,
@@ -117,6 +116,35 @@ class _EndpointBlock extends StatelessWidget {
   final VehicleType vehicleType;
   final Color markerColour;
   final bool hasError;
+
+  bool get _geoMode =>
+      isDeparture ? model.departureGeoMode : model.arrivalGeoMode;
+
+  /// Switches between by-name (false) and manual (true) mode, preserving the
+  /// endpoint's current values in the model.
+  void _setMode(bool manual) {
+    if (manual == _geoMode) return;
+
+    if (isDeparture) {
+      model.setDeparture(
+        name: model.departureStationName,
+        baseName: model.departureStationBaseName,
+        lat: model.departureLat,
+        long: model.departureLong,
+        address: model.departureAddress,
+        geoMode: manual,
+      );
+    } else {
+      model.setArrival(
+        name: model.arrivalStationName,
+        baseName: model.arrivalStationBaseName,
+        lat: model.arrivalLat,
+        long: model.arrivalLong,
+        address: model.arrivalAddress,
+        geoMode: manual,
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -140,13 +168,24 @@ class _EndpointBlock extends StatelessWidget {
             children: [
               _TimelineMarker(colour: markerColour, filled: !isDeparture),
               const SizedBox(width: 8),
-              Text(
-                label.toUpperCase(),
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 1.2,
+              Expanded(
+                child: Text(
+                  label.toUpperCase(),
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 1.2,
+                  ),
                 ),
+              ),
+              const SizedBox(width: 8),
+              AppStepsTabBar(
+                tabs: [
+                  AppStepsTab(label: loc.addTripModeByName),
+                  AppStepsTab(label: loc.addTripModeManual),
+                ],
+                selectedIndex: _geoMode ? 1 : 0,
+                onTabChanged: (index) => _setMode(index == 1),
               ),
             ],
           ),
@@ -160,7 +199,7 @@ class _EndpointBlock extends StatelessWidget {
   }
 
   Widget _stationFields(BuildContext context, AppLocalizations loc) {
-    return StationFieldsSwitcher(
+    return StationEndpointFields(
       // key depends on vehicle type → forces rebuild on change
       key: ValueKey(
           'route-${isDeparture ? 'dep' : 'arr'}-${vehicleType.name}'),
@@ -169,8 +208,7 @@ class _EndpointBlock extends StatelessWidget {
       addressDefaultText: loc.typeStationAddress(vehicleType.name),
       manualNameFieldHint: loc.manualNameStation(vehicleType.name),
 
-      initialGeoMode:
-          isDeparture ? model.departureGeoMode : model.arrivalGeoMode,
+      geoMode: _geoMode,
       initialStationName:
           isDeparture ? model.departureStationName : model.arrivalStationName,
       initialLat: isDeparture ? model.departureLat : model.arrivalLat,
@@ -209,7 +247,7 @@ class _EndpointBlock extends StatelessWidget {
 
   Widget _miniMap(AppLocalizations loc) {
     return MiniMapBox(
-      height: 160,
+      height: 120,
       lat: isDeparture ? model.departureLat : model.arrivalLat,
       long: isDeparture ? model.departureLong : model.arrivalLong,
       emptyMessage: loc.enterStation(
@@ -218,8 +256,7 @@ class _EndpointBlock extends StatelessWidget {
       ),
       markerColor: isDeparture ? Colors.green : Colors.red,
       marker: isDeparture ? Icons.location_pin : Icons.where_to_vote,
-      isCoordinateMovable:
-          isDeparture ? model.departureGeoMode : model.arrivalGeoMode,
+      isCoordinateMovable: _geoMode,
       onCoordinateChanged: (lat, long) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (isDeparture) {

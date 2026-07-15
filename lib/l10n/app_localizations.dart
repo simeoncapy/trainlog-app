@@ -2064,6 +2064,18 @@ abstract class AppLocalizations {
   /// **'Swap departure and arrival'**
   String get addTripSwapTooltip;
 
+  /// Tab selecting the by-name station search mode on the route step
+  ///
+  /// In en, this message translates to:
+  /// **'By name'**
+  String get addTripModeByName;
+
+  /// Tab selecting the manual coordinates mode on the route step
+  ///
+  /// In en, this message translates to:
+  /// **'Manual'**
+  String get addTripModeManual;
+
   /// No description provided for @addTripExitConfirmationDialogueTitle.
   ///
   /// In en, this message translates to:

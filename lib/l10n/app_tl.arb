@@ -461,6 +461,14 @@
   "@addTripSwapTooltip": {
     "description": "Tooltip of the button swapping the departure and arrival of the trip being created"
   },
+  "addTripModeByName": "Sa pangalan",
+  "@addTripModeByName": {
+    "description": "Tab selecting the by-name station search mode on the route step"
+  },
+  "addTripModeManual": "Manual",
+  "@addTripModeManual": {
+    "description": "Tab selecting the manual coordinates mode on the route step"
+  },
   "addTripTransportationMode": "Byahe mode",
   "addTripImportFr24": "Import ang flight data sa FR24",
   "addTripManualDeparture": "I set ang pag depart manually",

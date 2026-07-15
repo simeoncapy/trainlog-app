@@ -1226,6 +1226,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addTripSwapTooltip => 'Swap departure and arrival';
 
   @override
+  String get addTripModeByName => 'By name';
+
+  @override
+  String get addTripModeManual => 'Manual';
+
+  @override
   String get addTripExitConfirmationDialogueTitle => 'Do you want to exit?';
 
   @override

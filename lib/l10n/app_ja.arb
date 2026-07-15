@@ -352,6 +352,8 @@
   "addTripRouteTitle": "どこへ行きましたか？",
   "addTripRouteSubtitle": "名前で検索するか、手動に切り替えて地図上で位置を指定してください",
   "addTripSwapTooltip": "出発地と到着地を入れ替える",
+  "addTripModeByName": "名前で",
+  "addTripModeManual": "手動",
   "addTripExitConfirmationDialogueTitle": "終了しますか？",
   "addTripExitConfirmationDialogueContent": "旅行データが変更されました。データは失われます。旅行の作成を本当に終了しますか？",
   "addTripTransportationMode": "交通手段",

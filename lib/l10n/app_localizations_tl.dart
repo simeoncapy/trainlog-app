@@ -1207,6 +1207,12 @@ class AppLocalizationsTl extends AppLocalizations {
   String get addTripSwapTooltip => 'Ipagpalit ang departure at arrival';
 
   @override
+  String get addTripModeByName => 'Sa pangalan';
+
+  @override
+  String get addTripModeManual => 'Manual';
+
+  @override
   String get addTripExitConfirmationDialogueTitle => 'Gusto mo umexit?';
 
   @override
