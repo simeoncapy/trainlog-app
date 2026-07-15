@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:trainlog_app/data/models/trip_form_model.dart';
 import 'package:trainlog_app/data/models/trips_filter.dart';
 import 'package:trainlog_app/features/menu/menu_summary_card.dart';
-import 'package:trainlog_app/features/trips_add/add_trip_page.dart';
+import 'package:trainlog_app/features/trips_add/add_trip_wizard_page.dart';
 import 'package:trainlog_app/features/trips/search_filter_sheet/trips_search_filter_sheet.dart';
 import 'package:trainlog_app/features/trips/widgets/trip_card_view.dart';
 import 'package:trainlog_app/features/trips/widgets/trip_table_view.dart';
@@ -204,7 +204,7 @@ class _TripsPageState extends State<TripsPage> {
           PageRouteBuilder(
             pageBuilder: (_, __, ___) => ChangeNotifierProvider(
               create: (_) => TripFormModel(),
-              child: const AddTripPage(),
+              child: const AddTripWizardPage(),
             ),
             transitionDuration: Duration.zero,
             reverseTransitionDuration: Duration.zero,

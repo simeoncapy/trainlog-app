@@ -1204,6 +1204,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addTripStepValidate => 'Validate';
 
   @override
+  String addTripStepProgress(int current, int total) {
+    return 'STEP $current / $total';
+  }
+
+  @override
+  String get addTripVehicleTypeTitle => 'How did you travel?';
+
+  @override
+  String get addTripVehicleTypeSubtitle =>
+      'Pick the vehicle type for this trip';
+
+  @override
   String get addTripExitConfirmationDialogueTitle => 'Do you want to exit?';
 
   @override

@@ -1213,6 +1213,18 @@ class AppLocalizationsFr extends AppLocalizations {
   String get addTripStepValidate => 'Valider';
 
   @override
+  String addTripStepProgress(int current, int total) {
+    return 'ÉTAPE $current / $total';
+  }
+
+  @override
+  String get addTripVehicleTypeTitle => 'Comment avez-vous voyagé ?';
+
+  @override
+  String get addTripVehicleTypeSubtitle =>
+      'Choisissez le moyen de transport pour ce trajet';
+
+  @override
   String get addTripExitConfirmationDialogueTitle => 'Arrêter la création ?';
 
   @override

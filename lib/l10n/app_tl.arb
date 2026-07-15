@@ -433,6 +433,22 @@
   "@addTripStepValidate": {
     "description": "Label for the last step when adding a trip. Choose a short word if possible"
   },
+  "addTripStepProgress": "STEP {current} / {total}",
+  "@addTripStepProgress": {
+    "description": "Fractional progress label of the add-trip wizard, e.g. 'STEP 1 / 7'",
+    "placeholders": {
+      "current": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "addTripVehicleTypeTitle": "Paano ka bumiyahe?",
+  "@addTripVehicleTypeTitle": {
+    "description": "Headline of the vehicle type selection step of the add-trip wizard"
+  },
+  "addTripVehicleTypeSubtitle": "Piliin ang uri ng sasakyan para sa biyaheng ito",
+  "@addTripVehicleTypeSubtitle": {
+    "description": "Muted instruction subtitle under the headline of the vehicle type selection step"
+  },
   "addTripTransportationMode": "Byahe mode",
   "addTripImportFr24": "Import ang flight data sa FR24",
   "addTripManualDeparture": "I set ang pag depart manually",

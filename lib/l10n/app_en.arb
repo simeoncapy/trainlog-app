@@ -532,6 +532,22 @@
   "@addTripStepValidate": {
     "description": "Label for the last step when adding a trip. Choose a short word if possible"
   },
+  "addTripStepProgress": "STEP {current} / {total}",
+  "@addTripStepProgress": {
+    "description": "Fractional progress label of the add-trip wizard, e.g. 'STEP 1 / 7'",
+    "placeholders": {
+      "current": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "addTripVehicleTypeTitle": "How did you travel?",
+  "@addTripVehicleTypeTitle": {
+    "description": "Headline of the vehicle type selection step of the add-trip wizard"
+  },
+  "addTripVehicleTypeSubtitle": "Pick the vehicle type for this trip",
+  "@addTripVehicleTypeSubtitle": {
+    "description": "Muted instruction subtitle under the headline of the vehicle type selection step"
+  },
   "addTripExitConfirmationDialogueTitle": "Do you want to exit?",
   "addTripExitConfirmationDialogueContent": "The trip data have been modified, they will be lost. Do you really want to exit the creation of the trip?",
   "addTripTransportationMode": "Transportation mode",

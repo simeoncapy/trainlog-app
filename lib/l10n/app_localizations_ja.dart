@@ -1183,6 +1183,17 @@ class AppLocalizationsJa extends AppLocalizations {
   String get addTripStepValidate => '確認';
 
   @override
+  String addTripStepProgress(int current, int total) {
+    return 'ステップ $current / $total';
+  }
+
+  @override
+  String get addTripVehicleTypeTitle => 'どのように移動しましたか？';
+
+  @override
+  String get addTripVehicleTypeSubtitle => 'この旅行の交通手段を選択してください';
+
+  @override
   String get addTripExitConfirmationDialogueTitle => '終了しますか？';
 
   @override

@@ -2028,6 +2028,24 @@ abstract class AppLocalizations {
   /// **'Validate'**
   String get addTripStepValidate;
 
+  /// Fractional progress label of the add-trip wizard, e.g. 'STEP 1 / 7'
+  ///
+  /// In en, this message translates to:
+  /// **'STEP {current} / {total}'**
+  String addTripStepProgress(int current, int total);
+
+  /// Headline of the vehicle type selection step of the add-trip wizard
+  ///
+  /// In en, this message translates to:
+  /// **'How did you travel?'**
+  String get addTripVehicleTypeTitle;
+
+  /// Muted instruction subtitle under the headline of the vehicle type selection step
+  ///
+  /// In en, this message translates to:
+  /// **'Pick the vehicle type for this trip'**
+  String get addTripVehicleTypeSubtitle;
+
   /// No description provided for @addTripExitConfirmationDialogueTitle.
   ///
   /// In en, this message translates to:

@@ -1,34 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:trainlog_app/platform/adaptive_button.dart';
-import 'package:step_progress/step_progress.dart';
 import 'package:lottie/lottie.dart';
 import 'package:trainlog_app/data/controllers/trainlog_web_controller.dart';
 import 'package:trainlog_app/data/models/polyline_entry.dart';
 import 'package:trainlog_app/data/models/trip_form_model.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
+import 'package:trainlog_app/features/trips_add/add_trip_wizard_step.dart';
+import 'package:trainlog_app/features/trips_add/steps/add_trip_vehicle_type_step.dart';
 import 'package:trainlog_app/features/trips_add/trip_form_basics.dart';
 import 'package:trainlog_app/features/trips_add/trip_form_date.dart';
 import 'package:trainlog_app/features/trips_add/trip_form_details.dart';
 import 'package:trainlog_app/features/trips_add/trip_form_path.dart';
+import 'package:trainlog_app/features/trips_add/widgets/wizard_step_indicator.dart';
+import 'package:trainlog_app/platform/adaptive_button.dart';
+import 'package:trainlog_app/platform/widget/adaptive_app_bar_square_button.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
 import 'package:trainlog_app/services/pre_record_service.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 
-class AddTripPage extends StatefulWidget {
+/// Main layout controller of the multi-step "Add Trip" wizard.
+///
+/// Sub-pages are declared sequentially in [_steps]; the total step count and
+/// the progress indicator are derived from that list, so the layout adapts
+/// dynamically whenever steps are added or removed.
+class AddTripWizardPage extends StatefulWidget {
   final List<int>? preRecorderIdsToDelete;
-  const AddTripPage({super.key, this.preRecorderIdsToDelete});
+  const AddTripWizardPage({super.key, this.preRecorderIdsToDelete});
 
   @override
-  State<AddTripPage> createState() => _AddTripPageState();
+  State<AddTripWizardPage> createState() => _AddTripWizardPageState();
 }
 
-class _AddTripPageState extends State<AddTripPage> {
-  late final StepProgressController stepProgressController;
-  int currentStep = 0;
-  List<String>? stepList;
+class _AddTripWizardPageState extends State<AddTripWizardPage> {
+  int _currentStep = 0;
   bool _isRouterLoading = false;
   bool _hasRoutingError = false;
   bool _isSubmitting = false;
@@ -36,70 +42,77 @@ class _AddTripPageState extends State<AddTripPage> {
   final PageController _pageController = PageController();
   late final TrainlogWebPageController _routingWebCtrl;
 
+  /// Ordered list of the wizard sub-pages. The step count shown by the
+  /// progress indicator always matches the length of this list.
+  late final List<AddTripWizardStep> _steps;
+
+  int get _totalSteps => _steps.length;
+  bool get _isLastStep => _currentStep == _totalSteps - 1;
+
   @override
   void initState() {
     super.initState();
     _routingWebCtrl = TrainlogWebPageController();
-  }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-
-    // Initialise only once when localisation and context are ready
-    if (stepList == null) {
-      final loc = AppLocalizations.of(context)!;
-      stepList = [
-        loc.addTripStepBasics,
-        loc.addTripStepDate,
-        loc.addTripStepDetails,
-        loc.addTripStepPath,
-      ];
-
-      stepProgressController = StepProgressController(
-        initialStep: currentStep,
-        totalSteps: stepList!.length,
-      );
-    }
+    _steps = [
+      AddTripWizardStep(
+        builder: (_) => const AddTripVehicleTypeStep(),
+        validate: (model) => model.vehicleType != null,
+      ),
+      AddTripWizardStep(
+        builder: (_) => const TripFormBasics(),
+        validate: (model) => model.validateBasics(),
+      ),
+      AddTripWizardStep(
+        builder: (_) => const TripFormDate(),
+        validate: (model) => model.validateDate(),
+      ),
+      AddTripWizardStep(
+        builder: (_) => const TripFormDetails(),
+        validate: (model) => model.validateDetails(),
+      ),
+      AddTripWizardStep(
+        builder: (_) => TripFormPath(
+          routingController: _routingWebCtrl,
+          onLoading: (value) {
+            if (!mounted) return;
+            setState(() => _isRouterLoading = value);
+          },
+          onRoutingError: (value) {
+            if (!mounted) return;
+            setState(() => _hasRoutingError = value);
+          },
+        ),
+      ),
+    ];
   }
 
   @override
   void dispose() {
-     _routingWebCtrl.dispose();
-    stepProgressController.dispose();
+    _routingWebCtrl.dispose();
     _pageController.dispose();
     super.dispose();
   }
 
-  void _showSnackBarMessage()
-  {
+  void _showSnackBarMessage() {
     ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context)!.fillRequiredFields)),
-      );
-      return;
+      SnackBar(content: Text(AppLocalizations.of(context)!.fillRequiredFields)),
+    );
   }
 
   void _nextStep() {
     final model = context.read<TripFormModel>();
 
-    bool isValid = false;
-
-    if (currentStep == 0) isValid = model.validateBasics();
-    if (currentStep == 1) isValid = model.validateDate();
-    if (currentStep == 2) isValid = model.validateDetails();
-    if (currentStep == 3) isValid = true; // Final step
-
+    final isValid = _steps[_currentStep].validate?.call(model) ?? true;
     if (!isValid) {
       _showSnackBarMessage();
       return;
     }
 
-    // Move to next page
-    if (currentStep < stepList!.length - 1) {
-      setState(() => currentStep++);
-      stepProgressController.nextStep();
+    if (!_isLastStep) {
+      setState(() => _currentStep++);
       _pageController.animateToPage(
-        currentStep,
+        _currentStep,
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
@@ -110,27 +123,38 @@ class _AddTripPageState extends State<AddTripPage> {
 
   void _previousStepOrExit() async {
     final model = context.read<TripFormModel>();
-    if (currentStep == 0) {
+    if (_currentStep == 0) {
       if (!model.hasBeenChanged) {
         Navigator.pop(context);
         return;
       }
       final bool? confirmed = await _showExitConfirmationDialog(context);
-      if(context.mounted) {
+      if (context.mounted) {
         if (confirmed == true) Navigator.pop(context);
       }
     } else {
       setState(() {
-        currentStep--;
+        _currentStep--;
         _hasRoutingError = false; // Reset routing error when going back
         _isRouterLoading = false; // Reset loading state when going back
       });
-      stepProgressController.previousStep();
       _pageController.animateToPage(
-        currentStep,
+        _currentStep,
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
+    }
+  }
+
+  void _cancelWizard() async {
+    final model = context.read<TripFormModel>();
+    if (!model.hasBeenChanged) {
+      Navigator.pop(context);
+      return;
+    }
+    final bool? confirmed = await _showExitConfirmationDialog(context);
+    if (context.mounted) {
+      if (confirmed == true) Navigator.pop(context);
     }
   }
 
@@ -154,7 +178,7 @@ class _AddTripPageState extends State<AddTripPage> {
     debugPrint('payload runtimeType=${res.payload.runtimeType}');
 
     if (!res.ok) {
-      final error = errorCode?.toString() ?? 'unknown'; 
+      final error = errorCode?.toString() ?? 'unknown';
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(loc.addTripFinishErrorMsg(error))),
       );
@@ -178,16 +202,6 @@ class _AddTripPageState extends State<AddTripPage> {
       return;
     }
 
-    // Pretty print if it's a Map/List
-    // Caution: for long trips this can be very large!
-    // try {
-    //   final pretty = const JsonEncoder.withIndent('  ').convert(res.payload);
-    //   debugPrint('payload:\n$pretty');
-    // } catch (_) {
-    //   // fallback (string or something non-JSON-encodable)
-    //   debugPrint('Error payload:\n${res.payload}');
-    // }
-
     // TODO: if trip is future change Trip display page to show future trips
     newTrip["uid"] = newTrip["trip_id"]; // Trips model expects "uid" field
     final model = context.read<TripFormModel>();
@@ -200,17 +214,15 @@ class _AddTripPageState extends State<AddTripPage> {
     final path = PolylineTools.toLatLngList(newTrip["path"]);
     newTrip["path"] = PolylineTools.encodePath(path); // Store encoded path
     final trip = Trips.fromJson(newTrip);
-    //final isFuture = trip.utcStartDate != null && trip.utcStartDate!.isAfter(DateTime.now().toUtc());
 
     // Insert new trip into providers
     tripsProvider.insertTrip(trip);
 
-    debugPrint("✅ TRIP VALIDATED"); 
+    debugPrint("✅ TRIP VALIDATED");
     setState(() {
       _isSubmitting = false;
     });
 
-    // Placeholder for submission logic
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(loc.addTripFinishMsg)),
     );
@@ -218,23 +230,23 @@ class _AddTripPageState extends State<AddTripPage> {
     if(widget.preRecorderIdsToDelete != null) await const PreRecordService().deleteByIds(widget.preRecorderIdsToDelete!);
 
     if(!context.mounted) return;
-    if(continueTrip) {      
+    if(continueTrip) {
       Navigator.of(context).pushReplacement(PageRouteBuilder(
         pageBuilder: (_, __, ___) => ChangeNotifierProvider(
           create: (_) => _createTripFormModel(model: model),
-          child: AddTripPage(),
+          child: const AddTripWizardPage(),
         ),
         transitionDuration: Duration.zero,
         reverseTransitionDuration: Duration.zero,
-      )); // Check if the previous works
+      ));
     }
-    else {      
+    else {
       Navigator.of(context).pop(true);
     }
   }
 
   TripFormModel _createTripFormModel({required TripFormModel model}) {
-    /// Continuing the trip by using the arrivl as a new departure
+    /// Continuing the trip by using the arrival as a new departure
     final newModel = TripFormModel();
 
     newModel.vehicleType = model.vehicleType;
@@ -259,14 +271,14 @@ class _AddTripPageState extends State<AddTripPage> {
         break;
     }
 
-    newModel.initState(); // Toggle hasBeenModified 
+    newModel.initState(); // Toggle hasBeenModified
     return newModel;
   }
 
-  Widget _bottomButtonHelper(bool isLastStep) {
+  Widget _stickyFooter() {
     final loc = AppLocalizations.of(context)!;
 
-    if (isLastStep) {
+    if (_isLastStep) {
       return Column(
         children: [
           SizedBox(
@@ -310,21 +322,23 @@ class _AddTripPageState extends State<AddTripPage> {
           ),
         ],
       );
-    } else {
-      return AdaptiveButton.build(
+    }
+
+    return SizedBox(
+      width: double.infinity,
+      child: AdaptiveButton.build(
         context: context,
-        icon: Icons.arrow_forward,
         label: Text(
-          loc.nextButton,
+          loc.continueButton,
           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
         ),
         onPressed: _nextStep,
-        type: AdaptiveButtonType.secondaryContainer,
+        type: AdaptiveButtonType.primary,
         padding: const EdgeInsets.symmetric(vertical: 18),
         borderRadius: AppPlatform.isApple ? null : BorderRadius.circular(28),
         elevation: 3,
-      );
-    }
+      ),
+    );
   }
 
   Future<bool?> _showExitConfirmationDialog(BuildContext context) {
@@ -359,70 +373,35 @@ class _AddTripPageState extends State<AddTripPage> {
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
-    final isLastStep = currentStep == stepList!.length - 1;
     final theme = Theme.of(context);
-    final model = context.read<TripFormModel>();
 
     return SafeArea(
       child: Scaffold(
-        appBar: AppBar(
-          title: Text(loc.addTripPageTitle),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: _isSubmitting ? null : _previousStepOrExit,
-          ),
-          actions: [
-            IconButton(
-              icon: Icon(Icons.cancel),              
-              onPressed: _isSubmitting
-                  ? null
-                  : () async {
-                      if (!model.hasBeenChanged) {
-                        Navigator.pop(context);
-                      } else {
-                        final bool? confirmed = await _showExitConfirmationDialog(context);
-                        if(context.mounted) {
-                          if (confirmed == true) Navigator.pop(context);
-                        }
-                      }
-                    },
-            ),
-          ],
-        ),
         body: Stack(
           children: [
-            // Adding trip UI
             Column(
               children: [
-                StepProgress(
-                  totalSteps: stepList!.length,
-                  currentStep: currentStep,
-                  controller: stepProgressController,
-                  nodeTitles: stepList,
-                  nodeIconBuilder: (index, _) {
-                    switch (index) {
-                      case 0:
-                        return const Icon(Icons.info);
-                      case 1:
-                        return const Icon(Icons.date_range);
-                      case 2:
-                        return const Icon(Icons.subject);
-                      case 3:
-                        return const Icon(Icons.route);
-                      default:
-                        return const Icon(Icons.help);
-                    }
-                  },
-                  theme: StepProgressThemeData(
-                    nodeLabelAlignment: StepLabelAlignment.top,
-                    stepLineSpacing: 2,
-                    stepLineStyle: const StepLineStyle(lineThickness: 2),
-                    defaultForegroundColor:
-                        Theme.of(context).colorScheme.surfaceContainerHighest,
-                    activeForegroundColor: Theme.of(context).colorScheme.primary,
-                    stepNodeStyle: StepNodeStyle(
-                      iconColor: Theme.of(context).colorScheme.onSurface,
-                      activeIconColor: Theme.of(context).colorScheme.onPrimary,
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                  child: WizardStepIndicator(
+                    currentStep: _currentStep,
+                    totalSteps: _totalSteps,
+                    leading: AdaptiveAppBarSquareButton(
+                      icon: Icons.chevron_left,
+                      iconSize: 24,
+                      tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+                      onPressed: () {
+                        if (_isSubmitting) return;
+                        _previousStepOrExit();
+                      },
+                    ),
+                    trailing: AdaptiveAppBarSquareButton(
+                      icon: Icons.close,
+                      tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
+                      onPressed: () {
+                        if (_isSubmitting) return;
+                        _cancelWizard();
+                      },
                     ),
                   ),
                 ),
@@ -433,30 +412,15 @@ class _AddTripPageState extends State<AddTripPage> {
                     controller: _pageController,
                     physics: const NeverScrollableScrollPhysics(),
                     children: [
-                      TripFormBasics(),
-                      TripFormDate(),
-                      TripFormDetails(),
-                      TripFormPath(
-                        routingController: _routingWebCtrl,
-                        onLoading: (value) {
-                          if (!mounted) return;
-                          setState(() => _isRouterLoading = value);
-                        },
-                        onRoutingError: (value) {
-                          if (!mounted) return;
-                          setState(() => _hasRoutingError = value);
-                        },
-                      ),
+                      for (final step in _steps) step.builder(context),
                     ],
                   ),
                 ),
 
+                // Sticky footer with the page progression button(s)
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: _bottomButtonHelper(isLastStep),
-                  ),
+                  child: _stickyFooter(),
                 ),
               ],
             ),
@@ -465,7 +429,6 @@ class _AddTripPageState extends State<AddTripPage> {
             if (_isSubmitting) ...[
               ModalBarrier(
                 dismissible: false,
-                //color: Colors.black54,
                 color: theme.colorScheme.surfaceContainer,
               ),
               Center(
@@ -478,7 +441,6 @@ class _AddTripPageState extends State<AddTripPage> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      //CircularProgressIndicator(),
                       Expanded(child: Lottie.asset('assets/animations/new_trip_cropped.json')),
                       SizedBox(height: 20),
                       Text(

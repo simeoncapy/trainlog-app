@@ -1185,6 +1185,18 @@ class AppLocalizationsTl extends AppLocalizations {
   String get addTripStepValidate => 'Ivalidate';
 
   @override
+  String addTripStepProgress(int current, int total) {
+    return 'STEP $current / $total';
+  }
+
+  @override
+  String get addTripVehicleTypeTitle => 'Paano ka bumiyahe?';
+
+  @override
+  String get addTripVehicleTypeSubtitle =>
+      'Piliin ang uri ng sasakyan para sa biyaheng ito';
+
+  @override
   String get addTripExitConfirmationDialogueTitle => 'Gusto mo umexit?';
 
   @override
