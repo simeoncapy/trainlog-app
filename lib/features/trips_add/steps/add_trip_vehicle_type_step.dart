@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:trainlog_app/app/theme/app_colors.dart';
 import 'package:trainlog_app/app/theme/app_theme.dart';
 import 'package:trainlog_app/data/models/trip_form_model.dart';
 import 'package:trainlog_app/data/models/trips.dart';
@@ -11,8 +10,9 @@ import 'package:trainlog_app/utils/map_color_palette.dart';
 /// Step 1 of the "Add Trip" wizard: vehicle type selection.
 ///
 /// Shows a bold headline, a muted instruction subtitle and a two-column grid
-/// of large selectable cards, one per vehicle category. The selected card is
-/// filled with the vehicle colour from the user's map colour palette.
+/// of large selectable cards, one per vehicle category. Unselected cards show
+/// their icon in the vehicle colour from the user's map colour palette; the
+/// selected card is filled with the theme primary colour.
 class AddTripVehicleTypeStep extends StatelessWidget {
   const AddTripVehicleTypeStep({super.key});
 
@@ -132,23 +132,21 @@ class _VehicleTypeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final cs = theme.colorScheme;
     const radius = 16.0;
 
-    // On a filled card, use navy or white depending on the fill brightness.
-    final onColour = ThemeData.estimateBrightnessForColor(colour) == Brightness.dark
-        ? Colors.white
-        : AppColors.navy;
-
-    final contentColor = selected ? onColour : theme.colorScheme.onSurface;
-    final iconColor = selected ? onColour : colour;
+    // Selected cards fill with the theme primary colour; the vehicle palette
+    // colour is only used for the icon of unselected cards.
+    final contentColor = selected ? cs.onPrimary : cs.onSurface;
+    final iconColor = selected ? cs.onPrimary : colour;
 
     return Material(
-      color: selected ? colour : theme.cardColor,
+      color: selected ? cs.primary : theme.cardColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(radius),
         side: selected
             ? BorderSide.none
-            : BorderSide(color: theme.colorScheme.outline),
+            : BorderSide(color: cs.outline),
       ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -156,21 +154,9 @@ class _VehicleTypeCard extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(
-                  color: selected
-                      ? onColour.withValues(alpha: 0.55)
-                      : theme.colorScheme.outline,
-                ),
-              ),
-              child: IconTheme(
-                data: IconThemeData(color: iconColor, size: 22),
-                child: Center(child: type.icon()),
-              ),
+            IconTheme(
+              data: IconThemeData(color: iconColor, size: 28),
+              child: type.icon(),
             ),
             const SizedBox(height: 8),
             Text(
