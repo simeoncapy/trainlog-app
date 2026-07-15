@@ -16,17 +16,11 @@ import 'package:trainlog_app/utils/map_color_palette.dart';
 class AddTripVehicleTypeStep extends StatelessWidget {
   const AddTripVehicleTypeStep({super.key});
 
-  /// Vehicle categories offered by the picker, in display order.
-  static const List<VehicleType> vehicleTypes = [
-    VehicleType.train,
-    VehicleType.metro,
-    VehicleType.tram,
-    VehicleType.bus,
-    VehicleType.ferry,
-    VehicleType.plane,
-    VehicleType.car,
-    VehicleType.aerialway,
-  ];
+  /// Vehicle categories offered by the picker: every vehicle type a trip can
+  /// be created with (same list as the former trip form basics dropdown).
+  static final List<VehicleType> vehicleTypes = VehicleType.values
+      .where((v) => v != VehicleType.unknown && v != VehicleType.poi)
+      .toList();
 
   /// Groups of vehicle types sharing the same station kind: switching within
   /// a group keeps the already selected departure/arrival stations.
