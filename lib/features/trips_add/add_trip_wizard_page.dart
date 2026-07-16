@@ -295,6 +295,7 @@ class _AddTripWizardPageState extends State<AddTripWizardPage> {
           PrimaryActionButton(
             icon: Icons.subdirectory_arrow_right,
             label: loc.continueTripButton,
+            variant: PrimaryActionButtonVariant.outlined,
             onPressed: (_isRouterLoading || _hasRoutingError)
                 ? null
                 : () => _validateTrip(continueTrip: true),
