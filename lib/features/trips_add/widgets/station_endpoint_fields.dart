@@ -231,9 +231,38 @@ class StationEndpointFieldsState extends State<StationEndpointFields> {
 
           itemBuilder: (context, station) {
             final (name, displayName, coords, address, isManual) = station;
+            final theme = Theme.of(context);
             return ListTile(
               tileColor: isManual ? Colors.red.withValues(alpha: 0.1) : null,
-              title: Text(displayName),
+              leading: Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.06),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  Icons.place_outlined,
+                  size: 20,
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+              title: Text(
+                displayName,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
+              subtitle: address.isEmpty
+                  ? null
+                  : Text(
+                      address,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
               trailing: isManual
                   ? Text(loc.manual, style: const TextStyle(color: Colors.red))
                   : null,
