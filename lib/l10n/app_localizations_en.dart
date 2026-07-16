@@ -1232,6 +1232,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addTripModeManual => 'Manual';
 
   @override
+  String get addTripOperatorTitle => 'Who operated it?';
+
+  @override
+  String get addTripSelectedOperators => 'Selected operators';
+
+  @override
+  String get addTripSuggestedOperators => 'Suggested for this route';
+
+  @override
+  String get addTripAddCustomOperator => 'Add as a custom operator';
+
+  @override
+  String addTripOperatorTripCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count trips',
+      one: '1 trip',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get addTripExitConfirmationDialogueTitle => 'Do you want to exit?';
 
   @override

@@ -61,6 +61,7 @@ dependencies:
   firebase_analytics: ^12.4.0
   google_fonts: ^6.2.1
   country_codes_plus: ^5.1.1
+  country_coder: ^1.2.0
 
 dev_dependencies:
   flutter_test:

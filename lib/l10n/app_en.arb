@@ -568,6 +568,29 @@
   "@addTripModeManual": {
     "description": "Tab selecting the manual coordinates mode on the route step"
   },
+  "addTripOperatorTitle": "Who operated it?",
+  "@addTripOperatorTitle": {
+    "description": "Headline of the operator selection step of the add-trip wizard"
+  },
+  "addTripSelectedOperators": "Selected operators",
+  "@addTripSelectedOperators": {
+    "description": "Label of the block listing the operators already selected for the trip"
+  },
+  "addTripSuggestedOperators": "Suggested for this route",
+  "@addTripSuggestedOperators": {
+    "description": "Label of the block listing operator suggestions based on the trip's route"
+  },
+  "addTripAddCustomOperator": "Add as a custom operator",
+  "@addTripAddCustomOperator": {
+    "description": "Dashed button in the operator search overlay creating a custom operator from the typed text"
+  },
+  "addTripOperatorTripCount": "{count, plural, =1 {1 trip} other {{count} trips}}",
+  "@addTripOperatorTripCount": {
+    "description": "Subtitle of an operator suggestion: how many saved trips used this operator",
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
   "addTripExitConfirmationDialogueTitle": "Do you want to exit?",
   "addTripExitConfirmationDialogueContent": "The trip data have been modified, they will be lost. Do you really want to exit the creation of the trip?",
   "addTripTransportationMode": "Transportation mode",

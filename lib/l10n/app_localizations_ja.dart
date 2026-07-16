@@ -1209,6 +1209,28 @@ class AppLocalizationsJa extends AppLocalizations {
   String get addTripModeManual => '手動';
 
   @override
+  String get addTripOperatorTitle => '運行会社はどこですか？';
+
+  @override
+  String get addTripSelectedOperators => '選択した運行会社';
+
+  @override
+  String get addTripSuggestedOperators => 'この経路のおすすめ';
+
+  @override
+  String get addTripAddCustomOperator => 'カスタム運行会社として追加';
+
+  @override
+  String addTripOperatorTripCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 件の旅行',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get addTripExitConfirmationDialogueTitle => '終了しますか？';
 
   @override

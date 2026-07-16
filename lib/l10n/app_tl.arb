@@ -469,6 +469,29 @@
   "@addTripModeManual": {
     "description": "Tab selecting the manual coordinates mode on the route step"
   },
+  "addTripOperatorTitle": "Sino ang nag-operate nito?",
+  "@addTripOperatorTitle": {
+    "description": "Headline of the operator selection step of the add-trip wizard"
+  },
+  "addTripSelectedOperators": "Mga napiling operator",
+  "@addTripSelectedOperators": {
+    "description": "Label of the block listing the operators already selected for the trip"
+  },
+  "addTripSuggestedOperators": "Mungkahi para sa rutang ito",
+  "@addTripSuggestedOperators": {
+    "description": "Label of the block listing operator suggestions based on the trip's route"
+  },
+  "addTripAddCustomOperator": "Idagdag bilang custom na operator",
+  "@addTripAddCustomOperator": {
+    "description": "Dashed button in the operator search overlay creating a custom operator from the typed text"
+  },
+  "addTripOperatorTripCount": "{count, plural, =1 {1 biyahe} other {{count} biyahe}}",
+  "@addTripOperatorTripCount": {
+    "description": "Subtitle of an operator suggestion: how many saved trips used this operator",
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
   "addTripTransportationMode": "Byahe mode",
   "addTripImportFr24": "Import ang flight data sa FR24",
   "addTripManualDeparture": "I set ang pag depart manually",

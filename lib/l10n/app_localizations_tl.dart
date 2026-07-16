@@ -1213,6 +1213,29 @@ class AppLocalizationsTl extends AppLocalizations {
   String get addTripModeManual => 'Manual';
 
   @override
+  String get addTripOperatorTitle => 'Sino ang nag-operate nito?';
+
+  @override
+  String get addTripSelectedOperators => 'Mga napiling operator';
+
+  @override
+  String get addTripSuggestedOperators => 'Mungkahi para sa rutang ito';
+
+  @override
+  String get addTripAddCustomOperator => 'Idagdag bilang custom na operator';
+
+  @override
+  String addTripOperatorTripCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count biyahe',
+      one: '1 biyahe',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get addTripExitConfirmationDialogueTitle => 'Gusto mo umexit?';
 
   @override

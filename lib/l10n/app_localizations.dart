@@ -2076,6 +2076,36 @@ abstract class AppLocalizations {
   /// **'Manual'**
   String get addTripModeManual;
 
+  /// Headline of the operator selection step of the add-trip wizard
+  ///
+  /// In en, this message translates to:
+  /// **'Who operated it?'**
+  String get addTripOperatorTitle;
+
+  /// Label of the block listing the operators already selected for the trip
+  ///
+  /// In en, this message translates to:
+  /// **'Selected operators'**
+  String get addTripSelectedOperators;
+
+  /// Label of the block listing operator suggestions based on the trip's route
+  ///
+  /// In en, this message translates to:
+  /// **'Suggested for this route'**
+  String get addTripSuggestedOperators;
+
+  /// Dashed button in the operator search overlay creating a custom operator from the typed text
+  ///
+  /// In en, this message translates to:
+  /// **'Add as a custom operator'**
+  String get addTripAddCustomOperator;
+
+  /// Subtitle of an operator suggestion: how many saved trips used this operator
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1 {1 trip} other {{count} trips}}'**
+  String addTripOperatorTripCount(int count);
+
   /// No description provided for @addTripExitConfirmationDialogueTitle.
   ///
   /// In en, this message translates to:
