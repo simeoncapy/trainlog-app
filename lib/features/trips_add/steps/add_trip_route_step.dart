@@ -194,6 +194,7 @@ class _EndpointBlockState extends State<_EndpointBlock> {
           _stationFields(context, loc),
           const SizedBox(height: 12),
           _miniMap(loc),
+          ..._miniMapHelper(loc, theme),
         ],
       ),
     );
@@ -266,6 +267,17 @@ class _EndpointBlockState extends State<_EndpointBlock> {
         });
       },
     );
+  }
+
+  List<Widget> _miniMapHelper(AppLocalizations loc, ThemeData theme) {
+    return _geoMode ? [
+      const SizedBox(height: 8,),
+      Text(
+        loc.addTripMapUsageHelper,
+        softWrap: true,
+        style: theme.textTheme.bodySmall,
+      ),
+    ] : [];
   }
 }
 
