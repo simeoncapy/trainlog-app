@@ -13,8 +13,9 @@ import 'package:trainlog_app/features/trips_add/widgets/full_screen_search_overl
 /// full-screen suggestion overlay) with the resolved address underneath, or
 /// the manual fields (name with a label icon, then monospaced latitude /
 /// longitude inputs). Unlike the deprecated StationFieldsSwitcher, the mode
-/// is controlled externally via [geoMode] — the parent hosts the mode
-/// selector (an AppStepsTabBar in the block header).
+/// toggle UI lives in the parent (an AppStepsTabBar in the block header),
+/// which calls [StationEndpointFieldsState.setMode] through a [GlobalKey];
+/// the mode-switching behaviour itself is identical to the old widget.
 class StationEndpointFields extends StatefulWidget {
   const StationEndpointFields({
     super.key,
@@ -24,10 +25,8 @@ class StationEndpointFields extends StatefulWidget {
     required this.addressDefaultText,
     required this.manualNameFieldHint,
 
-    // Externally controlled mode: false = by name, true = manual.
-    this.geoMode = false,
-
     // Initial values (for restore)
+    this.initialGeoMode = false,
     this.initialStationName,
     this.initialLat,
     this.initialLng,
@@ -39,7 +38,7 @@ class StationEndpointFields extends StatefulWidget {
   final TrainlogProvider trainlog;
   final VehicleType vehicleType;
 
-  final bool geoMode;
+  final bool initialGeoMode;
   final String? initialStationName;
   final double? initialLat;
   final double? initialLng;
@@ -51,16 +50,16 @@ class StationEndpointFields extends StatefulWidget {
   final ValueChanged<Map<String, String>>? onChanged;
 
   @override
-  State<StationEndpointFields> createState() => _StationEndpointFieldsState();
+  State<StationEndpointFields> createState() => StationEndpointFieldsState();
 }
 
-class _StationEndpointFieldsState extends State<StationEndpointFields> {
+class StationEndpointFieldsState extends State<StationEndpointFields> {
   late final TextEditingController _nameCtl = TextEditingController();
   late final TextEditingController _latCtl = TextEditingController();
   late final TextEditingController _longCtl = TextEditingController();
   late final TextEditingController _manualNameCtl = TextEditingController();
 
-  late bool _geoMode = widget.geoMode;
+  late bool _geoMode = widget.initialGeoMode;
   double? _savedLat;
   double? _savedLng;
   String? _savedBaseName;
@@ -99,7 +98,7 @@ class _StationEndpointFieldsState extends State<StationEndpointFields> {
   void initState() {
     super.initState();
 
-    _geoMode = widget.geoMode;
+    _geoMode = widget.initialGeoMode;
 
     if (_geoMode) {
       _latCtl.text = (widget.initialLat ?? 0.0).toString();
@@ -122,9 +121,9 @@ class _StationEndpointFieldsState extends State<StationEndpointFields> {
     // Do NOT resync if this widget triggered the update
     if (_updatingFromSelf) return;
 
-    // Detect a meaningful external change (mode switch or reset)
+    // Detect a meaningful external change (switch or reset)
     final shouldUpdate =
-        widget.geoMode != oldWidget.geoMode ||
+        widget.initialGeoMode != oldWidget.initialGeoMode ||
         widget.initialStationName != oldWidget.initialStationName ||
         widget.initialLat != oldWidget.initialLat ||
         widget.initialLng != oldWidget.initialLng ||
@@ -132,11 +131,8 @@ class _StationEndpointFieldsState extends State<StationEndpointFields> {
 
     if (!shouldUpdate) return;
 
-    // --- sync mode (animation slides according to the direction) ---
-    if (widget.geoMode != oldWidget.geoMode) {
-      _direction = widget.geoMode ? -1 : 1;
-    }
-    _geoMode = widget.geoMode;
+    // --- sync geo mode ---
+    _geoMode = widget.initialGeoMode;
 
     if (_geoMode) {
       _manualNameCtl.text = widget.initialStationName ?? '';
@@ -173,6 +169,21 @@ class _StationEndpointFieldsState extends State<StationEndpointFields> {
     _searchCtl.dispose();
     _searchFocusNode.dispose();
     super.dispose();
+  }
+
+  // ------------------------------
+  // Toggle mode (same behaviour as the deprecated widget's _toggleMode,
+  // but invoked from the parent's tab bar instead of an inline button)
+  // ------------------------------
+  bool get geoMode => _geoMode;
+
+  void setMode(bool manual) {
+    if (manual == _geoMode) return;
+    setState(() {
+      _geoMode = manual;
+      _direction = _geoMode ? -1 : 1;
+    });
+    _emitValues();
   }
 
   // ------------------------------

@@ -100,7 +100,7 @@ class AddTripRouteStep extends StatelessWidget {
 
 /// One departure/arrival block: header with timeline marker, label and mode
 /// tab bar; station fields; and the mini map underneath.
-class _EndpointBlock extends StatelessWidget {
+class _EndpointBlock extends StatefulWidget {
   const _EndpointBlock({
     required this.isDeparture,
     required this.model,
@@ -117,32 +117,29 @@ class _EndpointBlock extends StatelessWidget {
   final Color markerColour;
   final bool hasError;
 
+  @override
+  State<_EndpointBlock> createState() => _EndpointBlockState();
+}
+
+class _EndpointBlockState extends State<_EndpointBlock> {
+  bool get isDeparture => widget.isDeparture;
+  TripFormModel get model => widget.model;
+  VehicleType get vehicleType => widget.vehicleType;
+
   bool get _geoMode =>
       isDeparture ? model.departureGeoMode : model.arrivalGeoMode;
 
-  /// Switches between by-name (false) and manual (true) mode, preserving the
-  /// endpoint's current values in the model.
-  void _setMode(bool manual) {
-    if (manual == _geoMode) return;
+  /// Key giving the header tab bar access to the fields' state so the mode
+  /// toggle behaves exactly like the deprecated inline toggle button.
+  GlobalKey<StationEndpointFieldsState> _fieldsKey = GlobalKey();
 
-    if (isDeparture) {
-      model.setDeparture(
-        name: model.departureStationName,
-        baseName: model.departureStationBaseName,
-        lat: model.departureLat,
-        long: model.departureLong,
-        address: model.departureAddress,
-        geoMode: manual,
-      );
-    } else {
-      model.setArrival(
-        name: model.arrivalStationName,
-        baseName: model.arrivalStationBaseName,
-        lat: model.arrivalLat,
-        long: model.arrivalLong,
-        address: model.arrivalAddress,
-        geoMode: manual,
-      );
+  @override
+  void didUpdateWidget(covariant _EndpointBlock oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // A new key remounts the fields on vehicle type change, matching the
+    // vehicle-type-dependent ValueKey behaviour of the previous design.
+    if (oldWidget.vehicleType != widget.vehicleType) {
+      _fieldsKey = GlobalKey();
     }
   }
 
@@ -158,7 +155,9 @@ class _EndpointBlock extends StatelessWidget {
         color: theme.cardColor,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: hasError ? theme.colorScheme.error : theme.colorScheme.outline,
+          color: widget.hasError
+              ? theme.colorScheme.error
+              : theme.colorScheme.outline,
         ),
       ),
       child: Column(
@@ -166,7 +165,8 @@ class _EndpointBlock extends StatelessWidget {
         children: [
           Row(
             children: [
-              _TimelineMarker(colour: markerColour, filled: !isDeparture),
+              _TimelineMarker(
+                  colour: widget.markerColour, filled: !isDeparture),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
@@ -185,7 +185,8 @@ class _EndpointBlock extends StatelessWidget {
                   AppStepsTab(label: loc.addTripModeManual),
                 ],
                 selectedIndex: _geoMode ? 1 : 0,
-                onTabChanged: (index) => _setMode(index == 1),
+                onTabChanged: (index) =>
+                    _fieldsKey.currentState?.setMode(index == 1),
               ),
             ],
           ),
@@ -200,15 +201,13 @@ class _EndpointBlock extends StatelessWidget {
 
   Widget _stationFields(BuildContext context, AppLocalizations loc) {
     return StationEndpointFields(
-      // key depends on vehicle type → forces rebuild on change
-      key: ValueKey(
-          'route-${isDeparture ? 'dep' : 'arr'}-${vehicleType.name}'),
-      trainlog: trainlog,
+      key: _fieldsKey,
+      trainlog: widget.trainlog,
       vehicleType: vehicleType,
       addressDefaultText: loc.typeStationAddress(vehicleType.name),
       manualNameFieldHint: loc.manualNameStation(vehicleType.name),
 
-      geoMode: _geoMode,
+      initialGeoMode: _geoMode,
       initialStationName:
           isDeparture ? model.departureStationName : model.arrivalStationName,
       initialLat: isDeparture ? model.departureLat : model.arrivalLat,
