@@ -13,13 +13,12 @@ import 'package:trainlog_app/features/trips_add/trip_form_date.dart';
 import 'package:trainlog_app/features/trips_add/trip_form_details.dart';
 import 'package:trainlog_app/features/trips_add/trip_form_path.dart';
 import 'package:trainlog_app/features/trips_add/widgets/wizard_step_indicator.dart';
-import 'package:trainlog_app/platform/adaptive_button.dart';
 import 'package:trainlog_app/platform/widget/adaptive_app_bar_square_button.dart';
+import 'package:trainlog_app/widgets/primary_action_button.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
 import 'package:trainlog_app/services/pre_record_service.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/data/models/trips.dart';
-import 'package:trainlog_app/utils/platform_utils.dart';
 
 /// Main layout controller of the multi-step "Add Trip" wizard.
 ///
@@ -286,63 +285,27 @@ class _AddTripWizardPageState extends State<AddTripWizardPage> {
     if (_isLastStep) {
       return Column(
         children: [
-          SizedBox(
-            width: double.infinity,
-            child: AdaptiveButton.build(
-              context: context,
-              icon: Icons.check,
-              label: Text(
-                loc.validateButton,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-              ),
-              onPressed: (_isRouterLoading || _hasRoutingError) ? null : _validateTrip,
-              type: AdaptiveButtonType.primary,
-              padding: const EdgeInsets.symmetric(vertical: 18),
-              borderRadius: AppPlatform.isApple ? null : BorderRadius.circular(28),
-              elevation: 3,
-            ),
+          PrimaryActionButton(
+            icon: Icons.check,
+            label: loc.validateButton,
+            onPressed:
+                (_isRouterLoading || _hasRoutingError) ? null : _validateTrip,
           ),
           const SizedBox(height: 8),
-          SizedBox(
-            width: double.infinity,
-            child: AdaptiveButton.build(
-              context: context,
-              icon: Icons.subdirectory_arrow_right,
-              label: Text(
-                loc.continueTripButton,
-                textAlign: TextAlign.center,
-                softWrap: true,
-                maxLines: 2,
-                overflow: TextOverflow.visible,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-              ),
-              onPressed: (_isRouterLoading || _hasRoutingError)
-                  ? null
-                  : () => _validateTrip(continueTrip: true),
-              type: AdaptiveButtonType.secondary,
-              padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
-              borderRadius: AppPlatform.isApple ? null : BorderRadius.circular(28),
-              elevation: 3,
-            ),
+          PrimaryActionButton(
+            icon: Icons.subdirectory_arrow_right,
+            label: loc.continueTripButton,
+            onPressed: (_isRouterLoading || _hasRoutingError)
+                ? null
+                : () => _validateTrip(continueTrip: true),
           ),
         ],
       );
     }
 
-    return SizedBox(
-      width: double.infinity,
-      child: AdaptiveButton.build(
-        context: context,
-        label: Text(
-          loc.continueButton,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-        ),
-        onPressed: _nextStep,
-        type: AdaptiveButtonType.primary,
-        padding: const EdgeInsets.symmetric(vertical: 18),
-        borderRadius: AppPlatform.isApple ? null : BorderRadius.circular(28),
-        elevation: 3,
-      ),
+    return PrimaryActionButton(
+      label: loc.continueButton,
+      onPressed: _nextStep,
     );
   }
 
