@@ -319,18 +319,18 @@ class _AddTripWizardPageState extends State<AddTripWizardPage> {
               foregroundColor: theme.colorScheme.onSurfaceVariant,
               minimumSize: Size.zero,
               padding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
             child: Text(
               loc.addTripSkipButton,
-              style: theme.textTheme.bodySmall?.copyWith(
+              style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
                 fontWeight: FontWeight.w600,
               ),
             ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
         ],
         PrimaryActionButton(
           label: loc.continueButton,
