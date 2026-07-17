@@ -429,6 +429,8 @@
   "addTripDetailsSubtitle": "すべて任意 — わかる範囲で入力してください",
   "addTripLineName": "路線名",
   "addTripRegistrationNumber": "車両番号",
+  "addTripTicketExtrasTitle": "チケットとその他",
+  "addTripPrice": "料金",
   
   "aboutPageAboutSubPageTitle": "Trainlog",
   "aboutPageHowToSubPageTitle": "使い方",

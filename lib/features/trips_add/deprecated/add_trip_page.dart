@@ -13,7 +13,7 @@ import 'package:trainlog_app/data/models/trip_form_model.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/features/trips_add/deprecated/trip_form_basics.dart';
 import 'package:trainlog_app/features/trips_add/deprecated/trip_form_date.dart';
-import 'package:trainlog_app/features/trips_add/trip_form_details.dart';
+import 'package:trainlog_app/features/trips_add/deprecated/trip_form_details.dart';
 import 'package:trainlog_app/features/trips_add/trip_form_path.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
 import 'package:trainlog_app/services/pre_record_service.dart';

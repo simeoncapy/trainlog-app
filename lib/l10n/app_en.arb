@@ -771,6 +771,14 @@
   "@addTripRegistrationNumber": {
     "description": "Label of the vehicle registration number field of the details step"
   },
+  "addTripTicketExtrasTitle": "Ticket & extras",
+  "@addTripTicketExtrasTitle": {
+    "description": "Headline of the ticket, energy and visibility step of the add-trip wizard"
+  },
+  "addTripPrice": "Price",
+  "@addTripPrice": {
+    "description": "Label of the ticket price field of the ticket step"
+  },
 
   "aboutPageAboutSubPageTitle": "Trainlog",
   "aboutPageHowToSubPageTitle": "How To",

@@ -429,6 +429,8 @@
   "addTripDetailsSubtitle": "Tout est facultatif — ajoutez ce que vous savez",
   "addTripLineName": "Nom de la ligne",
   "addTripRegistrationNumber": "Numéro d'immatriculation",
+  "addTripTicketExtrasTitle": "Billet et extras",
+  "addTripPrice": "Prix",
   
   "aboutPageAboutSubPageTitle": "Trainlog",
   "aboutPageHowToSubPageTitle": "Aide",

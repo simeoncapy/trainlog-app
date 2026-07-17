@@ -9,9 +9,9 @@ import 'package:trainlog_app/features/trips_add/add_trip_wizard_step.dart';
 import 'package:trainlog_app/features/trips_add/steps/add_trip_details_step.dart';
 import 'package:trainlog_app/features/trips_add/steps/add_trip_operator_step.dart';
 import 'package:trainlog_app/features/trips_add/steps/add_trip_route_step.dart';
+import 'package:trainlog_app/features/trips_add/steps/add_trip_ticket_step.dart';
 import 'package:trainlog_app/features/trips_add/steps/add_trip_vehicle_type_step.dart';
 import 'package:trainlog_app/features/trips_add/steps/add_trip_when_step.dart';
-import 'package:trainlog_app/features/trips_add/trip_form_details.dart';
 import 'package:trainlog_app/features/trips_add/trip_form_path.dart';
 import 'package:trainlog_app/features/trips_add/widgets/wizard_step_indicator.dart';
 import 'package:trainlog_app/platform/widget/adaptive_app_bar_square_button.dart';
@@ -79,7 +79,7 @@ class _AddTripWizardPageState extends State<AddTripWizardPage> {
         canSkip: true,
       ),
       AddTripWizardStep(
-        builder: (_) => const TripFormDetails(),
+        builder: (_) => const AddTripTicketStep(),
         validate: (model) => model.validateDetails(),
       ),
       AddTripWizardStep(

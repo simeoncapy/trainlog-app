@@ -1488,6 +1488,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addTripRegistrationNumber => 'Registration number';
 
   @override
+  String get addTripTicketExtrasTitle => 'Ticket & extras';
+
+  @override
+  String get addTripPrice => 'Price';
+
+  @override
   String get aboutPageAboutSubPageTitle => 'Trainlog';
 
   @override

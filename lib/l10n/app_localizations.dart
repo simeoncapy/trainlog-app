@@ -2526,6 +2526,18 @@ abstract class AppLocalizations {
   /// **'Registration number'**
   String get addTripRegistrationNumber;
 
+  /// Headline of the ticket, energy and visibility step of the add-trip wizard
+  ///
+  /// In en, this message translates to:
+  /// **'Ticket & extras'**
+  String get addTripTicketExtrasTitle;
+
+  /// Label of the ticket price field of the ticket step
+  ///
+  /// In en, this message translates to:
+  /// **'Price'**
+  String get addTripPrice;
+
   /// No description provided for @aboutPageAboutSubPageTitle.
   ///
   /// In en, this message translates to:

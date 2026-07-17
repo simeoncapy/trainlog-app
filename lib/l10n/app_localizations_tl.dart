@@ -1470,6 +1470,12 @@ class AppLocalizationsTl extends AppLocalizations {
   String get addTripRegistrationNumber => 'Registration number';
 
   @override
+  String get addTripTicketExtrasTitle => 'Ticket at iba pa';
+
+  @override
+  String get addTripPrice => 'Presyo';
+
+  @override
   String get aboutPageAboutSubPageTitle => 'Trainlog';
 
   @override

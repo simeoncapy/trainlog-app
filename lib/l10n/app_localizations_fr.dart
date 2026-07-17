@@ -1500,6 +1500,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get addTripRegistrationNumber => 'Numéro d\'immatriculation';
 
   @override
+  String get addTripTicketExtrasTitle => 'Billet et extras';
+
+  @override
+  String get addTripPrice => 'Prix';
+
+  @override
   String get aboutPageAboutSubPageTitle => 'Trainlog';
 
   @override

@@ -1461,6 +1461,12 @@ class AppLocalizationsJa extends AppLocalizations {
   String get addTripRegistrationNumber => '車両番号';
 
   @override
+  String get addTripTicketExtrasTitle => 'チケットとその他';
+
+  @override
+  String get addTripPrice => '料金';
+
+  @override
   String get aboutPageAboutSubPageTitle => 'Trainlog';
 
   @override
