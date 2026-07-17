@@ -432,6 +432,8 @@
   "addTripTicketExtrasTitle": "チケットとその他",
   "addTripPrice": "料金",
   "addTripSelectScheduledTimeFirst": "先に予定時刻を選択してください",
+  "addTripTimezoneLabel": "タイムゾーン：",
+  "addTripDelayHelper": "遅延・早着は分数または実際の時刻で設定できます。",
   
   "aboutPageAboutSubPageTitle": "Trainlog",
   "aboutPageHowToSubPageTitle": "使い方",

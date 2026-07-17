@@ -331,7 +331,7 @@ class _AddTripWhenStepState extends State<AddTripWhenStep> {
           ),
           const SizedBox(height: 6),
           Text(
-            timezone,
+            '${loc.addTripTimezoneLabel} $timezone',
             style: theme.textTheme.bodySmall?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),
@@ -347,6 +347,13 @@ class _AddTripWhenStepState extends State<AddTripWhenStep> {
                 _setDelayed(isDeparture, index == 1, model),
           ),
           if (delayed) ...[
+            const SizedBox(height: 8),
+            Text(
+              loc.addTripDelayHelper,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
             const SizedBox(height: 12),
             _delayPanel(isDeparture, model),
           ],

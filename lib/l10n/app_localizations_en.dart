@@ -1498,6 +1498,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Select the scheduled time first';
 
   @override
+  String get addTripTimezoneLabel => 'Timezone:';
+
+  @override
+  String get addTripDelayHelper =>
+      'Set the delay or advance using minutes or the actual time.';
+
+  @override
   String get aboutPageAboutSubPageTitle => 'Trainlog';
 
   @override

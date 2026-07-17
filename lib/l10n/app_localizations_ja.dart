@@ -1470,6 +1470,12 @@ class AppLocalizationsJa extends AppLocalizations {
   String get addTripSelectScheduledTimeFirst => '先に予定時刻を選択してください';
 
   @override
+  String get addTripTimezoneLabel => 'タイムゾーン：';
+
+  @override
+  String get addTripDelayHelper => '遅延・早着は分数または実際の時刻で設定できます。';
+
+  @override
   String get aboutPageAboutSubPageTitle => 'Trainlog';
 
   @override

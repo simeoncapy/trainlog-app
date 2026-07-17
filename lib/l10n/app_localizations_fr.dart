@@ -1510,6 +1510,13 @@ class AppLocalizationsFr extends AppLocalizations {
       'Sélectionnez d\'abord l\'heure prévue';
 
   @override
+  String get addTripTimezoneLabel => 'Fuseau horaire :';
+
+  @override
+  String get addTripDelayHelper =>
+      'Indiquez le retard ou l\'avance en minutes ou avec l\'heure réelle.';
+
+  @override
   String get aboutPageAboutSubPageTitle => 'Trainlog';
 
   @override

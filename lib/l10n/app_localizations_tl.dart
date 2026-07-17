@@ -1480,6 +1480,13 @@ class AppLocalizationsTl extends AppLocalizations {
       'Piliin muna ang nakatakdang oras';
 
   @override
+  String get addTripTimezoneLabel => 'Timezone:';
+
+  @override
+  String get addTripDelayHelper =>
+      'Itakda ang delay o advance gamit ang minuto o ang aktwal na oras.';
+
+  @override
   String get aboutPageAboutSubPageTitle => 'Trainlog';
 
   @override

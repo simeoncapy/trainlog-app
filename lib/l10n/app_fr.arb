@@ -432,6 +432,8 @@
   "addTripTicketExtrasTitle": "Billet et extras",
   "addTripPrice": "Prix",
   "addTripSelectScheduledTimeFirst": "Sélectionnez d'abord l'heure prévue",
+  "addTripTimezoneLabel": "Fuseau horaire :",
+  "addTripDelayHelper": "Indiquez le retard ou l'avance en minutes ou avec l'heure réelle.",
   
   "aboutPageAboutSubPageTitle": "Trainlog",
   "aboutPageHowToSubPageTitle": "Aide",

@@ -625,6 +625,8 @@
   "addTripTicketExtrasTitle": "Ticket at iba pa",
   "addTripPrice": "Presyo",
   "addTripSelectScheduledTimeFirst": "Piliin muna ang nakatakdang oras",
+  "addTripTimezoneLabel": "Timezone:",
+  "addTripDelayHelper": "Itakda ang delay o advance gamit ang minuto o ang aktwal na oras.",
   "aboutPageAboutSubPageTitle": "Trainlog",
   "aboutPageHowToSubPageTitle": "Paano gamitin",
   "aboutPagePrivacySubPageTitle": "Privacy",

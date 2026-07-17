@@ -2544,6 +2544,18 @@ abstract class AppLocalizations {
   /// **'Select the scheduled time first'**
   String get addTripSelectScheduledTimeFirst;
 
+  /// Prefix in front of the endpoint timezone string under the date/time pickers of the when step
+  ///
+  /// In en, this message translates to:
+  /// **'Timezone:'**
+  String get addTripTimezoneLabel;
+
+  /// Helper text above the delay inputs of a delayed endpoint on the when step
+  ///
+  /// In en, this message translates to:
+  /// **'Set the delay or advance using minutes or the actual time.'**
+  String get addTripDelayHelper;
+
   /// No description provided for @aboutPageAboutSubPageTitle.
   ///
   /// In en, this message translates to:

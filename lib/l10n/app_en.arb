@@ -783,6 +783,14 @@
   "@addTripSelectScheduledTimeFirst": {
     "description": "Snackbar shown when opening the actual-time picker while the scheduled time is not set yet"
   },
+  "addTripTimezoneLabel": "Timezone:",
+  "@addTripTimezoneLabel": {
+    "description": "Prefix in front of the endpoint timezone string under the date/time pickers of the when step"
+  },
+  "addTripDelayHelper": "Set the delay or advance using minutes or the actual time.",
+  "@addTripDelayHelper": {
+    "description": "Helper text above the delay inputs of a delayed endpoint on the when step"
+  },
 
   "aboutPageAboutSubPageTitle": "Trainlog",
   "aboutPageHowToSubPageTitle": "How To",
