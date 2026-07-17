@@ -1449,6 +1449,21 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
+  String get addTripDetailsTitle => '他に詳細はありますか？';
+
+  @override
+  String get addTripDetailsSubtitle => 'すべて任意 — わかる範囲で入力してください';
+
+  @override
+  String get addTripLineName => '路線名';
+
+  @override
+  String get addTripRegistrationNumber => '車両番号';
+
+  @override
+  String get addTripRegistrationHint => '例：408 021-4';
+
+  @override
   String get aboutPageAboutSubPageTitle => 'Trainlog';
 
   @override

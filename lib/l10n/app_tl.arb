@@ -618,6 +618,11 @@
       "scheduled": { "type": "String" }
     }
   },
+  "addTripDetailsTitle": "May iba pang detalye?",
+  "addTripDetailsSubtitle": "Lahat opsyonal — ilagay ang alam mo",
+  "addTripLineName": "Pangalan ng linya",
+  "addTripRegistrationNumber": "Registration number",
+  "addTripRegistrationHint": "hal. 408 021-4",
   "aboutPageAboutSubPageTitle": "Trainlog",
   "aboutPageHowToSubPageTitle": "Paano gamitin",
   "aboutPagePrivacySubPageTitle": "Privacy",

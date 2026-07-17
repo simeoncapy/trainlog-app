@@ -425,6 +425,11 @@
   "addTripDateOnlyHelper": "正確な時刻はなし — 日付だけを記録します。",
   "addTripDurationSummary": "所要時間：{duration}",
   "addTripDurationSummaryScheduled": "所要時間：{duration}（予定 {scheduled}）",
+  "addTripDetailsTitle": "他に詳細はありますか？",
+  "addTripDetailsSubtitle": "すべて任意 — わかる範囲で入力してください",
+  "addTripLineName": "路線名",
+  "addTripRegistrationNumber": "車両番号",
+  "addTripRegistrationHint": "例：408 021-4",
   
   "aboutPageAboutSubPageTitle": "Trainlog",
   "aboutPageHowToSubPageTitle": "使い方",

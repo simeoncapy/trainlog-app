@@ -1476,6 +1476,21 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get addTripDetailsTitle => 'Any more details?';
+
+  @override
+  String get addTripDetailsSubtitle => 'All optional — add what you know';
+
+  @override
+  String get addTripLineName => 'Line name';
+
+  @override
+  String get addTripRegistrationNumber => 'Registration number';
+
+  @override
+  String get addTripRegistrationHint => 'e.g. 408 021-4';
+
+  @override
   String get aboutPageAboutSubPageTitle => 'Trainlog';
 
   @override

@@ -1458,6 +1458,21 @@ class AppLocalizationsTl extends AppLocalizations {
   }
 
   @override
+  String get addTripDetailsTitle => 'May iba pang detalye?';
+
+  @override
+  String get addTripDetailsSubtitle => 'Lahat opsyonal — ilagay ang alam mo';
+
+  @override
+  String get addTripLineName => 'Pangalan ng linya';
+
+  @override
+  String get addTripRegistrationNumber => 'Registration number';
+
+  @override
+  String get addTripRegistrationHint => 'hal. 408 021-4';
+
+  @override
   String get aboutPageAboutSubPageTitle => 'Trainlog';
 
   @override

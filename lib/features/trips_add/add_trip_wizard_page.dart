@@ -6,6 +6,7 @@ import 'package:trainlog_app/data/models/polyline_entry.dart';
 import 'package:trainlog_app/data/models/trip_form_model.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/features/trips_add/add_trip_wizard_step.dart';
+import 'package:trainlog_app/features/trips_add/steps/add_trip_details_step.dart';
 import 'package:trainlog_app/features/trips_add/steps/add_trip_operator_step.dart';
 import 'package:trainlog_app/features/trips_add/steps/add_trip_route_step.dart';
 import 'package:trainlog_app/features/trips_add/steps/add_trip_vehicle_type_step.dart';
@@ -71,6 +72,11 @@ class _AddTripWizardPageState extends State<AddTripWizardPage> {
       AddTripWizardStep(
         builder: (_) => const AddTripWhenStep(),
         validate: (model) => model.validateDate(),
+      ),
+      AddTripWizardStep(
+        builder: (_) => const AddTripDetailsStep(),
+        // Details are all optional — the step never blocks progression.
+        canSkip: true,
       ),
       AddTripWizardStep(
         builder: (_) => const TripFormDetails(),

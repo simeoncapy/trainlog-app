@@ -425,6 +425,11 @@
   "addTripDateOnlyHelper": "Pas d'heures exactes — juste le jour du trajet.",
   "addTripDurationSummary": "Durée : {duration}",
   "addTripDurationSummaryScheduled": "Durée : {duration} (prévue {scheduled})",
+  "addTripDetailsTitle": "D'autres détails ?",
+  "addTripDetailsSubtitle": "Tout est facultatif — ajoutez ce que vous savez",
+  "addTripLineName": "Nom de la ligne",
+  "addTripRegistrationNumber": "Numéro d'immatriculation",
+  "addTripRegistrationHint": "p. ex. 408 021-4",
   
   "aboutPageAboutSubPageTitle": "Trainlog",
   "aboutPageHowToSubPageTitle": "Aide",

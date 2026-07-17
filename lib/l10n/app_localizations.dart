@@ -2502,6 +2502,36 @@ abstract class AppLocalizations {
   /// **'Duration: {duration} (scheduled {scheduled})'**
   String addTripDurationSummaryScheduled(String duration, String scheduled);
 
+  /// Headline of the optional details step of the add-trip wizard
+  ///
+  /// In en, this message translates to:
+  /// **'Any more details?'**
+  String get addTripDetailsTitle;
+
+  /// Muted instruction subtitle under the headline of the optional details step
+  ///
+  /// In en, this message translates to:
+  /// **'All optional — add what you know'**
+  String get addTripDetailsSubtitle;
+
+  /// Label of the line name field of the details step
+  ///
+  /// In en, this message translates to:
+  /// **'Line name'**
+  String get addTripLineName;
+
+  /// Label of the vehicle registration number field of the details step
+  ///
+  /// In en, this message translates to:
+  /// **'Registration number'**
+  String get addTripRegistrationNumber;
+
+  /// Placeholder example shown in the empty registration number field
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. 408 021-4'**
+  String get addTripRegistrationHint;
+
   /// No description provided for @aboutPageAboutSubPageTitle.
   ///
   /// In en, this message translates to:
