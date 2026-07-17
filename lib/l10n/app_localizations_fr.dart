@@ -1244,7 +1244,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get addTripOperatorTitle => 'Qui a opéré ce trajet ?';
 
   @override
-  String get addTripSelectedOperators => 'Opérateurs sélectionnés';
+  String get addTripSelectedOperators => 'Transporteurs sélectionnés';
 
   @override
   String get addTripSuggestedOperators => 'Suggestions pour ce trajet';
@@ -1254,7 +1254,8 @@ class AppLocalizationsFr extends AppLocalizations {
       'Basé sur vos trajets précédents dans ce pays et pour ce type de véhicule.';
 
   @override
-  String get addTripAddCustomOperator => 'Ajouter comme opérateur personnalisé';
+  String get addTripAddCustomOperator =>
+      'Ajouter comme transporteur personnalisé';
 
   @override
   String addTripOperatorTripCount(int count) {
@@ -1306,17 +1307,17 @@ class AppLocalizationsFr extends AppLocalizations {
       'En mode manuel vous pouvez saisir les coordonnées directement ou déplacer le marqueur à l’emplacement souhaité après avoir agrandi la carte.';
 
   @override
-  String get addTripOperator => 'Opérateur';
+  String get addTripOperator => 'Transporteur';
 
   @override
   String get addTripOperatorHelper =>
-      'Virgule ou Entrée pour valider un opérateur inconnu';
+      'Virgule ou Entrée pour valider un transporteur inconnu';
 
   @override
-  String get addTripOperatorHint => 'Rechercher un opérateur...';
+  String get addTripOperatorHint => 'Rechercher un transporteur...';
 
   @override
-  String get addTripOperatorPlaceholderLogo => 'Sélectionnez un opérateur';
+  String get addTripOperatorPlaceholderLogo => 'Sélectionnez un transporteur';
 
   @override
   String get addTripLine => 'Ligne';
