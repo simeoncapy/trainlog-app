@@ -1514,7 +1514,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get addTripDelayHelper =>
-      'Indiquez le retard ou l\'avance en minutes ou avec l\'heure réelle.';
+      'Indiquez le retard ou l\'avance en minutes ou avec l\'horaire réel.';
 
   @override
   String get aboutPageAboutSubPageTitle => 'Trainlog';

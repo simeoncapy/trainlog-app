@@ -253,7 +253,8 @@ class StationEndpointFieldsState extends State<StationEndpointFields> {
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(fontWeight: FontWeight.w600),
               ),
-              subtitle: address.isEmpty
+              subtitle: isManual ? Text(loc.manual, style: const TextStyle(color: Colors.red)) :
+              address.isEmpty
                   ? null
                   : Text(
                       address,
@@ -263,9 +264,9 @@ class StationEndpointFieldsState extends State<StationEndpointFields> {
                         color: theme.colorScheme.onSurfaceVariant,
                       ),
                     ),
-              trailing: isManual
-                  ? Text(loc.manual, style: const TextStyle(color: Colors.red))
-                  : null,
+              // trailing: isManual
+              //     ? Text(loc.manual, style: const TextStyle(color: Colors.red))
+              //     : null,
             );
           },
 

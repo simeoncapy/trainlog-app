@@ -433,7 +433,7 @@
   "addTripPrice": "Prix",
   "addTripSelectScheduledTimeFirst": "Sélectionnez d'abord l'heure prévue",
   "addTripTimezoneLabel": "Fuseau horaire :",
-  "addTripDelayHelper": "Indiquez le retard ou l'avance en minutes ou avec l'heure réelle.",
+  "addTripDelayHelper": "Indiquez le retard ou l'avance en minutes ou avec l'horaire réel.",
   
   "aboutPageAboutSubPageTitle": "Trainlog",
   "aboutPageHowToSubPageTitle": "Aide",
