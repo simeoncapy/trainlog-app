@@ -1323,10 +1323,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get addTripLine => 'Ligne';
 
   @override
-  String get addTripDateTypePrecise => 'Précise';
+  String get addTripDateTypePrecise => 'Précis';
 
   @override
-  String get addTripDateTypeUnknown => 'Inconnue';
+  String get addTripDateTypeUnknown => 'Inconnu';
 
   @override
   String get addTripDateTypeDate => 'Date';
