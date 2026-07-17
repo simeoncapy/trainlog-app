@@ -399,9 +399,12 @@ class _AddTripWizardPageState extends State<AddTripWizardPage> {
     final loc = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
 
-    return SafeArea(
-      child: Scaffold(
-        body: Stack(
+    // The Scaffold must stay above the SafeArea so its background extends
+    // behind the status bar; the other way round the status bar strip shows
+    // the black window background, hiding the dark icons in light mode.
+    return Scaffold(
+      body: SafeArea(
+        child: Stack(
           children: [
             Column(
               children: [
