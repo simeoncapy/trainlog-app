@@ -237,12 +237,12 @@ class _AddTripTicketStepState extends State<AddTripTicketStep> {
               ChoiceCardOption(
                 value: EnergyType.electric,
                 icon: Icons.bolt,
-                label: loc.energyElectricShort,
+                label: loc.energyElectric,
               ),
               ChoiceCardOption(
                 value: EnergyType.thermic,
                 icon: Icons.local_fire_department,
-                label: loc.energyThermicShort,
+                label: loc.energyThermic,
               ),
             ],
             value: model.energyType,
