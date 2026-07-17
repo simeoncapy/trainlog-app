@@ -400,11 +400,20 @@ class _AddTripWhenStepState extends State<AddTripWhenStep> {
               fontWeight: FontWeight.w700,
             ),
             decoration: InputDecoration(
-              suffixText: 'min',
-              suffixStyle: theme.textTheme.bodyMedium?.copyWith(
-                color: delayColour,
-                fontWeight: FontWeight.w600,
+              // A plain suffixText would be hidden while the field is empty
+              // and unfocused; a suffixIcon is always visible.
+              suffixIcon: Padding(
+                padding: const EdgeInsetsDirectional.only(end: 12),
+                child: Text(
+                  'min',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: delayColour,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ),
+              suffixIconConstraints:
+                  const BoxConstraints(minWidth: 0, minHeight: 0),
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 12,
                 vertical: 14,

@@ -230,7 +230,7 @@ class _AddTripTicketStepState extends State<AddTripTicketStep> {
               ),
             ],
             value: model.energyType,
-            onChanged: model.setenergyType,
+            onChanged: model.setEnergyType,
           ),
           const SizedBox(height: 20),
 

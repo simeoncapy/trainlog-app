@@ -111,7 +111,13 @@ class _AddTripWizardPageState extends State<AddTripWizardPage> {
     );
   }
 
+  /// Dismisses the on-screen keyboard if a text field had focus.
+  void _closeKeyboard() {
+    FocusManager.instance.primaryFocus?.unfocus();
+  }
+
   void _nextStep() {
+    _closeKeyboard();
     final model = context.read<TripFormModel>();
 
     final isValid = _steps[_currentStep].validate?.call(model) ?? true;
@@ -133,6 +139,7 @@ class _AddTripWizardPageState extends State<AddTripWizardPage> {
   }
 
   void _previousStepOrExit() async {
+    _closeKeyboard();
     final model = context.read<TripFormModel>();
     if (_currentStep == 0) {
       if (!model.hasBeenChanged) {
@@ -349,6 +356,7 @@ class _AddTripWizardPageState extends State<AddTripWizardPage> {
   /// Advances to the next step without validating the current one.
   void _skipStep() {
     if (_isLastStep) return;
+    _closeKeyboard();
     setState(() => _currentStep++);
     _pageController.animateToPage(
       _currentStep,
