@@ -598,6 +598,26 @@
       }
     }
   },
+  "addTripWhenTitle": "Kailan ito nangyari?",
+  "addTripOnTime": "Nasa oras",
+  "addTripDelayed": "Na-delay",
+  "addTripRoughlyWhen": "Mga kailan",
+  "addTripOptional": "opsyonal",
+  "addTripDurationNotSet": "Hindi nakatakda",
+  "addTripDateOnlyHelper": "Walang eksaktong oras — ang araw lang ng byahe.",
+  "addTripDurationSummary": "Haba ng byahe: {duration}",
+  "@addTripDurationSummary": {
+    "placeholders": {
+      "duration": { "type": "String" }
+    }
+  },
+  "addTripDurationSummaryScheduled": "Haba ng byahe: {duration} (nakatakda {scheduled})",
+  "@addTripDurationSummaryScheduled": {
+    "placeholders": {
+      "duration": { "type": "String" },
+      "scheduled": { "type": "String" }
+    }
+  },
   "aboutPageAboutSubPageTitle": "Trainlog",
   "aboutPageHowToSubPageTitle": "Paano gamitin",
   "aboutPagePrivacySubPageTitle": "Privacy",

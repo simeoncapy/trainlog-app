@@ -1426,6 +1426,38 @@ class AppLocalizationsTl extends AppLocalizations {
   }
 
   @override
+  String get addTripWhenTitle => 'Kailan ito nangyari?';
+
+  @override
+  String get addTripOnTime => 'Nasa oras';
+
+  @override
+  String get addTripDelayed => 'Na-delay';
+
+  @override
+  String get addTripRoughlyWhen => 'Mga kailan';
+
+  @override
+  String get addTripOptional => 'opsyonal';
+
+  @override
+  String get addTripDurationNotSet => 'Hindi nakatakda';
+
+  @override
+  String get addTripDateOnlyHelper =>
+      'Walang eksaktong oras — ang araw lang ng byahe.';
+
+  @override
+  String addTripDurationSummary(String duration) {
+    return 'Haba ng byahe: $duration';
+  }
+
+  @override
+  String addTripDurationSummaryScheduled(String duration, String scheduled) {
+    return 'Haba ng byahe: $duration (nakatakda $scheduled)';
+  }
+
+  @override
   String get aboutPageAboutSubPageTitle => 'Trainlog';
 
   @override

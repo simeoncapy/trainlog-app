@@ -1418,6 +1418,37 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
+  String get addTripWhenTitle => 'いつの旅でしたか？';
+
+  @override
+  String get addTripOnTime => '定刻';
+
+  @override
+  String get addTripDelayed => '遅延';
+
+  @override
+  String get addTripRoughlyWhen => 'おおよその時期';
+
+  @override
+  String get addTripOptional => '任意';
+
+  @override
+  String get addTripDurationNotSet => '未設定';
+
+  @override
+  String get addTripDateOnlyHelper => '正確な時刻はなし — 日付だけを記録します。';
+
+  @override
+  String addTripDurationSummary(String duration) {
+    return '所要時間：$duration';
+  }
+
+  @override
+  String addTripDurationSummaryScheduled(String duration, String scheduled) {
+    return '所要時間：$duration（予定 $scheduled）';
+  }
+
+  @override
   String get aboutPageAboutSubPageTitle => 'Trainlog';
 
   @override

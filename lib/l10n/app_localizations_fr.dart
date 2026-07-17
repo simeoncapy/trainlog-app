@@ -1455,6 +1455,38 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String get addTripWhenTitle => 'Quand était-ce ?';
+
+  @override
+  String get addTripOnTime => 'À l\'heure';
+
+  @override
+  String get addTripDelayed => 'Retardé';
+
+  @override
+  String get addTripRoughlyWhen => 'Quand environ';
+
+  @override
+  String get addTripOptional => 'facultatif';
+
+  @override
+  String get addTripDurationNotSet => 'Non renseignée';
+
+  @override
+  String get addTripDateOnlyHelper =>
+      'Pas d\'heures exactes — juste le jour du trajet.';
+
+  @override
+  String addTripDurationSummary(String duration) {
+    return 'Durée : $duration';
+  }
+
+  @override
+  String addTripDurationSummaryScheduled(String duration, String scheduled) {
+    return 'Durée : $duration (prévue $scheduled)';
+  }
+
+  @override
   String get aboutPageAboutSubPageTitle => 'Trainlog';
 
   @override

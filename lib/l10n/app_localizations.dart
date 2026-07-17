@@ -2448,6 +2448,60 @@ abstract class AppLocalizations {
   /// **'i.e. at {time}'**
   String addTripDelayTime(String time);
 
+  /// Headline of the temporal data step of the add-trip wizard
+  ///
+  /// In en, this message translates to:
+  /// **'When was it?'**
+  String get addTripWhenTitle;
+
+  /// Tab of an endpoint block on the when step: the trip ran with no delay
+  ///
+  /// In en, this message translates to:
+  /// **'On time'**
+  String get addTripOnTime;
+
+  /// Tab of an endpoint block on the when step: the trip was delayed or early, showing the delay inputs
+  ///
+  /// In en, this message translates to:
+  /// **'Delayed'**
+  String get addTripDelayed;
+
+  /// Label of the Past/Future selector of the unknown-date mode of the when step
+  ///
+  /// In en, this message translates to:
+  /// **'Roughly when'**
+  String get addTripRoughlyWhen;
+
+  /// Lowercase tag appended in parentheses to the label of optional inputs, e.g. 'Duration (optional)'
+  ///
+  /// In en, this message translates to:
+  /// **'optional'**
+  String get addTripOptional;
+
+  /// Gray placeholder of the optional duration row when no duration has been entered
+  ///
+  /// In en, this message translates to:
+  /// **'Not set'**
+  String get addTripDurationNotSet;
+
+  /// Muted helper text under the card of the date-only mode of the when step
+  ///
+  /// In en, this message translates to:
+  /// **'No exact times — just the day it happened.'**
+  String get addTripDateOnlyHelper;
+
+  /// Inline computed trip duration at the bottom of the precise mode of the when step
+  ///
+  /// In en, this message translates to:
+  /// **'Duration: {duration}'**
+  String addTripDurationSummary(String duration);
+
+  /// Inline computed trip duration including delays, with the scheduled duration in parentheses
+  ///
+  /// In en, this message translates to:
+  /// **'Duration: {duration} (scheduled {scheduled})'**
+  String addTripDurationSummaryScheduled(String duration, String scheduled);
+
   /// No description provided for @aboutPageAboutSubPageTitle.
   ///
   /// In en, this message translates to:

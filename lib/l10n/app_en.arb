@@ -703,7 +703,59 @@
       }
     }
   },
-  
+  "addTripWhenTitle": "When was it?",
+  "@addTripWhenTitle": {
+    "description": "Headline of the temporal data step of the add-trip wizard"
+  },
+  "addTripOnTime": "On time",
+  "@addTripOnTime": {
+    "description": "Tab of an endpoint block on the when step: the trip ran with no delay"
+  },
+  "addTripDelayed": "Delayed",
+  "@addTripDelayed": {
+    "description": "Tab of an endpoint block on the when step: the trip was delayed or early, showing the delay inputs"
+  },
+  "addTripRoughlyWhen": "Roughly when",
+  "@addTripRoughlyWhen": {
+    "description": "Label of the Past/Future selector of the unknown-date mode of the when step"
+  },
+  "addTripOptional": "optional",
+  "@addTripOptional": {
+    "description": "Lowercase tag appended in parentheses to the label of optional inputs, e.g. 'Duration (optional)'"
+  },
+  "addTripDurationNotSet": "Not set",
+  "@addTripDurationNotSet": {
+    "description": "Gray placeholder of the optional duration row when no duration has been entered"
+  },
+  "addTripDateOnlyHelper": "No exact times — just the day it happened.",
+  "@addTripDateOnlyHelper": {
+    "description": "Muted helper text under the card of the date-only mode of the when step"
+  },
+  "addTripDurationSummary": "Duration: {duration}",
+  "@addTripDurationSummary": {
+    "description": "Inline computed trip duration at the bottom of the precise mode of the when step",
+    "placeholders": {
+      "duration": {
+        "type": "String",
+        "description": "The computed trip duration (already formatted)"
+      }
+    }
+  },
+  "addTripDurationSummaryScheduled": "Duration: {duration} (scheduled {scheduled})",
+  "@addTripDurationSummaryScheduled": {
+    "description": "Inline computed trip duration including delays, with the scheduled duration in parentheses",
+    "placeholders": {
+      "duration": {
+        "type": "String",
+        "description": "The actual trip duration including delays (already formatted)"
+      },
+      "scheduled": {
+        "type": "String",
+        "description": "The scheduled trip duration (already formatted)"
+      }
+    }
+  },
+
   "aboutPageAboutSubPageTitle": "Trainlog",
   "aboutPageHowToSubPageTitle": "How To",
   "aboutPagePrivacySubPageTitle": "Privacy",
