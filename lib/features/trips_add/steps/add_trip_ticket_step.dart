@@ -43,7 +43,8 @@ class _AddTripTicketStepState extends State<AddTripTicketStep> {
 
     _currencyCode = model.currencyCode ?? settings.currency;
     model.currencyCode = _currencyCode;
-    _selectedPurchaseDate = model.purchaseDate ?? DateTime.now();
+    // The purchase date is optional — no default until the user picks one.
+    _selectedPurchaseDate = model.purchaseDate;
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       _loadCurrencies();
@@ -145,7 +146,7 @@ class _AddTripTicketStepState extends State<AddTripTicketStep> {
           const SizedBox(height: 20),
 
           // --- Ticket ---
-          _sectionLabel(theme, loc.addTripTicketTitle),
+          _sectionLabel(theme, '${loc.addTripTicketTitle} (${loc.addTripOptional})'),
           const SizedBox(height: 8),
           Container(
             decoration: BoxDecoration(
@@ -196,11 +197,26 @@ class _AddTripTicketStepState extends State<AddTripTicketStep> {
                     _selectedPurchaseDate != null
                         ? formatDateTime(context, _selectedPurchaseDate!,
                             hasTime: false)
-                        : '',
+                        : loc.addTripDurationNotSet,
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.w600,
+                      color: _selectedPurchaseDate != null
+                          ? theme.colorScheme.onSurface
+                          : theme.colorScheme.onSurfaceVariant,
                     ),
                   ),
+                  trailing: _selectedPurchaseDate == null
+                      ? null
+                      : IconButton(
+                          icon: const Icon(Icons.close),
+                          iconSize: 18,
+                          visualDensity: VisualDensity.compact,
+                          color: theme.colorScheme.onSurfaceVariant,
+                          onPressed: () {
+                            setState(() => _selectedPurchaseDate = null);
+                            model.purchaseDate = null;
+                          },
+                        ),
                   onTap: () => _pickPurchaseDate(model),
                 ),
               ],
