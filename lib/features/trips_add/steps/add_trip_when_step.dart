@@ -67,6 +67,7 @@ class _AddTripWhenStepState extends State<AddTripWhenStep> {
     _departureDateOnly = model.departureDayDateOnly;
     _initPreciseFromModel(model);
     _initDelaysFromModel(model);
+    if (_scheduleMode == DateType.date) _ensureDateOnlyDefault(model);
   }
 
   @override
@@ -196,6 +197,9 @@ class _AddTripWhenStepState extends State<AddTripWhenStep> {
             onTabChanged: (index) {
               setState(() => _scheduleMode = _modes[index]);
               model.dateType = _modes[index];
+              if (_scheduleMode == DateType.date) {
+                _ensureDateOnlyDefault(model);
+              }
             },
           ),
           const SizedBox(height: 16),
@@ -691,6 +695,16 @@ class _AddTripWhenStepState extends State<AddTripWhenStep> {
         ),
       ),
     ];
+  }
+
+  /// The date-only card displays today when nothing has been picked yet, so
+  /// that default must also live in the model — otherwise validation would
+  /// reject a date the user can see and considers correct.
+  void _ensureDateOnlyDefault(TripFormModel model) {
+    if (_departureDateOnly != null) return;
+    final now = DateTime.now();
+    _departureDateOnly = DateTime(now.year, now.month, now.day);
+    model.departureDayDateOnly = _departureDateOnly;
   }
 
   Future<void> _pickDateOnly(TripFormModel model) async {
