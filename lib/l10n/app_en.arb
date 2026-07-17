@@ -779,6 +779,10 @@
   "@addTripPrice": {
     "description": "Label of the ticket price field of the ticket step"
   },
+  "addTripSelectScheduledTimeFirst": "Select the scheduled time first",
+  "@addTripSelectScheduledTimeFirst": {
+    "description": "Snackbar shown when opening the actual-time picker while the scheduled time is not set yet"
+  },
 
   "aboutPageAboutSubPageTitle": "Trainlog",
   "aboutPageHowToSubPageTitle": "How To",

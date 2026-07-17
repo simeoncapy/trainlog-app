@@ -2538,6 +2538,12 @@ abstract class AppLocalizations {
   /// **'Price'**
   String get addTripPrice;
 
+  /// Snackbar shown when opening the actual-time picker while the scheduled time is not set yet
+  ///
+  /// In en, this message translates to:
+  /// **'Select the scheduled time first'**
+  String get addTripSelectScheduledTimeFirst;
+
   /// No description provided for @aboutPageAboutSubPageTitle.
   ///
   /// In en, this message translates to:

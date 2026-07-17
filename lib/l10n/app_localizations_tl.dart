@@ -1476,6 +1476,10 @@ class AppLocalizationsTl extends AppLocalizations {
   String get addTripPrice => 'Presyo';
 
   @override
+  String get addTripSelectScheduledTimeFirst =>
+      'Piliin muna ang nakatakdang oras';
+
+  @override
   String get aboutPageAboutSubPageTitle => 'Trainlog';
 
   @override

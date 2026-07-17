@@ -431,6 +431,7 @@
   "addTripRegistrationNumber": "車両番号",
   "addTripTicketExtrasTitle": "チケットとその他",
   "addTripPrice": "料金",
+  "addTripSelectScheduledTimeFirst": "先に予定時刻を選択してください",
   
   "aboutPageAboutSubPageTitle": "Trainlog",
   "aboutPageHowToSubPageTitle": "使い方",

@@ -1494,6 +1494,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addTripPrice => 'Price';
 
   @override
+  String get addTripSelectScheduledTimeFirst =>
+      'Select the scheduled time first';
+
+  @override
   String get aboutPageAboutSubPageTitle => 'Trainlog';
 
   @override

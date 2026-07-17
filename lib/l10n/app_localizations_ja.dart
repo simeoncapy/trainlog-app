@@ -1467,6 +1467,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get addTripPrice => '料金';
 
   @override
+  String get addTripSelectScheduledTimeFirst => '先に予定時刻を選択してください';
+
+  @override
   String get aboutPageAboutSubPageTitle => 'Trainlog';
 
   @override

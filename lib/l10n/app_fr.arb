@@ -431,6 +431,7 @@
   "addTripRegistrationNumber": "Numéro d'immatriculation",
   "addTripTicketExtrasTitle": "Billet et extras",
   "addTripPrice": "Prix",
+  "addTripSelectScheduledTimeFirst": "Sélectionnez d'abord l'heure prévue",
   
   "aboutPageAboutSubPageTitle": "Trainlog",
   "aboutPageHowToSubPageTitle": "Aide",

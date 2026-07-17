@@ -615,8 +615,8 @@ class _AddTripWhenStepState extends State<AddTripWhenStep> {
       messenger
         ?..clearSnackBars()
         ..showSnackBar(
-          const SnackBar(
-            content: Text('Select the scheduled time before'),
+          SnackBar(
+            content: Text(loc.addTripSelectScheduledTimeFirst),
           ),
         );
       return;
