@@ -1241,6 +1241,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addTripSuggestedOperators => 'Suggested for this route';
 
   @override
+  String get addTripSuggestedOperatorsHelper =>
+      'Based on your previous trips in this country and vehicle type.';
+
+  @override
   String get addTripAddCustomOperator => 'Add as a custom operator';
 
   @override

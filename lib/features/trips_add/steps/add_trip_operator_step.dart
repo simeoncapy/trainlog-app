@@ -294,6 +294,12 @@ class _AddTripOperatorStepState extends State<AddTripOperatorStep> {
                   ),
               ],
             ),
+            const SizedBox(height: 8,),
+            Text(
+              loc.addTripSuggestedOperatorsHelper,
+              softWrap: true,
+              style: theme.textTheme.bodySmall,
+            ),
           ],
         ],
       ),

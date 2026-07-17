@@ -1218,6 +1218,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get addTripSuggestedOperators => 'この経路のおすすめ';
 
   @override
+  String get addTripSuggestedOperatorsHelper =>
+      'この国と乗り物のタイプで、過去に利用した運行会社に基づいています。';
+
+  @override
   String get addTripAddCustomOperator => 'カスタム運行会社として追加';
 
   @override

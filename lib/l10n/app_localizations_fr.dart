@@ -1250,6 +1250,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get addTripSuggestedOperators => 'Suggestions pour ce trajet';
 
   @override
+  String get addTripSuggestedOperatorsHelper =>
+      'Basé sur vos trajets précédents dans ce pays et pour ce type de véhicule.';
+
+  @override
   String get addTripAddCustomOperator => 'Ajouter comme opérateur personnalisé';
 
   @override

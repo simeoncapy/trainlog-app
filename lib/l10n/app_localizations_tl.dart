@@ -1222,6 +1222,10 @@ class AppLocalizationsTl extends AppLocalizations {
   String get addTripSuggestedOperators => 'Mungkahi para sa rutang ito';
 
   @override
+  String get addTripSuggestedOperatorsHelper =>
+      'Base sa iyong mga nakaraang biyahe sa bansang ito at uri ng sasakyan.';
+
+  @override
   String get addTripAddCustomOperator => 'Idagdag bilang custom na operator';
 
   @override

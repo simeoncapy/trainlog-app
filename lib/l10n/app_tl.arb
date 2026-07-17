@@ -481,6 +481,10 @@
   "@addTripSuggestedOperators": {
     "description": "Label of the block listing operator suggestions based on the trip's route"
   },
+  "addTripSuggestedOperatorsHelper": "Base sa iyong mga nakaraang biyahe sa bansang ito at uri ng sasakyan.",
+  "@addTripSuggestedOperatorsHelper": {
+    "description": "Helper text for the block listing operator suggestions based on the trip's route"
+  },
   "addTripAddCustomOperator": "Idagdag bilang custom na operator",
   "@addTripAddCustomOperator": {
     "description": "Dashed button in the operator search overlay creating a custom operator from the typed text"

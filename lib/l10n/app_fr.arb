@@ -357,6 +357,7 @@
   "addTripOperatorTitle": "Qui a opéré ce trajet ?",
   "addTripSelectedOperators": "Opérateurs sélectionnés",
   "addTripSuggestedOperators": "Suggestions pour ce trajet",
+  "addTripSuggestedOperatorsHelper": "Basé sur vos trajets précédents dans ce pays et pour ce type de véhicule.",
   "addTripAddCustomOperator": "Ajouter comme opérateur personnalisé",
   "addTripOperatorTripCount": "{count, plural, =1 {1 trajet} other {{count} trajets}}",
   "addTripExitConfirmationDialogueTitle": "Arrêter la création ?",

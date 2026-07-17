@@ -2094,6 +2094,12 @@ abstract class AppLocalizations {
   /// **'Suggested for this route'**
   String get addTripSuggestedOperators;
 
+  /// Helper text for the block listing operator suggestions based on the trip's route
+  ///
+  /// In en, this message translates to:
+  /// **'Based on your previous trips in this country and vehicle type.'**
+  String get addTripSuggestedOperatorsHelper;
+
   /// Dashed button in the operator search overlay creating a custom operator from the typed text
   ///
   /// In en, this message translates to:

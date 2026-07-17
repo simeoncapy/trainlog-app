@@ -580,6 +580,10 @@
   "@addTripSuggestedOperators": {
     "description": "Label of the block listing operator suggestions based on the trip's route"
   },
+  "addTripSuggestedOperatorsHelper": "Based on your previous trips in this country and vehicle type.",
+  "@addTripSuggestedOperatorsHelper": {
+    "description": "Helper text for the block listing operator suggestions based on the trip's route"
+  },
   "addTripAddCustomOperator": "Add as a custom operator",
   "@addTripAddCustomOperator": {
     "description": "Dashed button in the operator search overlay creating a custom operator from the typed text"

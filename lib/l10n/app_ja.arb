@@ -357,6 +357,7 @@
   "addTripOperatorTitle": "運行会社はどこですか？",
   "addTripSelectedOperators": "選択した運行会社",
   "addTripSuggestedOperators": "この経路のおすすめ",
+  "addTripSuggestedOperatorsHelper": "この国と乗り物のタイプで、過去に利用した運行会社に基づいています。",
   "addTripAddCustomOperator": "カスタム運行会社として追加",
   "addTripOperatorTripCount": "{count, plural, other {{count} 件の旅行}}",
   "addTripExitConfirmationDialogueTitle": "終了しますか？",
