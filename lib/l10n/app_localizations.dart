@@ -2112,6 +2112,12 @@ abstract class AppLocalizations {
   /// **'{count, plural, =1 {1 trip} other {{count} trips}}'**
   String addTripOperatorTripCount(int count);
 
+  /// Small text action above the Continue button on optional wizard steps, skipping the step
+  ///
+  /// In en, this message translates to:
+  /// **'Skip — I don\'t know'**
+  String get addTripSkipButton;
+
   /// No description provided for @addTripExitConfirmationDialogueTitle.
   ///
   /// In en, this message translates to:

@@ -1259,6 +1259,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get addTripSkipButton => 'Skip — I don\'t know';
+
+  @override
   String get addTripExitConfirmationDialogueTitle => 'Do you want to exit?';
 
   @override

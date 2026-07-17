@@ -595,6 +595,10 @@
       "count": { "type": "int" }
     }
   },
+  "addTripSkipButton": "Skip — I don't know",
+  "@addTripSkipButton": {
+    "description": "Small text action above the Continue button on optional wizard steps, skipping the step"
+  },
   "addTripExitConfirmationDialogueTitle": "Do you want to exit?",
   "addTripExitConfirmationDialogueContent": "The trip data have been modified, they will be lost. Do you really want to exit the creation of the trip?",
   "addTripTransportationMode": "Transportation mode",

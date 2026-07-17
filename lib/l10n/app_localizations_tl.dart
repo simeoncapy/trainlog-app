@@ -1240,6 +1240,9 @@ class AppLocalizationsTl extends AppLocalizations {
   }
 
   @override
+  String get addTripSkipButton => 'Laktawan — hindi ko alam';
+
+  @override
   String get addTripExitConfirmationDialogueTitle => 'Gusto mo umexit?';
 
   @override

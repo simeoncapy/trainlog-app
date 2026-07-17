@@ -14,6 +14,7 @@ class AddTripWizardStep {
   const AddTripWizardStep({
     required this.builder,
     this.validate,
+    this.canSkip = false,
   });
 
   /// Builds the page content for this step.
@@ -22,4 +23,8 @@ class AddTripWizardStep {
   /// Validates the step before progressing. A null validator means the step
   /// is always considered valid.
   final WizardStepValidator? validate;
+
+  /// When true, a small "Skip" text action is shown above the Continue
+  /// button, making it explicit that the step is optional.
+  final bool canSkip;
 }

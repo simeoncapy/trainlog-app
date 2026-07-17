@@ -496,6 +496,10 @@
       "count": { "type": "int" }
     }
   },
+  "addTripSkipButton": "Laktawan — hindi ko alam",
+  "@addTripSkipButton": {
+    "description": "Small text action above the Continue button on optional wizard steps, skipping the step"
+  },
   "addTripTransportationMode": "Byahe mode",
   "addTripImportFr24": "Import ang flight data sa FR24",
   "addTripManualDeparture": "I set ang pag depart manually",

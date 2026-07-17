@@ -66,6 +66,7 @@ class _AddTripWizardPageState extends State<AddTripWizardPage> {
       AddTripWizardStep(
         builder: (_) => const AddTripOperatorStep(),
         // Operators are optional — the step never blocks progression.
+        canSkip: true,
       ),
       AddTripWizardStep(
         builder: (_) => const TripFormDate(),
@@ -304,9 +305,49 @@ class _AddTripWizardPageState extends State<AddTripWizardPage> {
       );
     }
 
-    return PrimaryActionButton(
-      label: loc.continueButton,
-      onPressed: _nextStep,
+    final theme = Theme.of(context);
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Optional-step hint: skipping is redundant with Continue (which
+        // already progresses without input) but makes it explicit.
+        if (_steps[_currentStep].canSkip) ...[
+          TextButton(
+            onPressed: _skipStep,
+            style: TextButton.styleFrom(
+              foregroundColor: theme.colorScheme.onSurfaceVariant,
+              minimumSize: Size.zero,
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            child: Text(
+              loc.addTripSkipButton,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          const SizedBox(height: 6),
+        ],
+        PrimaryActionButton(
+          label: loc.continueButton,
+          onPressed: _nextStep,
+        ),
+      ],
+    );
+  }
+
+  /// Advances to the next step without validating the current one.
+  void _skipStep() {
+    if (_isLastStep) return;
+    setState(() => _currentStep++);
+    _pageController.animateToPage(
+      _currentStep,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
     );
   }
 

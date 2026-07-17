@@ -1235,6 +1235,9 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
+  String get addTripSkipButton => 'スキップ — わからない';
+
+  @override
   String get addTripExitConfirmationDialogueTitle => '終了しますか？';
 
   @override

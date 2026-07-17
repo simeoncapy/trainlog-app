@@ -360,6 +360,7 @@
   "addTripSuggestedOperatorsHelper": "この国と乗り物のタイプで、過去に利用した運行会社に基づいています。",
   "addTripAddCustomOperator": "カスタム運行会社として追加",
   "addTripOperatorTripCount": "{count, plural, other {{count} 件の旅行}}",
+  "addTripSkipButton": "スキップ — わからない",
   "addTripExitConfirmationDialogueTitle": "終了しますか？",
   "addTripExitConfirmationDialogueContent": "旅行データが変更されました。データは失われます。旅行の作成を本当に終了しますか？",
   "addTripTransportationMode": "交通手段",
