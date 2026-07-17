@@ -76,7 +76,6 @@ class _AddTripDetailsStepState extends State<AddTripDetailsStep> {
                 _DetailFieldTile(
                   icon: Icons.tag,
                   label: loc.addTripRegistrationNumber,
-                  hint: loc.addTripRegistrationHint,
                   initialValue: model.registration,
                   onChanged: (value) {
                     setState(() => model.registration = value);
@@ -164,14 +163,12 @@ class _DetailFieldTile extends StatelessWidget {
     required this.label,
     required this.onChanged,
     this.initialValue,
-    this.hint,
   });
 
   final IconData icon;
   final String label;
   final ValueChanged<String> onChanged;
   final String? initialValue;
-  final String? hint;
 
   @override
   Widget build(BuildContext context) {
@@ -208,18 +205,12 @@ class _DetailFieldTile extends StatelessWidget {
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     isCollapsed: true,
                     filled: false,
                     border: InputBorder.none,
                     enabledBorder: InputBorder.none,
                     focusedBorder: InputBorder.none,
-                    hintText: hint,
-                    hintStyle: AppTheme.monoFont.copyWith(
-                      fontSize: 14,
-                      color: theme.colorScheme.onSurfaceVariant
-                          .withValues(alpha: 0.7),
-                    ),
                   ),
                   onChanged: onChanged,
                 ),

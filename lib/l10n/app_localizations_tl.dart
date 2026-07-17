@@ -1470,9 +1470,6 @@ class AppLocalizationsTl extends AppLocalizations {
   String get addTripRegistrationNumber => 'Registration number';
 
   @override
-  String get addTripRegistrationHint => 'hal. 408 021-4';
-
-  @override
   String get aboutPageAboutSubPageTitle => 'Trainlog';
 
   @override

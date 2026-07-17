@@ -2526,12 +2526,6 @@ abstract class AppLocalizations {
   /// **'Registration number'**
   String get addTripRegistrationNumber;
 
-  /// Placeholder example shown in the empty registration number field
-  ///
-  /// In en, this message translates to:
-  /// **'e.g. 408 021-4'**
-  String get addTripRegistrationHint;
-
   /// No description provided for @aboutPageAboutSubPageTitle.
   ///
   /// In en, this message translates to:

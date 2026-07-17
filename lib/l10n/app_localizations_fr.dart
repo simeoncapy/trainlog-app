@@ -1500,9 +1500,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get addTripRegistrationNumber => 'Numéro d\'immatriculation';
 
   @override
-  String get addTripRegistrationHint => 'p. ex. 408 021-4';
-
-  @override
   String get aboutPageAboutSubPageTitle => 'Trainlog';
 
   @override
