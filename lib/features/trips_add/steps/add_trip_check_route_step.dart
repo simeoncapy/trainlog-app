@@ -450,7 +450,7 @@ class _AddTripCheckRouteStepState extends State<AddTripCheckRouteStep> {
   /// "Departure" or "Departure · 20:03" when the local time is known.
   String _stopSubtitle(BuildContext context, String label, DateTime? time) {
     if (time == null) return label;
-    return '$label · ${formatDateTime(context, time, timeOnly: true)}';
+    return '$label · ${formatDateTime(context, time, timeOnly: false)}';
   }
 
   // ---------------------------------------------------------------------------
