@@ -40,7 +40,7 @@ class _AddTripWizardPageState extends State<AddTripWizardPage> {
   bool _hasRoutingError = false;
   bool _isSubmitting = false;
 
-  final PageController _pageController = PageController();
+  late final PageController _pageController;
   late final TrainlogWebPageController _routingWebCtrl;
 
   /// Ordered list of the wizard sub-pages. The step count shown by the
@@ -50,9 +50,16 @@ class _AddTripWizardPageState extends State<AddTripWizardPage> {
   int get _totalSteps => _steps.length;
   bool get _isLastStep => _currentStep == _totalSteps - 1;
 
+  bool get _isFromSmartPreRecorder => widget.preRecorderIdsToDelete != null && widget.preRecorderIdsToDelete!.isNotEmpty;
+
   @override
   void initState() {
     super.initState();
+
+    // Skip vehicle type step if continuing from pre-recorded trip
+    _currentStep = _isFromSmartPreRecorder ? 1 : 0;
+    _pageController = PageController(initialPage: _currentStep);
+
     _routingWebCtrl = TrainlogWebPageController();
 
     _steps = [
@@ -212,7 +219,7 @@ class _AddTripWizardPageState extends State<AddTripWizardPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(loc.addTripFinishFeedbackWarning)),
       );
-      if(widget.preRecorderIdsToDelete != null) await const PreRecordService().deleteByIds(widget.preRecorderIdsToDelete!);
+      if(_isFromSmartPreRecorder) await const PreRecordService().deleteByIds(widget.preRecorderIdsToDelete!);
       setState(() {
         _isSubmitting = false;
       });
@@ -245,7 +252,7 @@ class _AddTripWizardPageState extends State<AddTripWizardPage> {
       SnackBar(content: Text(loc.addTripFinishMsg)),
     );
 
-    if(widget.preRecorderIdsToDelete != null) await const PreRecordService().deleteByIds(widget.preRecorderIdsToDelete!);
+    if(_isFromSmartPreRecorder) await const PreRecordService().deleteByIds(widget.preRecorderIdsToDelete!);
 
     if(!context.mounted) return;
     if(continueTrip) {
