@@ -141,7 +141,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get previousButton => 'Previous';
 
   @override
-  String get validateButton => 'Validate';
+  String get validateButton => 'Save';
 
   @override
   String get continueButton => 'Continue';
@@ -1383,7 +1383,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addTripPurchaseDate => 'Purchase date';
 
   @override
-  String get continueTripButton => 'Validate and continue the journey';
+  String get continueTripButton => 'Save and continue the journey';
 
   @override
   String get addTripPathUseNewRouter => 'Use the new router';
@@ -1503,6 +1503,28 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get addTripDelayHelper =>
       'Set the delay or advance using minutes or the actual time.';
+
+  @override
+  String get addTripCheckRouteTitle => 'Check the route';
+
+  @override
+  String get addTripCheckRouteSubtitle =>
+      'Adjust the path on the map if it isn\'t quite right';
+
+  @override
+  String get addTripSummaryTitle => 'Summary';
+
+  @override
+  String get addTripSummaryVehicle => 'Vehicle';
+
+  @override
+  String get addTripSummaryDistance => 'Distance';
+
+  @override
+  String get addTripSummaryTheoreticalDuration => 'Theoretical duration';
+
+  @override
+  String get addTripSummaryEstimatedDuration => 'Estimated route duration';
 
   @override
   String get aboutPageAboutSubPageTitle => 'Trainlog';

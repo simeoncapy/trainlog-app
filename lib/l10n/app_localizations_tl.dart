@@ -141,7 +141,7 @@ class AppLocalizationsTl extends AppLocalizations {
   String get previousButton => 'Balik';
 
   @override
-  String get validateButton => 'Validate';
+  String get validateButton => 'I-save';
 
   @override
   String get continueButton => 'Tumuloy';
@@ -1364,7 +1364,7 @@ class AppLocalizationsTl extends AppLocalizations {
   String get addTripPurchaseDate => 'Petsa ng pagbili';
 
   @override
-  String get continueTripButton => 'Validate at ituloy ang byahe';
+  String get continueTripButton => 'I-save at ituloy ang byahe';
 
   @override
   String get addTripPathUseNewRouter => 'Gamitin ang bagong router';
@@ -1485,6 +1485,28 @@ class AppLocalizationsTl extends AppLocalizations {
   @override
   String get addTripDelayHelper =>
       'Itakda ang delay o advance gamit ang minuto o ang aktwal na oras.';
+
+  @override
+  String get addTripCheckRouteTitle => 'Suriin ang ruta';
+
+  @override
+  String get addTripCheckRouteSubtitle =>
+      'Ayusin ang ruta sa mapa kung hindi ito tama';
+
+  @override
+  String get addTripSummaryTitle => 'Buod';
+
+  @override
+  String get addTripSummaryVehicle => 'Sasakyan';
+
+  @override
+  String get addTripSummaryDistance => 'Distansya';
+
+  @override
+  String get addTripSummaryTheoreticalDuration => 'Teoretikal na tagal';
+
+  @override
+  String get addTripSummaryEstimatedDuration => 'Tinatayang tagal ng ruta';
 
   @override
   String get aboutPageAboutSubPageTitle => 'Trainlog';

@@ -49,7 +49,7 @@
   "refreshCompleted": "Refresh completed",
   "nextButton": "Next",
   "previousButton": "Previous",
-  "validateButton": "Validate",
+  "validateButton": "Save",
   "continueButton": "Continue",  
   "nameField": "Name",
   "auto": "Auto",
@@ -638,7 +638,7 @@
   "addTripTicketTitle": "Ticket",
   "addTripTicketPrice": "Ticket price",
   "addTripPurchaseDate": "Purchase date",
-  "continueTripButton": "Validate and continue the journey",
+  "continueTripButton": "Save and continue the journey",
   "addTripPathUseNewRouter": "Use the new router",
   "addTripNameEnd": "{departure} to {arrival}",
   "@addTripNameEnd" :{
@@ -790,6 +790,34 @@
   "addTripDelayHelper": "Set the delay or advance using minutes or the actual time.",
   "@addTripDelayHelper": {
     "description": "Helper text above the delay inputs of a delayed endpoint on the when step"
+  },
+  "addTripCheckRouteTitle": "Check the route",
+  "@addTripCheckRouteTitle": {
+    "description": "Headline of the final route-check step of the add-trip wizard"
+  },
+  "addTripCheckRouteSubtitle": "Adjust the path on the map if it isn't quite right",
+  "@addTripCheckRouteSubtitle": {
+    "description": "Muted instruction subtitle under the headline of the route-check step"
+  },
+  "addTripSummaryTitle": "Summary",
+  "@addTripSummaryTitle": {
+    "description": "Uppercase section label above the summary card of the route-check step"
+  },
+  "addTripSummaryVehicle": "Vehicle",
+  "@addTripSummaryVehicle": {
+    "description": "Label of the vehicle type row of the summary card of the route-check step"
+  },
+  "addTripSummaryDistance": "Distance",
+  "@addTripSummaryDistance": {
+    "description": "Label of the router-computed journey distance row of the summary card of the route-check step"
+  },
+  "addTripSummaryTheoreticalDuration": "Theoretical duration",
+  "@addTripSummaryTheoreticalDuration": {
+    "description": "Label of the summary card row showing the duration derived from the user's manual time inputs"
+  },
+  "addTripSummaryEstimatedDuration": "Estimated route duration",
+  "@addTripSummaryEstimatedDuration": {
+    "description": "Label of the summary card row showing the duration computed live by the mapping router engine"
   },
 
   "aboutPageAboutSubPageTitle": "Trainlog",
