@@ -141,7 +141,7 @@ class AppLocalizationsTl extends AppLocalizations {
   String get previousButton => 'Balik';
 
   @override
-  String get validateButton => 'Validate';
+  String get validateButton => 'I-save';
 
   @override
   String get continueButton => 'Tumuloy';
@@ -1364,7 +1364,7 @@ class AppLocalizationsTl extends AppLocalizations {
   String get addTripPurchaseDate => 'Petsa ng pagbili';
 
   @override
-  String get continueTripButton => 'Validate at ituloy ang byahe';
+  String get continueTripButton => 'I-save at ituloy ang byahe';
 
   @override
   String get addTripPathUseNewRouter => 'Gamitin ang bagong router';

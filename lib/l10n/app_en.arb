@@ -49,7 +49,7 @@
   "refreshCompleted": "Refresh completed",
   "nextButton": "Next",
   "previousButton": "Previous",
-  "validateButton": "Validate",
+  "validateButton": "Save",
   "continueButton": "Continue",  
   "nameField": "Name",
   "auto": "Auto",
@@ -638,7 +638,7 @@
   "addTripTicketTitle": "Ticket",
   "addTripTicketPrice": "Ticket price",
   "addTripPurchaseDate": "Purchase date",
-  "continueTripButton": "Validate and continue the journey",
+  "continueTripButton": "Save and continue the journey",
   "addTripPathUseNewRouter": "Use the new router",
   "addTripNameEnd": "{departure} to {arrival}",
   "@addTripNameEnd" :{

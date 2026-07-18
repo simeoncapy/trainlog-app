@@ -363,7 +363,7 @@ abstract class AppLocalizations {
   /// No description provided for @validateButton.
   ///
   /// In en, this message translates to:
-  /// **'Validate'**
+  /// **'Save'**
   String get validateButton;
 
   /// No description provided for @continueButton.
@@ -2355,7 +2355,7 @@ abstract class AppLocalizations {
   /// No description provided for @continueTripButton.
   ///
   /// In en, this message translates to:
-  /// **'Validate and continue the journey'**
+  /// **'Save and continue the journey'**
   String get continueTripButton;
 
   /// No description provided for @addTripPathUseNewRouter.

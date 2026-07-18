@@ -141,7 +141,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get previousButton => '戻る';
 
   @override
-  String get validateButton => '確認';
+  String get validateButton => '保存';
 
   @override
   String get continueButton => '続く';
@@ -1357,7 +1357,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get addTripPurchaseDate => '購入日';
 
   @override
-  String get continueTripButton => '確認して旅行を続ける';
+  String get continueTripButton => '保存して旅行を続ける';
 
   @override
   String get addTripPathUseNewRouter => '新しいルーターを使用する';

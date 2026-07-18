@@ -141,7 +141,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get previousButton => 'Previous';
 
   @override
-  String get validateButton => 'Validate';
+  String get validateButton => 'Save';
 
   @override
   String get continueButton => 'Continue';
@@ -1383,7 +1383,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addTripPurchaseDate => 'Purchase date';
 
   @override
-  String get continueTripButton => 'Validate and continue the journey';
+  String get continueTripButton => 'Save and continue the journey';
 
   @override
   String get addTripPathUseNewRouter => 'Use the new router';

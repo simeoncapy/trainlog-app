@@ -49,7 +49,7 @@
   "refreshCompleted": "Na refresh na",
   "nextButton": "Sunod",
   "previousButton": "Balik",
-  "validateButton": "Validate",
+  "validateButton": "I-save",
   "continueButton": "Tumuloy",
   "nameField": "Pangalan",
   "auto": "Auto",
@@ -533,7 +533,7 @@
   "addTripTicketTitle": "Tiket",
   "addTripTicketPrice": "Presyo ng tiket",
   "addTripPurchaseDate": "Petsa ng pagbili",
-  "continueTripButton": "Validate at ituloy ang byahe",
+  "continueTripButton": "I-save at ituloy ang byahe",
   "addTripPathUseNewRouter": "Gamitin ang bagong router",
   "addTripNameEnd": "{departure} hanggang {arrival}",
   "@addTripNameEnd": {
