@@ -819,6 +819,10 @@
   "@addTripSummaryEstimatedDuration": {
     "description": "Label of the summary card row showing the duration computed live by the mapping router engine"
   },
+  "addTripTodayButton": "Today",
+  "@addTripTodayButton": {
+    "description": "Small button filling the purchase date with the current date. Keep it short — abbreviate if needed (e.g. 'Auj.' in French)"
+  },
 
   "aboutPageAboutSubPageTitle": "Trainlog",
   "aboutPageHowToSubPageTitle": "How To",

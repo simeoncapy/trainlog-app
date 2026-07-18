@@ -1497,6 +1497,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get addTripSummaryEstimatedDuration => 'ルートによる推定所要時間';
 
   @override
+  String get addTripTodayButton => '今日';
+
+  @override
   String get aboutPageAboutSubPageTitle => 'Trainlog';
 
   @override

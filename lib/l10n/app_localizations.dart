@@ -2598,6 +2598,12 @@ abstract class AppLocalizations {
   /// **'Estimated route duration'**
   String get addTripSummaryEstimatedDuration;
 
+  /// Small button filling the purchase date with the current date. Keep it short — abbreviate if needed (e.g. 'Auj.' in French)
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get addTripTodayButton;
+
   /// No description provided for @aboutPageAboutSubPageTitle.
   ///
   /// In en, this message translates to:

@@ -441,6 +441,7 @@
   "addTripSummaryDistance": "Distance",
   "addTripSummaryTheoreticalDuration": "Durée théorique",
   "addTripSummaryEstimatedDuration": "Durée estimée du trajet",
+  "addTripTodayButton": "Auj.",
 
   "aboutPageAboutSubPageTitle": "Trainlog",
   "aboutPageHowToSubPageTitle": "Aide",

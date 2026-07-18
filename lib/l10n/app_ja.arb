@@ -441,6 +441,7 @@
   "addTripSummaryDistance": "距離",
   "addTripSummaryTheoreticalDuration": "予定所要時間",
   "addTripSummaryEstimatedDuration": "ルートによる推定所要時間",
+  "addTripTodayButton": "今日",
 
   "aboutPageAboutSubPageTitle": "Trainlog",
   "aboutPageHowToSubPageTitle": "使い方",

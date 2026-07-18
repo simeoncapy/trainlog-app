@@ -1509,6 +1509,9 @@ class AppLocalizationsTl extends AppLocalizations {
   String get addTripSummaryEstimatedDuration => 'Tinatayang tagal ng ruta';
 
   @override
+  String get addTripTodayButton => 'Ngayon';
+
+  @override
   String get aboutPageAboutSubPageTitle => 'Trainlog';
 
   @override

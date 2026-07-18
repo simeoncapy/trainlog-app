@@ -1539,6 +1539,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get addTripSummaryEstimatedDuration => 'Durée estimée du trajet';
 
   @override
+  String get addTripTodayButton => 'Auj.';
+
+  @override
   String get aboutPageAboutSubPageTitle => 'Trainlog';
 
   @override

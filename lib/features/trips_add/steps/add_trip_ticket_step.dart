@@ -206,7 +206,23 @@ class _AddTripTicketStepState extends State<AddTripTicketStep> {
                     ),
                   ),
                   trailing: _selectedPurchaseDate == null
-                      ? null
+                      ? TextButton(
+                          style: TextButton.styleFrom(
+                            visualDensity: VisualDensity.compact,
+                            minimumSize: Size.zero,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 6),
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                          onPressed: () {
+                            final now = DateTime.now();
+                            final today =
+                                DateTime(now.year, now.month, now.day);
+                            setState(() => _selectedPurchaseDate = today);
+                            model.purchaseDate = today;
+                          },
+                          child: Text(loc.addTripTodayButton),
+                        )
                       : IconButton(
                           icon: const Icon(Icons.close),
                           iconSize: 18,
