@@ -1517,6 +1517,28 @@ class AppLocalizationsFr extends AppLocalizations {
       'Indiquez le retard ou l\'avance en minutes ou avec l\'horaire réel.';
 
   @override
+  String get addTripCheckRouteTitle => 'Vérifiez l\'itinéraire';
+
+  @override
+  String get addTripCheckRouteSubtitle =>
+      'Ajustez le tracé sur la carte s\'il ne convient pas tout à fait';
+
+  @override
+  String get addTripSummaryTitle => 'Résumé';
+
+  @override
+  String get addTripSummaryVehicle => 'Véhicule';
+
+  @override
+  String get addTripSummaryDistance => 'Distance';
+
+  @override
+  String get addTripSummaryTheoreticalDuration => 'Durée théorique';
+
+  @override
+  String get addTripSummaryEstimatedDuration => 'Durée estimée du trajet';
+
+  @override
   String get aboutPageAboutSubPageTitle => 'Trainlog';
 
   @override

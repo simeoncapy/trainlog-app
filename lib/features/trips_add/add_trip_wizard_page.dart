@@ -6,13 +6,13 @@ import 'package:trainlog_app/data/models/polyline_entry.dart';
 import 'package:trainlog_app/data/models/trip_form_model.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/features/trips_add/add_trip_wizard_step.dart';
+import 'package:trainlog_app/features/trips_add/steps/add_trip_check_route_step.dart';
 import 'package:trainlog_app/features/trips_add/steps/add_trip_details_step.dart';
 import 'package:trainlog_app/features/trips_add/steps/add_trip_operator_step.dart';
 import 'package:trainlog_app/features/trips_add/steps/add_trip_route_step.dart';
 import 'package:trainlog_app/features/trips_add/steps/add_trip_ticket_step.dart';
 import 'package:trainlog_app/features/trips_add/steps/add_trip_vehicle_type_step.dart';
 import 'package:trainlog_app/features/trips_add/steps/add_trip_when_step.dart';
-import 'package:trainlog_app/features/trips_add/trip_form_path.dart';
 import 'package:trainlog_app/features/trips_add/widgets/wizard_step_indicator.dart';
 import 'package:trainlog_app/platform/widget/adaptive_app_bar_square_button.dart';
 import 'package:trainlog_app/widgets/primary_action_button.dart';
@@ -83,7 +83,7 @@ class _AddTripWizardPageState extends State<AddTripWizardPage> {
         validate: (model) => model.validateDetails(),
       ),
       AddTripWizardStep(
-        builder: (_) => TripFormPath(
+        builder: (_) => AddTripCheckRouteStep(
           routingController: _routingWebCtrl,
           onLoading: (value) {
             if (!mounted) return;

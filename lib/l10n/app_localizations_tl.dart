@@ -1487,6 +1487,28 @@ class AppLocalizationsTl extends AppLocalizations {
       'Itakda ang delay o advance gamit ang minuto o ang aktwal na oras.';
 
   @override
+  String get addTripCheckRouteTitle => 'Suriin ang ruta';
+
+  @override
+  String get addTripCheckRouteSubtitle =>
+      'Ayusin ang ruta sa mapa kung hindi ito tama';
+
+  @override
+  String get addTripSummaryTitle => 'Buod';
+
+  @override
+  String get addTripSummaryVehicle => 'Sasakyan';
+
+  @override
+  String get addTripSummaryDistance => 'Distansya';
+
+  @override
+  String get addTripSummaryTheoreticalDuration => 'Teoretikal na tagal';
+
+  @override
+  String get addTripSummaryEstimatedDuration => 'Tinatayang tagal ng ruta';
+
+  @override
   String get aboutPageAboutSubPageTitle => 'Trainlog';
 
   @override

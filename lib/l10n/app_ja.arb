@@ -434,7 +434,14 @@
   "addTripSelectScheduledTimeFirst": "先に予定時刻を選択してください",
   "addTripTimezoneLabel": "タイムゾーン：",
   "addTripDelayHelper": "遅延・早着は分数または実際の時刻で設定できます。",
-  
+  "addTripCheckRouteTitle": "ルートを確認",
+  "addTripCheckRouteSubtitle": "経路が正しくない場合は地図上で調整してください",
+  "addTripSummaryTitle": "概要",
+  "addTripSummaryVehicle": "交通手段",
+  "addTripSummaryDistance": "距離",
+  "addTripSummaryTheoreticalDuration": "予定所要時間",
+  "addTripSummaryEstimatedDuration": "ルートによる推定所要時間",
+
   "aboutPageAboutSubPageTitle": "Trainlog",
   "aboutPageHowToSubPageTitle": "使い方",
   "aboutPagePrivacySubPageTitle": "プライバシ",

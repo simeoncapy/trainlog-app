@@ -1476,6 +1476,27 @@ class AppLocalizationsJa extends AppLocalizations {
   String get addTripDelayHelper => '遅延・早着は分数または実際の時刻で設定できます。';
 
   @override
+  String get addTripCheckRouteTitle => 'ルートを確認';
+
+  @override
+  String get addTripCheckRouteSubtitle => '経路が正しくない場合は地図上で調整してください';
+
+  @override
+  String get addTripSummaryTitle => '概要';
+
+  @override
+  String get addTripSummaryVehicle => '交通手段';
+
+  @override
+  String get addTripSummaryDistance => '距離';
+
+  @override
+  String get addTripSummaryTheoreticalDuration => '予定所要時間';
+
+  @override
+  String get addTripSummaryEstimatedDuration => 'ルートによる推定所要時間';
+
+  @override
   String get aboutPageAboutSubPageTitle => 'Trainlog';
 
   @override

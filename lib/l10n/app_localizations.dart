@@ -2556,6 +2556,48 @@ abstract class AppLocalizations {
   /// **'Set the delay or advance using minutes or the actual time.'**
   String get addTripDelayHelper;
 
+  /// Headline of the final route-check step of the add-trip wizard
+  ///
+  /// In en, this message translates to:
+  /// **'Check the route'**
+  String get addTripCheckRouteTitle;
+
+  /// Muted instruction subtitle under the headline of the route-check step
+  ///
+  /// In en, this message translates to:
+  /// **'Adjust the path on the map if it isn\'t quite right'**
+  String get addTripCheckRouteSubtitle;
+
+  /// Uppercase section label above the summary card of the route-check step
+  ///
+  /// In en, this message translates to:
+  /// **'Summary'**
+  String get addTripSummaryTitle;
+
+  /// Label of the vehicle type row of the summary card of the route-check step
+  ///
+  /// In en, this message translates to:
+  /// **'Vehicle'**
+  String get addTripSummaryVehicle;
+
+  /// Label of the router-computed journey distance row of the summary card of the route-check step
+  ///
+  /// In en, this message translates to:
+  /// **'Distance'**
+  String get addTripSummaryDistance;
+
+  /// Label of the summary card row showing the duration derived from the user's manual time inputs
+  ///
+  /// In en, this message translates to:
+  /// **'Theoretical duration'**
+  String get addTripSummaryTheoreticalDuration;
+
+  /// Label of the summary card row showing the duration computed live by the mapping router engine
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated route duration'**
+  String get addTripSummaryEstimatedDuration;
+
   /// No description provided for @aboutPageAboutSubPageTitle.
   ///
   /// In en, this message translates to:
