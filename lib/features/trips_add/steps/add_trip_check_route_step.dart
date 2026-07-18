@@ -10,6 +10,7 @@ import 'package:trainlog_app/features/trips_add/widgets/route_itinerary_card.dar
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
+import 'package:trainlog_app/utils/number_formatter.dart';
 import 'package:trainlog_app/widgets/error_banner.dart';
 import 'package:trainlog_app/widgets/shimmer_box.dart';
 import 'package:trainlog_app/widgets/trainlog_router_page.dart';
@@ -526,7 +527,7 @@ class _AddTripCheckRouteStepState extends State<AddTripCheckRouteStep> {
         value: _routerMetric(
           _routeDistanceM == null
               ? null
-              : _formatDistance(_routeDistanceM!, locale.toLanguageTag()),
+              : _formatDistance(_routeDistanceM!, locale),
           monoValueStyle,
           notSetStyle,
         ),
@@ -570,7 +571,7 @@ class _AddTripCheckRouteStepState extends State<AddTripCheckRouteStep> {
           ),
           label: loc.addTripPrice,
           value: Text(
-            '${NumberFormat('#,##0.##', locale.toLanguageTag()).format(model.price)}'
+            '${NumberFormatter.precise(model.price ?? 0, locale: locale, maxDecimals: 2)}'
             '$_nbsp${model.currencyCode ?? ''}',
             style: monoValueStyle,
           ),
@@ -606,9 +607,8 @@ class _AddTripCheckRouteStepState extends State<AddTripCheckRouteStep> {
     return const ShimmerBox(width: 60, height: 16);
   }
 
-  String _formatDistance(double distanceM, String locale) {
-    final distanceFormatted =
-        NumberFormat('#,##0.0', locale).format(distanceM / 1000);
+  String _formatDistance(double distanceM, Locale locale) {
+    final distanceFormatted = NumberFormatter.precise(distanceM / 1000, locale: locale, maxDecimals: 1);
     return '$distanceFormatted${_nbsp}km';
   }
 
