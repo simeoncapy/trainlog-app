@@ -293,28 +293,69 @@ class _AddTripWizardPageState extends State<AddTripWizardPage> {
     return newModel;
   }
 
+  /// TEST — new design of the last-step footer buttons: a single row of
+  /// taller buttons with the icon stacked above the label (same style as the
+  /// trip details sheet actions). Set to false to revert to the previous
+  /// stacked full-width layout.
+  static const bool _useTallFooterButtons = true;
+
   Widget _stickyFooter() {
     final loc = AppLocalizations.of(context)!;
 
     if (_isLastStep) {
-      return Column(
-        children: [
-          PrimaryActionButton(
-            icon: Icons.check,
-            label: loc.validateButton,
-            onPressed:
-                (_isRouterLoading || _hasRoutingError) ? null : _validateTrip,
-          ),
-          const SizedBox(height: 8),
-          PrimaryActionButton(
-            icon: Icons.subdirectory_arrow_right,
-            label: loc.continueTripButton,
-            variant: PrimaryActionButtonVariant.outlined,
-            onPressed: (_isRouterLoading || _hasRoutingError)
-                ? null
-                : () => _validateTrip(continueTrip: true),
-          ),
-        ],
+      final bool actionsDisabled = _isRouterLoading || _hasRoutingError;
+
+      if (!_useTallFooterButtons) {
+        return Column(
+          children: [
+            PrimaryActionButton(
+              icon: Icons.check,
+              label: loc.validateButton,
+              onPressed: actionsDisabled ? null : _validateTrip,
+            ),
+            const SizedBox(height: 8),
+            PrimaryActionButton(
+              icon: Icons.subdirectory_arrow_right,
+              label: loc.continueTripButton,
+              variant: PrimaryActionButtonVariant.outlined,
+              onPressed: actionsDisabled
+                  ? null
+                  : () => _validateTrip(continueTrip: true),
+            ),
+          ],
+        );
+      }
+
+      // The continue button keeps the secondary (outlined) design and gets
+      // the wider slot for its longer label; the main Validate button sits
+      // on the right.
+      return IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              flex: 3,
+              child: _TallFooterButton(
+                icon: Icons.subdirectory_arrow_right,
+                label: loc.continueTripButton,
+                primary: false,
+                onPressed: actionsDisabled
+                    ? null
+                    : () => _validateTrip(continueTrip: true),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              flex: 2,
+              child: _TallFooterButton(
+                icon: Icons.check,
+                label: loc.validateButton,
+                primary: true,
+                onPressed: actionsDisabled ? null : _validateTrip,
+              ),
+            ),
+          ],
+        ),
       );
     }
 
@@ -483,6 +524,86 @@ class _AddTripWizardPageState extends State<AddTripWizardPage> {
               ),
             ],
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// TEST — taller footer action button of the last wizard step: icon stacked
+/// above the label, same style as the trip details sheet action buttons.
+/// Filled with the primary colour for the main action, outlined for the
+/// secondary one. Only used when [_AddTripWizardPageState._useTallFooterButtons]
+/// is on; delete together with the flag once the test is settled.
+class _TallFooterButton extends StatelessWidget {
+  const _TallFooterButton({
+    required this.icon,
+    required this.label,
+    required this.primary,
+    required this.onPressed,
+  });
+
+  final IconData icon;
+  final String label;
+
+  /// Filled main action when true, outlined secondary action when false.
+  final bool primary;
+
+  /// Null renders the disabled state.
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final disabled = onPressed == null;
+
+    final Color background;
+    final Color foreground;
+    Color? border;
+    if (primary) {
+      background =
+          disabled ? cs.onSurface.withValues(alpha: 0.12) : cs.primary;
+      foreground =
+          disabled ? cs.onSurface.withValues(alpha: 0.38) : cs.onPrimary;
+    } else {
+      background = Colors.transparent;
+      foreground =
+          disabled ? cs.onSurface.withValues(alpha: 0.38) : cs.onSurface;
+      border = disabled ? cs.onSurface.withValues(alpha: 0.12) : cs.outline;
+    }
+
+    return Material(
+      color: background,
+      borderRadius: BorderRadius.circular(14),
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            border: border != null ? Border.all(color: border) : null,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: 22, color: foreground),
+              const SizedBox(height: 4),
+              Text(
+                label,
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: foreground,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
