@@ -65,7 +65,6 @@
     "description": "manual (opposed as automatic). Should be gender and number neutral."
   },
   "fillRequiredFields": "Please fill the required fields",
-  "facultative": "facultative",
   "visibility": "Visibility",
   "visibilityPublic": "Public",
   "visibilityPublicLong": "Public trip",
@@ -381,15 +380,7 @@
   "tripsDetailsDeleteFailed": "Failed to delete trip",
   "tripsDetailsDeleteSuccess": "Trip deleted successfully",
 
-  "tripsFilterAllCountry": "All",
-  "tripsFilterAllOperator": "All",
   "tripsFilterAllYears": "All Years",
-  "tripsFilterKeyword": "Keyword",
-  "tripsFilterDateFrom": "On",
-  "tripsFilterDateTo": "to (optional)",
-  "tripsFilterCountry": "Country",
-  "tripsFilterOperator": "Operator",
-  "tripsFilterType": "Vehicle Type",
 
   "tripsSearchFilterTitle": "Search trips",
   "tripsSearchFilterSearchHint": "Stations, lines, tags...",
@@ -511,23 +502,6 @@
   "statisticsSelectUnit": "Select unit",
   "internationalWaters": "International waters",
 
-  "addTripPageTitle": "Add a Trip",
-  "addTripStepBasics": "Basics",
-  "@addTripStepBasics": {
-    "description": "Label for the first step when adding a trip. Choose a short word if possible"
-  },
-  "addTripStepDate": "Date",
-  "@addTripStepDate": {
-    "description": "Label for the second step when adding a trip. Choose a short word if possible"
-  },  
-  "addTripStepDetails": "Details",
-  "@addTripStepDetails": {
-    "description": "Label for the third step when adding a trip. Choose a short word if possible"
-  },  
-  "addTripStepPath": "Path",
-  "@addTripStepPath": {
-    "description": "Label for the fourth step when adding a trip. Choose a short word if possible"
-  }, 
   "addTripStepValidate": "Validate",
   "@addTripStepValidate": {
     "description": "Label for the last step when adding a trip. Choose a short word if possible"
@@ -602,7 +576,6 @@
   "addTripExitConfirmationDialogueTitle": "Do you want to exit?",
   "addTripExitConfirmationDialogueContent": "The trip data have been modified, they will be lost. Do you really want to exit the creation of the trip?",
   "addTripTransportationMode": "Transportation mode",
-  "addTripImportFr24": "Import flight data from FR24",
   "addTripManualDeparture": "Manual departure",
   "addTripManualArrival": "Manual arrival",
   "addTripDeparture": "Departure",
@@ -611,17 +584,10 @@
   "addTripLongitudeShort": "Long",
   "addTripMapUsageHelper": "In manual mode you can enter the coordinates directly or move the marker to the desired position after expanding the map.",
   "addTripOperator": "Operator",
-  "addTripOperatorHelper": "Use a comma or enter to validate an unknown operator",
   "addTripOperatorHint" : "Search operator...",
-  "addTripOperatorPlaceholderLogo": "Select an operator",
-  "addTripLine": "Line",
   "addTripDateTypePrecise": "Precise",
   "addTripDateTypeUnknown": "Unknown",
   "addTripDateTypeDate": "Date",
-  "addTripScheduledTime": "Scheduled time",
-  "addTripStartDate": "Start of the trip",
-  "addTripEndDate": "End of the trip",
-  "addTripDelay": "Delay",
   "addTripRealTime": "Real time",
   "addTripOriginDayLabel": "Scheduled day",
   "addTripResetToScheduled": "Reset to scheduled time",
@@ -630,30 +596,13 @@
   "addTripFuture": "Future",
   "timezoneInformation": "The time zones are based on the coordinates of the departure and the arrival.",
   "addTripDepartureAfterArrival": "Departure after arrival!",
-  "addTripFacultative": "Facultative fields",
   "addTripMaterial": "Material",
-  "addTripRegistration": "Registration",
   "addTripSeat": "Seat",
   "addTripNotes": "Note",
   "addTripTicketTitle": "Ticket",
-  "addTripTicketPrice": "Ticket price",
   "addTripPurchaseDate": "Purchase date",
   "continueTripButton": "Save and continue the journey",
   "addTripPathUseNewRouter": "Use the new router",
-  "addTripNameEnd": "{departure} to {arrival}",
-  "@addTripNameEnd" :{
-    "description": "The trip name (departure station to arrival station)",
-    "placeholders": {
-      "departure": {
-        "type": "String",
-        "description": "The name of the departure station/aiport/stop..."
-      },
-      "arrival": {
-        "type": "String",
-        "description": "The name of the arrival station/aiport/stop..."
-      }
-    }
-  },
   "addTripPathHelp": "The new router is in beta and shows electrification.\n\nThe routers (old and new) are the same for train, tram, and metro. You may need to fine-tune the peg placement to get it to route on the desired path.",
   "addTicketPageTitle": "New Ticket",
   "addTagPageTitle": "New Tag",
@@ -673,36 +622,6 @@
   "addTripFinishFeedbackWarning": "The trip has been added but the feedback from the server is incomplete. Please refresh and verify the trip details.",
   "addTripPathGeodesic": "Geodesic path",
   "addTripPathFr24": "FR24 path",
-  "addTripDelayMinuteDelay": "i.e. {delay} late",
-  "@addTripDelayMinuteDelay": {
-    "description": "Indicates the delay for a trip",
-    "placeholders": {
-      "delay": {
-        "type": "String",
-        "description": "The delay (duration formatted already)"
-      }
-    }
-  },
-  "addTripDelayMinuteAdvance": "i.e. {advance} early",
-  "@addTripDelayMinuteAdvance": {
-    "description": "Indicates the advance  for a trip",
-    "placeholders": {
-      "advance": {
-        "type": "String",
-        "description": "The advance (duration formatted already)"
-      }
-    }
-  },
-  "addTripDelayTime": "i.e. at {time}",
-  "@addTripDelayTime": {
-    "description": "Indicates the new time for a trip after a delay or advance",
-    "placeholders": {
-      "time": {
-        "type": "String",
-        "description": "The new time for a trip after a delay or advance"
-      }
-    }
-  },
   "addTripWhenTitle": "When was it?",
   "@addTripWhenTitle": {
     "description": "Headline of the temporal data step of the add-trip wizard"

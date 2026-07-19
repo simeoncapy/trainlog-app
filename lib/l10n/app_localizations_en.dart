@@ -180,9 +180,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fillRequiredFields => 'Please fill the required fields';
 
   @override
-  String get facultative => 'facultative';
-
-  @override
   String get visibility => 'Visibility';
 
   @override
@@ -874,31 +871,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tripsDetailsDeleteSuccess => 'Trip deleted successfully';
 
   @override
-  String get tripsFilterAllCountry => 'All';
-
-  @override
-  String get tripsFilterAllOperator => 'All';
-
-  @override
   String get tripsFilterAllYears => 'All Years';
-
-  @override
-  String get tripsFilterKeyword => 'Keyword';
-
-  @override
-  String get tripsFilterDateFrom => 'On';
-
-  @override
-  String get tripsFilterDateTo => 'to (optional)';
-
-  @override
-  String get tripsFilterCountry => 'Country';
-
-  @override
-  String get tripsFilterOperator => 'Operator';
-
-  @override
-  String get tripsFilterType => 'Vehicle Type';
 
   @override
   String get tripsSearchFilterTitle => 'Search trips';
@@ -1186,21 +1159,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get internationalWaters => 'International waters';
 
   @override
-  String get addTripPageTitle => 'Add a Trip';
-
-  @override
-  String get addTripStepBasics => 'Basics';
-
-  @override
-  String get addTripStepDate => 'Date';
-
-  @override
-  String get addTripStepDetails => 'Details';
-
-  @override
-  String get addTripStepPath => 'Path';
-
-  @override
   String get addTripStepValidate => 'Validate';
 
   @override
@@ -1272,9 +1230,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addTripTransportationMode => 'Transportation mode';
 
   @override
-  String get addTripImportFr24 => 'Import flight data from FR24';
-
-  @override
   String get addTripManualDeparture => 'Manual departure';
 
   @override
@@ -1300,17 +1255,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addTripOperator => 'Operator';
 
   @override
-  String get addTripOperatorHelper =>
-      'Use a comma or enter to validate an unknown operator';
-
-  @override
   String get addTripOperatorHint => 'Search operator...';
-
-  @override
-  String get addTripOperatorPlaceholderLogo => 'Select an operator';
-
-  @override
-  String get addTripLine => 'Line';
 
   @override
   String get addTripDateTypePrecise => 'Precise';
@@ -1320,18 +1265,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get addTripDateTypeDate => 'Date';
-
-  @override
-  String get addTripScheduledTime => 'Scheduled time';
-
-  @override
-  String get addTripStartDate => 'Start of the trip';
-
-  @override
-  String get addTripEndDate => 'End of the trip';
-
-  @override
-  String get addTripDelay => 'Delay';
 
   @override
   String get addTripRealTime => 'Real time';
@@ -1359,13 +1292,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addTripDepartureAfterArrival => 'Departure after arrival!';
 
   @override
-  String get addTripFacultative => 'Facultative fields';
-
-  @override
   String get addTripMaterial => 'Material';
-
-  @override
-  String get addTripRegistration => 'Registration';
 
   @override
   String get addTripSeat => 'Seat';
@@ -1377,9 +1304,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addTripTicketTitle => 'Ticket';
 
   @override
-  String get addTripTicketPrice => 'Ticket price';
-
-  @override
   String get addTripPurchaseDate => 'Purchase date';
 
   @override
@@ -1387,11 +1311,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get addTripPathUseNewRouter => 'Use the new router';
-
-  @override
-  String addTripNameEnd(String departure, String arrival) {
-    return '$departure to $arrival';
-  }
 
   @override
   String get addTripPathHelp =>
@@ -1427,21 +1346,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get addTripPathFr24 => 'FR24 path';
-
-  @override
-  String addTripDelayMinuteDelay(String delay) {
-    return 'i.e. $delay late';
-  }
-
-  @override
-  String addTripDelayMinuteAdvance(String advance) {
-    return 'i.e. $advance early';
-  }
-
-  @override
-  String addTripDelayTime(String time) {
-    return 'i.e. at $time';
-  }
 
   @override
   String get addTripWhenTitle => 'When was it?';

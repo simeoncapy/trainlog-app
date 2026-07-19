@@ -180,9 +180,6 @@ class AppLocalizationsTl extends AppLocalizations {
   String get fillRequiredFields => 'Ipasok ang lahat ng bagay';
 
   @override
-  String get facultative => 'hindi kailangan';
-
-  @override
   String get visibility => 'Visibility';
 
   @override
@@ -870,31 +867,7 @@ class AppLocalizationsTl extends AppLocalizations {
   String get tripsDetailsDeleteSuccess => 'Nabura ang byahe';
 
   @override
-  String get tripsFilterAllCountry => 'Lahat';
-
-  @override
-  String get tripsFilterAllOperator => 'Lahat';
-
-  @override
   String get tripsFilterAllYears => 'Lahat ng Taon';
-
-  @override
-  String get tripsFilterKeyword => 'Keyword';
-
-  @override
-  String get tripsFilterDateFrom => 'Sa';
-
-  @override
-  String get tripsFilterDateTo => 'Sa (opsyonal)';
-
-  @override
-  String get tripsFilterCountry => 'Bansa';
-
-  @override
-  String get tripsFilterOperator => 'Operator';
-
-  @override
-  String get tripsFilterType => 'Uri ng sasakyan';
 
   @override
   String get tripsSearchFilterTitle => 'Maghanap ng biyahe';
@@ -1167,21 +1140,6 @@ class AppLocalizationsTl extends AppLocalizations {
   String get internationalWaters => 'Tubig international';
 
   @override
-  String get addTripPageTitle => 'Magdagdag ng byahe';
-
-  @override
-  String get addTripStepBasics => 'Basics';
-
-  @override
-  String get addTripStepDate => 'Petsa';
-
-  @override
-  String get addTripStepDetails => 'Detalye';
-
-  @override
-  String get addTripStepPath => 'Path';
-
-  @override
   String get addTripStepValidate => 'Ivalidate';
 
   @override
@@ -1253,9 +1211,6 @@ class AppLocalizationsTl extends AppLocalizations {
   String get addTripTransportationMode => 'Byahe mode';
 
   @override
-  String get addTripImportFr24 => 'Import ang flight data sa FR24';
-
-  @override
   String get addTripManualDeparture => 'I set ang pag depart manually';
 
   @override
@@ -1281,17 +1236,7 @@ class AppLocalizationsTl extends AppLocalizations {
   String get addTripOperator => 'Operator';
 
   @override
-  String get addTripOperatorHelper =>
-      'Gumamit ng comma o enter button para ivalidate ang operator kahit hindi mo alam';
-
-  @override
   String get addTripOperatorHint => 'Hanapin ang operator...';
-
-  @override
-  String get addTripOperatorPlaceholderLogo => 'Piliin ang operator';
-
-  @override
-  String get addTripLine => 'Linya';
 
   @override
   String get addTripDateTypePrecise => 'Tumpak';
@@ -1301,18 +1246,6 @@ class AppLocalizationsTl extends AppLocalizations {
 
   @override
   String get addTripDateTypeDate => 'Petsa';
-
-  @override
-  String get addTripScheduledTime => 'Scheduled time';
-
-  @override
-  String get addTripStartDate => 'Simula ng byahe';
-
-  @override
-  String get addTripEndDate => 'Katapusan ng byahe';
-
-  @override
-  String get addTripDelay => 'Delay';
 
   @override
   String get addTripRealTime => 'Tamang oras';
@@ -1340,13 +1273,7 @@ class AppLocalizationsTl extends AppLocalizations {
   String get addTripDepartureAfterArrival => 'Departure pagkatapos ng arrival!';
 
   @override
-  String get addTripFacultative => 'Optional fields';
-
-  @override
   String get addTripMaterial => 'Materyal';
-
-  @override
-  String get addTripRegistration => 'Rehistrasyon';
 
   @override
   String get addTripSeat => 'Upuan';
@@ -1358,9 +1285,6 @@ class AppLocalizationsTl extends AppLocalizations {
   String get addTripTicketTitle => 'Tiket';
 
   @override
-  String get addTripTicketPrice => 'Presyo ng tiket';
-
-  @override
   String get addTripPurchaseDate => 'Petsa ng pagbili';
 
   @override
@@ -1368,11 +1292,6 @@ class AppLocalizationsTl extends AppLocalizations {
 
   @override
   String get addTripPathUseNewRouter => 'Gamitin ang bagong router';
-
-  @override
-  String addTripNameEnd(String departure, String arrival) {
-    return '$departure hanggang $arrival';
-  }
 
   @override
   String get addTripPathHelp =>
@@ -1409,21 +1328,6 @@ class AppLocalizationsTl extends AppLocalizations {
 
   @override
   String get addTripPathFr24 => 'FR24 path';
-
-  @override
-  String addTripDelayMinuteDelay(String delay) {
-    return 'i.e. $delay late';
-  }
-
-  @override
-  String addTripDelayMinuteAdvance(String advance) {
-    return 'i.e. $advance early';
-  }
-
-  @override
-  String addTripDelayTime(String time) {
-    return 'i.e. sa $time';
-  }
 
   @override
   String get addTripWhenTitle => 'Kailan ito nangyari?';

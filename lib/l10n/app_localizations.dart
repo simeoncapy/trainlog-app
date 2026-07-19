@@ -438,12 +438,6 @@ abstract class AppLocalizations {
   /// **'Please fill the required fields'**
   String get fillRequiredFields;
 
-  /// No description provided for @facultative.
-  ///
-  /// In en, this message translates to:
-  /// **'facultative'**
-  String get facultative;
-
   /// No description provided for @visibility.
   ///
   /// In en, this message translates to:
@@ -1614,59 +1608,11 @@ abstract class AppLocalizations {
   /// **'Trip deleted successfully'**
   String get tripsDetailsDeleteSuccess;
 
-  /// No description provided for @tripsFilterAllCountry.
-  ///
-  /// In en, this message translates to:
-  /// **'All'**
-  String get tripsFilterAllCountry;
-
-  /// No description provided for @tripsFilterAllOperator.
-  ///
-  /// In en, this message translates to:
-  /// **'All'**
-  String get tripsFilterAllOperator;
-
   /// No description provided for @tripsFilterAllYears.
   ///
   /// In en, this message translates to:
   /// **'All Years'**
   String get tripsFilterAllYears;
-
-  /// No description provided for @tripsFilterKeyword.
-  ///
-  /// In en, this message translates to:
-  /// **'Keyword'**
-  String get tripsFilterKeyword;
-
-  /// No description provided for @tripsFilterDateFrom.
-  ///
-  /// In en, this message translates to:
-  /// **'On'**
-  String get tripsFilterDateFrom;
-
-  /// No description provided for @tripsFilterDateTo.
-  ///
-  /// In en, this message translates to:
-  /// **'to (optional)'**
-  String get tripsFilterDateTo;
-
-  /// No description provided for @tripsFilterCountry.
-  ///
-  /// In en, this message translates to:
-  /// **'Country'**
-  String get tripsFilterCountry;
-
-  /// No description provided for @tripsFilterOperator.
-  ///
-  /// In en, this message translates to:
-  /// **'Operator'**
-  String get tripsFilterOperator;
-
-  /// No description provided for @tripsFilterType.
-  ///
-  /// In en, this message translates to:
-  /// **'Vehicle Type'**
-  String get tripsFilterType;
 
   /// No description provided for @tripsSearchFilterTitle.
   ///
@@ -1992,36 +1938,6 @@ abstract class AppLocalizations {
   /// **'International waters'**
   String get internationalWaters;
 
-  /// No description provided for @addTripPageTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Add a Trip'**
-  String get addTripPageTitle;
-
-  /// Label for the first step when adding a trip. Choose a short word if possible
-  ///
-  /// In en, this message translates to:
-  /// **'Basics'**
-  String get addTripStepBasics;
-
-  /// Label for the second step when adding a trip. Choose a short word if possible
-  ///
-  /// In en, this message translates to:
-  /// **'Date'**
-  String get addTripStepDate;
-
-  /// Label for the third step when adding a trip. Choose a short word if possible
-  ///
-  /// In en, this message translates to:
-  /// **'Details'**
-  String get addTripStepDetails;
-
-  /// Label for the fourth step when adding a trip. Choose a short word if possible
-  ///
-  /// In en, this message translates to:
-  /// **'Path'**
-  String get addTripStepPath;
-
   /// Label for the last step when adding a trip. Choose a short word if possible
   ///
   /// In en, this message translates to:
@@ -2136,12 +2052,6 @@ abstract class AppLocalizations {
   /// **'Transportation mode'**
   String get addTripTransportationMode;
 
-  /// No description provided for @addTripImportFr24.
-  ///
-  /// In en, this message translates to:
-  /// **'Import flight data from FR24'**
-  String get addTripImportFr24;
-
   /// No description provided for @addTripManualDeparture.
   ///
   /// In en, this message translates to:
@@ -2190,29 +2100,11 @@ abstract class AppLocalizations {
   /// **'Operator'**
   String get addTripOperator;
 
-  /// No description provided for @addTripOperatorHelper.
-  ///
-  /// In en, this message translates to:
-  /// **'Use a comma or enter to validate an unknown operator'**
-  String get addTripOperatorHelper;
-
   /// No description provided for @addTripOperatorHint.
   ///
   /// In en, this message translates to:
   /// **'Search operator...'**
   String get addTripOperatorHint;
-
-  /// No description provided for @addTripOperatorPlaceholderLogo.
-  ///
-  /// In en, this message translates to:
-  /// **'Select an operator'**
-  String get addTripOperatorPlaceholderLogo;
-
-  /// No description provided for @addTripLine.
-  ///
-  /// In en, this message translates to:
-  /// **'Line'**
-  String get addTripLine;
 
   /// No description provided for @addTripDateTypePrecise.
   ///
@@ -2231,30 +2123,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Date'**
   String get addTripDateTypeDate;
-
-  /// No description provided for @addTripScheduledTime.
-  ///
-  /// In en, this message translates to:
-  /// **'Scheduled time'**
-  String get addTripScheduledTime;
-
-  /// No description provided for @addTripStartDate.
-  ///
-  /// In en, this message translates to:
-  /// **'Start of the trip'**
-  String get addTripStartDate;
-
-  /// No description provided for @addTripEndDate.
-  ///
-  /// In en, this message translates to:
-  /// **'End of the trip'**
-  String get addTripEndDate;
-
-  /// No description provided for @addTripDelay.
-  ///
-  /// In en, this message translates to:
-  /// **'Delay'**
-  String get addTripDelay;
 
   /// No description provided for @addTripRealTime.
   ///
@@ -2304,23 +2172,11 @@ abstract class AppLocalizations {
   /// **'Departure after arrival!'**
   String get addTripDepartureAfterArrival;
 
-  /// No description provided for @addTripFacultative.
-  ///
-  /// In en, this message translates to:
-  /// **'Facultative fields'**
-  String get addTripFacultative;
-
   /// No description provided for @addTripMaterial.
   ///
   /// In en, this message translates to:
   /// **'Material'**
   String get addTripMaterial;
-
-  /// No description provided for @addTripRegistration.
-  ///
-  /// In en, this message translates to:
-  /// **'Registration'**
-  String get addTripRegistration;
 
   /// No description provided for @addTripSeat.
   ///
@@ -2340,12 +2196,6 @@ abstract class AppLocalizations {
   /// **'Ticket'**
   String get addTripTicketTitle;
 
-  /// No description provided for @addTripTicketPrice.
-  ///
-  /// In en, this message translates to:
-  /// **'Ticket price'**
-  String get addTripTicketPrice;
-
   /// No description provided for @addTripPurchaseDate.
   ///
   /// In en, this message translates to:
@@ -2363,12 +2213,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Use the new router'**
   String get addTripPathUseNewRouter;
-
-  /// The trip name (departure station to arrival station)
-  ///
-  /// In en, this message translates to:
-  /// **'{departure} to {arrival}'**
-  String addTripNameEnd(String departure, String arrival);
 
   /// No description provided for @addTripPathHelp.
   ///
@@ -2429,24 +2273,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'FR24 path'**
   String get addTripPathFr24;
-
-  /// Indicates the delay for a trip
-  ///
-  /// In en, this message translates to:
-  /// **'i.e. {delay} late'**
-  String addTripDelayMinuteDelay(String delay);
-
-  /// Indicates the advance  for a trip
-  ///
-  /// In en, this message translates to:
-  /// **'i.e. {advance} early'**
-  String addTripDelayMinuteAdvance(String advance);
-
-  /// Indicates the new time for a trip after a delay or advance
-  ///
-  /// In en, this message translates to:
-  /// **'i.e. at {time}'**
-  String addTripDelayTime(String time);
 
   /// Headline of the temporal data step of the add-trip wizard
   ///

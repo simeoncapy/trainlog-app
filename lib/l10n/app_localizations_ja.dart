@@ -180,9 +180,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get fillRequiredFields => '必須項目を入力してください';
 
   @override
-  String get facultative => '任意';
-
-  @override
   String get visibility => '公開範囲';
 
   @override
@@ -747,7 +744,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get tripsTableHeaderEndTime => '到着時刻';
 
   @override
-  String get tripsTableHeaderOperator => '事業者';
+  String get tripsTableHeaderOperator => '運行会社';
 
   @override
   String get tripsTableHeaderLineName => '路線';
@@ -764,7 +761,7 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String get tripsDetailsTitleOperator => '事業者: ';
+  String get tripsDetailsTitleOperator => '運行会社: ';
 
   @override
   String get tripsDetailsTitleVehicle => '車両名: ';
@@ -803,7 +800,7 @@ class AppLocalizationsJa extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '事業者',
+      other: '運行会社',
     );
     return '$_temp0';
   }
@@ -855,31 +852,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get tripsDetailsDeleteSuccess => '旅行が正常に削除されました';
 
   @override
-  String get tripsFilterAllCountry => '全て';
-
-  @override
-  String get tripsFilterAllOperator => '全て';
-
-  @override
   String get tripsFilterAllYears => '全ての年';
-
-  @override
-  String get tripsFilterKeyword => 'キーワード';
-
-  @override
-  String get tripsFilterDateFrom => '日付';
-
-  @override
-  String get tripsFilterDateTo => 'まで (任意)';
-
-  @override
-  String get tripsFilterCountry => '国';
-
-  @override
-  String get tripsFilterOperator => '事業者';
-
-  @override
-  String get tripsFilterType => '乗り物のタイプ';
 
   @override
   String get tripsSearchFilterTitle => '旅行を検索';
@@ -915,7 +888,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get tripsSearchFilterCountries => '国';
 
   @override
-  String get tripsSearchFilterOperators => '事業者';
+  String get tripsSearchFilterOperators => '運行会社';
 
   @override
   String get tripsSearchFilterAdd => '追加';
@@ -924,13 +897,13 @@ class AppLocalizationsJa extends AppLocalizations {
   String get tripsSearchFilterAllCountriesFromTrips => '旅行したすべての国';
 
   @override
-  String get tripsSearchFilterAllOperatorsFromTrips => '利用したすべての事業者';
+  String get tripsSearchFilterAllOperatorsFromTrips => '利用したすべての運行会社';
 
   @override
   String get tripsSearchFilterSearchCountries => '国を検索...';
 
   @override
-  String get tripsSearchFilterSearchOperators => '事業者を検索...';
+  String get tripsSearchFilterSearchOperators => '運行会社を検索...';
 
   @override
   String get tripsSearchFilterDone => '完了';
@@ -942,7 +915,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get tripsAddButton => '旅行を追加';
 
   @override
-  String get graphTypeOperator => '事業者';
+  String get graphTypeOperator => '運行会社';
 
   @override
   String get graphTypeCountry => '国';
@@ -1165,21 +1138,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get internationalWaters => '公海';
 
   @override
-  String get addTripPageTitle => '旅行を追加';
-
-  @override
-  String get addTripStepBasics => '概要';
-
-  @override
-  String get addTripStepDate => '日時';
-
-  @override
-  String get addTripStepDetails => '詳細';
-
-  @override
-  String get addTripStepPath => '経路';
-
-  @override
   String get addTripStepValidate => '確認';
 
   @override
@@ -1248,9 +1206,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get addTripTransportationMode => '交通手段';
 
   @override
-  String get addTripImportFr24 => 'FR24からフライトデータをインポートする';
-
-  @override
   String get addTripManualDeparture => '出発地を手動で設定';
 
   @override
@@ -1273,19 +1228,10 @@ class AppLocalizationsJa extends AppLocalizations {
       '手動モードでは座標を直接入力することも、地図を拡大してマーカーを目的の位置まで移動することもできます。';
 
   @override
-  String get addTripOperator => '事業者';
+  String get addTripOperator => '運行会社';
 
   @override
-  String get addTripOperatorHelper => '不明な事業者は、カンマまたはEnterで確定';
-
-  @override
-  String get addTripOperatorHint => '事業者を検索';
-
-  @override
-  String get addTripOperatorPlaceholderLogo => '事業者を選択してください';
-
-  @override
-  String get addTripLine => '路線';
+  String get addTripOperatorHint => '運行会社を検索';
 
   @override
   String get addTripDateTypePrecise => '精密';
@@ -1295,18 +1241,6 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get addTripDateTypeDate => '日付';
-
-  @override
-  String get addTripScheduledTime => '予定時刻';
-
-  @override
-  String get addTripStartDate => '出発日時';
-
-  @override
-  String get addTripEndDate => '到着日時';
-
-  @override
-  String get addTripDelay => '遅延情報';
 
   @override
   String get addTripRealTime => '遅延後の時刻';
@@ -1333,13 +1267,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get addTripDepartureAfterArrival => '出発時間は到着時間より後です!';
 
   @override
-  String get addTripFacultative => '任意項目';
-
-  @override
   String get addTripMaterial => '車両名';
-
-  @override
-  String get addTripRegistration => '登録番号';
 
   @override
   String get addTripSeat => '座席';
@@ -1351,9 +1279,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get addTripTicketTitle => '乗車券';
 
   @override
-  String get addTripTicketPrice => '運賃';
-
-  @override
   String get addTripPurchaseDate => '購入日';
 
   @override
@@ -1361,11 +1286,6 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get addTripPathUseNewRouter => '新しいルーターを使用する';
-
-  @override
-  String addTripNameEnd(String departure, String arrival) {
-    return '$departureから$arrivalまで';
-  }
 
   @override
   String get addTripPathHelp =>
@@ -1401,21 +1321,6 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get addTripPathFr24 => 'FR24経路';
-
-  @override
-  String addTripDelayMinuteDelay(String delay) {
-    return 'つまり$delay遅れ';
-  }
-
-  @override
-  String addTripDelayMinuteAdvance(String advance) {
-    return 'つまり$advance早め';
-  }
-
-  @override
-  String addTripDelayTime(String time) {
-    return 'つまり$timeに';
-  }
 
   @override
   String get addTripWhenTitle => 'いつの旅でしたか？';
@@ -1648,7 +1553,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get onboardingPage2Subtitle =>
-      'いつ、どこへ、どのように旅したかを統計で確認できます。\n\n最もよく訪れた駅や最も利用した交通事業者、自国の鉄道網をどれだけ乗ったかなど、役立つ情報が一目でわかります。';
+      'いつ、どこへ、どのように旅したかを統計で確認できます。\n\n最もよく訪れた駅や最も利用した運行会社、自国の鉄道網をどれだけ乗ったかなど、役立つ情報が一目でわかります。';
 
   @override
   String get onboardingPage3Title => '旅をシェア';

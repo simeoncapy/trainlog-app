@@ -65,7 +65,6 @@
     "description": "manual (opposed as automatic). Should be gender and number neutral."
   },
   "fillRequiredFields": "Ipasok ang lahat ng bagay",
-  "facultative": "hindi kailangan",
   "visibility": "Visibility",
   "visibilityPublic": "Pampubliko",
   "visibilityPublicLong": "Lakbay pampubiklo",
@@ -293,15 +292,7 @@
   "tripsDetailsDeleteDialogConfirmButton": "Ibura",
   "tripsDetailsDeleteFailed": "Hindi mabura ang byahe",
   "tripsDetailsDeleteSuccess": "Nabura ang byahe",
-  "tripsFilterAllCountry": "Lahat",
-  "tripsFilterAllOperator": "Lahat",
   "tripsFilterAllYears": "Lahat ng Taon",
-  "tripsFilterKeyword": "Keyword",
-  "tripsFilterDateFrom": "Sa",
-  "tripsFilterDateTo": "Sa (opsyonal)",
-  "tripsFilterCountry": "Bansa",
-  "tripsFilterOperator": "Operator",
-  "tripsFilterType": "Uri ng sasakyan",
 
   "tripsSearchFilterTitle": "Maghanap ng biyahe",
   "tripsSearchFilterSearchHint": "Mga istasyon, linya, tag...",
@@ -412,23 +403,6 @@
   "statisticsSelectVehicle": "Pumili ng sasakyan",
   "statisticsSelectUnit": "Pumili ng yunit",
   "internationalWaters": "Tubig international",
-  "addTripPageTitle": "Magdagdag ng byahe",
-  "addTripStepBasics": "Basics",
-  "@addTripStepBasics": {
-    "description": "Label for the first step when adding a trip. Choose a short word if possible"
-  },
-  "addTripStepDate": "Petsa",
-  "@addTripStepDate": {
-    "description": "Label for the second step when adding a trip. Choose a short word if possible"
-  },
-  "addTripStepDetails": "Detalye",
-  "@addTripStepDetails": {
-    "description": "Label for the third step when adding a trip. Choose a short word if possible"
-  },
-  "addTripStepPath": "Path",
-  "@addTripStepPath": {
-    "description": "Label for the fourth step when adding a trip. Choose a short word if possible"
-  },
   "addTripStepValidate": "Ivalidate",
   "@addTripStepValidate": {
     "description": "Label for the last step when adding a trip. Choose a short word if possible"
@@ -501,7 +475,6 @@
     "description": "Small text action above the Continue button on optional wizard steps, skipping the step"
   },
   "addTripTransportationMode": "Byahe mode",
-  "addTripImportFr24": "Import ang flight data sa FR24",
   "addTripManualDeparture": "I set ang pag depart manually",
   "addTripManualArrival": "I set ang pag arrive manually",
   "addTripDeparture": "Departure",
@@ -510,45 +483,22 @@
   "addTripLongitudeShort": "Long",
   "addTripMapUsageHelper": "Sa manual mode, maari mong i pasok ang coordinates o i galaw ang marker sa tamang lugar sa mapa.",
   "addTripOperator": "Operator",
-  "addTripOperatorHelper": "Gumamit ng comma o enter button para ivalidate ang operator kahit hindi mo alam",
   "addTripOperatorHint": "Hanapin ang operator...",
-  "addTripOperatorPlaceholderLogo": "Piliin ang operator",
-  "addTripLine": "Linya",
   "addTripDateTypePrecise": "Tumpak",
   "addTripDateTypeUnknown": "Hindi alam",
   "addTripDateTypeDate": "Petsa",
-  "addTripScheduledTime": "Scheduled time",
-  "addTripStartDate": "Simula ng byahe",
-  "addTripEndDate": "Katapusan ng byahe",
   "addTripDuration": "Haba ng byahe",
   "addTripPast": "Nakaraan",
   "addTripFuture": "HInaharap",
   "timezoneInformation": "Ang time zone ay base sa coordinates ng departure at ng arrival",
   "addTripDepartureAfterArrival": "Departure pagkatapos ng arrival!",
-  "addTripFacultative": "Optional fields",
   "addTripMaterial": "Materyal",
-  "addTripRegistration": "Rehistrasyon",
   "addTripSeat": "Upuan",
   "addTripNotes": "Note",
   "addTripTicketTitle": "Tiket",
-  "addTripTicketPrice": "Presyo ng tiket",
   "addTripPurchaseDate": "Petsa ng pagbili",
   "continueTripButton": "I-save at ituloy ang byahe",
   "addTripPathUseNewRouter": "Gamitin ang bagong router",
-  "addTripNameEnd": "{departure} hanggang {arrival}",
-  "@addTripNameEnd": {
-    "description": "The trip name (departure station to arrival station)",
-    "placeholders": {
-      "departure": {
-        "type": "String",
-        "description": "The name of the departure station/aiport/stop..."
-      },
-      "arrival": {
-        "type": "String",
-        "description": "The name of the arrival station/aiport/stop..."
-      }
-    }
-  },
   "addTripPathHelp": "Ang bagong router ay nasa beta mode at mukang electric ang sasakyan.\n\nAng mga router (luma at bago) ay pareho para sa tren, tram, at subway. Pwede mo i fine-tune ang peg para i tama ang ruta sa ikagugusto mo.",
   "addTicketPageTitle": "Bagong tiket",
   "addTagPageTitle": "Bagong tag",
@@ -568,36 +518,6 @@
   "addTripFinishFeedbackWarning": "Na record ang byahe pero ang feedback galing sa server ay hindi kumpleto. Paki refresh at i check ang detalye ng byahe.",
   "addTripPathGeodesic": "Geodesic path",
   "addTripPathFr24": "FR24 path",
-  "addTripDelayMinuteDelay": "i.e. {delay} late",
-  "@addTripDelayMinuteDelay": {
-    "description": "Indicates the delay for a trip",
-    "placeholders": {
-      "delay": {
-        "type": "String",
-        "description": "The delay (duration formatted already)"
-      }
-    }
-  },
-  "addTripDelayMinuteAdvance": "i.e. {advance} early",
-  "@addTripDelayMinuteAdvance": {
-    "description": "Indicates the advance  for a trip",
-    "placeholders": {
-      "advance": {
-        "type": "String",
-        "description": "The advance (duration formatted already)"
-      }
-    }
-  },
-  "addTripDelayTime": "i.e. sa {time}",
-  "@addTripDelayTime": {
-    "description": "Indicates the new time for a trip after a delay or advance",
-    "placeholders": {
-      "time": {
-        "type": "String",
-        "description": "The new time for a trip after a delay or advance"
-      }
-    }
-  },
   "addTripWhenTitle": "Kailan ito nangyari?",
   "addTripOnTime": "Nasa oras",
   "addTripDelayed": "Na-delay",
@@ -710,7 +630,6 @@
   "setBtnLabel": "Iset",
   "addTripExitConfirmationDialogueTitle": "Gusto mo umexit?",
   "addTripExitConfirmationDialogueContent": "Naibago ang data ng byahe, kung umexit ka ng hindi nag sasave mawawala ang data",
-  "addTripDelay": "Delay",
   "addTripRealTime": "Tamang oras",
   "addTripOriginDayLabel": "Araw ng byahe",
   "addTripResetToScheduled": "Ireset sa scheduled time",
