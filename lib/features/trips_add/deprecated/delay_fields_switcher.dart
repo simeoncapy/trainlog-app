@@ -4,7 +4,7 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/utils/signed_int_formatter.dart';
-import 'package:trainlog_app/widgets/relative_date_time_picker_dialog.dart';
+import 'package:trainlog_app/features/trips_add/widgets/relative_date_time_picker_dialog.dart';
 
 class DelayFieldsSwitcher extends StatefulWidget {
   const DelayFieldsSwitcher({

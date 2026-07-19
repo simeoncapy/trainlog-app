@@ -6,12 +6,13 @@ import 'package:trainlog_app/data/models/polyline_entry.dart';
 import 'package:trainlog_app/data/models/trip_form_model.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/features/trips_add/add_trip_wizard_step.dart';
+import 'package:trainlog_app/features/trips_add/steps/add_trip_check_route_step.dart';
+import 'package:trainlog_app/features/trips_add/steps/add_trip_details_step.dart';
 import 'package:trainlog_app/features/trips_add/steps/add_trip_operator_step.dart';
 import 'package:trainlog_app/features/trips_add/steps/add_trip_route_step.dart';
+import 'package:trainlog_app/features/trips_add/steps/add_trip_ticket_step.dart';
 import 'package:trainlog_app/features/trips_add/steps/add_trip_vehicle_type_step.dart';
-import 'package:trainlog_app/features/trips_add/trip_form_date.dart';
-import 'package:trainlog_app/features/trips_add/trip_form_details.dart';
-import 'package:trainlog_app/features/trips_add/trip_form_path.dart';
+import 'package:trainlog_app/features/trips_add/steps/add_trip_when_step.dart';
 import 'package:trainlog_app/features/trips_add/widgets/wizard_step_indicator.dart';
 import 'package:trainlog_app/platform/widget/adaptive_app_bar_square_button.dart';
 import 'package:trainlog_app/widgets/primary_action_button.dart';
@@ -39,7 +40,7 @@ class _AddTripWizardPageState extends State<AddTripWizardPage> {
   bool _hasRoutingError = false;
   bool _isSubmitting = false;
 
-  final PageController _pageController = PageController();
+  late final PageController _pageController;
   late final TrainlogWebPageController _routingWebCtrl;
 
   /// Ordered list of the wizard sub-pages. The step count shown by the
@@ -49,9 +50,16 @@ class _AddTripWizardPageState extends State<AddTripWizardPage> {
   int get _totalSteps => _steps.length;
   bool get _isLastStep => _currentStep == _totalSteps - 1;
 
+  bool get _isFromSmartPreRecorder => widget.preRecorderIdsToDelete != null && widget.preRecorderIdsToDelete!.isNotEmpty;
+
   @override
   void initState() {
     super.initState();
+
+    // Skip vehicle type step if continuing from pre-recorded trip
+    _currentStep = _isFromSmartPreRecorder ? 1 : 0;
+    _pageController = PageController(initialPage: _currentStep);
+
     _routingWebCtrl = TrainlogWebPageController();
 
     _steps = [
@@ -69,15 +77,20 @@ class _AddTripWizardPageState extends State<AddTripWizardPage> {
         canSkip: true,
       ),
       AddTripWizardStep(
-        builder: (_) => const TripFormDate(),
+        builder: (_) => const AddTripWhenStep(),
         validate: (model) => model.validateDate(),
       ),
       AddTripWizardStep(
-        builder: (_) => const TripFormDetails(),
+        builder: (_) => const AddTripDetailsStep(),
+        // Details are all optional — the step never blocks progression.
+        canSkip: true,
+      ),
+      AddTripWizardStep(
+        builder: (_) => const AddTripTicketStep(),
         validate: (model) => model.validateDetails(),
       ),
       AddTripWizardStep(
-        builder: (_) => TripFormPath(
+        builder: (_) => AddTripCheckRouteStep(
           routingController: _routingWebCtrl,
           onLoading: (value) {
             if (!mounted) return;
@@ -105,7 +118,13 @@ class _AddTripWizardPageState extends State<AddTripWizardPage> {
     );
   }
 
+  /// Dismisses the on-screen keyboard if a text field had focus.
+  void _closeKeyboard() {
+    FocusManager.instance.primaryFocus?.unfocus();
+  }
+
   void _nextStep() {
+    _closeKeyboard();
     final model = context.read<TripFormModel>();
 
     final isValid = _steps[_currentStep].validate?.call(model) ?? true;
@@ -127,6 +146,7 @@ class _AddTripWizardPageState extends State<AddTripWizardPage> {
   }
 
   void _previousStepOrExit() async {
+    _closeKeyboard();
     final model = context.read<TripFormModel>();
     if (_currentStep == 0) {
       if (!model.hasBeenChanged) {
@@ -199,7 +219,7 @@ class _AddTripWizardPageState extends State<AddTripWizardPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(loc.addTripFinishFeedbackWarning)),
       );
-      if(widget.preRecorderIdsToDelete != null) await const PreRecordService().deleteByIds(widget.preRecorderIdsToDelete!);
+      if(_isFromSmartPreRecorder) await const PreRecordService().deleteByIds(widget.preRecorderIdsToDelete!);
       setState(() {
         _isSubmitting = false;
       });
@@ -232,7 +252,7 @@ class _AddTripWizardPageState extends State<AddTripWizardPage> {
       SnackBar(content: Text(loc.addTripFinishMsg)),
     );
 
-    if(widget.preRecorderIdsToDelete != null) await const PreRecordService().deleteByIds(widget.preRecorderIdsToDelete!);
+    if(_isFromSmartPreRecorder) await const PreRecordService().deleteByIds(widget.preRecorderIdsToDelete!);
 
     if(!context.mounted) return;
     if(continueTrip) {
@@ -280,28 +300,69 @@ class _AddTripWizardPageState extends State<AddTripWizardPage> {
     return newModel;
   }
 
+  /// TEST — new design of the last-step footer buttons: a single row of
+  /// taller buttons with the icon stacked above the label (same style as the
+  /// trip details sheet actions). Set to false to revert to the previous
+  /// stacked full-width layout.
+  static const bool _useTallFooterButtons = true;
+
   Widget _stickyFooter() {
     final loc = AppLocalizations.of(context)!;
 
     if (_isLastStep) {
-      return Column(
-        children: [
-          PrimaryActionButton(
-            icon: Icons.check,
-            label: loc.validateButton,
-            onPressed:
-                (_isRouterLoading || _hasRoutingError) ? null : _validateTrip,
-          ),
-          const SizedBox(height: 8),
-          PrimaryActionButton(
-            icon: Icons.subdirectory_arrow_right,
-            label: loc.continueTripButton,
-            variant: PrimaryActionButtonVariant.outlined,
-            onPressed: (_isRouterLoading || _hasRoutingError)
-                ? null
-                : () => _validateTrip(continueTrip: true),
-          ),
-        ],
+      final bool actionsDisabled = _isRouterLoading || _hasRoutingError;
+
+      if (!_useTallFooterButtons) {
+        return Column(
+          children: [
+            PrimaryActionButton(
+              icon: Icons.check,
+              label: loc.validateButton,
+              onPressed: actionsDisabled ? null : _validateTrip,
+            ),
+            const SizedBox(height: 8),
+            PrimaryActionButton(
+              icon: Icons.subdirectory_arrow_right,
+              label: loc.continueTripButton,
+              variant: PrimaryActionButtonVariant.outlined,
+              onPressed: actionsDisabled
+                  ? null
+                  : () => _validateTrip(continueTrip: true),
+            ),
+          ],
+        );
+      }
+
+      // The continue button keeps the secondary (outlined) design and gets
+      // the wider slot for its longer label; the main Validate button sits
+      // on the right.
+      return IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              flex: 3,
+              child: _TallFooterButton(
+                icon: Icons.subdirectory_arrow_right,
+                label: loc.continueTripButton,
+                primary: false,
+                onPressed: actionsDisabled
+                    ? null
+                    : () => _validateTrip(continueTrip: true),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              flex: 2,
+              child: _TallFooterButton(
+                icon: Icons.check,
+                label: loc.validateButton,
+                primary: true,
+                onPressed: actionsDisabled ? null : _validateTrip,
+              ),
+            ),
+          ],
+        ),
       );
     }
 
@@ -343,6 +404,7 @@ class _AddTripWizardPageState extends State<AddTripWizardPage> {
   /// Advances to the next step without validating the current one.
   void _skipStep() {
     if (_isLastStep) return;
+    _closeKeyboard();
     setState(() => _currentStep++);
     _pageController.animateToPage(
       _currentStep,
@@ -385,9 +447,12 @@ class _AddTripWizardPageState extends State<AddTripWizardPage> {
     final loc = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
 
-    return SafeArea(
-      child: Scaffold(
-        body: Stack(
+    // The Scaffold must stay above the SafeArea so its background extends
+    // behind the status bar; the other way round the status bar strip shows
+    // the black window background, hiding the dark icons in light mode.
+    return Scaffold(
+      body: SafeArea(
+        child: Stack(
           children: [
             Column(
               children: [
@@ -466,6 +531,86 @@ class _AddTripWizardPageState extends State<AddTripWizardPage> {
               ),
             ],
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// TEST — taller footer action button of the last wizard step: icon stacked
+/// above the label, same style as the trip details sheet action buttons.
+/// Filled with the primary colour for the main action, outlined for the
+/// secondary one. Only used when [_AddTripWizardPageState._useTallFooterButtons]
+/// is on; delete together with the flag once the test is settled.
+class _TallFooterButton extends StatelessWidget {
+  const _TallFooterButton({
+    required this.icon,
+    required this.label,
+    required this.primary,
+    required this.onPressed,
+  });
+
+  final IconData icon;
+  final String label;
+
+  /// Filled main action when true, outlined secondary action when false.
+  final bool primary;
+
+  /// Null renders the disabled state.
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final disabled = onPressed == null;
+
+    final Color background;
+    final Color foreground;
+    Color? border;
+    if (primary) {
+      background =
+          disabled ? cs.onSurface.withValues(alpha: 0.12) : cs.primary;
+      foreground =
+          disabled ? cs.onSurface.withValues(alpha: 0.38) : cs.onPrimary;
+    } else {
+      background = Colors.transparent;
+      foreground =
+          disabled ? cs.onSurface.withValues(alpha: 0.38) : cs.onSurface;
+      border = disabled ? cs.onSurface.withValues(alpha: 0.12) : cs.outline;
+    }
+
+    return Material(
+      color: background,
+      borderRadius: BorderRadius.circular(14),
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            border: border != null ? Border.all(color: border) : null,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: 22, color: foreground),
+              const SizedBox(height: 4),
+              Text(
+                label,
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: foreground,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -363,7 +363,7 @@ abstract class AppLocalizations {
   /// No description provided for @validateButton.
   ///
   /// In en, this message translates to:
-  /// **'Validate'**
+  /// **'Save'**
   String get validateButton;
 
   /// No description provided for @continueButton.
@@ -2355,7 +2355,7 @@ abstract class AppLocalizations {
   /// No description provided for @continueTripButton.
   ///
   /// In en, this message translates to:
-  /// **'Validate and continue the journey'**
+  /// **'Save and continue the journey'**
   String get continueTripButton;
 
   /// No description provided for @addTripPathUseNewRouter.
@@ -2447,6 +2447,162 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'i.e. at {time}'**
   String addTripDelayTime(String time);
+
+  /// Headline of the temporal data step of the add-trip wizard
+  ///
+  /// In en, this message translates to:
+  /// **'When was it?'**
+  String get addTripWhenTitle;
+
+  /// Tab of an endpoint block on the when step: the trip ran with no delay
+  ///
+  /// In en, this message translates to:
+  /// **'On time'**
+  String get addTripOnTime;
+
+  /// Tab of an endpoint block on the when step: the trip was delayed or early, showing the delay inputs
+  ///
+  /// In en, this message translates to:
+  /// **'Delayed'**
+  String get addTripDelayed;
+
+  /// Label of the Past/Future selector of the unknown-date mode of the when step
+  ///
+  /// In en, this message translates to:
+  /// **'Roughly when'**
+  String get addTripRoughlyWhen;
+
+  /// Lowercase tag appended in parentheses to the label of optional inputs, e.g. 'Duration (optional)'
+  ///
+  /// In en, this message translates to:
+  /// **'optional'**
+  String get addTripOptional;
+
+  /// Gray placeholder of the optional duration row when no duration has been entered
+  ///
+  /// In en, this message translates to:
+  /// **'Not set'**
+  String get addTripDurationNotSet;
+
+  /// Muted helper text under the card of the date-only mode of the when step
+  ///
+  /// In en, this message translates to:
+  /// **'No exact times — just the day it happened.'**
+  String get addTripDateOnlyHelper;
+
+  /// Inline computed trip duration at the bottom of the precise mode of the when step
+  ///
+  /// In en, this message translates to:
+  /// **'Duration: {duration}'**
+  String addTripDurationSummary(String duration);
+
+  /// Inline computed trip duration including delays, with the scheduled duration in parentheses
+  ///
+  /// In en, this message translates to:
+  /// **'Duration: {duration} (scheduled {scheduled})'**
+  String addTripDurationSummaryScheduled(String duration, String scheduled);
+
+  /// Headline of the optional details step of the add-trip wizard
+  ///
+  /// In en, this message translates to:
+  /// **'Any more details?'**
+  String get addTripDetailsTitle;
+
+  /// Muted instruction subtitle under the headline of the optional details step
+  ///
+  /// In en, this message translates to:
+  /// **'All optional — add what you know'**
+  String get addTripDetailsSubtitle;
+
+  /// Label of the line name field of the details step
+  ///
+  /// In en, this message translates to:
+  /// **'Line name'**
+  String get addTripLineName;
+
+  /// Label of the vehicle registration number field of the details step
+  ///
+  /// In en, this message translates to:
+  /// **'Registration number'**
+  String get addTripRegistrationNumber;
+
+  /// Headline of the ticket, energy and visibility step of the add-trip wizard
+  ///
+  /// In en, this message translates to:
+  /// **'Ticket & extras'**
+  String get addTripTicketExtrasTitle;
+
+  /// Label of the ticket price field of the ticket step
+  ///
+  /// In en, this message translates to:
+  /// **'Price'**
+  String get addTripPrice;
+
+  /// Snackbar shown when opening the actual-time picker while the scheduled time is not set yet
+  ///
+  /// In en, this message translates to:
+  /// **'Select the scheduled time first'**
+  String get addTripSelectScheduledTimeFirst;
+
+  /// Prefix in front of the endpoint timezone string under the date/time pickers of the when step
+  ///
+  /// In en, this message translates to:
+  /// **'Timezone:'**
+  String get addTripTimezoneLabel;
+
+  /// Helper text above the delay inputs of a delayed endpoint on the when step
+  ///
+  /// In en, this message translates to:
+  /// **'Set the delay or advance using minutes or the actual time.'**
+  String get addTripDelayHelper;
+
+  /// Headline of the final route-check step of the add-trip wizard
+  ///
+  /// In en, this message translates to:
+  /// **'Check the route'**
+  String get addTripCheckRouteTitle;
+
+  /// Muted instruction subtitle under the headline of the route-check step
+  ///
+  /// In en, this message translates to:
+  /// **'Adjust the path on the map if it isn\'t quite right'**
+  String get addTripCheckRouteSubtitle;
+
+  /// Uppercase section label above the summary card of the route-check step
+  ///
+  /// In en, this message translates to:
+  /// **'Summary'**
+  String get addTripSummaryTitle;
+
+  /// Label of the vehicle type row of the summary card of the route-check step
+  ///
+  /// In en, this message translates to:
+  /// **'Vehicle'**
+  String get addTripSummaryVehicle;
+
+  /// Label of the router-computed journey distance row of the summary card of the route-check step
+  ///
+  /// In en, this message translates to:
+  /// **'Distance'**
+  String get addTripSummaryDistance;
+
+  /// Label of the summary card row showing the duration derived from the user's manual time inputs
+  ///
+  /// In en, this message translates to:
+  /// **'Theoretical duration'**
+  String get addTripSummaryTheoreticalDuration;
+
+  /// Label of the summary card row showing the duration computed live by the mapping router engine
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated route duration'**
+  String get addTripSummaryEstimatedDuration;
+
+  /// Small button filling the purchase date with the current date. Keep it short — abbreviate if needed (e.g. 'Auj.' in French)
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get addTripTodayButton;
 
   /// No description provided for @aboutPageAboutSubPageTitle.
   ///

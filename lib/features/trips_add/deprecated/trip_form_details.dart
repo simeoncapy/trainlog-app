@@ -219,7 +219,7 @@ class _TripFormDetailsState extends State<TripFormDetails> {
             title: loc.energy, 
             content: VehicleEnergySelector(
               value: model.energyType,
-              onChanged: model.setenergyType,
+              onChanged: model.setEnergyType,
             ),
           ),
           const SizedBox(height: 16),

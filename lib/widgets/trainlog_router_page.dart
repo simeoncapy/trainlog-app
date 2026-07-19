@@ -60,10 +60,6 @@ class _TrainlogRouterPageState extends State<TrainlogRouterPage> {
   bool _lastLoadingState = false;
   bool _lastRoutingErrorState = false;
 
-  void resetRoutingError() {
-    _lastRoutingErrorState = false;
-  }
-
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -218,9 +214,15 @@ class _TrainlogRouterPageState extends State<TrainlogRouterPage> {
 
             switch (payload['event'] as String?) {
               case 'loading':
-                _setLoading(payload['isLoading'] == true);
+                final isLoading = payload['isLoading'] == true;
+                // A new routing attempt (e.g. after the user moved a peg to
+                // fix the route) clears any previous routing error.
+                if (isLoading) _setRoutingError(false);
+                _setLoading(isLoading);
 
               case 'routeInfo':
+                // A successfully computed route means the error is resolved.
+                _setRoutingError(false);
                 widget.onRouteInfoChanged?.call(TripRoutingData(
                   text: payload['text']?.toString() ?? '',
                   distanceM: num.tryParse(payload['distanceM'].toString())?.toDouble(),
