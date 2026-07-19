@@ -142,7 +142,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get previousButton => 'Précédent';
 
   @override
-  String get validateButton => 'Valider';
+  String get validateButton => 'Enregistrer';
 
   @override
   String get continueButton => 'Continuer';
@@ -1213,6 +1213,65 @@ class AppLocalizationsFr extends AppLocalizations {
   String get addTripStepValidate => 'Valider';
 
   @override
+  String addTripStepProgress(int current, int total) {
+    return 'ÉTAPE $current / $total';
+  }
+
+  @override
+  String get addTripVehicleTypeTitle => 'Comment avez-vous voyagé ?';
+
+  @override
+  String get addTripVehicleTypeSubtitle =>
+      'Choisissez le moyen de transport pour ce trajet';
+
+  @override
+  String get addTripRouteTitle => 'Où êtes-vous allé ?';
+
+  @override
+  String get addTripRouteSubtitle =>
+      'Recherchez par nom, ou passez en manuel pour placer un repère';
+
+  @override
+  String get addTripSwapTooltip => 'Inverser le départ et l\'arrivée';
+
+  @override
+  String get addTripModeByName => 'Par nom';
+
+  @override
+  String get addTripModeManual => 'Manuel';
+
+  @override
+  String get addTripOperatorTitle => 'Qui a opéré ce trajet ?';
+
+  @override
+  String get addTripSelectedOperators => 'Transporteurs sélectionnés';
+
+  @override
+  String get addTripSuggestedOperators => 'Suggestions pour ce trajet';
+
+  @override
+  String get addTripSuggestedOperatorsHelper =>
+      'Basé sur vos trajets précédents dans ce pays et pour ce type de véhicule.';
+
+  @override
+  String get addTripAddCustomOperator =>
+      'Ajouter comme transporteur personnalisé';
+
+  @override
+  String addTripOperatorTripCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count trajets',
+      one: '1 trajet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get addTripSkipButton => 'Passer — je ne sais pas';
+
+  @override
   String get addTripExitConfirmationDialogueTitle => 'Arrêter la création ?';
 
   @override
@@ -1248,26 +1307,26 @@ class AppLocalizationsFr extends AppLocalizations {
       'En mode manuel vous pouvez saisir les coordonnées directement ou déplacer le marqueur à l’emplacement souhaité après avoir agrandi la carte.';
 
   @override
-  String get addTripOperator => 'Opérateur';
+  String get addTripOperator => 'Transporteur';
 
   @override
   String get addTripOperatorHelper =>
-      'Virgule ou Entrée pour valider un opérateur inconnu';
+      'Virgule ou Entrée pour valider un transporteur inconnu';
 
   @override
-  String get addTripOperatorHint => 'Rechercher un opérateur...';
+  String get addTripOperatorHint => 'Rechercher un transporteur...';
 
   @override
-  String get addTripOperatorPlaceholderLogo => 'Sélectionnez un opérateur';
+  String get addTripOperatorPlaceholderLogo => 'Sélectionnez un transporteur';
 
   @override
   String get addTripLine => 'Ligne';
 
   @override
-  String get addTripDateTypePrecise => 'Précise';
+  String get addTripDateTypePrecise => 'Précis';
 
   @override
-  String get addTripDateTypeUnknown => 'Inconnue';
+  String get addTripDateTypeUnknown => 'Inconnu';
 
   @override
   String get addTripDateTypeDate => 'Date';
@@ -1334,7 +1393,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get addTripPurchaseDate => 'Date d\'achat';
 
   @override
-  String get continueTripButton => 'Valider et continuer le voyage';
+  String get continueTripButton => 'Enregistrer et continuer le voyage';
 
   @override
   String get addTripPathUseNewRouter => 'Utiliser le nouveau routeur';
@@ -1394,6 +1453,93 @@ class AppLocalizationsFr extends AppLocalizations {
   String addTripDelayTime(String time) {
     return 'soit à $time';
   }
+
+  @override
+  String get addTripWhenTitle => 'Quand était-ce ?';
+
+  @override
+  String get addTripOnTime => 'À l\'heure';
+
+  @override
+  String get addTripDelayed => 'Retardé';
+
+  @override
+  String get addTripRoughlyWhen => 'Quand environ';
+
+  @override
+  String get addTripOptional => 'facultatif';
+
+  @override
+  String get addTripDurationNotSet => 'Non renseignée';
+
+  @override
+  String get addTripDateOnlyHelper =>
+      'Pas d\'heures exactes — juste le jour du trajet.';
+
+  @override
+  String addTripDurationSummary(String duration) {
+    return 'Durée : $duration';
+  }
+
+  @override
+  String addTripDurationSummaryScheduled(String duration, String scheduled) {
+    return 'Durée : $duration (prévue $scheduled)';
+  }
+
+  @override
+  String get addTripDetailsTitle => 'D\'autres détails ?';
+
+  @override
+  String get addTripDetailsSubtitle =>
+      'Tout est facultatif — ajoutez ce que vous savez';
+
+  @override
+  String get addTripLineName => 'Nom de la ligne';
+
+  @override
+  String get addTripRegistrationNumber => 'Numéro d\'immatriculation';
+
+  @override
+  String get addTripTicketExtrasTitle => 'Billet et extras';
+
+  @override
+  String get addTripPrice => 'Prix';
+
+  @override
+  String get addTripSelectScheduledTimeFirst =>
+      'Sélectionnez d\'abord l\'heure prévue';
+
+  @override
+  String get addTripTimezoneLabel => 'Fuseau horaire :';
+
+  @override
+  String get addTripDelayHelper =>
+      'Indiquez le retard ou l\'avance en minutes ou avec l\'horaire réel.';
+
+  @override
+  String get addTripCheckRouteTitle => 'Vérifiez l\'itinéraire';
+
+  @override
+  String get addTripCheckRouteSubtitle =>
+      'Ajustez le tracé sur la carte s\'il ne convient pas tout à fait';
+
+  @override
+  String get addTripSummaryTitle => 'Résumé';
+
+  @override
+  String get addTripSummaryVehicle => 'Véhicule';
+
+  @override
+  String get addTripSummaryDistance => 'Distance';
+
+  @override
+  String get addTripSummaryTheoreticalDuration => 'Durée théorique';
+
+  @override
+  String get addTripSummaryEstimatedDuration => 'Durée estimée du trajet';
+
+  @override
+  String get addTripTodayButton => 'Auj.';
 
   @override
   String get aboutPageAboutSubPageTitle => 'Trainlog';

@@ -141,7 +141,7 @@ class AppLocalizationsTl extends AppLocalizations {
   String get previousButton => 'Balik';
 
   @override
-  String get validateButton => 'Validate';
+  String get validateButton => 'I-save';
 
   @override
   String get continueButton => 'Tumuloy';
@@ -1185,6 +1185,64 @@ class AppLocalizationsTl extends AppLocalizations {
   String get addTripStepValidate => 'Ivalidate';
 
   @override
+  String addTripStepProgress(int current, int total) {
+    return 'STEP $current / $total';
+  }
+
+  @override
+  String get addTripVehicleTypeTitle => 'Paano ka bumiyahe?';
+
+  @override
+  String get addTripVehicleTypeSubtitle =>
+      'Piliin ang uri ng sasakyan para sa biyaheng ito';
+
+  @override
+  String get addTripRouteTitle => 'Saan ka nagpunta?';
+
+  @override
+  String get addTripRouteSubtitle =>
+      'Maghanap gamit ang pangalan, o lumipat sa Manual para maglagay ng pin';
+
+  @override
+  String get addTripSwapTooltip => 'Ipagpalit ang departure at arrival';
+
+  @override
+  String get addTripModeByName => 'Sa pangalan';
+
+  @override
+  String get addTripModeManual => 'Manual';
+
+  @override
+  String get addTripOperatorTitle => 'Sino ang nag-operate nito?';
+
+  @override
+  String get addTripSelectedOperators => 'Mga napiling operator';
+
+  @override
+  String get addTripSuggestedOperators => 'Mungkahi para sa rutang ito';
+
+  @override
+  String get addTripSuggestedOperatorsHelper =>
+      'Base sa iyong mga nakaraang biyahe sa bansang ito at uri ng sasakyan.';
+
+  @override
+  String get addTripAddCustomOperator => 'Idagdag bilang custom na operator';
+
+  @override
+  String addTripOperatorTripCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count biyahe',
+      one: '1 biyahe',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get addTripSkipButton => 'Laktawan — hindi ko alam';
+
+  @override
   String get addTripExitConfirmationDialogueTitle => 'Gusto mo umexit?';
 
   @override
@@ -1306,7 +1364,7 @@ class AppLocalizationsTl extends AppLocalizations {
   String get addTripPurchaseDate => 'Petsa ng pagbili';
 
   @override
-  String get continueTripButton => 'Validate at ituloy ang byahe';
+  String get continueTripButton => 'I-save at ituloy ang byahe';
 
   @override
   String get addTripPathUseNewRouter => 'Gamitin ang bagong router';
@@ -1366,6 +1424,92 @@ class AppLocalizationsTl extends AppLocalizations {
   String addTripDelayTime(String time) {
     return 'i.e. sa $time';
   }
+
+  @override
+  String get addTripWhenTitle => 'Kailan ito nangyari?';
+
+  @override
+  String get addTripOnTime => 'Nasa oras';
+
+  @override
+  String get addTripDelayed => 'Na-delay';
+
+  @override
+  String get addTripRoughlyWhen => 'Mga kailan';
+
+  @override
+  String get addTripOptional => 'opsyonal';
+
+  @override
+  String get addTripDurationNotSet => 'Hindi nakatakda';
+
+  @override
+  String get addTripDateOnlyHelper =>
+      'Walang eksaktong oras — ang araw lang ng byahe.';
+
+  @override
+  String addTripDurationSummary(String duration) {
+    return 'Haba ng byahe: $duration';
+  }
+
+  @override
+  String addTripDurationSummaryScheduled(String duration, String scheduled) {
+    return 'Haba ng byahe: $duration (nakatakda $scheduled)';
+  }
+
+  @override
+  String get addTripDetailsTitle => 'May iba pang detalye?';
+
+  @override
+  String get addTripDetailsSubtitle => 'Lahat opsyonal — ilagay ang alam mo';
+
+  @override
+  String get addTripLineName => 'Pangalan ng linya';
+
+  @override
+  String get addTripRegistrationNumber => 'Registration number';
+
+  @override
+  String get addTripTicketExtrasTitle => 'Ticket at iba pa';
+
+  @override
+  String get addTripPrice => 'Presyo';
+
+  @override
+  String get addTripSelectScheduledTimeFirst =>
+      'Piliin muna ang nakatakdang oras';
+
+  @override
+  String get addTripTimezoneLabel => 'Timezone:';
+
+  @override
+  String get addTripDelayHelper =>
+      'Itakda ang delay o advance gamit ang minuto o ang aktwal na oras.';
+
+  @override
+  String get addTripCheckRouteTitle => 'Suriin ang ruta';
+
+  @override
+  String get addTripCheckRouteSubtitle =>
+      'Ayusin ang ruta sa mapa kung hindi ito tama';
+
+  @override
+  String get addTripSummaryTitle => 'Buod';
+
+  @override
+  String get addTripSummaryVehicle => 'Sasakyan';
+
+  @override
+  String get addTripSummaryDistance => 'Distansya';
+
+  @override
+  String get addTripSummaryTheoreticalDuration => 'Teoretikal na tagal';
+
+  @override
+  String get addTripSummaryEstimatedDuration => 'Tinatayang tagal ng ruta';
+
+  @override
+  String get addTripTodayButton => 'Ngayon';
 
   @override
   String get aboutPageAboutSubPageTitle => 'Trainlog';

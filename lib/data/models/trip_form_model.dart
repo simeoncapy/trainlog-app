@@ -438,7 +438,7 @@ class TripFormModel extends ChangeNotifier {
 
   // Page 3
 
-  void setenergyType(EnergyType value) {
+  void setEnergyType(EnergyType value) {
     if (energyType == value) return; // avoids extra rebuilds
     energyType = value;
     formDataChanged();

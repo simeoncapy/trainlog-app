@@ -22,6 +22,10 @@ class FullScreenSearchOverlay<T> extends StatelessWidget {
   /// OPTIONAL: Shows a spinner instead of the search icon.
   final bool isLoading;
 
+  /// OPTIONAL: Extra widget rendered directly underneath the search field,
+  /// above the results list (e.g. an inline "add as custom" action).
+  final Widget? belowSearchField;
+
   const FullScreenSearchOverlay({
     super.key,
     required this.controller,
@@ -35,6 +39,7 @@ class FullScreenSearchOverlay<T> extends StatelessWidget {
     this.onChanged,
     this.onSubmitted,
     this.isLoading = false,
+    this.belowSearchField,
     this.dimBackground = true,
   });
 
@@ -100,6 +105,12 @@ class FullScreenSearchOverlay<T> extends StatelessWidget {
                         onSubmitted: onSubmitted,
                       ),
                     ),
+
+                    if (belowSearchField != null)
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                        child: belowSearchField!,
+                      ),
 
                     Expanded(
                       child: ListView.builder(

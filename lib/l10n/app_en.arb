@@ -49,7 +49,7 @@
   "refreshCompleted": "Refresh completed",
   "nextButton": "Next",
   "previousButton": "Previous",
-  "validateButton": "Validate",
+  "validateButton": "Save",
   "continueButton": "Continue",  
   "nameField": "Name",
   "auto": "Auto",
@@ -532,6 +532,73 @@
   "@addTripStepValidate": {
     "description": "Label for the last step when adding a trip. Choose a short word if possible"
   },
+  "addTripStepProgress": "STEP {current} / {total}",
+  "@addTripStepProgress": {
+    "description": "Fractional progress label of the add-trip wizard, e.g. 'STEP 1 / 7'",
+    "placeholders": {
+      "current": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "addTripVehicleTypeTitle": "How did you travel?",
+  "@addTripVehicleTypeTitle": {
+    "description": "Headline of the vehicle type selection step of the add-trip wizard"
+  },
+  "addTripVehicleTypeSubtitle": "Pick the vehicle type for this trip",
+  "@addTripVehicleTypeSubtitle": {
+    "description": "Muted instruction subtitle under the headline of the vehicle type selection step"
+  },
+  "addTripRouteTitle": "Where did you go?",
+  "@addTripRouteTitle": {
+    "description": "Headline of the departure/arrival selection step of the add-trip wizard"
+  },
+  "addTripRouteSubtitle": "Search by name, or switch to Manual to drop a pin",
+  "@addTripRouteSubtitle": {
+    "description": "Muted instruction subtitle under the headline of the departure/arrival selection step"
+  },
+  "addTripSwapTooltip": "Swap departure and arrival",
+  "@addTripSwapTooltip": {
+    "description": "Tooltip of the button swapping the departure and arrival of the trip being created"
+  },
+  "addTripModeByName": "By name",
+  "@addTripModeByName": {
+    "description": "Tab selecting the by-name station search mode on the route step"
+  },
+  "addTripModeManual": "Manual",
+  "@addTripModeManual": {
+    "description": "Tab selecting the manual coordinates mode on the route step"
+  },
+  "addTripOperatorTitle": "Who operated it?",
+  "@addTripOperatorTitle": {
+    "description": "Headline of the operator selection step of the add-trip wizard"
+  },
+  "addTripSelectedOperators": "Selected operators",
+  "@addTripSelectedOperators": {
+    "description": "Label of the block listing the operators already selected for the trip"
+  },
+  "addTripSuggestedOperators": "Suggested for this route",
+  "@addTripSuggestedOperators": {
+    "description": "Label of the block listing operator suggestions based on the trip's route"
+  },
+  "addTripSuggestedOperatorsHelper": "Based on your previous trips in this country and vehicle type.",
+  "@addTripSuggestedOperatorsHelper": {
+    "description": "Helper text for the block listing operator suggestions based on the trip's route"
+  },
+  "addTripAddCustomOperator": "Add as a custom operator",
+  "@addTripAddCustomOperator": {
+    "description": "Dashed button in the operator search overlay creating a custom operator from the typed text"
+  },
+  "addTripOperatorTripCount": "{count, plural, =1 {1 trip} other {{count} trips}}",
+  "@addTripOperatorTripCount": {
+    "description": "Subtitle of an operator suggestion: how many saved trips used this operator",
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "addTripSkipButton": "Skip — I don't know",
+  "@addTripSkipButton": {
+    "description": "Small text action above the Continue button on optional wizard steps, skipping the step"
+  },
   "addTripExitConfirmationDialogueTitle": "Do you want to exit?",
   "addTripExitConfirmationDialogueContent": "The trip data have been modified, they will be lost. Do you really want to exit the creation of the trip?",
   "addTripTransportationMode": "Transportation mode",
@@ -571,7 +638,7 @@
   "addTripTicketTitle": "Ticket",
   "addTripTicketPrice": "Ticket price",
   "addTripPurchaseDate": "Purchase date",
-  "continueTripButton": "Validate and continue the journey",
+  "continueTripButton": "Save and continue the journey",
   "addTripPathUseNewRouter": "Use the new router",
   "addTripNameEnd": "{departure} to {arrival}",
   "@addTripNameEnd" :{
@@ -636,7 +703,127 @@
       }
     }
   },
-  
+  "addTripWhenTitle": "When was it?",
+  "@addTripWhenTitle": {
+    "description": "Headline of the temporal data step of the add-trip wizard"
+  },
+  "addTripOnTime": "On time",
+  "@addTripOnTime": {
+    "description": "Tab of an endpoint block on the when step: the trip ran with no delay"
+  },
+  "addTripDelayed": "Delayed",
+  "@addTripDelayed": {
+    "description": "Tab of an endpoint block on the when step: the trip was delayed or early, showing the delay inputs"
+  },
+  "addTripRoughlyWhen": "Roughly when",
+  "@addTripRoughlyWhen": {
+    "description": "Label of the Past/Future selector of the unknown-date mode of the when step"
+  },
+  "addTripOptional": "optional",
+  "@addTripOptional": {
+    "description": "Lowercase tag appended in parentheses to the label of optional inputs, e.g. 'Duration (optional)'"
+  },
+  "addTripDurationNotSet": "Not set",
+  "@addTripDurationNotSet": {
+    "description": "Gray placeholder of the optional duration row when no duration has been entered"
+  },
+  "addTripDateOnlyHelper": "No exact times — just the day it happened.",
+  "@addTripDateOnlyHelper": {
+    "description": "Muted helper text under the card of the date-only mode of the when step"
+  },
+  "addTripDurationSummary": "Duration: {duration}",
+  "@addTripDurationSummary": {
+    "description": "Inline computed trip duration at the bottom of the precise mode of the when step",
+    "placeholders": {
+      "duration": {
+        "type": "String",
+        "description": "The computed trip duration (already formatted)"
+      }
+    }
+  },
+  "addTripDurationSummaryScheduled": "Duration: {duration} (scheduled {scheduled})",
+  "@addTripDurationSummaryScheduled": {
+    "description": "Inline computed trip duration including delays, with the scheduled duration in parentheses",
+    "placeholders": {
+      "duration": {
+        "type": "String",
+        "description": "The actual trip duration including delays (already formatted)"
+      },
+      "scheduled": {
+        "type": "String",
+        "description": "The scheduled trip duration (already formatted)"
+      }
+    }
+  },
+  "addTripDetailsTitle": "Any more details?",
+  "@addTripDetailsTitle": {
+    "description": "Headline of the optional details step of the add-trip wizard"
+  },
+  "addTripDetailsSubtitle": "All optional — add what you know",
+  "@addTripDetailsSubtitle": {
+    "description": "Muted instruction subtitle under the headline of the optional details step"
+  },
+  "addTripLineName": "Line name",
+  "@addTripLineName": {
+    "description": "Label of the line name field of the details step"
+  },
+  "addTripRegistrationNumber": "Registration number",
+  "@addTripRegistrationNumber": {
+    "description": "Label of the vehicle registration number field of the details step"
+  },
+  "addTripTicketExtrasTitle": "Ticket & extras",
+  "@addTripTicketExtrasTitle": {
+    "description": "Headline of the ticket, energy and visibility step of the add-trip wizard"
+  },
+  "addTripPrice": "Price",
+  "@addTripPrice": {
+    "description": "Label of the ticket price field of the ticket step"
+  },
+  "addTripSelectScheduledTimeFirst": "Select the scheduled time first",
+  "@addTripSelectScheduledTimeFirst": {
+    "description": "Snackbar shown when opening the actual-time picker while the scheduled time is not set yet"
+  },
+  "addTripTimezoneLabel": "Timezone:",
+  "@addTripTimezoneLabel": {
+    "description": "Prefix in front of the endpoint timezone string under the date/time pickers of the when step"
+  },
+  "addTripDelayHelper": "Set the delay or advance using minutes or the actual time.",
+  "@addTripDelayHelper": {
+    "description": "Helper text above the delay inputs of a delayed endpoint on the when step"
+  },
+  "addTripCheckRouteTitle": "Check the route",
+  "@addTripCheckRouteTitle": {
+    "description": "Headline of the final route-check step of the add-trip wizard"
+  },
+  "addTripCheckRouteSubtitle": "Adjust the path on the map if it isn't quite right",
+  "@addTripCheckRouteSubtitle": {
+    "description": "Muted instruction subtitle under the headline of the route-check step"
+  },
+  "addTripSummaryTitle": "Summary",
+  "@addTripSummaryTitle": {
+    "description": "Uppercase section label above the summary card of the route-check step"
+  },
+  "addTripSummaryVehicle": "Vehicle",
+  "@addTripSummaryVehicle": {
+    "description": "Label of the vehicle type row of the summary card of the route-check step"
+  },
+  "addTripSummaryDistance": "Distance",
+  "@addTripSummaryDistance": {
+    "description": "Label of the router-computed journey distance row of the summary card of the route-check step"
+  },
+  "addTripSummaryTheoreticalDuration": "Theoretical duration",
+  "@addTripSummaryTheoreticalDuration": {
+    "description": "Label of the summary card row showing the duration derived from the user's manual time inputs"
+  },
+  "addTripSummaryEstimatedDuration": "Estimated route duration",
+  "@addTripSummaryEstimatedDuration": {
+    "description": "Label of the summary card row showing the duration computed live by the mapping router engine"
+  },
+  "addTripTodayButton": "Today",
+  "@addTripTodayButton": {
+    "description": "Small button filling the purchase date with the current date. Keep it short — abbreviate if needed (e.g. 'Auj.' in French)"
+  },
+
   "aboutPageAboutSubPageTitle": "Trainlog",
   "aboutPageHowToSubPageTitle": "How To",
   "aboutPagePrivacySubPageTitle": "Privacy",

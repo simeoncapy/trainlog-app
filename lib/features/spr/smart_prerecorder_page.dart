@@ -5,7 +5,7 @@ import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/features/spr/widgets/pre_record_tile.dart';
 import 'package:trainlog_app/features/spr/widgets/spr_button_bar.dart';
 import 'package:trainlog_app/features/spr/widgets/spr_dialogs.dart';
-import 'package:trainlog_app/features/trips_add/add_trip_page.dart';
+import 'package:trainlog_app/features/trips_add/add_trip_wizard_page.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/navigation/nav_models.dart';
 import 'package:trainlog_app/platform/adaptive_dialog.dart';
@@ -278,7 +278,7 @@ class _SmartPrerecorderViewState extends State<_SmartPrerecorderView> {
       PageRouteBuilder(
         pageBuilder: (_, __, ___) => ChangeNotifierProvider(
           create: (_) => tripModel,
-          child: AddTripPage(
+          child: AddTripWizardPage(
             preRecorderIdsToDelete: selectedIds,
           ),
         ),

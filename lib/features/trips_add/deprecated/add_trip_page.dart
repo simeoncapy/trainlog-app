@@ -1,3 +1,7 @@
+// Archived original implementation of the "Add Trip" page, replaced by
+// AddTripWizardPage. Kept here for future archiving only.
+// ignore_for_file: deprecated_member_use_from_same_package
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/platform/adaptive_button.dart';
@@ -7,16 +11,21 @@ import 'package:trainlog_app/data/controllers/trainlog_web_controller.dart';
 import 'package:trainlog_app/data/models/polyline_entry.dart';
 import 'package:trainlog_app/data/models/trip_form_model.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
-import 'package:trainlog_app/features/trips_add/trip_form_basics.dart';
-import 'package:trainlog_app/features/trips_add/trip_form_date.dart';
-import 'package:trainlog_app/features/trips_add/trip_form_details.dart';
-import 'package:trainlog_app/features/trips_add/trip_form_path.dart';
+import 'package:trainlog_app/features/trips_add/deprecated/trip_form_basics.dart';
+import 'package:trainlog_app/features/trips_add/deprecated/trip_form_date.dart';
+import 'package:trainlog_app/features/trips_add/deprecated/trip_form_details.dart';
+import 'package:trainlog_app/features/trips_add/deprecated/trip_form_path.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
 import 'package:trainlog_app/services/pre_record_service.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 
+/// DEPRECATED — kept for future archiving only.
+///
+/// Replaced by [AddTripWizardPage] (lib/features/trips_add/add_trip_wizard_page.dart)
+/// as part of the multi-stage "Add Trip" redesign. Do not use in new code.
+@Deprecated('Use AddTripWizardPage instead')
 class AddTripPage extends StatefulWidget {
   final List<int>? preRecorderIdsToDelete;
   const AddTripPage({super.key, this.preRecorderIdsToDelete});

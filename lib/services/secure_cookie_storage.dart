@@ -24,23 +24,41 @@ class SecureCookieStorage implements Storage {
 
   String _key(String key) => '$_keyPrefix$key';
 
+  /// Serialises every secure-storage operation: the cookie jar saves after
+  /// each HTTP response, so overlapping requests trigger concurrent writes.
+  /// flutter_secure_storage does not guarantee those are safe (its Windows
+  /// backend rewrites a single shared file and throws a sharing violation on
+  /// concurrent access), and even where they are, interleaved
+  /// read-modify-write cycles can silently lose updates. Queueing them costs
+  /// nothing and removes both issues on every platform.
+  static Future<void> _tail = Future<void>.value();
+
+  static Future<T> _synchronized<T>(Future<T> Function() action) {
+    final run = _tail.then((_) => action());
+    // Keep the chain alive whether the action succeeds or fails.
+    _tail = run.then((_) {}, onError: (_) {});
+    return run;
+  }
+
   @override
   Future<void> init(bool persistSession, bool ignoreExpires) async {}
 
   @override
-  Future<String?> read(String key) => _storage.read(key: _key(key));
+  Future<String?> read(String key) =>
+      _synchronized(() => _storage.read(key: _key(key)));
 
   @override
   Future<void> write(String key, String value) =>
-      _storage.write(key: _key(key), value: value);
+      _synchronized(() => _storage.write(key: _key(key), value: value));
 
   @override
-  Future<void> delete(String key) => _storage.delete(key: _key(key));
+  Future<void> delete(String key) =>
+      _synchronized(() => _storage.delete(key: _key(key)));
 
   @override
   Future<void> deleteAll(List<String> keys) async {
     for (final key in keys) {
-      await _storage.delete(key: _key(key));
+      await delete(key);
     }
   }
 
@@ -50,10 +68,12 @@ class SecureCookieStorage implements Storage {
   static Future<bool> isAvailable() async {
     const probeKey = '${_keyPrefix}__probe__';
     try {
-      await _defaultStorage.write(key: probeKey, value: 'ok');
-      final ok = await _defaultStorage.read(key: probeKey) == 'ok';
-      await _defaultStorage.delete(key: probeKey);
-      return ok;
+      return await _synchronized(() async {
+        await _defaultStorage.write(key: probeKey, value: 'ok');
+        final ok = await _defaultStorage.read(key: probeKey) == 'ok';
+        await _defaultStorage.delete(key: probeKey);
+        return ok;
+      });
     } catch (e) {
       debugPrint('⚠️ Secure storage unavailable: $e');
       return false;
@@ -66,17 +86,19 @@ class SecureCookieStorage implements Storage {
   /// without this a reinstalled app would silently resume the old session.
   static Future<void> clearAllCookies() async {
     try {
-      final all = await _defaultStorage.readAll();
-      var removed = 0;
-      for (final key in all.keys) {
-        if (key.startsWith(_keyPrefix)) {
-          await _defaultStorage.delete(key: key);
-          removed++;
+      await _synchronized(() async {
+        final all = await _defaultStorage.readAll();
+        var removed = 0;
+        for (final key in all.keys) {
+          if (key.startsWith(_keyPrefix)) {
+            await _defaultStorage.delete(key: key);
+            removed++;
+          }
         }
-      }
-      if (removed > 0) {
-        debugPrint('🔒 Fresh install: removed $removed leftover cookie entrie(s) from secure storage');
-      }
+        if (removed > 0) {
+          debugPrint('🔒 Fresh install: removed $removed leftover cookie entrie(s) from secure storage');
+        }
+      });
     } catch (e) {
       debugPrint('⚠️ Could not clear secure cookie storage: $e');
     }

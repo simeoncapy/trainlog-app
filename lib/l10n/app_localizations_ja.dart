@@ -141,7 +141,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get previousButton => '戻る';
 
   @override
-  String get validateButton => '確認';
+  String get validateButton => '保存';
 
   @override
   String get continueButton => '続く';
@@ -1183,6 +1183,61 @@ class AppLocalizationsJa extends AppLocalizations {
   String get addTripStepValidate => '確認';
 
   @override
+  String addTripStepProgress(int current, int total) {
+    return 'ステップ $current / $total';
+  }
+
+  @override
+  String get addTripVehicleTypeTitle => 'どのように移動しましたか？';
+
+  @override
+  String get addTripVehicleTypeSubtitle => 'この旅行の交通手段を選択してください';
+
+  @override
+  String get addTripRouteTitle => 'どこへ行きましたか？';
+
+  @override
+  String get addTripRouteSubtitle => '名前で検索するか、手動に切り替えて地図上で位置を指定してください';
+
+  @override
+  String get addTripSwapTooltip => '出発地と到着地を入れ替える';
+
+  @override
+  String get addTripModeByName => '名前で';
+
+  @override
+  String get addTripModeManual => '手動';
+
+  @override
+  String get addTripOperatorTitle => '運行会社はどこですか？';
+
+  @override
+  String get addTripSelectedOperators => '選択した運行会社';
+
+  @override
+  String get addTripSuggestedOperators => 'この経路のおすすめ';
+
+  @override
+  String get addTripSuggestedOperatorsHelper =>
+      'この国と乗り物のタイプで、過去に利用した運行会社に基づいています。';
+
+  @override
+  String get addTripAddCustomOperator => 'カスタム運行会社として追加';
+
+  @override
+  String addTripOperatorTripCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 件の旅行',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get addTripSkipButton => 'スキップ — わからない';
+
+  @override
   String get addTripExitConfirmationDialogueTitle => '終了しますか？';
 
   @override
@@ -1302,7 +1357,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get addTripPurchaseDate => '購入日';
 
   @override
-  String get continueTripButton => '確認して旅行を続ける';
+  String get continueTripButton => '保存して旅行を続ける';
 
   @override
   String get addTripPathUseNewRouter => '新しいルーターを使用する';
@@ -1361,6 +1416,88 @@ class AppLocalizationsJa extends AppLocalizations {
   String addTripDelayTime(String time) {
     return 'つまり$timeに';
   }
+
+  @override
+  String get addTripWhenTitle => 'いつの旅でしたか？';
+
+  @override
+  String get addTripOnTime => '定刻';
+
+  @override
+  String get addTripDelayed => '遅延';
+
+  @override
+  String get addTripRoughlyWhen => 'おおよその時期';
+
+  @override
+  String get addTripOptional => '任意';
+
+  @override
+  String get addTripDurationNotSet => '未設定';
+
+  @override
+  String get addTripDateOnlyHelper => '正確な時刻はなし — 日付だけを記録します。';
+
+  @override
+  String addTripDurationSummary(String duration) {
+    return '所要時間：$duration';
+  }
+
+  @override
+  String addTripDurationSummaryScheduled(String duration, String scheduled) {
+    return '所要時間：$duration（予定 $scheduled）';
+  }
+
+  @override
+  String get addTripDetailsTitle => '他に詳細はありますか？';
+
+  @override
+  String get addTripDetailsSubtitle => 'すべて任意 — わかる範囲で入力してください';
+
+  @override
+  String get addTripLineName => '路線名';
+
+  @override
+  String get addTripRegistrationNumber => '車両番号';
+
+  @override
+  String get addTripTicketExtrasTitle => 'チケットとその他';
+
+  @override
+  String get addTripPrice => '料金';
+
+  @override
+  String get addTripSelectScheduledTimeFirst => '先に予定時刻を選択してください';
+
+  @override
+  String get addTripTimezoneLabel => 'タイムゾーン：';
+
+  @override
+  String get addTripDelayHelper => '遅延・早着は分数または実際の時刻で設定できます。';
+
+  @override
+  String get addTripCheckRouteTitle => 'ルートを確認';
+
+  @override
+  String get addTripCheckRouteSubtitle => '経路が正しくない場合は地図上で調整してください';
+
+  @override
+  String get addTripSummaryTitle => '概要';
+
+  @override
+  String get addTripSummaryVehicle => '交通手段';
+
+  @override
+  String get addTripSummaryDistance => '距離';
+
+  @override
+  String get addTripSummaryTheoreticalDuration => '予定所要時間';
+
+  @override
+  String get addTripSummaryEstimatedDuration => 'ルートによる推定所要時間';
+
+  @override
+  String get addTripTodayButton => '今日';
 
   @override
   String get aboutPageAboutSubPageTitle => 'Trainlog';

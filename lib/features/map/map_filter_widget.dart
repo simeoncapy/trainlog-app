@@ -7,6 +7,7 @@ import 'package:trainlog_app/platform/adaptive_vehicle_type_filter_chips.dart';
 import 'package:trainlog_app/providers/polyline_provider.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/widgets/app_steps_tab_bar.dart';
+import 'package:trainlog_app/widgets/primary_action_button.dart';
 
 /// Map filter bottom sheet.
 ///
@@ -104,7 +105,7 @@ class _MapFilterWidgetState extends State<MapFilterWidget> {
                 ),
               ),
             ),
-            _actionFooter(l10n, theme, poly),
+            _actionFooter(l10n, poly),
           ],
         ),
       ),
@@ -179,23 +180,14 @@ class _MapFilterWidgetState extends State<MapFilterWidget> {
 
   Widget _actionFooter(
     AppLocalizations l10n,
-    ThemeData theme,
     PolylineProvider poly,
   ) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-      child: SizedBox(
-        width: double.infinity,
-        height: 52,
-        child: ElevatedButton.icon(
-          onPressed: widget.onClose,
-          style: ElevatedButton.styleFrom(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-            textStyle: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
-          ),
-          icon: const Icon(Icons.map_outlined, size: 20),
-          label: Text(l10n.mapFilterShowTrips(poly.visibleTripCount)),
-        ),
+      child: PrimaryActionButton(
+        onPressed: widget.onClose,
+        icon: Icons.map_outlined,
+        label: l10n.mapFilterShowTrips(poly.visibleTripCount),
       ),
     );
   }

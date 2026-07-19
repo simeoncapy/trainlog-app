@@ -7,7 +7,7 @@ import 'package:trainlog_app/data/models/trip_form_model.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:lat_lng_to_timezone/lat_lng_to_timezone.dart' as tzmap;
 import 'package:trainlog_app/utils/date_utils.dart';
-import 'package:trainlog_app/widgets/delay_fields_switcher.dart';
+import 'package:trainlog_app/features/trips_add/deprecated/delay_fields_switcher.dart';
 import 'package:trainlog_app/widgets/error_banner.dart';
 import 'package:trainlog_app/widgets/titled_container.dart';
 

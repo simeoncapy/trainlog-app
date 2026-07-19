@@ -16,6 +16,7 @@ import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 import 'package:trainlog_app/utils/style_utils.dart';
 import 'package:trainlog_app/utils/text_utils.dart';
+import 'package:trainlog_app/widgets/primary_action_button.dart';
 
 /// Opens the trips search & filter interface as a bottom sheet, using the
 /// same native presentation hooks as `showAdaptiveTripBottomSheet` (the trip
@@ -539,27 +540,15 @@ class _TripsSearchFilterSheetState extends State<TripsSearchFilterSheet> {
   }
 
   Widget _actionFooter(BuildContext context, AppLocalizations l10n) {
-    final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-      child: SizedBox(
-        width: double.infinity,
-        height: 52,
-        child: ElevatedButton.icon(
-          onPressed: () => Navigator.of(
-            context,
-            rootNavigator: AppPlatform.isApple,
-          ).pop(_buildResult()),
-          style: ElevatedButton.styleFrom(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
-            ),
-            textStyle: theme.textTheme.titleMedium
-                ?.copyWith(fontWeight: FontWeight.w700),
-          ),
-          icon: const Icon(Icons.directions_transit_outlined, size: 20),
-          label: Text(l10n.mapFilterShowTrips(_matchCount)),
-        ),
+      child: PrimaryActionButton(
+        onPressed: () => Navigator.of(
+          context,
+          rootNavigator: AppPlatform.isApple,
+        ).pop(_buildResult()),
+        icon: Icons.directions_transit_outlined,
+        label: l10n.mapFilterShowTrips(_matchCount),
       ),
     );
   }

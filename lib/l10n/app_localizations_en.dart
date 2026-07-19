@@ -141,7 +141,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get previousButton => 'Previous';
 
   @override
-  String get validateButton => 'Validate';
+  String get validateButton => 'Save';
 
   @override
   String get continueButton => 'Continue';
@@ -1204,6 +1204,64 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addTripStepValidate => 'Validate';
 
   @override
+  String addTripStepProgress(int current, int total) {
+    return 'STEP $current / $total';
+  }
+
+  @override
+  String get addTripVehicleTypeTitle => 'How did you travel?';
+
+  @override
+  String get addTripVehicleTypeSubtitle =>
+      'Pick the vehicle type for this trip';
+
+  @override
+  String get addTripRouteTitle => 'Where did you go?';
+
+  @override
+  String get addTripRouteSubtitle =>
+      'Search by name, or switch to Manual to drop a pin';
+
+  @override
+  String get addTripSwapTooltip => 'Swap departure and arrival';
+
+  @override
+  String get addTripModeByName => 'By name';
+
+  @override
+  String get addTripModeManual => 'Manual';
+
+  @override
+  String get addTripOperatorTitle => 'Who operated it?';
+
+  @override
+  String get addTripSelectedOperators => 'Selected operators';
+
+  @override
+  String get addTripSuggestedOperators => 'Suggested for this route';
+
+  @override
+  String get addTripSuggestedOperatorsHelper =>
+      'Based on your previous trips in this country and vehicle type.';
+
+  @override
+  String get addTripAddCustomOperator => 'Add as a custom operator';
+
+  @override
+  String addTripOperatorTripCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count trips',
+      one: '1 trip',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get addTripSkipButton => 'Skip — I don\'t know';
+
+  @override
   String get addTripExitConfirmationDialogueTitle => 'Do you want to exit?';
 
   @override
@@ -1325,7 +1383,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addTripPurchaseDate => 'Purchase date';
 
   @override
-  String get continueTripButton => 'Validate and continue the journey';
+  String get continueTripButton => 'Save and continue the journey';
 
   @override
   String get addTripPathUseNewRouter => 'Use the new router';
@@ -1384,6 +1442,92 @@ class AppLocalizationsEn extends AppLocalizations {
   String addTripDelayTime(String time) {
     return 'i.e. at $time';
   }
+
+  @override
+  String get addTripWhenTitle => 'When was it?';
+
+  @override
+  String get addTripOnTime => 'On time';
+
+  @override
+  String get addTripDelayed => 'Delayed';
+
+  @override
+  String get addTripRoughlyWhen => 'Roughly when';
+
+  @override
+  String get addTripOptional => 'optional';
+
+  @override
+  String get addTripDurationNotSet => 'Not set';
+
+  @override
+  String get addTripDateOnlyHelper =>
+      'No exact times — just the day it happened.';
+
+  @override
+  String addTripDurationSummary(String duration) {
+    return 'Duration: $duration';
+  }
+
+  @override
+  String addTripDurationSummaryScheduled(String duration, String scheduled) {
+    return 'Duration: $duration (scheduled $scheduled)';
+  }
+
+  @override
+  String get addTripDetailsTitle => 'Any more details?';
+
+  @override
+  String get addTripDetailsSubtitle => 'All optional — add what you know';
+
+  @override
+  String get addTripLineName => 'Line name';
+
+  @override
+  String get addTripRegistrationNumber => 'Registration number';
+
+  @override
+  String get addTripTicketExtrasTitle => 'Ticket & extras';
+
+  @override
+  String get addTripPrice => 'Price';
+
+  @override
+  String get addTripSelectScheduledTimeFirst =>
+      'Select the scheduled time first';
+
+  @override
+  String get addTripTimezoneLabel => 'Timezone:';
+
+  @override
+  String get addTripDelayHelper =>
+      'Set the delay or advance using minutes or the actual time.';
+
+  @override
+  String get addTripCheckRouteTitle => 'Check the route';
+
+  @override
+  String get addTripCheckRouteSubtitle =>
+      'Adjust the path on the map if it isn\'t quite right';
+
+  @override
+  String get addTripSummaryTitle => 'Summary';
+
+  @override
+  String get addTripSummaryVehicle => 'Vehicle';
+
+  @override
+  String get addTripSummaryDistance => 'Distance';
+
+  @override
+  String get addTripSummaryTheoreticalDuration => 'Theoretical duration';
+
+  @override
+  String get addTripSummaryEstimatedDuration => 'Estimated route duration';
+
+  @override
+  String get addTripTodayButton => 'Today';
 
   @override
   String get aboutPageAboutSubPageTitle => 'Trainlog';
