@@ -933,7 +933,8 @@ class AppLocalizationsFr extends AppLocalizations {
   String get tripsSearchFilterSearchCountries => 'Rechercher un pays...';
 
   @override
-  String get tripsSearchFilterSearchOperators => 'Rechercher un transporteur...';
+  String get tripsSearchFilterSearchOperators =>
+      'Rechercher un transporteur...';
 
   @override
   String get tripsSearchFilterDone => 'Terminé';
