@@ -62,7 +62,7 @@ class TripDetailsActions extends StatelessWidget {
         Expanded(
           child: _ActionButton(
             icon: AdaptiveIcons.delete,
-            label: l10n.tripsDetailsDeleteButton,
+            label: l10n.deleteButton,
             background: cs.error.withValues(alpha: 0.12),
             foreground: cs.error,
             onTap: () => _delete(context, l10n),
@@ -95,7 +95,7 @@ class TripDetailsActions extends StatelessWidget {
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: Text(l10n.tripsDetailsDeleteDialogConfirmButton),
+            child: Text(l10n.deleteButton),
           ),
         ],
       ),

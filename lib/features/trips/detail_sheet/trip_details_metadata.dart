@@ -39,13 +39,13 @@ class TripDetailsMetadata extends StatelessWidget {
       ),
       if (clean(trip.materialType) != null)
         _Field(
-          l10n.tripsDetailsLabelMaterial,
+          l10n.material,
           trip.materialType!.trim(),
           icon: Icons.train_outlined,
         ),
       if (clean(trip.seat) != null)
         _Field(
-          l10n.tripsDetailsLabelSeat,
+          l10n.seat,
           trip.seat!.trim(),
           icon: Icons.event_seat_outlined,
         ),

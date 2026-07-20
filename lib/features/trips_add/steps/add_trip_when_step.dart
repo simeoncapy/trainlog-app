@@ -793,7 +793,7 @@ class _AddTripWhenStepState extends State<AddTripWhenStep> {
 
     return _CardLineItem(
       icon: Icons.schedule,
-      label: '${loc.addTripDuration} (${loc.addTripOptional})',
+      label: '${loc.duration} (${loc.addTripOptional})',
       value: Text(
         text ?? loc.addTripDurationNotSet,
         style: theme.textTheme.titleMedium?.copyWith(
@@ -1022,7 +1022,7 @@ class _DurationPickerDialogState extends State<_DurationPickerDialog> {
         const EnglishDurationLocale();
 
     return AlertDialog(
-      title: Text(loc.addTripDuration),
+      title: Text(loc.duration),
       content: Row(
         children: [
           Expanded(

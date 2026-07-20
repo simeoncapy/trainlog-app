@@ -24,9 +24,6 @@ class AppLocalizationsTl extends AppLocalizations {
   String get appVersionCopied => 'Nakopya na ang version number';
 
   @override
-  String get mainMenuButtonTooltip => 'Ibukas ang menu';
-
-  @override
   String get filterButton => 'Filter';
 
   @override
@@ -46,6 +43,9 @@ class AppLocalizationsTl extends AppLocalizations {
 
   @override
   String get deleteSelectionShort => 'Selection';
+
+  @override
+  String get deleteButton => 'Ibura';
 
   @override
   String get loginButton => 'Login';
@@ -103,9 +103,6 @@ class AppLocalizationsTl extends AppLocalizations {
       'Sa pag sign up, sumasang-ayon ka sa aming Privacy Policy.';
 
   @override
-  String get loginToYourAccount => 'Mag login sa account ';
-
-  @override
   String get loginWelcomeBack => 'Maligayang pagbabalik';
 
   @override
@@ -122,11 +119,6 @@ class AppLocalizationsTl extends AppLocalizations {
 
   @override
   String get errorCreationAccount => 'May mali sa pag gawa ng account.';
-
-  @override
-  String menuHello(Object username) {
-    return 'Kamusta $username';
-  }
 
   @override
   String get connectionError => 'May mali sa credentials mo';
@@ -177,10 +169,25 @@ class AppLocalizationsTl extends AppLocalizations {
   String get manual => 'manual';
 
   @override
-  String get fillRequiredFields => 'Ipasok ang lahat ng bagay';
+  String get seat => 'Upuan';
 
   @override
-  String get facultative => 'hindi kailangan';
+  String get distance => 'Distansya';
+
+  @override
+  String get duration => 'Haba ng byahe';
+
+  @override
+  String get noData => 'Walang datos';
+
+  @override
+  String get operator => 'Operator';
+
+  @override
+  String get material => 'Materyal';
+
+  @override
+  String get fillRequiredFields => 'Ipasok ang lahat ng bagay';
 
   @override
   String get visibility => 'Visibility';
@@ -465,9 +472,6 @@ class AppLocalizationsTl extends AppLocalizations {
   String get rankingTypeCarbon => 'CO2e';
 
   @override
-  String get rankingUnitDistance => 'Distansya';
-
-  @override
   String get rankingUnitTrips => 'Mga biyahe';
 
   @override
@@ -493,9 +497,6 @@ class AppLocalizationsTl extends AppLocalizations {
   String get rankingOrderDescending => 'Pababa';
 
   @override
-  String get rankingAllVehicles => 'lahat ng sasakyan';
-
-  @override
   String get rankingWorldCovered => 'Na-cover na mga squares sa mundo';
 
   @override
@@ -513,18 +514,10 @@ class AppLocalizationsTl extends AppLocalizations {
   }
 
   @override
-  String get rankingNoData => 'Walang datos';
-
-  @override
   String get rankingNotRanked => 'Hindi naka-ranggo';
 
   @override
   String get rankingSearchHint => 'Maghanap ng user…';
-
-  @override
-  String rankingVehicleTripsScope(String trips, String vehicle) {
-    return '$trips na biyahe sa $vehicle';
-  }
 
   @override
   String get railCoverageCountriesTab => 'Mga bansa';
@@ -542,18 +535,6 @@ class AppLocalizationsTl extends AppLocalizations {
       locale: localeName,
       other: '$count na rehiyon',
       one: '$count rehiyon',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String railCoverageLeadCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: 'Nangunguna ka sa $count bansa',
-      one: 'Nangunguna ka sa 1 bansa',
-      zero: 'Wala kang pinangungunahang bansa',
     );
     return '$_temp0';
   }
@@ -592,9 +573,6 @@ class AppLocalizationsTl extends AppLocalizations {
 
   @override
   String get menuAboutTitle => 'Tungkol sa app';
-
-  @override
-  String get menuIosMore => 'More';
 
   @override
   String get menuYouTitle => 'Ikaw';
@@ -690,9 +668,6 @@ class AppLocalizationsTl extends AppLocalizations {
   String get yearFutureList => 'Future';
 
   @override
-  String get yearYearList => 'Taon...';
-
-  @override
   String get typeTitle => 'Uri ng sasakyan';
 
   @override
@@ -759,9 +734,6 @@ class AppLocalizationsTl extends AppLocalizations {
   String get tripsTableHeaderEndTime => 'Oras ng pagdating';
 
   @override
-  String get tripsTableHeaderOperator => 'Operator';
-
-  @override
   String get tripsTableHeaderLineName => 'Linya';
 
   @override
@@ -776,36 +748,15 @@ class AppLocalizationsTl extends AppLocalizations {
   }
 
   @override
-  String get tripsDetailsTitleOperator => 'Operator: ';
-
-  @override
-  String get tripsDetailsTitleVehicle => 'Sasakyan: ';
-
-  @override
-  String get tripsDetailsTitleSeat => 'Upuan: ';
-
-  @override
-  String get tripsDetailsTitlePrice => 'Presyo: ';
-
-  @override
   String tripsDetailPurchasedDate(Object date) {
     return 'binili sa $date';
   }
-
-  @override
-  String get tripsDetailsTitleNotes => 'Notes: ';
 
   @override
   String get tripsDetailsSectionDetails => 'Detalye';
 
   @override
   String get tripsDetailsLabelVehicle => 'Sasakyan';
-
-  @override
-  String get tripsDetailsLabelMaterial => 'Materyal';
-
-  @override
-  String get tripsDetailsLabelSeat => 'Upuan';
 
   @override
   String get tripsDetailsLabelRegistration => 'Rehistrasyon';
@@ -839,9 +790,6 @@ class AppLocalizationsTl extends AppLocalizations {
   String get tripsDetailsSectionNotes => 'Notes';
 
   @override
-  String get tripsDetailsMetricDistance => 'Distansya';
-
-  @override
   String get tripsDetailsMetricAvgSpeed => 'Karaniwang bilis';
 
   @override
@@ -851,17 +799,11 @@ class AppLocalizationsTl extends AppLocalizations {
   String get tripsDetailsEditButton => 'Edit';
 
   @override
-  String get tripsDetailsDeleteButton => 'Ibura';
-
-  @override
   String get tripsDetailsDeleteDialogTitle => 'Ibura ang byahe?';
 
   @override
   String get tripsDetailsDeleteDialogMessage =>
       'SIgurado ka na gusto mo ibura ang byahe?';
-
-  @override
-  String get tripsDetailsDeleteDialogConfirmButton => 'Ibura';
 
   @override
   String get tripsDetailsDeleteFailed => 'Hindi mabura ang byahe';
@@ -870,31 +812,7 @@ class AppLocalizationsTl extends AppLocalizations {
   String get tripsDetailsDeleteSuccess => 'Nabura ang byahe';
 
   @override
-  String get tripsFilterAllCountry => 'Lahat';
-
-  @override
-  String get tripsFilterAllOperator => 'Lahat';
-
-  @override
   String get tripsFilterAllYears => 'Lahat ng Taon';
-
-  @override
-  String get tripsFilterKeyword => 'Keyword';
-
-  @override
-  String get tripsFilterDateFrom => 'Sa';
-
-  @override
-  String get tripsFilterDateTo => 'Sa (opsyonal)';
-
-  @override
-  String get tripsFilterCountry => 'Bansa';
-
-  @override
-  String get tripsFilterOperator => 'Operator';
-
-  @override
-  String get tripsFilterType => 'Uri ng sasakyan';
 
   @override
   String get tripsSearchFilterTitle => 'Maghanap ng biyahe';
@@ -960,16 +878,10 @@ class AppLocalizationsTl extends AppLocalizations {
   String get tripsAddButton => 'Bag. biyahe';
 
   @override
-  String get graphTypeOperator => 'Operator';
-
-  @override
   String get graphTypeCountry => 'Bansa';
 
   @override
   String get graphTypeYears => 'Taon';
-
-  @override
-  String get graphTypeMaterial => 'Materyal';
 
   @override
   String get graphTypeItinerary => 'Itinerary';
@@ -1104,16 +1016,7 @@ class AppLocalizationsTl extends AppLocalizations {
   String get statisticsGraphUnitDistance => 'Layo';
 
   @override
-  String get statisticsGraphUnitDuration => 'Haba ng byahe';
-
-  @override
   String get statisticsGraphUnitCo2 => 'CO2';
-
-  @override
-  String get statisticsDisplayFilters => 'Ipakita ang filters';
-
-  @override
-  String get statisticsHideFilters => 'Itago ang filter';
 
   @override
   String get statisticsTripsUnitBase => 'byahe';
@@ -1137,9 +1040,6 @@ class AppLocalizationsTl extends AppLocalizations {
   String get statisticsUnitLabel => 'Unit:';
 
   @override
-  String get statisticsNoDataLabel => 'Walang data';
-
-  @override
   String get statisticsPieWip => 'Ang pie chart ay WIP';
 
   @override
@@ -1155,34 +1055,7 @@ class AppLocalizationsTl extends AppLocalizations {
   String get statisticsViewTable => 'Table';
 
   @override
-  String get statisticsSelectDimension => 'Pumili ng dimensyon';
-
-  @override
-  String get statisticsSelectVehicle => 'Pumili ng sasakyan';
-
-  @override
-  String get statisticsSelectUnit => 'Pumili ng yunit';
-
-  @override
   String get internationalWaters => 'Tubig international';
-
-  @override
-  String get addTripPageTitle => 'Magdagdag ng byahe';
-
-  @override
-  String get addTripStepBasics => 'Basics';
-
-  @override
-  String get addTripStepDate => 'Petsa';
-
-  @override
-  String get addTripStepDetails => 'Detalye';
-
-  @override
-  String get addTripStepPath => 'Path';
-
-  @override
-  String get addTripStepValidate => 'Ivalidate';
 
   @override
   String addTripStepProgress(int current, int total) {
@@ -1253,15 +1126,6 @@ class AppLocalizationsTl extends AppLocalizations {
   String get addTripTransportationMode => 'Byahe mode';
 
   @override
-  String get addTripImportFr24 => 'Import ang flight data sa FR24';
-
-  @override
-  String get addTripManualDeparture => 'I set ang pag depart manually';
-
-  @override
-  String get addTripManualArrival => 'I set ang pag arrive manually';
-
-  @override
   String get addTripDeparture => 'Departure';
 
   @override
@@ -1278,20 +1142,7 @@ class AppLocalizationsTl extends AppLocalizations {
       'Sa manual mode, maari mong i pasok ang coordinates o i galaw ang marker sa tamang lugar sa mapa.';
 
   @override
-  String get addTripOperator => 'Operator';
-
-  @override
-  String get addTripOperatorHelper =>
-      'Gumamit ng comma o enter button para ivalidate ang operator kahit hindi mo alam';
-
-  @override
   String get addTripOperatorHint => 'Hanapin ang operator...';
-
-  @override
-  String get addTripOperatorPlaceholderLogo => 'Piliin ang operator';
-
-  @override
-  String get addTripLine => 'Linya';
 
   @override
   String get addTripDateTypePrecise => 'Tumpak';
@@ -1303,18 +1154,6 @@ class AppLocalizationsTl extends AppLocalizations {
   String get addTripDateTypeDate => 'Petsa';
 
   @override
-  String get addTripScheduledTime => 'Scheduled time';
-
-  @override
-  String get addTripStartDate => 'Simula ng byahe';
-
-  @override
-  String get addTripEndDate => 'Katapusan ng byahe';
-
-  @override
-  String get addTripDelay => 'Delay';
-
-  @override
   String get addTripRealTime => 'Tamang oras';
 
   @override
@@ -1322,9 +1161,6 @@ class AppLocalizationsTl extends AppLocalizations {
 
   @override
   String get addTripResetToScheduled => 'Ireset sa scheduled time';
-
-  @override
-  String get addTripDuration => 'Haba ng byahe';
 
   @override
   String get addTripPast => 'Nakaraan';
@@ -1340,25 +1176,10 @@ class AppLocalizationsTl extends AppLocalizations {
   String get addTripDepartureAfterArrival => 'Departure pagkatapos ng arrival!';
 
   @override
-  String get addTripFacultative => 'Optional fields';
-
-  @override
-  String get addTripMaterial => 'Materyal';
-
-  @override
-  String get addTripRegistration => 'Rehistrasyon';
-
-  @override
-  String get addTripSeat => 'Upuan';
-
-  @override
   String get addTripNotes => 'Note';
 
   @override
   String get addTripTicketTitle => 'Tiket';
-
-  @override
-  String get addTripTicketPrice => 'Presyo ng tiket';
 
   @override
   String get addTripPurchaseDate => 'Petsa ng pagbili';
@@ -1368,11 +1189,6 @@ class AppLocalizationsTl extends AppLocalizations {
 
   @override
   String get addTripPathUseNewRouter => 'Gamitin ang bagong router';
-
-  @override
-  String addTripNameEnd(String departure, String arrival) {
-    return '$departure hanggang $arrival';
-  }
 
   @override
   String get addTripPathHelp =>
@@ -1409,21 +1225,6 @@ class AppLocalizationsTl extends AppLocalizations {
 
   @override
   String get addTripPathFr24 => 'FR24 path';
-
-  @override
-  String addTripDelayMinuteDelay(String delay) {
-    return 'i.e. $delay late';
-  }
-
-  @override
-  String addTripDelayMinuteAdvance(String advance) {
-    return 'i.e. $advance early';
-  }
-
-  @override
-  String addTripDelayTime(String time) {
-    return 'i.e. sa $time';
-  }
 
   @override
   String get addTripWhenTitle => 'Kailan ito nangyari?';
@@ -1498,9 +1299,6 @@ class AppLocalizationsTl extends AppLocalizations {
 
   @override
   String get addTripSummaryVehicle => 'Sasakyan';
-
-  @override
-  String get addTripSummaryDistance => 'Distansya';
 
   @override
   String get addTripSummaryTheoreticalDuration => 'Teoretikal na tagal';
@@ -1582,9 +1380,6 @@ class AppLocalizationsTl extends AppLocalizations {
   String get prerecorderSelectStation => 'Pumili ng station';
 
   @override
-  String get prerecorderSelectClosest => 'Pumili ng pinkamalapit';
-
-  @override
   String get prerecorderNoStationReachable => 'Walang station na malapit';
 
   @override
@@ -1631,11 +1426,6 @@ class AppLocalizationsTl extends AppLocalizations {
 
   @override
   String get inboxPageTitle => 'Mga balita at update';
-
-  @override
-  String inboxAuthor(String author) {
-    return 'Gawa ni $author';
-  }
 
   @override
   String get inboxModified => '(naibago)';

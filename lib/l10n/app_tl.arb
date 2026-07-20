@@ -5,7 +5,6 @@
   "languageWithEmoji": "🇵🇭 Tagalog",
   "appVersion": "App version",
   "appVersionCopied": "Nakopya na ang version number",
-  "mainMenuButtonTooltip": "Ibukas ang menu",
   "filterButton": "Filter",
   "descendingOrder": "I-ayos Pababa",
   "ascendingOrder": "I-ayos Paakyat",
@@ -13,6 +12,7 @@
   "deleteAllShort": "Lahat",
   "deleteSelection": "Ibura ang selection",
   "deleteSelectionShort": "Selection",
+  "deleteButton": "Ibura",
   "loginButton": "Login",
   "logoutButton": "Logout",
   "loggedOut": "Na log out na",
@@ -31,20 +31,12 @@
   "passwordRequiredLabel": "Kailangan ang password",
   "createAccountButtonShort": "Gumawa",
   "createAccountPrivacyPolicy": "Sa pag sign up, sumasang-ayon ka sa aming Privacy Policy.",
-  "loginToYourAccount": "Mag login sa account ",
   "loginWelcomeBack": "Maligayang pagbabalik",
   "loginSubtitle": "I-log ang iyong susunod na biyahe",
   "loginNewHere": "Bago dito?",
   "changeInstance": "Baguhin ang instance",
   "instanceSelectorLabel": "Instance",
   "errorCreationAccount": "May mali sa pag gawa ng account.",
-  "menuHello": "Kamusta {username}",
-  "@menuHello": {
-    "description": "The username",
-    "placeholders": {
-      "username": {}
-    }
-  },
   "connectionError": "May mali sa credentials mo",
   "refreshCompleted": "Na refresh na",
   "nextButton": "Sunod",
@@ -61,11 +53,16 @@
   "energyHydrogen": "Hydrogen",
   "energyHydrogenShort": "H2",
   "manual": "manual",
+  "seat": "Upuan",
+  "distance": "Distansya",
+  "duration": "Haba ng byahe",
+  "noData": "Walang datos",
+  "operator": "Operator",
+  "material": "Materyal",
   "@manual": {
     "description": "manual (opposed as automatic). Should be gender and number neutral."
   },
   "fillRequiredFields": "Ipasok ang lahat ng bagay",
-  "facultative": "hindi kailangan",
   "visibility": "Visibility",
   "visibilityPublic": "Pampubliko",
   "visibilityPublicLong": "Lakbay pampubiklo",
@@ -162,7 +159,6 @@
   "rankingTypeRailwayCoverage": "Saklaw ng riles",
   "rankingTypeCountries": "Mga bansa",
   "rankingTypeCarbon": "CO2e",
-  "rankingUnitDistance": "Distansya",
   "rankingUnitTrips": "Mga biyahe",
   "rankingUnitTotalCarbon": "Kabuuang CO2e",
   "rankingUnitCarbonPerKm": "CO2e/km",
@@ -171,19 +167,15 @@
   "rankingSortByValue": "Ayusin ayon sa halaga",
   "rankingOrderAscending": "Pataas",
   "rankingOrderDescending": "Pababa",
-  "rankingAllVehicles": "lahat ng sasakyan",
   "rankingWorldCovered": "Na-cover na mga squares sa mundo",
   "rankingCountriesVisited": "Mga bansang nabisita",
   "rankingCountryCountLabel": "{count, plural, =1 {bansa} other {mga bansa}}",
-  "rankingNoData": "Walang datos",
   "rankingNotRanked": "Hindi naka-ranggo",
   "rankingSearchHint": "Maghanap ng user…",
-  "rankingVehicleTripsScope": "{trips} na biyahe sa {vehicle}",
   "railCoverageCountriesTab": "Mga bansa",
   "railCoverageRegionsTab": "Mga rehiyon",
   "railCoverageSelectRegion": "Pumili ng bansa",
   "railCoverageRegionCount": "{count, plural, =1 {{count} rehiyon} other {{count} na rehiyon}}",
-  "railCoverageLeadCount": "{count, plural, =0 {Wala kang pinangungunahang bansa} =1 {Nangunguna ka sa 1 bansa} other {Nangunguna ka sa {count} bansa}}",
   "railCoverageAreaSubtitle": "Saklaw ng riles ng {area}",
   "railCoverageYou": "Ikaw",
   "menuStatisticsTitle": "Istatistika",
@@ -195,7 +187,6 @@
   "menuSmartPrerecorderTitle": "Geolog",
   "menuSettingsTitle": "Settings",
   "menuAboutTitle": "Tungkol sa app",
-  "menuIosMore": "More",
   "menuYouTitle": "Ikaw",
   "menuExploreSectionTitle": "TUKLASIN",
   "menuMenuSectionTitle": "MENU",
@@ -232,7 +223,6 @@
   "yearAllList": "Lahat",
   "yearPastList": "Nakaraan",
   "yearFutureList": "Future",
-  "yearYearList": "Taon...",
   "typeTitle": "Uri ng sasakyan",
   "typeTrain": "Tren",
   "typeTram": "Tramway",
@@ -251,7 +241,6 @@
   "tripsTableHeaderDestination": "Patutunguhan",
   "tripsTableHeaderStartTime": "Oras ng pag alis",
   "tripsTableHeaderEndTime": "Oras ng pagdating",
-  "tripsTableHeaderOperator": "Operator",
   "tripsTableHeaderLineName": "Linya",
   "tripsTableHeaderTripLength": "Haba",
   "tripsTableHeaderVisibility": "Bisi.",
@@ -262,10 +251,6 @@
       "vehicle": {}
     }
   },
-  "tripsDetailsTitleOperator": "Operator: ",
-  "tripsDetailsTitleVehicle": "Sasakyan: ",
-  "tripsDetailsTitleSeat": "Upuan: ",
-  "tripsDetailsTitlePrice": "Presyo: ",
   "tripsDetailPurchasedDate": "binili sa {date}",
   "@tripsDetailPurchasedDate": {
     "description": "date of the ticket purchase",
@@ -273,35 +258,21 @@
       "date": {}
     }
   },
-  "tripsDetailsTitleNotes": "Notes: ",
   "tripsDetailsSectionDetails": "Detalye",
   "tripsDetailsLabelVehicle": "Sasakyan",
-  "tripsDetailsLabelMaterial": "Materyal",
-  "tripsDetailsLabelSeat": "Upuan",
   "tripsDetailsLabelRegistration": "Rehistrasyon",
   "tripsDetailsSectionOperator": "{count, plural, =1 {Operator} other {Operators}}",
   "tripsDetailsSectionCountry": "{count, plural, =1 {Bansa} other {Mga bansa}}",
   "tripsDetailsSectionTicket": "Tiket",
   "tripsDetailsSectionNotes": "Notes",
-  "tripsDetailsMetricDistance": "Distansya",
   "tripsDetailsMetricAvgSpeed": "Karaniwang bilis",
   "tripsDetailsNoDate": "Walang petsa",
   "tripsDetailsEditButton": "Edit",
-  "tripsDetailsDeleteButton": "Ibura",
   "tripsDetailsDeleteDialogTitle": "Ibura ang byahe?",
   "tripsDetailsDeleteDialogMessage": "SIgurado ka na gusto mo ibura ang byahe?",
-  "tripsDetailsDeleteDialogConfirmButton": "Ibura",
   "tripsDetailsDeleteFailed": "Hindi mabura ang byahe",
   "tripsDetailsDeleteSuccess": "Nabura ang byahe",
-  "tripsFilterAllCountry": "Lahat",
-  "tripsFilterAllOperator": "Lahat",
   "tripsFilterAllYears": "Lahat ng Taon",
-  "tripsFilterKeyword": "Keyword",
-  "tripsFilterDateFrom": "Sa",
-  "tripsFilterDateTo": "Sa (opsyonal)",
-  "tripsFilterCountry": "Bansa",
-  "tripsFilterOperator": "Operator",
-  "tripsFilterType": "Uri ng sasakyan",
 
   "tripsSearchFilterTitle": "Maghanap ng biyahe",
   "tripsSearchFilterSearchHint": "Mga istasyon, linya, tag...",
@@ -323,10 +294,8 @@
   "tripsSearchFilterDone": "Tapos na",
   "filterClearButton": "Ibura ang filter",
   "tripsAddButton": "Bag. biyahe",
-  "graphTypeOperator": "Operator",
   "graphTypeCountry": "Bansa",
   "graphTypeYears": "Taon",
-  "graphTypeMaterial": "Materyal",
   "graphTypeItinerary": "Itinerary",
   "typeStation": "{type, select, train{Station} plane{Airport} bus{Hintuan} tram{Station} metro{Station} ferry{Port} helicopter{Heliport} aerialway{Station} other{Location}}",
   "@typeStation": {
@@ -391,10 +360,7 @@
   },
   "statisticsGraphUnitTrips": "Byahe",
   "statisticsGraphUnitDistance": "Layo",
-  "statisticsGraphUnitDuration": "Haba ng byahe",
   "statisticsGraphUnitCo2": "CO2",
-  "statisticsDisplayFilters": "Ipakita ang filters",
-  "statisticsHideFilters": "Itago ang filter",
   "statisticsTripsUnitBase": "byahe",
   "statisticsTripsUnitKilo": "isang libong byahe",
   "statisticsTripsUnitMega": "isang milyong byahe",
@@ -402,37 +368,12 @@
   "statisticsOtherLabel": "Other",
   "statisticsTotalLabel": "Lahat",
   "statisticsUnitLabel": "Unit:",
-  "statisticsNoDataLabel": "Walang data",
   "statisticsPieWip": "Ang pie chart ay WIP",
   "statisticsTitle": "Statistics",
   "statisticsViewBar": "Bar",
   "statisticsViewPie": "Pie",
   "statisticsViewTable": "Table",
-  "statisticsSelectDimension": "Pumili ng dimensyon",
-  "statisticsSelectVehicle": "Pumili ng sasakyan",
-  "statisticsSelectUnit": "Pumili ng yunit",
   "internationalWaters": "Tubig international",
-  "addTripPageTitle": "Magdagdag ng byahe",
-  "addTripStepBasics": "Basics",
-  "@addTripStepBasics": {
-    "description": "Label for the first step when adding a trip. Choose a short word if possible"
-  },
-  "addTripStepDate": "Petsa",
-  "@addTripStepDate": {
-    "description": "Label for the second step when adding a trip. Choose a short word if possible"
-  },
-  "addTripStepDetails": "Detalye",
-  "@addTripStepDetails": {
-    "description": "Label for the third step when adding a trip. Choose a short word if possible"
-  },
-  "addTripStepPath": "Path",
-  "@addTripStepPath": {
-    "description": "Label for the fourth step when adding a trip. Choose a short word if possible"
-  },
-  "addTripStepValidate": "Ivalidate",
-  "@addTripStepValidate": {
-    "description": "Label for the last step when adding a trip. Choose a short word if possible"
-  },
   "addTripStepProgress": "STEP {current} / {total}",
   "@addTripStepProgress": {
     "description": "Fractional progress label of the add-trip wizard, e.g. 'STEP 1 / 7'",
@@ -501,54 +442,24 @@
     "description": "Small text action above the Continue button on optional wizard steps, skipping the step"
   },
   "addTripTransportationMode": "Byahe mode",
-  "addTripImportFr24": "Import ang flight data sa FR24",
-  "addTripManualDeparture": "I set ang pag depart manually",
-  "addTripManualArrival": "I set ang pag arrive manually",
   "addTripDeparture": "Departure",
   "addTripArrival": "Arrival",
   "addTripLatitudeShort": "Lat",
   "addTripLongitudeShort": "Long",
   "addTripMapUsageHelper": "Sa manual mode, maari mong i pasok ang coordinates o i galaw ang marker sa tamang lugar sa mapa.",
-  "addTripOperator": "Operator",
-  "addTripOperatorHelper": "Gumamit ng comma o enter button para ivalidate ang operator kahit hindi mo alam",
   "addTripOperatorHint": "Hanapin ang operator...",
-  "addTripOperatorPlaceholderLogo": "Piliin ang operator",
-  "addTripLine": "Linya",
   "addTripDateTypePrecise": "Tumpak",
   "addTripDateTypeUnknown": "Hindi alam",
   "addTripDateTypeDate": "Petsa",
-  "addTripScheduledTime": "Scheduled time",
-  "addTripStartDate": "Simula ng byahe",
-  "addTripEndDate": "Katapusan ng byahe",
-  "addTripDuration": "Haba ng byahe",
   "addTripPast": "Nakaraan",
   "addTripFuture": "HInaharap",
   "timezoneInformation": "Ang time zone ay base sa coordinates ng departure at ng arrival",
   "addTripDepartureAfterArrival": "Departure pagkatapos ng arrival!",
-  "addTripFacultative": "Optional fields",
-  "addTripMaterial": "Materyal",
-  "addTripRegistration": "Rehistrasyon",
-  "addTripSeat": "Upuan",
   "addTripNotes": "Note",
   "addTripTicketTitle": "Tiket",
-  "addTripTicketPrice": "Presyo ng tiket",
   "addTripPurchaseDate": "Petsa ng pagbili",
   "continueTripButton": "I-save at ituloy ang byahe",
   "addTripPathUseNewRouter": "Gamitin ang bagong router",
-  "addTripNameEnd": "{departure} hanggang {arrival}",
-  "@addTripNameEnd": {
-    "description": "The trip name (departure station to arrival station)",
-    "placeholders": {
-      "departure": {
-        "type": "String",
-        "description": "The name of the departure station/aiport/stop..."
-      },
-      "arrival": {
-        "type": "String",
-        "description": "The name of the arrival station/aiport/stop..."
-      }
-    }
-  },
   "addTripPathHelp": "Ang bagong router ay nasa beta mode at mukang electric ang sasakyan.\n\nAng mga router (luma at bago) ay pareho para sa tren, tram, at subway. Pwede mo i fine-tune ang peg para i tama ang ruta sa ikagugusto mo.",
   "addTicketPageTitle": "Bagong tiket",
   "addTagPageTitle": "Bagong tag",
@@ -568,36 +479,6 @@
   "addTripFinishFeedbackWarning": "Na record ang byahe pero ang feedback galing sa server ay hindi kumpleto. Paki refresh at i check ang detalye ng byahe.",
   "addTripPathGeodesic": "Geodesic path",
   "addTripPathFr24": "FR24 path",
-  "addTripDelayMinuteDelay": "i.e. {delay} late",
-  "@addTripDelayMinuteDelay": {
-    "description": "Indicates the delay for a trip",
-    "placeholders": {
-      "delay": {
-        "type": "String",
-        "description": "The delay (duration formatted already)"
-      }
-    }
-  },
-  "addTripDelayMinuteAdvance": "i.e. {advance} early",
-  "@addTripDelayMinuteAdvance": {
-    "description": "Indicates the advance  for a trip",
-    "placeholders": {
-      "advance": {
-        "type": "String",
-        "description": "The advance (duration formatted already)"
-      }
-    }
-  },
-  "addTripDelayTime": "i.e. sa {time}",
-  "@addTripDelayTime": {
-    "description": "Indicates the new time for a trip after a delay or advance",
-    "placeholders": {
-      "time": {
-        "type": "String",
-        "description": "The new time for a trip after a delay or advance"
-      }
-    }
-  },
   "addTripWhenTitle": "Kailan ito nangyari?",
   "addTripOnTime": "Nasa oras",
   "addTripDelayed": "Na-delay",
@@ -631,7 +512,6 @@
   "addTripCheckRouteSubtitle": "Ayusin ang ruta sa mapa kung hindi ito tama",
   "addTripSummaryTitle": "Buod",
   "addTripSummaryVehicle": "Sasakyan",
-  "addTripSummaryDistance": "Distansya",
   "addTripSummaryTheoreticalDuration": "Teoretikal na tagal",
   "addTripSummaryEstimatedDuration": "Tinatayang tagal ng ruta",
   "addTripTodayButton": "Ngayon",
@@ -659,7 +539,6 @@
   "prerecorderDeleteSelectionConfirm": "SIgurado ka na gusto mo ibura ang selection? Hindi ito reversible.",
   "prerecorderDeleteAllConfirm": "Sigurado ka na gusto mo ibura ang lahat ng recorded gelogs? Hindi ito reversible.",
   "prerecorderSelectStation": "Pumili ng station",
-  "prerecorderSelectClosest": "Pumili ng pinkamalapit",
   "prerecorderNoStationReachable": "Walang station na malapit",
   "prerecorderAway": "{distance} m layo",
   "@prerecorderAway": {
@@ -684,16 +563,6 @@
   "prerecorderErrorTypeSameForDepartureArrival": "Ang departure at arrival ay dapat parehas ng sasakyan, o unknown type",
   "prerecorderErrorFetchingStation": "Nagka error sa pagkuha ng data ng station",
   "inboxPageTitle": "Mga balita at update",
-  "inboxAuthor": "Gawa ni {author}",
-  "@inboxAuthor": {
-    "description": "The author of a message",
-    "placeholders": {
-      "author": {
-        "type": "String",
-        "description": "The name of the author"
-      }
-    }
-  },
   "inboxModified": "(naibago)",
   "inboxModifiedIndication": "(naibago sa {date})",
   "@inboxModifiedIndication": {
@@ -710,7 +579,6 @@
   "setBtnLabel": "Iset",
   "addTripExitConfirmationDialogueTitle": "Gusto mo umexit?",
   "addTripExitConfirmationDialogueContent": "Naibago ang data ng byahe, kung umexit ka ng hindi nag sasave mawawala ang data",
-  "addTripDelay": "Delay",
   "addTripRealTime": "Tamang oras",
   "addTripOriginDayLabel": "Araw ng byahe",
   "addTripResetToScheduled": "Ireset sa scheduled time",

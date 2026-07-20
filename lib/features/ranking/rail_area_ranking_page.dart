@@ -196,7 +196,7 @@ class _RailAreaRankingPageState extends State<RailAreaRankingPage> {
             const SizedBox(height: 8),
             Expanded(
               child: rows.isEmpty
-                  ? Center(child: Text(loc.rankingNoData))
+                  ? Center(child: Text(loc.noData))
                   : CoverageListCard(
                       child: ListView.separated(
                         padding: const EdgeInsets.symmetric(

@@ -133,7 +133,7 @@ class _RailwayCoverageBody extends StatelessWidget {
         currentUsername: provider.currentUsername,
         nameOf: (e) => e.subdivision.name,
         flagOf: (e) => e.code,
-        emptyText: loc.rankingNoData,
+        emptyText: loc.noData,
       );
     }
 
@@ -143,7 +143,7 @@ class _RailwayCoverageBody extends StatelessWidget {
       currentUsername: provider.currentUsername,
       nameOf: (e) => e.country(context).name,
       flagOf: (e) => e.countryCode,
-      emptyText: loc.rankingNoData,
+      emptyText: loc.noData,
     );
   }
 }

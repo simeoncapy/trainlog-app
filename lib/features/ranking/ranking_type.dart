@@ -120,7 +120,7 @@ enum RankingSortUnit {
     final loc = AppLocalizations.of(context)!;
     switch (this) {
       case RankingSortUnit.distance:
-        return loc.rankingUnitDistance;
+        return loc.distance;
       case RankingSortUnit.trips:
         return loc.rankingUnitTrips;
       case RankingSortUnit.totalCarbon:

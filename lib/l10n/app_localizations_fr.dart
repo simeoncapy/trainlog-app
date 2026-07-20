@@ -24,9 +24,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get appVersionCopied => 'Numéro de version copié';
 
   @override
-  String get mainMenuButtonTooltip => 'Ouvrir le menu';
-
-  @override
   String get filterButton => 'Filtrer';
 
   @override
@@ -46,6 +43,9 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get deleteSelectionShort => 'Sélection';
+
+  @override
+  String get deleteButton => 'Supprimer';
 
   @override
   String get loginButton => 'Connexion';
@@ -103,9 +103,6 @@ class AppLocalizationsFr extends AppLocalizations {
       'En vous inscrivant, vous acceptez notre Politique de confidentialité.';
 
   @override
-  String get loginToYourAccount => 'Connectez-vous à votre compte';
-
-  @override
   String get loginWelcomeBack => 'Bon retour';
 
   @override
@@ -122,11 +119,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get errorCreationAccount => 'Erreur lors de la création du compte.';
-
-  @override
-  String menuHello(Object username) {
-    return 'Bonjour $username';
-  }
 
   @override
   String get connectionError =>
@@ -178,10 +170,25 @@ class AppLocalizationsFr extends AppLocalizations {
   String get manual => 'manuel';
 
   @override
-  String get fillRequiredFields => 'Veuillez remplir les champs obligatoires';
+  String get seat => 'Siège';
 
   @override
-  String get facultative => 'facultatif';
+  String get distance => 'Distance';
+
+  @override
+  String get duration => 'Durée';
+
+  @override
+  String get noData => 'Aucune donnée';
+
+  @override
+  String get operator => 'Transporteur';
+
+  @override
+  String get material => 'Matériel';
+
+  @override
+  String get fillRequiredFields => 'Veuillez remplir les champs obligatoires';
 
   @override
   String get visibility => 'Visibilité';
@@ -473,9 +480,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get rankingTypeCarbon => 'CO2e';
 
   @override
-  String get rankingUnitDistance => 'Distance';
-
-  @override
   String get rankingUnitTrips => 'Trajets';
 
   @override
@@ -501,9 +505,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get rankingOrderDescending => 'Décroissant';
 
   @override
-  String get rankingAllVehicles => 'tous les véhicules';
-
-  @override
   String get rankingWorldCovered => 'Cases du monde couvertes';
 
   @override
@@ -521,18 +522,10 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get rankingNoData => 'Aucune donnée';
-
-  @override
   String get rankingNotRanked => 'Non classé';
 
   @override
   String get rankingSearchHint => 'Rechercher des utilisateurs…';
-
-  @override
-  String rankingVehicleTripsScope(String trips, String vehicle) {
-    return '$trips trajets en $vehicle';
-  }
 
   @override
   String get railCoverageCountriesTab => 'Pays';
@@ -550,18 +543,6 @@ class AppLocalizationsFr extends AppLocalizations {
       locale: localeName,
       other: '$count régions',
       one: '$count région',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String railCoverageLeadCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: 'Vous menez $count pays',
-      one: 'Vous menez 1 pays',
-      zero: 'Vous ne menez aucun pays',
     );
     return '$_temp0';
   }
@@ -600,9 +581,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get menuAboutTitle => 'À propos';
-
-  @override
-  String get menuIosMore => 'Plus';
 
   @override
   String get menuYouTitle => 'Vous';
@@ -702,9 +680,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get yearFutureList => 'Futur';
 
   @override
-  String get yearYearList => 'Années...';
-
-  @override
   String get typeTitle => 'Types de véhicule';
 
   @override
@@ -771,9 +746,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get tripsTableHeaderEndTime => 'Heure d\'arrivée';
 
   @override
-  String get tripsTableHeaderOperator => 'Transporteur';
-
-  @override
   String get tripsTableHeaderLineName => 'Ligne';
 
   @override
@@ -788,36 +760,15 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get tripsDetailsTitleOperator => 'Transporteur : ';
-
-  @override
-  String get tripsDetailsTitleVehicle => 'Vehicule : ';
-
-  @override
-  String get tripsDetailsTitleSeat => 'Siège : ';
-
-  @override
-  String get tripsDetailsTitlePrice => 'Prix : ';
-
-  @override
   String tripsDetailPurchasedDate(Object date) {
     return 'acheté le $date';
   }
-
-  @override
-  String get tripsDetailsTitleNotes => 'Notes : ';
 
   @override
   String get tripsDetailsSectionDetails => 'Détails';
 
   @override
   String get tripsDetailsLabelVehicle => 'Véhicule';
-
-  @override
-  String get tripsDetailsLabelMaterial => 'Matériel';
-
-  @override
-  String get tripsDetailsLabelSeat => 'Siège';
 
   @override
   String get tripsDetailsLabelRegistration => 'Immatriculation';
@@ -851,9 +802,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get tripsDetailsSectionNotes => 'Notes';
 
   @override
-  String get tripsDetailsMetricDistance => 'Distance';
-
-  @override
   String get tripsDetailsMetricAvgSpeed => 'Vitesse moy.';
 
   @override
@@ -863,17 +811,11 @@ class AppLocalizationsFr extends AppLocalizations {
   String get tripsDetailsEditButton => 'Modifier';
 
   @override
-  String get tripsDetailsDeleteButton => 'Supprimer';
-
-  @override
   String get tripsDetailsDeleteDialogTitle => 'Supprimer ce trajet ?';
 
   @override
   String get tripsDetailsDeleteDialogMessage =>
       'Êtes-vous sûr de vouloir supprimer ce trajet ?';
-
-  @override
-  String get tripsDetailsDeleteDialogConfirmButton => 'Supprimer';
 
   @override
   String get tripsDetailsDeleteFailed => 'Échec de la suppression du trajet';
@@ -882,31 +824,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get tripsDetailsDeleteSuccess => 'Trajet supprimé avec succès';
 
   @override
-  String get tripsFilterAllCountry => 'Tous';
-
-  @override
-  String get tripsFilterAllOperator => 'Tous';
-
-  @override
   String get tripsFilterAllYears => 'Toutes les années';
-
-  @override
-  String get tripsFilterKeyword => 'Mot-clef';
-
-  @override
-  String get tripsFilterDateFrom => 'Le';
-
-  @override
-  String get tripsFilterDateTo => 'au (facultatif)';
-
-  @override
-  String get tripsFilterCountry => 'Pays';
-
-  @override
-  String get tripsFilterOperator => 'Opérateur';
-
-  @override
-  String get tripsFilterType => 'Types de véhicule';
 
   @override
   String get tripsSearchFilterTitle => 'Rechercher des trajets';
@@ -943,7 +861,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get tripsSearchFilterCountries => 'Pays';
 
   @override
-  String get tripsSearchFilterOperators => 'Opérateurs';
+  String get tripsSearchFilterOperators => 'Transporteurs';
 
   @override
   String get tripsSearchFilterAdd => 'Ajouter';
@@ -954,13 +872,14 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get tripsSearchFilterAllOperatorsFromTrips =>
-      'Tous les opérateurs de vos trajets';
+      'Tous les transporteurs de vos trajets';
 
   @override
   String get tripsSearchFilterSearchCountries => 'Rechercher un pays...';
 
   @override
-  String get tripsSearchFilterSearchOperators => 'Rechercher un opérateur...';
+  String get tripsSearchFilterSearchOperators =>
+      'Rechercher un transporteur...';
 
   @override
   String get tripsSearchFilterDone => 'Terminé';
@@ -972,16 +891,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get tripsAddButton => 'Nouv. trajet';
 
   @override
-  String get graphTypeOperator => 'Opérateur';
-
-  @override
   String get graphTypeCountry => 'Pays';
 
   @override
   String get graphTypeYears => 'Années';
-
-  @override
-  String get graphTypeMaterial => 'Matériel';
 
   @override
   String get graphTypeItinerary => 'Itinéraire';
@@ -1132,16 +1045,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get statisticsGraphUnitDistance => 'Distance';
 
   @override
-  String get statisticsGraphUnitDuration => 'Durée';
-
-  @override
   String get statisticsGraphUnitCo2 => 'CO2';
-
-  @override
-  String get statisticsDisplayFilters => 'Afficher les filtres';
-
-  @override
-  String get statisticsHideFilters => 'Masquer les filtres';
 
   @override
   String get statisticsTripsUnitBase => 'trajets';
@@ -1165,9 +1069,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get statisticsUnitLabel => 'Unités :';
 
   @override
-  String get statisticsNoDataLabel => 'Pas de données';
-
-  @override
   String get statisticsPieWip => 'Le camembert est en cours de construction';
 
   @override
@@ -1183,34 +1084,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get statisticsViewTable => 'Tableau';
 
   @override
-  String get statisticsSelectDimension => 'Sélectionner une dimension';
-
-  @override
-  String get statisticsSelectVehicle => 'Sélectionner un véhicule';
-
-  @override
-  String get statisticsSelectUnit => 'Sélectionner une unité';
-
-  @override
   String get internationalWaters => 'Eaux internationales';
-
-  @override
-  String get addTripPageTitle => 'Ajouter un trajet';
-
-  @override
-  String get addTripStepBasics => 'Info';
-
-  @override
-  String get addTripStepDate => 'Date';
-
-  @override
-  String get addTripStepDetails => 'Détails';
-
-  @override
-  String get addTripStepPath => 'Trajet';
-
-  @override
-  String get addTripStepValidate => 'Valider';
 
   @override
   String addTripStepProgress(int current, int total) {
@@ -1282,15 +1156,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get addTripTransportationMode => 'Moyen de transport';
 
   @override
-  String get addTripImportFr24 => 'Importer les données du vol de FR24';
-
-  @override
-  String get addTripManualDeparture => 'Départ manuel';
-
-  @override
-  String get addTripManualArrival => 'Arrivée manuelle';
-
-  @override
   String get addTripDeparture => 'Départ';
 
   @override
@@ -1307,20 +1172,7 @@ class AppLocalizationsFr extends AppLocalizations {
       'En mode manuel vous pouvez saisir les coordonnées directement ou déplacer le marqueur à l’emplacement souhaité après avoir agrandi la carte.';
 
   @override
-  String get addTripOperator => 'Transporteur';
-
-  @override
-  String get addTripOperatorHelper =>
-      'Virgule ou Entrée pour valider un transporteur inconnu';
-
-  @override
   String get addTripOperatorHint => 'Rechercher un transporteur...';
-
-  @override
-  String get addTripOperatorPlaceholderLogo => 'Sélectionnez un transporteur';
-
-  @override
-  String get addTripLine => 'Ligne';
 
   @override
   String get addTripDateTypePrecise => 'Précis';
@@ -1332,18 +1184,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get addTripDateTypeDate => 'Date';
 
   @override
-  String get addTripScheduledTime => 'Horaire prévu';
-
-  @override
-  String get addTripStartDate => 'Début du trajet';
-
-  @override
-  String get addTripEndDate => 'Fin du trajet';
-
-  @override
-  String get addTripDelay => 'Retard';
-
-  @override
   String get addTripRealTime => 'Horaire réel';
 
   @override
@@ -1351,9 +1191,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get addTripResetToScheduled => 'Réinitialiser à l\'horaire prévu';
-
-  @override
-  String get addTripDuration => 'Durée';
 
   @override
   String get addTripPast => 'Passé';
@@ -1369,25 +1206,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get addTripDepartureAfterArrival => 'Le départ est après l\'arrivée !';
 
   @override
-  String get addTripFacultative => 'Champs facultatifs';
-
-  @override
-  String get addTripMaterial => 'Matérial';
-
-  @override
-  String get addTripRegistration => 'Immatriculation';
-
-  @override
-  String get addTripSeat => 'Siège';
-
-  @override
   String get addTripNotes => 'Note';
 
   @override
   String get addTripTicketTitle => 'Billet';
-
-  @override
-  String get addTripTicketPrice => 'Prix du billet';
 
   @override
   String get addTripPurchaseDate => 'Date d\'achat';
@@ -1397,11 +1219,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get addTripPathUseNewRouter => 'Utiliser le nouveau routeur';
-
-  @override
-  String addTripNameEnd(String departure, String arrival) {
-    return '$departure à $arrival';
-  }
 
   @override
   String get addTripPathHelp =>
@@ -1438,21 +1255,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get addTripPathFr24 => 'Trajet FR24';
-
-  @override
-  String addTripDelayMinuteDelay(String delay) {
-    return 'soit $delay en retard';
-  }
-
-  @override
-  String addTripDelayMinuteAdvance(String advance) {
-    return 'soit $advance en avance';
-  }
-
-  @override
-  String addTripDelayTime(String time) {
-    return 'soit à $time';
-  }
 
   @override
   String get addTripWhenTitle => 'Quand était-ce ?';
@@ -1528,9 +1330,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get addTripSummaryVehicle => 'Véhicule';
-
-  @override
-  String get addTripSummaryDistance => 'Distance';
 
   @override
   String get addTripSummaryTheoreticalDuration => 'Durée théorique';
@@ -1612,9 +1411,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get prerecorderSelectStation => 'Sélectionner une gare';
 
   @override
-  String get prerecorderSelectClosest => 'Sélectionner la plus proche';
-
-  @override
   String get prerecorderNoStationReachable => 'Aucune gare à proximité';
 
   @override
@@ -1664,11 +1460,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get inboxPageTitle => 'Messages';
 
   @override
-  String inboxAuthor(String author) {
-    return 'Par $author';
-  }
-
-  @override
   String get inboxModified => '(modifié)';
 
   @override
@@ -1694,7 +1485,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get onboardingPage2Subtitle =>
-      'Consultez une analyse détaillée de vos déplacements : comment, quand et où vous avez voyagé.\n\nDécouvrez vos gares les plus fréquentées, vos opérateurs les plus utilisés et la part du réseau ferroviaire de votre pays que vous avez parcourue.';
+      'Consultez une analyse détaillée de vos déplacements : comment, quand et où vous avez voyagé.\n\nDécouvrez vos gares les plus fréquentées, vos transporteurs les plus utilisés et la part du réseau ferroviaire de votre pays que vous avez parcourue.';
 
   @override
   String get onboardingPage3Title => 'Partagez vos voyages';

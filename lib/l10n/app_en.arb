@@ -5,7 +5,6 @@
   "languageWithEmoji": "🇬🇧 English",
   "appVersion": "App version",
   "appVersionCopied": "Version number copied",
-  "mainMenuButtonTooltip": "Open menu",
   "filterButton": "Filter",
   "descendingOrder": "Descending order",
   "ascendingOrder": "Ascending order",
@@ -13,6 +12,10 @@
   "deleteAllShort": "All",
   "deleteSelection": "Delete selection",
   "deleteSelectionShort": "Selection",
+  "deleteButton": "Delete",
+  "@deleteButton": {
+    "description": "Shared label for delete buttons (trip details action, delete confirmation dialog)"
+  },
   "loginButton": "Log in",
   "logoutButton": "Log out",
   "loggedOut": "Logged out",
@@ -31,20 +34,12 @@
   "passwordRequiredLabel": "Password is required",
   "createAccountButtonShort": "Create",
   "createAccountPrivacyPolicy": "By signing up, you agree to our Privacy Policy.",
-  "loginToYourAccount": "Log in to your account",
   "loginWelcomeBack": "Welcome back",
   "loginSubtitle": "Log your next journey",
   "loginNewHere": "New here?",
   "changeInstance": "Change instance",
   "instanceSelectorLabel": "Instance",
   "errorCreationAccount": "Error while creating account.",
-  "menuHello": "Hello {username}",
-  "@menuHello" :{
-    "description": "The username",
-    "placeholders": {
-      "username": {}
-    }
-  },
   "connectionError": "Login failed, please check your credentials",
   "refreshCompleted": "Refresh completed",
   "nextButton": "Next",
@@ -64,8 +59,31 @@
   "@manual" :{
     "description": "manual (opposed as automatic). Should be gender and number neutral."
   },
+  "seat": "Seat",
+  "@seat": {
+    "description": "Shared label for the trip's seat (trip details, add-trip form)"
+  },
+  "distance": "Distance",
+  "@distance": {
+    "description": "Shared label for a distance (ranking unit, trip details metric, add-trip route summary)"
+  },
+  "duration": "Duration",
+  "@duration": {
+    "description": "Shared label for a duration (statistics graph unit, add-trip form)"
+  },
+  "noData": "No data",
+  "@noData": {
+    "description": "Shared empty-state message when there is no data to display (ranking, statistics)"
+  },
+  "operator": "Operator",
+  "@operator": {
+    "description": "Shared label for the trip's operator (trips table header, statistics graph dimension, add-trip form)"
+  },
+  "material": "Material",
+  "@material": {
+    "description": "Shared label for the trip's material / rolling stock (trip details, statistics graph dimension, add-trip form)"
+  },
   "fillRequiredFields": "Please fill the required fields",
-  "facultative": "facultative",
   "visibility": "Visibility",
   "visibilityPublic": "Public",
   "visibilityPublicLong": "Public trip",
@@ -177,7 +195,6 @@
   "rankingTypeRailwayCoverage": "Railway coverage",
   "rankingTypeCountries": "Countries",
   "rankingTypeCarbon": "CO2e",
-  "rankingUnitDistance": "Distance",
   "rankingUnitTrips": "Trips",
   "rankingUnitTotalCarbon": "Total CO2e",
   "rankingUnitCarbonPerKm": "CO2e/km",
@@ -186,7 +203,6 @@
   "rankingSortByValue": "Sort by value",
   "rankingOrderAscending": "Ascending",
   "rankingOrderDescending": "Descending",
-  "rankingAllVehicles": "all vehicles",
   "rankingWorldCovered": "World squares covered",
   "rankingCountriesVisited": "Countries visited",
   "@rankingCountriesVisited": {
@@ -199,29 +215,14 @@
       "count": { "type": "int" }
     }
   },
-  "rankingNoData": "No data",
   "rankingNotRanked": "Not ranked",
   "rankingSearchHint": "Search users…",
-  "rankingVehicleTripsScope": "{trips} {vehicle} trips",
-  "@rankingVehicleTripsScope": {
-    "placeholders": {
-      "trips": { "type": "String" },
-      "vehicle": { "type": "String" }
-    }
-  },
   "railCoverageCountriesTab": "Countries",
   "railCoverageRegionsTab": "Regions",
   "railCoverageSelectRegion": "Select a country",
   "railCoverageRegionCount": "{count, plural, =1 {{count} region} other {{count} regions}}",
   "@railCoverageRegionCount": {
     "description": "Number of regions (subdivisions) of a country in the railway coverage dropdown",
-    "placeholders": {
-      "count": { "type": "int" }
-    }
-  },
-  "railCoverageLeadCount": "{count, plural, =0 {You lead no countries} =1 {You lead 1 country} other {You lead {count} countries}}",
-  "@railCoverageLeadCount": {
-    "description": "Summary of how many countries the user is the leader of in railway coverage",
     "placeholders": {
       "count": { "type": "int" }
     }
@@ -246,7 +247,6 @@
   "menuSmartPrerecorderTitle": "Geolog",
   "menuSettingsTitle": "Settings",
   "menuAboutTitle": "About",
-  "menuIosMore": "More",
   "menuYouTitle": "You",
   "menuExploreSectionTitle": "EXPLORE",
   "menuMenuSectionTitle": "MENU",
@@ -297,7 +297,6 @@
   "yearAllList": "All",
   "yearPastList": "Past",
   "yearFutureList": "Future",
-  "yearYearList": "Years...",
   "typeTitle": "Vehicle Types",
   "typeTrain": "Train",
   "typeTram": "Tramway",
@@ -321,7 +320,6 @@
   "tripsTableHeaderDestination": "Destination",
   "tripsTableHeaderStartTime": "Departure Time",
   "tripsTableHeaderEndTime": "Arrival Time",
-  "tripsTableHeaderOperator": "Operator",
   "tripsTableHeaderLineName": "Line",
   "tripsTableHeaderTripLength": "Length",
   "tripsTableHeaderVisibility": "Visi.",
@@ -333,10 +331,6 @@
       "vehicle": {}
     }
   },
-  "tripsDetailsTitleOperator": "Operator: ",
-  "tripsDetailsTitleVehicle": "Vehicle: ",
-  "tripsDetailsTitleSeat": "Seat: ",
-  "tripsDetailsTitlePrice": "Price: ",
   "tripsDetailPurchasedDate": "purchased on {date}",
   "@tripsDetailPurchasedDate" :{
     "description": "date of the ticket purchase",
@@ -344,11 +338,8 @@
       "date": {}
     }
   },
-  "tripsDetailsTitleNotes": "Notes: ",
   "tripsDetailsSectionDetails": "Details",
   "tripsDetailsLabelVehicle": "Vehicle",
-  "tripsDetailsLabelMaterial": "Material",
-  "tripsDetailsLabelSeat": "Seat",
   "tripsDetailsLabelRegistration": "Registration",
   "tripsDetailsSectionOperator": "{count, plural, =1 {Operator} other {Operators}}",
   "@tripsDetailsSectionOperator": {
@@ -370,26 +361,15 @@
   },
   "tripsDetailsSectionTicket": "Ticket",
   "tripsDetailsSectionNotes": "Notes",
-  "tripsDetailsMetricDistance": "Distance",
   "tripsDetailsMetricAvgSpeed": "Avg speed",
   "tripsDetailsNoDate": "No date set",
   "tripsDetailsEditButton": "Edit",
-  "tripsDetailsDeleteButton": "Delete",
   "tripsDetailsDeleteDialogTitle": "Delete this trip?",
   "tripsDetailsDeleteDialogMessage": "Are you sure you want to delete this trip?",
-  "tripsDetailsDeleteDialogConfirmButton": "Delete",
   "tripsDetailsDeleteFailed": "Failed to delete trip",
   "tripsDetailsDeleteSuccess": "Trip deleted successfully",
 
-  "tripsFilterAllCountry": "All",
-  "tripsFilterAllOperator": "All",
   "tripsFilterAllYears": "All Years",
-  "tripsFilterKeyword": "Keyword",
-  "tripsFilterDateFrom": "On",
-  "tripsFilterDateTo": "to (optional)",
-  "tripsFilterCountry": "Country",
-  "tripsFilterOperator": "Operator",
-  "tripsFilterType": "Vehicle Type",
 
   "tripsSearchFilterTitle": "Search trips",
   "tripsSearchFilterSearchHint": "Stations, lines, tags...",
@@ -425,10 +405,8 @@
   "filterClearButton": "Clear filter",
   "tripsAddButton": "New trip",
 
-  "graphTypeOperator": "Operator",
   "graphTypeCountry": "Country",
   "graphTypeYears": "Years",
-  "graphTypeMaterial": "Material",
   "graphTypeItinerary": "Itinerary",
 
   "typeStation": "{type, select, train{Station} plane{Airport} bus{Stop} tram{Station} metro{Station} ferry{Port} helicopter{Heliport} aerialway{Station} funicular{Station} rail{Station} other{Location}}",
@@ -487,11 +465,8 @@
 
   "statisticsGraphUnitTrips": "Trips",
   "statisticsGraphUnitDistance": "Distance",
-  "statisticsGraphUnitDuration": "Duration",
   "statisticsGraphUnitCo2": "CO2",
 
-  "statisticsDisplayFilters": "Display the filters",
-  "statisticsHideFilters": "Hide the filters",
   "statisticsTripsUnitBase": "trips",
   "statisticsTripsUnitKilo": "thousand trips",
   "statisticsTripsUnitMega": "million trips",
@@ -500,38 +475,13 @@
   "statisticsOtherLabel": "Other",
   "statisticsTotalLabel": "Total",
   "statisticsUnitLabel": "Unit:",
-  "statisticsNoDataLabel": "No data",
   "statisticsPieWip": "The pie chart is WIP",
   "statisticsTitle": "Statistics",
   "statisticsViewBar": "Bar",
   "statisticsViewPie": "Pie",
   "statisticsViewTable": "Table",
-  "statisticsSelectDimension": "Select dimension",
-  "statisticsSelectVehicle": "Select vehicle",
-  "statisticsSelectUnit": "Select unit",
   "internationalWaters": "International waters",
 
-  "addTripPageTitle": "Add a Trip",
-  "addTripStepBasics": "Basics",
-  "@addTripStepBasics": {
-    "description": "Label for the first step when adding a trip. Choose a short word if possible"
-  },
-  "addTripStepDate": "Date",
-  "@addTripStepDate": {
-    "description": "Label for the second step when adding a trip. Choose a short word if possible"
-  },  
-  "addTripStepDetails": "Details",
-  "@addTripStepDetails": {
-    "description": "Label for the third step when adding a trip. Choose a short word if possible"
-  },  
-  "addTripStepPath": "Path",
-  "@addTripStepPath": {
-    "description": "Label for the fourth step when adding a trip. Choose a short word if possible"
-  }, 
-  "addTripStepValidate": "Validate",
-  "@addTripStepValidate": {
-    "description": "Label for the last step when adding a trip. Choose a short word if possible"
-  },
   "addTripStepProgress": "STEP {current} / {total}",
   "@addTripStepProgress": {
     "description": "Fractional progress label of the add-trip wizard, e.g. 'STEP 1 / 7'",
@@ -602,58 +552,27 @@
   "addTripExitConfirmationDialogueTitle": "Do you want to exit?",
   "addTripExitConfirmationDialogueContent": "The trip data have been modified, they will be lost. Do you really want to exit the creation of the trip?",
   "addTripTransportationMode": "Transportation mode",
-  "addTripImportFr24": "Import flight data from FR24",
-  "addTripManualDeparture": "Manual departure",
-  "addTripManualArrival": "Manual arrival",
   "addTripDeparture": "Departure",
   "addTripArrival": "Arrival",
   "addTripLatitudeShort": "Lat",
   "addTripLongitudeShort": "Long",
   "addTripMapUsageHelper": "In manual mode you can enter the coordinates directly or move the marker to the desired position after expanding the map.",
-  "addTripOperator": "Operator",
-  "addTripOperatorHelper": "Use a comma or enter to validate an unknown operator",
   "addTripOperatorHint" : "Search operator...",
-  "addTripOperatorPlaceholderLogo": "Select an operator",
-  "addTripLine": "Line",
   "addTripDateTypePrecise": "Precise",
   "addTripDateTypeUnknown": "Unknown",
   "addTripDateTypeDate": "Date",
-  "addTripScheduledTime": "Scheduled time",
-  "addTripStartDate": "Start of the trip",
-  "addTripEndDate": "End of the trip",
-  "addTripDelay": "Delay",
   "addTripRealTime": "Real time",
   "addTripOriginDayLabel": "Scheduled day",
   "addTripResetToScheduled": "Reset to scheduled time",
-  "addTripDuration": "Duration",
   "addTripPast": "Past",
   "addTripFuture": "Future",
   "timezoneInformation": "The time zones are based on the coordinates of the departure and the arrival.",
   "addTripDepartureAfterArrival": "Departure after arrival!",
-  "addTripFacultative": "Facultative fields",
-  "addTripMaterial": "Material",
-  "addTripRegistration": "Registration",
-  "addTripSeat": "Seat",
   "addTripNotes": "Note",
   "addTripTicketTitle": "Ticket",
-  "addTripTicketPrice": "Ticket price",
   "addTripPurchaseDate": "Purchase date",
   "continueTripButton": "Save and continue the journey",
   "addTripPathUseNewRouter": "Use the new router",
-  "addTripNameEnd": "{departure} to {arrival}",
-  "@addTripNameEnd" :{
-    "description": "The trip name (departure station to arrival station)",
-    "placeholders": {
-      "departure": {
-        "type": "String",
-        "description": "The name of the departure station/aiport/stop..."
-      },
-      "arrival": {
-        "type": "String",
-        "description": "The name of the arrival station/aiport/stop..."
-      }
-    }
-  },
   "addTripPathHelp": "The new router is in beta and shows electrification.\n\nThe routers (old and new) are the same for train, tram, and metro. You may need to fine-tune the peg placement to get it to route on the desired path.",
   "addTicketPageTitle": "New Ticket",
   "addTagPageTitle": "New Tag",
@@ -673,36 +592,6 @@
   "addTripFinishFeedbackWarning": "The trip has been added but the feedback from the server is incomplete. Please refresh and verify the trip details.",
   "addTripPathGeodesic": "Geodesic path",
   "addTripPathFr24": "FR24 path",
-  "addTripDelayMinuteDelay": "i.e. {delay} late",
-  "@addTripDelayMinuteDelay": {
-    "description": "Indicates the delay for a trip",
-    "placeholders": {
-      "delay": {
-        "type": "String",
-        "description": "The delay (duration formatted already)"
-      }
-    }
-  },
-  "addTripDelayMinuteAdvance": "i.e. {advance} early",
-  "@addTripDelayMinuteAdvance": {
-    "description": "Indicates the advance  for a trip",
-    "placeholders": {
-      "advance": {
-        "type": "String",
-        "description": "The advance (duration formatted already)"
-      }
-    }
-  },
-  "addTripDelayTime": "i.e. at {time}",
-  "@addTripDelayTime": {
-    "description": "Indicates the new time for a trip after a delay or advance",
-    "placeholders": {
-      "time": {
-        "type": "String",
-        "description": "The new time for a trip after a delay or advance"
-      }
-    }
-  },
   "addTripWhenTitle": "When was it?",
   "@addTripWhenTitle": {
     "description": "Headline of the temporal data step of the add-trip wizard"
@@ -807,10 +696,6 @@
   "@addTripSummaryVehicle": {
     "description": "Label of the vehicle type row of the summary card of the route-check step"
   },
-  "addTripSummaryDistance": "Distance",
-  "@addTripSummaryDistance": {
-    "description": "Label of the router-computed journey distance row of the summary card of the route-check step"
-  },
   "addTripSummaryTheoreticalDuration": "Theoretical duration",
   "@addTripSummaryTheoreticalDuration": {
     "description": "Label of the summary card row showing the duration derived from the user's manual time inputs"
@@ -851,7 +736,6 @@
   "prerecorderDeleteSelectionConfirm": "Are you sure to delete the selection? This action is irreversible.",
   "prerecorderDeleteAllConfirm": "Are you sure to delete all the recorded geologs? This action is irreversible.",
   "prerecorderSelectStation": "Select a station",
-  "prerecorderSelectClosest": "Select closest",
   "prerecorderNoStationReachable": "No station reachable",
   "prerecorderAway": "{distance} m away",
   "@prerecorderAway": {
@@ -879,16 +763,6 @@
   "prerecorderSelectVehicleType": "Type of transport",
 
   "inboxPageTitle": "News & Updates",
-  "inboxAuthor": "By {author}",
-  "@inboxAuthor": {
-    "description": "The author of a message",
-    "placeholders": {
-      "author": {
-        "type": "String",
-        "description": "The name of the author"
-      }
-    }
-  },
   "inboxModified": "(modified)",
   "inboxModifiedIndication": "(modified on {date})",
   "@inboxModifiedIndication": {
