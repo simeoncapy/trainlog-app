@@ -98,8 +98,9 @@ class AddTripRouteStep extends StatelessWidget {
   }
 }
 
-/// One departure/arrival block: header with timeline marker, label and mode
-/// tab bar; station fields; and the mini map underneath.
+/// One departure/arrival grouped card, in the style of the details step:
+/// a header row with timeline marker, label and mode tab bar, then the
+/// station line items and the mini map, separated by hairline dividers.
 class _EndpointBlock extends StatefulWidget {
   const _EndpointBlock({
     required this.isDeparture,
@@ -150,7 +151,6 @@ class _EndpointBlockState extends State<_EndpointBlock> {
     final label = isDeparture ? loc.addTripDeparture : loc.addTripArrival;
 
     return Container(
-      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: theme.cardColor,
         borderRadius: BorderRadius.circular(16),
@@ -160,41 +160,54 @@ class _EndpointBlockState extends State<_EndpointBlock> {
               : theme.colorScheme.outline,
         ),
       ),
+      clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              _TimelineMarker(
-                  colour: widget.markerColour, filled: !isDeparture),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  label.toUpperCase(),
-                  style: theme.textTheme.labelSmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 1.2,
+          // Title row: marker, DEPARTURE/ARRIVAL and the mode toggle.
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 12, 12),
+            child: Row(
+              children: [
+                _TimelineMarker(
+                    colour: widget.markerColour, filled: !isDeparture),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    label.toUpperCase(),
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 1.2,
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 8),
-              AppStepsTabBar(
-                tabs: [
-                  AppStepsTab(label: loc.addTripModeByName),
-                  AppStepsTab(label: loc.addTripModeManual),
-                ],
-                selectedIndex: _geoMode ? 1 : 0,
-                onTabChanged: (index) =>
-                    _fieldsKey.currentState?.setMode(index == 1),
-              ),
-            ],
+                const SizedBox(width: 8),
+                AppStepsTabBar(
+                  tabs: [
+                    AppStepsTab(label: loc.addTripModeByName),
+                    AppStepsTab(label: loc.addTripModeManual),
+                  ],
+                  selectedIndex: _geoMode ? 1 : 0,
+                  onTabChanged: (index) =>
+                      _fieldsKey.currentState?.setMode(index == 1),
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: 12),
+          Divider(height: 1, color: theme.dividerColor),
           _stationFields(context, loc),
-          const SizedBox(height: 12),
-          _miniMap(loc),
-          ..._miniMapHelper(loc, theme),
+          Divider(height: 1, color: theme.dividerColor),
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _miniMap(loc),
+                ..._miniMapHelper(loc, theme),
+              ],
+            ),
+          ),
         ],
       ),
     );

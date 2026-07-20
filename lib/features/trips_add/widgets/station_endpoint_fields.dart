@@ -9,10 +9,15 @@ import 'package:trainlog_app/features/trips_add/widgets/full_screen_search_overl
 
 /// Departure/arrival station fields of the "Add Trip" route step.
 ///
-/// Renders either the by-name search field (read-only; tapping opens the
-/// full-screen suggestion overlay) with the resolved address underneath, or
-/// the manual fields (name with a label icon, then monospaced latitude /
-/// longitude inputs). Unlike the deprecated StationFieldsSwitcher, the mode
+/// Renders the middle rows of an endpoint card as grouped-card line items in
+/// the style of the details step tiles: leading icon (tinted with the
+/// primary colour once the row has a value), uppercase micro-label and a
+/// borderless value underneath. In by-name mode that is a tappable row
+/// opening the full-screen suggestion overlay, with the resolved address as
+/// plain text below; in manual mode a free-text name row and a divided
+/// double cell with the monospaced latitude / longitude inputs. The parent
+/// card draws the hairline dividers around this widget. Unlike the
+/// deprecated StationFieldsSwitcher, the mode
 /// toggle UI lives in the parent (an AppStepsTabBar in the block header),
 /// which calls [StationEndpointFieldsState.setMode] through a [GlobalKey];
 /// the mode-switching behaviour itself is identical to the old widget.
@@ -80,15 +85,39 @@ class StationEndpointFieldsState extends State<StationEndpointFields> {
 
   Timer? _debounceTimer;
 
-  /// Compact field decoration following the app guidelines (dense fields with
-  /// the label inside the decoration).
-  InputDecoration _decoration(String label, {Widget? prefixIcon}) {
+  /// Borderless collapsed decoration for inputs living inside a card line
+  /// item, matching the details step tiles.
+  InputDecoration _lineItemDecoration({String? hint}) {
     return InputDecoration(
-      labelText: label,
-      prefixIcon: prefixIcon,
-      isDense: true,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      isCollapsed: true,
+      filled: false,
+      border: InputBorder.none,
+      enabledBorder: InputBorder.none,
+      focusedBorder: InputBorder.none,
+      hintText: hint,
     );
+  }
+
+  /// Uppercase micro-label above a value, matching the line-item labels of
+  /// the other wizard steps.
+  Widget _fieldLabel(String text) {
+    final theme = Theme.of(context);
+    return Text(
+      text.toUpperCase(),
+      style: theme.textTheme.labelSmall?.copyWith(
+        color: theme.colorScheme.onSurfaceVariant,
+        fontWeight: FontWeight.w600,
+        letterSpacing: 1.2,
+      ),
+    );
+  }
+
+  /// Leading icon colour: primary once the field has a value, muted
+  /// otherwise — same behaviour as the detail and ticket line items.
+  Color _iconColour(ThemeData theme, bool hasValue) {
+    return hasValue
+        ? theme.colorScheme.primary
+        : theme.colorScheme.onSurfaceVariant;
   }
 
   // ------------------------------
@@ -353,53 +382,139 @@ class StationEndpointFieldsState extends State<StationEndpointFields> {
   }
 
   // ------------------------------
+  // Line-item building blocks (details step tile style)
+  // ------------------------------
+
+  /// One card line item: leading icon, uppercase label and the value widget
+  /// underneath. Optionally tappable across the whole row.
+  Widget _lineItem({
+    required IconData icon,
+    required bool hasValue,
+    required String label,
+    required Widget child,
+    VoidCallback? onTap,
+  }) {
+    final theme = Theme.of(context);
+
+    final content = Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Row(
+        children: [
+          Icon(icon, size: 18, color: _iconColour(theme, hasValue)),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _fieldLabel(label),
+                const SizedBox(height: 4),
+                child,
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (onTap == null) return content;
+    return InkWell(onTap: onTap, child: content);
+  }
+
+  /// One half of the LAT/LONG double cell: uppercase label above a
+  /// borderless monospaced coordinate input.
+  Widget _coordCell(String label, TextEditingController controller) {
+    final theme = Theme.of(context);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _fieldLabel(label),
+          const SizedBox(height: 4),
+          TextFormField(
+            controller: controller,
+            style: AppTheme.monoFont.copyWith(
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: theme.colorScheme.onSurface,
+            ),
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            decoration: _lineItemDecoration(),
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),
+            ],
+            onChanged: (_) => _emitValues(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ------------------------------
   // Build UI
   // ------------------------------
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
-    final monoStyle = AppTheme.monoFont.copyWith(
-      fontSize: 14,
-      color: theme.colorScheme.onSurface,
+    final valueStyle = theme.textTheme.titleMedium?.copyWith(
+      fontWeight: FontWeight.w600,
     );
 
     // ---------------- BY NAME MODE ------------------
+    final hasStation = _nameCtl.text.isNotEmpty;
     final nameMode = Column(
       key: const ValueKey('name-mode'),
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        TextFormField(
-          controller: _nameCtl,
-          readOnly: true,
+        // Tappable station row opening the search overlay.
+        _lineItem(
+          icon: Icons.search,
+          hasValue: hasStation,
+          label: loc.nameField,
           onTap: _openOverlay,
-          decoration: _decoration(
-            loc.nameField,
-            prefixIcon: const Icon(Icons.search),
+          child: Text(
+            hasStation
+                ? _nameCtl.text
+                : loc.searchStationHint(widget.vehicleType.name),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: valueStyle?.copyWith(
+              color: hasStation
+                  ? theme.colorScheme.onSurface
+                  : theme.colorScheme.onSurfaceVariant,
+            ),
           ),
         ),
-        const SizedBox(height: 8),
-        // Space for the resolved address of the selected station.
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(
-              Icons.place_outlined,
-              size: 14,
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-            const SizedBox(width: 6),
-            Expanded(
-              child: Text(
-                _currentAddress.isEmpty
-                    ? widget.addressDefaultText
-                    : _currentAddress,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
+        // Resolved address: plain annotation text, aligned with the value
+        // column, clearly not a field.
+        Padding(
+          padding: const EdgeInsets.fromLTRB(46, 0, 16, 12),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(
+                Icons.place_outlined,
+                size: 14,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  _currentAddress.isEmpty
+                      ? widget.addressDefaultText
+                      : _currentAddress,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                    fontStyle: FontStyle.italic,
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ],
     );
@@ -407,43 +522,42 @@ class StationEndpointFieldsState extends State<StationEndpointFields> {
     // ---------------- MANUAL MODE ------------------
     final geoMode = Column(
       key: const ValueKey('geo-mode'),
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        TextFormField(
-          controller: _manualNameCtl,
-          decoration: _decoration(
-            widget.manualNameFieldHint,
-            prefixIcon: const Icon(Icons.label_outline),
+        _lineItem(
+          icon: Icons.label_outline,
+          hasValue: _manualNameCtl.text.isNotEmpty,
+          label: loc.nameField,
+          child: TextFormField(
+            controller: _manualNameCtl,
+            style: valueStyle,
+            decoration: _lineItemDecoration(hint: widget.manualNameFieldHint),
+            onChanged: (_) {
+              setState(() {});
+              _emitValues();
+            },
           ),
-          onChanged: (_) => _emitValues(),
         ),
-        const SizedBox(height: 12),
-        Row(
+        Divider(height: 1, color: theme.dividerColor),
+        // LAT/LONG double cell. The separator is layered behind the row so
+        // it always spans the row's natural height (IntrinsicHeight would
+        // let the text fields inflate the cells instead).
+        Stack(
           children: [
-            Expanded(
-              child: TextFormField(
-                controller: _latCtl,
-                style: monoStyle,
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
-                decoration: _decoration(loc.addTripLatitudeShort),
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),
-                ],
-                onChanged: (_) => _emitValues(),
-              ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: _coordCell(loc.addTripLatitudeShort, _latCtl),
+                ),
+                Expanded(
+                  child: _coordCell(loc.addTripLongitudeShort, _longCtl),
+                ),
+              ],
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: TextFormField(
-                controller: _longCtl,
-                style: monoStyle,
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
-                decoration: _decoration(loc.addTripLongitudeShort),
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),
-                ],
-                onChanged: (_) => _emitValues(),
+            Positioned.fill(
+              child: Center(
+                child: Container(width: 1, color: theme.dividerColor),
               ),
             ),
           ],
