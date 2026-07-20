@@ -9,14 +9,15 @@ import 'package:trainlog_app/features/trips_add/widgets/full_screen_search_overl
 
 /// Departure/arrival station fields of the "Add Trip" route step.
 ///
-/// Renders either the by-name search field (read-only; tapping opens the
-/// full-screen suggestion overlay) with the resolved address underneath, or
-/// the manual fields (name with a label icon, then monospaced latitude /
-/// longitude inputs). Each field carries the wizard's uppercase micro-label
-/// above it (matching the line items of the details / ticket / when steps)
-/// instead of a floating Material label; the leading icon is tinted with the
-/// primary colour once the field has a value, like everywhere else in the
-/// wizard. Unlike the deprecated StationFieldsSwitcher, the mode
+/// Renders the middle rows of an endpoint card as grouped-card line items in
+/// the style of the details step tiles: leading icon (tinted with the
+/// primary colour once the row has a value), uppercase micro-label and a
+/// borderless value underneath. In by-name mode that is a tappable row
+/// opening the full-screen suggestion overlay, with the resolved address as
+/// plain text below; in manual mode a free-text name row and a divided
+/// double cell with the monospaced latitude / longitude inputs. The parent
+/// card draws the hairline dividers around this widget. Unlike the
+/// deprecated StationFieldsSwitcher, the mode
 /// toggle UI lives in the parent (an AppStepsTabBar in the block header),
 /// which calls [StationEndpointFieldsState.setMode] through a [GlobalKey];
 /// the mode-switching behaviour itself is identical to the old widget.
@@ -84,18 +85,20 @@ class StationEndpointFieldsState extends State<StationEndpointFields> {
 
   Timer? _debounceTimer;
 
-  /// Compact field decoration following the app guidelines: dense fields
-  /// with a hint inside; the title is rendered above via [_fieldLabel].
-  InputDecoration _decoration({String? hint, Widget? prefixIcon}) {
+  /// Borderless collapsed decoration for inputs living inside a card line
+  /// item, matching the details step tiles.
+  InputDecoration _lineItemDecoration({String? hint}) {
     return InputDecoration(
+      isCollapsed: true,
+      filled: false,
+      border: InputBorder.none,
+      enabledBorder: InputBorder.none,
+      focusedBorder: InputBorder.none,
       hintText: hint,
-      prefixIcon: prefixIcon,
-      isDense: true,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
     );
   }
 
-  /// Uppercase micro-label above a field, matching the line-item labels of
+  /// Uppercase micro-label above a value, matching the line-item labels of
   /// the other wizard steps.
   Widget _fieldLabel(String text) {
     final theme = Theme.of(context);
@@ -379,64 +382,137 @@ class StationEndpointFieldsState extends State<StationEndpointFields> {
   }
 
   // ------------------------------
+  // Line-item building blocks (details step tile style)
+  // ------------------------------
+
+  /// One card line item: leading icon, uppercase label and the value widget
+  /// underneath. Optionally tappable across the whole row.
+  Widget _lineItem({
+    required IconData icon,
+    required bool hasValue,
+    required String label,
+    required Widget child,
+    VoidCallback? onTap,
+  }) {
+    final theme = Theme.of(context);
+
+    final content = Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Row(
+        children: [
+          Icon(icon, size: 18, color: _iconColour(theme, hasValue)),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _fieldLabel(label),
+                const SizedBox(height: 4),
+                child,
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (onTap == null) return content;
+    return InkWell(onTap: onTap, child: content);
+  }
+
+  /// One half of the LAT/LONG double cell: uppercase label above a
+  /// borderless monospaced coordinate input.
+  Widget _coordCell(String label, TextEditingController controller) {
+    final theme = Theme.of(context);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _fieldLabel(label),
+          const SizedBox(height: 4),
+          TextFormField(
+            controller: controller,
+            style: AppTheme.monoFont.copyWith(
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: theme.colorScheme.onSurface,
+            ),
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            decoration: _lineItemDecoration(),
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),
+            ],
+            onChanged: (_) => _emitValues(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ------------------------------
   // Build UI
   // ------------------------------
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
-    final monoStyle = AppTheme.monoFont.copyWith(
-      fontSize: 14,
-      fontWeight: FontWeight.w700,
-      color: theme.colorScheme.onSurface,
-    );
-    final valueStyle = theme.textTheme.bodyMedium?.copyWith(
+    final valueStyle = theme.textTheme.titleMedium?.copyWith(
       fontWeight: FontWeight.w600,
-      color: theme.colorScheme.onSurface,
     );
 
     // ---------------- BY NAME MODE ------------------
+    final hasStation = _nameCtl.text.isNotEmpty;
     final nameMode = Column(
       key: const ValueKey('name-mode'),
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _fieldLabel(loc.nameField),
-        const SizedBox(height: 6),
-        TextFormField(
-          controller: _nameCtl,
-          readOnly: true,
+        // Tappable station row opening the search overlay.
+        _lineItem(
+          icon: Icons.search,
+          hasValue: hasStation,
+          label: loc.nameField,
           onTap: _openOverlay,
-          style: valueStyle,
-          decoration: _decoration(
-            hint: loc.searchStationHint(widget.vehicleType.name),
-            prefixIcon: Icon(
-              Icons.search,
-              color: _iconColour(theme, _nameCtl.text.isNotEmpty),
+          child: Text(
+            hasStation
+                ? _nameCtl.text
+                : loc.searchStationHint(widget.vehicleType.name),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: valueStyle?.copyWith(
+              color: hasStation
+                  ? theme.colorScheme.onSurface
+                  : theme.colorScheme.onSurfaceVariant,
             ),
           ),
         ),
-        const SizedBox(height: 8),
-        // Space for the resolved address of the selected station.
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(
-              Icons.place_outlined,
-              size: 14,
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-            const SizedBox(width: 6),
-            Expanded(
-              child: Text(
-                _currentAddress.isEmpty
-                    ? widget.addressDefaultText
-                    : _currentAddress,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
+        // Resolved address: plain annotation text, aligned with the value
+        // column, clearly not a field.
+        Padding(
+          padding: const EdgeInsets.fromLTRB(46, 0, 16, 12),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(
+                Icons.place_outlined,
+                size: 14,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  _currentAddress.isEmpty
+                      ? widget.addressDefaultText
+                      : _currentAddress,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                    fontStyle: FontStyle.italic,
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ],
     );
@@ -446,71 +522,35 @@ class StationEndpointFieldsState extends State<StationEndpointFields> {
       key: const ValueKey('geo-mode'),
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _fieldLabel(loc.nameField),
-        const SizedBox(height: 6),
-        TextFormField(
-          controller: _manualNameCtl,
-          style: valueStyle,
-          decoration: _decoration(
-            hint: widget.manualNameFieldHint,
-            prefixIcon: Icon(
-              Icons.label_outline,
-              color: _iconColour(theme, _manualNameCtl.text.isNotEmpty),
-            ),
+        _lineItem(
+          icon: Icons.label_outline,
+          hasValue: _manualNameCtl.text.isNotEmpty,
+          label: loc.nameField,
+          child: TextFormField(
+            controller: _manualNameCtl,
+            style: valueStyle,
+            decoration: _lineItemDecoration(hint: widget.manualNameFieldHint),
+            onChanged: (_) {
+              setState(() {});
+              _emitValues();
+            },
           ),
-          onChanged: (_) {
-            setState(() {});
-            _emitValues();
-          },
         ),
-        const SizedBox(height: 12),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _fieldLabel(loc.addTripLatitudeShort),
-                  const SizedBox(height: 6),
-                  TextFormField(
-                    controller: _latCtl,
-                    style: monoStyle,
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
-                    decoration: _decoration(),
-                    inputFormatters: [
-                      FilteringTextInputFormatter.allow(
-                          RegExp(r'^-?\d*\.?\d*$')),
-                    ],
-                    onChanged: (_) => _emitValues(),
-                  ),
-                ],
+        Divider(height: 1, color: theme.dividerColor),
+        // LAT/LONG double cell with a vertical separation.
+        IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: _coordCell(loc.addTripLatitudeShort, _latCtl),
               ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _fieldLabel(loc.addTripLongitudeShort),
-                  const SizedBox(height: 6),
-                  TextFormField(
-                    controller: _longCtl,
-                    style: monoStyle,
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
-                    decoration: _decoration(),
-                    inputFormatters: [
-                      FilteringTextInputFormatter.allow(
-                          RegExp(r'^-?\d*\.?\d*$')),
-                    ],
-                    onChanged: (_) => _emitValues(),
-                  ),
-                ],
+              VerticalDivider(width: 1, color: theme.dividerColor),
+              Expanded(
+                child: _coordCell(loc.addTripLongitudeShort, _longCtl),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ],
     );
