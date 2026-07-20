@@ -45,6 +45,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deleteSelectionShort => 'Selection';
 
   @override
+  String get deleteButton => 'Delete';
+
+  @override
   String get loginButton => 'Log in';
 
   @override
@@ -173,6 +176,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get duration => 'Duration';
+
+  @override
+  String get noData => 'No data';
 
   @override
   String get fillRequiredFields => 'Please fill the required fields';
@@ -503,9 +509,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get rankingNoData => 'No data';
-
-  @override
   String get rankingNotRanked => 'Not ranked';
 
   @override
@@ -800,17 +803,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tripsDetailsEditButton => 'Edit';
 
   @override
-  String get tripsDetailsDeleteButton => 'Delete';
-
-  @override
   String get tripsDetailsDeleteDialogTitle => 'Delete this trip?';
 
   @override
   String get tripsDetailsDeleteDialogMessage =>
       'Are you sure you want to delete this trip?';
-
-  @override
-  String get tripsDetailsDeleteDialogConfirmButton => 'Delete';
 
   @override
   String get tripsDetailsDeleteFailed => 'Failed to delete trip';
@@ -1066,9 +1063,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get statisticsUnitLabel => 'Unit:';
-
-  @override
-  String get statisticsNoDataLabel => 'No data';
 
   @override
   String get statisticsPieWip => 'The pie chart is WIP';

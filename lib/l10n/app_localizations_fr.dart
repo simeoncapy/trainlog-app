@@ -45,6 +45,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get deleteSelectionShort => 'Sélection';
 
   @override
+  String get deleteButton => 'Supprimer';
+
+  @override
   String get loginButton => 'Connexion';
 
   @override
@@ -174,6 +177,9 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get duration => 'Durée';
+
+  @override
+  String get noData => 'Aucune donnée';
 
   @override
   String get fillRequiredFields => 'Veuillez remplir les champs obligatoires';
@@ -510,9 +516,6 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get rankingNoData => 'Aucune donnée';
-
-  @override
   String get rankingNotRanked => 'Non classé';
 
   @override
@@ -808,17 +811,11 @@ class AppLocalizationsFr extends AppLocalizations {
   String get tripsDetailsEditButton => 'Modifier';
 
   @override
-  String get tripsDetailsDeleteButton => 'Supprimer';
-
-  @override
   String get tripsDetailsDeleteDialogTitle => 'Supprimer ce trajet ?';
 
   @override
   String get tripsDetailsDeleteDialogMessage =>
       'Êtes-vous sûr de vouloir supprimer ce trajet ?';
-
-  @override
-  String get tripsDetailsDeleteDialogConfirmButton => 'Supprimer';
 
   @override
   String get tripsDetailsDeleteFailed => 'Échec de la suppression du trajet';
@@ -1078,9 +1075,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get statisticsUnitLabel => 'Unités :';
 
   @override
-  String get statisticsNoDataLabel => 'Pas de données';
-
-  @override
   String get statisticsPieWip => 'Le camembert est en cours de construction';
 
   @override
@@ -1221,7 +1215,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get addTripDepartureAfterArrival => 'Le départ est après l\'arrivée !';
 
   @override
-  String get addTripMaterial => 'Matérial';
+  String get addTripMaterial => 'Matériel';
 
   @override
   String get addTripNotes => 'Note';

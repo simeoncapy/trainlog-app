@@ -84,7 +84,7 @@ class RankingListView extends StatelessWidget {
       return Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 48),
-          child: Text(loc.rankingNoData),
+          child: Text(loc.noData),
         ),
       );
     }

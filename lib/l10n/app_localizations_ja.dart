@@ -45,6 +45,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get deleteSelectionShort => '選択';
 
   @override
+  String get deleteButton => '削除';
+
+  @override
   String get loginButton => 'ログイン';
 
   @override
@@ -173,6 +176,9 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get duration => '時間';
+
+  @override
+  String get noData => 'データなし';
 
   @override
   String get fillRequiredFields => '必須項目を入力してください';
@@ -492,9 +498,6 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String get rankingNoData => 'データなし';
-
-  @override
   String get rankingNotRanked => 'ランク外';
 
   @override
@@ -783,16 +786,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get tripsDetailsEditButton => '編集';
 
   @override
-  String get tripsDetailsDeleteButton => '消す';
-
-  @override
   String get tripsDetailsDeleteDialogTitle => 'この旅行を削除しますか？';
 
   @override
   String get tripsDetailsDeleteDialogMessage => 'この旅行を削除してもよろしいですか？';
-
-  @override
-  String get tripsDetailsDeleteDialogConfirmButton => '削除';
 
   @override
   String get tripsDetailsDeleteFailed => '旅行の削除に失敗しました';
@@ -1046,9 +1043,6 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get statisticsUnitLabel => '単位：';
-
-  @override
-  String get statisticsNoDataLabel => 'データがありません';
 
   @override
   String get statisticsPieWip => '円グラフは仕掛品です';

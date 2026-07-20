@@ -139,7 +139,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
     );
     }
     if (p.error != null) return Center(child: Text('Error: ${p.error}'));
-    if (statsShort.isEmpty) return Center(child: Text(loc.statisticsNoDataLabel));
+    if (statsShort.isEmpty) return Center(child: Text(loc.noData));
 
     switch (_view) {
       case StatisticsView.bar:

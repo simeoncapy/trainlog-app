@@ -90,7 +90,7 @@ class _UserCountriesPageState extends State<UserCountriesPage> {
             const SizedBox(height: 12),
             Expanded(
               child: countries.isEmpty
-                  ? Center(child: Text(loc.rankingNoData))
+                  ? Center(child: Text(loc.noData))
                   : CoverageListCard(
                       child: ListView.separated(
                         padding: EdgeInsets.zero,

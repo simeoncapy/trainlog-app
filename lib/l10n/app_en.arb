@@ -12,6 +12,10 @@
   "deleteAllShort": "All",
   "deleteSelection": "Delete selection",
   "deleteSelectionShort": "Selection",
+  "deleteButton": "Delete",
+  "@deleteButton": {
+    "description": "Shared label for delete buttons (trip details action, delete confirmation dialog)"
+  },
   "loginButton": "Log in",
   "logoutButton": "Log out",
   "loggedOut": "Logged out",
@@ -66,6 +70,10 @@
   "duration": "Duration",
   "@duration": {
     "description": "Shared label for a duration (statistics graph unit, add-trip form)"
+  },
+  "noData": "No data",
+  "@noData": {
+    "description": "Shared empty-state message when there is no data to display (ranking, statistics)"
   },
   "fillRequiredFields": "Please fill the required fields",
   "visibility": "Visibility",
@@ -199,7 +207,6 @@
       "count": { "type": "int" }
     }
   },
-  "rankingNoData": "No data",
   "rankingNotRanked": "Not ranked",
   "rankingSearchHint": "Search users…",
   "railCoverageCountriesTab": "Countries",
@@ -351,10 +358,8 @@
   "tripsDetailsMetricAvgSpeed": "Avg speed",
   "tripsDetailsNoDate": "No date set",
   "tripsDetailsEditButton": "Edit",
-  "tripsDetailsDeleteButton": "Delete",
   "tripsDetailsDeleteDialogTitle": "Delete this trip?",
   "tripsDetailsDeleteDialogMessage": "Are you sure you want to delete this trip?",
-  "tripsDetailsDeleteDialogConfirmButton": "Delete",
   "tripsDetailsDeleteFailed": "Failed to delete trip",
   "tripsDetailsDeleteSuccess": "Trip deleted successfully",
 
@@ -466,7 +471,6 @@
   "statisticsOtherLabel": "Other",
   "statisticsTotalLabel": "Total",
   "statisticsUnitLabel": "Unit:",
-  "statisticsNoDataLabel": "No data",
   "statisticsPieWip": "The pie chart is WIP",
   "statisticsTitle": "Statistics",
   "statisticsViewBar": "Bar",

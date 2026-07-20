@@ -45,6 +45,9 @@ class AppLocalizationsTl extends AppLocalizations {
   String get deleteSelectionShort => 'Selection';
 
   @override
+  String get deleteButton => 'Ibura';
+
+  @override
   String get loginButton => 'Login';
 
   @override
@@ -173,6 +176,9 @@ class AppLocalizationsTl extends AppLocalizations {
 
   @override
   String get duration => 'Haba ng byahe';
+
+  @override
+  String get noData => 'Walang datos';
 
   @override
   String get fillRequiredFields => 'Ipasok ang lahat ng bagay';
@@ -502,9 +508,6 @@ class AppLocalizationsTl extends AppLocalizations {
   }
 
   @override
-  String get rankingNoData => 'Walang datos';
-
-  @override
   String get rankingNotRanked => 'Hindi naka-ranggo';
 
   @override
@@ -796,17 +799,11 @@ class AppLocalizationsTl extends AppLocalizations {
   String get tripsDetailsEditButton => 'Edit';
 
   @override
-  String get tripsDetailsDeleteButton => 'Ibura';
-
-  @override
   String get tripsDetailsDeleteDialogTitle => 'Ibura ang byahe?';
 
   @override
   String get tripsDetailsDeleteDialogMessage =>
       'SIgurado ka na gusto mo ibura ang byahe?';
-
-  @override
-  String get tripsDetailsDeleteDialogConfirmButton => 'Ibura';
 
   @override
   String get tripsDetailsDeleteFailed => 'Hindi mabura ang byahe';
@@ -1047,9 +1044,6 @@ class AppLocalizationsTl extends AppLocalizations {
 
   @override
   String get statisticsUnitLabel => 'Unit:';
-
-  @override
-  String get statisticsNoDataLabel => 'Walang data';
 
   @override
   String get statisticsPieWip => 'Ang pie chart ay WIP';

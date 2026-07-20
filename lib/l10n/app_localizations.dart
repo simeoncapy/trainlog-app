@@ -174,6 +174,12 @@ abstract class AppLocalizations {
   /// **'Selection'**
   String get deleteSelectionShort;
 
+  /// Shared label for delete buttons (trip details action, delete confirmation dialog)
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get deleteButton;
+
   /// No description provided for @loginButton.
   ///
   /// In en, this message translates to:
@@ -431,6 +437,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Duration'**
   String get duration;
+
+  /// Shared empty-state message when there is no data to display (ranking, statistics)
+  ///
+  /// In en, this message translates to:
+  /// **'No data'**
+  String get noData;
 
   /// No description provided for @fillRequiredFields.
   ///
@@ -1014,12 +1026,6 @@ abstract class AppLocalizations {
   /// **'{count, plural, =1 {country} other {countries}}'**
   String rankingCountryCountLabel(int count);
 
-  /// No description provided for @rankingNoData.
-  ///
-  /// In en, this message translates to:
-  /// **'No data'**
-  String get rankingNoData;
-
   /// No description provided for @rankingNotRanked.
   ///
   /// In en, this message translates to:
@@ -1494,12 +1500,6 @@ abstract class AppLocalizations {
   /// **'Edit'**
   String get tripsDetailsEditButton;
 
-  /// No description provided for @tripsDetailsDeleteButton.
-  ///
-  /// In en, this message translates to:
-  /// **'Delete'**
-  String get tripsDetailsDeleteButton;
-
   /// No description provided for @tripsDetailsDeleteDialogTitle.
   ///
   /// In en, this message translates to:
@@ -1511,12 +1511,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Are you sure you want to delete this trip?'**
   String get tripsDetailsDeleteDialogMessage;
-
-  /// No description provided for @tripsDetailsDeleteDialogConfirmButton.
-  ///
-  /// In en, this message translates to:
-  /// **'Delete'**
-  String get tripsDetailsDeleteDialogConfirmButton;
 
   /// No description provided for @tripsDetailsDeleteFailed.
   ///
@@ -1781,12 +1775,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unit:'**
   String get statisticsUnitLabel;
-
-  /// No description provided for @statisticsNoDataLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'No data'**
-  String get statisticsNoDataLabel;
 
   /// No description provided for @statisticsPieWip.
   ///
