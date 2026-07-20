@@ -523,7 +523,7 @@ class _AddTripCheckRouteStepState extends State<AddTripCheckRouteStep> {
           size: 18,
           color: theme.colorScheme.onSurfaceVariant,
         ),
-        label: loc.addTripSummaryDistance,
+        label: loc.distance,
         value: _routerMetric(
           _routeDistanceM == null
               ? null

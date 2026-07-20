@@ -26,7 +26,7 @@ class TripDetailsMetrics extends StatelessWidget {
         icon: Icons.straighten,
         value: formatNumber(context, (trip.tripLength / 1000).round()),
         unit: 'km',
-        label: l10n.tripsDetailsMetricDistance,
+        label: l10n.distance,
       ));
     }
 

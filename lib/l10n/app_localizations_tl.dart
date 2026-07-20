@@ -166,6 +166,15 @@ class AppLocalizationsTl extends AppLocalizations {
   String get manual => 'manual';
 
   @override
+  String get seat => 'Upuan';
+
+  @override
+  String get distance => 'Distansya';
+
+  @override
+  String get duration => 'Haba ng byahe';
+
+  @override
   String get fillRequiredFields => 'Ipasok ang lahat ng bagay';
 
   @override
@@ -449,9 +458,6 @@ class AppLocalizationsTl extends AppLocalizations {
 
   @override
   String get rankingTypeCarbon => 'CO2e';
-
-  @override
-  String get rankingUnitDistance => 'Distansya';
 
   @override
   String get rankingUnitTrips => 'Mga biyahe';
@@ -750,9 +756,6 @@ class AppLocalizationsTl extends AppLocalizations {
   String get tripsDetailsLabelMaterial => 'Materyal';
 
   @override
-  String get tripsDetailsLabelSeat => 'Upuan';
-
-  @override
   String get tripsDetailsLabelRegistration => 'Rehistrasyon';
 
   @override
@@ -782,9 +785,6 @@ class AppLocalizationsTl extends AppLocalizations {
 
   @override
   String get tripsDetailsSectionNotes => 'Notes';
-
-  @override
-  String get tripsDetailsMetricDistance => 'Distansya';
 
   @override
   String get tripsDetailsMetricAvgSpeed => 'Karaniwang bilis';
@@ -1025,9 +1025,6 @@ class AppLocalizationsTl extends AppLocalizations {
   String get statisticsGraphUnitDistance => 'Layo';
 
   @override
-  String get statisticsGraphUnitDuration => 'Haba ng byahe';
-
-  @override
   String get statisticsGraphUnitCo2 => 'CO2';
 
   @override
@@ -1181,9 +1178,6 @@ class AppLocalizationsTl extends AppLocalizations {
   String get addTripResetToScheduled => 'Ireset sa scheduled time';
 
   @override
-  String get addTripDuration => 'Haba ng byahe';
-
-  @override
   String get addTripPast => 'Nakaraan';
 
   @override
@@ -1198,9 +1192,6 @@ class AppLocalizationsTl extends AppLocalizations {
 
   @override
   String get addTripMaterial => 'Materyal';
-
-  @override
-  String get addTripSeat => 'Upuan';
 
   @override
   String get addTripNotes => 'Note';
@@ -1326,9 +1317,6 @@ class AppLocalizationsTl extends AppLocalizations {
 
   @override
   String get addTripSummaryVehicle => 'Sasakyan';
-
-  @override
-  String get addTripSummaryDistance => 'Distansya';
 
   @override
   String get addTripSummaryTheoreticalDuration => 'Teoretikal na tagal';

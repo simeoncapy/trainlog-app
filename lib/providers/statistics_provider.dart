@@ -79,7 +79,7 @@ enum GraphUnit {
     switch (this) {
       case GraphUnit.trip:     return loc.statisticsGraphUnitTrips;
       case GraphUnit.distance: return loc.statisticsGraphUnitDistance;
-      case GraphUnit.duration: return loc.statisticsGraphUnitDuration;
+      case GraphUnit.duration: return loc.duration;
       case GraphUnit.co2:      return loc.statisticsGraphUnitCo2;
     }
   }

@@ -166,6 +166,15 @@ class AppLocalizationsJa extends AppLocalizations {
   String get manual => '手動';
 
   @override
+  String get seat => '座席';
+
+  @override
+  String get distance => '距離';
+
+  @override
+  String get duration => '時間';
+
+  @override
   String get fillRequiredFields => '必須項目を入力してください';
 
   @override
@@ -441,9 +450,6 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get rankingTypeCarbon => 'CO2e';
-
-  @override
-  String get rankingUnitDistance => '距離';
 
   @override
   String get rankingUnitTrips => '旅行回数';
@@ -739,9 +745,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get tripsDetailsLabelMaterial => '車両形式';
 
   @override
-  String get tripsDetailsLabelSeat => '座席';
-
-  @override
   String get tripsDetailsLabelRegistration => '登録番号';
 
   @override
@@ -769,9 +772,6 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get tripsDetailsSectionNotes => 'メモ';
-
-  @override
-  String get tripsDetailsMetricDistance => '距離';
 
   @override
   String get tripsDetailsMetricAvgSpeed => '平均速度';
@@ -1024,9 +1024,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get statisticsGraphUnitDistance => '距離';
 
   @override
-  String get statisticsGraphUnitDuration => '時間';
-
-  @override
   String get statisticsGraphUnitCo2 => 'CO2';
 
   @override
@@ -1177,9 +1174,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get addTripResetToScheduled => '予定時刻にリセット';
 
   @override
-  String get addTripDuration => '時間';
-
-  @override
   String get addTripPast => '過去';
 
   @override
@@ -1193,9 +1187,6 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get addTripMaterial => '車両名';
-
-  @override
-  String get addTripSeat => '座席';
 
   @override
   String get addTripNotes => 'メモ';
@@ -1316,9 +1307,6 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get addTripSummaryVehicle => '交通手段';
-
-  @override
-  String get addTripSummaryDistance => '距離';
 
   @override
   String get addTripSummaryTheoreticalDuration => '予定所要時間';

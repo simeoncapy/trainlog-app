@@ -84,7 +84,7 @@ class _AddTripDetailsStepState extends State<AddTripDetailsStep> {
                 Divider(height: 1, color: theme.dividerColor),
                 _DetailFieldTile(
                   icon: Icons.event_seat_outlined,
-                  label: loc.addTripSeat,
+                  label: loc.seat,
                   initialValue: model.seat,
                   onChanged: (value) {
                     setState(() => model.seat = value);

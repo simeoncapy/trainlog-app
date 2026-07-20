@@ -55,6 +55,18 @@
   "@manual" :{
     "description": "manual (opposed as automatic). Should be gender and number neutral."
   },
+  "seat": "Seat",
+  "@seat": {
+    "description": "Shared label for the trip's seat (trip details, add-trip form)"
+  },
+  "distance": "Distance",
+  "@distance": {
+    "description": "Shared label for a distance (ranking unit, trip details metric, add-trip route summary)"
+  },
+  "duration": "Duration",
+  "@duration": {
+    "description": "Shared label for a duration (statistics graph unit, add-trip form)"
+  },
   "fillRequiredFields": "Please fill the required fields",
   "visibility": "Visibility",
   "visibilityPublic": "Public",
@@ -167,7 +179,6 @@
   "rankingTypeRailwayCoverage": "Railway coverage",
   "rankingTypeCountries": "Countries",
   "rankingTypeCarbon": "CO2e",
-  "rankingUnitDistance": "Distance",
   "rankingUnitTrips": "Trips",
   "rankingUnitTotalCarbon": "Total CO2e",
   "rankingUnitCarbonPerKm": "CO2e/km",
@@ -316,7 +327,6 @@
   "tripsDetailsSectionDetails": "Details",
   "tripsDetailsLabelVehicle": "Vehicle",
   "tripsDetailsLabelMaterial": "Material",
-  "tripsDetailsLabelSeat": "Seat",
   "tripsDetailsLabelRegistration": "Registration",
   "tripsDetailsSectionOperator": "{count, plural, =1 {Operator} other {Operators}}",
   "@tripsDetailsSectionOperator": {
@@ -338,7 +348,6 @@
   },
   "tripsDetailsSectionTicket": "Ticket",
   "tripsDetailsSectionNotes": "Notes",
-  "tripsDetailsMetricDistance": "Distance",
   "tripsDetailsMetricAvgSpeed": "Avg speed",
   "tripsDetailsNoDate": "No date set",
   "tripsDetailsEditButton": "Edit",
@@ -447,7 +456,6 @@
 
   "statisticsGraphUnitTrips": "Trips",
   "statisticsGraphUnitDistance": "Distance",
-  "statisticsGraphUnitDuration": "Duration",
   "statisticsGraphUnitCo2": "CO2",
 
   "statisticsTripsUnitBase": "trips",
@@ -549,13 +557,11 @@
   "addTripRealTime": "Real time",
   "addTripOriginDayLabel": "Scheduled day",
   "addTripResetToScheduled": "Reset to scheduled time",
-  "addTripDuration": "Duration",
   "addTripPast": "Past",
   "addTripFuture": "Future",
   "timezoneInformation": "The time zones are based on the coordinates of the departure and the arrival.",
   "addTripDepartureAfterArrival": "Departure after arrival!",
   "addTripMaterial": "Material",
-  "addTripSeat": "Seat",
   "addTripNotes": "Note",
   "addTripTicketTitle": "Ticket",
   "addTripPurchaseDate": "Purchase date",
@@ -683,10 +689,6 @@
   "addTripSummaryVehicle": "Vehicle",
   "@addTripSummaryVehicle": {
     "description": "Label of the vehicle type row of the summary card of the route-check step"
-  },
-  "addTripSummaryDistance": "Distance",
-  "@addTripSummaryDistance": {
-    "description": "Label of the router-computed journey distance row of the summary card of the route-check step"
   },
   "addTripSummaryTheoreticalDuration": "Theoretical duration",
   "@addTripSummaryTheoreticalDuration": {

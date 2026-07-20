@@ -414,6 +414,24 @@ abstract class AppLocalizations {
   /// **'manual'**
   String get manual;
 
+  /// Shared label for the trip's seat (trip details, add-trip form)
+  ///
+  /// In en, this message translates to:
+  /// **'Seat'**
+  String get seat;
+
+  /// Shared label for a distance (ranking unit, trip details metric, add-trip route summary)
+  ///
+  /// In en, this message translates to:
+  /// **'Distance'**
+  String get distance;
+
+  /// Shared label for a duration (statistics graph unit, add-trip form)
+  ///
+  /// In en, this message translates to:
+  /// **'Duration'**
+  String get duration;
+
   /// No description provided for @fillRequiredFields.
   ///
   /// In en, this message translates to:
@@ -930,12 +948,6 @@ abstract class AppLocalizations {
   /// **'CO2e'**
   String get rankingTypeCarbon;
 
-  /// No description provided for @rankingUnitDistance.
-  ///
-  /// In en, this message translates to:
-  /// **'Distance'**
-  String get rankingUnitDistance;
-
   /// No description provided for @rankingUnitTrips.
   ///
   /// In en, this message translates to:
@@ -1434,12 +1446,6 @@ abstract class AppLocalizations {
   /// **'Material'**
   String get tripsDetailsLabelMaterial;
 
-  /// No description provided for @tripsDetailsLabelSeat.
-  ///
-  /// In en, this message translates to:
-  /// **'Seat'**
-  String get tripsDetailsLabelSeat;
-
   /// No description provided for @tripsDetailsLabelRegistration.
   ///
   /// In en, this message translates to:
@@ -1469,12 +1475,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Notes'**
   String get tripsDetailsSectionNotes;
-
-  /// No description provided for @tripsDetailsMetricDistance.
-  ///
-  /// In en, this message translates to:
-  /// **'Distance'**
-  String get tripsDetailsMetricDistance;
 
   /// No description provided for @tripsDetailsMetricAvgSpeed.
   ///
@@ -1733,12 +1733,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Distance'**
   String get statisticsGraphUnitDistance;
-
-  /// No description provided for @statisticsGraphUnitDuration.
-  ///
-  /// In en, this message translates to:
-  /// **'Duration'**
-  String get statisticsGraphUnitDuration;
 
   /// No description provided for @statisticsGraphUnitCo2.
   ///
@@ -2016,12 +2010,6 @@ abstract class AppLocalizations {
   /// **'Reset to scheduled time'**
   String get addTripResetToScheduled;
 
-  /// No description provided for @addTripDuration.
-  ///
-  /// In en, this message translates to:
-  /// **'Duration'**
-  String get addTripDuration;
-
   /// No description provided for @addTripPast.
   ///
   /// In en, this message translates to:
@@ -2051,12 +2039,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Material'**
   String get addTripMaterial;
-
-  /// No description provided for @addTripSeat.
-  ///
-  /// In en, this message translates to:
-  /// **'Seat'**
-  String get addTripSeat;
 
   /// No description provided for @addTripNotes.
   ///
@@ -2279,12 +2261,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Vehicle'**
   String get addTripSummaryVehicle;
-
-  /// Label of the router-computed journey distance row of the summary card of the route-check step
-  ///
-  /// In en, this message translates to:
-  /// **'Distance'**
-  String get addTripSummaryDistance;
 
   /// Label of the summary card row showing the duration derived from the user's manual time inputs
   ///

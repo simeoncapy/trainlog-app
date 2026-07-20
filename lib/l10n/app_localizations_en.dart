@@ -166,6 +166,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get manual => 'manual';
 
   @override
+  String get seat => 'Seat';
+
+  @override
+  String get distance => 'Distance';
+
+  @override
+  String get duration => 'Duration';
+
+  @override
   String get fillRequiredFields => 'Please fill the required fields';
 
   @override
@@ -450,9 +459,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get rankingTypeCarbon => 'CO2e';
-
-  @override
-  String get rankingUnitDistance => 'Distance';
 
   @override
   String get rankingUnitTrips => 'Trips';
@@ -754,9 +760,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tripsDetailsLabelMaterial => 'Material';
 
   @override
-  String get tripsDetailsLabelSeat => 'Seat';
-
-  @override
   String get tripsDetailsLabelRegistration => 'Registration';
 
   @override
@@ -786,9 +789,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tripsDetailsSectionNotes => 'Notes';
-
-  @override
-  String get tripsDetailsMetricDistance => 'Distance';
 
   @override
   String get tripsDetailsMetricAvgSpeed => 'Avg speed';
@@ -1044,9 +1044,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get statisticsGraphUnitDistance => 'Distance';
 
   @override
-  String get statisticsGraphUnitDuration => 'Duration';
-
-  @override
   String get statisticsGraphUnitCo2 => 'CO2';
 
   @override
@@ -1200,9 +1197,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addTripResetToScheduled => 'Reset to scheduled time';
 
   @override
-  String get addTripDuration => 'Duration';
-
-  @override
   String get addTripPast => 'Past';
 
   @override
@@ -1217,9 +1211,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get addTripMaterial => 'Material';
-
-  @override
-  String get addTripSeat => 'Seat';
 
   @override
   String get addTripNotes => 'Note';
@@ -1344,9 +1335,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get addTripSummaryVehicle => 'Vehicle';
-
-  @override
-  String get addTripSummaryDistance => 'Distance';
 
   @override
   String get addTripSummaryTheoreticalDuration => 'Theoretical duration';
