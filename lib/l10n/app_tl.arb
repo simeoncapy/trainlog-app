@@ -124,6 +124,7 @@
   "settingsCacheClearButton": "Ibura",
   "settingsCacheClearConfirmTitle": "Ibura ang cache?",
   "settingsCacheClearConfirmMessage": "Sigurado ka bang gusto mong tanggalin ang naka-cache na data? Hindi na ito maibabalik. Maaaring mas matagal ang susunod na pag-load ng app.",
+  "settingsCacheClearGeologsToggle": "Burahin din ang lahat ng Geologs",
   "settingsCacheClearedMessage": "Nabura ang cache",
   "settingsDisplayUserMarker": "Ipakita ang kasalukurang lugar",
   "settingsDeleteAccount": "Ibura ang account",

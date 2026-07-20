@@ -44,6 +44,9 @@ class AdaptiveDialog {
     String? title,
     required String message,
 
+    /// Optional widget displayed under the message (e.g. a toggle).
+    Widget? content,
+
     /// If null, uses loc.dialogueDefaultInfoTitle for title.
     /// If you want no title at all, pass title: "" (empty).
     List<AdaptiveDialogAction>? actions,
@@ -75,6 +78,7 @@ class AdaptiveDialog {
           context: context,
           title: resolvedTitle,
           message: message,
+          content: content,
           actions: resolvedActions,
           barrierDismissible: barrierDismissible,
         );
@@ -83,6 +87,7 @@ class AdaptiveDialog {
         context: context,
         title: resolvedTitle,
         message: message,
+        content: content,
         actions: resolvedActions,
       );
     }
@@ -91,8 +96,34 @@ class AdaptiveDialog {
       context: context,
       title: resolvedTitle,
       message: message,
+      content: content,
       actions: resolvedActions,
       barrierDismissible: barrierDismissible,
+    );
+  }
+
+  /// Message text, optionally followed by extra content underneath.
+  /// Cupertino surfaces have no Material ancestor, so the extra content is
+  /// wrapped in a transparent Material to support Material widgets (switches…).
+  static Widget _buildBody({
+    required String message,
+    required Widget? content,
+    bool wrapContentInMaterial = false,
+  }) {
+    if (content == null) return Text(message);
+
+    final extra = wrapContentInMaterial
+        ? Material(type: MaterialType.transparency, child: content)
+        : content;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(message),
+        const SizedBox(height: 12),
+        extra,
+      ],
     );
   }
 
@@ -103,6 +134,7 @@ class AdaptiveDialog {
     required BuildContext context,
     required String title,
     required String message,
+    Widget? content,
     required List<AdaptiveDialogAction> actions,
     required bool barrierDismissible,
   }) async {
@@ -112,7 +144,7 @@ class AdaptiveDialog {
       builder: (_) {
         return AlertDialog(
           title: title.isEmpty ? null : Text(title),
-          content: Text(message),
+          content: _buildBody(message: message, content: content),
           actions: actions.map((a) {
             final isCancel = a.result == AdaptiveDialogResult.cancelled;
 
@@ -158,6 +190,7 @@ class AdaptiveDialog {
     required BuildContext context,
     required String title,
     required String message,
+    Widget? content,
     required List<AdaptiveDialogAction> actions,
   }) async {
     final result = await showCupertinoDialog<AdaptiveDialogResult>(
@@ -165,7 +198,11 @@ class AdaptiveDialog {
       builder: (_) {
         return CupertinoAlertDialog(
           title: title.isEmpty ? null : Text(title),
-          content: Text(message),
+          content: _buildBody(
+            message: message,
+            content: content,
+            wrapContentInMaterial: true,
+          ),
           actions: actions.map((a) {
             return CupertinoDialogAction(
               isDefaultAction: a.isDefault,
@@ -188,6 +225,7 @@ class AdaptiveDialog {
     required BuildContext context,
     required String title,
     required String message,
+    Widget? content,
     required List<AdaptiveDialogAction> actions,
     required bool barrierDismissible,
   }) async {
@@ -202,7 +240,11 @@ class AdaptiveDialog {
 
         return CupertinoActionSheet(
           title: title.isEmpty ? null : Text(title),
-          message: Text(message),
+          message: _buildBody(
+            message: message,
+            content: content,
+            wrapContentInMaterial: true,
+          ),
           actions: nonCancel.map((a) {
             return CupertinoActionSheetAction(
               isDestructiveAction: a.isDestructive,
@@ -229,6 +271,7 @@ class AdaptiveDialog {
     required BuildContext context,
     String? title,
     required String message,
+    Widget? content,
     String? confirmLabel,
     bool destructive = false,
     bool useActionSheetOnIOS = true,
@@ -237,6 +280,7 @@ class AdaptiveDialog {
       context: context,
       title: title,
       message: message,
+      content: content,
       useActionSheetOnIOS: useActionSheetOnIOS && destructive,
       actions: [
         AdaptiveDialogAction.cancel(context),

@@ -146,16 +146,29 @@ class _SettingsPageState extends State<SettingsPage> {
     final settings = context.read<SettingsProvider>();
     final tripsProvider = context.read<TripsProvider>();
 
+    bool clearGeologs = true;
     final confirmed = await AdaptiveDialog.confirm(
       context: context,
       title: l10n.settingsCacheClearConfirmTitle,
       message: l10n.settingsCacheClearConfirmMessage,
+      content: StatefulBuilder(
+        builder: (ctx, setState) => SwitchListTile.adaptive(
+          contentPadding: EdgeInsets.zero,
+          title: Text(l10n.settingsCacheClearGeologsToggle),
+          value: clearGeologs,
+          onChanged: (value) => setState(() => clearGeologs = value),
+        ),
+      ),
       confirmLabel: l10n.settingsCacheClearButton,
       destructive: true,
     );
 
     if (confirmed) {
-      await _vm.clearCache(settings: settings, tripsProvider: tripsProvider);
+      await _vm.clearCache(
+        settings: settings,
+        tripsProvider: tripsProvider,
+        clearGeologs: clearGeologs,
+      );
       if (!mounted) return;
       AdaptiveInformationMessage.showInfo(l10n.settingsCacheClearedMessage);
     }
