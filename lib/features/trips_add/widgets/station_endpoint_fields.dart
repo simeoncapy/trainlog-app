@@ -12,7 +12,11 @@ import 'package:trainlog_app/features/trips_add/widgets/full_screen_search_overl
 /// Renders either the by-name search field (read-only; tapping opens the
 /// full-screen suggestion overlay) with the resolved address underneath, or
 /// the manual fields (name with a label icon, then monospaced latitude /
-/// longitude inputs). Unlike the deprecated StationFieldsSwitcher, the mode
+/// longitude inputs). Each field carries the wizard's uppercase micro-label
+/// above it (matching the line items of the details / ticket / when steps)
+/// instead of a floating Material label; the leading icon is tinted with the
+/// primary colour once the field has a value, like everywhere else in the
+/// wizard. Unlike the deprecated StationFieldsSwitcher, the mode
 /// toggle UI lives in the parent (an AppStepsTabBar in the block header),
 /// which calls [StationEndpointFieldsState.setMode] through a [GlobalKey];
 /// the mode-switching behaviour itself is identical to the old widget.
@@ -80,15 +84,37 @@ class StationEndpointFieldsState extends State<StationEndpointFields> {
 
   Timer? _debounceTimer;
 
-  /// Compact field decoration following the app guidelines (dense fields with
-  /// the label inside the decoration).
-  InputDecoration _decoration(String label, {Widget? prefixIcon}) {
+  /// Compact field decoration following the app guidelines: dense fields
+  /// with a hint inside; the title is rendered above via [_fieldLabel].
+  InputDecoration _decoration({String? hint, Widget? prefixIcon}) {
     return InputDecoration(
-      labelText: label,
+      hintText: hint,
       prefixIcon: prefixIcon,
       isDense: true,
       contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
     );
+  }
+
+  /// Uppercase micro-label above a field, matching the line-item labels of
+  /// the other wizard steps.
+  Widget _fieldLabel(String text) {
+    final theme = Theme.of(context);
+    return Text(
+      text.toUpperCase(),
+      style: theme.textTheme.labelSmall?.copyWith(
+        color: theme.colorScheme.onSurfaceVariant,
+        fontWeight: FontWeight.w600,
+        letterSpacing: 1.2,
+      ),
+    );
+  }
+
+  /// Leading icon colour: primary once the field has a value, muted
+  /// otherwise — same behaviour as the detail and ticket line items.
+  Color _iconColour(ThemeData theme, bool hasValue) {
+    return hasValue
+        ? theme.colorScheme.primary
+        : theme.colorScheme.onSurfaceVariant;
   }
 
   // ------------------------------
@@ -361,6 +387,11 @@ class StationEndpointFieldsState extends State<StationEndpointFields> {
     final theme = Theme.of(context);
     final monoStyle = AppTheme.monoFont.copyWith(
       fontSize: 14,
+      fontWeight: FontWeight.w700,
+      color: theme.colorScheme.onSurface,
+    );
+    final valueStyle = theme.textTheme.bodyMedium?.copyWith(
+      fontWeight: FontWeight.w600,
       color: theme.colorScheme.onSurface,
     );
 
@@ -369,13 +400,19 @@ class StationEndpointFieldsState extends State<StationEndpointFields> {
       key: const ValueKey('name-mode'),
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        _fieldLabel(loc.nameField),
+        const SizedBox(height: 6),
         TextFormField(
           controller: _nameCtl,
           readOnly: true,
           onTap: _openOverlay,
+          style: valueStyle,
           decoration: _decoration(
-            loc.nameField,
-            prefixIcon: const Icon(Icons.search),
+            hint: loc.searchStationHint(widget.vehicleType.name),
+            prefixIcon: Icon(
+              Icons.search,
+              color: _iconColour(theme, _nameCtl.text.isNotEmpty),
+            ),
           ),
         ),
         const SizedBox(height: 8),
@@ -407,43 +444,70 @@ class StationEndpointFieldsState extends State<StationEndpointFields> {
     // ---------------- MANUAL MODE ------------------
     final geoMode = Column(
       key: const ValueKey('geo-mode'),
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        _fieldLabel(loc.nameField),
+        const SizedBox(height: 6),
         TextFormField(
           controller: _manualNameCtl,
+          style: valueStyle,
           decoration: _decoration(
-            widget.manualNameFieldHint,
-            prefixIcon: const Icon(Icons.label_outline),
+            hint: widget.manualNameFieldHint,
+            prefixIcon: Icon(
+              Icons.label_outline,
+              color: _iconColour(theme, _manualNameCtl.text.isNotEmpty),
+            ),
           ),
-          onChanged: (_) => _emitValues(),
+          onChanged: (_) {
+            setState(() {});
+            _emitValues();
+          },
         ),
         const SizedBox(height: 12),
         Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              child: TextFormField(
-                controller: _latCtl,
-                style: monoStyle,
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
-                decoration: _decoration(loc.addTripLatitudeShort),
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _fieldLabel(loc.addTripLatitudeShort),
+                  const SizedBox(height: 6),
+                  TextFormField(
+                    controller: _latCtl,
+                    style: monoStyle,
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
+                    decoration: _decoration(),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(
+                          RegExp(r'^-?\d*\.?\d*$')),
+                    ],
+                    onChanged: (_) => _emitValues(),
+                  ),
                 ],
-                onChanged: (_) => _emitValues(),
               ),
             ),
             const SizedBox(width: 12),
             Expanded(
-              child: TextFormField(
-                controller: _longCtl,
-                style: monoStyle,
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
-                decoration: _decoration(loc.addTripLongitudeShort),
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _fieldLabel(loc.addTripLongitudeShort),
+                  const SizedBox(height: 6),
+                  TextFormField(
+                    controller: _longCtl,
+                    style: monoStyle,
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
+                    decoration: _decoration(),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(
+                          RegExp(r'^-?\d*\.?\d*$')),
+                    ],
+                    onChanged: (_) => _emitValues(),
+                  ),
                 ],
-                onChanged: (_) => _emitValues(),
               ),
             ),
           ],
