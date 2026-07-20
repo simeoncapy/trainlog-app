@@ -404,6 +404,7 @@ class StationEndpointFieldsState extends State<StationEndpointFields> {
           const SizedBox(width: 12),
           Expanded(
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _fieldLabel(label),
@@ -428,6 +429,7 @@ class StationEndpointFieldsState extends State<StationEndpointFields> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _fieldLabel(label),
@@ -537,20 +539,19 @@ class StationEndpointFieldsState extends State<StationEndpointFields> {
           ),
         ),
         Divider(height: 1, color: theme.dividerColor),
-        // LAT/LONG double cell with a vertical separation.
-        IntrinsicHeight(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(
-                child: _coordCell(loc.addTripLatitudeShort, _latCtl),
-              ),
-              VerticalDivider(width: 1, color: theme.dividerColor),
-              Expanded(
-                child: _coordCell(loc.addTripLongitudeShort, _longCtl),
-              ),
-            ],
-          ),
+        // LAT/LONG double cell with a vertical separation. A fixed-height
+        // separator keeps the cells at their natural, compact height
+        // (IntrinsicHeight would let the text fields inflate the row).
+        Row(
+          children: [
+            Expanded(
+              child: _coordCell(loc.addTripLatitudeShort, _latCtl),
+            ),
+            Container(width: 1, height: 44, color: theme.dividerColor),
+            Expanded(
+              child: _coordCell(loc.addTripLongitudeShort, _longCtl),
+            ),
+          ],
         ),
       ],
     );
