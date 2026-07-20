@@ -373,6 +373,10 @@ class AppLocalizationsTl extends AppLocalizations {
       'Sigurado ka bang gusto mong tanggalin ang naka-cache na data? Hindi na ito maibabalik. Maaaring mas matagal ang susunod na pag-load ng app.';
 
   @override
+  String get settingsCacheClearGeologsToggle =>
+      'Burahin din ang lahat ng Geologs';
+
+  @override
   String get settingsCacheClearedMessage => 'Nabura ang cache';
 
   @override

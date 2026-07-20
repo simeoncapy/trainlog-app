@@ -162,6 +162,7 @@ class SettingsVm extends ChangeNotifier {
   Future<void> clearCache({
     required SettingsProvider settings,
     required TripsProvider tripsProvider,
+    bool clearGeologs = true,
   }) async {
     settings.setShouldReloadPolylines(true);
     settings.setLastFetchingTrips(forceRefreshDate.toUtc());
@@ -169,7 +170,9 @@ class SettingsVm extends ChangeNotifier {
     FlagCache.clearCache();
 
     await AppCacheFilePath.deleteFile(AppCacheFilePath.polylines);
-    await AppCacheFilePath.deleteFile(AppCacheFilePath.preRecord);
+    if (clearGeologs) {
+      await AppCacheFilePath.deleteFile(AppCacheFilePath.preRecord);
+    }
 
     refreshCacheSize();
     settings.setShouldReloadPolylines(true);

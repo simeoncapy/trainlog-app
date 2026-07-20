@@ -367,6 +367,9 @@ class AppLocalizationsJa extends AppLocalizations {
       'キャッシュデータを削除してもよろしいですか？この操作は元に戻せません。次回のアプリの読み込みに時間がかかる可能性があります。';
 
   @override
+  String get settingsCacheClearGeologsToggle => 'すべてのジオログも削除する';
+
+  @override
   String get settingsCacheClearedMessage => 'キャッシュが正常に消されました。';
 
   @override

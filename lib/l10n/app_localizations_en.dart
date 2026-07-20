@@ -376,6 +376,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Are you sure you want to delete the cached data? This action is irreversible. The next loading of the app might take longer.';
 
   @override
+  String get settingsCacheClearGeologsToggle => 'Also clear all the Geologs';
+
+  @override
   String get settingsCacheClearedMessage => 'Cache cleared successfully.';
 
   @override

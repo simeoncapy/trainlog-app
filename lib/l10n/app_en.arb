@@ -154,6 +154,7 @@
   "settingsCacheTitle" : "Cached data",
   "settingsCacheClearConfirmTitle": "Clear cache?",
   "settingsCacheClearConfirmMessage": "Are you sure you want to delete the cached data? This action is irreversible. The next loading of the app might take longer.",
+  "settingsCacheClearGeologsToggle": "Also clear all the Geologs",
   "settingsCacheClearedMessage": "Cache cleared successfully.",
   "settingsDisplayUserMarker": "Display current position",
   "settingsDeleteAccount": "Delete my account",

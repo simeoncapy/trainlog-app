@@ -804,6 +804,12 @@ abstract class AppLocalizations {
   /// **'Are you sure you want to delete the cached data? This action is irreversible. The next loading of the app might take longer.'**
   String get settingsCacheClearConfirmMessage;
 
+  /// No description provided for @settingsCacheClearGeologsToggle.
+  ///
+  /// In en, this message translates to:
+  /// **'Also clear all the Geologs'**
+  String get settingsCacheClearGeologsToggle;
+
   /// No description provided for @settingsCacheClearedMessage.
   ///
   /// In en, this message translates to:

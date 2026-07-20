@@ -116,6 +116,7 @@
   "settingsCacheClearButton" : "消す",
   "settingsCacheClearConfirmTitle": "キャッシュを消しますか?",
   "settingsCacheClearConfirmMessage": "キャッシュデータを削除してもよろしいですか？この操作は元に戻せません。次回のアプリの読み込みに時間がかかる可能性があります。",
+  "settingsCacheClearGeologsToggle": "すべてのジオログも削除する",
   "settingsCacheClearedMessage": "キャッシュが正常に消されました。",
   "settingsDisplayUserMarker": "現在の位置を表示する",
   "settingsDeleteAccount": "アカウントを削除する",

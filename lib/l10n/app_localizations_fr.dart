@@ -377,6 +377,10 @@ class AppLocalizationsFr extends AppLocalizations {
       'Êtes-vous sûr de vouloir supprimer les données en cache ? Cette action est irréversible. Le prochain chargement de l\'application pourra être plus long.';
 
   @override
+  String get settingsCacheClearGeologsToggle =>
+      'Supprimer aussi tous les Géomémo';
+
+  @override
   String get settingsCacheClearedMessage => 'Cache vidé avec succes.';
 
   @override
