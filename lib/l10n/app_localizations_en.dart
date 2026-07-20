@@ -24,9 +24,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appVersionCopied => 'Version number copied';
 
   @override
-  String get mainMenuButtonTooltip => 'Open menu';
-
-  @override
   String get filterButton => 'Filter';
 
   @override
@@ -103,9 +100,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'By signing up, you agree to our Privacy Policy.';
 
   @override
-  String get loginToYourAccount => 'Log in to your account';
-
-  @override
   String get loginWelcomeBack => 'Welcome back';
 
   @override
@@ -122,11 +116,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorCreationAccount => 'Error while creating account.';
-
-  @override
-  String menuHello(Object username) {
-    return 'Hello $username';
-  }
 
   @override
   String get connectionError => 'Login failed, please check your credentials';
@@ -491,9 +480,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get rankingOrderDescending => 'Descending';
 
   @override
-  String get rankingAllVehicles => 'all vehicles';
-
-  @override
   String get rankingWorldCovered => 'World squares covered';
 
   @override
@@ -520,11 +506,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get rankingSearchHint => 'Search users…';
 
   @override
-  String rankingVehicleTripsScope(String trips, String vehicle) {
-    return '$trips $vehicle trips';
-  }
-
-  @override
   String get railCoverageCountriesTab => 'Countries';
 
   @override
@@ -540,18 +521,6 @@ class AppLocalizationsEn extends AppLocalizations {
       locale: localeName,
       other: '$count regions',
       one: '$count region',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String railCoverageLeadCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: 'You lead $count countries',
-      one: 'You lead 1 country',
-      zero: 'You lead no countries',
     );
     return '$_temp0';
   }
@@ -590,9 +559,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get menuAboutTitle => 'About';
-
-  @override
-  String get menuIosMore => 'More';
 
   @override
   String get menuYouTitle => 'You';
@@ -691,9 +657,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get yearFutureList => 'Future';
 
   @override
-  String get yearYearList => 'Years...';
-
-  @override
   String get typeTitle => 'Vehicle Types';
 
   @override
@@ -777,24 +740,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get tripsDetailsTitleOperator => 'Operator: ';
-
-  @override
-  String get tripsDetailsTitleVehicle => 'Vehicle: ';
-
-  @override
-  String get tripsDetailsTitleSeat => 'Seat: ';
-
-  @override
-  String get tripsDetailsTitlePrice => 'Price: ';
-
-  @override
   String tripsDetailPurchasedDate(Object date) {
     return 'purchased on $date';
   }
-
-  @override
-  String get tripsDetailsTitleNotes => 'Notes: ';
 
   @override
   String get tripsDetailsSectionDetails => 'Details';
@@ -1102,12 +1050,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get statisticsGraphUnitCo2 => 'CO2';
 
   @override
-  String get statisticsDisplayFilters => 'Display the filters';
-
-  @override
-  String get statisticsHideFilters => 'Hide the filters';
-
-  @override
   String get statisticsTripsUnitBase => 'trips';
 
   @override
@@ -1147,19 +1089,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get statisticsViewTable => 'Table';
 
   @override
-  String get statisticsSelectDimension => 'Select dimension';
-
-  @override
-  String get statisticsSelectVehicle => 'Select vehicle';
-
-  @override
-  String get statisticsSelectUnit => 'Select unit';
-
-  @override
   String get internationalWaters => 'International waters';
-
-  @override
-  String get addTripStepValidate => 'Validate';
 
   @override
   String addTripStepProgress(int current, int total) {
@@ -1228,12 +1158,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get addTripTransportationMode => 'Transportation mode';
-
-  @override
-  String get addTripManualDeparture => 'Manual departure';
-
-  @override
-  String get addTripManualArrival => 'Manual arrival';
 
   @override
   String get addTripDeparture => 'Departure';
@@ -1504,9 +1428,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get prerecorderSelectStation => 'Select a station';
 
   @override
-  String get prerecorderSelectClosest => 'Select closest';
-
-  @override
   String get prerecorderNoStationReachable => 'No station reachable';
 
   @override
@@ -1554,11 +1475,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get inboxPageTitle => 'News & Updates';
-
-  @override
-  String inboxAuthor(String author) {
-    return 'By $author';
-  }
 
   @override
   String get inboxModified => '(modified)';

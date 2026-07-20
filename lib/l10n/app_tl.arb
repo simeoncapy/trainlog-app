@@ -5,7 +5,6 @@
   "languageWithEmoji": "🇵🇭 Tagalog",
   "appVersion": "App version",
   "appVersionCopied": "Nakopya na ang version number",
-  "mainMenuButtonTooltip": "Ibukas ang menu",
   "filterButton": "Filter",
   "descendingOrder": "I-ayos Pababa",
   "ascendingOrder": "I-ayos Paakyat",
@@ -31,20 +30,12 @@
   "passwordRequiredLabel": "Kailangan ang password",
   "createAccountButtonShort": "Gumawa",
   "createAccountPrivacyPolicy": "Sa pag sign up, sumasang-ayon ka sa aming Privacy Policy.",
-  "loginToYourAccount": "Mag login sa account ",
   "loginWelcomeBack": "Maligayang pagbabalik",
   "loginSubtitle": "I-log ang iyong susunod na biyahe",
   "loginNewHere": "Bago dito?",
   "changeInstance": "Baguhin ang instance",
   "instanceSelectorLabel": "Instance",
   "errorCreationAccount": "May mali sa pag gawa ng account.",
-  "menuHello": "Kamusta {username}",
-  "@menuHello": {
-    "description": "The username",
-    "placeholders": {
-      "username": {}
-    }
-  },
   "connectionError": "May mali sa credentials mo",
   "refreshCompleted": "Na refresh na",
   "nextButton": "Sunod",
@@ -170,19 +161,16 @@
   "rankingSortByValue": "Ayusin ayon sa halaga",
   "rankingOrderAscending": "Pataas",
   "rankingOrderDescending": "Pababa",
-  "rankingAllVehicles": "lahat ng sasakyan",
   "rankingWorldCovered": "Na-cover na mga squares sa mundo",
   "rankingCountriesVisited": "Mga bansang nabisita",
   "rankingCountryCountLabel": "{count, plural, =1 {bansa} other {mga bansa}}",
   "rankingNoData": "Walang datos",
   "rankingNotRanked": "Hindi naka-ranggo",
   "rankingSearchHint": "Maghanap ng user…",
-  "rankingVehicleTripsScope": "{trips} na biyahe sa {vehicle}",
   "railCoverageCountriesTab": "Mga bansa",
   "railCoverageRegionsTab": "Mga rehiyon",
   "railCoverageSelectRegion": "Pumili ng bansa",
   "railCoverageRegionCount": "{count, plural, =1 {{count} rehiyon} other {{count} na rehiyon}}",
-  "railCoverageLeadCount": "{count, plural, =0 {Wala kang pinangungunahang bansa} =1 {Nangunguna ka sa 1 bansa} other {Nangunguna ka sa {count} bansa}}",
   "railCoverageAreaSubtitle": "Saklaw ng riles ng {area}",
   "railCoverageYou": "Ikaw",
   "menuStatisticsTitle": "Istatistika",
@@ -194,7 +182,6 @@
   "menuSmartPrerecorderTitle": "Geolog",
   "menuSettingsTitle": "Settings",
   "menuAboutTitle": "Tungkol sa app",
-  "menuIosMore": "More",
   "menuYouTitle": "Ikaw",
   "menuExploreSectionTitle": "TUKLASIN",
   "menuMenuSectionTitle": "MENU",
@@ -231,7 +218,6 @@
   "yearAllList": "Lahat",
   "yearPastList": "Nakaraan",
   "yearFutureList": "Future",
-  "yearYearList": "Taon...",
   "typeTitle": "Uri ng sasakyan",
   "typeTrain": "Tren",
   "typeTram": "Tramway",
@@ -261,10 +247,6 @@
       "vehicle": {}
     }
   },
-  "tripsDetailsTitleOperator": "Operator: ",
-  "tripsDetailsTitleVehicle": "Sasakyan: ",
-  "tripsDetailsTitleSeat": "Upuan: ",
-  "tripsDetailsTitlePrice": "Presyo: ",
   "tripsDetailPurchasedDate": "binili sa {date}",
   "@tripsDetailPurchasedDate": {
     "description": "date of the ticket purchase",
@@ -272,7 +254,6 @@
       "date": {}
     }
   },
-  "tripsDetailsTitleNotes": "Notes: ",
   "tripsDetailsSectionDetails": "Detalye",
   "tripsDetailsLabelVehicle": "Sasakyan",
   "tripsDetailsLabelMaterial": "Materyal",
@@ -384,8 +365,6 @@
   "statisticsGraphUnitDistance": "Layo",
   "statisticsGraphUnitDuration": "Haba ng byahe",
   "statisticsGraphUnitCo2": "CO2",
-  "statisticsDisplayFilters": "Ipakita ang filters",
-  "statisticsHideFilters": "Itago ang filter",
   "statisticsTripsUnitBase": "byahe",
   "statisticsTripsUnitKilo": "isang libong byahe",
   "statisticsTripsUnitMega": "isang milyong byahe",
@@ -399,14 +378,7 @@
   "statisticsViewBar": "Bar",
   "statisticsViewPie": "Pie",
   "statisticsViewTable": "Table",
-  "statisticsSelectDimension": "Pumili ng dimensyon",
-  "statisticsSelectVehicle": "Pumili ng sasakyan",
-  "statisticsSelectUnit": "Pumili ng yunit",
   "internationalWaters": "Tubig international",
-  "addTripStepValidate": "Ivalidate",
-  "@addTripStepValidate": {
-    "description": "Label for the last step when adding a trip. Choose a short word if possible"
-  },
   "addTripStepProgress": "STEP {current} / {total}",
   "@addTripStepProgress": {
     "description": "Fractional progress label of the add-trip wizard, e.g. 'STEP 1 / 7'",
@@ -475,8 +447,6 @@
     "description": "Small text action above the Continue button on optional wizard steps, skipping the step"
   },
   "addTripTransportationMode": "Byahe mode",
-  "addTripManualDeparture": "I set ang pag depart manually",
-  "addTripManualArrival": "I set ang pag arrive manually",
   "addTripDeparture": "Departure",
   "addTripArrival": "Arrival",
   "addTripLatitudeShort": "Lat",
@@ -579,7 +549,6 @@
   "prerecorderDeleteSelectionConfirm": "SIgurado ka na gusto mo ibura ang selection? Hindi ito reversible.",
   "prerecorderDeleteAllConfirm": "Sigurado ka na gusto mo ibura ang lahat ng recorded gelogs? Hindi ito reversible.",
   "prerecorderSelectStation": "Pumili ng station",
-  "prerecorderSelectClosest": "Pumili ng pinkamalapit",
   "prerecorderNoStationReachable": "Walang station na malapit",
   "prerecorderAway": "{distance} m layo",
   "@prerecorderAway": {
@@ -604,16 +573,6 @@
   "prerecorderErrorTypeSameForDepartureArrival": "Ang departure at arrival ay dapat parehas ng sasakyan, o unknown type",
   "prerecorderErrorFetchingStation": "Nagka error sa pagkuha ng data ng station",
   "inboxPageTitle": "Mga balita at update",
-  "inboxAuthor": "Gawa ni {author}",
-  "@inboxAuthor": {
-    "description": "The author of a message",
-    "placeholders": {
-      "author": {
-        "type": "String",
-        "description": "The name of the author"
-      }
-    }
-  },
   "inboxModified": "(naibago)",
   "inboxModifiedIndication": "(naibago sa {date})",
   "@inboxModifiedIndication": {

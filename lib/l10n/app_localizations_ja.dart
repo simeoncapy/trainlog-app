@@ -24,9 +24,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get appVersionCopied => 'バージョン番号をコピーしました。';
 
   @override
-  String get mainMenuButtonTooltip => 'メニューを開く';
-
-  @override
   String get filterButton => 'フィルター';
 
   @override
@@ -103,9 +100,6 @@ class AppLocalizationsJa extends AppLocalizations {
       'サインアップすることで、プライバシーポリシーに同意したことになります。';
 
   @override
-  String get loginToYourAccount => 'アカウントにログイン';
-
-  @override
   String get loginWelcomeBack => 'おかえりなさい';
 
   @override
@@ -122,11 +116,6 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get errorCreationAccount => 'アカウントの作成中にエラーが発生しました。';
-
-  @override
-  String menuHello(Object username) {
-    return 'こんにちは $usernameさん';
-  }
 
   @override
   String get connectionError => 'ログインに失敗しました。資格情報を確認してください。';
@@ -481,9 +470,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get rankingOrderDescending => '降順';
 
   @override
-  String get rankingAllVehicles => 'すべての乗り物';
-
-  @override
   String get rankingWorldCovered => '世界マスの網羅率';
 
   @override
@@ -509,11 +495,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get rankingSearchHint => 'ユーザーを検索…';
 
   @override
-  String rankingVehicleTripsScope(String trips, String vehicle) {
-    return '$vehicle $trips 回';
-  }
-
-  @override
   String get railCoverageCountriesTab => '国';
 
   @override
@@ -528,17 +509,6 @@ class AppLocalizationsJa extends AppLocalizations {
       count,
       locale: localeName,
       other: '$count 地域',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String railCoverageLeadCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count か国で首位',
-      zero: '首位の国はありません',
     );
     return '$_temp0';
   }
@@ -577,9 +547,6 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get menuAboutTitle => 'ついて';
-
-  @override
-  String get menuIosMore => 'もっと';
 
   @override
   String get menuYouTitle => 'あなた';
@@ -675,9 +642,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get yearFutureList => '未来';
 
   @override
-  String get yearYearList => '年...';
-
-  @override
   String get typeTitle => '乗り物のタイプ';
 
   @override
@@ -761,24 +725,9 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String get tripsDetailsTitleOperator => '運行会社: ';
-
-  @override
-  String get tripsDetailsTitleVehicle => '車両名: ';
-
-  @override
-  String get tripsDetailsTitleSeat => '座席: ';
-
-  @override
-  String get tripsDetailsTitlePrice => '価格: ';
-
-  @override
   String tripsDetailPurchasedDate(Object date) {
     return '$dateに購入';
   }
-
-  @override
-  String get tripsDetailsTitleNotes => 'メモ: ';
 
   @override
   String get tripsDetailsSectionDetails => '詳細';
@@ -1081,12 +1030,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get statisticsGraphUnitCo2 => 'CO2';
 
   @override
-  String get statisticsDisplayFilters => 'フィルターを表示';
-
-  @override
-  String get statisticsHideFilters => 'フィルターを非表示';
-
-  @override
   String get statisticsTripsUnitBase => '回';
 
   @override
@@ -1126,19 +1069,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get statisticsViewTable => 'テーブル';
 
   @override
-  String get statisticsSelectDimension => '次元を選択';
-
-  @override
-  String get statisticsSelectVehicle => '車両を選択';
-
-  @override
-  String get statisticsSelectUnit => '単位を選択';
-
-  @override
   String get internationalWaters => '公海';
-
-  @override
-  String get addTripStepValidate => '確認';
 
   @override
   String addTripStepProgress(int current, int total) {
@@ -1204,12 +1135,6 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get addTripTransportationMode => '交通手段';
-
-  @override
-  String get addTripManualDeparture => '出発地を手動で設定';
-
-  @override
-  String get addTripManualArrival => '到着地を手動で設定';
 
   @override
   String get addTripDeparture => '出発地';
@@ -1473,9 +1398,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get prerecorderSelectStation => '駅を選択する';
 
   @override
-  String get prerecorderSelectClosest => '最も近い駅を選択する';
-
-  @override
   String get prerecorderNoStationReachable => '近くに駅がありません';
 
   @override
@@ -1521,11 +1443,6 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get inboxPageTitle => 'お知らせ';
-
-  @override
-  String inboxAuthor(String author) {
-    return '$authorさん';
-  }
 
   @override
   String get inboxModified => '(変更)';

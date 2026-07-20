@@ -132,12 +132,6 @@ abstract class AppLocalizations {
   /// **'Version number copied'**
   String get appVersionCopied;
 
-  /// No description provided for @mainMenuButtonTooltip.
-  ///
-  /// In en, this message translates to:
-  /// **'Open menu'**
-  String get mainMenuButtonTooltip;
-
   /// No description provided for @filterButton.
   ///
   /// In en, this message translates to:
@@ -288,12 +282,6 @@ abstract class AppLocalizations {
   /// **'By signing up, you agree to our Privacy Policy.'**
   String get createAccountPrivacyPolicy;
 
-  /// No description provided for @loginToYourAccount.
-  ///
-  /// In en, this message translates to:
-  /// **'Log in to your account'**
-  String get loginToYourAccount;
-
   /// No description provided for @loginWelcomeBack.
   ///
   /// In en, this message translates to:
@@ -329,12 +317,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Error while creating account.'**
   String get errorCreationAccount;
-
-  /// The username
-  ///
-  /// In en, this message translates to:
-  /// **'Hello {username}'**
-  String menuHello(Object username);
 
   /// No description provided for @connectionError.
   ///
@@ -1002,12 +984,6 @@ abstract class AppLocalizations {
   /// **'Descending'**
   String get rankingOrderDescending;
 
-  /// No description provided for @rankingAllVehicles.
-  ///
-  /// In en, this message translates to:
-  /// **'all vehicles'**
-  String get rankingAllVehicles;
-
   /// No description provided for @rankingWorldCovered.
   ///
   /// In en, this message translates to:
@@ -1044,12 +1020,6 @@ abstract class AppLocalizations {
   /// **'Search users…'**
   String get rankingSearchHint;
 
-  /// No description provided for @rankingVehicleTripsScope.
-  ///
-  /// In en, this message translates to:
-  /// **'{trips} {vehicle} trips'**
-  String rankingVehicleTripsScope(String trips, String vehicle);
-
   /// No description provided for @railCoverageCountriesTab.
   ///
   /// In en, this message translates to:
@@ -1073,12 +1043,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1 {{count} region} other {{count} regions}}'**
   String railCoverageRegionCount(int count);
-
-  /// Summary of how many countries the user is the leader of in railway coverage
-  ///
-  /// In en, this message translates to:
-  /// **'{count, plural, =0 {You lead no countries} =1 {You lead 1 country} other {You lead {count} countries}}'**
-  String railCoverageLeadCount(int count);
 
   /// Subtitle on the railway coverage drill-down page, e.g. 'Japan railway coverage'
   ///
@@ -1145,12 +1109,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'About'**
   String get menuAboutTitle;
-
-  /// No description provided for @menuIosMore.
-  ///
-  /// In en, this message translates to:
-  /// **'More'**
-  String get menuIosMore;
 
   /// No description provided for @menuYouTitle.
   ///
@@ -1289,12 +1247,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Future'**
   String get yearFutureList;
-
-  /// No description provided for @yearYearList.
-  ///
-  /// In en, this message translates to:
-  /// **'Years...'**
-  String get yearYearList;
 
   /// No description provided for @typeTitle.
   ///
@@ -1458,41 +1410,11 @@ abstract class AppLocalizations {
   /// **'Trip in {vehicle}'**
   String tripsDetailTitle(Object vehicle);
 
-  /// No description provided for @tripsDetailsTitleOperator.
-  ///
-  /// In en, this message translates to:
-  /// **'Operator: '**
-  String get tripsDetailsTitleOperator;
-
-  /// No description provided for @tripsDetailsTitleVehicle.
-  ///
-  /// In en, this message translates to:
-  /// **'Vehicle: '**
-  String get tripsDetailsTitleVehicle;
-
-  /// No description provided for @tripsDetailsTitleSeat.
-  ///
-  /// In en, this message translates to:
-  /// **'Seat: '**
-  String get tripsDetailsTitleSeat;
-
-  /// No description provided for @tripsDetailsTitlePrice.
-  ///
-  /// In en, this message translates to:
-  /// **'Price: '**
-  String get tripsDetailsTitlePrice;
-
   /// date of the ticket purchase
   ///
   /// In en, this message translates to:
   /// **'purchased on {date}'**
   String tripsDetailPurchasedDate(Object date);
-
-  /// No description provided for @tripsDetailsTitleNotes.
-  ///
-  /// In en, this message translates to:
-  /// **'Notes: '**
-  String get tripsDetailsTitleNotes;
 
   /// No description provided for @tripsDetailsSectionDetails.
   ///
@@ -1824,18 +1746,6 @@ abstract class AppLocalizations {
   /// **'CO2'**
   String get statisticsGraphUnitCo2;
 
-  /// No description provided for @statisticsDisplayFilters.
-  ///
-  /// In en, this message translates to:
-  /// **'Display the filters'**
-  String get statisticsDisplayFilters;
-
-  /// No description provided for @statisticsHideFilters.
-  ///
-  /// In en, this message translates to:
-  /// **'Hide the filters'**
-  String get statisticsHideFilters;
-
   /// No description provided for @statisticsTripsUnitBase.
   ///
   /// In en, this message translates to:
@@ -1914,35 +1824,11 @@ abstract class AppLocalizations {
   /// **'Table'**
   String get statisticsViewTable;
 
-  /// No description provided for @statisticsSelectDimension.
-  ///
-  /// In en, this message translates to:
-  /// **'Select dimension'**
-  String get statisticsSelectDimension;
-
-  /// No description provided for @statisticsSelectVehicle.
-  ///
-  /// In en, this message translates to:
-  /// **'Select vehicle'**
-  String get statisticsSelectVehicle;
-
-  /// No description provided for @statisticsSelectUnit.
-  ///
-  /// In en, this message translates to:
-  /// **'Select unit'**
-  String get statisticsSelectUnit;
-
   /// No description provided for @internationalWaters.
   ///
   /// In en, this message translates to:
   /// **'International waters'**
   String get internationalWaters;
-
-  /// Label for the last step when adding a trip. Choose a short word if possible
-  ///
-  /// In en, this message translates to:
-  /// **'Validate'**
-  String get addTripStepValidate;
 
   /// Fractional progress label of the add-trip wizard, e.g. 'STEP 1 / 7'
   ///
@@ -2051,18 +1937,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Transportation mode'**
   String get addTripTransportationMode;
-
-  /// No description provided for @addTripManualDeparture.
-  ///
-  /// In en, this message translates to:
-  /// **'Manual departure'**
-  String get addTripManualDeparture;
-
-  /// No description provided for @addTripManualArrival.
-  ///
-  /// In en, this message translates to:
-  /// **'Manual arrival'**
-  String get addTripManualArrival;
 
   /// No description provided for @addTripDeparture.
   ///
@@ -2556,12 +2430,6 @@ abstract class AppLocalizations {
   /// **'Select a station'**
   String get prerecorderSelectStation;
 
-  /// No description provided for @prerecorderSelectClosest.
-  ///
-  /// In en, this message translates to:
-  /// **'Select closest'**
-  String get prerecorderSelectClosest;
-
   /// No description provided for @prerecorderNoStationReachable.
   ///
   /// In en, this message translates to:
@@ -2627,12 +2495,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'News & Updates'**
   String get inboxPageTitle;
-
-  /// The author of a message
-  ///
-  /// In en, this message translates to:
-  /// **'By {author}'**
-  String inboxAuthor(String author);
 
   /// No description provided for @inboxModified.
   ///
