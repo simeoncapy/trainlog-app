@@ -539,17 +539,26 @@ class StationEndpointFieldsState extends State<StationEndpointFields> {
           ),
         ),
         Divider(height: 1, color: theme.dividerColor),
-        // LAT/LONG double cell with a vertical separation. A fixed-height
-        // separator keeps the cells at their natural, compact height
-        // (IntrinsicHeight would let the text fields inflate the row).
-        Row(
+        // LAT/LONG double cell. The separator is layered behind the row so
+        // it always spans the row's natural height (IntrinsicHeight would
+        // let the text fields inflate the cells instead).
+        Stack(
           children: [
-            Expanded(
-              child: _coordCell(loc.addTripLatitudeShort, _latCtl),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: _coordCell(loc.addTripLatitudeShort, _latCtl),
+                ),
+                Expanded(
+                  child: _coordCell(loc.addTripLongitudeShort, _longCtl),
+                ),
+              ],
             ),
-            Container(width: 1, height: 44, color: theme.dividerColor),
-            Expanded(
-              child: _coordCell(loc.addTripLongitudeShort, _longCtl),
+            Positioned.fill(
+              child: Center(
+                child: Container(width: 1, color: theme.dividerColor),
+              ),
             ),
           ],
         ),
