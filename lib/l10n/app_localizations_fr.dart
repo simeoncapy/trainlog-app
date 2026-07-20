@@ -182,6 +182,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get noData => 'Aucune donnée';
 
   @override
+  String get operator => 'Transporteur';
+
+  @override
+  String get material => 'Matériel';
+
+  @override
   String get fillRequiredFields => 'Veuillez remplir les champs obligatoires';
 
   @override
@@ -740,9 +746,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get tripsTableHeaderEndTime => 'Heure d\'arrivée';
 
   @override
-  String get tripsTableHeaderOperator => 'Transporteur';
-
-  @override
   String get tripsTableHeaderLineName => 'Ligne';
 
   @override
@@ -766,9 +769,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get tripsDetailsLabelVehicle => 'Véhicule';
-
-  @override
-  String get tripsDetailsLabelMaterial => 'Matériel';
 
   @override
   String get tripsDetailsLabelRegistration => 'Immatriculation';
@@ -891,16 +891,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get tripsAddButton => 'Nouv. trajet';
 
   @override
-  String get graphTypeOperator => 'Transporteur';
-
-  @override
   String get graphTypeCountry => 'Pays';
 
   @override
   String get graphTypeYears => 'Années';
-
-  @override
-  String get graphTypeMaterial => 'Matériel';
 
   @override
   String get graphTypeItinerary => 'Itinéraire';
@@ -1178,9 +1172,6 @@ class AppLocalizationsFr extends AppLocalizations {
       'En mode manuel vous pouvez saisir les coordonnées directement ou déplacer le marqueur à l’emplacement souhaité après avoir agrandi la carte.';
 
   @override
-  String get addTripOperator => 'Transporteur';
-
-  @override
   String get addTripOperatorHint => 'Rechercher un transporteur...';
 
   @override
@@ -1213,9 +1204,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get addTripDepartureAfterArrival => 'Le départ est après l\'arrivée !';
-
-  @override
-  String get addTripMaterial => 'Matériel';
 
   @override
   String get addTripNotes => 'Note';

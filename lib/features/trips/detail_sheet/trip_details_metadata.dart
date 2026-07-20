@@ -39,7 +39,7 @@ class TripDetailsMetadata extends StatelessWidget {
       ),
       if (clean(trip.materialType) != null)
         _Field(
-          l10n.tripsDetailsLabelMaterial,
+          l10n.material,
           trip.materialType!.trim(),
           icon: Icons.train_outlined,
         ),

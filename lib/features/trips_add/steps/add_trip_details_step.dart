@@ -66,7 +66,7 @@ class _AddTripDetailsStepState extends State<AddTripDetailsStep> {
                 Divider(height: 1, color: theme.dividerColor),
                 _DetailFieldTile(
                   icon: Icons.sell_outlined,
-                  label: loc.addTripMaterial,
+                  label: loc.material,
                   initialValue: model.material,
                   onChanged: (value) {
                     setState(() => model.material = value);

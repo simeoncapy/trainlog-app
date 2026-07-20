@@ -75,6 +75,14 @@
   "@noData": {
     "description": "Shared empty-state message when there is no data to display (ranking, statistics)"
   },
+  "operator": "Operator",
+  "@operator": {
+    "description": "Shared label for the trip's operator (trips table header, statistics graph dimension, add-trip form)"
+  },
+  "material": "Material",
+  "@material": {
+    "description": "Shared label for the trip's material / rolling stock (trip details, statistics graph dimension, add-trip form)"
+  },
   "fillRequiredFields": "Please fill the required fields",
   "visibility": "Visibility",
   "visibilityPublic": "Public",
@@ -312,7 +320,6 @@
   "tripsTableHeaderDestination": "Destination",
   "tripsTableHeaderStartTime": "Departure Time",
   "tripsTableHeaderEndTime": "Arrival Time",
-  "tripsTableHeaderOperator": "Operator",
   "tripsTableHeaderLineName": "Line",
   "tripsTableHeaderTripLength": "Length",
   "tripsTableHeaderVisibility": "Visi.",
@@ -333,7 +340,6 @@
   },
   "tripsDetailsSectionDetails": "Details",
   "tripsDetailsLabelVehicle": "Vehicle",
-  "tripsDetailsLabelMaterial": "Material",
   "tripsDetailsLabelRegistration": "Registration",
   "tripsDetailsSectionOperator": "{count, plural, =1 {Operator} other {Operators}}",
   "@tripsDetailsSectionOperator": {
@@ -399,10 +405,8 @@
   "filterClearButton": "Clear filter",
   "tripsAddButton": "New trip",
 
-  "graphTypeOperator": "Operator",
   "graphTypeCountry": "Country",
   "graphTypeYears": "Years",
-  "graphTypeMaterial": "Material",
   "graphTypeItinerary": "Itinerary",
 
   "typeStation": "{type, select, train{Station} plane{Airport} bus{Stop} tram{Station} metro{Station} ferry{Port} helicopter{Heliport} aerialway{Station} funicular{Station} rail{Station} other{Location}}",
@@ -553,7 +557,6 @@
   "addTripLatitudeShort": "Lat",
   "addTripLongitudeShort": "Long",
   "addTripMapUsageHelper": "In manual mode you can enter the coordinates directly or move the marker to the desired position after expanding the map.",
-  "addTripOperator": "Operator",
   "addTripOperatorHint" : "Search operator...",
   "addTripDateTypePrecise": "Precise",
   "addTripDateTypeUnknown": "Unknown",
@@ -565,7 +568,6 @@
   "addTripFuture": "Future",
   "timezoneInformation": "The time zones are based on the coordinates of the departure and the arrival.",
   "addTripDepartureAfterArrival": "Departure after arrival!",
-  "addTripMaterial": "Material",
   "addTripNotes": "Note",
   "addTripTicketTitle": "Ticket",
   "addTripPurchaseDate": "Purchase date",

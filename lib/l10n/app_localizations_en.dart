@@ -181,6 +181,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noData => 'No data';
 
   @override
+  String get operator => 'Operator';
+
+  @override
+  String get material => 'Material';
+
+  @override
   String get fillRequiredFields => 'Please fill the required fields';
 
   @override
@@ -732,9 +738,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tripsTableHeaderEndTime => 'Arrival Time';
 
   @override
-  String get tripsTableHeaderOperator => 'Operator';
-
-  @override
   String get tripsTableHeaderLineName => 'Line';
 
   @override
@@ -758,9 +761,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tripsDetailsLabelVehicle => 'Vehicle';
-
-  @override
-  String get tripsDetailsLabelMaterial => 'Material';
 
   @override
   String get tripsDetailsLabelRegistration => 'Registration';
@@ -881,16 +881,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tripsAddButton => 'New trip';
 
   @override
-  String get graphTypeOperator => 'Operator';
-
-  @override
   String get graphTypeCountry => 'Country';
 
   @override
   String get graphTypeYears => 'Years';
-
-  @override
-  String get graphTypeMaterial => 'Material';
 
   @override
   String get graphTypeItinerary => 'Itinerary';
@@ -1167,9 +1161,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'In manual mode you can enter the coordinates directly or move the marker to the desired position after expanding the map.';
 
   @override
-  String get addTripOperator => 'Operator';
-
-  @override
   String get addTripOperatorHint => 'Search operator...';
 
   @override
@@ -1202,9 +1193,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get addTripDepartureAfterArrival => 'Departure after arrival!';
-
-  @override
-  String get addTripMaterial => 'Material';
 
   @override
   String get addTripNotes => 'Note';

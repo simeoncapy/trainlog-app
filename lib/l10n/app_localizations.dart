@@ -444,6 +444,18 @@ abstract class AppLocalizations {
   /// **'No data'**
   String get noData;
 
+  /// Shared label for the trip's operator (trips table header, statistics graph dimension, add-trip form)
+  ///
+  /// In en, this message translates to:
+  /// **'Operator'**
+  String get operator;
+
+  /// Shared label for the trip's material / rolling stock (trip details, statistics graph dimension, add-trip form)
+  ///
+  /// In en, this message translates to:
+  /// **'Material'**
+  String get material;
+
   /// No description provided for @fillRequiredFields.
   ///
   /// In en, this message translates to:
@@ -1398,12 +1410,6 @@ abstract class AppLocalizations {
   /// **'Arrival Time'**
   String get tripsTableHeaderEndTime;
 
-  /// No description provided for @tripsTableHeaderOperator.
-  ///
-  /// In en, this message translates to:
-  /// **'Operator'**
-  String get tripsTableHeaderOperator;
-
   /// No description provided for @tripsTableHeaderLineName.
   ///
   /// In en, this message translates to:
@@ -1445,12 +1451,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Vehicle'**
   String get tripsDetailsLabelVehicle;
-
-  /// No description provided for @tripsDetailsLabelMaterial.
-  ///
-  /// In en, this message translates to:
-  /// **'Material'**
-  String get tripsDetailsLabelMaterial;
 
   /// No description provided for @tripsDetailsLabelRegistration.
   ///
@@ -1650,12 +1650,6 @@ abstract class AppLocalizations {
   /// **'New trip'**
   String get tripsAddButton;
 
-  /// No description provided for @graphTypeOperator.
-  ///
-  /// In en, this message translates to:
-  /// **'Operator'**
-  String get graphTypeOperator;
-
   /// No description provided for @graphTypeCountry.
   ///
   /// In en, this message translates to:
@@ -1667,12 +1661,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Years'**
   String get graphTypeYears;
-
-  /// No description provided for @graphTypeMaterial.
-  ///
-  /// In en, this message translates to:
-  /// **'Material'**
-  String get graphTypeMaterial;
 
   /// No description provided for @graphTypeItinerary.
   ///
@@ -1950,12 +1938,6 @@ abstract class AppLocalizations {
   /// **'In manual mode you can enter the coordinates directly or move the marker to the desired position after expanding the map.'**
   String get addTripMapUsageHelper;
 
-  /// No description provided for @addTripOperator.
-  ///
-  /// In en, this message translates to:
-  /// **'Operator'**
-  String get addTripOperator;
-
   /// No description provided for @addTripOperatorHint.
   ///
   /// In en, this message translates to:
@@ -2021,12 +2003,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Departure after arrival!'**
   String get addTripDepartureAfterArrival;
-
-  /// No description provided for @addTripMaterial.
-  ///
-  /// In en, this message translates to:
-  /// **'Material'**
-  String get addTripMaterial;
 
   /// No description provided for @addTripNotes.
   ///

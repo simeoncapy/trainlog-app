@@ -181,6 +181,12 @@ class AppLocalizationsTl extends AppLocalizations {
   String get noData => 'Walang datos';
 
   @override
+  String get operator => 'Operator';
+
+  @override
+  String get material => 'Materyal';
+
+  @override
   String get fillRequiredFields => 'Ipasok ang lahat ng bagay';
 
   @override
@@ -728,9 +734,6 @@ class AppLocalizationsTl extends AppLocalizations {
   String get tripsTableHeaderEndTime => 'Oras ng pagdating';
 
   @override
-  String get tripsTableHeaderOperator => 'Operator';
-
-  @override
   String get tripsTableHeaderLineName => 'Linya';
 
   @override
@@ -754,9 +757,6 @@ class AppLocalizationsTl extends AppLocalizations {
 
   @override
   String get tripsDetailsLabelVehicle => 'Sasakyan';
-
-  @override
-  String get tripsDetailsLabelMaterial => 'Materyal';
 
   @override
   String get tripsDetailsLabelRegistration => 'Rehistrasyon';
@@ -878,16 +878,10 @@ class AppLocalizationsTl extends AppLocalizations {
   String get tripsAddButton => 'Bag. biyahe';
 
   @override
-  String get graphTypeOperator => 'Operator';
-
-  @override
   String get graphTypeCountry => 'Bansa';
 
   @override
   String get graphTypeYears => 'Taon';
-
-  @override
-  String get graphTypeMaterial => 'Materyal';
 
   @override
   String get graphTypeItinerary => 'Itinerary';
@@ -1148,9 +1142,6 @@ class AppLocalizationsTl extends AppLocalizations {
       'Sa manual mode, maari mong i pasok ang coordinates o i galaw ang marker sa tamang lugar sa mapa.';
 
   @override
-  String get addTripOperator => 'Operator';
-
-  @override
   String get addTripOperatorHint => 'Hanapin ang operator...';
 
   @override
@@ -1183,9 +1174,6 @@ class AppLocalizationsTl extends AppLocalizations {
 
   @override
   String get addTripDepartureAfterArrival => 'Departure pagkatapos ng arrival!';
-
-  @override
-  String get addTripMaterial => 'Materyal';
 
   @override
   String get addTripNotes => 'Note';

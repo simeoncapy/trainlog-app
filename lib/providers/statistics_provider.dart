@@ -36,10 +36,10 @@ enum GraphType {
   String label(BuildContext context, VehicleType vehicleType) {
     final loc = AppLocalizations.of(context)!;
     switch (this) {
-      case GraphType.operator:  return loc.graphTypeOperator;
+      case GraphType.operator:  return loc.operator;
       case GraphType.country:   return loc.graphTypeCountry;
       case GraphType.years:     return loc.graphTypeYears;
-      case GraphType.material:  return loc.graphTypeMaterial;
+      case GraphType.material:  return loc.material;
       case GraphType.itinerary: return loc.graphTypeItinerary;
       case GraphType.stations:  return loc.typeStations(vehicleType.name.toLowerCase());
     }

@@ -181,6 +181,12 @@ class AppLocalizationsJa extends AppLocalizations {
   String get noData => 'データなし';
 
   @override
+  String get operator => '運行会社';
+
+  @override
+  String get material => '車両形式';
+
+  @override
   String get fillRequiredFields => '必須項目を入力してください';
 
   @override
@@ -717,9 +723,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get tripsTableHeaderEndTime => '到着時刻';
 
   @override
-  String get tripsTableHeaderOperator => '運行会社';
-
-  @override
   String get tripsTableHeaderLineName => '路線';
 
   @override
@@ -743,9 +746,6 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get tripsDetailsLabelVehicle => '車両';
-
-  @override
-  String get tripsDetailsLabelMaterial => '車両形式';
 
   @override
   String get tripsDetailsLabelRegistration => '登録番号';
@@ -861,16 +861,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get tripsAddButton => '旅行を追加';
 
   @override
-  String get graphTypeOperator => '運行会社';
-
-  @override
   String get graphTypeCountry => '国';
 
   @override
   String get graphTypeYears => '年';
-
-  @override
-  String get graphTypeMaterial => '車両名';
 
   @override
   String get graphTypeItinerary => '道順';
@@ -1144,9 +1138,6 @@ class AppLocalizationsJa extends AppLocalizations {
       '手動モードでは座標を直接入力することも、地図を拡大してマーカーを目的の位置まで移動することもできます。';
 
   @override
-  String get addTripOperator => '運行会社';
-
-  @override
   String get addTripOperatorHint => '運行会社を検索';
 
   @override
@@ -1178,9 +1169,6 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get addTripDepartureAfterArrival => '出発時間は到着時間より後です!';
-
-  @override
-  String get addTripMaterial => '車両名';
 
   @override
   String get addTripNotes => 'メモ';

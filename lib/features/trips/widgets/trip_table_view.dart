@@ -154,7 +154,7 @@ class _TripTableViewState extends State<TripTableView> {
       case 'endTime':
         return loc.tripsTableHeaderEndTime;
       case 'operator':
-        return loc.tripsTableHeaderOperator;
+        return loc.operator;
       case 'lineName':
         return loc.tripsTableHeaderLineName;
       case 'tripLength':
