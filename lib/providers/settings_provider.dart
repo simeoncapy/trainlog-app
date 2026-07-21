@@ -602,6 +602,21 @@ class SettingsProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  /// Debug helper: forgets the last-seen changelog so the dialogue shows
+  /// again on the next launch.
+  Future<void> clearLastSeenChangelog() async {
+    if (_SP_lastSeenChangelogVersion.isEmpty &&
+        _SP_lastSeenChangelogDate == null) {
+      return;
+    }
+    _SP_lastSeenChangelogVersion = '';
+    _SP_lastSeenChangelogDate = null;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_kLastSeenChangelogVersion);
+    await prefs.remove(_kLastSeenChangelogDate);
+    notifyListeners();
+  }
+
   // ------------------------------------------------------------------------------
 
   void _loadOnboardingCompleted(SharedPreferences prefs) {
