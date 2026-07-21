@@ -1498,4 +1498,21 @@ class AppLocalizationsTl extends AppLocalizations {
 
   @override
   String get tripCardDateUndefined => 'Hindi natukoy';
+
+  @override
+  String changelogTitle(String version) {
+    return 'Changelog v$version';
+  }
+
+  @override
+  String get changelogTypeFeature => 'Mga bagong feature';
+
+  @override
+  String get changelogTypeMinor => 'Mga pagpapahusay';
+
+  @override
+  String get changelogTypeOther => 'Iba pang pagbabago';
+
+  @override
+  String get changelogTypeFix => 'Mga bug fix';
 }

@@ -1,0 +1,8 @@
+changelog_ja:
+  - version: 0.4.1
+    date: 2026-07-21
+    changes:
+      - type: feature
+        text: 設定で起動時に表示するページを変更できるオプションを追加。
+      - type: feature
+        text: アップデート後に前回からの変更点を表示する変更履歴機能を追加。

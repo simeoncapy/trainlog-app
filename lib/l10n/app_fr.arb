@@ -442,5 +442,11 @@
 
   "tapAgainToExit": "Appuyez à nouveau pour quitter",
   "tripsEmptyList": "Aucun trajet",
-  "tripCardDateUndefined": "Indéfinie"
+  "tripCardDateUndefined": "Indéfinie",
+
+  "changelogTitle": "Journal des modifications v{version}",
+  "changelogTypeFeature": "Nouvelles fonctionnalités",
+  "changelogTypeMinor": "Améliorations",
+  "changelogTypeOther": "Autres changements",
+  "changelogTypeFix": "Corrections de bugs"
 }

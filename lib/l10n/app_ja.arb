@@ -443,5 +443,11 @@
 
   "tapAgainToExit": "もう一度タップすると終了します",
   "tripsEmptyList": "まだ旅はありません",
-  "tripCardDateUndefined": "未定義"
+  "tripCardDateUndefined": "未定義",
+
+  "changelogTitle": "変更履歴 v{version}",
+  "changelogTypeFeature": "新機能",
+  "changelogTypeMinor": "改善",
+  "changelogTypeOther": "その他の変更",
+  "changelogTypeFix": "不具合修正"
 }

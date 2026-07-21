@@ -49,6 +49,8 @@ class SettingsProvider with ChangeNotifier {
   DateTime _SP_lastNewsVisit = DateTime.now().toUtc();
   DateTime? _SP_lastFetchingTrips;
   String? _SP_lastUsedInstanceUrl;
+  String _SP_lastSeenChangelogVersion = '';
+  DateTime? _SP_lastSeenChangelogDate;
 
   // Map filters
   PolylineYearFilter _SP_mapPolylineYearFilter = PolylineYearFilter.all;
@@ -59,6 +61,9 @@ class SettingsProvider with ChangeNotifier {
   static const _kLastUserLat = 'last_user_lat';
   static const _kLastUserLng = 'last_user_lng';
   static const _kUsernameKey = 'auth.username';
+
+  static const _kLastSeenChangelogVersion = 'last_seen_changelog_version';
+  static const _kLastSeenChangelogDate = 'last_seen_changelog_date';
 
   static const _kMapPolylineYearFilter = 'map_polyline_year_filter';
   static const _kMapPolylineSelectedYears = 'map_polyline_selected_years';
@@ -91,6 +96,8 @@ class SettingsProvider with ChangeNotifier {
   DateTime get lastNewsVisit => _SP_lastNewsVisit;
   DateTime? get lastFetchingTrips => _SP_lastFetchingTrips;
   String? get lastUsedInstanceUrl => _SP_lastUsedInstanceUrl;
+  String get lastSeenChangelogVersion => _SP_lastSeenChangelogVersion;
+  DateTime? get lastSeenChangelogDate => _SP_lastSeenChangelogDate;
 
   PolylineYearFilter get mapPolylineYearFilter => _SP_mapPolylineYearFilter;
   Set<int> get mapPolylineSelectedYears => Set.unmodifiable(_SP_mapPolylineSelectedYears);
@@ -148,6 +155,7 @@ class SettingsProvider with ChangeNotifier {
       _loadLastNewsVisit,
       _loadLastFetchingTrips,
       _loadLastUsedInstanceUrl,
+      _loadLastSeenChangelog,
       _loadMapPolylineFilterState,
     ];
 
@@ -558,6 +566,38 @@ class SettingsProvider with ChangeNotifier {
       await prefs.setString('last_used_instance_url', url);
     } else {
       await prefs.remove('last_used_instance_url');
+    }
+    notifyListeners();
+  }
+
+  // ------------------------------------------------------------------------------
+
+  void _loadLastSeenChangelog(SharedPreferences prefs) {
+    _SP_lastSeenChangelogVersion =
+        prefs.getString(_kLastSeenChangelogVersion) ?? '';
+    final d = prefs.getString(_kLastSeenChangelogDate);
+    _SP_lastSeenChangelogDate = d == null ? null : DateTime.parse(d);
+  }
+
+  /// Records the newest changelog entry already presented to (or skipped for)
+  /// the user, so the changelog dialogue is not shown again until an update
+  /// ships a newer entry.
+  Future<void> setLastSeenChangelog({
+    required String version,
+    DateTime? date,
+  }) async {
+    if (_SP_lastSeenChangelogVersion == version &&
+        _SP_lastSeenChangelogDate == date) {
+      return;
+    }
+    _SP_lastSeenChangelogVersion = version;
+    _SP_lastSeenChangelogDate = date;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_kLastSeenChangelogVersion, version);
+    if (date != null) {
+      await prefs.setString(_kLastSeenChangelogDate, date.toIso8601String());
+    } else {
+      await prefs.remove(_kLastSeenChangelogDate);
     }
     notifyListeners();
   }

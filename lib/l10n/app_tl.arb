@@ -601,5 +601,11 @@
 
   "tapAgainToExit": "I-tap muli para lumabas",
   "tripsEmptyList": "Wala pang biyahe",
-  "tripCardDateUndefined": "Hindi natukoy"
+  "tripCardDateUndefined": "Hindi natukoy",
+
+  "changelogTitle": "Changelog v{version}",
+  "changelogTypeFeature": "Mga bagong feature",
+  "changelogTypeMinor": "Mga pagpapahusay",
+  "changelogTypeOther": "Iba pang pagbabago",
+  "changelogTypeFix": "Mga bug fix"
 }

@@ -1481,4 +1481,21 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get tripCardDateUndefined => '未定義';
+
+  @override
+  String changelogTitle(String version) {
+    return '変更履歴 v$version';
+  }
+
+  @override
+  String get changelogTypeFeature => '新機能';
+
+  @override
+  String get changelogTypeMinor => '改善';
+
+  @override
+  String get changelogTypeOther => 'その他の変更';
+
+  @override
+  String get changelogTypeFix => '不具合修正';
 }
