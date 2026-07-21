@@ -75,6 +75,7 @@ class AdaptiveIcons {
   static final IconData hour =        isA ? CupertinoIcons.clock : Icons.watch;
   static final IconData currency =    isA ? CupertinoIcons.money_dollar_circle : Icons.currency_exchange;
   static final IconData radar =       isA ? CupertinoIcons.location_circle : Icons.radar;
+  static final IconData landingPage = isA ? CupertinoIcons.house : Icons.home;
   static final IconData warningMsg =  isA ? CupertinoIcons.exclamationmark_triangle : Icons.warning;
   static final IconData layers =      isA ? CupertinoIcons.layers : Icons.layers;
   static final IconData palette =     isA ? CupertinoIcons.paintbrush : Icons.palette;

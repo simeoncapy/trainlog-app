@@ -312,6 +312,9 @@ class AppLocalizationsTl extends AppLocalizations {
       'Pinakamalaking radius para sa paghahanap ng istasyon sa Geolog';
 
   @override
+  String get settingsLandingPage => 'Panimulang pahina';
+
+  @override
   String get settingsSystem => 'Sistema';
 
   @override

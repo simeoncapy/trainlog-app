@@ -283,6 +283,18 @@ class _SettingsPageState extends State<SettingsPage> {
         )
         .label;
 
+    final landingPageOptions = [
+      (label: l10n.menuMapTitle, value: LandingPage.map),
+      (label: l10n.menuTripsTitle, value: LandingPage.trips),
+    ];
+
+    final landingPageName = landingPageOptions
+        .firstWhere(
+          (o) => o.value == settings.landingPage,
+          orElse: () => landingPageOptions.first,
+        )
+        .label;
+
     return SettingsGroup(children: [
       _ThemeRow(
         icon: AdaptiveIcons.theme,
@@ -357,6 +369,18 @@ class _SettingsPageState extends State<SettingsPage> {
           options: radiusOptions,
           selected: settings.sprRadius,
           onChanged: settings.setSprRadius,
+        ),
+      ),
+      SettingsTile(
+        icon: AdaptiveIcons.landingPage,
+        title: l10n.settingsLandingPage,
+        trailing: _chevronTrailing(ctx, landingPageName),
+        onTap: () => _showPicker<LandingPage>(
+          context: ctx,
+          title: l10n.settingsLandingPage,
+          options: landingPageOptions,
+          selected: settings.landingPage,
+          onChanged: settings.setLandingPage,
         ),
       ),
     ]);

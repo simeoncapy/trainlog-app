@@ -1,12 +1,14 @@
 // cupertino_shell.dart
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' show Icon, PageRouteBuilder, Scaffold, Theme;
+import 'package:provider/provider.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/navigation/nav_models.dart';
 import 'package:trainlog_app/platform/adaptive_app_bar.dart';
 import 'package:trainlog_app/platform/adaptive_bottom_navbar.dart'
     show AdaptiveBottomNavBar, kNavBarClearance;
 import 'package:trainlog_app/platform/cupertino_fab.dart';
+import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 
 import 'package:trainlog_app/features/about/about_page.dart';
@@ -43,6 +45,15 @@ class _CupertinoShellState extends State<CupertinoShell> {
     GlobalKey<NavigatorState>(),
     GlobalKey<NavigatorState>(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex =
+        context.read<SettingsProvider>().landingPage == LandingPage.trips
+            ? 1
+            : 0;
+  }
 
   void _onTabTapped(int index) {
     if (index == _currentIndex) {

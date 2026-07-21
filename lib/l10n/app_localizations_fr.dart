@@ -319,6 +319,9 @@ class AppLocalizationsFr extends AppLocalizations {
       'Rayon maximum pour la recherche de gare dans Géomémo';
 
   @override
+  String get settingsLandingPage => 'Page de démarrage';
+
+  @override
   String get settingsSystem => 'Système';
 
   @override

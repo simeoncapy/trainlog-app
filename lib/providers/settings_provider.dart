@@ -17,6 +17,11 @@ enum PathDisplayOrder {
   tripDatePlaneOver,
 }
 
+enum LandingPage {
+  map,
+  trips,
+}
+
 class SettingsProvider with ChangeNotifier {
   ThemeMode _themeMode = ThemeMode.system;
   Locale _locale = const Locale('en');
@@ -29,6 +34,7 @@ class SettingsProvider with ChangeNotifier {
   bool _hideWarningMessage = false;
   String _currency = "EUR";
   int _sprRadius = 500;
+  LandingPage _landingPage = LandingPage.map;
   String _userInstanceUrl = ""; // Cannot be changed in settings, only on login page before login, and only if not authenticated yet.
 
   // _SP members are stored in the Shared Preferences only, they cannot be modified by the user in settings
@@ -71,6 +77,7 @@ class SettingsProvider with ChangeNotifier {
   bool get hideWarningMessage => _hideWarningMessage;
   String get currency => _currency;
   int get sprRadius => _sprRadius;
+  LandingPage get landingPage => _landingPage;
   String get userInstanceUrl => _userInstanceUrl;
 
   bool get onboardingCompleted => _SP_onboardingCompleted;
@@ -127,6 +134,7 @@ class SettingsProvider with ChangeNotifier {
       _loadHideWarningMessage,
       _loadCurrency,
       _loadSprRadius,
+      _loadLandingPage,
       _loadUserInstanceUrl,
 
       // Shared Preference only (_SP) i.e. internal to the app
@@ -356,6 +364,28 @@ class SettingsProvider with ChangeNotifier {
     _sprRadius = sprRadius;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('spr_radius', sprRadius);
+    notifyListeners();
+  }
+
+  // ------------------------------------------------------------------------------
+
+  void _loadLandingPage(SharedPreferences prefs) {
+    final page = prefs.getString('landing_page');
+    if (page != null) {
+      _landingPage = LandingPage.values.firstWhere(
+        (e) => e.name == page,
+        orElse: () => LandingPage.map,
+      );
+    } else {
+      _landingPage = LandingPage.map;
+    }
+  }
+
+  void setLandingPage(LandingPage page) async {
+    if (_landingPage == page) return;
+    _landingPage = page;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('landing_page', page.name);
     notifyListeners();
   }
 
