@@ -99,6 +99,7 @@
   "settingsExampleShort": "例:",
   "settingsCurrency": "デフォルト通貨",
   "settingsSprRadius": "ジオログの駅検索の最大半径",
+  "settingsLandingPage": "起動時のページ",
   "settingsSystem": "システム",
   "settingsMapPathDisplayOrder": "地図上の経路の表示順",
   "settingMapPathDisplayOrderByCreation": "作成日順",

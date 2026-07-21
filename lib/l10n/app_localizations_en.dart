@@ -317,6 +317,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsSprRadius => 'Maximum radius for station search in Geolog';
 
   @override
+  String get settingsLandingPage => 'Landing page';
+
+  @override
   String get settingsSystem => 'System';
 
   @override

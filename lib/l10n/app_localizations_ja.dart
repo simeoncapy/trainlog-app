@@ -310,6 +310,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get settingsSprRadius => 'ジオログの駅検索の最大半径';
 
   @override
+  String get settingsLandingPage => '起動時のページ';
+
+  @override
   String get settingsSystem => 'システム';
 
   @override

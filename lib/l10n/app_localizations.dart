@@ -696,6 +696,12 @@ abstract class AppLocalizations {
   /// **'Maximum radius for station search in Geolog'**
   String get settingsSprRadius;
 
+  /// No description provided for @settingsLandingPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Landing page'**
+  String get settingsLandingPage;
+
   /// No description provided for @settingsSystem.
   ///
   /// In en, this message translates to:

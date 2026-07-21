@@ -99,6 +99,7 @@
   "settingsExampleShort": "Ex :",
   "settingsCurrency": "Devise par défaut",
   "settingsSprRadius": "Rayon maximum pour la recherche de gare dans Géomémo",
+  "settingsLandingPage": "Page de démarrage",
   "settingsSystem": "Système",
   "settingsMapPathDisplayOrder": "Ordre des trajets sur la carte",
   "settingMapPathDisplayOrderByCreation": "Par date de création",

@@ -1,8 +1,10 @@
 // material_shell.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/navigation/nav_models.dart';
+import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/features/settings/settings_page.dart';
 import 'package:trainlog_app/platform/adaptive_app_bar.dart';
 import 'package:trainlog_app/platform/adaptive_bottom_navbar.dart';
@@ -129,6 +131,11 @@ class _MaterialShellState extends State<MaterialShell> {
   @override
   void initState() {
     super.initState();
+    _selectedIndex =
+        context.read<SettingsProvider>().landingPage == LandingPage.trips
+            ? 1
+            : 0;
+    _previousBottomIndex = _selectedIndex;
     _pageController = PageController(initialPage: _selectedIndex);
 
     _pages = [

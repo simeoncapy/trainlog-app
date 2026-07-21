@@ -130,6 +130,7 @@
   "settingsExampleShort": "Ex:",
   "settingsCurrency": "Default Currency",
   "settingsSprRadius": "Maximum radius for station search in Geolog",
+  "settingsLandingPage": "Landing page",
   "settingsSystem": "System",
   "settingsMapPathDisplayOrder": "Order of trip paths on the map",
   "settingMapPathDisplayOrderByCreation": "By creation date",
