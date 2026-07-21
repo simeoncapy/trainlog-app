@@ -8,6 +8,7 @@ import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/services/changelog_service.dart';
 import 'package:trainlog_app/services/flag_cache.dart';
+import 'package:trainlog_app/utils/platform_utils.dart';
 import 'package:trainlog_app/widgets/changelog_dialog.dart';
 import 'package:trainlog_app/widgets/trips_loader.dart';
 
@@ -41,6 +42,10 @@ class _HomeGateState extends State<HomeGate> {
   ///   that predates this feature): show only the latest entry.
   /// - Regular update: show every entry newer than the stored version.
   /// - Newer entries without any change item are recorded silently.
+  ///
+  /// Only changes relevant to the current platform are displayed: items
+  /// tagged os "ios" on Apple devices, "android" on Material ones, and
+  /// "all" (the default) everywhere.
   Future<void> _checkChangelog() async {
     final settings = context.read<SettingsProvider>();
     await settings.ready;
@@ -73,7 +78,12 @@ class _HomeGateState extends State<HomeGate> {
       date: latest.date,
     );
 
-    final entriesToShow = newEntries.where((e) => e.hasChanges).toList();
+    final platformOs =
+        AppPlatform.isApple ? ChangelogOs.ios : ChangelogOs.android;
+    final entriesToShow = newEntries
+        .map((e) => e.forOs(platformOs))
+        .where((e) => e.hasChanges)
+        .toList();
     if (entriesToShow.isEmpty || !mounted) return;
 
     await ChangelogDialog.show(

@@ -21,13 +21,31 @@ enum ChangelogChangeType {
   }
 }
 
+/// The platform a changelog item applies to.
+enum ChangelogOs {
+  ios,
+  android,
+  all;
+
+  /// Unknown or missing values are treated as [all].
+  static ChangelogOs fromName(String? name) {
+    final normalized = name?.trim().toLowerCase();
+    return ChangelogOs.values.firstWhere(
+      (e) => e.name == normalized,
+      orElse: () => ChangelogOs.all,
+    );
+  }
+}
+
 class ChangelogChange {
   final ChangelogChangeType type;
   final String text;
+  final ChangelogOs os;
 
   const ChangelogChange({
     required this.type,
     required this.text,
+    this.os = ChangelogOs.all,
   });
 }
 
@@ -56,6 +74,7 @@ class ChangelogEntry {
         changes.add(ChangelogChange(
           type: ChangelogChangeType.fromName(item['type']?.toString()),
           text: text,
+          os: ChangelogOs.fromName(item['os']?.toString()),
         ));
       }
     }
@@ -77,6 +96,16 @@ class ChangelogEntry {
           type: changes.where((c) => c.type == type).toList(),
     };
   }
+
+  /// Copy of this entry keeping only the changes relevant to [os]: items
+  /// tagged with that platform or with [ChangelogOs.all].
+  ChangelogEntry forOs(ChangelogOs os) => ChangelogEntry(
+        version: version,
+        date: date,
+        changes: changes
+            .where((c) => c.os == ChangelogOs.all || c.os == os)
+            .toList(),
+      );
 
   bool isNewerThan(String otherVersion) =>
       otherVersion.isEmpty || compareVersions(version, otherVersion) > 0;
