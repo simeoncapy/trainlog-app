@@ -444,7 +444,7 @@
   "tripsEmptyList": "Aucun trajet",
   "tripCardDateUndefined": "Indéfinie",
 
-  "changelogTitle": "Journal des modifications v{version}",
+  "changelogTitle": "Note de version v{version}",
   "changelogTypeFeature": "Nouvelles fonctionnalités",
   "changelogTypeMinor": "Améliorations",
   "changelogTypeOther": "Autres changements",

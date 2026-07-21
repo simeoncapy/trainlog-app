@@ -1533,7 +1533,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String changelogTitle(String version) {
-    return 'Journal des modifications v$version';
+    return 'Note de version v$version';
   }
 
   @override
