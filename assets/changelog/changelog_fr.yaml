@@ -13,4 +13,4 @@ changelog_fr:
       - type: minor
         text: Les statistiques affichent désormais un classement numéroté (1–10) au lieu des icônes (0-9).
       - type: minor
-        text: La frise dans la fiche de détails du trajet affiche désormais une ligne en pointillés (couleur du véhicule et blanc) pour les trajets futurs.
+        text: La frise dans la fiche de détails du trajet affiche désormais une ligne en pointillés pour les trajets futurs.

@@ -13,4 +13,4 @@ changelog_tl:
       - type: minor
         text: Ang mga statistics chart ay nagpapakita na ng may-numerong ranggo (1–10) sa halip na icons (0-9).
       - type: minor
-        text: Ang timeline sa detail sheet ng biyahe ay nagpapakita na ng dashed na linya (kulay ng sasakyan at puti) para sa mga biyahe sa hinaharap.
+        text: Ang timeline sa detail sheet ng biyahe ay nagpapakita na ng dashed na linya para sa mga biyahe sa hinaharap.

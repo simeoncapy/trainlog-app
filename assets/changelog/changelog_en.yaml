@@ -13,4 +13,4 @@ changelog_en:
       - type: minor
         text: Statistics charts now show numbered rankings (1–10) instead of icons (0-9).
       - type: minor
-        text: The timeline in the trip details sheet now shows a dashed line (vehicle colour and white) for future trips.
+        text: The timeline in the trip details sheet now shows a dashed line for future trips.
