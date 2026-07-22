@@ -12,3 +12,5 @@ changelog_tl:
         text: Nakikita na ang mga icon ng status bar sa light mode sa mga pahina ng inbox at Trainlog status.
       - type: minor
         text: Ang mga statistics chart ay nagpapakita na ng may-numerong ranggo (1–10) sa halip na icons (0-9).
+      - type: minor
+        text: Ang timeline ng biyahe ay gumagamit na ng putol-putol na linya para sa mga paparating (future) na biyahe.

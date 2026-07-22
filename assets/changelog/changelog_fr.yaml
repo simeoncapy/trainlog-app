@@ -12,3 +12,5 @@ changelog_fr:
         text: Les icônes de la barre de notification sont désormais visibles en mode clair sur les pages boîte de réception et statut Trainlog.
       - type: minor
         text: Les statistiques affichent désormais un classement numéroté (1–10) au lieu des icônes (0-9).
+      - type: minor
+        text: La frise du trajet utilise désormais une ligne en pointillés pour les trajets à venir (futurs).

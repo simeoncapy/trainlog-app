@@ -4,6 +4,7 @@ import 'package:trainlog_app/app/theme/app_theme.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/features/trips/detail_sheet/trip_details_common.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
+import 'package:trainlog_app/utils/polyline_styling.dart';
 
 /// Redesigned route timeline for the trip details sheet.
 ///
@@ -22,6 +23,12 @@ class TripDetailsTimeline extends StatelessWidget {
   const TripDetailsTimeline({super.key, required this.trip});
 
   bool get _showTimes => !trip.isUnknownPastFuture && !trip.isDateOnly;
+
+  /// Whether the trip is in the future (departure UTC is after now UTC). An
+  /// ongoing trip — already departed but not yet arrived — is treated as past,
+  /// keeping the connecting line solid.
+  bool get _isFuture =>
+      PolylineStyling.isFutureUtc(trip.utcStartDate, DateTime.now().toUtc());
 
   String? _time(BuildContext context, DateTime dt) {
     if (!_showTimes) return null;
@@ -80,10 +87,15 @@ class TripDetailsTimeline extends StatelessWidget {
             children: [
               _marker(context, color, filled: false),
               Expanded(
-                child: Container(
-                  width: 5, 
-                  color: color,
+                child: ConstrainedBox(
                   constraints: const BoxConstraints(minHeight: 40),
+                  child: _isFuture
+                      // Future trips show a dashed connecting line.
+                      ? CustomPaint(
+                          size: const Size(5, double.infinity),
+                          painter: _DashedLinePainter(color: color),
+                        )
+                      : Container(width: 5, color: color),
                 ),
               ),
               _marker(context, color, filled: true),
@@ -133,6 +145,41 @@ class TripDetailsTimeline extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Paints a vertical dashed line, used for the connecting line of future trips.
+class _DashedLinePainter extends CustomPainter {
+  final Color color;
+  final double dashLength;
+  final double gapLength;
+
+  const _DashedLinePainter({
+    required this.color,
+    this.dashLength = 6,
+    this.gapLength = 5,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = 5
+      ..strokeCap = StrokeCap.round;
+
+    final x = size.width / 2;
+    double y = 0;
+    while (y < size.height) {
+      final end = (y + dashLength).clamp(0.0, size.height);
+      canvas.drawLine(Offset(x, y), Offset(x, end), paint);
+      y += dashLength + gapLength;
+    }
+  }
+
+  @override
+  bool shouldRepaint(_DashedLinePainter oldDelegate) =>
+      oldDelegate.color != color ||
+      oldDelegate.dashLength != dashLength ||
+      oldDelegate.gapLength != gapLength;
 }
 
 class _TimeBlock extends StatelessWidget {
