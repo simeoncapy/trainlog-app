@@ -84,6 +84,8 @@ class TripDetailsTimeline extends StatelessWidget {
 
           // CENTER: markers + connecting line. The line spans the full height
           // behind the markers so the (hollow) departure square sits over it.
+          // The foreground Column (markers + expanding spacer) drives the
+          // height and keeps a minimum line length so it never collapses.
           SizedBox(
             width: 22,
             child: Stack(
@@ -105,9 +107,14 @@ class TripDetailsTimeline extends StatelessWidget {
                   ),
                 ),
                 Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     _marker(context, color, filled: false),
+                    Expanded(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(minHeight: 40),
+                        child: const SizedBox.shrink(),
+                      ),
+                    ),
                     _marker(context, color, filled: true),
                   ],
                 ),
