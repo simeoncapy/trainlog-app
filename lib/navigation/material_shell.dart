@@ -273,13 +273,22 @@ class _MaterialShellState extends State<MaterialShell> {
   ) {
     Navigator.of(context).push(
       PageRouteBuilder(
-        pageBuilder: (routeContext, _, __) => SafeArea(
-          child: Scaffold(
-            appBar: AdaptiveAppBar(
-              title: titleBuilder(routeContext),
-              onBack: () => Navigator.of(routeContext).pop(),
+        // Mirror the shell's own layout: the SafeArea pushes the Scaffold below
+        // the status bar, so paint the status bar strip with a theme-coloured
+        // ColoredBox behind it. Otherwise the uncovered strip shows the black
+        // window background, hiding the (dark) status bar icons in light mode.
+        pageBuilder: (routeContext, _, __) => ColoredBox(
+          color: Theme.of(routeContext).brightness == Brightness.dark
+              ? Colors.black
+              : Colors.white,
+          child: SafeArea(
+            child: Scaffold(
+              appBar: AdaptiveAppBar(
+                title: titleBuilder(routeContext),
+                onBack: () => Navigator.of(routeContext).pop(),
+              ),
+              body: page,
             ),
-            body: page,
           ),
         ),
         transitionDuration: Duration.zero,
