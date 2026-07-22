@@ -8,5 +8,7 @@ changelog_tl:
         text: Changelog feature para ipakita ang mga pagbabago mula sa nakaraang update.
       - type: fix
         text: Huwag ipakita ang 00 min sa trip card para sa mga biyahe na walang duration.
+      - type: fix
+        text: Nakikita na ang mga icon ng status bar sa light mode sa mga pahina ng inbox at Trainlog status.
       - type: minor
         text: Ang mga statistics chart ay nagpapakita na ng may-numerong ranggo (1–10) sa halip na counter icons (0-9).
