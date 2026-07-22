@@ -8,21 +8,13 @@ import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/utils/number_formatter.dart';
 import 'package:trainlog_app/utils/style_utils.dart';
 import 'package:trainlog_app/utils/text_utils.dart'; // for countryCodeToName(...)
+import 'package:trainlog_app/app/theme/app_theme.dart';
 import 'package:duration/duration.dart';
 import 'package:duration/locale.dart';
 
-const _counterSymbols = [
-  Symbols.counter_0,
-  Symbols.counter_1,
-  Symbols.counter_2,
-  Symbols.counter_3,
-  Symbols.counter_4,
-  Symbols.counter_5,
-  Symbols.counter_6,
-  Symbols.counter_7,
-  Symbols.counter_8,
-  Symbols.counter_9,
-];
+/// Number of leading items shown with a numbered indicator (1..10) instead of
+/// a short text label.
+const _numberedRankCount = 10;
 
 /// Graph categories aligned with the UI page.
 enum GraphType {
@@ -556,8 +548,16 @@ class StatisticsProvider extends ChangeNotifier {
           final name = keys[i];
           if (otherLabel != null && name == otherLabel) return otherWidget();
 
-          if (i < _counterSymbols.length) {
-            return Icon(_counterSymbols[i]);
+          if (i < _numberedRankCount) {
+            // Numbered indicator (1..10), styled like the ranking list.
+            return Text(
+              '${i + 1}',
+              textAlign: TextAlign.center,
+              style: AppTheme.monoFont.copyWith(
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+              ),
+            );
           }
           return Text(
             _shortLabel(name, maxLen: shortLabelSize),

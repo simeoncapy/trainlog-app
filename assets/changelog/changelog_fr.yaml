@@ -8,3 +8,5 @@ changelog_fr:
         text: Journal des modifications affichant les derniers changements après une mise à jour.
       - type: fix
         text: Ne pas afficher 00 min sur la carte du trajet pour les trajets sans durée.
+      - type: minor
+        text: Les statistiques affichent désormais un classement numéroté (1–10) au lieu des icônes de compteur (0-9).

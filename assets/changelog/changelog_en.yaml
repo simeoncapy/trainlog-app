@@ -8,3 +8,5 @@ changelog_en:
         text: Changelog feature to display the last change from the previous update.
       - type: fix
         text: Do not display 00 min on the trip card for trips without duration.
+      - type: minor
+        text: Statistics charts now show numbered rankings (1–10) instead of counter icons (0-9).
