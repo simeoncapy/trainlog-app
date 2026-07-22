@@ -6,3 +6,5 @@ changelog_tl:
         text: Opsyon para palitan ang landing page sa mga setting.
       - type: feature
         text: Changelog feature para ipakita ang mga pagbabago mula sa nakaraang update.
+      - type: fix
+        text: Huwag ipakita ang 00 min sa trip card para sa mga biyahe na walang duration.

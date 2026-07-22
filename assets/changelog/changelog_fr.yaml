@@ -6,3 +6,5 @@ changelog_fr:
         text: Option pour changer la page d'accueil dans les paramètres.
       - type: feature
         text: Journal des modifications affichant les derniers changements après une mise à jour.
+      - type: fix
+        text: Ne pas afficher 00 min sur la carte du trajet pour les trajets sans durée.

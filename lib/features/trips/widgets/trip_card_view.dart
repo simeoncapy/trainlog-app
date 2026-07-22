@@ -507,17 +507,19 @@ class _MetaRow extends StatelessWidget {
           const SizedBox(width: 12),
         ],
         if (!trip.isUnknownPastFuture) ...[
-          Icon(Icons.schedule_outlined, size: 13, color: iconColor),
-          const SizedBox(width: 4),
-          Text(durationStr, style: metaStyle),
-          if (realDeltaMinutes != 0)
-            Text(
-              ' (${realDeltaMinutes > 0 ? '+' : ''}$realDeltaMinutes)',
-              style: metaStyle?.copyWith(
-                color: realDeltaMinutes > 0 ? AppColors.late : AppColors.early,
+          if(trip.duration != Duration.zero) ...[
+            Icon(Icons.schedule_outlined, size: 13, color: iconColor),
+            const SizedBox(width: 4),
+            Text(durationStr, style: metaStyle),
+            if (realDeltaMinutes != 0)
+              Text(
+                ' (${realDeltaMinutes > 0 ? '+' : ''}$realDeltaMinutes)',
+                style: metaStyle?.copyWith(
+                  color: realDeltaMinutes > 0 ? AppColors.late : AppColors.early,
+                ),
               ),
-            ),
-          const SizedBox(width: 12),
+            const SizedBox(width: 12),
+          ],
           Icon(Icons.calendar_today_outlined, size: 13, color: iconColor),
           const SizedBox(width: 4),
           Flexible(

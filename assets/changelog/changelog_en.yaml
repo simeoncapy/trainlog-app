@@ -6,3 +6,5 @@ changelog_en:
         text: Option to change the landing page in the settings.
       - type: feature
         text: Changelog feature to display the last change from the previous update.
+      - type: fix
+        text: Do not display 00 min on the trip card for trips without duration.
