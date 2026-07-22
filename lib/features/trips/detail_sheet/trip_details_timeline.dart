@@ -82,28 +82,37 @@ class TripDetailsTimeline extends StatelessWidget {
           ),
           const SizedBox(width: 14),
 
-          // CENTER: markers + connecting line.
-          Column(
-            children: [
-              _marker(context, color, filled: false),
-              Expanded(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(minHeight: 40),
-                  child: _isFuture
-                      // Future trips show a dashed connecting line: white dashes
-                      // over the route colour, matching the map's future style.
-                      ? CustomPaint(
-                          size: const Size(5, double.infinity),
-                          painter: _DashedLinePainter(
-                            color: PolylineStyling.futureDashColor,
-                            backgroundColor: color,
-                          ),
-                        )
-                      : Container(width: 5, color: color),
+          // CENTER: markers + connecting line. The line spans the full height
+          // behind the markers so the (hollow) departure square sits over it.
+          SizedBox(
+            width: 22,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Positioned.fill(
+                  child: Center(
+                    child: _isFuture
+                        // Future trips show a dashed connecting line: white
+                        // dashes over the route colour, matching the map style.
+                        ? CustomPaint(
+                            size: const Size(5, double.infinity),
+                            painter: _DashedLinePainter(
+                              color: PolylineStyling.futureDashColor,
+                              backgroundColor: color,
+                            ),
+                          )
+                        : Container(width: 5, color: color),
+                  ),
                 ),
-              ),
-              _marker(context, color, filled: true),
-            ],
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _marker(context, color, filled: false),
+                    _marker(context, color, filled: true),
+                  ],
+                ),
+              ],
+            ),
           ),
           const SizedBox(width: 14),
 
