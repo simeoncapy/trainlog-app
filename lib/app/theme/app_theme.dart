@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:trainlog_app/app/theme/app_colors.dart';
 import 'package:trainlog_app/app/theme/app_nav_bar_theme.dart';
@@ -64,6 +65,14 @@ abstract final class AppTheme {
         backgroundColor: AppColors.lightSurface,
         foregroundColor: AppColors.lightText,
         elevation: 0,
+        // A Material AppBar overrides the status bar style set in AppRoot via
+        // its own AnnotatedRegion, so keep it aligned with the light theme:
+        // dark status bar icons over a transparent bar.
+        systemOverlayStyle: const SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness: Brightness.dark,
+          statusBarBrightness: Brightness.light,
+        ),
         titleTextStyle: GoogleFonts.spaceGrotesk(
           fontSize: 18,
           fontWeight: FontWeight.w600,
@@ -164,6 +173,14 @@ abstract final class AppTheme {
         backgroundColor: AppColors.darkBg,
         foregroundColor: AppColors.darkText,
         elevation: 0,
+        // A Material AppBar overrides the status bar style set in AppRoot via
+        // its own AnnotatedRegion, so keep it aligned with the dark theme:
+        // light status bar icons over a transparent bar.
+        systemOverlayStyle: const SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness: Brightness.light,
+          statusBarBrightness: Brightness.dark,
+        ),
         titleTextStyle: GoogleFonts.spaceGrotesk(
           fontSize: 18,
           fontWeight: FontWeight.w600,

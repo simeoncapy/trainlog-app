@@ -8,5 +8,7 @@ changelog_fr:
         text: Journal des modifications affichant les derniers changements après une mise à jour.
       - type: fix
         text: Ne pas afficher 00 min sur la carte du trajet pour les trajets sans durée.
+      - type: fix
+        text: Les icônes de la barre de notification sont désormais visibles en mode clair sur les pages boîte de réception et statut Trainlog.
       - type: minor
-        text: Les statistiques affichent désormais un classement numéroté (1–10) au lieu des icônes de compteur (0-9).
+        text: Les statistiques affichent désormais un classement numéroté (1–10) au lieu des icônes (0-9).

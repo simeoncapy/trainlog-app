@@ -8,5 +8,7 @@ changelog_en:
         text: Changelog feature to display the last change from the previous update.
       - type: fix
         text: Do not display 00 min on the trip card for trips without duration.
+      - type: fix
+        text: Status bar icons are now visible in light mode on the inbox and Trainlog status pages.
       - type: minor
-        text: Statistics charts now show numbered rankings (1–10) instead of counter icons (0-9).
+        text: Statistics charts now show numbered rankings (1–10) instead of icons (0-9).
