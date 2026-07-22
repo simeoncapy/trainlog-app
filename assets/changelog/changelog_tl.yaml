@@ -11,4 +11,4 @@ changelog_tl:
       - type: fix
         text: Nakikita na ang mga icon ng status bar sa light mode sa mga pahina ng inbox at Trainlog status.
       - type: minor
-        text: Ang mga statistics chart ay nagpapakita na ng may-numerong ranggo (1–10) sa halip na counter icons (0-9).
+        text: Ang mga statistics chart ay nagpapakita na ng may-numerong ranggo (1–10) sa halip na icons (0-9).
