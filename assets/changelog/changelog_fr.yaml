@@ -1,4 +1,9 @@
 changelog_fr:
+  - version: 0.4.2
+    date: 2026-07-22
+    changes:
+      - type: minor
+        text: Les statistiques affichent désormais un classement numéroté (1–10) au lieu des icônes de compteur.
   - version: 0.4.1
     date: 2026-07-21
     changes:

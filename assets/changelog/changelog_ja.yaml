@@ -1,4 +1,9 @@
 changelog_ja:
+  - version: 0.4.2
+    date: 2026-07-22
+    changes:
+      - type: minor
+        text: 統計グラフでカウンターアイコンの代わりに順位番号（1〜10）を表示するようになりました。
   - version: 0.4.1
     date: 2026-07-21
     changes:

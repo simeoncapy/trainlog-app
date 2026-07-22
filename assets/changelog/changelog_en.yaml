@@ -1,4 +1,9 @@
 changelog_en:
+  - version: 0.4.2
+    date: 2026-07-22
+    changes:
+      - type: minor
+        text: Statistics charts now show numbered rankings (1–10) instead of counter icons.
   - version: 0.4.1
     date: 2026-07-21
     changes:
