@@ -90,10 +90,14 @@ class TripDetailsTimeline extends StatelessWidget {
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(minHeight: 40),
                   child: _isFuture
-                      // Future trips show a dashed connecting line.
+                      // Future trips show a dashed connecting line: white dashes
+                      // over the route colour, matching the map's future style.
                       ? CustomPaint(
                           size: const Size(5, double.infinity),
-                          painter: _DashedLinePainter(color: color),
+                          painter: _DashedLinePainter(
+                            color: PolylineStyling.futureDashColor,
+                            backgroundColor: color,
+                          ),
                         )
                       : Container(width: 5, color: color),
                 ),
@@ -148,25 +152,39 @@ class TripDetailsTimeline extends StatelessWidget {
 }
 
 /// Paints a vertical dashed line, used for the connecting line of future trips.
+///
+/// A solid [backgroundColor] line is drawn first (the route colour), then the
+/// [color] dashes on top — mirroring the map's future-trip styling of white
+/// dashes over the route colour.
 class _DashedLinePainter extends CustomPainter {
   final Color color;
+  final Color? backgroundColor;
   final double dashLength;
   final double gapLength;
 
   const _DashedLinePainter({
     required this.color,
+    this.backgroundColor,
     this.dashLength = 6,
-    this.gapLength = 5,
+    this.gapLength = 10,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
+    final x = size.width / 2;
+
+    if (backgroundColor != null) {
+      final bgPaint = Paint()
+        ..color = backgroundColor!
+        ..strokeWidth = 5;
+      canvas.drawLine(Offset(x, 0), Offset(x, size.height), bgPaint);
+    }
+
     final paint = Paint()
       ..color = color
       ..strokeWidth = 5
       ..strokeCap = StrokeCap.round;
 
-    final x = size.width / 2;
     double y = 0;
     while (y < size.height) {
       final end = (y + dashLength).clamp(0.0, size.height);
@@ -178,6 +196,7 @@ class _DashedLinePainter extends CustomPainter {
   @override
   bool shouldRepaint(_DashedLinePainter oldDelegate) =>
       oldDelegate.color != color ||
+      oldDelegate.backgroundColor != backgroundColor ||
       oldDelegate.dashLength != dashLength ||
       oldDelegate.gapLength != gapLength;
 }
