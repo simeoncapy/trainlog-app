@@ -12,3 +12,5 @@ changelog_en:
         text: Status bar icons are now visible in light mode on the inbox and Trainlog status pages.
       - type: minor
         text: Statistics charts now show numbered rankings (1–10) instead of icons (0-9).
+      - type: minor
+        text: The timeline in the trip details sheet now shows a dashed line for future trips.

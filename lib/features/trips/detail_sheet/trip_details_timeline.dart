@@ -12,7 +12,9 @@ import 'package:trainlog_app/utils/date_utils.dart';
 /// and station markers use the trip's route/vehicle palette colour: the
 /// departure marker is a hollow rounded square, the arrival marker a filled
 /// one. When the trip spans more than one day, the short arrival date is
-/// rendered above the arrival time.
+/// rendered above the arrival time. Future trips (UTC start after now, same
+/// rule as the map polylines) get a dashed line alternating the vehicle
+/// colour with white; an ongoing trip is treated as past.
 ///
 /// NOTE: the legacy [TripTimeline] widget is intentionally left untouched; this
 /// is a separate presentation tailored to the new sheet.
@@ -26,6 +28,11 @@ class TripDetailsTimeline extends StatelessWidget {
   String? _time(BuildContext context, DateTime dt) {
     if (!_showTimes) return null;
     return formatDateTime(context, dt, timeOnly: true);
+  }
+
+  bool get _isFuture {
+    final utcStart = trip.utcStartDate;
+    return utcStart != null && utcStart.isAfter(DateTime.now().toUtc());
   }
 
   bool get _crossesDay {
@@ -81,9 +88,14 @@ class TripDetailsTimeline extends StatelessWidget {
               _marker(context, color, filled: false),
               Expanded(
                 child: Container(
-                  width: 5, 
-                  color: color,
+                  width: 5,
                   constraints: const BoxConstraints(minHeight: 40),
+                  child: CustomPaint(
+                    painter: _TimelineLinePainter(
+                      color: color,
+                      dashed: _isFuture,
+                    ),
+                  ),
                 ),
               ),
               _marker(context, color, filled: true),
@@ -133,6 +145,35 @@ class TripDetailsTimeline extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Vertical connecting line between the two station markers. Solid vehicle
+/// colour for past/ongoing trips; for future trips the line alternates the
+/// vehicle colour with white, mirroring the dashed future polylines on the map.
+class _TimelineLinePainter extends CustomPainter {
+  final Color color;
+  final bool dashed;
+
+  const _TimelineLinePainter({required this.color, required this.dashed});
+
+  static const double _dashLen = 8.0;
+  static const double _gapLen = 8.0;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    canvas.drawRect(Offset.zero & size, Paint()..color = color);
+    if (!dashed) return;
+
+    final white = Paint()..color = Colors.white;
+    for (double y = _dashLen; y < size.height; y += _dashLen + _gapLen) {
+      final len = (size.height - y).clamp(0.0, _gapLen);
+      canvas.drawRect(Rect.fromLTWH(0, y, size.width, len), white);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _TimelineLinePainter oldDelegate) =>
+      oldDelegate.color != color || oldDelegate.dashed != dashed;
 }
 
 class _TimeBlock extends StatelessWidget {
