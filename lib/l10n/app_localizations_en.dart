@@ -1515,4 +1515,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tripCardDateUndefined => 'Undefined';
+
+  @override
+  String changelogTitle(String version) {
+    return 'Changelog v$version';
+  }
+
+  @override
+  String get changelogTypeFeature => 'New features';
+
+  @override
+  String get changelogTypeMinor => 'Improvements';
+
+  @override
+  String get changelogTypeOther => 'Other changes';
+
+  @override
+  String get changelogTypeFix => 'Bug fixes';
 }

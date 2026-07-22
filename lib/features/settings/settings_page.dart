@@ -683,6 +683,21 @@ class _SettingsPageState extends State<SettingsPage> {
             onPressed: () => throw Exception(),
           ),
         ),
+      if (kDebugMode)
+        SettingsTile(
+          icon: AdaptiveIcons.refresh,
+          title: 'Reset changelog',
+          subtitle: 'debug',
+          trailing: AdaptiveButton.build(
+            context: ctx,
+            label: const Text('Reset'),
+            size: AdaptiveButton.small,
+            onPressed: () async {
+              await settings.clearLastSeenChangelog();
+              AdaptiveInformationMessage.showInfo('Changelog reset');
+            },
+          ),
+        ),
     ]);
   }
 }

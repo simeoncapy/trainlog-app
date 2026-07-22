@@ -795,5 +795,20 @@
 
   "tapAgainToExit": "Tap again to exit",
   "tripsEmptyList": "No trips yet",
-  "tripCardDateUndefined": "Undefined"
+  "tripCardDateUndefined": "Undefined",
+
+  "changelogTitle": "Changelog v{version}",
+  "@changelogTitle": {
+    "description": "Title of the changelog dialogue, showing the new version number",
+    "placeholders": {
+      "version": {
+        "type": "String",
+        "example": "0.4.1"
+      }
+    }
+  },
+  "changelogTypeFeature": "New features",
+  "changelogTypeMinor": "Improvements",
+  "changelogTypeOther": "Other changes",
+  "changelogTypeFix": "Bug fixes"
 }

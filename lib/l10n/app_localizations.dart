@@ -2561,6 +2561,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Undefined'**
   String get tripCardDateUndefined;
+
+  /// Title of the changelog dialogue, showing the new version number
+  ///
+  /// In en, this message translates to:
+  /// **'Changelog v{version}'**
+  String changelogTitle(String version);
+
+  /// No description provided for @changelogTypeFeature.
+  ///
+  /// In en, this message translates to:
+  /// **'New features'**
+  String get changelogTypeFeature;
+
+  /// No description provided for @changelogTypeMinor.
+  ///
+  /// In en, this message translates to:
+  /// **'Improvements'**
+  String get changelogTypeMinor;
+
+  /// No description provided for @changelogTypeOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other changes'**
+  String get changelogTypeOther;
+
+  /// No description provided for @changelogTypeFix.
+  ///
+  /// In en, this message translates to:
+  /// **'Bug fixes'**
+  String get changelogTypeFix;
 }
 
 class _AppLocalizationsDelegate

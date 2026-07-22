@@ -1530,4 +1530,21 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get tripCardDateUndefined => 'Indéfinie';
+
+  @override
+  String changelogTitle(String version) {
+    return 'Note de version v$version';
+  }
+
+  @override
+  String get changelogTypeFeature => 'Nouvelles fonctionnalités';
+
+  @override
+  String get changelogTypeMinor => 'Améliorations';
+
+  @override
+  String get changelogTypeOther => 'Autres changements';
+
+  @override
+  String get changelogTypeFix => 'Corrections de bugs';
 }
