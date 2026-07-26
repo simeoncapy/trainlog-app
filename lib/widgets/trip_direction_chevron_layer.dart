@@ -329,8 +329,8 @@ class _TripDirectionChevronPainter extends CustomPainter {
   /// Appends one chevron (two strokes meeting at a tip pointing along the
   /// travel direction) to [path].
   void _addChevron(Path path, double posX, double posY, double dirX, double dirY) {
-    const halfLength = 3.0; // Along the travel direction.
-    const halfSpan = 4.5; // Across the line.
+    const halfLength = 2.5; // Along the travel direction. Spread: 3.0
+    const halfSpan = 2.0; // Across the line. Spread: 4.5
 
     final tipX = posX + dirX * halfLength;
     final tipY = posY + dirY * halfLength;
