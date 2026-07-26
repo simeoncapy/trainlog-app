@@ -1,4 +1,9 @@
 changelog_ja:
+  - version: 0.4.2
+    date: 2026-07-26
+    changes:
+      - type: feature
+        text: 地図上の移動経路に進行方向を示すシェブロン（山形マーク）を表示する設定を追加。
   - version: 0.4.1
     date: 2026-07-21
     changes:

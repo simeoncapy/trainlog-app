@@ -1,4 +1,9 @@
 changelog_fr:
+  - version: 0.4.2
+    date: 2026-07-26
+    changes:
+      - type: feature
+        text: Nouveau paramètre de carte pour afficher des chevrons sur les trajets indiquant le sens du voyage.
   - version: 0.4.1
     date: 2026-07-21
     changes:

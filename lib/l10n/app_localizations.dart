@@ -828,6 +828,12 @@ abstract class AppLocalizations {
   /// **'Display current position'**
   String get settingsDisplayUserMarker;
 
+  /// No description provided for @settingsDisplayTripDirection.
+  ///
+  /// In en, this message translates to:
+  /// **'Display trip direction'**
+  String get settingsDisplayTripDirection;
+
   /// No description provided for @settingsDeleteAccount.
   ///
   /// In en, this message translates to:

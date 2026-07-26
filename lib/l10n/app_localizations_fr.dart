@@ -390,6 +390,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get settingsDisplayUserMarker => 'Afficher votre position';
 
   @override
+  String get settingsDisplayTripDirection =>
+      'Afficher la direction des trajets';
+
+  @override
   String get settingsDeleteAccount => 'Supprimer mon compte';
 
   @override

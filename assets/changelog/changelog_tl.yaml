@@ -1,4 +1,9 @@
 changelog_tl:
+  - version: 0.4.2
+    date: 2026-07-26
+    changes:
+      - type: feature
+        text: Bagong setting ng mapa para magpakita ng mga chevron sa mga ruta ng biyahe na nagpapakita ng direksyon ng paglalakbay.
   - version: 0.4.1
     date: 2026-07-21
     changes:

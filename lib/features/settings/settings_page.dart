@@ -469,6 +469,14 @@ class _SettingsPageState extends State<SettingsPage> {
           },
         ),
       ),
+      SettingsTile(
+        icon: AdaptiveIcons.tripDirection,
+        title: l10n.settingsDisplayTripDirection,
+        trailing: AdaptiveSwitch(
+          value: settings.mapDisplayTripDirection,
+          onChanged: settings.setMapDisplayTripDirection,
+        ),
+      ),
     ]);
   }
 

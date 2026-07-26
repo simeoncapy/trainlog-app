@@ -27,6 +27,7 @@ import 'package:trainlog_app/utils/location_utils.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 import 'package:trainlog_app/widgets/osm_mark.dart';
 import 'package:trainlog_app/widgets/rendered_polyline_layer.dart';
+import 'package:trainlog_app/widgets/trip_direction_chevron_layer.dart';
 
 class MapPage extends StatefulWidget {
   final SetPrimaryActions onPrimaryActionsReady;
@@ -254,6 +255,8 @@ class _MapPageState extends State<MapPage>
                 await showAdaptiveTripBottomSheet(context, trip: tappedTrip);
               },
             ),
+            if (settings.mapDisplayTripDirection)
+              const TripDirectionChevronLayer(),
             if (_userPosition != null && settings.mapDisplayUserLocationMarker)
               MarkerLayer(
                 markers: [

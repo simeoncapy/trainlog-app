@@ -120,6 +120,7 @@
   "settingsCacheClearGeologsToggle": "すべてのジオログも削除する",
   "settingsCacheClearedMessage": "キャッシュが正常に消されました。",
   "settingsDisplayUserMarker": "現在の位置を表示する",
+  "settingsDisplayTripDirection": "移動の方向を表示する",
   "settingsDeleteAccount": "アカウントを削除する",
   "settingsDeleteAccountRequest": "申請",
   "settingsDeleteAccountError": "メールクライアントを開けません。{email} に申請してください",

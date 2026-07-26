@@ -386,6 +386,9 @@ class AppLocalizationsTl extends AppLocalizations {
   String get settingsDisplayUserMarker => 'Ipakita ang kasalukurang lugar';
 
   @override
+  String get settingsDisplayTripDirection => 'Ipakita ang direksyon ng biyahe';
+
+  @override
   String get settingsDeleteAccount => 'Ibura ang account';
 
   @override

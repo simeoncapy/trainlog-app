@@ -80,6 +80,7 @@ class AdaptiveIcons {
   static final IconData layers =      isA ? CupertinoIcons.layers : Icons.layers;
   static final IconData palette =     isA ? CupertinoIcons.paintbrush : Icons.palette;
   static final IconData position =    isA ? CupertinoIcons.location : Icons.my_location;
+  static final IconData tripDirection = isA ? CupertinoIcons.chevron_right_2 : Icons.double_arrow;
   static final IconData visibility =  isA ? CupertinoIcons.eye : Icons.visibility;
   static final IconData world =       isA ? CupertinoIcons.map : Icons.public;
   static final IconData cache =       isA ? CupertinoIcons.cloud_download : Icons.cloud_download;
