@@ -14,7 +14,14 @@ import 'package:trainlog_app/providers/polyline_provider.dart';
 /// per trip, and trips too short on screen get none at all. Each chevron is
 /// black or white, whichever contrasts best with the trip's line colour.
 ///
-/// Must be placed inside [FlutterMap.children], above the polyline layer.
+/// Chevrons respect the stacking order of the trips: the layer walks the
+/// rendered polylines in their paint order and re-strokes each line over the
+/// chevrons already drawn for the trips below it, so where two trips overlap
+/// the chevrons of the lower one are hidden by the upper line, exactly like
+/// the line itself.
+///
+/// Must be placed inside [FlutterMap.children], directly above the polyline
+/// layer.
 class TripDirectionChevronLayer extends StatelessWidget {
   const TripDirectionChevronLayer({super.key});
 
@@ -49,9 +56,15 @@ class _TripDirectionChevronPainter extends CustomPainter {
   /// On-screen distance between two consecutive chevrons, in logical pixels.
   static const double _spacing = 72.0;
 
-  /// A polyline whose on-screen bounding box is smaller than this is skipped
-  /// entirely, so zoomed-out short trips are not covered by a lone chevron.
+  /// A polyline whose on-screen bounding box is smaller than this gets no
+  /// chevrons, so zoomed-out short trips are not covered by a lone chevron.
   static const double _minOnScreenSize = _spacing * 0.75;
+
+  /// Points closer than this (squared, in screen pixels) to the previously
+  /// kept point are dropped while walking a path: a cheap stand-in for the
+  /// polyline layer's simplification when re-stroking lines every frame. Kept
+  /// at ~1 px so the re-stroked line stays visually on top of the original.
+  static const double _decimationSq = 1.0;
 
   /// WCAG relative-luminance pivot: above it black offers the better contrast,
   /// below it white does (sqrt(1.05 * 0.05) - 0.05).
@@ -78,57 +91,50 @@ class _TripDirectionChevronPainter extends CustomPainter {
         ? const [0.0]
         : [0.0, -worldWidth, worldWidth];
 
-    final blackPath = Path();
-    final whitePath = Path();
-    var hasBlack = false;
-    var hasWhite = false;
+    // Until the first chevron is on the canvas there is nothing to cover, so
+    // the polylines themselves do not need to be re-stroked yet.
+    var anyChevronDrawn = false;
 
-    for (final polyline in polylines) {
-      // Future trips are rendered as two stacked polylines: the coloured base
-      // and a white dashed overlay. Only draw chevrons once per trip — on the
-      // solid coloured line — and pick their colour to contrast with it.
+    var i = 0;
+    while (i < polylines.length) {
+      final polyline = polylines[i];
+
+      // Only solid lines carry chevrons; a dashed/dotted line at this position
+      // has no preceding base (never produced by the render pipeline) and is
+      // skipped defensively.
       final pattern = polyline.pattern;
-      if (pattern.segments != null || pattern.spacingFactor != null) continue;
+      if (pattern.segments != null || pattern.spacingFactor != null) {
+        i++;
+        continue;
+      }
+
+      // The white dashed overlay of a future trip immediately follows its
+      // base polyline and shares its points list.
+      Polyline<int>? overlay;
+      if (i + 1 < polylines.length &&
+          identical(polylines[i + 1].points, polyline.points) &&
+          polylines[i + 1].pattern.segments != null) {
+        overlay = polylines[i + 1];
+      }
+      i += overlay == null ? 1 : 2;
 
       final projected = _project(polyline);
       if (projected == null) continue;
 
-      final useBlack = polyline.color.computeLuminance() > _luminancePivot;
-      final target = useBlack ? blackPath : whitePath;
-
       for (final shift in worldShifts) {
-        final added = _addChevronsForWorld(
-          target,
+        final drewChevrons = _drawPolylineWorld(
+          canvas,
+          polyline,
+          overlay,
           projected,
           shift: shift,
           zoomScale: zoomScale,
           origin: origin,
           cullRect: cullRect,
+          redrawLine: anyChevronDrawn,
         );
-        if (added) {
-          if (useBlack) {
-            hasBlack = true;
-          } else {
-            hasWhite = true;
-          }
-        }
+        anyChevronDrawn = anyChevronDrawn || drewChevrons;
       }
-    }
-
-    final strokeWidth = polylines.isEmpty ? 4.0 : polylines.first.strokeWidth;
-    final paint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = math.max(strokeWidth * 0.5, 1.8)
-      ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round;
-
-    // White first, black on top: where two trips overlap the upper chevrons
-    // stay readable.
-    if (hasWhite) {
-      canvas.drawPath(whitePath, paint..color = Colors.white);
-    }
-    if (hasBlack) {
-      canvas.drawPath(blackPath, paint..color = Colors.black);
     }
   }
 
@@ -164,42 +170,57 @@ class _TripDirectionChevronPainter extends CustomPainter {
     return projected;
   }
 
-  /// Walks one world copy of [projected] in screen space and appends a chevron
-  /// to [target] every [_spacing] pixels along the way.
+  /// Draws one world copy of a trip: optionally its line (border, core and
+  /// dashed overlay, mirroring the polyline layer below to cover chevrons of
+  /// earlier trips), then its own chevrons.
   ///
-  /// Returns whether at least one chevron was added.
-  bool _addChevronsForWorld(
-    Path target,
+  /// Returns whether at least one chevron was drawn.
+  bool _drawPolylineWorld(
+    Canvas canvas,
+    Polyline<int> polyline,
+    Polyline<int>? overlay,
     _ProjectedPath projected, {
     required double shift,
     required double zoomScale,
     required Offset origin,
     required Rect cullRect,
+    required bool redrawLine,
   }) {
     final crs = camera.crs;
 
     // Cheap whole-polyline culling: transform only the two bounding-box
     // corners to screen space before touching the individual points.
     final b = projected.bounds;
-    final (left, top) = crs.transform(b.left + shift, b.top, zoomScale);
-    final (right, bottom) = crs.transform(b.right + shift, b.bottom, zoomScale);
-    final screenBounds = Rect.fromPoints(
-      Offset(left, top) - origin,
-      Offset(right, bottom) - origin,
-    );
+    final (l, t) = crs.transform(b.left + shift, b.top, zoomScale);
+    final (r, bo) = crs.transform(b.right + shift, b.bottom, zoomScale);
+    final screenBounds = Rect.fromPoints(Offset(l, t) - origin, Offset(r, bo) - origin);
     if (!screenBounds.overlaps(cullRect)) return false;
-    if (screenBounds.longestSide < _minOnScreenSize) return false;
+
+    final wantChevrons = screenBounds.longestSide >= _minOnScreenSize;
+    if (!wantChevrons && !redrawLine) return false;
+
+    final linePath = redrawLine ? Path() : null;
+    final dashPath = redrawLine && overlay != null ? Path() : null;
+    final chevronPath = wantChevrons ? Path() : null;
+
+    final dashSegments = overlay?.pattern.segments;
+    final dashLen = dashSegments != null ? dashSegments[0] : 0.0;
+    final gapLen = dashSegments != null ? dashSegments[1] : 0.0;
+    var dashOn = true;
+    var dashRemaining = dashLen;
+
+    // Phase the first chevron half a spacing in, so short-but-visible paths
+    // still get one near their middle.
+    var untilChevron = _spacing * 0.5;
+    var drewChevrons = false;
 
     final offsets = projected.offsets;
     var (prevX, prevY) =
         crs.transform(offsets.first.dx + shift, offsets.first.dy, zoomScale);
     prevX -= origin.dx;
     prevY -= origin.dy;
-
-    // Phase the first chevron half a spacing in, so short-but-visible paths
-    // still get one near their middle.
-    var untilNext = _spacing * 0.5;
-    var addedAny = false;
+    linePath?.moveTo(prevX, prevY);
+    dashPath?.moveTo(prevX, prevY);
 
     for (var i = 1; i < offsets.length; i++) {
       var (x, y) =
@@ -209,50 +230,117 @@ class _TripDirectionChevronPainter extends CustomPainter {
 
       final dx = x - prevX;
       final dy = y - prevY;
-      final segLen = math.sqrt(dx * dx + dy * dy);
+      final segSq = dx * dx + dy * dy;
 
-      if (segLen > 0) {
-        final dirX = dx / segLen;
-        final dirY = dy / segLen;
+      // Drop nearly-coincident points (except the final one, so the path
+      // always reaches the arrival).
+      if (segSq < _decimationSq && i < offsets.length - 1) continue;
+      if (segSq == 0) continue;
+
+      final segLen = math.sqrt(segSq);
+      final dirX = dx / segLen;
+      final dirY = dy / segLen;
+
+      linePath?.lineTo(x, y);
+
+      if (chevronPath != null) {
         var travelled = 0.0;
+        while (segLen - travelled >= untilChevron) {
+          travelled += untilChevron;
+          untilChevron = _spacing;
 
-        while (segLen - travelled >= untilNext) {
-          travelled += untilNext;
-          untilNext = _spacing;
-
-          final pos = Offset(prevX + dirX * travelled, prevY + dirY * travelled);
-          if (cullRect.contains(pos)) {
-            _addChevron(target, pos, dirX, dirY);
-            addedAny = true;
+          final posX = prevX + dirX * travelled;
+          final posY = prevY + dirY * travelled;
+          if (cullRect.contains(Offset(posX, posY))) {
+            _addChevron(chevronPath, posX, posY, dirX, dirY);
+            drewChevrons = true;
           }
         }
-        untilNext -= segLen - travelled;
+        untilChevron -= segLen - travelled;
+      }
+
+      if (dashPath != null) {
+        var travelled = 0.0;
+        while (segLen - travelled >= dashRemaining) {
+          travelled += dashRemaining;
+          final posX = prevX + dirX * travelled;
+          final posY = prevY + dirY * travelled;
+          if (dashOn) {
+            dashPath.lineTo(posX, posY);
+          } else {
+            dashPath.moveTo(posX, posY);
+          }
+          dashOn = !dashOn;
+          dashRemaining = dashOn ? dashLen : gapLen;
+        }
+        dashRemaining -= segLen - travelled;
+        if (dashOn) dashPath.lineTo(x, y);
       }
 
       prevX = x;
       prevY = y;
     }
 
-    return addedAny;
+    final paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+
+    if (linePath != null) {
+      // Mirror the polyline layer's stacking: border underneath, then the
+      // coloured core, then the white dashed overlay of future trips.
+      if (polyline.borderStrokeWidth > 0) {
+        canvas.drawPath(
+          linePath,
+          paint
+            ..color = polyline.borderColor
+            ..strokeWidth = polyline.strokeWidth + polyline.borderStrokeWidth,
+        );
+      }
+      canvas.drawPath(
+        linePath,
+        paint
+          ..color = polyline.color
+          ..strokeWidth = polyline.strokeWidth,
+      );
+      if (dashPath != null && overlay != null) {
+        canvas.drawPath(
+          dashPath,
+          paint
+            ..color = overlay.color
+            ..strokeWidth = overlay.strokeWidth,
+        );
+      }
+    }
+
+    if (chevronPath != null && drewChevrons) {
+      final useBlack = polyline.color.computeLuminance() > _luminancePivot;
+      canvas.drawPath(
+        chevronPath,
+        paint
+          ..color = useBlack ? Colors.black : Colors.white
+          ..strokeWidth = math.max(polyline.strokeWidth * 0.5, 1.8),
+      );
+    }
+
+    return drewChevrons;
   }
 
   /// Appends one chevron (two strokes meeting at a tip pointing along the
   /// travel direction) to [path].
-  void _addChevron(Path path, Offset pos, double dirX, double dirY) {
+  void _addChevron(Path path, double posX, double posY, double dirX, double dirY) {
     const halfLength = 3.0; // Along the travel direction.
     const halfSpan = 4.5; // Across the line.
 
-    final tip = Offset(pos.dx + dirX * halfLength, pos.dy + dirY * halfLength);
-    final backX = pos.dx - dirX * halfLength;
-    final backY = pos.dy - dirY * halfLength;
+    final tipX = posX + dirX * halfLength;
+    final tipY = posY + dirY * halfLength;
+    final backX = posX - dirX * halfLength;
+    final backY = posY - dirY * halfLength;
     // Perpendicular of (dirX, dirY) is (-dirY, dirX).
-    final wing1 = Offset(backX - dirY * halfSpan, backY + dirX * halfSpan);
-    final wing2 = Offset(backX + dirY * halfSpan, backY - dirX * halfSpan);
-
     path
-      ..moveTo(wing1.dx, wing1.dy)
-      ..lineTo(tip.dx, tip.dy)
-      ..lineTo(wing2.dx, wing2.dy);
+      ..moveTo(backX - dirY * halfSpan, backY + dirX * halfSpan)
+      ..lineTo(tipX, tipY)
+      ..lineTo(backX + dirY * halfSpan, backY - dirX * halfSpan);
   }
 
   @override
