@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -19,6 +20,15 @@ import 'package:trainlog_app/providers/polyline_provider.dart';
 /// chevrons already drawn for the trips below it, so where two trips overlap
 /// the chevrons of the lower one are hidden by the upper line, exactly like
 /// the line itself.
+///
+/// That re-stroke is the layer's main cost, so it is kept off the hot path in
+/// two ways:
+///
+///  * each polyline's simplified geometry is cached per zoom level, mirroring
+///    what the polyline layer below already does, so panning only rescales a
+///    thinned point list instead of walking every stored point;
+///  * the screen area actually covered by chevrons is tracked as the layer
+///    paints, and only the trips passing over that area are re-stroked.
 ///
 /// Must be placed inside [FlutterMap.children], directly above the polyline
 /// layer.
@@ -60,11 +70,15 @@ class _TripDirectionChevronPainter extends CustomPainter {
   /// chevrons, so zoomed-out short trips are not covered by a lone chevron.
   static const double _minOnScreenSize = _spacing * 0.75;
 
-  /// Points closer than this (squared, in screen pixels) to the previously
-  /// kept point are dropped while walking a path: a cheap stand-in for the
-  /// polyline layer's simplification when re-stroking lines every frame. Kept
-  /// at ~1 px so the re-stroked line stays visually on top of the original.
-  static const double _decimationSq = 1.0;
+  /// Points closer than this (in screen pixels) to the previously kept point
+  /// are dropped: a cheap stand-in for the polyline layer's simplification
+  /// when re-stroking lines. Kept at ~1 px so the re-stroked line stays
+  /// visually on top of the original.
+  static const double _decimationPx = 1.0;
+
+  /// How far from its anchor a chevron's geometry reaches, before its stroke
+  /// is taken into account. Half-diagonal of the shape drawn by [_addChevron].
+  static const double _chevronReach = 3.2;
 
   /// WCAG relative-luminance pivot: above it black offers the better contrast,
   /// below it white does (sqrt(1.05 * 0.05) - 0.05).
@@ -72,7 +86,9 @@ class _TripDirectionChevronPainter extends CustomPainter {
 
   /// Caches the zoom-independent planar projection of each polyline, keyed by
   /// its (stable) points list, so panning/zooming only rescales cheap offsets
-  /// instead of re-projecting every LatLng on each frame.
+  /// instead of re-projecting every LatLng on each frame. Each entry also
+  /// carries the simplified point list for the last zoom level it was asked
+  /// for.
   static final Expando<_ProjectedPath> _projectionCache = Expando();
 
   @override
@@ -85,15 +101,24 @@ class _TripDirectionChevronPainter extends CustomPainter {
     final zoomScale = crs.scale(camera.zoom);
     final origin = camera.pixelOrigin;
 
+    // Simplification happens in planar space so its result can be reused for
+    // every pan at this zoom. The tolerance is derived at the *next* whole
+    // zoom, which keeps it at or below one screen pixel for every fractional
+    // zoom sharing the key: a cached list is then never coarser than the
+    // per-frame decimation it replaces.
+    final zoomKey = camera.zoom.ceil();
+    final planarToleranceSq = _planarToleranceSq(zoomKey);
+
     final worldWidth =
         crs.replicatesWorldLongitude ? crs.projection.getWorldWidth() : 0.0;
     final worldShifts = worldWidth == 0.0
         ? const [0.0]
         : [0.0, -worldWidth, worldWidth];
 
-    // Until the first chevron is on the canvas there is nothing to cover, so
-    // the polylines themselves do not need to be re-stroked yet.
-    var anyChevronDrawn = false;
+    // Screen area covered by the chevrons drawn so far. A trip only needs to
+    // be re-stroked where it can actually paint over one of them, so trips
+    // clear of this area keep the cheap early exit.
+    final chevronRegion = _ChevronRegion.forArea(cullRect);
 
     var i = 0;
     while (i < polylines.length) {
@@ -120,22 +145,46 @@ class _TripDirectionChevronPainter extends CustomPainter {
 
       final projected = _project(polyline);
       if (projected == null) continue;
+      final offsets = projected.simplified(zoomKey, planarToleranceSq);
 
+      List<Rect>? drawnChevrons;
       for (final shift in worldShifts) {
-        final drewChevrons = _drawPolylineWorld(
+        final drawn = _drawPolylineWorld(
           canvas,
           polyline,
           overlay,
           projected,
+          offsets,
           shift: shift,
           zoomScale: zoomScale,
           origin: origin,
           cullRect: cullRect,
-          redrawLine: anyChevronDrawn,
+          chevronRegion: chevronRegion,
         );
-        anyChevronDrawn = anyChevronDrawn || drewChevrons;
+        if (drawn != null) (drawnChevrons ??= []).add(drawn);
+      }
+
+      // Registered only once every world copy is drawn, so a trip is never
+      // re-stroked over chevrons it drew itself — those belong on top of it.
+      if (drawnChevrons != null) {
+        for (final rect in drawnChevrons) {
+          chevronRegion.add(rect);
+        }
       }
     }
+  }
+
+  /// Squared simplification tolerance in planar units, equivalent to
+  /// [_decimationPx] screen pixels at zoom [zoomKey].
+  double _planarToleranceSq(int zoomKey) {
+    final crs = camera.crs;
+    final scale = crs.scale(zoomKey.toDouble());
+    final (x0, _) = crs.transform(0.0, 0.0, scale);
+    final (x1, _) = crs.transform(1.0, 0.0, scale);
+    final pixelsPerPlanarUnit = (x1 - x0).abs();
+    if (pixelsPerPlanarUnit <= 0) return 0.0;
+    final tolerance = _decimationPx / pixelsPerPlanarUnit;
+    return tolerance * tolerance;
   }
 
   /// Projects (and caches) the polyline into zoom-independent planar space.
@@ -174,17 +223,22 @@ class _TripDirectionChevronPainter extends CustomPainter {
   /// dashed overlay, mirroring the polyline layer below to cover chevrons of
   /// earlier trips), then its own chevrons.
   ///
-  /// Returns whether at least one chevron was drawn.
-  bool _drawPolylineWorld(
+  /// [offsets] is the simplified planar geometry to walk; [projected] is only
+  /// consulted for the (unsimplified) bounding box used to cull.
+  ///
+  /// Returns the screen area covered by the chevrons it drew, or null if it
+  /// drew none.
+  Rect? _drawPolylineWorld(
     Canvas canvas,
     Polyline<int> polyline,
     Polyline<int>? overlay,
-    _ProjectedPath projected, {
+    _ProjectedPath projected,
+    List<Offset> offsets, {
     required double shift,
     required double zoomScale,
     required Offset origin,
     required Rect cullRect,
-    required bool redrawLine,
+    required _ChevronRegion chevronRegion,
   }) {
     final crs = camera.crs;
 
@@ -194,14 +248,23 @@ class _TripDirectionChevronPainter extends CustomPainter {
     final (l, t) = crs.transform(b.left + shift, b.top, zoomScale);
     final (r, bo) = crs.transform(b.right + shift, b.bottom, zoomScale);
     final screenBounds = Rect.fromPoints(Offset(l, t) - origin, Offset(r, bo) - origin);
-    if (!screenBounds.overlaps(cullRect)) return false;
+    if (!screenBounds.overlaps(cullRect)) return null;
 
     final wantChevrons = screenBounds.longestSide >= _minOnScreenSize;
-    if (!wantChevrons && !redrawLine) return false;
+
+    // The bounding box tracks the centre line, so widen it by the stroke to
+    // cover everything this trip can actually paint over.
+    final halfStroke = (polyline.strokeWidth + polyline.borderStrokeWidth) * 0.5;
+    final redrawLine = chevronRegion.overlaps(screenBounds.inflate(halfStroke));
+
+    if (!wantChevrons && !redrawLine) return null;
 
     final linePath = redrawLine ? Path() : null;
     final dashPath = redrawLine && overlay != null ? Path() : null;
     final chevronPath = wantChevrons ? Path() : null;
+
+    final chevronStroke = math.max(polyline.strokeWidth * 0.5, 1.8);
+    final chevronRadius = _chevronReach + chevronStroke * 0.5;
 
     final dashSegments = overlay?.pattern.segments;
     final dashLen = dashSegments != null ? dashSegments[0] : 0.0;
@@ -212,9 +275,8 @@ class _TripDirectionChevronPainter extends CustomPainter {
     // Phase the first chevron half a spacing in, so short-but-visible paths
     // still get one near their middle.
     var untilChevron = _spacing * 0.5;
-    var drewChevrons = false;
+    Rect? chevronBounds;
 
-    final offsets = projected.offsets;
     var (prevX, prevY) =
         crs.transform(offsets.first.dx + shift, offsets.first.dy, zoomScale);
     prevX -= origin.dx;
@@ -232,9 +294,6 @@ class _TripDirectionChevronPainter extends CustomPainter {
       final dy = y - prevY;
       final segSq = dx * dx + dy * dy;
 
-      // Drop nearly-coincident points (except the final one, so the path
-      // always reaches the arrival).
-      if (segSq < _decimationSq && i < offsets.length - 1) continue;
       if (segSq == 0) continue;
 
       final segLen = math.sqrt(segSq);
@@ -253,7 +312,11 @@ class _TripDirectionChevronPainter extends CustomPainter {
           final posY = prevY + dirY * travelled;
           if (cullRect.contains(Offset(posX, posY))) {
             _addChevron(chevronPath, posX, posY, dirX, dirY);
-            drewChevrons = true;
+            final drawn = Rect.fromCircle(
+              center: Offset(posX, posY),
+              radius: chevronRadius,
+            );
+            chevronBounds = chevronBounds?.expandToInclude(drawn) ?? drawn;
           }
         }
         untilChevron -= segLen - travelled;
@@ -313,17 +376,17 @@ class _TripDirectionChevronPainter extends CustomPainter {
       }
     }
 
-    if (chevronPath != null && drewChevrons) {
+    if (chevronPath != null && chevronBounds != null) {
       final useBlack = polyline.color.computeLuminance() > _luminancePivot;
       canvas.drawPath(
         chevronPath,
         paint
           ..color = useBlack ? Colors.black : Colors.white
-          ..strokeWidth = math.max(polyline.strokeWidth * 0.5, 1.8),
+          ..strokeWidth = chevronStroke,
       );
     }
 
-    return drewChevrons;
+    return chevronBounds;
   }
 
   /// Appends one chevron (two strokes meeting at a tip pointing along the
@@ -351,9 +414,133 @@ class _TripDirectionChevronPainter extends CustomPainter {
 
 /// A polyline projected into zoom-independent planar (CRS) space, with its
 /// planar bounding box for fast culling.
+///
+/// Also memoises the simplified point list for the zoom level it was last
+/// asked about. One entry is enough: the map sits at a single zoom between
+/// gestures, which is when panning repaints matter most.
 class _ProjectedPath {
   final List<Offset> offsets;
   final Rect bounds;
 
-  const _ProjectedPath({required this.offsets, required this.bounds});
+  int? _simplifiedZoomKey;
+  List<Offset>? _simplifiedOffsets;
+
+  _ProjectedPath({required this.offsets, required this.bounds});
+
+  /// The point list thinned to [toleranceSq] (squared planar units), cached
+  /// against [zoomKey].
+  List<Offset> simplified(int zoomKey, double toleranceSq) {
+    final cached = _simplifiedOffsets;
+    if (cached != null && _simplifiedZoomKey == zoomKey) return cached;
+
+    final result = _thin(offsets, toleranceSq);
+    _simplifiedZoomKey = zoomKey;
+    _simplifiedOffsets = result;
+    return result;
+  }
+
+  /// Drops points closer than [toleranceSq] to the previously kept one. The
+  /// first and last points are always kept, so the path still spans departure
+  /// to arrival.
+  static List<Offset> _thin(List<Offset> points, double toleranceSq) {
+    if (toleranceSq <= 0 || points.length < 3) return points;
+
+    final kept = <Offset>[points.first];
+    var prev = points.first;
+    for (var i = 1; i < points.length - 1; i++) {
+      final p = points[i];
+      final dx = p.dx - prev.dx;
+      final dy = p.dy - prev.dy;
+      if (dx * dx + dy * dy < toleranceSq) continue;
+      kept.add(p);
+      prev = p;
+    }
+    kept.add(points.last);
+
+    // Nothing dropped: keep sharing the original list rather than a copy.
+    return kept.length == points.length ? points : kept;
+  }
+}
+
+/// Coarse record of where chevrons have been drawn on screen, used to decide
+/// which trips have to be re-stroked over them.
+///
+/// A single union rectangle would swell to the whole viewport as soon as two
+/// trips sit in opposite corners, so occupancy is kept per cell instead.
+/// Cells are marked outward, making the test conservative: it may ask for a
+/// re-stroke that was not needed, never skip one that was.
+class _ChevronRegion {
+  static const double _cellSize = 32.0;
+
+  final Rect _area;
+  final int _columns;
+  final int _rows;
+  final Uint8List _cells;
+
+  /// Union of everything added so far, letting the common "nowhere near a
+  /// chevron" case be rejected without touching [_cells]. Null while empty.
+  Rect? _markedBounds;
+
+  _ChevronRegion._(this._area, this._columns, this._rows, this._cells);
+
+  factory _ChevronRegion.forArea(Rect area) {
+    final columns = math.max(1, (area.width / _cellSize).ceil());
+    final rows = math.max(1, (area.height / _cellSize).ceil());
+    return _ChevronRegion._(
+      Rect.fromLTWH(
+        area.left,
+        area.top,
+        columns * _cellSize,
+        rows * _cellSize,
+      ),
+      columns,
+      rows,
+      Uint8List(columns * rows),
+    );
+  }
+
+  void add(Rect rect) {
+    if (!rect.overlaps(_area)) return;
+
+    final (c0, r0, c1, r1) = _cellRange(rect);
+    for (var row = r0; row <= r1; row++) {
+      final rowStart = row * _columns;
+      for (var column = c0; column <= c1; column++) {
+        _cells[rowStart + column] = 1;
+      }
+    }
+
+    final marked = _markedBounds;
+    _markedBounds = marked == null ? rect : marked.expandToInclude(rect);
+  }
+
+  bool overlaps(Rect rect) {
+    final marked = _markedBounds;
+    if (marked == null || !rect.overlaps(marked)) return false;
+
+    final (c0, r0, c1, r1) = _cellRange(rect);
+    for (var row = r0; row <= r1; row++) {
+      final rowStart = row * _columns;
+      for (var column = c0; column <= c1; column++) {
+        if (_cells[rowStart + column] != 0) return true;
+      }
+    }
+    return false;
+  }
+
+  /// Inclusive (column, row) bounds of the cells [rect] touches, clamped to
+  /// the grid. Only call for a rect known to overlap [_area].
+  (int, int, int, int) _cellRange(Rect rect) {
+    int column(double x) =>
+        ((x - _area.left) / _cellSize).floor().clamp(0, _columns - 1);
+    int row(double y) =>
+        ((y - _area.top) / _cellSize).floor().clamp(0, _rows - 1);
+
+    return (
+      column(rect.left),
+      row(rect.top),
+      column(rect.right),
+      row(rect.bottom),
+    );
+  }
 }
