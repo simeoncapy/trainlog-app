@@ -227,6 +227,17 @@ class _MapPageState extends State<MapPage>
           options: MapOptions(
             initialCenter: _center,
             initialZoom: _zoom,
+            // Both bounds must stay finite. A fast pinch can make flutter_map
+            // feed a non-positive scale to log() (its guard checks
+            // details.scale, but the value used is details.scale plus an
+            // internal gesture-race corrector), producing an infinite or NaN
+            // zoom. MapCamera then asserts on it. Finite limits let clampZoom
+            // absorb that frame instead: -infinity lands on minZoom, NaN on
+            // maxZoom. 0 is a fully zoomed-out world; 22 is past anything
+            // usable, so over-zoom above OSM's native zoom 19 still works as
+            // before.
+            minZoom: 0,
+            maxZoom: 22,
             keepAlive: true,
             interactionOptions: const InteractionOptions(
               rotationThreshold: 20.0,
