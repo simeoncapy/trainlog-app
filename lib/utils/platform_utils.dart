@@ -39,6 +39,7 @@ class AdaptiveIcons {
   static final IconData refresh =     isA ? CupertinoIcons.refresh : Icons.refresh;
   static final IconData license =     isA ? CupertinoIcons.doc_text : Icons.article;
   static final IconData chevronDown = isA ? CupertinoIcons.chevron_down : Icons.keyboard_arrow_down;
+  static final IconData debug =       isA ? CupertinoIcons.ant_fill : Icons.bug_report;
   
   // Sort
   static final IconData sortAscending = isA ? CupertinoIcons.sort_up : Icons.arrow_upward;
