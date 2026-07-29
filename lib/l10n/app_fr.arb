@@ -121,6 +121,7 @@
   "settingsCacheClearGeologsToggle": "Supprimer aussi tous les Géomémo",
   "settingsCacheClearedMessage": "Cache vidé avec succes.",
   "settingsDisplayUserMarker": "Afficher votre position",
+  "settingsDisplayTripDirection": "Afficher la direction des trajets",
   "settingsDeleteAccount": "Supprimer mon compte",
   "settingsDeleteAccountRequest": "Demander",
   "settingsDeleteAccountError": "Impossible d'ouvrir le client mail, demander à {email}",

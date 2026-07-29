@@ -1,4 +1,11 @@
 changelog_en:
+  - version: 0.4.2
+    date: 2026-07-26
+    changes:
+      - type: feature
+        text: New map setting to display chevrons on the trip paths showing the direction of travel.
+      - type: fix
+        text: Added map zoom limits to prevent a crash when zooming out quickly.
   - version: 0.4.1
     date: 2026-07-21
     changes:

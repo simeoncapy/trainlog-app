@@ -388,6 +388,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsDisplayUserMarker => 'Display current position';
 
   @override
+  String get settingsDisplayTripDirection => 'Display trip direction';
+
+  @override
   String get settingsDeleteAccount => 'Delete my account';
 
   @override

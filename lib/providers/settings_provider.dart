@@ -31,6 +31,7 @@ class SettingsProvider with ChangeNotifier {
   MapColorPalette _mapColorPalette = MapColorPalette.trainlogWeb;
   bool _shouldReloadPolylines = true;
   bool _mapDisplayUserLocationMarker = true;
+  bool _mapDisplayTripDirection = false;
   bool _hideWarningMessage = false;
   String _currency = "EUR";
   int _sprRadius = 500;
@@ -79,6 +80,7 @@ class SettingsProvider with ChangeNotifier {
   MapColorPalette get mapColorPalette => _mapColorPalette;
   bool get shouldReloadPolylines => _shouldReloadPolylines;
   bool get mapDisplayUserLocationMarker => _mapDisplayUserLocationMarker;
+  bool get mapDisplayTripDirection => _mapDisplayTripDirection;
   bool get hideWarningMessage => _hideWarningMessage;
   String get currency => _currency;
   int get sprRadius => _sprRadius;
@@ -138,6 +140,7 @@ class SettingsProvider with ChangeNotifier {
       _loadMapColorPalette,
       _loadShouldReloadPolylines,
       _loadMapDisplayUserLocationMarker,
+      _loadMapDisplayTripDirection,
       _loadHideWarningMessage,
       _loadCurrency,
       _loadSprRadius,
@@ -327,6 +330,21 @@ class SettingsProvider with ChangeNotifier {
     _mapDisplayUserLocationMarker = maker;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('display_user_marker', maker);
+    notifyListeners();
+  }
+
+  // ------------------------------------------------------------------------------
+
+  void _loadMapDisplayTripDirection(SharedPreferences prefs) {
+    final direction = prefs.getBool('map_display_trip_direction');
+    _mapDisplayTripDirection = direction ?? false;
+  }
+
+  void setMapDisplayTripDirection(bool display) async {
+    if (_mapDisplayTripDirection == display) return;
+    _mapDisplayTripDirection = display;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('map_display_trip_direction', display);
     notifyListeners();
   }
 

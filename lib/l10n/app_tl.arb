@@ -128,6 +128,7 @@
   "settingsCacheClearGeologsToggle": "Burahin din ang lahat ng Geologs",
   "settingsCacheClearedMessage": "Nabura ang cache",
   "settingsDisplayUserMarker": "Ipakita ang kasalukurang lugar",
+  "settingsDisplayTripDirection": "Ipakita ang direksyon ng biyahe",
   "settingsDeleteAccount": "Ibura ang account",
   "settingsDeleteAccountRequest": "Request",
   "settingsDeleteAccountError": "Hindi kaya ibukas ang email client, request sa {email}",

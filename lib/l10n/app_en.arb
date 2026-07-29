@@ -158,6 +158,7 @@
   "settingsCacheClearGeologsToggle": "Also clear all the Geologs",
   "settingsCacheClearedMessage": "Cache cleared successfully.",
   "settingsDisplayUserMarker": "Display current position",
+  "settingsDisplayTripDirection": "Display trip direction",
   "settingsDeleteAccount": "Delete my account",
   "settingsDeleteAccountRequest": "Request",
   "settingsDeleteAccountError": "Unable to open email client, request at {email}",

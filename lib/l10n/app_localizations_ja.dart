@@ -379,6 +379,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get settingsDisplayUserMarker => '現在の位置を表示する';
 
   @override
+  String get settingsDisplayTripDirection => '移動の方向を表示する';
+
+  @override
   String get settingsDeleteAccount => 'アカウントを削除する';
 
   @override
