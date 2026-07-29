@@ -218,6 +218,10 @@ class _SettingsPageState extends State<SettingsPage> {
             _buildDangerSection(ctx, l10n, settings, tripsProvider),
             _sectionHeader(ctx, l10n.menuAboutTitle),
             _buildAboutSection(ctx, l10n, settings, trainlog, tripsProvider),
+            if (kDebugMode) ...[
+              _sectionHeader(ctx, 'Debug'),
+              _buildDebugSection(ctx, l10n, settings, trainlog, tripsProvider),
+            ],
             const SizedBox(height: 24),
           ],
           );
@@ -664,9 +668,22 @@ class _SettingsPageState extends State<SettingsPage> {
             );
           },
       ),
-      if (kDebugMode)
+    ]);
+  }
+
+  Widget _buildDebugSection(
+    BuildContext ctx,
+    AppLocalizations l10n,
+    SettingsProvider settings,
+    TrainlogProvider trainlog,
+    TripsProvider tripsProvider,
+  ) {
+      final cs = Theme.of(ctx).colorScheme;
+      final icon = AdaptiveIcons.debug;
+
+      return SettingsGroup(children: [
         SettingsTile(
-          icon: AdaptiveIcons.refresh,
+          icon: icon,
           title: 'Reset Onboarding',
           subtitle: 'debug',
           trailing: AdaptiveButton.build(
@@ -679,9 +696,8 @@ class _SettingsPageState extends State<SettingsPage> {
             },
           ),
         ),
-      if (kDebugMode)
         SettingsTile(
-          icon: AdaptiveIcons.refresh,
+          icon: icon,
           title: 'Throw Test Exception',
           subtitle: 'debug',
           trailing: AdaptiveButton.build(
@@ -691,9 +707,8 @@ class _SettingsPageState extends State<SettingsPage> {
             onPressed: () => throw Exception(),
           ),
         ),
-      if (kDebugMode)
         SettingsTile(
-          icon: AdaptiveIcons.refresh,
+          icon: icon,
           title: 'Reset changelog',
           subtitle: 'debug',
           trailing: AdaptiveButton.build(
@@ -706,7 +721,7 @@ class _SettingsPageState extends State<SettingsPage> {
             },
           ),
         ),
-    ]);
+      ]);
   }
 }
 

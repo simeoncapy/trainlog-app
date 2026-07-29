@@ -4,6 +4,8 @@ changelog_fr:
     changes:
       - type: feature
         text: Nouveau paramètre de carte pour afficher des chevrons sur les trajets indiquant le sens du voyage.
+      - type: fix
+        text: Ajout de limites de zoom sur la carte pour éviter un plantage lors d'un zoom arrière rapide.
   - version: 0.4.1
     date: 2026-07-21
     changes:

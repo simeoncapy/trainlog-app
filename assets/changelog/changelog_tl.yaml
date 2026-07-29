@@ -4,6 +4,8 @@ changelog_tl:
     changes:
       - type: feature
         text: Bagong setting ng mapa para magpakita ng mga chevron sa mga ruta ng biyahe na nagpapakita ng direksyon ng paglalakbay.
+      - type: fix
+        text: Nagdagdag ng limitasyon sa zoom ng mapa para maiwasan ang pag-crash kapag mabilis ang pag-zoom out.
   - version: 0.4.1
     date: 2026-07-21
     changes:
