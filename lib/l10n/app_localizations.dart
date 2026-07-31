@@ -2615,6 +2615,132 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This trip could not be loaded: the server could not be reached and no copy is saved on this device.'**
   String get editCopyTripUnavailableError;
+
+  /// App bar title of the trip edit form
+  ///
+  /// In en, this message translates to:
+  /// **'Edit trip'**
+  String get editTripTitle;
+
+  /// App bar title of the form when the trip is duplicated instead of edited
+  ///
+  /// In en, this message translates to:
+  /// **'Duplicate trip'**
+  String get duplicateTripTitle;
+
+  /// App bar subtitle recalling the trip being edited: departure, arrival and date
+  ///
+  /// In en, this message translates to:
+  /// **'{departure} → {arrival} • {date}'**
+  String editTripRouteSummary(String departure, String arrival, String date);
+
+  /// Section pill and header of the departure/arrival block
+  ///
+  /// In en, this message translates to:
+  /// **'Route'**
+  String get editTripSectionRoute;
+
+  /// Section pill and header of the operator block
+  ///
+  /// In en, this message translates to:
+  /// **'Operator'**
+  String get editTripSectionOperator;
+
+  /// Section pill and header of the dates block
+  ///
+  /// In en, this message translates to:
+  /// **'When'**
+  String get editTripSectionWhen;
+
+  /// Section pill and header of the details block
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get editTripSectionDetails;
+
+  /// Section pill and header of the ticket block
+  ///
+  /// In en, this message translates to:
+  /// **'Ticket'**
+  String get editTripSectionTicket;
+
+  /// Section pill and header of the block editing the drawn path of the trip
+  ///
+  /// In en, this message translates to:
+  /// **'Path'**
+  String get editTripSectionPath;
+
+  /// Label of the card showing the vehicle type of the edited trip
+  ///
+  /// In en, this message translates to:
+  /// **'Vehicle type'**
+  String get editTripVehicleTypeLabel;
+
+  /// Trailing button of the vehicle type card, opening the vehicle type page
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get editTripChangeButton;
+
+  /// Title of the page selecting a new vehicle type for the trip
+  ///
+  /// In en, this message translates to:
+  /// **'Change vehicle type'**
+  String get editTripChangeVehicleTypeTitle;
+
+  /// Banner warning that changing the vehicle type is applied independently of the rest of the form
+  ///
+  /// In en, this message translates to:
+  /// **'This is a separate action — it updates on its own.'**
+  String get editTripChangeVehicleTypeWarning;
+
+  /// Footer button confirming the new vehicle type
+  ///
+  /// In en, this message translates to:
+  /// **'Update vehicle type'**
+  String get editTripUpdateVehicleTypeButton;
+
+  /// Caption marking the vehicle type the trip currently has
+  ///
+  /// In en, this message translates to:
+  /// **'Current'**
+  String get editTripVehicleTypeCurrent;
+
+  /// Helper note under the departure and arrival fields of the edit form
+  ///
+  /// In en, this message translates to:
+  /// **'Only the station displayed name will be changed, not its position'**
+  String get editTripStationNameHelper;
+
+  /// Dashed button under the operator list, opening the operator search
+  ///
+  /// In en, this message translates to:
+  /// **'Add operator'**
+  String get editTripAddOperatorButton;
+
+  /// Button of the path section, opening the path editor
+  ///
+  /// In en, this message translates to:
+  /// **'Modify the path'**
+  String get editTripModifyPathButton;
+
+  /// Explanation shown in the path section of the edit form
+  ///
+  /// In en, this message translates to:
+  /// **'The drawn path of the trip is edited on its own screen.'**
+  String get editTripPathDescription;
+
+  /// Sticky footer button of the edit form
+  ///
+  /// In en, this message translates to:
+  /// **'Save changes'**
+  String get editTripSaveButton;
+
+  /// Message shown when tapping an action of the edit form that is not implemented yet
+  ///
+  /// In en, this message translates to:
+  /// **'This will be available in a future update.'**
+  String get editTripComingSoon;
 }
 
 class _AppLocalizationsDelegate

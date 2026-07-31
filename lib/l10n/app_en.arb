@@ -824,5 +824,95 @@
   "editCopyTripUnavailableError": "This trip could not be loaded: the server could not be reached and no copy is saved on this device.",
   "@editCopyTripUnavailableError": {
     "description": "Banner on the edit/duplicate page when the server is unreachable and there is no locally cached copy of the trip either"
+  },
+
+  "editTripTitle": "Edit trip",
+  "@editTripTitle": {
+    "description": "App bar title of the trip edit form"
+  },
+  "duplicateTripTitle": "Duplicate trip",
+  "@duplicateTripTitle": {
+    "description": "App bar title of the form when the trip is duplicated instead of edited"
+  },
+  "editTripRouteSummary": "{departure} → {arrival} • {date}",
+  "@editTripRouteSummary": {
+    "description": "App bar subtitle recalling the trip being edited: departure, arrival and date",
+    "placeholders": {
+      "departure": { "type": "String" },
+      "arrival": { "type": "String" },
+      "date": { "type": "String" }
+    }
+  },
+  "editTripSectionRoute": "Route",
+  "@editTripSectionRoute": {
+    "description": "Section pill and header of the departure/arrival block"
+  },
+  "editTripSectionOperator": "Operator",
+  "@editTripSectionOperator": {
+    "description": "Section pill and header of the operator block"
+  },
+  "editTripSectionWhen": "When",
+  "@editTripSectionWhen": {
+    "description": "Section pill and header of the dates block"
+  },
+  "editTripSectionDetails": "Details",
+  "@editTripSectionDetails": {
+    "description": "Section pill and header of the details block"
+  },
+  "editTripSectionTicket": "Ticket",
+  "@editTripSectionTicket": {
+    "description": "Section pill and header of the ticket block"
+  },
+  "editTripSectionPath": "Path",
+  "@editTripSectionPath": {
+    "description": "Section pill and header of the block editing the drawn path of the trip"
+  },
+  "editTripVehicleTypeLabel": "Vehicle type",
+  "@editTripVehicleTypeLabel": {
+    "description": "Label of the card showing the vehicle type of the edited trip"
+  },
+  "editTripChangeButton": "Change",
+  "@editTripChangeButton": {
+    "description": "Trailing button of the vehicle type card, opening the vehicle type page"
+  },
+  "editTripChangeVehicleTypeTitle": "Change vehicle type",
+  "@editTripChangeVehicleTypeTitle": {
+    "description": "Title of the page selecting a new vehicle type for the trip"
+  },
+  "editTripChangeVehicleTypeWarning": "This is a separate action — it updates on its own.",
+  "@editTripChangeVehicleTypeWarning": {
+    "description": "Banner warning that changing the vehicle type is applied independently of the rest of the form"
+  },
+  "editTripUpdateVehicleTypeButton": "Update vehicle type",
+  "@editTripUpdateVehicleTypeButton": {
+    "description": "Footer button confirming the new vehicle type"
+  },
+  "editTripVehicleTypeCurrent": "Current",
+  "@editTripVehicleTypeCurrent": {
+    "description": "Caption marking the vehicle type the trip currently has"
+  },
+  "editTripStationNameHelper": "Only the station displayed name will be changed, not its position",
+  "@editTripStationNameHelper": {
+    "description": "Helper note under the departure and arrival fields of the edit form"
+  },
+  "editTripAddOperatorButton": "Add operator",
+  "@editTripAddOperatorButton": {
+    "description": "Dashed button under the operator list, opening the operator search"
+  },
+  "editTripModifyPathButton": "Modify the path",
+  "@editTripModifyPathButton": {
+    "description": "Button of the path section, opening the path editor"
+  },
+  "editTripPathDescription": "The drawn path of the trip is edited on its own screen.",
+  "@editTripPathDescription": {
+    "description": "Explanation shown in the path section of the edit form"
+  },
+  "editTripSaveButton": "Save changes",
+  "@editTripSaveButton": {
+    "description": "Sticky footer button of the edit form"
+  },
+  "editTripComingSoon": "This will be available in a future update.",
+  "@editTripComingSoon": {
+    "description": "Message shown when tapping an action of the edit form that is not implemented yet"
   }
 }

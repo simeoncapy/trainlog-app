@@ -453,5 +453,27 @@
 
   "editCopyTripRefreshedWarning": "Ce trajet a été modifié ailleurs. La dernière version du serveur a été chargée.",
   "editCopyServerUnreachableWarning": "Le serveur n'a pas pu être contacté. La version de ce trajet enregistrée sur cet appareil est utilisée.",
-  "editCopyTripUnavailableError": "Ce trajet n'a pas pu être chargé : le serveur n'a pas pu être contacté et aucune copie n'est enregistrée sur cet appareil."
+  "editCopyTripUnavailableError": "Ce trajet n'a pas pu être chargé : le serveur n'a pas pu être contacté et aucune copie n'est enregistrée sur cet appareil.",
+
+  "editTripTitle": "Modifier le trajet",
+  "duplicateTripTitle": "Dupliquer le trajet",
+  "editTripRouteSummary": "{departure} → {arrival} • {date}",
+  "editTripSectionRoute": "Itinéraire",
+  "editTripSectionOperator": "Opérateur",
+  "editTripSectionWhen": "Quand",
+  "editTripSectionDetails": "Détails",
+  "editTripSectionTicket": "Billet",
+  "editTripSectionPath": "Tracé",
+  "editTripVehicleTypeLabel": "Type de véhicule",
+  "editTripChangeButton": "Modifier",
+  "editTripChangeVehicleTypeTitle": "Changer le type de véhicule",
+  "editTripChangeVehicleTypeWarning": "Il s’agit d’une action distincte — elle est appliquée séparément.",
+  "editTripUpdateVehicleTypeButton": "Mettre à jour le type de véhicule",
+  "editTripVehicleTypeCurrent": "Actuel",
+  "editTripStationNameHelper": "Seul le nom affiché de la gare sera modifié, pas sa position",
+  "editTripAddOperatorButton": "Ajouter un opérateur",
+  "editTripModifyPathButton": "Modifier le tracé",
+  "editTripPathDescription": "Le tracé du trajet se modifie sur son propre écran.",
+  "editTripSaveButton": "Enregistrer les modifications",
+  "editTripComingSoon": "Cette fonctionnalité sera disponible dans une prochaine mise à jour."
 }

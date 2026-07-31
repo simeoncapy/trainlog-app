@@ -16,6 +16,8 @@ import 'package:trainlog_app/utils/signed_int_formatter.dart';
 import 'package:trainlog_app/features/trips_add/widgets/relative_date_time_picker_dialog.dart';
 import 'package:trainlog_app/widgets/app_steps_tab_bar.dart';
 import 'package:trainlog_app/widgets/error_banner.dart';
+import 'package:trainlog_app/widgets/trip_form/trip_form_card.dart';
+import 'package:trainlog_app/widgets/trip_form/trip_form_tiles.dart';
 
 /// Step 4 of the "Add Trip" wizard: temporal data of the trip.
 ///
@@ -136,6 +138,13 @@ class _AddTripWhenStepState extends State<AddTripWhenStep> {
         _arrivalDelayMinutes != null || model.delayArrivalTime != null;
     _arrivalDelayCtl.text = _signedText(_arrivalDelayMinutes);
   }
+
+  /// Timezone of an endpoint, falling back to UTC when its position is
+  /// unknown — a trip opened for editing only carries station names when its
+  /// path could not be read.
+  String _timezoneFor(double? lat, double? long) => (lat == null || long == null)
+      ? 'UTC'
+      : tzmap.latLngToTimezoneString(lat, long);
 
   DateTime _convertUtcToTimezone(DateTime utc, String timezone) {
     final location = tz.getLocation(timezone);
@@ -272,93 +281,77 @@ class _AddTripWhenStepState extends State<AddTripWhenStep> {
 
     final label = isDeparture ? loc.addTripDeparture : loc.addTripArrival;
     final timezone = isDeparture
-        ? tzmap.latLngToTimezoneString(
-            model.departureLat!, model.departureLong!)
-        : tzmap.latLngToTimezoneString(model.arrivalLat!, model.arrivalLong!);
+        ? _timezoneFor(model.departureLat, model.departureLong)
+        : _timezoneFor(model.arrivalLat, model.arrivalLong);
     final date = isDeparture ? _departureDate : _arrivalDate;
     final time = isDeparture ? _departureTime : _arrivalTime;
     final delayed = isDeparture ? _departureDelayed : _arrivalDelayed;
 
-    return Container(
+    return TripFormCard(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: theme.cardColor,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: theme.colorScheme.outline),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              _RouteMarker(colour: markerColour, filled: !isDeparture),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  label.toUpperCase(),
-                  style: theme.textTheme.labelSmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 1.2,
-                  ),
-                ),
+      separated: false,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            RouteEndpointMarker(colour: markerColour, filled: !isDeparture),
+            const SizedBox(width: 8),
+            Expanded(child: TripFormSectionLabel(label)),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              flex: 3,
+              child: _PickerField(
+                icon: Icons.calendar_today,
+                text: date != null
+                    ? formatDateTime(context, date, hasTime: false)
+                    : '',
+                onTap: () => _pickScheduledDate(isDeparture, model),
               ),
-            ],
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              flex: 2,
+              child: _PickerField(
+                text: time != null ? time.format(context) : '',
+                mono: true,
+                onTap: () => _pickScheduledTime(isDeparture, model),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        Text(
+          '${loc.addTripTimezoneLabel} $timezone',
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
           ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                flex: 3,
-                child: _PickerField(
-                  icon: Icons.calendar_today,
-                  text: date != null
-                      ? formatDateTime(context, date, hasTime: false)
-                      : '',
-                  onTap: () => _pickScheduledDate(isDeparture, model),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                flex: 2,
-                child: _PickerField(
-                  text: time != null ? time.format(context) : '',
-                  mono: true,
-                  onTap: () => _pickScheduledTime(isDeparture, model),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
+        ),
+        const SizedBox(height: 12),
+        AppStepsTabBar(
+          tabs: [
+            AppStepsTab(label: loc.addTripOnTime),
+            AppStepsTab(label: loc.addTripDelayed),
+          ],
+          selectedIndex: delayed ? 1 : 0,
+          onTabChanged: (index) =>
+              _setDelayed(isDeparture, index == 1, model),
+        ),
+        if (delayed) ...[
+          const SizedBox(height: 8),
           Text(
-            '${loc.addTripTimezoneLabel} $timezone',
+            loc.addTripDelayHelper,
             style: theme.textTheme.bodySmall?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),
           ),
           const SizedBox(height: 12),
-          AppStepsTabBar(
-            tabs: [
-              AppStepsTab(label: loc.addTripOnTime),
-              AppStepsTab(label: loc.addTripDelayed),
-            ],
-            selectedIndex: delayed ? 1 : 0,
-            onTabChanged: (index) =>
-                _setDelayed(isDeparture, index == 1, model),
-          ),
-          if (delayed) ...[
-            const SizedBox(height: 8),
-            Text(
-              loc.addTripDelayHelper,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
-            const SizedBox(height: 12),
-            _delayPanel(isDeparture, model),
-          ],
+          _delayPanel(isDeparture, model),
         ],
-      ),
+      ],
     );
   }
 
@@ -505,10 +498,9 @@ class _AddTripWhenStepState extends State<AddTripWhenStep> {
 
   Future<void> _pickScheduledDate(
       bool isDeparture, TripFormModel model) async {
-    final departureTimezone = tzmap.latLngToTimezoneString(
-        model.departureLat!, model.departureLong!);
-    final arrivalTimezone =
-        tzmap.latLngToTimezoneString(model.arrivalLat!, model.arrivalLong!);
+    final departureTimezone =
+        _timezoneFor(model.departureLat, model.departureLong);
+    final arrivalTimezone = _timezoneFor(model.arrivalLat, model.arrivalLong);
 
     final picked = await showDatePicker(
       context: context,
@@ -540,10 +532,9 @@ class _AddTripWhenStepState extends State<AddTripWhenStep> {
 
   Future<void> _pickScheduledTime(
       bool isDeparture, TripFormModel model) async {
-    final departureTimezone = tzmap.latLngToTimezoneString(
-        model.departureLat!, model.departureLong!);
-    final arrivalTimezone =
-        tzmap.latLngToTimezoneString(model.arrivalLat!, model.arrivalLong!);
+    final departureTimezone =
+        _timezoneFor(model.departureLat, model.departureLong);
+    final arrivalTimezone = _timezoneFor(model.arrivalLat, model.arrivalLong);
 
     final picked = await showTimePicker(
       context: context,
@@ -672,33 +663,25 @@ class _AddTripWhenStepState extends State<AddTripWhenStep> {
     TripFormModel model,
   ) {
     return [
-      Container(
-        decoration: BoxDecoration(
-          color: theme.cardColor,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: theme.colorScheme.outline),
-        ),
-        child: Column(
-          children: [
-            _CardLineItem(
-              icon: Icons.calendar_today,
-              label: loc.addTripDateTypeDate,
-              value: Text(
-                formatDateTime(
-                  context,
-                  _departureDateOnly ?? DateTime.now(),
-                  hasTime: false,
-                ),
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+      TripFormCard(
+        children: [
+          _CardLineItem(
+            icon: Icons.calendar_today,
+            label: loc.addTripDateTypeDate,
+            value: Text(
+              formatDateTime(
+                context,
+                _departureDateOnly ?? DateTime.now(),
+                hasTime: false,
               ),
-              onTap: () => _pickDateOnly(model),
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
             ),
-            Divider(height: 1, color: theme.dividerColor),
-            _durationLineItem(loc, theme, model, DateType.date),
-          ],
-        ),
+            onTap: () => _pickDateOnly(model),
+          ),
+          _durationLineItem(loc, theme, model, DateType.date),
+        ],
       ),
       const SizedBox(height: 12),
       Center(
@@ -746,14 +729,7 @@ class _AddTripWhenStepState extends State<AddTripWhenStep> {
     TripFormModel model,
   ) {
     return [
-      Text(
-        loc.addTripRoughlyWhen.toUpperCase(),
-        style: theme.textTheme.labelSmall?.copyWith(
-          color: theme.colorScheme.onSurfaceVariant,
-          fontWeight: FontWeight.w600,
-          letterSpacing: 1.2,
-        ),
-      ),
+      TripFormSectionLabel(loc.addTripRoughlyWhen),
       const SizedBox(height: 8),
       AppStepsTabBar(
         fullWidth: true,
@@ -768,13 +744,8 @@ class _AddTripWhenStepState extends State<AddTripWhenStep> {
         },
       ),
       const SizedBox(height: 16),
-      Container(
-        decoration: BoxDecoration(
-          color: theme.cardColor,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: theme.colorScheme.outline),
-        ),
-        child: _durationLineItem(loc, theme, model, DateType.unknown),
+      TripFormCard(
+        children: [_durationLineItem(loc, theme, model, DateType.unknown)],
       ),
     ];
   }
@@ -828,28 +799,6 @@ class _AddTripWhenStepState extends State<AddTripWhenStep> {
 
     setState(() {});
     model.setDuration(type, result.$1, result.$2);
-  }
-}
-
-/// Trip route marker matching the route step: hollow rounded square for the
-/// departure, filled with the vehicle colour for the arrival.
-class _RouteMarker extends StatelessWidget {
-  const _RouteMarker({required this.colour, required this.filled});
-
-  final Color colour;
-  final bool filled;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 14,
-      height: 14,
-      decoration: BoxDecoration(
-        color: filled ? colour : Colors.transparent,
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: colour, width: 2.5),
-      ),
-    );
   }
 }
 
@@ -969,14 +918,7 @@ class _CardLineItem extends StatelessWidget {
               children: [
                 Icon(icon, size: 14, color: theme.colorScheme.primary),
                 const SizedBox(width: 6),
-                Text(
-                  label.toUpperCase(),
-                  style: theme.textTheme.labelSmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 1.2,
-                  ),
-                ),
+                TripFormSectionLabel(label),
               ],
             ),
             const SizedBox(height: 6),

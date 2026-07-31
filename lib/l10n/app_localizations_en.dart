@@ -1547,4 +1547,72 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get editCopyTripUnavailableError =>
       'This trip could not be loaded: the server could not be reached and no copy is saved on this device.';
+
+  @override
+  String get editTripTitle => 'Edit trip';
+
+  @override
+  String get duplicateTripTitle => 'Duplicate trip';
+
+  @override
+  String editTripRouteSummary(String departure, String arrival, String date) {
+    return '$departure → $arrival • $date';
+  }
+
+  @override
+  String get editTripSectionRoute => 'Route';
+
+  @override
+  String get editTripSectionOperator => 'Operator';
+
+  @override
+  String get editTripSectionWhen => 'When';
+
+  @override
+  String get editTripSectionDetails => 'Details';
+
+  @override
+  String get editTripSectionTicket => 'Ticket';
+
+  @override
+  String get editTripSectionPath => 'Path';
+
+  @override
+  String get editTripVehicleTypeLabel => 'Vehicle type';
+
+  @override
+  String get editTripChangeButton => 'Change';
+
+  @override
+  String get editTripChangeVehicleTypeTitle => 'Change vehicle type';
+
+  @override
+  String get editTripChangeVehicleTypeWarning =>
+      'This is a separate action — it updates on its own.';
+
+  @override
+  String get editTripUpdateVehicleTypeButton => 'Update vehicle type';
+
+  @override
+  String get editTripVehicleTypeCurrent => 'Current';
+
+  @override
+  String get editTripStationNameHelper =>
+      'Only the station displayed name will be changed, not its position';
+
+  @override
+  String get editTripAddOperatorButton => 'Add operator';
+
+  @override
+  String get editTripModifyPathButton => 'Modify the path';
+
+  @override
+  String get editTripPathDescription =>
+      'The drawn path of the trip is edited on its own screen.';
+
+  @override
+  String get editTripSaveButton => 'Save changes';
+
+  @override
+  String get editTripComingSoon => 'This will be available in a future update.';
 }

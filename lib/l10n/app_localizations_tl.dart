@@ -1530,4 +1530,73 @@ class AppLocalizationsTl extends AppLocalizations {
   @override
   String get editCopyTripUnavailableError =>
       'Hindi ma-load ang biyaheng ito: hindi maabot ang server at walang kopyang naka-save sa device na ito.';
+
+  @override
+  String get editTripTitle => 'I-edit ang biyahe';
+
+  @override
+  String get duplicateTripTitle => 'I-duplicate ang biyahe';
+
+  @override
+  String editTripRouteSummary(String departure, String arrival, String date) {
+    return '$departure → $arrival • $date';
+  }
+
+  @override
+  String get editTripSectionRoute => 'Ruta';
+
+  @override
+  String get editTripSectionOperator => 'Operator';
+
+  @override
+  String get editTripSectionWhen => 'Kailan';
+
+  @override
+  String get editTripSectionDetails => 'Mga detalye';
+
+  @override
+  String get editTripSectionTicket => 'Tiket';
+
+  @override
+  String get editTripSectionPath => 'Landas';
+
+  @override
+  String get editTripVehicleTypeLabel => 'Uri ng sasakyan';
+
+  @override
+  String get editTripChangeButton => 'Baguhin';
+
+  @override
+  String get editTripChangeVehicleTypeTitle => 'Baguhin ang uri ng sasakyan';
+
+  @override
+  String get editTripChangeVehicleTypeWarning =>
+      'Hiwalay itong aksyon — nag-a-update ito nang mag-isa.';
+
+  @override
+  String get editTripUpdateVehicleTypeButton => 'I-update ang uri ng sasakyan';
+
+  @override
+  String get editTripVehicleTypeCurrent => 'Kasalukuyan';
+
+  @override
+  String get editTripStationNameHelper =>
+      'Ang ipinapakitang pangalan lang ng istasyon ang mababago, hindi ang posisyon nito';
+
+  @override
+  String get editTripAddOperatorButton => 'Magdagdag ng operator';
+
+  @override
+  String get editTripModifyPathButton => 'Baguhin ang landas';
+
+  @override
+  String get editTripPathDescription =>
+      'Ang iginuhit na landas ng biyahe ay ine-edit sa sarili nitong screen.';
+
+  @override
+  String get editTripSaveButton => 'I-save ang mga pagbabago';
+
+  @override
+  String get editTripComingSoon =>
+      'Magiging available ito sa isang susunod na update.';
 }

@@ -454,5 +454,27 @@
 
   "editCopyTripRefreshedWarning": "この旅は別の場所で変更されました。サーバーから最新版を読み込みました。",
   "editCopyServerUnreachableWarning": "サーバーに接続できませんでした。この端末に保存されているこの旅の版を使用します。",
-  "editCopyTripUnavailableError": "この旅を読み込めませんでした。サーバーに接続できず、この端末にも保存された版がありません。"
+  "editCopyTripUnavailableError": "この旅を読み込めませんでした。サーバーに接続できず、この端末にも保存された版がありません。",
+
+  "editTripTitle": "旅を編集",
+  "duplicateTripTitle": "旅を複製",
+  "editTripRouteSummary": "{departure} → {arrival} • {date}",
+  "editTripSectionRoute": "経路",
+  "editTripSectionOperator": "運行会社",
+  "editTripSectionWhen": "日時",
+  "editTripSectionDetails": "詳細",
+  "editTripSectionTicket": "チケット",
+  "editTripSectionPath": "ルート",
+  "editTripVehicleTypeLabel": "乗り物の種類",
+  "editTripChangeButton": "変更",
+  "editTripChangeVehicleTypeTitle": "乗り物の種類を変更",
+  "editTripChangeVehicleTypeWarning": "これは別の操作です — 単独で更新されます。",
+  "editTripUpdateVehicleTypeButton": "乗り物の種類を更新",
+  "editTripVehicleTypeCurrent": "現在",
+  "editTripStationNameHelper": "駅の表示名のみが変更され、位置は変わりません",
+  "editTripAddOperatorButton": "運行会社を追加",
+  "editTripModifyPathButton": "ルートを編集",
+  "editTripPathDescription": "旅のルートは専用の画面で編集します。",
+  "editTripSaveButton": "変更を保存",
+  "editTripComingSoon": "この機能は今後のアップデートで利用できるようになります。"
 }

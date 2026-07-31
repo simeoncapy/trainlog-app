@@ -612,5 +612,27 @@
 
   "editCopyTripRefreshedWarning": "Nabago ang biyaheng ito sa ibang lugar. Na-load ang pinakabagong bersyon mula sa server.",
   "editCopyServerUnreachableWarning": "Hindi maabot ang server. Ginagamit ang bersyon ng biyaheng ito na naka-save sa device na ito.",
-  "editCopyTripUnavailableError": "Hindi ma-load ang biyaheng ito: hindi maabot ang server at walang kopyang naka-save sa device na ito."
+  "editCopyTripUnavailableError": "Hindi ma-load ang biyaheng ito: hindi maabot ang server at walang kopyang naka-save sa device na ito.",
+
+  "editTripTitle": "I-edit ang biyahe",
+  "duplicateTripTitle": "I-duplicate ang biyahe",
+  "editTripRouteSummary": "{departure} → {arrival} • {date}",
+  "editTripSectionRoute": "Ruta",
+  "editTripSectionOperator": "Operator",
+  "editTripSectionWhen": "Kailan",
+  "editTripSectionDetails": "Mga detalye",
+  "editTripSectionTicket": "Tiket",
+  "editTripSectionPath": "Landas",
+  "editTripVehicleTypeLabel": "Uri ng sasakyan",
+  "editTripChangeButton": "Baguhin",
+  "editTripChangeVehicleTypeTitle": "Baguhin ang uri ng sasakyan",
+  "editTripChangeVehicleTypeWarning": "Hiwalay itong aksyon — nag-a-update ito nang mag-isa.",
+  "editTripUpdateVehicleTypeButton": "I-update ang uri ng sasakyan",
+  "editTripVehicleTypeCurrent": "Kasalukuyan",
+  "editTripStationNameHelper": "Ang ipinapakitang pangalan lang ng istasyon ang mababago, hindi ang posisyon nito",
+  "editTripAddOperatorButton": "Magdagdag ng operator",
+  "editTripModifyPathButton": "Baguhin ang landas",
+  "editTripPathDescription": "Ang iginuhit na landas ng biyahe ay ine-edit sa sarili nitong screen.",
+  "editTripSaveButton": "I-save ang mga pagbabago",
+  "editTripComingSoon": "Magiging available ito sa isang susunod na update."
 }

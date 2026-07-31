@@ -1513,4 +1513,69 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get editCopyTripUnavailableError =>
       'この旅を読み込めませんでした。サーバーに接続できず、この端末にも保存された版がありません。';
+
+  @override
+  String get editTripTitle => '旅を編集';
+
+  @override
+  String get duplicateTripTitle => '旅を複製';
+
+  @override
+  String editTripRouteSummary(String departure, String arrival, String date) {
+    return '$departure → $arrival • $date';
+  }
+
+  @override
+  String get editTripSectionRoute => '経路';
+
+  @override
+  String get editTripSectionOperator => '運行会社';
+
+  @override
+  String get editTripSectionWhen => '日時';
+
+  @override
+  String get editTripSectionDetails => '詳細';
+
+  @override
+  String get editTripSectionTicket => 'チケット';
+
+  @override
+  String get editTripSectionPath => 'ルート';
+
+  @override
+  String get editTripVehicleTypeLabel => '乗り物の種類';
+
+  @override
+  String get editTripChangeButton => '変更';
+
+  @override
+  String get editTripChangeVehicleTypeTitle => '乗り物の種類を変更';
+
+  @override
+  String get editTripChangeVehicleTypeWarning => 'これは別の操作です — 単独で更新されます。';
+
+  @override
+  String get editTripUpdateVehicleTypeButton => '乗り物の種類を更新';
+
+  @override
+  String get editTripVehicleTypeCurrent => '現在';
+
+  @override
+  String get editTripStationNameHelper => '駅の表示名のみが変更され、位置は変わりません';
+
+  @override
+  String get editTripAddOperatorButton => '運行会社を追加';
+
+  @override
+  String get editTripModifyPathButton => 'ルートを編集';
+
+  @override
+  String get editTripPathDescription => '旅のルートは専用の画面で編集します。';
+
+  @override
+  String get editTripSaveButton => '変更を保存';
+
+  @override
+  String get editTripComingSoon => 'この機能は今後のアップデートで利用できるようになります。';
 }

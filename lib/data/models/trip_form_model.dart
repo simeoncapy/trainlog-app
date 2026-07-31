@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:trainlog_app/data/models/polyline_entry.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:timezone/timezone.dart' as tz;
@@ -8,6 +10,103 @@ import 'package:trainlog_app/widgets/trip_visibility_selector.dart';
 import 'package:trainlog_app/widgets/vehicle_energy_selector.dart';
 
 class TripFormModel extends ChangeNotifier {
+  TripFormModel();
+
+  /// Seeds a form with an existing trip, for the edit/duplicate page.
+  ///
+  /// Only what the form edits is copied. Endpoint coordinates are recovered
+  /// from the trip path — a trip carries station names, not their position —
+  /// so the date pickers can resolve the endpoint timezones.
+  factory TripFormModel.fromTrip(Trips trip) {
+    final model = TripFormModel();
+
+    model.vehicleType = trip.type;
+
+    final (departure, arrival) = _endpointsOf(trip);
+    model.departureStationName = trip.originStation;
+    model.departureStationBaseName = trip.originStation;
+    model.departureLat = departure?.latitude;
+    model.departureLong = departure?.longitude;
+
+    model.arrivalStationName = trip.destinationStation;
+    model.arrivalStationBaseName = trip.destinationStation;
+    model.arrivalLat = arrival?.latitude;
+    model.arrivalLong = arrival?.longitude;
+
+    model.selectedOperators = trip.operatorName
+        .split(',')
+        .map((op) => op.trim())
+        .where((op) => op.isNotEmpty)
+        .toList();
+
+    // --- when ---
+    final manualDuration = trip.manualTripDuration?.round();
+    final durationParts = manualDuration == null
+        ? null
+        : (manualDuration ~/ 3600, (manualDuration % 3600) ~/ 60);
+
+    if (trip.isUnknownPastFuture) {
+      model.dateType = DateType.unknown;
+      model.isPast = trip.startDatetime == unknownPast;
+      if (durationParts != null) {
+        model.duration[DateType.unknown] = durationParts;
+      }
+    } else if (trip.isDateOnly) {
+      model.dateType = DateType.date;
+      model.departureDayDateOnly = trip.startDatetime;
+      if (durationParts != null) {
+        model.duration[DateType.date] = durationParts;
+      }
+    } else {
+      model.dateType = DateType.precise;
+      model.departureDate = trip.utcStartDatetime ?? trip.startDatetime;
+      model.departureDateLocal = trip.startDatetime;
+      model.hasDepartureDateTime = (depDate: true, depTime: true);
+      model.arrivalDate = trip.utcEndDatetime ?? trip.endDatetime;
+      model.arrivalDateLocal = trip.endDatetime;
+      model.hasArrivalDateTime = (arrDate: true, arrTime: true);
+    }
+
+    model.delayDepartureMinute = trip.departureDelayInMinutes;
+    model.delayDepartureTime = trip.departureDelayDate;
+    model.delayArrivalMinute = trip.arrivalDelayInMinutes;
+    model.delayArrivalTime = trip.arrivalDelayDate;
+
+    // --- details & ticket ---
+    model.line = _orNull(trip.lineName);
+    model.material = _orNull(trip.materialType);
+    model.registration = _orNull(trip.reg);
+    model.seat = _orNull(trip.seat);
+    model.notes = _orNull(trip.notes);
+
+    model.price = trip.price;
+    model.currencyCode = _orNull(trip.currency);
+    model.purchaseDate = trip.purchasingDate;
+    model.tripVisibility = trip.visibility;
+
+    // Seeding is not a user edit.
+    model.initState();
+    return model;
+  }
+
+  /// First and last point of the trip path, i.e. where the trip departs from
+  /// and arrives at. Both are null when the trip carries no usable path.
+  static (LatLng?, LatLng?) _endpointsOf(Trips trip) {
+    var points = trip.pathPoints;
+    if (points == null && trip.path.isNotEmpty) {
+      try {
+        points = PolylineTools.decodePath(trip.path);
+      } catch (e) {
+        debugPrint('TripFormModel: could not decode the path of ${trip.uid}: $e');
+      }
+    }
+    if (points == null || points.isEmpty) return (null, null);
+    return (points.first, points.last);
+  }
+
+  static String? _orNull(String? value) =>
+      (value == null || value.isEmpty) ? null : value;
+
   bool _hasBeenChanged = false;
   // STEP 1 — Basic info
   bool highlightBasicsErrors = false;
@@ -250,6 +349,21 @@ class TripFormModel extends ChangeNotifier {
     departureLong = long;
     departureAddress = address;
     departureGeoMode = geoMode ?? false;
+    formDataChanged();
+    notifyListeners();
+  }
+
+  /// Renames the departure without touching its position — what the edit
+  /// form's route section offers.
+  void setDepartureDisplayName(String? name) {
+    departureStationName = name;
+    formDataChanged();
+    notifyListeners();
+  }
+
+  /// Renames the arrival without touching its position.
+  void setArrivalDisplayName(String? name) {
+    arrivalStationName = name;
     formDataChanged();
     notifyListeners();
   }

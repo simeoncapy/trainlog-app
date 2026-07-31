@@ -10,6 +10,9 @@ import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/utils/number_formatter.dart';
+import 'package:trainlog_app/widgets/trip_form/currency_button.dart';
+import 'package:trainlog_app/widgets/trip_form/trip_form_card.dart';
+import 'package:trainlog_app/widgets/trip_form/trip_form_tiles.dart';
 import 'package:trainlog_app/widgets/trip_visibility_selector.dart';
 import 'package:trainlog_app/widgets/vehicle_energy_selector.dart';
 
@@ -112,17 +115,6 @@ class _AddTripTicketStepState extends State<AddTripTicketStep> {
     }
   }
 
-  Widget _sectionLabel(ThemeData theme, String text) {
-    return Text(
-      text.toUpperCase(),
-      style: theme.textTheme.labelSmall?.copyWith(
-        color: theme.colorScheme.onSurfaceVariant,
-        fontWeight: FontWeight.w600,
-        letterSpacing: 1.2,
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
@@ -146,102 +138,93 @@ class _AddTripTicketStepState extends State<AddTripTicketStep> {
           const SizedBox(height: 20),
 
           // --- Ticket ---
-          _sectionLabel(theme, '${loc.addTripTicketTitle} (${loc.addTripOptional})'),
+          TripFormSectionLabel(
+              '${loc.addTripTicketTitle} (${loc.addTripOptional})'),
           const SizedBox(height: 8),
-          Container(
-            decoration: BoxDecoration(
-              color: theme.cardColor,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: theme.colorScheme.outline),
-            ),
-            child: Column(
-              children: [
-                _TicketLineItem(
-                  icon: Icons.sell_outlined,
-                  label: loc.addTripPrice,
-                  hasValue: model.price != null,
-                  value: TextFormField(
-                    initialValue: model.price?.toString(),
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [DecimalTextInputFormatter()],
-                    style: AppTheme.monoFont.copyWith(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: theme.colorScheme.onSurface,
-                    ),
-                    decoration: const InputDecoration(
-                      isCollapsed: true,
-                      filled: false,
-                      border: InputBorder.none,
-                      enabledBorder: InputBorder.none,
-                      focusedBorder: InputBorder.none,
-                    ),
-                    onChanged: (value) {
-                      setState(() {
-                        model.price =
-                            double.tryParse(value.replaceAll(',', '.'));
-                      });
-                    },
+          TripFormCard(
+            children: [
+              TripFormValueTile(
+                icon: Icons.sell_outlined,
+                label: loc.addTripPrice,
+                hasValue: model.price != null,
+                value: TextFormField(
+                  initialValue: model.price?.toString(),
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [DecimalTextInputFormatter()],
+                  style: AppTheme.monoFont.copyWith(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: theme.colorScheme.onSurface,
                   ),
-                  trailing: _CurrencyButton(
-                    code: _currencyCode,
-                    onTap: () => _pickCurrency(model, trainlog),
+                  decoration: const InputDecoration(
+                    isCollapsed: true,
+                    filled: false,
+                    border: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                  ),
+                  onChanged: (value) {
+                    setState(() {
+                      model.price = double.tryParse(value.replaceAll(',', '.'));
+                    });
+                  },
+                ),
+                trailing: CurrencyButton(
+                  code: _currencyCode,
+                  onTap: () => _pickCurrency(model, trainlog),
+                ),
+              ),
+              TripFormValueTile(
+                icon: Icons.calendar_today,
+                label: loc.addTripPurchaseDate,
+                hasValue: model.purchaseDate != null,
+                value: Text(
+                  _selectedPurchaseDate != null
+                      ? formatDateTime(context, _selectedPurchaseDate!,
+                          hasTime: false)
+                      : loc.addTripDurationNotSet,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: _selectedPurchaseDate != null
+                        ? theme.colorScheme.onSurface
+                        : theme.colorScheme.onSurfaceVariant,
                   ),
                 ),
-                Divider(height: 1, color: theme.dividerColor),
-                _TicketLineItem(
-                  icon: Icons.calendar_today,
-                  label: loc.addTripPurchaseDate,
-                  hasValue: model.purchaseDate != null,
-                  value: Text(
-                    _selectedPurchaseDate != null
-                        ? formatDateTime(context, _selectedPurchaseDate!,
-                            hasTime: false)
-                        : loc.addTripDurationNotSet,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: _selectedPurchaseDate != null
-                          ? theme.colorScheme.onSurface
-                          : theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  trailing: _selectedPurchaseDate == null
-                      ? TextButton(
-                          style: TextButton.styleFrom(
-                            visualDensity: VisualDensity.compact,
-                            minimumSize: Size.zero,
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 6),
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          ),
-                          onPressed: () {
-                            final now = DateTime.now();
-                            final today =
-                                DateTime(now.year, now.month, now.day);
-                            setState(() => _selectedPurchaseDate = today);
-                            model.purchaseDate = today;
-                          },
-                          child: Text(loc.addTripTodayButton),
-                        )
-                      : IconButton(
-                          icon: const Icon(Icons.close),
-                          iconSize: 18,
+                trailing: _selectedPurchaseDate == null
+                    ? TextButton(
+                        style: TextButton.styleFrom(
                           visualDensity: VisualDensity.compact,
-                          color: theme.colorScheme.onSurfaceVariant,
-                          onPressed: () {
-                            setState(() => _selectedPurchaseDate = null);
-                            model.purchaseDate = null;
-                          },
+                          minimumSize: Size.zero,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 6),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         ),
-                  onTap: () => _pickPurchaseDate(model),
-                ),
-              ],
-            ),
+                        onPressed: () {
+                          final now = DateTime.now();
+                          final today = DateTime(now.year, now.month, now.day);
+                          setState(() => _selectedPurchaseDate = today);
+                          model.purchaseDate = today;
+                        },
+                        child: Text(loc.addTripTodayButton),
+                      )
+                    : IconButton(
+                        icon: const Icon(Icons.close),
+                        iconSize: 18,
+                        visualDensity: VisualDensity.compact,
+                        color: theme.colorScheme.onSurfaceVariant,
+                        onPressed: () {
+                          setState(() => _selectedPurchaseDate = null);
+                          model.purchaseDate = null;
+                        },
+                      ),
+                onTap: () => _pickPurchaseDate(model),
+              ),
+            ],
           ),
           const SizedBox(height: 20),
 
           // --- Energy ---
-          _sectionLabel(theme, loc.energy),
+          TripFormSectionLabel(loc.energy),
           const SizedBox(height: 8),
           ChoiceCardSelector<EnergyType>(
             options: [
@@ -267,7 +250,7 @@ class _AddTripTicketStepState extends State<AddTripTicketStep> {
           const SizedBox(height: 20),
 
           // --- Visibility ---
-          _sectionLabel(theme, loc.visibility),
+          TripFormSectionLabel(loc.visibility),
           const SizedBox(height: 8),
           ChoiceCardSelector<TripVisibility>(
             options: [
@@ -282,124 +265,6 @@ class _AddTripTicketStepState extends State<AddTripTicketStep> {
             onChanged: model.setVisibility,
           ),
         ],
-      ),
-    );
-  }
-}
-
-/// One line item of the ticket card: leading icon (tinted with the primary
-/// colour once the item has a value), uppercase label, the value widget
-/// underneath and an optional trailing widget.
-class _TicketLineItem extends StatelessWidget {
-  const _TicketLineItem({
-    required this.icon,
-    required this.label,
-    required this.value,
-    required this.hasValue,
-    this.trailing,
-    this.onTap,
-  });
-
-  final IconData icon;
-  final String label;
-  final Widget value;
-  final bool hasValue;
-  final Widget? trailing;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    final content = Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Row(
-        children: [
-          Icon(
-            icon,
-            size: 18,
-            color: hasValue
-                ? theme.colorScheme.primary
-                : theme.colorScheme.onSurfaceVariant,
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label.toUpperCase(),
-                  style: theme.textTheme.labelSmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 1.2,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                value,
-              ],
-            ),
-          ),
-          if (trailing != null) ...[
-            const SizedBox(width: 12),
-            trailing!,
-          ],
-        ],
-      ),
-    );
-
-    if (onTap == null) return content;
-
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: content,
-    );
-  }
-}
-
-/// Trailing button of the price row showing the selected currency code;
-/// opens the currency picker.
-class _CurrencyButton extends StatelessWidget {
-  const _CurrencyButton({required this.code, required this.onTap});
-
-  final String code;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Material(
-      color: theme.inputDecorationTheme.fillColor,
-      borderRadius: BorderRadius.circular(10),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(10),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: theme.colorScheme.outline),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                code,
-                style: theme.textTheme.labelLarge?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const SizedBox(width: 2),
-              Icon(
-                Icons.expand_more,
-                size: 16,
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }
