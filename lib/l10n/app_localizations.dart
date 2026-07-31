@@ -2597,6 +2597,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Bug fixes'**
   String get changelogTypeFix;
+
+  /// Banner on the edit/duplicate page when the server held a newer version of the trip than the local cache, which has been refreshed with it
+  ///
+  /// In en, this message translates to:
+  /// **'This trip has been modified elsewhere. The latest version from the server has been loaded.'**
+  String get editCopyTripRefreshedWarning;
+
+  /// Banner on the edit/duplicate page when the server is unreachable and the locally cached trip is used instead
+  ///
+  /// In en, this message translates to:
+  /// **'The server could not be reached. The version of this trip saved on this device is being used.'**
+  String get editCopyServerUnreachableWarning;
+
+  /// Banner on the edit/duplicate page when the server is unreachable and there is no locally cached copy of the trip either
+  ///
+  /// In en, this message translates to:
+  /// **'This trip could not be loaded: the server could not be reached and no copy is saved on this device.'**
+  String get editCopyTripUnavailableError;
 }
 
 class _AppLocalizationsDelegate

@@ -277,6 +277,16 @@ class TripsProvider extends ChangeNotifier {
     }
   }
 
+  /// Reads a single trip from the local cache. Null when the repository has
+  /// not been loaded yet or the trip is unknown locally.
+  Future<Trips?> getTripById(int tripId) async {
+    final repo = _repository;
+    if (repo == null) return null;
+    return repo.getTripById(tripId);
+  }
+
+  /// Inserts [trip], replacing any row that already carries the same uid — so
+  /// this doubles as the "refresh one cached trip" entry point.
   Future<void> insertTrip(Trips trip, {bool setLoading = false}) async {
     if(_repository == null) return;
     await _repository!.insertTrip(trip);

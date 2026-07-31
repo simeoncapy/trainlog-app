@@ -1501,4 +1501,16 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get changelogTypeFix => '不具合修正';
+
+  @override
+  String get editCopyTripRefreshedWarning =>
+      'この旅は別の場所で変更されました。サーバーから最新版を読み込みました。';
+
+  @override
+  String get editCopyServerUnreachableWarning =>
+      'サーバーに接続できませんでした。この端末に保存されているこの旅の版を使用します。';
+
+  @override
+  String get editCopyTripUnavailableError =>
+      'この旅を読み込めませんでした。サーバーに接続できず、この端末にも保存された版がありません。';
 }

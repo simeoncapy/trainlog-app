@@ -449,5 +449,9 @@
   "changelogTypeFeature": "Nouvelles fonctionnalités",
   "changelogTypeMinor": "Améliorations",
   "changelogTypeOther": "Autres changements",
-  "changelogTypeFix": "Corrections de bugs"
+  "changelogTypeFix": "Corrections de bugs",
+
+  "editCopyTripRefreshedWarning": "Ce trajet a été modifié ailleurs. La dernière version du serveur a été chargée.",
+  "editCopyServerUnreachableWarning": "Le serveur n'a pas pu être contacté. La version de ce trajet enregistrée sur cet appareil est utilisée.",
+  "editCopyTripUnavailableError": "Ce trajet n'a pas pu être chargé : le serveur n'a pas pu être contacté et aucune copie n'est enregistrée sur cet appareil."
 }

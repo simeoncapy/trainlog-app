@@ -7,15 +7,15 @@ class AdaptivePageRoute {
     BuildContext context,
     WidgetBuilder builder,
   ) {
-    if (AppPlatform.isApple) {
-      Navigator.of(context).push(
-        CupertinoPageRoute(builder: builder),
-      );
-    } else {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: builder),
-      );
-    }
+    Navigator.of(context).push(route(builder));
+  }
+
+  /// The platform's page route, for callers that already hold a
+  /// [NavigatorState] — e.g. when the pushing widget's own context is about to
+  /// go away (a modal sheet closing itself before opening a page).
+  static Route<T> route<T>(WidgetBuilder builder) {
+    return AppPlatform.isApple
+        ? CupertinoPageRoute<T>(builder: builder)
+        : MaterialPageRoute<T>(builder: builder);
   }
 }

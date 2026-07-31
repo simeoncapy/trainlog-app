@@ -608,5 +608,9 @@
   "changelogTypeFeature": "Mga bagong feature",
   "changelogTypeMinor": "Mga pagpapahusay",
   "changelogTypeOther": "Iba pang pagbabago",
-  "changelogTypeFix": "Mga bug fix"
+  "changelogTypeFix": "Mga bug fix",
+
+  "editCopyTripRefreshedWarning": "Nabago ang biyaheng ito sa ibang lugar. Na-load ang pinakabagong bersyon mula sa server.",
+  "editCopyServerUnreachableWarning": "Hindi maabot ang server. Ginagamit ang bersyon ng biyaheng ito na naka-save sa device na ito.",
+  "editCopyTripUnavailableError": "Hindi ma-load ang biyaheng ito: hindi maabot ang server at walang kopyang naka-save sa device na ito."
 }

@@ -1535,4 +1535,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get changelogTypeFix => 'Bug fixes';
+
+  @override
+  String get editCopyTripRefreshedWarning =>
+      'This trip has been modified elsewhere. The latest version from the server has been loaded.';
+
+  @override
+  String get editCopyServerUnreachableWarning =>
+      'The server could not be reached. The version of this trip saved on this device is being used.';
+
+  @override
+  String get editCopyTripUnavailableError =>
+      'This trip could not be loaded: the server could not be reached and no copy is saved on this device.';
 }

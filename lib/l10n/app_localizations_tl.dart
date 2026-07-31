@@ -1518,4 +1518,16 @@ class AppLocalizationsTl extends AppLocalizations {
 
   @override
   String get changelogTypeFix => 'Mga bug fix';
+
+  @override
+  String get editCopyTripRefreshedWarning =>
+      'Nabago ang biyaheng ito sa ibang lugar. Na-load ang pinakabagong bersyon mula sa server.';
+
+  @override
+  String get editCopyServerUnreachableWarning =>
+      'Hindi maabot ang server. Ginagamit ang bersyon ng biyaheng ito na naka-save sa device na ito.';
+
+  @override
+  String get editCopyTripUnavailableError =>
+      'Hindi ma-load ang biyaheng ito: hindi maabot ang server at walang kopyang naka-save sa device na ito.';
 }

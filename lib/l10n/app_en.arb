@@ -811,5 +811,18 @@
   "changelogTypeFeature": "New features",
   "changelogTypeMinor": "Improvements",
   "changelogTypeOther": "Other changes",
-  "changelogTypeFix": "Bug fixes"
+  "changelogTypeFix": "Bug fixes",
+
+  "editCopyTripRefreshedWarning": "This trip has been modified elsewhere. The latest version from the server has been loaded.",
+  "@editCopyTripRefreshedWarning": {
+    "description": "Banner on the edit/duplicate page when the server held a newer version of the trip than the local cache, which has been refreshed with it"
+  },
+  "editCopyServerUnreachableWarning": "The server could not be reached. The version of this trip saved on this device is being used.",
+  "@editCopyServerUnreachableWarning": {
+    "description": "Banner on the edit/duplicate page when the server is unreachable and the locally cached trip is used instead"
+  },
+  "editCopyTripUnavailableError": "This trip could not be loaded: the server could not be reached and no copy is saved on this device.",
+  "@editCopyTripUnavailableError": {
+    "description": "Banner on the edit/duplicate page when the server is unreachable and there is no locally cached copy of the trip either"
+  }
 }
