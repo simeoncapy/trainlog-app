@@ -33,6 +33,32 @@ class IncrementalTripsResult {
       IncrementalTripsResult(updates: [], serverTripIds: [], lastLocal: null);
 }
 
+/// Parsed `/u/<user>/{edit,copy}/<id>` payload.
+class TripEditCopyData {
+  /// The trip shaped for the form that is about to be shown. Identical to
+  /// [serverTrip] in [EditCopy.edit]; in [EditCopy.copy] the uid and the
+  /// created/last-modified stamps are stripped because it becomes a new trip.
+  final Trips formTrip;
+
+  /// The trip as the server currently stores it, always keyed on the requested
+  /// trip id — this is what the local cache should be refreshed with.
+  final Trips serverTrip;
+
+  /// `last_modified` the server reported for the trip, when it sent one.
+  final DateTime? serverLastModified;
+
+  /// True when the server's copy is newer than the `lastUpdate` the caller
+  /// passed in. Null when either side has no timestamp to compare.
+  final bool? hasBeenEdited;
+
+  const TripEditCopyData({
+    required this.formTrip,
+    required this.serverTrip,
+    required this.serverLastModified,
+    required this.hasBeenEdited,
+  });
+}
+
 /// Trip data domain: fetching the user's trip exports/paths and deleting trips.
 class TripsApi {
   final TrainlogHttpClient _client;
@@ -203,10 +229,16 @@ class TripsApi {
     return ok;
   }
 
-  
-  Future<(Trips, bool?)> fetchTripEditCopy(
-    String username, 
-    int tripId, 
+
+  /// Fetches the `/u/<user>/{edit,copy}/<id>` context for [tripId].
+  ///
+  /// [lastUpdate] is the `last_modified` of the copy the caller already has
+  /// cached; it only drives [TripEditCopyData.hasBeenEdited] and never changes
+  /// what the server returns. Throws when the endpoint cannot be reached or
+  /// sends no body — callers that want to fall back on cached data must catch.
+  Future<TripEditCopyData> fetchTripEditCopy(
+    String username,
+    int tripId,
     EditCopy editCopy,
     {DateTime? lastUpdate}
   ) async {
@@ -223,10 +255,28 @@ class TripsApi {
           ? null
           : lastUpdate.isBefore(lastModified);
 
-      return (Trips.fromJson(
-        _editCopyToTripJson(data, trip, editCopy),
+      // The copy shape strips the identity fields (a copy is a new trip), so
+      // the cache-facing trip is always parsed with the edit shape and pinned
+      // to the requested id — the payload describes that trip either way.
+      final serverTrip = Trips.fromJson(
+        {
+          ..._editCopyToTripJson(data, trip, EditCopy.edit),
+          'uid': tripId.toString(),
+        },
         pathAsGooglePolyline: false,
-      ), hasBeenEdited);
+      );
+
+      return TripEditCopyData(
+        formTrip: editCopy == EditCopy.edit
+            ? serverTrip
+            : Trips.fromJson(
+                _editCopyToTripJson(data, trip, editCopy),
+                pathAsGooglePolyline: false,
+              ),
+        serverTrip: serverTrip,
+        serverLastModified: lastModified,
+        hasBeenEdited: hasBeenEdited,
+      );
     } catch (e) {
       debugPrint('error fetching $path: $e');
       rethrow;

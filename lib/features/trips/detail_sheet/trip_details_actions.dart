@@ -4,11 +4,14 @@ import 'package:share_plus/share_plus.dart';
 import 'package:trainlog_app/app/app_globals.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/features/trips/detail_sheet/trip_details_common.dart';
+import 'package:trainlog_app/features/trips_edit_copy/edit_copy_page.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/platform/adaptive_information_message.dart';
+import 'package:trainlog_app/platform/adaptive_page_route.dart';
 import 'package:trainlog_app/providers/polyline_provider.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
+import 'package:trainlog_app/services/api/trips_api.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 
 /// The action button row (Edit, Duplicate, Share, Delete). Buttons are equal
@@ -33,7 +36,7 @@ class TripDetailsActions extends StatelessWidget {
             label: l10n.tripsDetailsEditButton,
             background: cs.primary,
             foreground: cs.onPrimary,
-            onTap: null,
+            onTap: () => _openEditCopy(context, EditCopy.edit),
           ),
         ),
         const SizedBox(width: 8),
@@ -44,7 +47,7 @@ class TripDetailsActions extends StatelessWidget {
             background: detailSurfaceColor(context),
             foreground: cs.onSurface,
             border: detailBorderColor(context),
-            onTap: null,
+            onTap: () => _openEditCopy(context, EditCopy.copy),
           ),
         ),
         const SizedBox(width: 8),
@@ -69,6 +72,27 @@ class TripDetailsActions extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  /// Closes the sheet and opens [EditCopyPage] on the trip, either to edit it
+  /// in place or to seed a duplicate from it.
+  void _openEditCopy(BuildContext context, EditCopy mode) {
+    final tripId = int.tryParse(trip.uid);
+    if (tripId == null) {
+      debugPrint('Cannot open ${mode.name}: trip uid "${trip.uid}" is not an id');
+      return;
+    }
+
+    // The sheet is dismissed first, so push on the navigator hosting it rather
+    // than on this context, which is about to be unmounted.
+    final navigator =
+        rootNavigatorKey.currentState ?? Navigator.of(context, rootNavigator: true);
+    navigator.pop();
+    navigator.push(
+      AdaptivePageRoute.route<void>(
+        (_) => EditCopyPage(tripId: tripId, mode: mode),
+      ),
     );
   }
 

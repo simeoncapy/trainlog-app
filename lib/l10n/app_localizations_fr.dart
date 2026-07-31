@@ -1551,4 +1551,16 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get changelogTypeFix => 'Corrections de bugs';
+
+  @override
+  String get editCopyTripRefreshedWarning =>
+      'Ce trajet a été modifié ailleurs. La dernière version du serveur a été chargée.';
+
+  @override
+  String get editCopyServerUnreachableWarning =>
+      'Le serveur n\'a pas pu être contacté. La version de ce trajet enregistrée sur cet appareil est utilisée.';
+
+  @override
+  String get editCopyTripUnavailableError =>
+      'Ce trajet n\'a pas pu être chargé : le serveur n\'a pas pu être contacté et aucune copie n\'est enregistrée sur cet appareil.';
 }
