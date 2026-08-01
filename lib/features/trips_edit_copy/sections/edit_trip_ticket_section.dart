@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/app/theme/app_theme.dart';
 import 'package:trainlog_app/data/models/trip_form_model.dart';
-import 'package:trainlog_app/features/trips_add/widgets/choice_card_selector.dart';
+import 'package:trainlog_app/features/trips_add/widgets/energy_choice_card_selector.dart';
+import 'package:trainlog_app/features/trips_add/widgets/visibility_choice_card_selector.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
@@ -12,8 +13,6 @@ import 'package:trainlog_app/utils/number_formatter.dart';
 import 'package:trainlog_app/widgets/trip_form/currency_button.dart';
 import 'package:trainlog_app/widgets/trip_form/trip_form_card.dart';
 import 'package:trainlog_app/widgets/trip_form/trip_form_tiles.dart';
-import 'package:trainlog_app/widgets/trip_visibility_selector.dart';
-import 'package:trainlog_app/widgets/vehicle_energy_selector.dart';
 
 /// Ticket block of the edit form, mirroring the add-trip ticket step: price
 /// with its currency picker, purchase date, then the energy and visibility
@@ -154,24 +153,7 @@ class _EditTripTicketSectionState extends State<EditTripTicketSection> {
 
         TripFormSectionLabel(loc.energy),
         const SizedBox(height: 8),
-        ChoiceCardSelector<EnergyType>(
-          options: [
-            ChoiceCardOption(
-              value: EnergyType.auto,
-              icon: Icons.auto_awesome,
-              label: loc.auto,
-            ),
-            ChoiceCardOption(
-              value: EnergyType.electric,
-              icon: Icons.bolt,
-              label: loc.energyElectric,
-            ),
-            ChoiceCardOption(
-              value: EnergyType.thermic,
-              icon: Icons.local_fire_department,
-              label: loc.energyThermic,
-            ),
-          ],
+        EnergyChoiceCardSelector(
           value: model.energyType,
           onChanged: model.setEnergyType,
         ),
@@ -179,11 +161,7 @@ class _EditTripTicketSectionState extends State<EditTripTicketSection> {
 
         TripFormSectionLabel(loc.visibility),
         const SizedBox(height: 8),
-        ChoiceCardSelector<TripVisibility>(
-          options: [
-            for (final v in TripVisibility.values)
-              ChoiceCardOption(value: v, icon: v.icon(), label: v.label(loc)),
-          ],
+        VisibilityChoiceCardSelector(
           value: model.visibility,
           onChanged: model.setVisibility,
         ),

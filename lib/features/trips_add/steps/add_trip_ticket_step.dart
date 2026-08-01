@@ -5,7 +5,8 @@ import 'package:trainlog_app/app/theme/app_theme.dart';
 import 'package:trainlog_app/data/models/trip_form_model.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/features/settings/settings_vm.dart';
-import 'package:trainlog_app/features/trips_add/widgets/choice_card_selector.dart';
+import 'package:trainlog_app/features/trips_add/widgets/energy_choice_card_selector.dart';
+import 'package:trainlog_app/features/trips_add/widgets/visibility_choice_card_selector.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
@@ -14,7 +15,6 @@ import 'package:trainlog_app/widgets/trip_form/currency_button.dart';
 import 'package:trainlog_app/widgets/trip_form/trip_form_card.dart';
 import 'package:trainlog_app/widgets/trip_form/trip_form_tiles.dart';
 import 'package:trainlog_app/widgets/trip_visibility_selector.dart';
-import 'package:trainlog_app/widgets/vehicle_energy_selector.dart';
 
 /// Step 6 of the "Add Trip" wizard: ticket, energy and visibility.
 ///
@@ -226,24 +226,7 @@ class _AddTripTicketStepState extends State<AddTripTicketStep> {
           // --- Energy ---
           TripFormSectionLabel(loc.energy),
           const SizedBox(height: 8),
-          ChoiceCardSelector<EnergyType>(
-            options: [
-              ChoiceCardOption(
-                value: EnergyType.auto,
-                icon: Icons.auto_awesome,
-                label: loc.auto,
-              ),
-              ChoiceCardOption(
-                value: EnergyType.electric,
-                icon: Icons.bolt,
-                label: loc.energyElectric,
-              ),
-              ChoiceCardOption(
-                value: EnergyType.thermic,
-                icon: Icons.local_fire_department,
-                label: loc.energyThermic,
-              ),
-            ],
+          EnergyChoiceCardSelector(
             value: model.energyType,
             onChanged: model.setEnergyType,
           ),
@@ -252,15 +235,7 @@ class _AddTripTicketStepState extends State<AddTripTicketStep> {
           // --- Visibility ---
           TripFormSectionLabel(loc.visibility),
           const SizedBox(height: 8),
-          ChoiceCardSelector<TripVisibility>(
-            options: [
-              for (final v in TripVisibility.values)
-                ChoiceCardOption(
-                  value: v,
-                  icon: v.icon(),
-                  label: v.label(loc),
-                ),
-            ],
+          VisibilityChoiceCardSelector(
             value: model.visibility,
             onChanged: model.setVisibility,
           ),
