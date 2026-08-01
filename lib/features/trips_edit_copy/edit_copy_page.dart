@@ -286,7 +286,7 @@ class _EditCopyPageState extends State<EditCopyPage> {
         ),
         backgroundColor: widget.mode == EditCopy.edit
             ? Theme.of(context).colorScheme.error.withValues(alpha: 0.2)
-            : Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+            : Theme.of(context).colorScheme.secondary.withValues(alpha: 0.2),
       ),
       body: SafeArea(
         top: false,
