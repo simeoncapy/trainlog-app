@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
 import 'package:trainlog_app/services/api/trips_api.dart';
-import 'package:trainlog_app/widgets/vehicle_energy_selector.dart';
 
 /// Where the trip handed to the edit/copy page ended up coming from, and
 /// therefore what (if anything) the user has to be warned about.
@@ -31,16 +30,10 @@ class TripEditCopyResult {
   final EditCopy mode;
   final TripEditCopySource source;
 
-  /// Power type the form starts on. The cached trip does not carry it, so a
-  /// trip served from the cache falls back on [EnergyType.auto] — the same
-  /// default the site applies to a trip without one.
-  final EnergyType energyType;
-
   const TripEditCopyResult({
     required this.trip,
     required this.mode,
     required this.source,
-    this.energyType = EnergyType.auto,
   });
 
   bool get hasTrip => trip != null;
@@ -120,7 +113,6 @@ class TripEditCopyService {
     return TripEditCopyResult(
       trip: remote.formTrip,
       mode: mode,
-      energyType: remote.energyType,
       // Case 2 only when there was a cached version to be superseded; a trip
       // simply absent from the cache is not something to warn about.
       source: serverIsNewer && cached != null

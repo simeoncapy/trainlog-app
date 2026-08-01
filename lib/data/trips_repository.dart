@@ -1011,6 +1011,11 @@ class TripsTable {
     'visibility': 'TEXT',
     'departure_delay': 'REAL',
     'arrival_delay': 'REAL',
+    // Added after the initial schema. Columns listed here are picked up by
+    // [ensureSchema] on every open, so they need no migration file — an
+    // `ALTER TABLE ... ADD COLUMN` one would break fresh installs, where the
+    // table is created from this map before the migrations run.
+    'power_type': 'TEXT',
   };
 
   static String get createTableSql {

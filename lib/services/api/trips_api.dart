@@ -3,7 +3,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/services/api/trainlog_http_client.dart';
-import 'package:trainlog_app/widgets/vehicle_energy_selector.dart';
 
 enum EditCopy { edit, copy }
 
@@ -45,11 +44,6 @@ class TripEditCopyData {
   /// trip id — this is what the local cache should be refreshed with.
   final Trips serverTrip;
 
-  /// Power type the form is to start on. It is not part of [Trips] — neither
-  /// the export nor the sync endpoints carry it — so it travels next to the
-  /// trip instead of inside it.
-  final EnergyType energyType;
-
   /// `last_modified` the server reported for the trip, when it sent one.
   final DateTime? serverLastModified;
 
@@ -60,7 +54,6 @@ class TripEditCopyData {
   const TripEditCopyData({
     required this.formTrip,
     required this.serverTrip,
-    required this.energyType,
     required this.serverLastModified,
     required this.hasBeenEdited,
   });
@@ -274,7 +267,6 @@ class TripsApi {
       );
 
       return TripEditCopyData(
-        energyType: _energyType(data, trip),
         formTrip: editCopy == EditCopy.edit
             ? serverTrip
             : Trips.fromJson(
@@ -313,6 +305,7 @@ class TripsApi {
       'operator': _s(data['tripOperator']),
       'line_name': _s(data['tripLineName']),
       'type': _s(data['tripType']),
+      'power_type': _s(data['power_type']) ?? _s(trip['power_type']),
       'material_type': _s(data['tripMaterialType']) ??
           _s(data['tripMaterialTypeAdvanced']),
       'seat': _s(data['tripSeat']),
@@ -338,18 +331,6 @@ class TripsApi {
       'created': isEdit ? trip['created'] : null,
       'last_modified': isEdit ? trip['last_modified'] : null,
     };
-  }
-
-  /// Power type of the trip, sent as `power_type` — by the context itself,
-  /// or on the raw trip row for a payload that only carries it there. A trip
-  /// without one defaults to auto.
-  static EnergyType _energyType(
-    Map<String, dynamic> data,
-    Map<String, dynamic> trip,
-  ) {
-    return EnergyType.fromString(
-      _s(data['power_type']) ?? _s(trip['power_type']),
-    );
   }
 
   /// Empty strings coming from the Jinja context (`x or ""`) mean "null".

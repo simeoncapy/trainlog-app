@@ -16,12 +16,8 @@ class TripFormModel extends ChangeNotifier {
   ///
   /// Only what the form edits is copied. Endpoint coordinates are recovered
   /// from the trip path — a trip carries station names, not their position —
-  /// so the date pickers can resolve the endpoint timezones. [energyType] is
-  /// passed separately for the same reason: it is not part of [Trips].
-  factory TripFormModel.fromTrip(
-    Trips trip, {
-    EnergyType energyType = EnergyType.auto,
-  }) {
+  /// so the date pickers can resolve the endpoint timezones.
+  factory TripFormModel.fromTrip(Trips trip) {
     final model = TripFormModel();
 
     model.vehicleType = trip.type;
@@ -83,7 +79,7 @@ class TripFormModel extends ChangeNotifier {
     model.seat = _orNull(trip.seat);
     model.notes = _orNull(trip.notes);
 
-    model.energyType = energyType;
+    model.energyType = trip.powerType;
     model.price = trip.price;
     model.currencyCode = _orNull(trip.currency);
     model.purchaseDate = trip.purchasingDate;

@@ -8,6 +8,7 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/utils/text_utils.dart';
 import 'package:trainlog_app/widgets/trip_visibility_selector.dart';
+import 'package:trainlog_app/widgets/vehicle_energy_selector.dart';
 import 'package:trainlog_app/data/models/polyline_entry.dart';
 import 'package:trainlog_app/data/models/country_detail.dart';
 
@@ -29,6 +30,12 @@ class Trips {
   final DateTime created;
   final DateTime lastModified;
   final VehicleType type;
+
+  /// Energy the vehicle ran on, as the site's `power_type`. Trips that carry
+  /// none — including every row cached before the column existed — read back
+  /// as [EnergyType.auto], the site's own default.
+  final EnergyType powerType;
+
   final String? materialType;
   final String? seat;
   final String? reg;
@@ -61,6 +68,7 @@ class Trips {
     required this.created,
     required this.lastModified,
     required this.type,
+    this.powerType = EnergyType.auto,
     this.materialType,
     this.seat,
     this.reg,
@@ -209,6 +217,7 @@ class Trips {
       created: toDateTimeOrNull(json['created']) ?? DateTime.now().toUtc(),
       lastModified: toDateTimeOrNull(json['last_modified']) ?? DateTime.now().toUtc(),
       type: VehicleType.fromString(json['type']?.toString()),
+      powerType: EnergyType.fromString(json['power_type']?.toString()),
       materialType: json['material_type']?.toString() ?? '',
       seat: json['seat']?.toString() ?? '',
       reg: json['reg']?.toString() ?? '',
@@ -246,6 +255,7 @@ class Trips {
       'created': created.toIso8601String(),
       'last_modified': lastModified.toIso8601String(),
       'type': type.toShortString(),
+      'power_type': powerType.name,
       'material_type': materialType,
       'seat': seat,
       'reg': reg,
