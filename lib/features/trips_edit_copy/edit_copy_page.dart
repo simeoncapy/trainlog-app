@@ -284,6 +284,9 @@ class _EditCopyPageState extends State<EditCopyPage> {
           title: _title(loc),
           subtitle: _subtitle(loc),
         ),
+        backgroundColor: widget.mode == EditCopy.edit
+            ? Theme.of(context).colorScheme.error.withValues(alpha: 0.2)
+            : Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
       ),
       body: SafeArea(
         top: false,
@@ -323,6 +326,7 @@ class _EditCopyPageState extends State<EditCopyPage> {
             selected: _activeSection,
             onSelected: _scrollToSection,
           ),
+          const SizedBox(height: 8),
           Expanded(
             child: ChangeNotifierProvider<TripFormModel>.value(
               value: form,
