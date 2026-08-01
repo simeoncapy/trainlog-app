@@ -911,6 +911,10 @@
   "@editTripSaveButton": {
     "description": "Sticky footer button of the edit form"
   },
+  "duplicateTripSaveButton": "Create a new trip",
+  "@duplicateTripSaveButton": {
+    "description": "Sticky footer button of the duplicate form"
+  },
   "editTripComingSoon": "This will be available in a future update.",
   "@editTripComingSoon": {
     "description": "Message shown when tapping an action of the edit form that is not implemented yet"

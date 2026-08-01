@@ -336,7 +336,7 @@ class _EditCopyPageState extends State<EditCopyPage> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             child: PrimaryActionButton(
-              label: loc.editTripSaveButton,
+              label: widget.mode == EditCopy.edit ? loc.editTripSaveButton : loc.duplicateTripSaveButton,
               // TODO: submit the form once the edit/copy API is available.
               onPressed: _showComingSoon,
             ),

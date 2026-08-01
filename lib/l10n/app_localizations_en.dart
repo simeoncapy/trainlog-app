@@ -1614,5 +1614,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get editTripSaveButton => 'Save changes';
 
   @override
+  String get duplicateTripSaveButton => 'Create a new trip';
+
+  @override
   String get editTripComingSoon => 'This will be available in a future update.';
 }

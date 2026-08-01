@@ -1597,6 +1597,9 @@ class AppLocalizationsTl extends AppLocalizations {
   String get editTripSaveButton => 'I-save ang mga pagbabago';
 
   @override
+  String get duplicateTripSaveButton => 'Lumikha ng bagong biyahe';
+
+  @override
   String get editTripComingSoon =>
       'Magiging available ito sa isang susunod na update.';
 }

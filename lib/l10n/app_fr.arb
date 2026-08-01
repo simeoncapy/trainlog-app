@@ -475,5 +475,6 @@
   "editTripModifyPathButton": "Modifier le tracé",
   "editTripPathDescription": "Le tracé du trajet se modifie sur son propre écran.",
   "editTripSaveButton": "Enregistrer les modifications",
+  "duplicateTripSaveButton": "Créer un nouveau trajet",
   "editTripComingSoon": "Cette fonctionnalité sera disponible dans une prochaine mise à jour."
 }

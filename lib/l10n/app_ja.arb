@@ -476,5 +476,6 @@
   "editTripModifyPathButton": "ルートを編集",
   "editTripPathDescription": "旅のルートは専用の画面で編集します。",
   "editTripSaveButton": "変更を保存",
+  "duplicateTripSaveButton": "新しい旅を作成",
   "editTripComingSoon": "この機能は今後のアップデートで利用できるようになります。"
 }

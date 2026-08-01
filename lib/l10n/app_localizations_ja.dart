@@ -1577,5 +1577,8 @@ class AppLocalizationsJa extends AppLocalizations {
   String get editTripSaveButton => '変更を保存';
 
   @override
+  String get duplicateTripSaveButton => '新しい旅を作成';
+
+  @override
   String get editTripComingSoon => 'この機能は今後のアップデートで利用できるようになります。';
 }

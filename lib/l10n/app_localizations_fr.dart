@@ -1631,6 +1631,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get editTripSaveButton => 'Enregistrer les modifications';
 
   @override
+  String get duplicateTripSaveButton => 'Créer un nouveau trajet';
+
+  @override
   String get editTripComingSoon =>
       'Cette fonctionnalité sera disponible dans une prochaine mise à jour.';
 }

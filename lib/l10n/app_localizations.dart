@@ -2736,6 +2736,12 @@ abstract class AppLocalizations {
   /// **'Save changes'**
   String get editTripSaveButton;
 
+  /// Sticky footer button of the duplicate form
+  ///
+  /// In en, this message translates to:
+  /// **'Create a new trip'**
+  String get duplicateTripSaveButton;
+
   /// Message shown when tapping an action of the edit form that is not implemented yet
   ///
   /// In en, this message translates to:
