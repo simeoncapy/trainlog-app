@@ -182,7 +182,7 @@ class _EditCopyPageState extends State<EditCopyPage> {
       ),
     );
 
-    // Only the form is updated for now: pushing the new type (and the vehicle
+    // TODO: Only the form is updated for now: pushing the new type (and the vehicle
     // material / seat resets that come with it) waits for the API.
     if (picked == null || !mounted) return;
     form.setVehicleType(picked);
