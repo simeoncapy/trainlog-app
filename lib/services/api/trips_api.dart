@@ -340,24 +340,16 @@ class TripsApi {
     };
   }
 
-  /// Power type of the trip. The context exposes it as the form field the
-  /// site posts back (`powerType`), so both the prefixed and bare spellings
-  /// are tried before falling back on the raw trip row.
+  /// Power type of the trip, sent as `power_type` — by the context itself,
+  /// or on the raw trip row for a payload that only carries it there. A trip
+  /// without one defaults to auto.
   static EnergyType _energyType(
     Map<String, dynamic> data,
     Map<String, dynamic> trip,
   ) {
-    final raw = _s(data['tripPowerType']) ??
-        _s(data['powerType']) ??
-        _s(trip['power_type']) ??
-        _s(trip['powerType']);
-
-    if (raw == null) {
-      debugPrint('fetchTripEditCopy: no power type in the payload '
-          '(keys: ${data.keys.join(', ')}), defaulting to auto');
-    }
-
-    return EnergyType.fromString(raw);
+    return EnergyType.fromString(
+      _s(data['power_type']) ?? _s(trip['power_type']),
+    );
   }
 
   /// Empty strings coming from the Jinja context (`x or ""`) mean "null".
