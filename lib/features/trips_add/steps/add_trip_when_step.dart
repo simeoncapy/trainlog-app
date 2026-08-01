@@ -139,9 +139,10 @@ class _AddTripWhenStepState extends State<AddTripWhenStep> {
     _arrivalDelayCtl.text = _signedText(_arrivalDelayMinutes);
   }
 
-  /// Timezone of an endpoint, falling back to UTC when its position is
-  /// unknown — a trip opened for editing only carries station names when its
-  /// path could not be read.
+  /// Timezone of an endpoint. Both endpoints always have a position — the
+  /// wizard picks them, and a trip opened for editing takes them from its
+  /// path — so the UTC fallback is only a guard against an unreadable one,
+  /// which must not take the screen down.
   String _timezoneFor(double? lat, double? long) => (lat == null || long == null)
       ? 'UTC'
       : tzmap.latLngToTimezoneString(lat, long);

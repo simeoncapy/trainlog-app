@@ -966,12 +966,26 @@ class TripsRepository {
     return trips;
   }
 
+  /// True when the trips table gained a column the cached rows have no value
+  /// for, so only a full re-download can fill it.
+  ///
+  /// Opening the database already runs [TripsTable.ensureSchema], so by the
+  /// time the sync asks, a plain PRAGMA diff would find nothing missing — the
+  /// answer comes from the columns that run actually added
+  /// ([TripsTable.addedColumns]). The diff is still checked for a table this
+  /// process has not opened yet.
   static Future<bool> needsSchemaUpdate() async {
+    if (TripsTable.addedColumns.isNotEmpty) return true;
+
     final db = await DatabaseManager.database;
     final columns = await db.rawQuery('PRAGMA table_info(${TripsTable.tableName})');
     final existingColumns = columns.map((col) => col['name'] as String).toSet();
     return TripsTable.columns.keys.any((key) => !existingColumns.contains(key));
   }
+
+  /// Clears the marker [needsSchemaUpdate] reports on, once a full download
+  /// has filled the new columns.
+  static void schemaUpdateHandled() => TripsTable.addedColumns.clear();
 
   Future<void> _ensureTripsTableSchema() async {
     await TripsTable.ensureSchema(_db);
@@ -1030,6 +1044,13 @@ class TripsTable {
   ''';
   }
 
+  /// Columns [ensureSchema] added to the live table since the app started.
+  ///
+  /// Such a column is empty on every row that was already cached, so the sync
+  /// reads this set (through [TripsRepository.needsSchemaUpdate]) to know it
+  /// has to re-download everything instead of asking for changes only.
+  static final Set<String> addedColumns = {};
+
   // Adds any columns present in [columns] that are missing from the live table.
   // Called by the migration runner and by TripsRepository as a legacy fallback.
   static Future<void> ensureSchema(Database db) async {
@@ -1041,6 +1062,7 @@ class TripsTable {
         // ALTER TABLE cannot add a PRIMARY KEY; strip the constraint.
         final colType = entry.value.replaceAll('PRIMARY KEY', '').trim();
         await db.execute('ALTER TABLE $tableName ADD COLUMN ${entry.key} $colType');
+        addedColumns.add(entry.key);
       }
     }
   }
