@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/services/api/trainlog_http_client.dart';
+import 'package:trainlog_app/widgets/vehicle_energy_selector.dart';
 
 enum EditCopy { edit, copy }
 
@@ -44,6 +45,11 @@ class TripEditCopyData {
   /// trip id — this is what the local cache should be refreshed with.
   final Trips serverTrip;
 
+  /// Power type the form is to start on. It is not part of [Trips] — neither
+  /// the export nor the sync endpoints carry it — so it travels next to the
+  /// trip instead of inside it.
+  final EnergyType energyType;
+
   /// `last_modified` the server reported for the trip, when it sent one.
   final DateTime? serverLastModified;
 
@@ -54,6 +60,7 @@ class TripEditCopyData {
   const TripEditCopyData({
     required this.formTrip,
     required this.serverTrip,
+    required this.energyType,
     required this.serverLastModified,
     required this.hasBeenEdited,
   });
@@ -267,6 +274,7 @@ class TripsApi {
       );
 
       return TripEditCopyData(
+        energyType: _energyType(data, trip),
         formTrip: editCopy == EditCopy.edit
             ? serverTrip
             : Trips.fromJson(
@@ -330,6 +338,26 @@ class TripsApi {
       'created': isEdit ? trip['created'] : null,
       'last_modified': isEdit ? trip['last_modified'] : null,
     };
+  }
+
+  /// Power type of the trip. The context exposes it as the form field the
+  /// site posts back (`powerType`), so both the prefixed and bare spellings
+  /// are tried before falling back on the raw trip row.
+  static EnergyType _energyType(
+    Map<String, dynamic> data,
+    Map<String, dynamic> trip,
+  ) {
+    final raw = _s(data['tripPowerType']) ??
+        _s(data['powerType']) ??
+        _s(trip['power_type']) ??
+        _s(trip['powerType']);
+
+    if (raw == null) {
+      debugPrint('fetchTripEditCopy: no power type in the payload '
+          '(keys: ${data.keys.join(', ')}), defaulting to auto');
+    }
+
+    return EnergyType.fromString(raw);
   }
 
   /// Empty strings coming from the Jinja context (`x or ""`) mean "null".

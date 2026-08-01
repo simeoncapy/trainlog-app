@@ -106,7 +106,12 @@ class _EditCopyPageState extends State<EditCopyPage> {
     if (!mounted) return;
     setState(() {
       _result = result;
-      _form = result.trip == null ? null : TripFormModel.fromTrip(result.trip!);
+      _form = result.trip == null
+          ? null
+          : TripFormModel.fromTrip(
+              result.trip!,
+              energyType: result.energyType,
+            );
       _loading = false;
     });
   }
