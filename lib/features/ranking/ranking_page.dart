@@ -168,16 +168,22 @@ class _RankingPageState extends State<RankingPage> {
             if (_searchOpen && !isRail)
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                child: TextField(
-                  controller: _searchController,
-                  autofocus: true,
-                  onChanged: (v) => setState(() => _searchQuery = v),
-                  decoration: InputDecoration(
-                    isDense: true,
-                    prefixIcon: const Icon(Icons.search),
-                    hintText: loc.rankingSearchHint,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                // Transparent Material ancestor: the field is drawn by its own
+                // decoration, but the Cupertino shell's page scaffold provides
+                // no Material, which TextField requires.
+                child: Material(
+                  type: MaterialType.transparency,
+                  child: TextField(
+                    controller: _searchController,
+                    autofocus: true,
+                    onChanged: (v) => setState(() => _searchQuery = v),
+                    decoration: InputDecoration(
+                      isDense: true,
+                      prefixIcon: const Icon(Icons.search),
+                      hintText: loc.rankingSearchHint,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
                   ),
                 ),
@@ -241,32 +247,38 @@ class _VisitedCountryFlags extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(10),
-      child: Padding(
-        padding: const EdgeInsets.only(top: 14),
-        child: Row(
-          children: [
-            Expanded(
-              child: Text(
-                countryCodes.map(countryCodeToEmoji).join(' '),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 18,
-                  height: 1.5,
-                  letterSpacing: 2,
-                  color: cs.onInverseSurface,
+    // The Material is the ink surface the InkWell needs: the Cupertino shell's
+    // page scaffold provides no Material ancestor. Transparent, so the position
+    // block behind it keeps showing through.
+    return Material(
+      type: MaterialType.transparency,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(10),
+        child: Padding(
+          padding: const EdgeInsets.only(top: 14),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  countryCodes.map(countryCodeToEmoji).join(' '),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 18,
+                    height: 1.5,
+                    letterSpacing: 2,
+                    color: cs.onInverseSurface,
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(width: 8),
-            Icon(
-              Icons.chevron_right,
-              color: cs.onInverseSurface.withValues(alpha: 0.7),
-            ),
-          ],
+              const SizedBox(width: 8),
+              Icon(
+                Icons.chevron_right,
+                color: cs.onInverseSurface.withValues(alpha: 0.7),
+              ),
+            ],
+          ),
         ),
       ),
     );

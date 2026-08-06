@@ -53,7 +53,14 @@ class RankingListView extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(18),
-        child: _buildContent(context),
+        // Ink surface for the tappable rows: the Cupertino shell's page
+        // scaffold provides no Material ancestor, so without this the rows
+        // throw "No Material widget found" on iOS. Transparent, so the card
+        // keeps painting its own background.
+        child: Material(
+          type: MaterialType.transparency,
+          child: _buildContent(context),
+        ),
       ),
     );
   }

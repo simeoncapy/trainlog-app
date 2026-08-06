@@ -39,7 +39,11 @@ class CoverageListCard extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(18),
-        child: child,
+        // The card paints its own background, so the Material only serves as the
+        // ink surface tappable rows need. Without it the rows throw "No Material
+        // widget found" under the Cupertino shell, whose page scaffold — unlike
+        // the Material one — provides no Material ancestor.
+        child: Material(type: MaterialType.transparency, child: child),
       ),
     );
   }

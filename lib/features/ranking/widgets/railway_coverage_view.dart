@@ -443,64 +443,70 @@ class _RegionCountryDropdown extends StatelessWidget {
         ? loc.railCoverageSelectRegion
         : '${selected.name} (${loc.railCoverageRegionCount(selected.count)})';
 
-    return InkWell(
-      borderRadius: BorderRadius.circular(12),
-      onTap: options.isEmpty
-          ? null
-          : () => showBottomSheetPicker<String>(
-                context: context,
-                title: loc.railCoverageSelectRegion,
-                selected: provider.selectedCountry ?? '',
-                onChanged: provider.selectCountry,
-                options: [
-                  for (final o in options)
-                    BottomSheetPickerOption<String>(
-                      value: o.code,
-                      label: o.name,
-                      subtitle: loc.railCoverageRegionCount(o.count),
-                      leading: Text(
-                        countryCodeToEmoji(o.code),
-                        style: const TextStyle(fontSize: 22),
+    // The Material is the ink surface the InkWell needs: the Cupertino shell's
+    // page scaffold provides no Material ancestor. Transparent, so the
+    // Container below keeps painting the dropdown's own background.
+    return Material(
+      type: MaterialType.transparency,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: options.isEmpty
+            ? null
+            : () => showBottomSheetPicker<String>(
+                  context: context,
+                  title: loc.railCoverageSelectRegion,
+                  selected: provider.selectedCountry ?? '',
+                  onChanged: provider.selectCountry,
+                  options: [
+                    for (final o in options)
+                      BottomSheetPickerOption<String>(
+                        value: o.code,
+                        label: o.name,
+                        subtitle: loc.railCoverageRegionCount(o.count),
+                        leading: Text(
+                          countryCodeToEmoji(o.code),
+                          style: const TextStyle(fontSize: 22),
+                        ),
                       ),
-                    ),
-                ],
-              ),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        decoration: BoxDecoration(
-          color: isDark ? cs.surface : Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: cs.outlineVariant.withValues(alpha: 0.4),
-            width: 1.2,
-          ),
-        ),
-        child: Row(
-          children: [
-            if (selected != null) ...[
-              Text(
-                countryCodeToEmoji(selected.code),
-                style: const TextStyle(fontSize: 22),
-              ),
-              const SizedBox(width: 10),
-            ] else ...[
-              Icon(Icons.public, size: 20, color: cs.onSurfaceVariant),
-              const SizedBox(width: 10),
-            ],
-            Expanded(
-              child: Text(
-                label,
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      color: selected == null
-                          ? cs.onSurfaceVariant
-                          : cs.onSurface,
-                      fontWeight: FontWeight.w600,
-                    ),
-                overflow: TextOverflow.ellipsis,
-              ),
+                  ],
+                ),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          decoration: BoxDecoration(
+            color: isDark ? cs.surface : Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: cs.outlineVariant.withValues(alpha: 0.4),
+              width: 1.2,
             ),
-            Icon(Icons.keyboard_arrow_down, color: cs.onSurfaceVariant),
-          ],
+          ),
+          child: Row(
+            children: [
+              if (selected != null) ...[
+                Text(
+                  countryCodeToEmoji(selected.code),
+                  style: const TextStyle(fontSize: 22),
+                ),
+                const SizedBox(width: 10),
+              ] else ...[
+                Icon(Icons.public, size: 20, color: cs.onSurfaceVariant),
+                const SizedBox(width: 10),
+              ],
+              Expanded(
+                child: Text(
+                  label,
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        color: selected == null
+                            ? cs.onSurfaceVariant
+                            : cs.onSurface,
+                        fontWeight: FontWeight.w600,
+                      ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              Icon(Icons.keyboard_arrow_down, color: cs.onSurfaceVariant),
+            ],
+          ),
         ),
       ),
     );
