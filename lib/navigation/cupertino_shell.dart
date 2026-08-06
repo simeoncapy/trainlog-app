@@ -120,11 +120,14 @@ class _CupertinoShellState extends State<CupertinoShell> {
             (_, __) => const AboutPage());
         break;
       case AppPageId.settings:
+        _pushSubPage(context, (c) => AppLocalizations.of(c)!.menuSettingsTitle,
+            (_, __) => const SettingsPage());
+        break;
       case AppPageId.map:
       case AppPageId.trips:
       case AppPageId.ranking:
       case AppPageId.statistics:
-        // Settings has its own menu entry; the tab pages live in the bottom bar.
+        // The tab pages live in the bottom bar.
         break;
     }
   }
@@ -137,11 +140,7 @@ class _CupertinoShellState extends State<CupertinoShell> {
           onClose: () => Navigator.of(ctx).pop(),
           onSettingsTap: () {
             Navigator.of(ctx).pop();
-            Navigator.of(context).push(PageRouteBuilder(
-              pageBuilder: (_, __, ___) => const SettingsPage(),
-              transitionDuration: Duration.zero,
-              reverseTransitionDuration: Duration.zero,
-            ));
+            _pushPage(context, AppPageId.settings);
           },
           onPageTap: (id) {
             Navigator.of(ctx).pop();
