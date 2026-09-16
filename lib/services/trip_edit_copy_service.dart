@@ -43,6 +43,27 @@ class TripEditCopyResult {
   bool get needsWarning => source != TripEditCopySource.upToDate;
 }
 
+/// Outcome of [TripEditCopyService.save].
+class TripEditCopySaveResult {
+  /// What the server reported applying — the columns it wrote, and any key it
+  /// did not recognise.
+  final TripPatchResult patch;
+
+  /// The saved trip as the server now stores it, re-read after the patch so
+  /// the columns it derives (countries, trip length, the UTC datetimes) are
+  /// the server's own. Null when it could not be read back — the save still
+  /// stands, and the next incremental sync brings the local copy in line.
+  final Trips? saved;
+
+  const TripEditCopySaveResult({required this.patch, required this.saved});
+
+  /// Nothing was sent because the caller had no changes to save.
+  bool get isEmpty => patch.isEmpty;
+
+  /// True when the local cache now holds the server's version of the trip.
+  bool get cacheRefreshed => saved != null;
+}
+
 /// Loads a trip for the edit/copy page, reconciling the locally cached copy
 /// with the server's.
 ///
@@ -56,6 +77,11 @@ class TripEditCopyResult {
 /// 3. server unreachable → the cached trip is used and the caller reports
 ///    [TripEditCopySource.cacheFallback] (or [TripEditCopySource.unavailable]
 ///    when there is no cached trip either).
+///
+/// [save] is the way back: it writes an edit to the server and refreshes the
+/// cached trip with the result. Saving a *duplicate* does not go through here
+/// — a copy is a new trip, and creating one still goes through the trip
+/// creation pipeline (the routing web view), not through this service.
 class TripEditCopyService {
   final TripsApi _api;
   final TripsProvider _trips;
@@ -119,6 +145,51 @@ class TripEditCopyService {
           ? TripEditCopySource.refreshedFromServer
           : TripEditCopySource.upToDate,
     );
+  }
+
+  /// Saves an edit of [tripId] and brings the local cache in line with it.
+  ///
+  /// [fields] is the partial edit, keyed on `trips` columns: only the columns
+  /// it carries are written, so the caller sends what the user changed and
+  /// nothing else (see [TripsApi.patchTrip]). Leaving the route out is what
+  /// keeps the trip's stored geometry — and the 3D flight track with it.
+  ///
+  /// The patch response says which columns were applied but not what the
+  /// server derived from them, so the stored trip is read back and cached. A
+  /// read that fails does not fail the save: it is reported through
+  /// [TripEditCopySaveResult.cacheRefreshed] and the next incremental sync
+  /// picks the trip up.
+  ///
+  /// Throws [TripPatchException] when the server refused the save, or when
+  /// there is no signed-in user to save as.
+  Future<TripEditCopySaveResult> save({
+    required String? username,
+    required int tripId,
+    required Map<String, dynamic> fields,
+  }) async {
+    if (username == null) {
+      throw const TripPatchException('No signed-in user to save the trip as');
+    }
+
+    final patch = await _api.patchTrip(username, tripId, fields);
+    // Nothing was sent, so there is nothing new to read back either.
+    if (patch.isEmpty) {
+      return TripEditCopySaveResult(patch: patch, saved: null);
+    }
+
+    Trips? saved;
+    try {
+      final stored =
+          await _api.fetchTripEditCopy(username, tripId, EditCopy.edit);
+      saved = stored.serverTrip;
+      await _trips.insertTrip(saved);
+    } catch (e) {
+      debugPrint(
+        'TripEditCopyService: trip $tripId saved, reading it back failed: $e',
+      );
+    }
+
+    return TripEditCopySaveResult(patch: patch, saved: saved);
   }
 
   /// Re-shapes a cached trip the way the server's copy payload would: a copy

@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/services/api/trainlog_http_client.dart';
+import 'package:trainlog_app/utils/date_utils.dart';
 
 enum EditCopy { edit, copy }
 
@@ -59,7 +60,62 @@ class TripEditCopyData {
   });
 }
 
-/// Trip data domain: fetching the user's trip exports/paths and deleting trips.
+/// What `patchTrip` reported back: the columns the server actually applied and
+/// the keys it did not recognise.
+///
+/// [ignored] is not an error — the backend reports unknown keys rather than
+/// refusing the whole payload, so a client sending a field that this backend
+/// version predates is told about it instead of being broken by it.
+class TripPatchResult {
+  final int tripId;
+
+  /// Columns the server applied, as it spelled them back.
+  final List<String> patched;
+
+  /// Keys the payload carried that name no column and no route field.
+  final List<String> ignored;
+
+  const TripPatchResult({
+    required this.tripId,
+    required this.patched,
+    required this.ignored,
+  });
+
+  /// Nothing was sent: the caller had no changes to save.
+  bool get isEmpty => patched.isEmpty;
+
+  factory TripPatchResult.fromJson(Map<String, dynamic> json, int tripId) {
+    List<String> strings(dynamic value) => value is List
+        ? value.map((e) => e.toString()).toList()
+        : const <String>[];
+
+    return TripPatchResult(
+      tripId: TripsApi._i(json['trip_id']) ?? tripId,
+      patched: strings(json['patched']),
+      ignored: strings(json['ignored']),
+    );
+  }
+
+  @override
+  String toString() =>
+      'TripPatchResult(trip $tripId, patched: $patched, ignored: $ignored)';
+}
+
+/// A `patchTrip` call the server refused: a bad payload (400), a trip that is
+/// not the caller's or no longer exists (404), a session that has expired (a
+/// redirect to the login page), or a server-side failure.
+class TripPatchException implements Exception {
+  final String message;
+  final int? statusCode;
+
+  const TripPatchException(this.message, {this.statusCode});
+
+  @override
+  String toString() => 'TripPatchException($statusCode): $message';
+}
+
+/// Trip data domain: fetching the user's trip exports/paths, saving trip
+/// edits and deleting trips.
 class TripsApi {
   final TrainlogHttpClient _client;
 
@@ -357,5 +413,123 @@ class TripsApi {
   static int? _delaySeconds(dynamic v) {
     final minutes = _i(v);
     return minutes == null ? null : minutes * 60;
+  }
+
+  /// Saves a partial edit of [tripId] through `/u/<user>/patchTrip`.
+  ///
+  /// [fields] is keyed on `trips` columns — the shape trips are read in — so a
+  /// caller sends back a subset of what it was given. Only the keys present are
+  /// written; every other column keeps its stored value, and an explicit null
+  /// clears one. Values are normalised the way the endpoint expects them:
+  ///
+  /// * a [DateTime] becomes the local wall-clock time it carries (its UTC
+  ///   marker is dropped rather than converted — `start_datetime` is local and
+  ///   its UTC counterpart is derived server-side), with [unknownPast] /
+  ///   [unknownFuture] going back as the -1 / 1 sentinels the column uses;
+  /// * an enum becomes its name, which is how `power_type` and `visibility`
+  ///   are spelled (`type` is not patchable, no more than it is through the
+  ///   edit page);
+  /// * lists and maps are passed on as JSON, and everything else as text.
+  ///
+  /// Patching a field is equivalent to opening the editor, changing that one
+  /// field and pressing save — so leaving `path` out is what makes the server
+  /// reuse the stored geometry instead of re-routing the trip.
+  ///
+  /// An empty [fields] is a no-op: nothing is sent and an empty result comes
+  /// back, rather than making the server rewrite the trip with its own data.
+  ///
+  /// Throws [TripPatchException] when the server refused the patch.
+  Future<TripPatchResult> patchTrip(
+    String username,
+    int tripId,
+    Map<String, dynamic> fields,
+  ) async {
+    final payload = <String, dynamic>{
+      for (final entry in fields.entries)
+        if (entry.key != 'trip_id' && entry.key != 'uid')
+          entry.key: _asPatchValue(entry.value),
+    };
+    if (payload.isEmpty) {
+      debugPrint('patchTrip: nothing to patch on trip $tripId');
+      return TripPatchResult(
+        tripId: tripId,
+        patched: const [],
+        ignored: const [],
+      );
+    }
+    payload['trip_id'] = tripId;
+
+    final path = '/u/$username/patchTrip';
+    debugPrint('Patching trip $tripId for $username: ${fields.keys.toList()}');
+
+    try {
+      final res = await _client.safePost(
+        path,
+        data: payload,
+        contentType: Headers.jsonContentType,
+        headers: {'Accept': 'application/json'},
+        followRedirects: false,
+      );
+      return _readPatchResponse(res, tripId);
+    } on TripPatchException {
+      rethrow;
+    } catch (e) {
+      debugPrint('patchTrip failed: $e');
+      throw TripPatchException('$e');
+    }
+  }
+
+  /// The `patchTrip` response, or the refusal it carries.
+  TripPatchResult _readPatchResponse(Response res, int tripId) {
+    final code = res.statusCode ?? 0;
+    final data = res.data;
+
+    if (code < 200 || code >= 300) {
+      // The endpoint reports its own refusals as {"error": "…"}; anything else
+      // (a login redirect, an abort page) only carries its status.
+      final error = data is Map ? data['error']?.toString() : null;
+      debugPrint('patchTrip failed: $code ${error ?? res.statusMessage}');
+      throw TripPatchException(
+        error ?? 'HTTP $code ${res.statusMessage ?? ''}'.trim(),
+        statusCode: code,
+      );
+    }
+
+    if (data is! Map) {
+      throw TripPatchException(
+        'Unexpected patchTrip response',
+        statusCode: code,
+      );
+    }
+
+    final result = TripPatchResult.fromJson(
+      data.cast<String, dynamic>(),
+      tripId,
+    );
+    if (result.ignored.isNotEmpty) {
+      debugPrint('patchTrip: server ignored ${result.ignored}');
+    }
+    return result;
+  }
+
+  /// A patch value as the endpoint reads it. See [patchTrip].
+  static Object? _asPatchValue(dynamic value) {
+    if (value == null) return null; // an explicit clear
+    if (value is DateTime) return _asPatchDate(value);
+    if (value is Enum) return value.name;
+    if (value is num || value is bool || value is String) return value;
+    if (value is List || value is Map) return value;
+    return value.toString();
+  }
+
+  /// A trip datetime as its column holds it: the 1 / -1 "no date" sentinels,
+  /// or a naive local wall-clock time with no zone marker on it.
+  static Object _asPatchDate(DateTime value) {
+    if (value == unknownPast) return -1;
+    if (value == unknownFuture) return 1;
+
+    String pad(int v, [int width = 2]) => v.toString().padLeft(width, '0');
+    return '${pad(value.year, 4)}-${pad(value.month)}-${pad(value.day)}'
+        'T${pad(value.hour)}:${pad(value.minute)}:${pad(value.second)}';
   }
 }
