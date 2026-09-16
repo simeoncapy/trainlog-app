@@ -133,7 +133,7 @@ class TripEditCopyService {
     // left alone rather than overwritten on a guess.
     final serverIsNewer = remote.hasBeenEdited ?? (cached == null);
     if (serverIsNewer) {
-      await _trips.insertTrip(remote.serverTrip);
+      await _cacheServerTrip(remote.serverTrip, cached);
     }
 
     return TripEditCopyResult(
@@ -181,8 +181,13 @@ class TripEditCopyService {
     try {
       final stored =
           await _api.fetchTripEditCopy(username, tripId, EditCopy.edit);
-      saved = stored.serverTrip;
-      await _trips.insertTrip(saved);
+      // Read the cached trip again rather than reusing an older copy: the
+      // patch never carries a route, so the geometry cached here is still the
+      // one the server just saved the trip with.
+      saved = await _cacheServerTrip(
+        stored.serverTrip,
+        await _trips.getTripById(tripId),
+      );
     } catch (e) {
       debugPrint(
         'TripEditCopyService: trip $tripId saved, reading it back failed: $e',
@@ -190,6 +195,23 @@ class TripEditCopyService {
     }
 
     return TripEditCopySaveResult(patch: patch, saved: saved);
+  }
+
+  /// Caches the server's copy of a trip, keeping the geometry already stored
+  /// for it, and returns what was written.
+  ///
+  /// [TripEditCopyData.serverTrip] carries no path: the endpoint describes a
+  /// route as its editable waypoint list, which on a trip nobody re-routed is
+  /// just the two endpoints, so the cached path is carried over and the trip
+  /// keeps its shape on the map. With nothing cached there is no geometry to
+  /// keep and none to invent — the trip is stored without one and the next
+  /// incremental sync fills it in.
+  Future<Trips> _cacheServerTrip(Trips serverTrip, Trips? cached) async {
+    final trip = cached == null
+        ? serverTrip
+        : Trips.fromJson({...serverTrip.toJson(), 'path': cached.path});
+    await _trips.insertTrip(trip);
+    return trip;
   }
 
   /// Re-shapes a cached trip the way the server's copy payload would: a copy

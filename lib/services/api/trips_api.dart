@@ -36,13 +36,20 @@ class IncrementalTripsResult {
 
 /// Parsed `/u/<user>/{edit,copy}/<id>` payload.
 class TripEditCopyData {
-  /// The trip shaped for the form that is about to be shown. Identical to
-  /// [serverTrip] in [EditCopy.edit]; in [EditCopy.copy] the uid and the
-  /// created/last-modified stamps are stripped because it becomes a new trip.
+  /// The trip shaped for the form that is about to be shown: the same trip as
+  /// [serverTrip] in [EditCopy.edit], carrying the route as the editor works
+  /// on it; in [EditCopy.copy] the uid and the created/last-modified stamps
+  /// are stripped because it becomes a new trip.
   final Trips formTrip;
 
   /// The trip as the server currently stores it, always keyed on the requested
   /// trip id — this is what the local cache should be refreshed with.
+  ///
+  /// It carries no path. The endpoint describes a trip's route as `wplist`,
+  /// the editable waypoint list, which on a trip nobody re-routed is just its
+  /// two endpoints — writing that over the stored geometry would turn the trip
+  /// into a straight line on the map. Whoever caches this trip keeps the
+  /// geometry it already holds (see [TripEditCopyService.load]).
   final Trips serverTrip;
 
   /// `last_modified` the server reported for the trip, when it sent one.
@@ -311,24 +318,34 @@ class TripsApi {
           ? null
           : lastUpdate.isBefore(lastModified);
 
-      // The copy shape strips the identity fields (a copy is a new trip), so
-      // the cache-facing trip is always parsed with the edit shape and pinned
-      // to the requested id — the payload describes that trip either way.
-      final serverTrip = Trips.fromJson(
+      // The form keeps `wplist` as its path: it is the route as the editor
+      // works on it, and the first and last of its points are where the form
+      // recovers the endpoint coordinates its date pickers need.
+      final formTrip = Trips.fromJson(
         {
-          ..._editCopyToTripJson(data, trip, EditCopy.edit),
-          'uid': tripId.toString(),
+          ..._editCopyToTripJson(data, trip, editCopy),
+          if (editCopy == EditCopy.edit) 'uid': tripId.toString(),
         },
         pathAsGooglePolyline: false,
       );
 
+      // The copy shape strips the identity fields (a copy is a new trip), so
+      // the cache-facing trip is always parsed with the edit shape and pinned
+      // to the requested id — the payload describes that trip either way. Its
+      // path is dropped rather than carried over: see [serverTrip].
+      final serverTrip = Trips.fromJson(
+        {
+          ..._editCopyToTripJson(data, trip, EditCopy.edit),
+          'uid': tripId.toString(),
+          'path': '',
+        },
+        // An (empty) encoded path rather than the raw point list the payload
+        // carries, since the one it carries is not this trip's geometry.
+        pathAsGooglePolyline: true,
+      );
+
       return TripEditCopyData(
-        formTrip: editCopy == EditCopy.edit
-            ? serverTrip
-            : Trips.fromJson(
-                _editCopyToTripJson(data, trip, editCopy),
-                pathAsGooglePolyline: false,
-              ),
+        formTrip: formTrip,
         serverTrip: serverTrip,
         serverLastModified: lastModified,
         hasBeenEdited: hasBeenEdited,
