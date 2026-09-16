@@ -1618,4 +1618,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get editTripComingSoon => 'This will be available in a future update.';
+
+  @override
+  String get editTripSavedMsg => 'Trip saved.';
+
+  @override
+  String editTripSaveErrorMsg(String error) {
+    return 'The trip could not be saved: $error';
+  }
 }

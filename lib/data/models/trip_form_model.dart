@@ -598,6 +598,126 @@ class TripFormModel extends ChangeNotifier {
 
 
   // -----------------------------
+  // Trip columns (partial save)
+  // -----------------------------
+
+  /// The form as `trips` columns — the shape a partial save is posted in (see
+  /// `TripsApi.patchTrip`), as opposed to [toJson], which is the payload the
+  /// routing web page consumes.
+  ///
+  /// Every column this form edits is included, so saving writes exactly what
+  /// the page shows, the way pressing save on the web editor does. Two things
+  /// are deliberately left out: the vehicle type, which is not patchable, and
+  /// the route, whose absence is what makes the server keep the trip's stored
+  /// geometry instead of re-routing it.
+  ///
+  /// [stored] is the trip the form was seeded with. It is read for one thing
+  /// only: keeping a date-only trip's exact stamp when its day has not changed.
+  Map<String, dynamic> toTripColumns({Trips? stored}) {
+    return <String, dynamic>{
+      'origin_station': departureStationName,
+      'destination_station': arrivalStationName,
+      'operator': selectedOperators.join(','),
+
+      'line_name': line,
+      'material_type': material,
+      'reg': registration,
+      'seat': seat,
+      'notes': notes,
+
+      'price': price,
+      // The ticket fields only mean anything alongside a price, which is how
+      // the web form posts them too.
+      'currency': price == null ? null : currencyCode,
+      'purchasing_date': (price == null || purchaseDate == null)
+          ? null
+          : _isoDate(purchaseDate),
+
+      'power_type': energyType.name,
+      'visibility': visibilityName,
+
+      'departure_delay': _delayColumn(delayDepartureMinute),
+      'arrival_delay': _delayColumn(delayArrivalMinute),
+
+      ..._dateColumns(stored),
+    };
+  }
+
+  /// The schedule as its three columns. A null value clears the column, so an
+  /// incomplete schedule sends nothing at all rather than wiping the dates the
+  /// trip already has.
+  Map<String, dynamic> _dateColumns(Trips? stored) {
+    switch (dateType) {
+      case DateType.precise:
+        final start = departureDateLocal;
+        final end = arrivalDateLocal;
+        if (start == null || end == null) return const {};
+        return {
+          'start_datetime': start,
+          'end_datetime': end,
+          // A precise schedule has no manual duration field, so there is none
+          // to write — and one the form never showed is not one to throw away.
+          // A duration left over from a date-only or dateless trip would go on
+          // overriding the computed one, though, so a trip that has just
+          // become precise does have it cleared.
+          if (stored != null &&
+              (stored.isDateOnly || stored.isUnknownPastFuture))
+            'manual_trip_duration': null,
+        };
+
+      case DateType.date:
+        final day = departureDayDateOnly;
+        if (day == null) return const {};
+        final stamp = _dateOnlyStamp(day, stored);
+        return {
+          'start_datetime': stamp,
+          'end_datetime': stamp,
+          'manual_trip_duration': _durationColumn(DateType.date),
+        };
+
+      case DateType.unknown:
+        // The sentinels the column uses for a trip with no date at all.
+        final stamp = isPast ? unknownPast : unknownFuture;
+        return {
+          'start_datetime': stamp,
+          'end_datetime': stamp,
+          'manual_trip_duration': _durationColumn(DateType.unknown),
+        };
+    }
+  }
+
+  /// A day without a time, as the column carries it: the day with the `:01`
+  /// seconds marker the site reads back as "this trip has a date but no time".
+  ///
+  /// A trip that was already date-only on that same day keeps the exact stamp
+  /// it had, so re-saving a trip whose date nobody touched does not move the
+  /// UTC datetimes the server derives from it.
+  static DateTime _dateOnlyStamp(DateTime day, Trips? stored) {
+    final current = stored?.startDatetime;
+    if (stored != null &&
+        current != null &&
+        stored.isDateOnly &&
+        current.year == day.year &&
+        current.month == day.month &&
+        current.day == day.day) {
+      return current;
+    }
+    return DateTime(day.year, day.month, day.day, 0, 0, 1);
+  }
+
+  /// A delay column: seconds, as Trainlog stores them, or null to clear it.
+  static int? _delayColumn(int? minutes) =>
+      minutes == null ? null : minutes * 60;
+
+  /// The manual duration in seconds, or null when the form carries none —
+  /// which clears the column, the way an emptied duration field would.
+  int? _durationColumn(DateType type) {
+    final (hour, minute) = duration[type] ?? (null, null);
+    if (hour == null && minute == null) return null;
+    return (hour ?? 0) * 3600 + (minute ?? 0) * 60;
+  }
+
+  // -----------------------------
   // JSON
   // -----------------------------
   String toJson() {

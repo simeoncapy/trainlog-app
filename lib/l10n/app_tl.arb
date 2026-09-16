@@ -635,5 +635,7 @@
   "editTripPathDescription": "Ang iginuhit na landas ng biyahe ay ine-edit sa sarili nitong screen.",
   "editTripSaveButton": "I-save ang mga pagbabago",
   "duplicateTripSaveButton": "Lumikha ng bagong biyahe",
-  "editTripComingSoon": "Magiging available ito sa isang susunod na update."
+  "editTripComingSoon": "Magiging available ito sa isang susunod na update.",
+  "editTripSavedMsg": "Na-save ang biyahe.",
+  "editTripSaveErrorMsg": "Hindi na-save ang biyahe: {error}"
 }

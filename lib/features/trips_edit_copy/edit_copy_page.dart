@@ -36,8 +36,12 @@ import 'package:trainlog_app/widgets/primary_action_button.dart';
 ///
 /// The loaded trip seeds a [TripFormModel] shared with the add-trip wizard, so
 /// the form blocks are the same widgets. The blocks are laid out in one scroll
-/// view and the sticky [EditTripSectionBar] anchors to them. Submitting is not
-/// wired yet — the API is not ready.
+/// view and the sticky [EditTripSectionBar] anchors to them.
+///
+/// Saving hands the form back to [TripEditCopyService.save] as `trips`
+/// columns, which writes it and refreshes the cached trip. Only an edit can be
+/// saved: a duplicate is a new trip, and creating one still goes through the
+/// trip creation pipeline (the routing web view).
 class EditCopyPage extends StatefulWidget {
   /// Id of the trip to edit, or of the trip to copy from.
   final int tripId;
@@ -59,6 +63,13 @@ class _EditCopyPageState extends State<EditCopyPage> {
   bool _loading = true;
   TripEditCopyResult? _result;
   bool _warningDismissed = false;
+
+  /// The loader/saver for this trip, kept from the initial load so saving goes
+  /// back through the same service.
+  TripEditCopyService? _service;
+
+  /// True while the form is being written to the server.
+  bool _saving = false;
 
   /// Form state seeded from the loaded trip; null until it has loaded (or
   /// when there is no trip to show at all).
@@ -96,6 +107,8 @@ class _EditCopyPageState extends State<EditCopyPage> {
       api: trainlog.tripsApi,
       trips: context.read<TripsProvider>(),
     );
+
+    _service = service;
 
     final result = await service.load(
       username: trainlog.username,
@@ -182,8 +195,10 @@ class _EditCopyPageState extends State<EditCopyPage> {
       ),
     );
 
-    // TODO: Only the form is updated for now: pushing the new type (and the vehicle
-    // material / seat resets that come with it) waits for the API.
+    // TODO: Only the form is updated for now. The type is not part of a trip
+    // patch — the server does not take it through an edit — so pushing the new
+    // type (and the vehicle material / seat resets that come with it) needs the
+    // separate call the section's own warning already announces.
     if (picked == null || !mounted) return;
     form.setVehicleType(picked);
   }
@@ -200,6 +215,65 @@ class _EditCopyPageState extends State<EditCopyPage> {
         ),
       ),
     );
+  }
+
+  /// Writes the form back to the server and closes the page.
+  ///
+  /// Only an edit is saved here: duplicating creates a new trip, which still
+  /// goes through the routing web view.
+  Future<void> _save() async {
+    final form = _form;
+    final service = _service;
+    if (form == null || service == null || _saving) return;
+
+    if (widget.mode == EditCopy.copy) {
+      _showComingSoon();
+      return;
+    }
+
+    final loc = AppLocalizations.of(context)!;
+    final messenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+    final username = context.read<TrainlogProvider>().username;
+
+    // The schedule is the only thing this form can leave invalid: the stations
+    // keep the position they were loaded with, so they cannot be broken here.
+    if (!form.validateDate()) {
+      messenger
+        ..clearSnackBars()
+        ..showSnackBar(SnackBar(content: Text(loc.fillRequiredFields)));
+      await _scrollToSection(EditTripSection.when);
+      return;
+    }
+
+    // Nothing was touched: closing the page is the whole answer.
+    if (!form.hasBeenChanged) {
+      navigator.pop();
+      return;
+    }
+
+    setState(() => _saving = true);
+    try {
+      await service.save(
+        username: username,
+        tripId: widget.tripId,
+        fields: form.toTripColumns(stored: _result?.trip),
+      );
+      if (!mounted) return;
+      messenger
+        ..clearSnackBars()
+        ..showSnackBar(SnackBar(content: Text(loc.editTripSavedMsg)));
+      navigator.pop();
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _saving = false);
+      final reason = e is TripPatchException ? e.message : '$e';
+      messenger
+        ..clearSnackBars()
+        ..showSnackBar(
+          SnackBar(content: Text(loc.editTripSaveErrorMsg(reason))),
+        );
+    }
   }
 
   /// Placeholder for the actions whose logic is not implemented yet.
@@ -335,11 +409,17 @@ class _EditCopyPageState extends State<EditCopyPage> {
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            child: PrimaryActionButton(
-              label: widget.mode == EditCopy.edit ? loc.editTripSaveButton : loc.duplicateTripSaveButton,
-              // TODO: submit the form once the edit/copy API is available.
-              onPressed: _showComingSoon,
-            ),
+            child: _saving
+                ? const SizedBox(
+                    height: 52,
+                    child: Center(child: CircularProgressIndicator()),
+                  )
+                : PrimaryActionButton(
+                    label: widget.mode == EditCopy.edit
+                        ? loc.editTripSaveButton
+                        : loc.duplicateTripSaveButton,
+                    onPressed: _save,
+                  ),
           ),
         ],
       ],
