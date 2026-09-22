@@ -34,7 +34,8 @@ class _EditTripTicketSectionState extends State<EditTripTicketSection> {
 
     final model = context.read<TripFormModel>();
     _currencyCode = model.currencyCode ?? context.read<SettingsProvider>().currency;
-    model.currencyCode = _currencyCode;
+    // Defaulting the currency is not the user editing the form.
+    model.initCurrencyCode(_currencyCode);
     _purchaseDate = model.purchaseDate;
 
     WidgetsBinding.instance.addPostFrameCallback((_) => _loadCurrencies());

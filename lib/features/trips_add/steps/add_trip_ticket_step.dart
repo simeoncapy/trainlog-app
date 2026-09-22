@@ -45,7 +45,8 @@ class _AddTripTicketStepState extends State<AddTripTicketStep> {
     final trainlog = context.read<TrainlogProvider>();
 
     _currencyCode = model.currencyCode ?? settings.currency;
-    model.currencyCode = _currencyCode;
+    // Defaulting the currency is not the user editing the form.
+    model.initCurrencyCode(_currencyCode);
     // The purchase date is optional — no default until the user picks one.
     _selectedPurchaseDate = model.purchaseDate;
 

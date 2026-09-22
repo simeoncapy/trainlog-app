@@ -135,7 +135,11 @@ class TripFormModel extends ChangeNotifier {
 
   // STEP 2 — Dates
   bool dateHasError = false;
-  DateType dateType = DateType.precise;
+
+  DateType _dateType = DateType.precise;
+  DateType get dateType => _dateType;
+  set dateType(DateType value) => _dateType = _edited(_dateType, value);
+
   DateTime? departureDate;
   DateTime? departureDateLocal;
   ({bool depDate, bool depTime}) hasDepartureDateTime = (
@@ -148,13 +152,19 @@ class TripFormModel extends ChangeNotifier {
     arrDate: false,
     arrTime: false,
   );
-  bool isPast = true;
+  bool _isPast = true;
+  bool get isPast => _isPast;
+  set isPast(bool value) => _isPast = _edited(_isPast, value);
+
   Map <DateType, (int?, int?)> duration = {
     DateType.precise: (null, null),
     DateType.unknown: (null, null),
     DateType.date: (null, null)
   };
-  DateTime? departureDayDateOnly;
+  DateTime? _departureDayDateOnly;
+  DateTime? get departureDayDateOnly => _departureDayDateOnly;
+  set departureDayDateOnly(DateTime? value) =>
+      _departureDayDateOnly = _edited(_departureDayDateOnly, value);
 
   bool delayDepartureMinuteMode = false;
   DateTime? delayDepartureTime;
@@ -165,15 +175,44 @@ class TripFormModel extends ChangeNotifier {
   int? delayArrivalMinute;
 
   // STEP 3 — Details
-  String? line;
-  String? material;
-  String? registration;
-  String? seat;
-  String? notes;
+  String? _line;
+  String? get line => _line;
+  set line(String? value) => _line = _edited(_line, value);
 
-  double? price;
-  DateTime? purchaseDate;
-  String? currencyCode;
+  String? _material;
+  String? get material => _material;
+  set material(String? value) => _material = _edited(_material, value);
+
+  String? _registration;
+  String? get registration => _registration;
+  set registration(String? value) =>
+      _registration = _edited(_registration, value);
+
+  String? _seat;
+  String? get seat => _seat;
+  set seat(String? value) => _seat = _edited(_seat, value);
+
+  String? _notes;
+  String? get notes => _notes;
+  set notes(String? value) => _notes = _edited(_notes, value);
+
+  double? _price;
+  double? get price => _price;
+  set price(double? value) => _price = _edited(_price, value);
+
+  DateTime? _purchaseDate;
+  DateTime? get purchaseDate => _purchaseDate;
+  set purchaseDate(DateTime? value) =>
+      _purchaseDate = _edited(_purchaseDate, value);
+
+  String? _currencyCode;
+  String? get currencyCode => _currencyCode;
+  set currencyCode(String? value) =>
+      _currencyCode = _edited(_currencyCode, value);
+
+  /// Seeds the currency without counting as a user edit: the ticket block
+  /// defaults it from the account settings when the trip carries none.
+  void initCurrencyCode(String? code) => _currencyCode = code;
 
   EnergyType energyType = EnergyType.auto;
   TripVisibility? tripVisibility;// = TripVisibility.private;
@@ -277,6 +316,21 @@ class TripFormModel extends ChangeNotifier {
 
   // Init
   void initState() => _hasBeenChanged = false;
+
+  /// Returns [value] and marks the form as changed when it differs from
+  /// [current].
+  ///
+  /// The form blocks write most fields straight onto the model
+  /// (`model.notes = value`), so the setters themselves are what has to record
+  /// the edit — [hasBeenChanged] is what decides whether saving does anything
+  /// at all, and what the add wizard asks about before discarding a form.
+  /// Seeding a field without counting as an edit goes through an `init…`
+  /// method instead ([initCurrencyCode], [initDepartureDateTime]) or is
+  /// followed by [initState].
+  T _edited<T>(T current, T value) {
+    if (current != value) formDataChanged();
+    return value;
+  }
 
   // -----------------------------
   // Validation
