@@ -174,12 +174,17 @@ LocationCategory categorize(String? osmKey, String? osmValue, String? type) {
     case 'railway':
       if (value == 'tram_stop') return LocationCategory.tram;
       if (value == 'subway_entrance') return LocationCategory.metro;
-      if (value == 'station' || value == 'halt') return LocationCategory.railStation;
+      if (const {'station', 'halt', 'stop', 'platform'}.contains(value)) {
+        return LocationCategory.railStation;
+      }
       break;
     case 'public_transport':
-      return value == 'station'
+      return value == 'station' || value == 'stop_area'
           ? LocationCategory.railStation
           : LocationCategory.busStop;
+    case 'building':
+      if (value == 'train_station') return LocationCategory.railStation;
+      break;
     case 'highway':
       return value == 'bus_stop'
           ? LocationCategory.busStop

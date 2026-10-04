@@ -30,9 +30,15 @@ Map<String, dynamic> _feature({
   };
 }
 
-LocationSearchResult _photon(String name, int id, {LocationCategory? as}) {
+LocationSearchResult _photon(
+  String name,
+  int id, {
+  LocationCategory? as,
+  double lat = 48.0,
+  double lon = 2.0,
+}) {
   final r = LocationSearchResult.fromPhotonFeature(
-    _feature(name: name, lat: 48.0, lon: 2.0, osmId: id),
+    _feature(name: name, lat: lat, lon: lon, osmId: id),
   )!;
   if (as == null) return r;
   return LocationSearchResult(
@@ -145,10 +151,9 @@ void main() {
       'longitude': 2.5479,
     })!;
 
-    test('local results first, duplicates dropped', () {
+    test('same OSM object kept once, in order', () {
       final merged = SearchLocationApi.mergeResults(
-        local: [_photon('A', 1), _photon('B', 2)],
-        global: [_photon('B', 2), _photon('C', 3)],
+        photon: [_photon('A', 1), _photon('B', 2), _photon('B', 2), _photon('C', 3)],
         airports: const [],
       );
       expect(merged.map((r) => r.name), ['A', 'B', 'C']);
@@ -164,8 +169,7 @@ void main() {
         osmId: 10,
       ))!;
       final merged = SearchLocationApi.mergeResults(
-        local: const [],
-        global: [_photon('A', 1), photonCdg, _photon('C', 3)],
+        photon: [_photon('A', 1), photonCdg, _photon('C', 3)],
         airports: [cdg],
       );
       expect(merged.map((r) => r.name), ['A', 'Charles de Gaulle (CDG)', 'C']);
@@ -175,13 +179,13 @@ void main() {
       final photon = [_photon('A', 1)];
       expect(
         SearchLocationApi.mergeResults(
-          local: const [], global: photon, airports: [cdg], airportsFirst: true,
+          photon: photon, airports: [cdg], airportsFirst: true,
         ).first.iata,
         'CDG',
       );
       expect(
         SearchLocationApi.mergeResults(
-          local: const [], global: photon, airports: [cdg],
+          photon: photon, airports: [cdg],
         ).last.iata,
         'CDG',
       );
@@ -189,12 +193,99 @@ void main() {
 
     test('limit is applied', () {
       final merged = SearchLocationApi.mergeResults(
-        local: const [],
-        global: [for (var i = 0; i < 20; i++) _photon('P$i', i)],
+        photon: [for (var i = 0; i < 20; i++) _photon('P$i', i)],
         airports: const [],
         limit: 5,
       );
       expect(merged, hasLength(5));
+    });
+  });
+
+  group('mergeDuplicates', () {
+    test('one station mapped by several operators becomes one entry', () {
+      final merged = SearchLocationApi.mergeDuplicates([
+        _photon('Kita-Senju', 1, as: LocationCategory.address, lat: 35.7497, lon: 139.8048),
+        _photon('Kita-Senju', 2, as: LocationCategory.railStation, lat: 35.7490, lon: 139.8050),
+        _photon('Kita-Senju', 3, as: LocationCategory.railStation, lat: 35.7502, lon: 139.8040),
+        _photon('Minami-Senju', 4, as: LocationCategory.railStation, lat: 35.7330, lon: 139.7990),
+      ]);
+      expect(merged.map((r) => r.name), ['Kita-Senju', 'Minami-Senju']);
+      expect(merged.first.category, LocationCategory.railStation);
+    });
+
+    test('same name far away or of another kind stays separate', () {
+      final merged = SearchLocationApi.mergeDuplicates([
+        _photon('Springfield', 1, as: LocationCategory.railStation, lat: 39.80, lon: -89.65),
+        _photon('Springfield', 2, as: LocationCategory.railStation, lat: 42.10, lon: -72.59),
+        _photon('Springfield', 3, as: LocationCategory.city, lat: 39.80, lon: -89.65),
+      ]);
+      expect(merged, hasLength(3));
+    });
+  });
+
+  group('language choice', () {
+    Map<String, dynamic> kitaSenju(String name, String city, String country) =>
+        _feature(
+          name: name,
+          lat: 35.749,
+          lon: 139.805,
+          osmKey: 'railway',
+          osmValue: 'station',
+          osmId: 99,
+          extra: {'city': city, 'country': country, 'countrycode': 'JP'},
+        );
+
+    final en = kitaSenju('Kita-Senju', 'Tokyo', 'Japan');
+    final local = kitaSenju('北千住', '東京都', '日本');
+    final fr = kitaSenju('北千住', 'Tokyo', 'Japon');
+
+    String nameOf(Map<String, dynamic> f) => f['properties']['name'];
+    String countryOf(Map<String, dynamic> f) => f['properties']['country'];
+
+    test('French user: Latin names, French where translated', () {
+      final f = SearchLocationApi.pickLocalizedFeature(en, fr, 'fr');
+      expect(nameOf(f), 'Kita-Senju');
+      expect(countryOf(f), 'Japon');
+    });
+
+    test('Japanese user: Japanese names', () {
+      final f = SearchLocationApi.pickLocalizedFeature(en, local, 'ja');
+      expect(nameOf(f), '北千住');
+      expect(countryOf(f), '日本');
+    });
+
+    test('Japanese user abroad: English when no Japanese name', () {
+      final paris = _feature(
+        name: 'Gare du Nord', lat: 48.88, lon: 2.35, osmId: 5,
+        extra: {'city': 'Paris'},
+      );
+      final f = SearchLocationApi.pickLocalizedFeature(paris, paris, 'ja');
+      expect(nameOf(f), 'Gare du Nord');
+    });
+
+    test('local name kept when there is no Latin version', () {
+      final f = SearchLocationApi.pickLocalizedFeature(local, fr, 'fr');
+      expect(nameOf(f), '北千住');
+    });
+
+    test('server city prefix removed before choosing', () {
+      final prefixed = _feature(
+        name: 'Tokyo - Kita-Senju', lat: 35.749, lon: 139.805, osmId: 7,
+        extra: {'city': 'Tokyo'},
+      );
+      final f = SearchLocationApi.pickLocalizedFeature(prefixed, null, 'fr');
+      expect(nameOf(f), 'Kita-Senju');
+    });
+
+    test('combineLanguages pairs by OSM object and keeps English order', () {
+      final other = _feature(name: 'Senju', lat: 35.75, lon: 139.80, osmId: 100);
+      final combined = SearchLocationApi.combineLanguages(
+        english: [en],
+        secondary: [other, fr],
+        languageCode: 'fr',
+      );
+      expect(combined.map(nameOf), ['Kita-Senju', 'Senju']);
+      expect(countryOf(combined.first), 'Japon');
     });
   });
 }
