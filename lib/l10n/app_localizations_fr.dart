@@ -1551,4 +1551,44 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get changelogTypeFix => 'Corrections de bugs';
+
+  @override
+  String get mapSearchLocationButton => 'Rechercher un lieu';
+
+  @override
+  String get mapSearchLocationHint =>
+      'Rechercher un lieu, une adresse, un hôtel...';
+
+  @override
+  String get mapSearchLocationNoResult => 'Aucun lieu trouvé';
+
+  @override
+  String mapSearchLocationCategory(String category) {
+    String _temp0 = intl.Intl.selectLogic(category, {
+      'railStation': 'Gare',
+      'metro': 'Métro',
+      'tram': 'Arrêt de tram',
+      'busStop': 'Arrêt de bus',
+      'ferry': 'Terminal de ferry',
+      'airport': 'Aéroport',
+      'aerialway': 'Remontée mécanique',
+      'hotel': 'Hébergement',
+      'food': 'Restauration',
+      'shop': 'Commerce',
+      'publicBuilding': 'Bâtiment public',
+      'health': 'Santé',
+      'education': 'Enseignement',
+      'tourism': 'Tourisme',
+      'religion': 'Lieu de culte',
+      'nature': 'Nature',
+      'sport': 'Sport',
+      'city': 'Ville',
+      'district': 'Quartier',
+      'region': 'Région',
+      'street': 'Rue',
+      'address': 'Adresse',
+      'other': 'Lieu',
+    });
+    return '$_temp0';
+  }
 }

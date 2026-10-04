@@ -811,5 +811,18 @@
   "changelogTypeFeature": "New features",
   "changelogTypeMinor": "Improvements",
   "changelogTypeOther": "Other changes",
-  "changelogTypeFix": "Bug fixes"
+  "changelogTypeFix": "Bug fixes",
+  "mapSearchLocationButton": "Search a place",
+  "mapSearchLocationHint": "Search a place, an address, a hotel...",
+  "mapSearchLocationNoResult": "No place found",
+  "mapSearchLocationCategory": "{category, select, railStation{Station} metro{Metro} tram{Tram stop} busStop{Bus stop} ferry{Ferry terminal} airport{Airport} aerialway{Cable car} hotel{Accommodation} food{Food & drink} shop{Shop} publicBuilding{Public building} health{Health} education{Education} tourism{Tourism} religion{Place of worship} nature{Nature} sport{Sport} city{City} district{District} region{Region} street{Street} address{Address} other{Place}}",
+  "@mapSearchLocationCategory": {
+    "description": "Label of a place category in the map search results",
+    "placeholders": {
+      "category": {
+        "type": "String",
+        "description": "Name of a LocationCategory value (railStation, hotel, city...)."
+      }
+    }
+  }
 }

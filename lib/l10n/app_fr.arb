@@ -449,5 +449,9 @@
   "changelogTypeFeature": "Nouvelles fonctionnalités",
   "changelogTypeMinor": "Améliorations",
   "changelogTypeOther": "Autres changements",
-  "changelogTypeFix": "Corrections de bugs"
+  "changelogTypeFix": "Corrections de bugs",
+  "mapSearchLocationButton": "Rechercher un lieu",
+  "mapSearchLocationHint": "Rechercher un lieu, une adresse, un hôtel...",
+  "mapSearchLocationNoResult": "Aucun lieu trouvé",
+  "mapSearchLocationCategory": "{category, select, railStation{Gare} metro{Métro} tram{Arrêt de tram} busStop{Arrêt de bus} ferry{Terminal de ferry} airport{Aéroport} aerialway{Remontée mécanique} hotel{Hébergement} food{Restauration} shop{Commerce} publicBuilding{Bâtiment public} health{Santé} education{Enseignement} tourism{Tourisme} religion{Lieu de culte} nature{Nature} sport{Sport} city{Ville} district{Quartier} region{Région} street{Rue} address{Adresse} other{Lieu}}"
 }

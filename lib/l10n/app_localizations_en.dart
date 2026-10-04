@@ -1535,4 +1535,43 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get changelogTypeFix => 'Bug fixes';
+
+  @override
+  String get mapSearchLocationButton => 'Search a place';
+
+  @override
+  String get mapSearchLocationHint => 'Search a place, an address, a hotel...';
+
+  @override
+  String get mapSearchLocationNoResult => 'No place found';
+
+  @override
+  String mapSearchLocationCategory(String category) {
+    String _temp0 = intl.Intl.selectLogic(category, {
+      'railStation': 'Station',
+      'metro': 'Metro',
+      'tram': 'Tram stop',
+      'busStop': 'Bus stop',
+      'ferry': 'Ferry terminal',
+      'airport': 'Airport',
+      'aerialway': 'Cable car',
+      'hotel': 'Accommodation',
+      'food': 'Food & drink',
+      'shop': 'Shop',
+      'publicBuilding': 'Public building',
+      'health': 'Health',
+      'education': 'Education',
+      'tourism': 'Tourism',
+      'religion': 'Place of worship',
+      'nature': 'Nature',
+      'sport': 'Sport',
+      'city': 'City',
+      'district': 'District',
+      'region': 'Region',
+      'street': 'Street',
+      'address': 'Address',
+      'other': 'Place',
+    });
+    return '$_temp0';
+  }
 }

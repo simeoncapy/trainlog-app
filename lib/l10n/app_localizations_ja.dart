@@ -1501,4 +1501,43 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get changelogTypeFix => '不具合修正';
+
+  @override
+  String get mapSearchLocationButton => '場所を検索';
+
+  @override
+  String get mapSearchLocationHint => '場所、住所、ホテルなどを検索...';
+
+  @override
+  String get mapSearchLocationNoResult => '場所が見つかりません';
+
+  @override
+  String mapSearchLocationCategory(String category) {
+    String _temp0 = intl.Intl.selectLogic(category, {
+      'railStation': '駅',
+      'metro': '地下鉄',
+      'tram': '路面電車停留所',
+      'busStop': 'バス停',
+      'ferry': 'フェリーターミナル',
+      'airport': '空港',
+      'aerialway': 'ロープウェイ',
+      'hotel': '宿泊施設',
+      'food': '飲食店',
+      'shop': '店舗',
+      'publicBuilding': '公共施設',
+      'health': '医療',
+      'education': '教育',
+      'tourism': '観光',
+      'religion': '宗教施設',
+      'nature': '自然',
+      'sport': 'スポーツ',
+      'city': '都市',
+      'district': '地区',
+      'region': '地域',
+      'street': '通り',
+      'address': '住所',
+      'other': '場所',
+    });
+    return '$_temp0';
+  }
 }
