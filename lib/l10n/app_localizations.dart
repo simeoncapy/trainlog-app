@@ -2610,6 +2610,12 @@ abstract class AppLocalizations {
   /// **'Search a place, an address, a hotel...'**
   String get mapSearchLocationHint;
 
+  /// No description provided for @mapSearchLocationTip.
+  ///
+  /// In en, this message translates to:
+  /// **'If you cannot find your location, search for the place in the local language.'**
+  String get mapSearchLocationTip;
+
   /// No description provided for @mapSearchLocationNoResult.
   ///
   /// In en, this message translates to:

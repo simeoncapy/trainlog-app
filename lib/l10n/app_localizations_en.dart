@@ -1543,6 +1543,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mapSearchLocationHint => 'Search a place, an address, a hotel...';
 
   @override
+  String get mapSearchLocationTip =>
+      'If you cannot find your location, search for the place in the local language.';
+
+  @override
   String get mapSearchLocationNoResult => 'No place found';
 
   @override

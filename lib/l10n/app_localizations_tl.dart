@@ -1526,6 +1526,10 @@ class AppLocalizationsTl extends AppLocalizations {
   String get mapSearchLocationHint => 'Maghanap ng lugar, address, hotel...';
 
   @override
+  String get mapSearchLocationTip =>
+      'Kung hindi mo mahanap ang iyong lokasyon, hanapin ang lugar sa lokal na wika o sa Ingles.';
+
+  @override
   String get mapSearchLocationNoResult => 'Walang nahanap na lugar';
 
   @override

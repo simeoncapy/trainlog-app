@@ -508,14 +508,39 @@ class _MapPageState extends State<MapPage>
           items: _searchResults,
           isLoading: _isSearching,
           hintText: loc.mapSearchLocationHint,
-          belowSearchField: showNoResult
-              ? Text(
+          belowSearchField: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(
+                    Icons.info_outline,
+                    size: 16,
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      loc.mapSearchLocationTip,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              if (showNoResult) ...[
+                const SizedBox(height: 12),
+                Text(
                   loc.mapSearchLocationNoResult,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
-                )
-              : null,
+                ),
+              ],
+            ],
+          ),
           onChanged: (query) {
             _searchDebounce?.cancel();
             _searchDebounce = Timer(const Duration(milliseconds: 350), () {

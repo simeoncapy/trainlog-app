@@ -1509,6 +1509,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get mapSearchLocationHint => '場所、住所、ホテルなどを検索...';
 
   @override
+  String get mapSearchLocationTip => '場所が見つからない場合は、現地の言語または英語で検索してください。';
+
+  @override
   String get mapSearchLocationNoResult => '場所が見つかりません';
 
   @override

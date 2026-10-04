@@ -611,6 +611,7 @@
   "changelogTypeFix": "Mga bug fix",
   "mapSearchLocationButton": "Maghanap ng lugar",
   "mapSearchLocationHint": "Maghanap ng lugar, address, hotel...",
+  "mapSearchLocationTip": "Kung hindi mo mahanap ang iyong lokasyon, hanapin ang lugar sa lokal na wika o sa Ingles.",
   "mapSearchLocationNoResult": "Walang nahanap na lugar",
   "mapSearchLocationCategory": "{category, select, railStation{Istasyon} metro{Metro} tram{Hintuan ng tram} busStop{Hintuan ng bus} ferry{Terminal ng ferry} airport{Paliparan} aerialway{Cable car} hotel{Matutuluyan} food{Kainan} shop{Tindahan} publicBuilding{Pampublikong gusali} health{Kalusugan} education{Edukasyon} tourism{Turismo} religion{Lugar ng pagsamba} nature{Kalikasan} sport{Isports} city{Lungsod} district{Distrito} region{Rehiyon} street{Kalye} address{Address} other{Lugar}}"
 }

@@ -1560,6 +1560,10 @@ class AppLocalizationsFr extends AppLocalizations {
       'Rechercher un lieu, une adresse, un hôtel...';
 
   @override
+  String get mapSearchLocationTip =>
+      'Si vous ne trouvez pas votre lieu, recherchez-le dans la langue locale ou en anglais.';
+
+  @override
   String get mapSearchLocationNoResult => 'Aucun lieu trouvé';
 
   @override
