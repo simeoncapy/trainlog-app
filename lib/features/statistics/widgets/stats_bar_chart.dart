@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'dart:ui' show FontFeature;
 import 'package:flutter/material.dart';
 import 'package:trainlog_app/app/theme/app_theme.dart';
+import 'package:trainlog_app/features/statistics/widgets/stats_unit_scale.dart';
 import 'package:trainlog_app/utils/number_formatter.dart';
 
 /// Horizontal proportional bar chart.
@@ -91,26 +92,15 @@ class _StatsBarChartState extends State<StatsBarChart> {
   }
 
   void _applyScale() {
-    final unitsByFactor = {
-      for (final f in UnitFactor.values) f: widget.baseUnit,
-      ...?widget.unitsByFactor,
-    };
-
-    final maxTotal = _rawPast.isEmpty
-        ? 0.0
-        : Iterable.generate(_rawPast.length)
-            .map((i) => _rawPast[i] + _rawFuture[i])
-            .reduce(math.max);
-
-    _factor = UnitFactor.base;
-    for (final f in UnitFactor.values) {
-      _factor = f;
-      if (f.apply(maxTotal) < 1000) break;
-    }
-
+    final scale = StatsUnitScale(
+      Iterable.generate(_rawPast.length, (i) => _rawPast[i] + _rawFuture[i]),
+      baseUnit: widget.baseUnit,
+      unitsByFactor: widget.unitsByFactor,
+    );
+    _factor = scale.factor;
     _scaledPast = _rawPast.map(_factor.apply).toList(growable: false);
     _scaledFuture = _rawFuture.map(_factor.apply).toList(growable: false);
-    _unitLabel = unitsByFactor[_factor]!;
+    _unitLabel = scale.unitLabel;
   }
 
   Color _lighten(Color color, [double amount = 0.3]) {

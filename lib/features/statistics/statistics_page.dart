@@ -232,13 +232,10 @@ class _StatisticsPageState extends State<StatisticsPage> {
       case StatisticsView.pie:
         return StatsPieChart(
           stats: statsShort,
-          interactive: false,
-          seedColor: barColor,
-          valueFormatter: (v) => formatNumber(context, v, noDecimal: false),
-          showLegend: true,
-          sectionsSpace: 2,
-          centerSpaceRadius: 36,
+          baseUnit: baseUnit,
+          unitsByFactor: unitMap,
           labelBuilder: labelBuilder,
+          otherLabel: otherLabel,
         );
 
       case StatisticsView.table:
