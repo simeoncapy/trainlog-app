@@ -1,4 +1,9 @@
 changelog_tl:
+  - version: 0.4.3
+    date: 2026-10-10
+    changes:
+      - type: feature
+        text: Search box sa mapa para mahanap ang anumang lugar (lungsod, address, istasyon, paliparan, hotel, tindahan...) at ilipat ang mapa doon.
   - version: 0.4.2
     date: 2026-07-26
     changes:

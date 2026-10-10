@@ -2597,6 +2597,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Bug fixes'**
   String get changelogTypeFix;
+
+  /// No description provided for @mapSearchLocationButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Search a place'**
+  String get mapSearchLocationButton;
+
+  /// No description provided for @mapSearchLocationHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search a place, an address, a hotel...'**
+  String get mapSearchLocationHint;
+
+  /// No description provided for @mapSearchLocationTip.
+  ///
+  /// In en, this message translates to:
+  /// **'If you cannot find your location, search for the place in the local language.'**
+  String get mapSearchLocationTip;
+
+  /// No description provided for @mapSearchLocationNoResult.
+  ///
+  /// In en, this message translates to:
+  /// **'No place found'**
+  String get mapSearchLocationNoResult;
+
+  /// Label of a place category in the map search results
+  ///
+  /// In en, this message translates to:
+  /// **'{category, select, railStation{Station} metro{Metro} tram{Tram stop} busStop{Bus stop} ferry{Ferry terminal} airport{Airport} aerialway{Cable car} hotel{Accommodation} food{Food & drink} shop{Shop} publicBuilding{Public building} health{Health} education{Education} tourism{Tourism} religion{Place of worship} nature{Nature} sport{Sport} city{City} district{District} region{Region} street{Street} address{Address} other{Place}}'**
+  String mapSearchLocationCategory(String category);
 }
 
 class _AppLocalizationsDelegate

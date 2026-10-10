@@ -1518,4 +1518,47 @@ class AppLocalizationsTl extends AppLocalizations {
 
   @override
   String get changelogTypeFix => 'Mga bug fix';
+
+  @override
+  String get mapSearchLocationButton => 'Maghanap ng lugar';
+
+  @override
+  String get mapSearchLocationHint => 'Maghanap ng lugar, address, hotel...';
+
+  @override
+  String get mapSearchLocationTip =>
+      'Kung hindi mo mahanap ang iyong lokasyon, hanapin ang lugar sa lokal na wika o sa Ingles.';
+
+  @override
+  String get mapSearchLocationNoResult => 'Walang nahanap na lugar';
+
+  @override
+  String mapSearchLocationCategory(String category) {
+    String _temp0 = intl.Intl.selectLogic(category, {
+      'railStation': 'Istasyon',
+      'metro': 'Metro',
+      'tram': 'Hintuan ng tram',
+      'busStop': 'Hintuan ng bus',
+      'ferry': 'Terminal ng ferry',
+      'airport': 'Paliparan',
+      'aerialway': 'Cable car',
+      'hotel': 'Matutuluyan',
+      'food': 'Kainan',
+      'shop': 'Tindahan',
+      'publicBuilding': 'Pampublikong gusali',
+      'health': 'Kalusugan',
+      'education': 'Edukasyon',
+      'tourism': 'Turismo',
+      'religion': 'Lugar ng pagsamba',
+      'nature': 'Kalikasan',
+      'sport': 'Isports',
+      'city': 'Lungsod',
+      'district': 'Distrito',
+      'region': 'Rehiyon',
+      'street': 'Kalye',
+      'address': 'Address',
+      'other': 'Lugar',
+    });
+    return '$_temp0';
+  }
 }

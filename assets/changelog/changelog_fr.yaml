@@ -1,4 +1,9 @@
 changelog_fr:
+  - version: 0.4.3
+    date: 2026-10-10
+    changes:
+      - type: feature
+        text: Barre de recherche sur la carte pour trouver n'importe quel lieu (villes, adresses, gares, aéroports, hôtels, commerces...) et y déplacer la carte.
   - version: 0.4.2
     date: 2026-07-26
     changes:

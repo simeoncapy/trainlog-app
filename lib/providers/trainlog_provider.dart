@@ -1,6 +1,8 @@
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_map/flutter_map.dart' show LatLngBounds;
 import 'package:flutter/material.dart';
+import 'package:trainlog_app/data/models/location_search_result.dart';
 import 'package:trainlog_app/data/models/news_model.dart';
 import 'package:trainlog_app/data/models/pre_record_model.dart';
 import 'package:trainlog_app/data/models/ranking_model.dart';
@@ -28,6 +30,7 @@ class TrainlogProvider extends ChangeNotifier {
   late AuthApi _auth;
   late TripsApi _tripsApi;
   late StationsApi _stations;
+  late SearchLocationApi _searchLocation;
   late AccountApi _account;
   late MiscApi _misc;
   late RankingApi _ranking;
@@ -53,6 +56,7 @@ class TrainlogProvider extends ChangeNotifier {
     _auth = AuthApi(_client);
     _tripsApi = TripsApi(_client);
     _stations = StationsApi(_client);
+    _searchLocation = SearchLocationApi(_stations);
     _account = AccountApi(_client);
     _misc = MiscApi(_client);
     _ranking = RankingApi(_client);
@@ -69,6 +73,19 @@ class TrainlogProvider extends ChangeNotifier {
 
   /// The leaderboard / ranking API.
   RankingApi get rankingApi => _ranking;
+
+  /// Free-text place search for the map (see [SearchLocationApi.search]).
+  Future<List<LocationSearchResult>> searchLocation(
+    String query, {
+    LatLngBounds? visibleBounds,
+    String? languageCode,
+  }) {
+    return _searchLocation.search(
+      query,
+      visibleBounds: visibleBounds,
+      languageCode: languageCode,
+    );
+  }
 
   /// Resolves the static SVG flag asset URL for an ISO country or ISO 3166-2
   /// subdivision [code] (see [MiscApi.fetchFlag]).
