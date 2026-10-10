@@ -19,22 +19,21 @@ class SearchLocationApi {
   /// Non-Latin scripts of app languages Photon cannot translate to: for those
   /// users the local name is kept when it is written in their own script.
   static final Map<String, RegExp> _languageScripts = {
-    'ja': RegExp(r'[぀-ヿ㐀-䶿一-鿿]'),
-    'zh': RegExp(r'[㐀-䶿一-鿿]'),
-    'ko': RegExp(r'[가-힯ᄀ-ᇿ]'),
-    'ru': RegExp(r'[Ѐ-ӿ]'),
-    'uk': RegExp(r'[Ѐ-ӿ]'),
-    'el': RegExp(r'[Ͱ-Ͽ]'),
-    'ar': RegExp(r'[؀-ۿ]'),
-    'he': RegExp(r'[֐-׿]'),
-    'th': RegExp(r'[฀-๿]'),
+    'ja': RegExp(r'[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}]', unicode: true),
+    'zh': RegExp(r'\p{Script=Han}', unicode: true),
+    'ko': RegExp(r'\p{Script=Hangul}', unicode: true),
+    'ru': RegExp(r'\p{Script=Cyrillic}', unicode: true),
+    'uk': RegExp(r'\p{Script=Cyrillic}', unicode: true),
+    'el': RegExp(r'\p{Script=Greek}', unicode: true),
+    'ar': RegExp(r'\p{Script=Arabic}', unicode: true),
+    'he': RegExp(r'\p{Script=Hebrew}', unicode: true),
+    'th': RegExp(r'\p{Script=Thai}', unicode: true),
   };
 
-  /// Letters outside the Latin script (Greek, Cyrillic, Arabic, Indic, CJK,
+  /// A letter outside the Latin script (Greek, Cyrillic, Arabic, Indic, CJK,
   /// kana, hangul...).
-  static final _nonLatinLetter = RegExp(
-    r'[Ͱ-᷿ἀ-῿⺀-퟿豈-﫿ｦ-ﾟ]',
-  );
+  static final _nonLatinLetter =
+      RegExp(r'(?![\p{Script=Latin}])\p{L}', unicode: true);
 
   /// Address fields localised by Photon, chosen one by one in
   /// [pickLocalizedFeature].
