@@ -373,7 +373,6 @@
   "statisticsPartialLoadWarning": "Hindi ma-load ang statistics para sa: {types}",
   "statisticsTotalLabel": "Lahat",
   "statisticsUnitLabel": "Unit:",
-  "statisticsPieWip": "Ang pie chart ay WIP",
   "statisticsTitle": "Statistics",
   "statisticsViewBar": "Bar",
   "statisticsViewPie": "Pie",

@@ -1076,9 +1076,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get statisticsUnitLabel => 'Unit:';
 
   @override
-  String get statisticsPieWip => 'The pie chart is WIP';
-
-  @override
   String get statisticsTitle => 'Statistics';
 
   @override

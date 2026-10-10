@@ -8,7 +8,6 @@ import 'package:trainlog_app/app/theme/chart_palette.dart';
 import 'package:trainlog_app/features/statistics/widgets/stats_unit_scale.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/utils/number_formatter.dart';
-import 'package:trainlog_app/widgets/error_banner.dart';
 
 /// Donut chart of key -> (past, future); slice size uses (past + future).
 ///
@@ -244,12 +243,6 @@ class _StatsPieChartState extends State<StatsPieChart> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            ErrorBanner(
-              severity: ErrorSeverity.info,
-              compact: true,
-              message: loc.statisticsPieWip,
-            ),
-            const SizedBox(height: 12),
             Center(
               child: SizedBox(
                 width: side,

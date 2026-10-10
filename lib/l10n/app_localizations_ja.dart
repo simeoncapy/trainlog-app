@@ -1056,9 +1056,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get statisticsUnitLabel => '単位：';
 
   @override
-  String get statisticsPieWip => '円グラフは仕掛品です';
-
-  @override
   String get statisticsTitle => '統計';
 
   @override

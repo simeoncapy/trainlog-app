@@ -1794,12 +1794,6 @@ abstract class AppLocalizations {
   /// **'Unit:'**
   String get statisticsUnitLabel;
 
-  /// No description provided for @statisticsPieWip.
-  ///
-  /// In en, this message translates to:
-  /// **'The pie chart is WIP'**
-  String get statisticsPieWip;
-
   /// No description provided for @statisticsTitle.
   ///
   /// In en, this message translates to:

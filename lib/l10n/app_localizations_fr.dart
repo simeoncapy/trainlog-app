@@ -1088,9 +1088,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get statisticsUnitLabel => 'Unités :';
 
   @override
-  String get statisticsPieWip => 'Le camembert est en cours de construction';
-
-  @override
   String get statisticsTitle => 'Statistiques';
 
   @override
