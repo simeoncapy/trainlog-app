@@ -51,14 +51,21 @@ class _StatisticsPageState extends State<StatisticsPage> {
     final loc = AppLocalizations.of(context)!;
 
     return ChangeNotifierProvider(
-      create: (ctx) => StatisticsProvider(ctx.read<TrainlogProvider>())..load(),
+      create: (ctx) => StatisticsProvider(
+        ctx.read<TrainlogProvider>(),
+        allVehicles: ctx.read<TripsProvider>().vehicleTypesWithoutPoi,
+      )..load(),
       builder: (context, _) {
         context.watch<TrainlogProvider>();
         final statsProv = context.watch<StatisticsProvider>();
         final settings = context.watch<SettingsProvider>();
         final tripsProv = context.watch<TripsProvider>();
         final palette = MapColorPaletteHelper.getPalette(settings.mapColorPalette);
-        final barColor = palette[statsProv.vehicle] ?? Colors.blue;
+        // Trip types may arrive after the provider was created.
+        statsProv.updateAllVehicles(tripsProv.vehicleTypesWithoutPoi);
+        final barColor = statsProv.vehicle == null
+            ? Theme.of(context).colorScheme.primary
+            : palette[statsProv.vehicle] ?? Colors.blue;
         final disabledYears = statsProv.graph == GraphType.years;
 
         return SingleChildScrollView(
@@ -107,7 +114,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                 barColor: barColor,
                 sortedAlpha: _sortedAlpha,
                 onSortToggle: () => setState(() => _sortedAlpha = !_sortedAlpha),
-                chartBuilder: (ctx) => _buildChart(ctx, statsProv, loc, barColor),
+                chartBuilder: (ctx) => _buildChart(ctx, statsProv, loc, barColor, palette),
               ),
             ],
           ),
@@ -123,14 +130,11 @@ class _StatisticsPageState extends State<StatisticsPage> {
     StatisticsProvider p,
     AppLocalizations loc,
     Color barColor,
+    Map<VehicleType, Color> palette,
   ) {
     final otherLabel = loc.statisticsOtherLabel;
+    Color colorOf(VehicleType v) => palette[v] ?? Colors.blue;
     final statsShort = p.currentStatsShort(10, otherLabel: otherLabel);
-    final unitMap = p.unitsByFactor(context);
-    final baseUnit = p.baseUnitLabel(context);
-    final labelBuilder = p.labelBuilder(context);
-    final isDurationOrTrips =
-        p.unit == GraphUnit.duration || p.unit == GraphUnit.trip;
 
     if (p.isLoading) {
       return const Padding(
@@ -140,6 +144,50 @@ class _StatisticsPageState extends State<StatisticsPage> {
     }
     if (p.error != null) return Center(child: Text('Error: ${p.error}'));
     if (statsShort.isEmpty) return Center(child: Text(loc.noData));
+
+    final chart = _buildChartView(context, p, loc, barColor, colorOf, statsShort, otherLabel);
+    if (p.failedVehicles.isEmpty) return chart;
+
+    // Some modes failed to load: warn, but still show the others.
+    final failed = p.failedVehicles.map((v) => v.label(context)).join(', ');
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: Row(
+            children: [
+              Icon(Icons.warning_amber, size: 18, color: Theme.of(context).colorScheme.error),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  loc.statisticsPartialLoadWarning(failed),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        chart,
+      ],
+    );
+  }
+
+  Widget _buildChartView(
+    BuildContext context,
+    StatisticsProvider p,
+    AppLocalizations loc,
+    Color barColor,
+    Color Function(VehicleType) colorOf,
+    LinkedHashMap<String, ({double past, double future})> statsShort,
+    String otherLabel,
+  ) {
+    final unitMap = p.unitsByFactor(context);
+    final baseUnit = p.baseUnitLabel(context);
+    final labelBuilder = p.labelBuilder(context);
 
     switch (_view) {
       case StatisticsView.bar:
@@ -157,9 +205,22 @@ class _StatisticsPageState extends State<StatisticsPage> {
           otherLabel: otherLabel,
           barColor: barColor,
         );
+        // All modes: one coloured segment per vehicle type.
+        List<List<StatsBarSegment>>? segments;
+        if (p.isAllVehicles) {
+          final byVehicle = p.currentStatsByVehicleShort(10, otherLabel: otherLabel);
+          segments = [
+            for (final key in orderedBar.keys)
+              [
+                for (final e in (byVehicle[key] ?? const {}).entries)
+                  (color: colorOf(e.key), past: e.value.past, future: e.value.future),
+              ],
+          ];
+        }
         return StatsBarChart(
           stats: orderedBar,
           images: images,
+          segments: segments,
           baseUnit: baseUnit,
           unitsByFactor: unitMap,
           color: barColor,
@@ -190,13 +251,41 @@ class _StatisticsPageState extends State<StatisticsPage> {
               )
             : _orderedStats(fullStats, alpha: _sortedAlpha, otherLabel: otherLabel);
         final isDuration = p.unit == GraphUnit.duration;
+        final isCountry = p.graph == GraphType.country;
 
         Map<String, ({double past, double future})>? rawForTable;
         if (isDuration) {
           final rawSeconds = p.currentDurationRawSeconds();
-          rawForTable = (p.graph == GraphType.country)
+          rawForTable = isCountry
               ? _localizedRawSecondsForTable(context, rawSeconds)
               : LinkedHashMap.of(rawSeconds);
+        }
+
+        // All modes: one detail line per vehicle type under each entry.
+        Map<String, List<StatsTableSubRow>>? subRows;
+        if (p.isAllVehicles) {
+          var byVehicle = p.currentStatsByVehicle();
+          var rawByVehicle = isDuration ? p.currentDurationRawSecondsByVehicle() : null;
+          if (isCountry) {
+            byVehicle = _localizedBreakdownForTable(context, byVehicle);
+            if (rawByVehicle != null) {
+              rawByVehicle = _localizedBreakdownForTable(context, rawByVehicle);
+            }
+          }
+          subRows = {
+            for (final e in byVehicle.entries)
+              e.key: [
+                for (final m in e.value.entries)
+                  (
+                    icon: VehicleType.iconOf(m.key),
+                    color: colorOf(m.key),
+                    label: VehicleType.labelOf(m.key, context),
+                    past: m.value.past,
+                    future: m.value.future,
+                    raw: rawByVehicle?[e.key]?[m.key],
+                  ),
+              ],
+          };
         }
 
         return Column(
@@ -220,6 +309,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
               isDuration: isDuration,
               rawValues: rawForTable,
               rawValueFormatter: p.humanizeSeconds,
+              subRows: subRows,
               valueFormatter: (v) => formatNumber(context, v),
               labelHeader: p.graph.label(context, p.vehicle),
               pastHeader: loc.yearPastList,
@@ -279,6 +369,25 @@ class _StatisticsPageState extends State<StatisticsPage> {
         past: (cur?.past ?? 0) + e.value.past,
         future: (cur?.future ?? 0) + e.value.future,
       );
+    }
+    return out;
+  }
+
+  /// Merge per-mode breakdowns under their localized country name.
+  LinkedHashMap<String, Map<VehicleType, StatValue>> _localizedBreakdownForTable(
+    BuildContext context,
+    Map<String, Map<VehicleType, StatValue>> byCode,
+  ) {
+    final out = LinkedHashMap<String, Map<VehicleType, StatValue>>();
+    for (final e in byCode.entries) {
+      final merged = out.putIfAbsent(countryCodeToName(e.key, context), () => {});
+      for (final m in e.value.entries) {
+        final cur = merged[m.key];
+        merged[m.key] = (
+          past: (cur?.past ?? 0) + m.value.past,
+          future: (cur?.future ?? 0) + m.value.future,
+        );
+      }
     }
     return out;
   }
@@ -405,12 +514,18 @@ class _StatsCard extends StatelessWidget {
               children: [
                 // Vehicle type
                 Expanded(
-                  child: _OutlinedDropdown<VehicleType>(
-                    items: tripsProv.vehicleTypesWithoutPoi,
-                    selected: statsProv.vehicle,
-                    iconOf: (v) => VehicleType.iconOf(v),
-                    labelOf: (v) => VehicleType.labelOf(v, context),
-                    onChanged: (v) => statsProv.vehicle = v ?? statsProv.vehicle,
+                  // Wrapped in a record: a null popup value reads as "cancelled".
+                  child: _OutlinedDropdown<({VehicleType? type})>(
+                    items: [
+                      (type: null),
+                      for (final v in tripsProv.vehicleTypesWithoutPoi) (type: v),
+                    ],
+                    selected: (type: statsProv.vehicle),
+                    iconOf: (v) => StatisticsProvider.vehicleIconOf(v.type),
+                    labelOf: (v) => v.type == null
+                        ? loc.statisticsAllVehicles
+                        : VehicleType.labelOf(v.type!, context),
+                    onChanged: (v) => statsProv.vehicle = v == null ? statsProv.vehicle : v.type,
                   ),
                 ),
                 const SizedBox(width: 6),
@@ -521,7 +636,7 @@ class _StatsCard extends StatelessWidget {
 
 class _DimensionButton extends StatelessWidget {
   final GraphType graph;
-  final VehicleType vehicle;
+  final VehicleType? vehicle;
   final ValueChanged<GraphType> onChanged;
 
   const _DimensionButton({

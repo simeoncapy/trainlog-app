@@ -302,6 +302,8 @@
   "statisticsTripsUnitGiga": "十億回",
 
   "statisticsOtherLabel": "その他",
+  "statisticsAllVehicles": "全ての交通手段",
+  "statisticsPartialLoadWarning": "次の統計を読み込めませんでした：{types}",
   "statisticsTotalLabel": "総計",
   "statisticsUnitLabel": "単位：",
   "statisticsPieWip": "円グラフは仕掛品です",

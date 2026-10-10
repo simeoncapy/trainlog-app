@@ -1044,6 +1044,14 @@ class AppLocalizationsTl extends AppLocalizations {
   String get statisticsOtherLabel => 'Other';
 
   @override
+  String get statisticsAllVehicles => 'Lahat ng uri';
+
+  @override
+  String statisticsPartialLoadWarning(String types) {
+    return 'Hindi ma-load ang statistics para sa: $types';
+  }
+
+  @override
   String get statisticsTotalLabel => 'Lahat';
 
   @override

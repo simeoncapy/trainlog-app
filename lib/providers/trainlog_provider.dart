@@ -350,6 +350,23 @@ class TrainlogProvider extends ChangeNotifier {
     return await _misc.fetchStatsByVehicle(_username ?? "", type, year);
   }
 
+  /// Fetch the stats of each of [types] in parallel, as the API has no
+  /// all-modes endpoint. A failing mode is reported in `errors` instead of
+  /// failing the whole batch.
+  Future<({Map<VehicleType, Map<String, dynamic>> data, Map<VehicleType, Object> errors})>
+      fetchStatsForVehicleTypes(List<VehicleType> types, int? year) async {
+    final data = <VehicleType, Map<String, dynamic>>{};
+    final errors = <VehicleType, Object>{};
+    await Future.wait(types.map((type) async {
+      try {
+        data[type] = await fetchStatsForVehicleType(type, year);
+      } catch (e) {
+        errors[type] = e;
+      }
+    }));
+    return (data: data, errors: errors);
+  }
+
   // ----------------------------
   // Leaderboards / rankings
   // ----------------------------
