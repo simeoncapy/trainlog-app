@@ -65,7 +65,6 @@ class _MapPageState extends State<MapPage>
   late final AnimationController _pillBlinkController;
 
   // --- Place search
-  static const int _searchMinChars = 3;
   OverlayEntry? _searchOverlay;
   final TextEditingController _searchCtl = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
@@ -500,7 +499,7 @@ class _MapPageState extends State<MapPage>
         final theme = Theme.of(context);
         final showNoResult = !_isSearching &&
             _searchResults.isEmpty &&
-            _searchCtl.text.trim().length >= _searchMinChars;
+            _searchCtl.text.trim().isNotEmpty;
 
         return FullScreenSearchOverlay<LocationSearchResult>(
           controller: _searchCtl,
@@ -625,7 +624,7 @@ class _MapPageState extends State<MapPage>
   Future<void> _performLocationSearch(String query) async {
     final int requestId = ++_searchRequestId;
 
-    if (query.trim().length < _searchMinChars) {
+    if (query.trim().isEmpty) {
       _searchResults = [];
       _isSearching = false;
       _searchOverlay?.markNeedsBuild();
