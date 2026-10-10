@@ -4,6 +4,10 @@ changelog_tl:
     changes:
       - type: feature
         text: Search box sa mapa para mahanap ang anumang lugar (lungsod, address, istasyon, paliparan, hotel, tindahan...) at ilipat ang mapa doon.
+      - type: feature
+        text: Pinahusay ang pie chart ng statistics na may magkakaibang kulay, may-numerong bahagi na tugma sa legend, at parehong mga unit tulad ng bar chart. I-tap ang isang bahagi o item sa legend para makita ang mga detalye.
+      - type: minor
+        text: Maaari nang ipakita ng statistics ang lahat ng uri ng sasakyan nang sabay, na may mga bar na may kulay ayon sa uri ng sasakyan at breakdown bawat sasakyan sa table.
   - version: 0.4.2
     date: 2026-07-26
     changes:

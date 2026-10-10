@@ -4,6 +4,10 @@ changelog_en:
     changes:
       - type: feature
         text: Search box on the map to find any place (cities, addresses, stations, airports, hotels, shops...) and move the map to it.
+      - type: feature
+        text: The pie is baked! The statistics pie chart now has distinct colours, numbered slices matching the legend, and the same units as the bar chart. Tap a slice or a legend entry to see its details.
+      - type: minor
+        text: Statistics can now show all vehicle types together, with bars coloured by vehicle type and a per-vehicle breakdown in the table.
   - version: 0.4.2
     date: 2026-07-26
     changes:
