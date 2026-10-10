@@ -1,4 +1,9 @@
 changelog_ja:
+  - version: 0.4.3
+    date: 2026-10-10
+    changes:
+      - type: feature
+        text: 地図に検索ボックスを追加。都市、住所、駅、空港、ホテル、店舗などあらゆる場所を検索し、地図をその場所へ移動できます。
   - version: 0.4.2
     date: 2026-07-26
     changes:

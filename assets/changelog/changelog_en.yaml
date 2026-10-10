@@ -1,4 +1,9 @@
 changelog_en:
+  - version: 0.4.3
+    date: 2026-10-10
+    changes:
+      - type: feature
+        text: Search box on the map to find any place (cities, addresses, stations, airports, hotels, shops...) and move the map to it.
   - version: 0.4.2
     date: 2026-07-26
     changes:
