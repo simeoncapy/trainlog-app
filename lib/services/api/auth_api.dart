@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:flutter/foundation.dart';
+import 'package:trainlog_app/services/api/session_expiry.dart';
 import 'package:trainlog_app/services/api/trainlog_http_client.dart';
 
 class TrainlogLoginResult {
@@ -51,6 +52,7 @@ class AuthApi {
       options: Options(
         followRedirects: false,
         receiveTimeout: sessionCheckTimeout,
+        extra: const {skipSessionCheckExtraKey: true},
         // accept 200/302 so Dio doesn't throw
         validateStatus: (s) => s == 200 || s == 302,
       ),
@@ -85,6 +87,7 @@ class AuthApi {
         // allow 40x so we can inspect failure
         validateStatus: (s) => s != null && s >= 200 && s < 500,
         followRedirects: false,
+        extra: const {skipSessionCheckExtraKey: true},
       ),
     );
 
@@ -127,6 +130,7 @@ class AuthApi {
         },
         validateStatus: (s) => s != null && s >= 200 && s <= 503,
         followRedirects: false,
+        extra: const {skipSessionCheckExtraKey: true},
       ),
     );
 

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/data/trips_repository.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
+import 'package:trainlog_app/services/api/session_expiry.dart';
 import 'package:trainlog_app/services/api/trips_api.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 
@@ -101,7 +102,8 @@ class TripsProvider extends ChangeNotifier {
     if (userChanged) {
       debugPrint("TripsProvider: user changed → auto loading trips");
       _hasLoadedForUser = false;
-      _autoLoadForUser();
+      // Automatic sync: an expired session must not pop up the login sheet.
+      unawaited(runInBackground(_autoLoadForUser));
     }
   }
 
@@ -155,6 +157,13 @@ class TripsProvider extends ChangeNotifier {
       _loading = false;
       notifyListeners();
     }
+  }
+
+  /// Incremental sync started by the app rather than the user (e.g. after
+  /// logging back in): never opens the login sheet.
+  Future<void> syncInBackground() {
+    if (_service == null || _settings == null || _username == null) return Future.value();
+    return runInBackground(_backgroundSync);
   }
 
   /// Runs an incremental network sync without touching the loading state
@@ -265,12 +274,15 @@ class TripsProvider extends ChangeNotifier {
     } catch (e, stack) {
       debugPrint("🛑 loadTrips failed: $e");
       debugPrintStack(stackTrace: stack);
-      // keep safe fallbacks
-      _vehicleTypes = const [VehicleType.unknown];
-      _years = const [];
-      _operators = const [];
-      _countryCodes = const [];
-      _mapCountryCodes = const {};
+      // Keep the lists derived from the local data when there is some (sync
+      // failed offline or with an expired session); otherwise safe fallbacks.
+      if (_repository == null) {
+        _vehicleTypes = const [VehicleType.unknown];
+        _years = const [];
+        _operators = const [];
+        _countryCodes = const [];
+        _mapCountryCodes = const {};
+      }
     } finally {
       if (!silentSync) _loading = false;
       notifyListeners();
