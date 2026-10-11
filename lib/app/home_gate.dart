@@ -10,6 +10,7 @@ import 'package:trainlog_app/services/changelog_service.dart';
 import 'package:trainlog_app/services/flag_cache.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 import 'package:trainlog_app/widgets/changelog_dialog.dart';
+import 'package:trainlog_app/widgets/data_loading_screen.dart';
 import 'package:trainlog_app/widgets/trips_loader.dart';
 
 class HomeGate extends StatefulWidget {
@@ -99,6 +100,12 @@ class _HomeGateState extends State<HomeGate> {
       builder: (_, settings, auth, __) {
         if (!settings.onboardingCompleted) {
           return const OnboardingScreen();
+        }
+
+        // The saved session is checked after the first frame (see main), so
+        // show the loading screen rather than flashing the login page.
+        if (auth.isRestoringSession) {
+          return const DataLoadingScreen();
         }
 
         if (!auth.isAuthenticated) {

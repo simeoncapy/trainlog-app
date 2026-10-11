@@ -35,13 +35,22 @@ class AuthApi {
     _client.cookieJar.deleteAll();
   }
 
+  /// Upper bound for the server to answer the startup session check, on
+  /// top of [TrainlogHttpClient.connectTimeout].
+  static const Duration sessionCheckTimeout = Duration(seconds: 10);
+
   /// Lightweight auth check without scraping:
   /// If you're authenticated, GET /login/ typically redirects away (302).
+  ///
+  /// Returns false only when the server explicitly shows the login page.
+  /// Network failures, timeouts and unexpected statuses throw instead, so
+  /// callers can tell "logged out" apart from "server not reachable".
   Future<bool> checkAuthenticated() async {
     final res = await _client.dio.get(
       '$_loginPath/',
       options: Options(
         followRedirects: false,
+        receiveTimeout: sessionCheckTimeout,
         // accept 200/302 so Dio doesn't throw
         validateStatus: (s) => s == 200 || s == 302,
       ),

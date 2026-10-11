@@ -18,6 +18,12 @@ class TrainlogHttpClient {
   static const String urlDev = 'https://dev.trainlog.me';
   static const String _userAgent = 'TrainlogApp/1.0 (+Flutter)';
 
+  /// Upper bound for opening a connection (DNS + TCP + TLS). Without it Dio
+  /// waits for the OS to give up, which can take minutes on a phone whose
+  /// network is still waking up. Only the connection is bounded: slow but
+  /// alive downloads (e.g. a full trips export) are left untouched.
+  static const Duration connectTimeout = Duration(seconds: 10);
+
   final Dio dio;
   final CookieJar cookieJar;
 
@@ -35,6 +41,7 @@ class TrainlogHttpClient {
     final dio = Dio(
       BaseOptions(
         baseUrl: baseUrl,
+        connectTimeout: connectTimeout,
         followRedirects: false,
         validateStatus: (s) => s != null && s >= 200 && s < 400, // general
         headers: {'User-Agent': _userAgent},
@@ -72,6 +79,7 @@ class TrainlogHttpClient {
     final dio = Dio(
       BaseOptions(
         baseUrl: baseUrl,
+        connectTimeout: connectTimeout,
         followRedirects: false,
         validateStatus: (s) => s != null && s >= 200 && s < 400,
         headers: {'User-Agent': _userAgent},

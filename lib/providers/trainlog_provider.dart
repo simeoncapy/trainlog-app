@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_map/flutter_map.dart' show LatLngBounds;
@@ -35,8 +37,19 @@ class TrainlogProvider extends ChangeNotifier {
   late MiscApi _misc;
   late RankingApi _ranking;
 
+  /// Hard cap on the whole startup session check (connect + response), as a
+  /// safety net on top of the Dio timeouts.
+  static const Duration _sessionCheckOverallTimeout = Duration(seconds: 15);
+
+  /// After a failed operator logo fetch, wait this long before retrying so
+  /// list rebuilds don't hammer an unreachable server.
+  static const Duration _operatorLogosRetryDelay = Duration(minutes: 1);
+
   bool _loading = false;
+  bool _restoringSession = false;
   bool _isAuthenticated = false;
+  Future<void>? _operatorLogosFetch;
+  DateTime? _operatorLogosLastFailure;
   String? _error;
   String? _username;
   TrainlogLoginResult? _session;
@@ -63,6 +76,10 @@ class TrainlogProvider extends ChangeNotifier {
   }
 
   bool get loading => _loading;
+
+  /// True while [tryRestoreSession] is checking the saved session at startup.
+  bool get isRestoringSession => _restoringSession;
+
   bool get isAuthenticated => _isAuthenticated;
   String? get error => _error;
   String? get username => _username;
@@ -207,35 +224,60 @@ class TrainlogProvider extends ChangeNotifier {
     return instances;
   }
 
+  /// Restores the session saved by a previous launch.
+  ///
+  /// Only an explicit answer from the server ("show the login page") logs the
+  /// user out. When the server can't be reached (no network, timeout, server
+  /// error), the last known state is kept: the user stays signed in if a
+  /// username was saved at login, which [logout] clears. Trips are then
+  /// served from the local database and synced once the network is back.
   Future<void> tryRestoreSession({SettingsProvider? settings}) async {
     _loading = true;
+    _restoringSession = true;
     _error = null;
     notifyListeners();
     try {
-      final ok = await _auth.checkAuthenticated();
+      final savedUsername = settings?.authUsername;
+      bool ok;
+      try {
+        ok = await _auth
+            .checkAuthenticated()
+            .timeout(_sessionCheckOverallTimeout);
+      } catch (e) {
+        ok = savedUsername != null;
+        if (ok) {
+          debugPrint('⚠️ Session check failed, keeping saved session: $e');
+        } else {
+          _error = 'Session check failed: $e';
+        }
+      }
+
       _isAuthenticated = ok;
-      // (Optional) fetch/display username if there’s a profile endpoint
       if (ok) {
         // 1) Load last known username (saved at login)
-        _username = settings?.authUsername;
-      
+        _username = savedUsername;
+
         // 2) Optional: if not present, ask the API once (no scraping).
         if (_username == null) {
-          final apiName = await _auth.fetchUsernameViaApi(); // TODO wire real API
-          if (apiName != null) {
-            _username = apiName;
-            settings?.setUsername(apiName);
+          try {
+            final apiName = await _auth.fetchUsernameViaApi(); // TODO wire real API
+            if (apiName != null) {
+              _username = apiName;
+              settings?.setUsername(apiName);
+            }
+          } catch (e) {
+            debugPrint('⚠️ fetchUsernameViaApi failed: $e');
           }
         }
-        if(_username != null) _listOperatorsLogoUrl = await _misc.fetchAllOperatorLogosUrl(_username!);
+        // Not needed for the first screen: operator logos fall back to a
+        // placeholder until this completes.
+        if (_username != null) unawaited(reloadOperatorList());
       } else {
         _username = null;
       }
-    } catch (e) {
-      _isAuthenticated = false;
-      _error = 'Session check failed: $e';
     } finally {
       _loading = false;
+      _restoringSession = false;
       notifyListeners();
     }
   }
@@ -251,11 +293,23 @@ class TrainlogProvider extends ChangeNotifier {
   Future<Response<T>> post<T>(String path, Map<String, dynamic> data) =>
       _client.post<T>(path, data);
 
-  Future<void> reloadOperatorList() async {
-    if (_username == null) return;
-    _listOperatorsLogoUrl = await _misc.fetchAllOperatorLogosUrl(_username ?? "");
+  /// Fetches the operator logo URLs. Concurrent calls share one request, and
+  /// failures are logged rather than thrown since callers fire and forget.
+  Future<void> reloadOperatorList() {
+    if (_username == null) return Future.value();
+    return _operatorLogosFetch ??=
+        _fetchOperatorLogos().whenComplete(() => _operatorLogosFetch = null);
+  }
 
-    notifyListeners();
+  Future<void> _fetchOperatorLogos() async {
+    try {
+      _listOperatorsLogoUrl = await _misc.fetchAllOperatorLogosUrl(_username ?? "");
+      _operatorLogosLastFailure = null;
+      notifyListeners();
+    } catch (e) {
+      _operatorLogosLastFailure = DateTime.now();
+      debugPrint('⚠️ fetchAllOperatorLogosUrl failed: $e');
+    }
   }
 
   Future<void> reloadAvailableCurrencies() async {
@@ -275,7 +329,11 @@ class TrainlogProvider extends ChangeNotifier {
     required double maxHeight,
     String separator = "&&"
   }) {
-    if (_listOperatorsLogoUrl.isEmpty && !_loading) {
+    final lastFailure = _operatorLogosLastFailure;
+    if (_listOperatorsLogoUrl.isEmpty &&
+        !_loading &&
+        (lastFailure == null ||
+            DateTime.now().difference(lastFailure) > _operatorLogosRetryDelay)) {
       reloadOperatorList();
     }
 
