@@ -58,8 +58,9 @@ Future<void> main() async {
   // Starts loading the persisted settings immediately.
   final settings = SettingsProvider();
 
-  // Settings must be fully loaded before reading the persisted username and
-  // the install flags below. Cache paths are needed by the local database.
+  // Settings must be fully loaded before reading the persisted username,
+  // instance URL and install flags below. Cache paths are needed by the
+  // local database.
   await Future.wait([
     _initFirebase(),
     AppCacheFilePath.init(),
@@ -75,7 +76,14 @@ Future<void> main() async {
     await SecureCookieStorage.clearAllCookies();
   }
 
-  final clientFuture = TrainlogHttpClient.persistent();
+  // Talk to the instance the user logged in to, otherwise the session check
+  // would run against the default server and always fail for other ones.
+  final savedInstanceUrl = settings.lastUsedInstanceUrl;
+  final clientFuture = TrainlogHttpClient.persistent(
+    baseUrl: (savedInstanceUrl == null || savedInstanceUrl.isEmpty)
+        ? TrainlogHttpClient.urlLegacy
+        : savedInstanceUrl,
+  );
   await Future.wait([
     clientFuture,
     settings.markHasRunBefore(),
