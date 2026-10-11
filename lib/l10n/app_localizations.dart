@@ -1770,6 +1770,18 @@ abstract class AppLocalizations {
   /// **'Other'**
   String get statisticsOtherLabel;
 
+  /// No description provided for @statisticsAllVehicles.
+  ///
+  /// In en, this message translates to:
+  /// **'All modes'**
+  String get statisticsAllVehicles;
+
+  /// No description provided for @statisticsPartialLoadWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Statistics could not be loaded for: {types}'**
+  String statisticsPartialLoadWarning(String types);
+
   /// No description provided for @statisticsTotalLabel.
   ///
   /// In en, this message translates to:
@@ -1781,12 +1793,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unit:'**
   String get statisticsUnitLabel;
-
-  /// No description provided for @statisticsPieWip.
-  ///
-  /// In en, this message translates to:
-  /// **'The pie chart is WIP'**
-  String get statisticsPieWip;
 
   /// No description provided for @statisticsTitle.
   ///

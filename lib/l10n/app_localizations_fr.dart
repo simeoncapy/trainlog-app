@@ -1074,13 +1074,18 @@ class AppLocalizationsFr extends AppLocalizations {
   String get statisticsOtherLabel => 'Autres';
 
   @override
+  String get statisticsAllVehicles => 'Tous les modes';
+
+  @override
+  String statisticsPartialLoadWarning(String types) {
+    return 'Impossible de charger les statistiques pour : $types';
+  }
+
+  @override
   String get statisticsTotalLabel => 'Total';
 
   @override
   String get statisticsUnitLabel => 'Unités :';
-
-  @override
-  String get statisticsPieWip => 'Le camembert est en cours de construction';
 
   @override
   String get statisticsTitle => 'Statistiques';

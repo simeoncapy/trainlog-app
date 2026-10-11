@@ -476,9 +476,17 @@
   "statisticsTripsUnitGiga": "billion trips",
 
   "statisticsOtherLabel": "Other",
+  "statisticsAllVehicles": "All modes",
+  "statisticsPartialLoadWarning": "Statistics could not be loaded for: {types}",
+  "@statisticsPartialLoadWarning": {
+    "placeholders": {
+      "types": {
+        "type": "String"
+      }
+    }
+  },
   "statisticsTotalLabel": "Total",
   "statisticsUnitLabel": "Unit:",
-  "statisticsPieWip": "The pie chart is WIP",
   "statisticsTitle": "Statistics",
   "statisticsViewBar": "Bar",
   "statisticsViewPie": "Pie",

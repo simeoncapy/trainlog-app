@@ -302,9 +302,10 @@
   "statisticsTripsUnitGiga": "milliard de trajet",
 
   "statisticsOtherLabel": "Autres",
+  "statisticsAllVehicles": "Tous les modes",
+  "statisticsPartialLoadWarning": "Impossible de charger les statistiques pour : {types}",
   "statisticsTotalLabel": "Total",
   "statisticsUnitLabel": "Unités :",
-  "statisticsPieWip": "Le camembert est en cours de construction",
   "statisticsTitle": "Statistiques",
   "statisticsViewBar": "Barres",
   "statisticsViewPie": "Camembert",

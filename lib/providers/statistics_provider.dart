@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:collection';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:diacritic/diacritic.dart';
@@ -16,6 +18,9 @@ import 'package:duration/locale.dart';
 /// a short text label.
 const _numberedRankCount = 10;
 
+/// Past and planned-future value of one stat entry.
+typedef StatValue = ({double past, double future});
+
 /// Graph categories aligned with the UI page.
 enum GraphType {
   operator,
@@ -25,7 +30,8 @@ enum GraphType {
   itinerary, // API key is "routes"
   stations;
 
-  String label(BuildContext context, VehicleType vehicleType) {
+  /// [vehicleType] is `null` when all modes are merged.
+  String label(BuildContext context, VehicleType? vehicleType) {
     final loc = AppLocalizations.of(context)!;
     switch (this) {
       case GraphType.operator:  return loc.operator;
@@ -33,7 +39,7 @@ enum GraphType {
       case GraphType.years:     return loc.graphTypeYears;
       case GraphType.material:  return loc.material;
       case GraphType.itinerary: return loc.graphTypeItinerary;
-      case GraphType.stations:  return loc.typeStations(vehicleType.name.toLowerCase());
+      case GraphType.stations:  return loc.typeStations(vehicleType?.name.toLowerCase() ?? 'other');
     }
   }
 
@@ -87,7 +93,13 @@ enum GraphUnit {
 }
 
 class StatisticsProvider extends ChangeNotifier {
-  StatisticsProvider(this._trainlog);
+  StatisticsProvider(this._trainlog, {List<VehicleType> allVehicles = const []})
+      : _allVehicles = _fetchableVehicles(allVehicles);
+
+  /// Vehicle selected when the page opens. `null` merges all modes.
+  /// Set to e.g. `VehicleType.train` if fetching every mode is too slow.
+  static const VehicleType? defaultVehicle = null;
+
   bool _disposed = false;
   int _loadToken = 0;
 
@@ -99,7 +111,11 @@ class StatisticsProvider extends ChangeNotifier {
   // -------------------------------------------------------------------
   // State
   // -------------------------------------------------------------------
-  VehicleType _vehicle = VehicleType.train;
+  VehicleType? _vehicle = defaultVehicle; // null = all modes
+  /// Modes merged when [vehicle] is null, in selection-list order.
+  List<VehicleType> _allVehicles;
+  /// Modes whose fetch failed during the last load (shown as a warning).
+  List<VehicleType> _failedVehicles = const [];
   GraphType _graph = GraphType.operator;
   GraphUnit _unit = GraphUnit.trip;
   int? _year; // null = all years
@@ -122,16 +138,35 @@ class StatisticsProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get error => _error;
 
-  VehicleType get vehicle => _vehicle;
+  VehicleType? get vehicle => _vehicle;
+  bool get isAllVehicles => _vehicle == null;
+  List<VehicleType> get failedVehicles => _failedVehicles;
   GraphType get graph => _graph;
   GraphUnit get unit => _unit;
   int? get year => _year;
 
-  set vehicle(VehicleType v) {
+  set vehicle(VehicleType? v) {
     if (_vehicle == v) return;
     _vehicle = v;
     load(); // refetch for new vehicle
   }
+
+  /// Update the modes merged in "all" mode (the user's vehicle types, which
+  /// may arrive after the first load). Safe to call during build.
+  void updateAllVehicles(List<VehicleType> vehicles) {
+    final next = _fetchableVehicles(vehicles);
+    if (listEquals(next, _allVehicles)) return;
+    _allVehicles = next;
+    if (_vehicle == null) scheduleMicrotask(load);
+  }
+
+  static List<VehicleType> _fetchableVehicles(List<VehicleType> vehicles) => vehicles
+      .where((v) => v != VehicleType.poi && v != VehicleType.unknown)
+      .toList(growable: false);
+
+  /// Modes making up the current selection, in selection-list order.
+  List<VehicleType> get _selectedVehicles =>
+      _vehicle == null ? _allVehicles : [_vehicle!];
 
   set graph(GraphType g) {
     if (_graph == g) return;
@@ -220,25 +255,37 @@ class StatisticsProvider extends ChangeNotifier {
   // Fetch & cache
   // -------------------------------------------------------------------
   Future<void> load() async {
+    if (_disposed) return;
     final token = ++_loadToken;
     _isLoading = true;
     _error = null;
+    _failedVehicles = const [];
     _safeNotify();
 
     try {
-      final key = _cacheKey(_vehicle, _year);
-      if (!_cache.containsKey(key)) {
-        final data = await _trainlog.fetchStatsForVehicleType(_vehicle, _year);
+      final year = _year;
+      final missing = _selectedVehicles
+          .where((v) => !_cache.containsKey(_cacheKey(v, year)))
+          .toList();
+      if (missing.isNotEmpty) {
+        final result = await _trainlog.fetchStatsForVehicleTypes(missing, year);
         // Abort if this load is outdated or provider disposed
         if (_disposed || token != _loadToken) return;
-        _cache[key] = data;
+        result.data.forEach((v, data) => _cache[_cacheKey(v, year)] = data);
+        if (result.data.isEmpty && result.errors.isNotEmpty) {
+          _error = result.errors.values.first.toString();
+        } else {
+          _failedVehicles = [
+            for (final v in missing) if (result.errors.containsKey(v)) v,
+          ];
+        }
       }
       // Abort again after await-boundary logic
       if (_disposed || token != _loadToken) return;
 
       // If unit is duration, decide best readable base (min/h/d/mo/y)
       if (_unit == GraphUnit.duration) {
-        _durationBase = _decideDurationBase(_rawForCurrentKey());
+        _durationBase = _decideDurationBase();
       }
     } catch (e) {
       if (_disposed || token != _loadToken) return;
@@ -252,8 +299,71 @@ class StatisticsProvider extends ChangeNotifier {
 
   String _cacheKey(VehicleType v, int? y) => "${v.name}|${y ?? 'all'}";
 
-  Map<String, dynamic> _rawForCurrentKey() =>
-      _cache[_cacheKey(_vehicle, _year)] ?? const {};
+  /// Raw API values (trips, m, s, kg) of [field] for the current graph,
+  /// per label and split per mode. Breakdowns follow [_selectedVehicles]
+  /// order; entries with the same label in several modes are merged.
+  LinkedHashMap<String, Map<VehicleType, StatValue>> _rawByVehicle(String field) {
+    final listKey = _jsonKeyForGraphType(_graph);
+    final out = LinkedHashMap<String, Map<VehicleType, StatValue>>();
+
+    for (final v in _selectedVehicles) {
+      final list = _cache[_cacheKey(v, _year)]?[listKey];
+      if (list is! List) continue;
+
+      for (final e in list) {
+        if (e is! Map<String, dynamic>) continue;
+        final past = (e["past$field"] ?? 0).toDouble();
+        final future = (e["plannedFuture$field"] ?? 0).toDouble();
+        final byVehicle = out.putIfAbsent(_extractLabel(e), () => {});
+        final cur = byVehicle[v];
+        byVehicle[v] = (
+          past: (cur?.past ?? 0) + past,
+          future: (cur?.future ?? 0) + future,
+        );
+      }
+    }
+    return out;
+  }
+
+  /// [_rawByVehicle] with all modes summed.
+  LinkedHashMap<String, StatValue> _rawMerged(String field) =>
+      LinkedHashMap.fromEntries(_rawByVehicle(field)
+          .entries
+          .map((e) => MapEntry(e.key, _sum(e.value.values))));
+
+  static StatValue _sum(Iterable<StatValue> values) => values.fold(
+        (past: 0.0, future: 0.0),
+        (a, b) => (past: a.past + b.past, future: a.future + b.future),
+      );
+
+  /// Drop the modes with nothing to show from each breakdown.
+  static LinkedHashMap<String, Map<VehicleType, StatValue>> _withoutEmptyModes(
+    Map<String, Map<VehicleType, StatValue>> byVehicle,
+  ) {
+    return LinkedHashMap.fromEntries(byVehicle.entries.map((e) => MapEntry(
+          e.key,
+          Map.fromEntries(
+              e.value.entries.where((m) => m.value.past + m.value.future > 0)),
+        )));
+  }
+
+  // JSON units:
+  // trips: trips (no change)
+  // distance: meters → kilometers
+  // co2: kg (no change)
+  // duration: seconds -> convert to selected readable base (min/h/d/mo/y)
+  StatValue _convert(StatValue raw) {
+    switch (unit) {
+      case GraphUnit.distance:
+        return (past: raw.past / 1000, future: raw.future / 1000);
+      case GraphUnit.duration:
+        final f = _durationBase.secondsPerUnit;
+        return (past: raw.past / f, future: raw.future / f);
+      case GraphUnit.trip:
+      case GraphUnit.co2:
+        return raw;
+    }
+  }
 
   // -------------------------------------------------------------------
   // Data extraction for the current graph/unit
@@ -261,50 +371,59 @@ class StatisticsProvider extends ChangeNotifier {
   // The LogoBarChart will still apply UnitFactor scaling on top.
   // -------------------------------------------------------------------
   LinkedHashMap<String, ({double past, double future})> get currentStats {
-    final raw = _rawForCurrentKey();
-    final listKey = _jsonKeyForGraphType(_graph);
-    final list = raw[listKey];
-    final out = <String, ({double past, double future})>{};
-
-    if (list is! List) return LinkedHashMap.of(out);
-
-    final field = unit.apiFieldChunk(); // "Trips", "Km", "Duration", "CO2"
-
     // if duration, pick a base that keeps max < 1000 AFTER conversion
     if (unit == GraphUnit.duration) {
-      _durationBase = _decideDurationBase(raw);
+      _durationBase = _decideDurationBase();
     }
 
-    for (final e in list) {
-      if (e is! Map<String, dynamic>) continue;
-
-      final label = _extractLabel(e);
-
-      double past = (e["past$field"] ?? 0).toDouble();
-      double future = (e["plannedFuture$field"] ?? 0).toDouble();
-
-      // JSON units:
-      // trips: trips (no change)
-      // distance: meters → kilometers
-      // co2: kg (no change)
-      // duration: seconds -> convert to selected readable base (min/h/d/mo/y)
-      if (unit == GraphUnit.distance) {
-        past /= 1000;
-        future /= 1000;
-      } else if (unit == GraphUnit.duration) {
-        final f = _durationBase.secondsPerUnit;
-        past /= f;
-        future /= f;
-      }
-
-      out[label] = (past: past, future: future);
-    }
+    // "Trips", "Km", "Duration", "CO2"
+    final raw = _rawMerged(unit.apiFieldChunk());
 
     // IMPORTANT: do NOT apply any UnitFactor scaling here.
     // LogoBarChart will do the k/M/G scaling automatically for non-duration units.
     // For duration, our chosen base ensures bars remain < 1000 so no prefix is used.
 
-    return LinkedHashMap.of(out);
+    return LinkedHashMap.fromEntries(
+        raw.entries.map((e) => MapEntry(e.key, _convert(e.value))));
+  }
+
+  /// [currentStats] split per mode, converted the same way. Each breakdown
+  /// follows the vehicle selection-list order and omits empty modes.
+  LinkedHashMap<String, Map<VehicleType, StatValue>> currentStatsByVehicle() {
+    if (unit == GraphUnit.duration) {
+      _durationBase = _decideDurationBase();
+    }
+    final raw = _withoutEmptyModes(_rawByVehicle(unit.apiFieldChunk()));
+    return LinkedHashMap.fromEntries(raw.entries.map((e) => MapEntry(
+          e.key,
+          e.value.map((v, value) => MapEntry(v, _convert(value))),
+        )));
+  }
+
+  /// Per-mode counterpart of [currentStatsShort]: same keys, with
+  /// [otherLabel] aggregating the per-mode values of the remaining entries.
+  LinkedHashMap<String, Map<VehicleType, StatValue>> currentStatsByVehicleShort(
+    int maxItems, {
+    required String otherLabel,
+  }) {
+    final byVehicle = currentStatsByVehicle();
+    final keys = currentStatsShort(maxItems, otherLabel: otherLabel).keys;
+    final out = LinkedHashMap<String, Map<VehicleType, StatValue>>();
+    for (final k in keys) {
+      if (k != otherLabel) out[k] = byVehicle[k] ?? const {};
+    }
+    if (keys.contains(otherLabel)) {
+      final other = <VehicleType, StatValue>{};
+      for (final v in _selectedVehicles) {
+        final values = [
+          for (final e in byVehicle.entries)
+            if (!out.containsKey(e.key) && e.value[v] != null) e.value[v]!,
+        ];
+        if (values.isNotEmpty) other[v] = _sum(values);
+      }
+      out[otherLabel] = other;
+    }
+    return out;
   }
 
   /// Sorted (desc) by total = past + future. Preserves order with LinkedHashMap.
@@ -519,7 +638,7 @@ class StatisticsProvider extends ChangeNotifier {
         child: Center(
           child: IconTheme(
             data: IconThemeData(size: 16, color: barColor),
-            child: _vehicle.icon(),
+            child: vehicleIconOf(_vehicle),
           ),
         ),
       );
@@ -568,6 +687,11 @@ class StatisticsProvider extends ChangeNotifier {
     }
   }
 
+  /// Icon for a vehicle selection; `null` (all modes) shows a stack.
+  static Icon vehicleIconOf(VehicleType? vehicle) => vehicle == null
+      ? const Icon(Symbols.stacks, fill: 1)
+      : VehicleType.iconOf(vehicle);
+
   // -------------------------------------------------------------------
   // Internals
   // -------------------------------------------------------------------
@@ -612,17 +736,14 @@ class StatisticsProvider extends ChangeNotifier {
 
   // ---------------- Duration base selection & formatting --------------
   // Guarantees max value < 1000 after conversion so LogoBarChart won't apply k/M/G.
-  _DurationBase _decideDurationBase(Map<String, dynamic> raw) {
-    final list = raw[_jsonKeyForGraphType(graph)];
-    if (list is! List) return _DurationBase.hours;
+  _DurationBase _decideDurationBase() {
+    final raw = currentDurationRawSeconds();
+    if (raw.isEmpty) return _DurationBase.hours;
 
     // find the maximum total duration (seconds) among entries (past + future)
     double maxSeconds = 0;
-    for (final e in list) {
-      if (e is! Map<String, dynamic>) continue;
-      final past = (e["pastDuration"] ?? 0).toDouble();
-      final future = (e["plannedFutureDuration"] ?? 0).toDouble();
-      final total = past + future;
+    for (final v in raw.values) {
+      final total = v.past + v.future;
       if (total > maxSeconds) maxSeconds = total;
     }
 
@@ -667,23 +788,12 @@ class StatisticsProvider extends ChangeNotifier {
   ///
   /// Returns: {label: (past, future)} in the **same label keys**
   /// as currentStats/current ordering logic.
-  LinkedHashMap<String, ({double past, double future})> currentDurationRawSeconds() {
-    final raw = _rawForCurrentKey();
-    final listKey = _jsonKeyForGraphType(graph);
-    final list = raw[listKey];
-    final out = <String, ({double past, double future})>{};
+  LinkedHashMap<String, ({double past, double future})> currentDurationRawSeconds() =>
+      _rawMerged("Duration");
 
-    if (list is! List) return LinkedHashMap.of(out);
-
-    for (final e in list) {
-      if (e is! Map<String, dynamic>) continue;
-      final label = _extractLabel(e);
-      final past   = (e["pastDuration"] ?? 0).toDouble();
-      final future = (e["plannedFutureDuration"] ?? 0).toDouble();
-      out[label] = (past: past, future: future);
-    }
-    return LinkedHashMap.of(out);
-  }
+  /// [currentDurationRawSeconds] split per mode (empty modes omitted).
+  LinkedHashMap<String, Map<VehicleType, StatValue>> currentDurationRawSecondsByVehicle() =>
+      _withoutEmptyModes(_rawByVehicle("Duration"));
 
   /// Short version for raw duration seconds that mirrors your chart’s “top N + Other”.
   LinkedHashMap<String, ({double past, double future})> currentDurationRawSecondsShort(

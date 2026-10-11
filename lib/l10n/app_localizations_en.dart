@@ -1062,13 +1062,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get statisticsOtherLabel => 'Other';
 
   @override
+  String get statisticsAllVehicles => 'All modes';
+
+  @override
+  String statisticsPartialLoadWarning(String types) {
+    return 'Statistics could not be loaded for: $types';
+  }
+
+  @override
   String get statisticsTotalLabel => 'Total';
 
   @override
   String get statisticsUnitLabel => 'Unit:';
-
-  @override
-  String get statisticsPieWip => 'The pie chart is WIP';
 
   @override
   String get statisticsTitle => 'Statistics';

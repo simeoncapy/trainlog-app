@@ -5,6 +5,8 @@ import 'package:trainlog_app/app/theme/app_theme.dart';
 /// Displays stats as a table: Label | Past | Future | Total
 /// `stats`: key -> (past, future)
 /// Optionally supports time (duration) humanization.
+/// With [subRows], each entry is followed by indented detail lines (e.g. the
+/// value per vehicle type) and entries are grouped by alternating shading.
 class StatsTableChart extends StatelessWidget {
   const StatsTableChart({
     super.key,
@@ -22,6 +24,7 @@ class StatsTableChart extends StatelessWidget {
     this.rawValues,
     this.rawValueFormatter,
     this.isDuration = false,
+    this.subRows,
   });
 
   final Map<String, ({double past, double future})> stats;
@@ -37,6 +40,9 @@ class StatsTableChart extends StatelessWidget {
   final Map<String, ({double past, double future})>? rawValues;
   final String Function(BuildContext context, double rawSeconds)? rawValueFormatter;
   final bool isDuration;
+
+  /// Detail lines per entry, keyed like [stats].
+  final Map<String, List<StatsTableSubRow>>? subRows;
 
   @override
   Widget build(BuildContext context) {
@@ -72,30 +78,47 @@ class StatsTableChart extends StatelessWidget {
       );
     }
 
-    String _formatValue(String key, num scaledValue, {required bool isFuture}) {
-      if (isDuration && rawValues != null && rawValueFormatter != null) {
-        final raw = rawValues![key];
-        if (raw != null) {
-          return rawValueFormatter!(context, isFuture ? raw.future : raw.past);
-        }
+    // Prefer the raw (seconds) value for durations when available.
+    String format(num scaled, num? raw) {
+      if (isDuration && raw != null && rawValueFormatter != null) {
+        return rawValueFormatter!(context, raw.toDouble());
       }
-      return valueFormatter(scaledValue);
+      return valueFormatter(scaled);
     }
 
-    String _formatTotal(String key, num scaledTotal) {
-      if (isDuration && rawValues != null && rawValueFormatter != null) {
-        final raw = rawValues![key];
-        if (raw != null) {
-          return rawValueFormatter!(context, raw.past + raw.future);
-        }
-      }
-      return valueFormatter(scaledTotal);
-    }
+    num? rawTotal(({double past, double future})? raw) =>
+        raw == null ? null : raw.past + raw.future;
 
-    Widget numCell(String text) => Align(
+    final subStyle = monoStyle.copyWith(
+      fontSize: 11,
+      color: Theme.of(context).colorScheme.onSurfaceVariant,
+    );
+
+    Widget numCell(String text, {TextStyle? style}) => Align(
           alignment: Alignment.centerRight,
-          child: Text(text, softWrap: false, style: monoStyle),
+          child: Text(text, softWrap: false, style: style ?? monoStyle),
         );
+
+    Widget subLabelCell(StatsTableSubRow sub) => Padding(
+          padding: const EdgeInsets.only(left: 16),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconTheme(
+                data: IconThemeData(size: 14, color: sub.color),
+                child: sub.icon,
+              ),
+              const SizedBox(width: 6),
+              Text(sub.label, style: subStyle),
+            ],
+          ),
+        );
+
+    final groupShade = Theme.of(context)
+        .colorScheme
+        .surfaceContainerHighest
+        .withValues(alpha: 0.5);
+    final grouped = subRows != null;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -113,43 +136,67 @@ class StatsTableChart extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
               ),
-              child: DataTable(
-                showCheckboxColumn: false,
-                dataRowMinHeight: compact ? 0 : null,
-                dataRowMaxHeight: null,
-                headingRowHeight: compact ? 36 : null,
-                horizontalMargin: compact ? 12 : null,
-                columnSpacing: compact ? 16 : null,
-                columns: [
-                  DataColumn(label: labelCell(labelHeader, header: true)),
-                  if (!onlyTotal)
+              // Grouped rows are told apart by shading instead of dividers.
+              child: Theme(
+                data: grouped
+                    ? Theme.of(context).copyWith(
+                        dividerTheme: const DividerThemeData(color: Colors.transparent),
+                      )
+                    : Theme.of(context),
+                child: DataTable(
+                  showCheckboxColumn: false,
+                  dataRowMinHeight: compact ? 0 : null,
+                  dataRowMaxHeight: null,
+                  headingRowHeight: compact ? 36 : null,
+                  horizontalMargin: compact ? 12 : null,
+                  columnSpacing: compact ? 16 : null,
+                  columns: [
+                    DataColumn(label: labelCell(labelHeader, header: true)),
+                    if (!onlyTotal)
+                      DataColumn(
+                        label: Text(pastHeader, style: monoStyle.copyWith(fontWeight: FontWeight.bold)),
+                        numeric: true,
+                      ),
+                    if (!onlyTotal)
+                      DataColumn(
+                        label: Text(futureHeader, style: monoStyle.copyWith(fontWeight: FontWeight.bold)),
+                        numeric: true,
+                      ),
                     DataColumn(
-                      label: Text(pastHeader, style: monoStyle.copyWith(fontWeight: FontWeight.bold)),
+                      label: Text(totalHeader, style: monoStyle.copyWith(fontWeight: FontWeight.bold)),
                       numeric: true,
                     ),
-                  if (!onlyTotal)
-                    DataColumn(
-                      label: Text(futureHeader, style: monoStyle.copyWith(fontWeight: FontWeight.bold)),
-                      numeric: true,
-                    ),
-                  DataColumn(
-                    label: Text(totalHeader, style: monoStyle.copyWith(fontWeight: FontWeight.bold)),
-                    numeric: true,
-                  ),
-                ],
-                rows: [
-                  for (final r in rowsData)
-                    DataRow(
-                      cells: [
-                        DataCell(labelCell(r.label)),
-                        if (!onlyTotal)
-                          DataCell(numCell(_formatValue(r.key, r.past, isFuture: false))),
-                        if (!onlyTotal)
-                          DataCell(numCell(_formatValue(r.key, r.future, isFuture: true))),
-                        DataCell(numCell(_formatTotal(r.key, r.past + r.future))),
-                      ],
-                    ),
-                ],
+                  ],
+                  rows: [
+                    for (final (i, r) in rowsData.indexed) ...[
+                      DataRow(
+                        color: grouped && i.isOdd
+                            ? WidgetStatePropertyAll(groupShade)
+                            : null,
+                        cells: [
+                          DataCell(labelCell(r.label)),
+                          if (!onlyTotal)
+                            DataCell(numCell(format(r.past, rawValues?[r.key]?.past))),
+                          if (!onlyTotal)
+                            DataCell(numCell(format(r.future, rawValues?[r.key]?.future))),
+                          DataCell(numCell(format(r.past + r.future, rawTotal(rawValues?[r.key])))),
+                        ],
+                      ),
+                      for (final sub in subRows?[r.key] ?? const <StatsTableSubRow>[])
+                        DataRow(
+                          color: i.isOdd ? WidgetStatePropertyAll(groupShade) : null,
+                          cells: [
+                            DataCell(subLabelCell(sub)),
+                            if (!onlyTotal)
+                              DataCell(numCell(format(sub.past, sub.raw?.past), style: subStyle)),
+                            if (!onlyTotal)
+                              DataCell(numCell(format(sub.future, sub.raw?.future), style: subStyle)),
+                            DataCell(numCell(format(sub.past + sub.future, rawTotal(sub.raw)), style: subStyle)),
+                          ],
+                        ),
+                    ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -158,3 +205,14 @@ class StatsTableChart extends StatelessWidget {
     );
   }
 }
+
+/// Detail line of a [StatsTableChart] entry. [raw] holds raw seconds for
+/// durations (formatted with `rawValueFormatter`).
+typedef StatsTableSubRow = ({
+  Widget icon,
+  Color color,
+  String label,
+  double past,
+  double future,
+  ({double past, double future})? raw,
+});

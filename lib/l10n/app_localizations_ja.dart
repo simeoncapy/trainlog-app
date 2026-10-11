@@ -1042,13 +1042,18 @@ class AppLocalizationsJa extends AppLocalizations {
   String get statisticsOtherLabel => 'その他';
 
   @override
+  String get statisticsAllVehicles => '全ての交通手段';
+
+  @override
+  String statisticsPartialLoadWarning(String types) {
+    return '次の統計を読み込めませんでした：$types';
+  }
+
+  @override
   String get statisticsTotalLabel => '総計';
 
   @override
   String get statisticsUnitLabel => '単位：';
-
-  @override
-  String get statisticsPieWip => '円グラフは仕掛品です';
 
   @override
   String get statisticsTitle => '統計';

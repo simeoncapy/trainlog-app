@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'dart:ui' show FontFeature;
 import 'package:flutter/material.dart';
 import 'package:trainlog_app/app/theme/app_theme.dart';
+import 'package:trainlog_app/features/statistics/widgets/stats_unit_scale.dart';
 import 'package:trainlog_app/utils/number_formatter.dart';
 
 /// Horizontal proportional bar chart.
@@ -9,6 +10,8 @@ import 'package:trainlog_app/utils/number_formatter.dart';
 /// The item with the maximum total (past + future) spans 100% of the
 /// available track width; every other bar scales down proportionally.
 /// Bars are stacked: solid colour for past trips, lighter tint for future.
+/// When [segments] is given, each bar is split into one coloured past/future
+/// pair per segment, in list order.
 ///
 /// Layout per row:
 ///   [icon]  Label name               value
@@ -23,6 +26,9 @@ class StatsBarChart extends StatefulWidget {
   final List<Color>? colors;
   final InlineSpan? unitHelpTooltip;
   final String? otherLabel;
+  /// Optional per-row split of the bar (e.g. one segment per vehicle type).
+  /// Values must use the same unit as [stats].
+  final List<List<StatsBarSegment>>? segments;
 
   const StatsBarChart({
     super.key,
@@ -35,14 +41,22 @@ class StatsBarChart extends StatefulWidget {
     this.colors,
     this.unitHelpTooltip,
     this.otherLabel,
+    this.segments,
   }) : assert(
           images.length == stats.length,
           'images.length must match stats.length',
+        ),
+        assert(
+          segments == null || segments.length == stats.length,
+          'segments.length must match stats.length',
         );
 
   @override
   State<StatsBarChart> createState() => _StatsBarChartState();
 }
+
+/// One coloured part of a bar: past in [color], future in a lighter tint.
+typedef StatsBarSegment = ({Color color, double past, double future});
 
 class _StatsBarChartState extends State<StatsBarChart> {
   late List<String> _keys;
@@ -78,26 +92,15 @@ class _StatsBarChartState extends State<StatsBarChart> {
   }
 
   void _applyScale() {
-    final unitsByFactor = {
-      for (final f in UnitFactor.values) f: widget.baseUnit,
-      ...?widget.unitsByFactor,
-    };
-
-    final maxTotal = _rawPast.isEmpty
-        ? 0.0
-        : Iterable.generate(_rawPast.length)
-            .map((i) => _rawPast[i] + _rawFuture[i])
-            .reduce(math.max);
-
-    _factor = UnitFactor.base;
-    for (final f in UnitFactor.values) {
-      _factor = f;
-      if (f.apply(maxTotal) < 1000) break;
-    }
-
+    final scale = StatsUnitScale(
+      Iterable.generate(_rawPast.length, (i) => _rawPast[i] + _rawFuture[i]),
+      baseUnit: widget.baseUnit,
+      unitsByFactor: widget.unitsByFactor,
+    );
+    _factor = scale.factor;
     _scaledPast = _rawPast.map(_factor.apply).toList(growable: false);
     _scaledFuture = _rawFuture.map(_factor.apply).toList(growable: false);
-    _unitLabel = unitsByFactor[_factor]!;
+    _unitLabel = scale.unitLabel;
   }
 
   Color _lighten(Color color, [double amount = 0.3]) {
@@ -152,11 +155,17 @@ class _StatsBarChartState extends State<StatsBarChart> {
       itemBuilder: (context, i) {
         final past = _scaledPast[i];
         final future = _scaledFuture[i];
-        final total = past + future;
-        final barFraction = maxTotal > 0 ? (total / maxTotal).clamp(0.0, 1.0) : 0.0;
-        final pastFraction = total > 0 ? (past / total).clamp(0.0, 1.0) : 0.0;
         final color = colors[i];
-        final futureColor = _lighten(color);
+        // Fractions of the track; scaling cancels out so raw values are fine.
+        final rawMax = maxTotal * _factor.multiplier;
+        double fraction(double v) => rawMax > 0 ? (v / rawMax).clamp(0.0, 1.0) : 0.0;
+        final parts = <({Color color, double fraction})>[
+          for (final s in widget.segments?[i] ??
+              [(color: color, past: _rawPast[i], future: _rawFuture[i])]) ...[
+            (color: s.color, fraction: fraction(s.past)),
+            (color: _lighten(s.color), fraction: fraction(s.future)),
+          ],
+        ];
 
         final pastStr = formatNumber(context, past, noDecimal: past == past.truncateToDouble());
         final futureStr = formatNumber(context, future, noDecimal: future == future.truncateToDouble());
@@ -165,10 +174,7 @@ class _StatsBarChartState extends State<StatsBarChart> {
         return _BarRow(
           image: widget.images[i],
           label: _titles[i],
-          barFraction: barFraction,
-          pastFraction: pastFraction,
-          pastColor: color,
-          futureColor: futureColor,
+          parts: parts,
           hasFuture: hasFuture,
           pastStr: pastStr,
           futureStr: futureStr,
@@ -184,10 +190,7 @@ class _StatsBarChartState extends State<StatsBarChart> {
 class _BarRow extends StatelessWidget {
   final Widget image;
   final String label;
-  final double barFraction;
-  final double pastFraction;
-  final Color pastColor;
-  final Color futureColor;
+  final List<({Color color, double fraction})> parts;
   final bool hasFuture;
   final String pastStr;
   final String futureStr;
@@ -198,10 +201,7 @@ class _BarRow extends StatelessWidget {
   const _BarRow({
     required this.image,
     required this.label,
-    required this.barFraction,
-    required this.pastFraction,
-    required this.pastColor,
-    required this.futureColor,
+    required this.parts,
     required this.hasFuture,
     required this.pastStr,
     required this.futureStr,
@@ -282,20 +282,16 @@ class _BarRow extends StatelessWidget {
                   child: LayoutBuilder(
                     builder: (context, constraints) {
                       final trackW = constraints.maxWidth;
-                      final barW = trackW * barFraction;
-                      final pastW = barW * pastFraction;
-                      final futureW = barW * (1 - pastFraction);
                       return Stack(
                         children: [
                           Container(width: trackW, color: trackColor),
-                          Container(width: pastW, color: pastColor),
-                          if (hasFuture)
-                            Positioned(
-                              left: pastW,
-                              top: 0,
-                              bottom: 0,
-                              child: Container(width: futureW, color: futureColor),
-                            ),
+                          Row(
+                            children: [
+                              for (final p in parts)
+                                if (p.fraction > 0)
+                                  Container(width: trackW * p.fraction, color: p.color),
+                            ],
+                          ),
                         ],
                       );
                     },
