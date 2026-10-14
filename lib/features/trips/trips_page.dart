@@ -99,12 +99,20 @@ class _TripsPageState extends State<TripsPage> {
       child: RefreshIndicator(
         onRefresh: () async {
           final locale = Localizations.localeOf(context);
-          await tripsProvider.loadNecessaryTripsData(locale: locale, hardRefresh: false);
+          final result = await tripsProvider.loadNecessaryTripsData(locale: locale, hardRefresh: false);
           if (!mounted) return;
           await _refreshSummaryCount(tripsProvider);
-          if (mounted) {
+          if (!mounted) return;
+          final message = switch (result) {
+            TripsSyncResult.success => '✅ ${loc.refreshCompleted}',
+            TripsSyncResult.offline => loc.refreshFailedOffline,
+            TripsSyncResult.failed => loc.refreshFailed,
+            // The log-in-again sheet opens instead.
+            TripsSyncResult.sessionExpired => null,
+          };
+          if (message != null) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('✅ ${loc.refreshCompleted}')),
+              SnackBar(content: Text(message)),
             );
           }
         },

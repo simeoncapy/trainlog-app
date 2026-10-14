@@ -621,5 +621,7 @@
   "sessionExpiredContinueOffline": "Magpatuloy nang offline",
   "sessionExpiredWrongPassword": "Mali ang password",
   "sessionExpiredNetworkError": "Hindi maabot ang server. Tingnan ang koneksyon mo at subukan ulit.",
-  "sessionExpiredWebPage": "Mag-login ulit para makita ang page na ito"
+  "sessionExpiredWebPage": "Mag-login ulit para makita ang page na ito",
+  "refreshFailedOffline": "Hindi ma-refresh: walang koneksyon. Ipinapakita ang mga biyaheng naka-save sa phone na ito.",
+  "refreshFailed": "Hindi ma-refresh ang mga biyahe. Subukan ulit mamaya."
 }

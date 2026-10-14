@@ -1607,4 +1607,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sessionExpiredWebPage => 'Log in again to view this page';
+
+  @override
+  String get refreshFailedOffline =>
+      'Couldn\'t refresh: no connection. Showing the trips saved on this phone.';
+
+  @override
+  String get refreshFailed =>
+      'Couldn\'t refresh the trips. Please try again later.';
 }

@@ -1570,4 +1570,10 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get sessionExpiredWebPage => 'このページを表示するには、もう一度ログインしてください';
+
+  @override
+  String get refreshFailedOffline => '更新できません：接続がありません。この端末に保存された旅程を表示しています。';
+
+  @override
+  String get refreshFailed => '旅程を更新できませんでした。しばらくしてから、もう一度お試しください。';
 }

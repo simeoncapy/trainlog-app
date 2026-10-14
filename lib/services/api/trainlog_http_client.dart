@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
@@ -6,6 +8,23 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:trainlog_app/services/api/session_expiry.dart';
 import 'package:trainlog_app/services/secure_cookie_storage.dart';
+
+/// True when [error] means the server never answered (no network, DNS
+/// failure, timeout), as opposed to an error the server returned.
+bool isServerUnreachable(Object error) {
+  if (error is! DioException) return false;
+  switch (error.type) {
+    case DioExceptionType.connectionTimeout:
+    case DioExceptionType.sendTimeout:
+    case DioExceptionType.receiveTimeout:
+    case DioExceptionType.connectionError:
+      return true;
+    case DioExceptionType.unknown:
+      return error.error is SocketException;
+    default:
+      return false;
+  }
+}
 
 /// Shared transport layer for all Trainlog API domains.
 ///

@@ -126,6 +126,11 @@ class TrainlogProvider extends ChangeNotifier {
   /// user opened.
   void reportSessionExpired() => _onSessionExpired(background: false);
 
+  /// Debug builds only: forgets the session cookie (local data is kept) so
+  /// the next request to the server goes through the expired-session flow.
+  Future<void> debugForgetSessionCookie() =>
+      _client.cookieJar.delete(Uri.parse(instanceUrl), true);
+
   /// Asks for the login sheet, if the session is expired.
   void requestLogin() {
     if (_sessionExpired) _loginPrompts.add(null);

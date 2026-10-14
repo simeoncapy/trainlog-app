@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:trainlog_app/data/models/trips.dart';
+import 'package:trainlog_app/services/api/session_expiry.dart';
 import 'package:trainlog_app/services/api/trainlog_http_client.dart';
 
 /// Result of an incremental `getTripsPaths` sync.
@@ -65,8 +66,9 @@ class TripsApi {
       return csv;
     } catch (e) {
       debugPrint('debugPrintFirstTrips: error fetching $path: $e');
+      // Returning '' would replace the local trips with an empty export.
+      rethrow;
     }
-    return '';
   }
 
   Future<IncrementalTripsResult> fetchLastUpdatedTripsData(String username, DateTime? lastUpdate) async {
@@ -110,6 +112,12 @@ class TripsApi {
       return _parseIncrementalTrips(data);
     } catch (e) {
       debugPrint('error fetching $path: $e');
+      // No answer or expired session: the fallback endpoint won't do better,
+      // and the caller must not take it for "nothing changed".
+      if (isServerUnreachable(e) ||
+          (e is DioException && e.error is SessionExpiredException)) {
+        rethrow;
+      }
       return null;
     }
   }

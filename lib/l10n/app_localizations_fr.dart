@@ -1625,4 +1625,12 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get sessionExpiredWebPage =>
       'Reconnectez-vous pour afficher cette page';
+
+  @override
+  String get refreshFailedOffline =>
+      'Actualisation impossible : pas de connexion. Affichage des trajets enregistrés sur ce téléphone.';
+
+  @override
+  String get refreshFailed =>
+      'Impossible d\'actualiser les trajets. Réessayez plus tard.';
 }

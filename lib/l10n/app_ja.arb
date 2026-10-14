@@ -463,5 +463,7 @@
   "sessionExpiredContinueOffline": "オフラインで続ける",
   "sessionExpiredWrongPassword": "パスワードが正しくありません",
   "sessionExpiredNetworkError": "サーバーに接続できません。接続を確認して、もう一度お試しください。",
-  "sessionExpiredWebPage": "このページを表示するには、もう一度ログインしてください"
+  "sessionExpiredWebPage": "このページを表示するには、もう一度ログインしてください",
+  "refreshFailedOffline": "更新できません：接続がありません。この端末に保存された旅程を表示しています。",
+  "refreshFailed": "旅程を更新できませんでした。しばらくしてから、もう一度お試しください。"
 }

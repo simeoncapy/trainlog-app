@@ -2675,6 +2675,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Log in again to view this page'**
   String get sessionExpiredWebPage;
+
+  /// No description provided for @refreshFailedOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t refresh: no connection. Showing the trips saved on this phone.'**
+  String get refreshFailedOffline;
+
+  /// No description provided for @refreshFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t refresh the trips. Please try again later.'**
+  String get refreshFailed;
 }
 
 class _AppLocalizationsDelegate

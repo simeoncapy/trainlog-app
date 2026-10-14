@@ -462,5 +462,7 @@
   "sessionExpiredContinueOffline": "Continuer hors ligne",
   "sessionExpiredWrongPassword": "Mot de passe incorrect",
   "sessionExpiredNetworkError": "Impossible de joindre le serveur. Vérifiez votre connexion et réessayez.",
-  "sessionExpiredWebPage": "Reconnectez-vous pour afficher cette page"
+  "sessionExpiredWebPage": "Reconnectez-vous pour afficher cette page",
+  "refreshFailedOffline": "Actualisation impossible : pas de connexion. Affichage des trajets enregistrés sur ce téléphone.",
+  "refreshFailed": "Impossible d'actualiser les trajets. Réessayez plus tard."
 }

@@ -1591,4 +1591,12 @@ class AppLocalizationsTl extends AppLocalizations {
   @override
   String get sessionExpiredWebPage =>
       'Mag-login ulit para makita ang page na ito';
+
+  @override
+  String get refreshFailedOffline =>
+      'Hindi ma-refresh: walang koneksyon. Ipinapakita ang mga biyaheng naka-save sa phone na ito.';
+
+  @override
+  String get refreshFailed =>
+      'Hindi ma-refresh ang mga biyahe. Subukan ulit mamaya.';
 }
