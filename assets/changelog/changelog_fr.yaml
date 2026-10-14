@@ -14,6 +14,8 @@ changelog_fr:
         text: Lorsque votre session expire, vos trajets restent disponibles et l'application vous propose de vous reconnecter.
       - type: fix
         text: Actualiser les trajets hors ligne l'indique désormais, et ne fait plus manquer les mises à jour faites entre-temps une fois la connexion revenue.
+      - type: fix
+        text: Les utilisateurs d'une autre instance que trainlog.me n'ont plus à se reconnecter à chaque démarrage de l'application.
   - version: 0.4.2
     date: 2026-07-26
     changes:

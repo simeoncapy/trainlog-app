@@ -14,6 +14,8 @@ changelog_en:
         text: When your session expires, your trips stay available and the app offers to log in again.
       - type: fix
         text: Refreshing the trips while offline now says so, and no longer causes updates made in the meantime to be missed once back online.
+      - type: fix
+        text: Users of an instance other than trainlog.me no longer have to log in again every time the app starts.
   - version: 0.4.2
     date: 2026-07-26
     changes:
