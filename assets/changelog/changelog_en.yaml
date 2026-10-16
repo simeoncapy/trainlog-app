@@ -12,6 +12,8 @@ changelog_en:
         text: Faster app startup, especially after the phone has been asleep for a long time.
       - type: minor
         text: When your session expires, your trips stay available and the app offers to log in again.
+      - type: minor
+        text: You can use your password manager to fill in the login form.
       - type: fix
         text: Refreshing the trips while offline now says so, and no longer causes updates made in the meantime to be missed once back online.
       - type: fix

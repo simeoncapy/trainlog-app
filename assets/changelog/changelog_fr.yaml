@@ -12,6 +12,8 @@ changelog_fr:
         text: Démarrage de l'application plus rapide, surtout après une longue mise en veille du téléphone.
       - type: minor
         text: Lorsque votre session expire, vos trajets restent disponibles et l'application vous propose de vous reconnecter.
+      - type: minor
+        text: Vous pouvez utiliser votre gestionnaire de mots de passe pour remplir le formulaire de connexion.
       - type: fix
         text: Actualiser les trajets hors ligne l'indique désormais, et ne fait plus manquer les mises à jour faites entre-temps une fois la connexion revenue.
       - type: fix

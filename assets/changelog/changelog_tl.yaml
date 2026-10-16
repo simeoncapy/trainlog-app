@@ -12,6 +12,8 @@ changelog_tl:
         text: Mas mabilis na pagbukas ng app, lalo na kapag matagal na naka-sleep ang phone.
       - type: minor
         text: Kapag nag-expire ang session mo, makikita pa rin ang mga biyahe mo at aalukin kang mag-login ulit.
+      - type: minor
+        text: Maaari mo nang gamitin ang password manager mo para punan ang login form.
       - type: fix
         text: Kapag nag-refresh ng mga biyahe nang offline, sinasabi na ito ng app, at hindi na nalalaktawan ang mga update sa pagitan kapag bumalik ang koneksyon.
       - type: fix
