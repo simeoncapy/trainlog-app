@@ -1,4 +1,8 @@
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:trainlog_app/data/models/trip_form_model.dart';
@@ -38,11 +42,36 @@ class _TripsPageState extends State<TripsPage> {
   int _summaryCount = 0;
   int _seenRevision = -1;
 
+  // F5 refresh on desktop, where the pull-to-refresh gesture isn't available.
+  static final bool _isDesktop =
+      !kIsWeb && (Platform.isWindows || Platform.isMacOS || Platform.isLinux);
+  final _refreshKey = GlobalKey<RefreshIndicatorState>();
+  // Whether this page is what the user sees: the shells keep hidden tabs
+  // alive, and another page may be pushed on top.
+  bool _isShown = true;
+
   @override
   void initState() {
     super.initState();
     trainlog = Provider.of<TrainlogProvider>(context, listen: false);
     _loadPrefs();
+    if (_isDesktop) HardwareKeyboard.instance.addHandler(_onKey);
+  }
+
+  @override
+  void dispose() {
+    if (_isDesktop) HardwareKeyboard.instance.removeHandler(_onKey);
+    super.dispose();
+  }
+
+  bool _onKey(KeyEvent event) {
+    if (event is! KeyDownEvent || event.logicalKey != LogicalKeyboardKey.f5) {
+      return false;
+    }
+    if (!mounted || !_isShown) return false;
+    // Same as pulling down: shows the spinner and runs onRefresh.
+    _refreshKey.currentState?.show();
+    return true;
   }
 
   Future<void> _loadPrefs() async {
@@ -74,6 +103,7 @@ class _TripsPageState extends State<TripsPage> {
 
   @override
   Widget build(BuildContext context) {
+    _isShown = Visibility.of(context) && (ModalRoute.of(context)?.isCurrent ?? true);
     final tripsProvider = Provider.of<TripsProvider>(context);
     final loc = AppLocalizations.of(context)!;
     final repo = context.select((TripsProvider p) => p.repository);
@@ -97,6 +127,7 @@ class _TripsPageState extends State<TripsPage> {
       top: false,
       bottom: false,
       child: RefreshIndicator(
+        key: _refreshKey,
         onRefresh: () async {
           final locale = Localizations.localeOf(context);
           final result = await tripsProvider.loadNecessaryTripsData(locale: locale, hardRefresh: false);
