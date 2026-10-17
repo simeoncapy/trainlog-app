@@ -1566,4 +1566,37 @@ class AppLocalizationsTl extends AppLocalizations {
     });
     return '$_temp0';
   }
+
+  @override
+  String get sessionExpiredBanner =>
+      'Nag-expire ang session: hindi naka-sync ang mga biyahe mo';
+
+  @override
+  String get sessionExpiredTitle => 'Nag-expire ang session';
+
+  @override
+  String get sessionExpiredMessage =>
+      'Mag-login ulit para i-sync ang mga biyahe mo at gamitin ang mga online na feature. Naka-save pa rin ang data mo sa device na ito.';
+
+  @override
+  String get sessionExpiredContinueOffline => 'Magpatuloy nang offline';
+
+  @override
+  String get sessionExpiredWrongPassword => 'Mali ang password';
+
+  @override
+  String get sessionExpiredNetworkError =>
+      'Hindi maabot ang server. Tingnan ang koneksyon mo at subukan ulit.';
+
+  @override
+  String get sessionExpiredWebPage =>
+      'Mag-login ulit para makita ang page na ito';
+
+  @override
+  String get refreshFailedOffline =>
+      'Hindi ma-refresh: walang koneksyon. Ipinapakita ang mga biyaheng naka-save sa phone na ito.';
+
+  @override
+  String get refreshFailed =>
+      'Hindi ma-refresh ang mga biyahe. Subukan ulit mamaya.';
 }

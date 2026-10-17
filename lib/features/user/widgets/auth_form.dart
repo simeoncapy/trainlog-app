@@ -32,12 +32,17 @@ class AuthForm extends StatefulWidget {
   /// Optional custom text for the submit button.
   final String? submitButtonText;
 
+  /// Locks the username (prefilled with the saved one) and focuses the
+  /// password, e.g. to log the same user back in after a session expiry.
+  final bool usernameReadOnly;
+
   const AuthForm({
     super.key,
     required this.type,
     required this.onSubmitted,
     this.showSubmitButton = true,
     this.submitButtonText,
+    this.usernameReadOnly = false,
   });
 
   @override
@@ -124,100 +129,106 @@ class AuthFormState extends State<AuthForm> {
         isCreate ? loc.createAccountButtonShort : loc.loginButton;
     final buttonText = widget.submitButtonText ?? defaultButtonText;
 
-    return Form(
-      key: _formKey,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (isCreate) ...[
-            _labeledField(
-              loc.emailLabel,
-              TextFormField(
-                controller: _emailCtrl,
-                keyboardType: TextInputType.emailAddress,
-                textInputAction: TextInputAction.next,
-                autofillHints: const [AutofillHints.email],
-                decoration: _fieldDecoration().copyWith(
-                  hintText: loc.emailHint,
-                  helperText: loc.emailHelper,
+    // The group lets password managers fill both fields, and offer to save
+    // them once the form goes away after a successful login.
+    return AutofillGroup(
+      child: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (isCreate) ...[
+              _labeledField(
+                loc.emailLabel,
+                TextFormField(
+                  controller: _emailCtrl,
+                  keyboardType: TextInputType.emailAddress,
+                  textInputAction: TextInputAction.next,
+                  autofillHints: const [AutofillHints.email],
+                  decoration: _fieldDecoration().copyWith(
+                    hintText: loc.emailHint,
+                    helperText: loc.emailHelper,
+                  ),
+                  validator: (v) {
+                    final value = (v ?? '').trim();
+                    if (value.isEmpty) return loc.emailRequiredLabel;
+                    final ok = RegExp(r'^[^@]+@[^@]+\.[^@]+$').hasMatch(value);
+                    if (!ok) return loc.emailValidLabel;
+                    return null;
+                  },
                 ),
+              ),
+              const SizedBox(height: 16),
+            ],
+            _labeledField(
+              loc.usernameLabel,
+              TextFormField(
+                controller: _usernameCtrl,
+                readOnly: widget.usernameReadOnly,
+                textInputAction: TextInputAction.next,
+                autofillHints: const [AutofillHints.username],
+                decoration: _fieldDecoration(),
                 validator: (v) {
-                  final value = (v ?? '').trim();
-                  if (value.isEmpty) return loc.emailRequiredLabel;
-                  final ok = RegExp(r'^[^@]+@[^@]+\.[^@]+$').hasMatch(value);
-                  if (!ok) return loc.emailValidLabel;
+                  if ((v ?? '').trim().isEmpty) return loc.usernameRequiredLabel;
+                  return null;
+                },
+                onFieldSubmitted: (_) => _passwordFocus.requestFocus(),
+              ),
+            ),
+            const SizedBox(height: 16),
+            _labeledField(
+              loc.passwordLabel,
+              TextFormField(
+                controller: _passwordCtrl,
+                focusNode: _passwordFocus,
+                autofocus: widget.usernameReadOnly,
+                decoration: _fieldDecoration(
+                  suffixIcon: IconButton(
+                    tooltip: _obscure ? loc.passwordShowLabel : loc.passwordHideLabel,
+                    icon: Icon(_obscure ? Icons.visibility : Icons.visibility_off),
+                    onPressed: () => setState(() => _obscure = !_obscure),
+                  ),
+                ),
+                obscureText: _obscure,
+                textInputAction: TextInputAction.done,
+                autofillHints: const [AutofillHints.password],
+                onFieldSubmitted: (_) => _submit(),
+                validator: (v) {
+                  if ((v ?? '').isEmpty) return loc.passwordRequiredLabel;
                   return null;
                 },
               ),
             ),
-            const SizedBox(height: 16),
-          ],
-          _labeledField(
-            loc.usernameLabel,
-            TextFormField(
-              controller: _usernameCtrl,
-              textInputAction: TextInputAction.next,
-              autofillHints: const [AutofillHints.username],
-              decoration: _fieldDecoration(),
-              validator: (v) {
-                if ((v ?? '').trim().isEmpty) return loc.usernameRequiredLabel;
-                return null;
-              },
-              onFieldSubmitted: (_) => _passwordFocus.requestFocus(),
-            ),
-          ),
-          const SizedBox(height: 16),
-          _labeledField(
-            loc.passwordLabel,
-            TextFormField(
-              controller: _passwordCtrl,
-              focusNode: _passwordFocus,
-              decoration: _fieldDecoration(
-                suffixIcon: IconButton(
-                  tooltip: _obscure ? loc.passwordShowLabel : loc.passwordHideLabel,
-                  icon: Icon(_obscure ? Icons.visibility : Icons.visibility_off),
-                  onPressed: () => setState(() => _obscure = !_obscure),
-                ),
-              ),
-              obscureText: _obscure,
-              textInputAction: TextInputAction.done,
-              autofillHints: const [AutofillHints.password],
-              onFieldSubmitted: (_) => _submit(),
-              validator: (v) {
-                if ((v ?? '').isEmpty) return loc.passwordRequiredLabel;
-                return null;
-              },
-            ),
-          ),
-          if (widget.showSubmitButton) ...[
-            const SizedBox(height: 24),
-            Row(
-              children: [
-                if (isCreate) ...[
-                  AdaptiveButton.build(
-                    context: context,
-                    onPressed: () => Navigator.of(context).pop(),
-                    icon: Icons.arrow_back,
-                    label: Text(MaterialLocalizations.of(context).backButtonTooltip),
-                    type: AdaptiveButtonType.outlined,
-                    borderRadius: BorderRadius.circular(8),
+            if (widget.showSubmitButton) ...[
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  if (isCreate) ...[
+                    AdaptiveButton.build(
+                      context: context,
+                      onPressed: () => Navigator.of(context).pop(),
+                      icon: Icons.arrow_back,
+                      label: Text(MaterialLocalizations.of(context).backButtonTooltip),
+                      type: AdaptiveButtonType.outlined,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    const SizedBox(width: 12),
+                  ],
+                  Expanded(
+                    child: AdaptiveButton.build(
+                      context: context,
+                      onPressed: _submit,
+                      label: Text(buttonText),
+                      type: AdaptiveButtonType.primary,
+                      minimumSize: const Size(double.infinity, 56),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
-                  const SizedBox(width: 12),
                 ],
-                Expanded(
-                  child: AdaptiveButton.build(
-                    context: context,
-                    onPressed: _submit,
-                    label: Text(buttonText),
-                    type: AdaptiveButtonType.primary,
-                    minimumSize: const Size(double.infinity, 56),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }

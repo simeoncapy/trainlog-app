@@ -8,6 +8,16 @@ changelog_tl:
         text: Pinahusay ang pie chart ng statistics na may magkakaibang kulay, may-numerong bahagi na tugma sa legend, at parehong mga unit tulad ng bar chart. I-tap ang isang bahagi o item sa legend para makita ang mga detalye.
       - type: minor
         text: Maaari nang ipakita ng statistics ang lahat ng uri ng sasakyan nang sabay, na may mga bar na may kulay ayon sa uri ng sasakyan at breakdown bawat sasakyan sa table.
+      - type: minor
+        text: Mas mabilis na pagbukas ng app, lalo na kapag matagal na naka-sleep ang phone.
+      - type: minor
+        text: Kapag nag-expire ang session mo, makikita pa rin ang mga biyahe mo at aalukin kang mag-login ulit.
+      - type: minor
+        text: Maaari mo nang gamitin ang password manager mo para punan ang login form.
+      - type: fix
+        text: Kapag nag-refresh ng mga biyahe nang offline, sinasabi na ito ng app, at hindi na nalalaktawan ang mga update sa pagitan kapag bumalik ang koneksyon.
+      - type: fix
+        text: Hindi na kailangang mag-login ulit tuwing bubuksan ang app ng mga gumagamit ng instance maliban sa trainlog.me.
   - version: 0.4.2
     date: 2026-07-26
     changes:

@@ -1548,4 +1548,32 @@ class AppLocalizationsJa extends AppLocalizations {
     });
     return '$_temp0';
   }
+
+  @override
+  String get sessionExpiredBanner => 'セッションの有効期限が切れました：旅程は同期されていません';
+
+  @override
+  String get sessionExpiredTitle => 'セッションの有効期限切れ';
+
+  @override
+  String get sessionExpiredMessage =>
+      '旅程を同期し、オンライン機能を使うには、もう一度ログインしてください。この端末のデータは保持されます。';
+
+  @override
+  String get sessionExpiredContinueOffline => 'オフラインで続ける';
+
+  @override
+  String get sessionExpiredWrongPassword => 'パスワードが正しくありません';
+
+  @override
+  String get sessionExpiredNetworkError => 'サーバーに接続できません。接続を確認して、もう一度お試しください。';
+
+  @override
+  String get sessionExpiredWebPage => 'このページを表示するには、もう一度ログインしてください';
+
+  @override
+  String get refreshFailedOffline => '更新できません：接続がありません。この端末に保存された旅程を表示しています。';
+
+  @override
+  String get refreshFailed => '旅程を更新できませんでした。しばらくしてから、もう一度お試しください。';
 }

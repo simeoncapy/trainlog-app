@@ -2633,6 +2633,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{category, select, railStation{Station} metro{Metro} tram{Tram stop} busStop{Bus stop} ferry{Ferry terminal} airport{Airport} aerialway{Cable car} hotel{Accommodation} food{Food & drink} shop{Shop} publicBuilding{Public building} health{Health} education{Education} tourism{Tourism} religion{Place of worship} nature{Nature} sport{Sport} city{City} district{District} region{Region} street{Street} address{Address} other{Place}}'**
   String mapSearchLocationCategory(String category);
+
+  /// Banner shown at the top of the app when the session cookie has expired
+  ///
+  /// In en, this message translates to:
+  /// **'Session expired: your trips are not synced'**
+  String get sessionExpiredBanner;
+
+  /// No description provided for @sessionExpiredTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Session expired'**
+  String get sessionExpiredTitle;
+
+  /// Body of the sheet asking the user to log in again after the session expired
+  ///
+  /// In en, this message translates to:
+  /// **'Log in again to sync your trips and use online features. Your data on this device is kept.'**
+  String get sessionExpiredMessage;
+
+  /// Button closing the log-in-again sheet and keeping the app usable with local data
+  ///
+  /// In en, this message translates to:
+  /// **'Continue offline'**
+  String get sessionExpiredContinueOffline;
+
+  /// No description provided for @sessionExpiredWrongPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Incorrect password'**
+  String get sessionExpiredWrongPassword;
+
+  /// No description provided for @sessionExpiredNetworkError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t reach the server. Check your connection and try again.'**
+  String get sessionExpiredNetworkError;
+
+  /// Shown instead of a web page that needs the server while the session is expired
+  ///
+  /// In en, this message translates to:
+  /// **'Log in again to view this page'**
+  String get sessionExpiredWebPage;
+
+  /// No description provided for @refreshFailedOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t refresh: no connection. Showing the trips saved on this phone.'**
+  String get refreshFailedOffline;
+
+  /// No description provided for @refreshFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t refresh the trips. Please try again later.'**
+  String get refreshFailed;
 }
 
 class _AppLocalizationsDelegate

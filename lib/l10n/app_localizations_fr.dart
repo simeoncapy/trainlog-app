@@ -1600,4 +1600,37 @@ class AppLocalizationsFr extends AppLocalizations {
     });
     return '$_temp0';
   }
+
+  @override
+  String get sessionExpiredBanner =>
+      'Session expirée : vos trajets ne sont pas synchronisés';
+
+  @override
+  String get sessionExpiredTitle => 'Session expirée';
+
+  @override
+  String get sessionExpiredMessage =>
+      'Reconnectez-vous pour synchroniser vos trajets et utiliser les fonctions en ligne. Vos données sur cet appareil sont conservées.';
+
+  @override
+  String get sessionExpiredContinueOffline => 'Continuer hors ligne';
+
+  @override
+  String get sessionExpiredWrongPassword => 'Mot de passe incorrect';
+
+  @override
+  String get sessionExpiredNetworkError =>
+      'Impossible de joindre le serveur. Vérifiez votre connexion et réessayez.';
+
+  @override
+  String get sessionExpiredWebPage =>
+      'Reconnectez-vous pour afficher cette page';
+
+  @override
+  String get refreshFailedOffline =>
+      'Actualisation impossible : pas de connexion. Affichage des trajets enregistrés sur ce téléphone.';
+
+  @override
+  String get refreshFailed =>
+      'Impossible d\'actualiser les trajets. Réessayez plus tard.';
 }

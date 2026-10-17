@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:timezone/timezone.dart' as tz;
+import 'package:trainlog_app/utils/timezone_utils.dart';
 import 'package:trainlog_app/widgets/trip_visibility_selector.dart';
 import 'package:trainlog_app/widgets/vehicle_energy_selector.dart';
 
@@ -331,7 +332,7 @@ class TripFormModel extends ChangeNotifier {
   DateTime _setDateTimeWithTimeZone(DateTime date, TimeOfDay time, String timezone)
   {
     // get the TZ location (DST-aware)
-    final location = tz.getLocation(timezone);
+    final location = timeZoneLocation(timezone);
 
     // Construct local datetime inside that timezone
     final localTzDate = tz.TZDateTime(

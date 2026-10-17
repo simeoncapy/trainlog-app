@@ -1583,4 +1583,36 @@ class AppLocalizationsEn extends AppLocalizations {
     });
     return '$_temp0';
   }
+
+  @override
+  String get sessionExpiredBanner =>
+      'Session expired: your trips are not synced';
+
+  @override
+  String get sessionExpiredTitle => 'Session expired';
+
+  @override
+  String get sessionExpiredMessage =>
+      'Log in again to sync your trips and use online features. Your data on this device is kept.';
+
+  @override
+  String get sessionExpiredContinueOffline => 'Continue offline';
+
+  @override
+  String get sessionExpiredWrongPassword => 'Incorrect password';
+
+  @override
+  String get sessionExpiredNetworkError =>
+      'Couldn\'t reach the server. Check your connection and try again.';
+
+  @override
+  String get sessionExpiredWebPage => 'Log in again to view this page';
+
+  @override
+  String get refreshFailedOffline =>
+      'Couldn\'t refresh: no connection. Showing the trips saved on this phone.';
+
+  @override
+  String get refreshFailed =>
+      'Couldn\'t refresh the trips. Please try again later.';
 }
