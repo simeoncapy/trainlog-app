@@ -601,6 +601,24 @@ class TrainlogProvider extends ChangeNotifier {
     return await _account.fetchAvailableCurrencies(_username!);
   }
 
+  /// Saves a partial edit of [tripId] as the signed-in user: only the columns
+  /// [fields] carries are written, every other one keeps its stored value (see
+  /// [TripsApi.patchTrip] for the payload shape and for what the server does
+  /// with a route that is left out).
+  ///
+  /// Null when there is no signed-in user to save as. Throws
+  /// [TripPatchException] when the server refused the save.
+  ///
+  /// This is the bare API call: it does not touch the local cache. Use
+  /// [TripEditCopyService.save] to save and refresh the cached trip in one go.
+  Future<TripPatchResult?> patchTrip(
+    int tripId,
+    Map<String, dynamic> fields,
+  ) async {
+    if (_username == null) return null;
+    return _tripsApi.patchTrip(_username!, tripId, fields);
+  }
+
   Future<bool> deleteTrip(int tripId) async {
     if (_username == null) return false;
     return _tripsApi.deleteTrip(_username!, tripId);

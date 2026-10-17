@@ -1602,4 +1602,12 @@ class AppLocalizationsTl extends AppLocalizations {
   @override
   String get editTripComingSoon =>
       'Magiging available ito sa isang susunod na update.';
+
+  @override
+  String get editTripSavedMsg => 'Na-save ang biyahe.';
+
+  @override
+  String editTripSaveErrorMsg(String error) {
+    return 'Hindi na-save ang biyahe: $error';
+  }
 }

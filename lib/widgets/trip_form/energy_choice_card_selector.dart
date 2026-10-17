@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:trainlog_app/features/trips_add/widgets/choice_card_selector.dart';
+import 'package:trainlog_app/widgets/trip_form/choice_card_selector.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/widgets/vehicle_energy_selector.dart';
 

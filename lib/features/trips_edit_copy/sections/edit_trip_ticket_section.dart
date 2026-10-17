@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/app/theme/app_theme.dart';
 import 'package:trainlog_app/data/models/trip_form_model.dart';
-import 'package:trainlog_app/features/trips_add/widgets/energy_choice_card_selector.dart';
-import 'package:trainlog_app/features/trips_add/widgets/visibility_choice_card_selector.dart';
+import 'package:trainlog_app/widgets/trip_form/energy_choice_card_selector.dart';
+import 'package:trainlog_app/widgets/trip_form/visibility_choice_card_selector.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
@@ -34,7 +34,8 @@ class _EditTripTicketSectionState extends State<EditTripTicketSection> {
 
     final model = context.read<TripFormModel>();
     _currencyCode = model.currencyCode ?? context.read<SettingsProvider>().currency;
-    model.currencyCode = _currencyCode;
+    // Defaulting the currency is not the user editing the form.
+    model.initCurrencyCode(_currencyCode);
     _purchaseDate = model.purchaseDate;
 
     WidgetsBinding.instance.addPostFrameCallback((_) => _loadCurrencies());

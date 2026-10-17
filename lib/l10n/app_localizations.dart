@@ -2747,6 +2747,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This will be available in a future update.'**
   String get editTripComingSoon;
+
+  /// Confirmation shown once the edited trip has been saved on the server
+  ///
+  /// In en, this message translates to:
+  /// **'Trip saved.'**
+  String get editTripSavedMsg;
+
+  /// Error message shown when saving the edited trip fails
+  ///
+  /// In en, this message translates to:
+  /// **'The trip could not be saved: {error}'**
+  String editTripSaveErrorMsg(String error);
 }
 
 class _AppLocalizationsDelegate

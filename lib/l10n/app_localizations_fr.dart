@@ -1636,4 +1636,12 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get editTripComingSoon =>
       'Cette fonctionnalité sera disponible dans une prochaine mise à jour.';
+
+  @override
+  String get editTripSavedMsg => 'Trajet enregistré.';
+
+  @override
+  String editTripSaveErrorMsg(String error) {
+    return 'Le trajet n\'a pas pu être enregistré : $error';
+  }
 }

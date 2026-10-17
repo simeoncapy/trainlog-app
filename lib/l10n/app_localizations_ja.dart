@@ -1581,4 +1581,12 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get editTripComingSoon => 'この機能は今後のアップデートで利用できるようになります。';
+
+  @override
+  String get editTripSavedMsg => '旅程を保存しました。';
+
+  @override
+  String editTripSaveErrorMsg(String error) {
+    return '旅程を保存できませんでした：$error';
+  }
 }
