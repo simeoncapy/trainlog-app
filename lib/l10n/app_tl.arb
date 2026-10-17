@@ -369,9 +369,10 @@
   "statisticsTripsUnitMega": "isang milyong byahe",
   "statisticsTripsUnitGiga": "isang bilyong byahe",
   "statisticsOtherLabel": "Other",
+  "statisticsAllVehicles": "Lahat ng uri",
+  "statisticsPartialLoadWarning": "Hindi ma-load ang statistics para sa: {types}",
   "statisticsTotalLabel": "Lahat",
   "statisticsUnitLabel": "Unit:",
-  "statisticsPieWip": "Ang pie chart ay WIP",
   "statisticsTitle": "Statistics",
   "statisticsViewBar": "Bar",
   "statisticsViewPie": "Pie",
@@ -637,5 +638,20 @@
   "duplicateTripSaveButton": "Lumikha ng bagong biyahe",
   "editTripComingSoon": "Magiging available ito sa isang susunod na update.",
   "editTripSavedMsg": "Na-save ang biyahe.",
-  "editTripSaveErrorMsg": "Hindi na-save ang biyahe: {error}"
+  "editTripSaveErrorMsg": "Hindi na-save ang biyahe: {error}",
+
+  "mapSearchLocationButton": "Maghanap ng lugar",
+  "mapSearchLocationHint": "Maghanap ng lugar, address, hotel...",
+  "mapSearchLocationTip": "Kung hindi mo mahanap ang iyong lokasyon, hanapin ang lugar sa lokal na wika o sa Ingles.",
+  "mapSearchLocationNoResult": "Walang nahanap na lugar",
+  "mapSearchLocationCategory": "{category, select, railStation{Istasyon} metro{Metro} tram{Hintuan ng tram} busStop{Hintuan ng bus} ferry{Terminal ng ferry} airport{Paliparan} aerialway{Cable car} hotel{Matutuluyan} food{Kainan} shop{Tindahan} publicBuilding{Pampublikong gusali} health{Kalusugan} education{Edukasyon} tourism{Turismo} religion{Lugar ng pagsamba} nature{Kalikasan} sport{Isports} city{Lungsod} district{Distrito} region{Rehiyon} street{Kalye} address{Address} other{Lugar}}",
+  "sessionExpiredBanner": "Nag-expire ang session: hindi naka-sync ang mga biyahe mo",
+  "sessionExpiredTitle": "Nag-expire ang session",
+  "sessionExpiredMessage": "Mag-login ulit para i-sync ang mga biyahe mo at gamitin ang mga online na feature. Naka-save pa rin ang data mo sa device na ito.",
+  "sessionExpiredContinueOffline": "Magpatuloy nang offline",
+  "sessionExpiredWrongPassword": "Mali ang password",
+  "sessionExpiredNetworkError": "Hindi maabot ang server. Tingnan ang koneksyon mo at subukan ulit.",
+  "sessionExpiredWebPage": "Mag-login ulit para makita ang page na ito",
+  "refreshFailedOffline": "Hindi ma-refresh: walang koneksyon. Ipinapakita ang mga biyaheng naka-save sa phone na ito.",
+  "refreshFailed": "Hindi ma-refresh ang mga biyahe. Subukan ulit mamaya."
 }

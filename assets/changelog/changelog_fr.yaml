@@ -1,4 +1,23 @@
 changelog_fr:
+  - version: 0.4.3
+    date: 2026-10-10
+    changes:
+      - type: feature
+        text: Barre de recherche sur la carte pour trouver n'importe quel lieu (villes, adresses, gares, aéroports, hôtels, commerces...) et y déplacer la carte.
+      - type: feature
+        text: Le camembert est affiné ! Le graphique en camembert des statistiques a désormais des couleurs distinctes, des parts numérotées correspondant à la légende et les mêmes unités que le graphique en barres. Touchez une part ou une entrée de la légende pour en voir le détail.
+      - type: minor
+        text: Les statistiques peuvent désormais regrouper tous les types de véhicule, avec des barres colorées par type de véhicule et le détail par véhicule dans le tableau.
+      - type: minor
+        text: Démarrage de l'application plus rapide, surtout après une longue mise en veille du téléphone.
+      - type: minor
+        text: Lorsque votre session expire, vos trajets restent disponibles et l'application vous propose de vous reconnecter.
+      - type: minor
+        text: Vous pouvez utiliser votre gestionnaire de mots de passe pour remplir le formulaire de connexion.
+      - type: fix
+        text: Actualiser les trajets hors ligne l'indique désormais, et ne fait plus manquer les mises à jour faites entre-temps une fois la connexion revenue.
+      - type: fix
+        text: Les utilisateurs d'une autre instance que trainlog.me n'ont plus à se reconnecter à chaque démarrage de l'application.
   - version: 0.4.2
     date: 2026-07-26
     changes:

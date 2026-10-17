@@ -4,12 +4,15 @@ import 'package:provider/provider.dart';
 import 'package:trainlog_app/data/models/changelog.dart';
 import 'package:trainlog_app/features/onboarding/onboarding_screen.dart';
 import 'package:trainlog_app/features/user/login_page.dart';
+import 'package:trainlog_app/features/user/session_expiry_host.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
+import 'package:trainlog_app/services/api/session_expiry.dart';
 import 'package:trainlog_app/services/changelog_service.dart';
 import 'package:trainlog_app/services/flag_cache.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 import 'package:trainlog_app/widgets/changelog_dialog.dart';
+import 'package:trainlog_app/widgets/data_loading_screen.dart';
 import 'package:trainlog_app/widgets/trips_loader.dart';
 
 class HomeGate extends StatefulWidget {
@@ -101,6 +104,12 @@ class _HomeGateState extends State<HomeGate> {
           return const OnboardingScreen();
         }
 
+        // The saved session is checked after the first frame (see main), so
+        // show the loading screen rather than flashing the login page.
+        if (auth.isRestoringSession) {
+          return const DataLoadingScreen();
+        }
+
         if (!auth.isAuthenticated) {
           return const LoginPage();
         }
@@ -109,15 +118,17 @@ class _HomeGateState extends State<HomeGate> {
         // Ranking → Railway Coverage page doesn't wait on flag downloads. The
         // call is idempotent (only the first one does any work).
         context.read<FlagCache>().warmUp(() async {
-          final res = await auth.fetchRankingForRailPercentage();
+          final res = await runInBackground(auth.fetchRankingForRailPercentage);
           return <String>{
             for (final e in res.countries) e.countryCode,
             for (final e in res.subdivisions) e.code,
           }.toList();
         });
 
-        return TripsLoader(
-          builder: widget.signedInBuilder,
+        return SessionExpiryHost(
+          child: TripsLoader(
+            builder: widget.signedInBuilder,
+          ),
         );
       },
     );

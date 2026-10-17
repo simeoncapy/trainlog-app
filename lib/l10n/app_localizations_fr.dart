@@ -1074,13 +1074,18 @@ class AppLocalizationsFr extends AppLocalizations {
   String get statisticsOtherLabel => 'Autres';
 
   @override
+  String get statisticsAllVehicles => 'Tous les modes';
+
+  @override
+  String statisticsPartialLoadWarning(String types) {
+    return 'Impossible de charger les statistiques pour : $types';
+  }
+
+  @override
   String get statisticsTotalLabel => 'Total';
 
   @override
   String get statisticsUnitLabel => 'Unités :';
-
-  @override
-  String get statisticsPieWip => 'Le camembert est en cours de construction';
 
   @override
   String get statisticsTitle => 'Statistiques';
@@ -1644,4 +1649,81 @@ class AppLocalizationsFr extends AppLocalizations {
   String editTripSaveErrorMsg(String error) {
     return 'Le trajet n\'a pas pu être enregistré : $error';
   }
+
+  @override
+  String get mapSearchLocationButton => 'Rechercher un lieu';
+
+  @override
+  String get mapSearchLocationHint =>
+      'Rechercher un lieu, une adresse, un hôtel...';
+
+  @override
+  String get mapSearchLocationTip =>
+      'Si vous ne trouvez pas votre lieu, recherchez-le dans la langue locale ou en anglais.';
+
+  @override
+  String get mapSearchLocationNoResult => 'Aucun lieu trouvé';
+
+  @override
+  String mapSearchLocationCategory(String category) {
+    String _temp0 = intl.Intl.selectLogic(category, {
+      'railStation': 'Gare',
+      'metro': 'Métro',
+      'tram': 'Arrêt de tram',
+      'busStop': 'Arrêt de bus',
+      'ferry': 'Terminal de ferry',
+      'airport': 'Aéroport',
+      'aerialway': 'Remontée mécanique',
+      'hotel': 'Hébergement',
+      'food': 'Restauration',
+      'shop': 'Commerce',
+      'publicBuilding': 'Bâtiment public',
+      'health': 'Santé',
+      'education': 'Enseignement',
+      'tourism': 'Tourisme',
+      'religion': 'Lieu de culte',
+      'nature': 'Nature',
+      'sport': 'Sport',
+      'city': 'Ville',
+      'district': 'Quartier',
+      'region': 'Région',
+      'street': 'Rue',
+      'address': 'Adresse',
+      'other': 'Lieu',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get sessionExpiredBanner =>
+      'Session expirée : vos trajets ne sont pas synchronisés';
+
+  @override
+  String get sessionExpiredTitle => 'Session expirée';
+
+  @override
+  String get sessionExpiredMessage =>
+      'Reconnectez-vous pour synchroniser vos trajets et utiliser les fonctions en ligne. Vos données sur cet appareil sont conservées.';
+
+  @override
+  String get sessionExpiredContinueOffline => 'Continuer hors ligne';
+
+  @override
+  String get sessionExpiredWrongPassword => 'Mot de passe incorrect';
+
+  @override
+  String get sessionExpiredNetworkError =>
+      'Impossible de joindre le serveur. Vérifiez votre connexion et réessayez.';
+
+  @override
+  String get sessionExpiredWebPage =>
+      'Reconnectez-vous pour afficher cette page';
+
+  @override
+  String get refreshFailedOffline =>
+      'Actualisation impossible : pas de connexion. Affichage des trajets enregistrés sur ce téléphone.';
+
+  @override
+  String get refreshFailed =>
+      'Impossible d\'actualiser les trajets. Réessayez plus tard.';
 }

@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_map/flutter_map.dart' show LatLngBounds;
 import 'package:flutter/material.dart';
+import 'package:trainlog_app/data/models/location_search_result.dart';
 import 'package:trainlog_app/data/models/news_model.dart';
 import 'package:trainlog_app/data/models/pre_record_model.dart';
 import 'package:trainlog_app/data/models/ranking_model.dart';
@@ -23,17 +27,43 @@ typedef StationInfo = (
 
 enum InstanceType {legacy, dev, localhost, user}
 
+/// Why [TrainlogProvider.reLogin] failed.
+enum ReLoginFailure {
+  /// The server refused the password.
+  credentials,
+
+  /// The server could not be reached.
+  network,
+}
+
 class TrainlogProvider extends ChangeNotifier {
   TrainlogHttpClient _client;
   late AuthApi _auth;
   late TripsApi _tripsApi;
   late StationsApi _stations;
+  late SearchLocationApi _searchLocation;
   late AccountApi _account;
   late MiscApi _misc;
   late RankingApi _ranking;
 
+  /// Hard cap on the whole startup session check (connect + response), as a
+  /// safety net on top of the Dio timeouts.
+  static const Duration _sessionCheckOverallTimeout = Duration(seconds: 15);
+
+  /// After a failed operator logo fetch, wait this long before retrying so
+  /// list rebuilds don't hammer an unreachable server.
+  static const Duration _operatorLogosRetryDelay = Duration(minutes: 1);
+
   bool _loading = false;
+  bool _restoringSession = false;
   bool _isAuthenticated = false;
+  bool _sessionExpired = false;
+  bool _sessionUnverified = false;
+  bool _revalidating = false;
+  int _sessionGeneration = 0;
+  final StreamController<void> _loginPrompts = StreamController<void>.broadcast();
+  Future<void>? _operatorLogosFetch;
+  DateTime? _operatorLogosLastFailure;
   String? _error;
   String? _username;
   TrainlogLoginResult? _session;
@@ -50,16 +80,67 @@ class TrainlogProvider extends ChangeNotifier {
   /// Called on construction and whenever the underlying client is swapped
   /// (e.g. after an instance URL change).
   void _buildApis() {
+    _client.onSessionExpired = _onSessionExpired;
     _auth = AuthApi(_client);
     _tripsApi = TripsApi(_client);
     _stations = StationsApi(_client);
+    _searchLocation = SearchLocationApi(_stations);
     _account = AccountApi(_client);
     _misc = MiscApi(_client);
     _ranking = RankingApi(_client);
   }
 
   bool get loading => _loading;
+
+  /// True while [tryRestoreSession] is checking the saved session at startup.
+  bool get isRestoringSession => _restoringSession;
+
   bool get isAuthenticated => _isAuthenticated;
+
+  /// True when the server sent the user back to the login page. The user
+  /// stays signed in with their local data (see SessionExpiryHost) until
+  /// they log in again ([reLogin]) or log out.
+  bool get sessionExpired => _sessionExpired;
+
+  /// Incremented whenever a new session cookie is obtained, so the WebView
+  /// pages know to copy the cookies again.
+  int get sessionGeneration => _sessionGeneration;
+
+  /// Fires when the login sheet should be shown: the user started something
+  /// that needs the server while the session is expired.
+  Stream<void> get loginPrompts => _loginPrompts.stream;
+
+  void _onSessionExpired({required bool background}) {
+    // Requests made while logged out (e.g. from the login page) aren't a
+    // session expiry.
+    if (!_isAuthenticated) return;
+    _sessionUnverified = false;
+    if (!_sessionExpired) {
+      _sessionExpired = true;
+      notifyListeners();
+    }
+    if (!background) requestLogin();
+  }
+
+  /// For the WebView pages: the server showed its login page in a page the
+  /// user opened.
+  void reportSessionExpired() => _onSessionExpired(background: false);
+
+  /// Debug builds only: forgets the session cookie (local data is kept) so
+  /// the next request to the server goes through the expired-session flow.
+  Future<void> debugForgetSessionCookie() =>
+      _client.cookieJar.delete(Uri.parse(instanceUrl), true);
+
+  /// Asks for the login sheet, if the session is expired.
+  void requestLogin() {
+    if (_sessionExpired) _loginPrompts.add(null);
+  }
+
+  @override
+  void dispose() {
+    _loginPrompts.close();
+    super.dispose();
+  }
   String? get error => _error;
   String? get username => _username;
   TrainlogLoginResult? get session => _session;
@@ -70,13 +151,27 @@ class TrainlogProvider extends ChangeNotifier {
   /// The leaderboard / ranking API.
   RankingApi get rankingApi => _ranking;
 
+  /// Free-text place search for the map (see [SearchLocationApi.search]).
+  Future<List<LocationSearchResult>> searchLocation(
+    String query, {
+    LatLngBounds? visibleBounds,
+    String? languageCode,
+  }) {
+    return _searchLocation.search(
+      query,
+      visibleBounds: visibleBounds,
+      languageCode: languageCode,
+    );
+  }
+
   /// Resolves the static SVG flag asset URL for an ISO country or ISO 3166-2
   /// subdivision [code] (see [MiscApi.fetchFlag]).
   String flagUrl(String code) => _misc.fetchFlag(code);
 
   /// Downloads the raw SVG markup for a flag [code], or null when unavailable
   /// (see [MiscApi.fetchFlagSvg]). Used by the flag cache.
-  Future<String?> fetchFlagSvg(String code) => _misc.fetchFlagSvg(code);
+  Future<String?> fetchFlagSvg(String code) =>
+      runInBackground(() => _misc.fetchFlagSvg(code));
 
   Map<String, String> get listOperators => _listOperators;
   List<String> get availableCurrencies => _availableCurrencies;
@@ -99,6 +194,11 @@ class TrainlogProvider extends ChangeNotifier {
       final res = await _auth.login(username: username, password: password);
       _session = res;
       _isAuthenticated = res.success;
+      if (res.success) {
+        _sessionExpired = false;
+        _sessionUnverified = false;
+        _sessionGeneration++;
+      }
       if (res.success) {
         _username = username; // keep what the user typed
         settings?.setUsername(username);
@@ -134,6 +234,8 @@ class TrainlogProvider extends ChangeNotifier {
     } finally {
       _session = null;
       _isAuthenticated = false;
+      _sessionExpired = false;
+      _sessionUnverified = false;
       _username = null;
       _loading = false;
       notifyListeners();
@@ -190,36 +292,118 @@ class TrainlogProvider extends ChangeNotifier {
     return instances;
   }
 
+  /// Restores the session saved by a previous launch.
+  ///
+  /// A user whose username was saved at login ([logout] clears it) always
+  /// stays signed in with their local data:
+  /// - server confirms the session: fully signed in;
+  /// - server shows the login page: signed in with an expired session, the
+  ///   app shows a banner to log in again;
+  /// - server can't be reached (no network, timeout, server error): signed
+  ///   in, checked again when the app comes back to the foreground
+  ///   ([revalidateSession]).
+  /// Without a saved username, only a confirmed session signs in.
   Future<void> tryRestoreSession({SettingsProvider? settings}) async {
     _loading = true;
+    _restoringSession = true;
     _error = null;
     notifyListeners();
     try {
-      final ok = await _auth.checkAuthenticated();
-      _isAuthenticated = ok;
-      // (Optional) fetch/display username if there’s a profile endpoint
-      if (ok) {
+      final savedUsername = settings?.authUsername;
+      bool? serverSaysSignedIn;
+      try {
+        serverSaysSignedIn = await _auth
+            .checkAuthenticated()
+            .timeout(_sessionCheckOverallTimeout);
+      } catch (e) {
+        if (savedUsername != null) {
+          debugPrint('⚠️ Session check failed, keeping saved session: $e');
+        } else {
+          _error = 'Session check failed: $e';
+        }
+      }
+
+      _isAuthenticated = serverSaysSignedIn == true || savedUsername != null;
+      _sessionExpired = serverSaysSignedIn == false && _isAuthenticated;
+      _sessionUnverified = serverSaysSignedIn == null && _isAuthenticated;
+
+      if (_isAuthenticated) {
         // 1) Load last known username (saved at login)
-        _username = settings?.authUsername;
-      
+        _username = savedUsername;
+
         // 2) Optional: if not present, ask the API once (no scraping).
         if (_username == null) {
-          final apiName = await _auth.fetchUsernameViaApi(); // TODO wire real API
-          if (apiName != null) {
-            _username = apiName;
-            settings?.setUsername(apiName);
+          try {
+            final apiName = await _auth.fetchUsernameViaApi(); // TODO wire real API
+            if (apiName != null) {
+              _username = apiName;
+              settings?.setUsername(apiName);
+            }
+          } catch (e) {
+            debugPrint('⚠️ fetchUsernameViaApi failed: $e');
           }
         }
-        if(_username != null) _listOperatorsLogoUrl = await _misc.fetchAllOperatorLogosUrl(_username!);
+        // Not needed for the first screen: operator logos fall back to a
+        // placeholder until this completes.
+        if (_username != null && !_sessionExpired) unawaited(reloadOperatorList());
       } else {
         _username = null;
       }
-    } catch (e) {
-      _isAuthenticated = false;
-      _error = 'Session check failed: $e';
     } finally {
       _loading = false;
+      _restoringSession = false;
       notifyListeners();
+    }
+  }
+
+  /// Checks again a session kept at startup without reaching the server.
+  /// Silent: an expired session only shows the banner. Returns true when
+  /// the session is now confirmed, so the caller can sync.
+  Future<bool> revalidateSession() async {
+    if (!_sessionUnverified || _revalidating) return false;
+    _revalidating = true;
+    try {
+      final ok = await _auth
+          .checkAuthenticated()
+          .timeout(_sessionCheckOverallTimeout);
+      if (!_sessionUnverified) return false; // Settled meanwhile.
+      _sessionUnverified = false;
+      if (ok) {
+        unawaited(reloadOperatorList());
+        return true;
+      }
+      if (_isAuthenticated && !_sessionExpired) {
+        _sessionExpired = true;
+        notifyListeners();
+      }
+      return false;
+    } catch (e) {
+      debugPrint('⚠️ Session revalidation failed, will retry: $e');
+      return false;
+    } finally {
+      _revalidating = false;
+    }
+  }
+
+  /// Logs the current user back in after their session expired. Unlike
+  /// [login], a failure leaves the user signed in with their local data.
+  /// Returns null on success.
+  Future<ReLoginFailure?> reLogin(String password) async {
+    final username = _username;
+    if (username == null) return ReLoginFailure.credentials;
+    try {
+      final res = await _auth.login(username: username, password: password);
+      if (!res.success) return ReLoginFailure.credentials;
+      _session = res;
+      _sessionExpired = false;
+      _sessionUnverified = false;
+      _sessionGeneration++;
+      notifyListeners();
+      unawaited(reloadOperatorList());
+      return null;
+    } catch (e) {
+      debugPrint('⚠️ reLogin failed: $e');
+      return ReLoginFailure.network;
     }
   }
 
@@ -234,11 +418,24 @@ class TrainlogProvider extends ChangeNotifier {
   Future<Response<T>> post<T>(String path, Map<String, dynamic> data) =>
       _client.post<T>(path, data);
 
-  Future<void> reloadOperatorList() async {
-    if (_username == null) return;
-    _listOperatorsLogoUrl = await _misc.fetchAllOperatorLogosUrl(_username ?? "");
+  /// Fetches the operator logo URLs. Concurrent calls share one request, and
+  /// failures are logged rather than thrown since callers fire and forget.
+  Future<void> reloadOperatorList() {
+    if (_username == null) return Future.value();
+    return _operatorLogosFetch ??=
+        _fetchOperatorLogos().whenComplete(() => _operatorLogosFetch = null);
+  }
 
-    notifyListeners();
+  Future<void> _fetchOperatorLogos() async {
+    try {
+      _listOperatorsLogoUrl = await runInBackground(
+          () => _misc.fetchAllOperatorLogosUrl(_username ?? ""));
+      _operatorLogosLastFailure = null;
+      notifyListeners();
+    } catch (e) {
+      _operatorLogosLastFailure = DateTime.now();
+      debugPrint('⚠️ fetchAllOperatorLogosUrl failed: $e');
+    }
   }
 
   Future<void> reloadAvailableCurrencies() async {
@@ -258,7 +455,11 @@ class TrainlogProvider extends ChangeNotifier {
     required double maxHeight,
     String separator = "&&"
   }) {
-    if (_listOperatorsLogoUrl.isEmpty && !_loading) {
+    final lastFailure = _operatorLogosLastFailure;
+    if (_listOperatorsLogoUrl.isEmpty &&
+        !_loading &&
+        (lastFailure == null ||
+            DateTime.now().difference(lastFailure) > _operatorLogosRetryDelay)) {
       reloadOperatorList();
     }
 
@@ -331,6 +532,23 @@ class TrainlogProvider extends ChangeNotifier {
   Future<Map<String, dynamic>> fetchStatsForVehicleType(VehicleType type, int? year) async {
     if (_username == null) return {};
     return await _misc.fetchStatsByVehicle(_username ?? "", type, year);
+  }
+
+  /// Fetch the stats of each of [types] in parallel, as the API has no
+  /// all-modes endpoint. A failing mode is reported in `errors` instead of
+  /// failing the whole batch.
+  Future<({Map<VehicleType, Map<String, dynamic>> data, Map<VehicleType, Object> errors})>
+      fetchStatsForVehicleTypes(List<VehicleType> types, int? year) async {
+    final data = <VehicleType, Map<String, dynamic>>{};
+    final errors = <VehicleType, Object>{};
+    await Future.wait(types.map((type) async {
+      try {
+        data[type] = await fetchStatsForVehicleType(type, year);
+      } catch (e) {
+        errors[type] = e;
+      }
+    }));
+    return (data: data, errors: errors);
   }
 
   // ----------------------------
@@ -630,7 +848,8 @@ class TrainlogProvider extends ChangeNotifier {
   }
 
   Future<int> fetchNewsCount(SettingsProvider settings) {
-    return _misc.fetchNewsCount(settings.lastNewsVisit);
+    // Fetched when the menu opens: not worth a login prompt.
+    return runInBackground(() => _misc.fetchNewsCount(settings.lastNewsVisit));
   }
 
   Future<List<NewsModel>> fetchNews(SettingsProvider settings) async {

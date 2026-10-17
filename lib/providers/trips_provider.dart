@@ -1,12 +1,29 @@
 import 'dart:async';
 
 import 'package:country_picker/country_picker.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/data/trips_repository.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
+import 'package:trainlog_app/services/api/session_expiry.dart';
+import 'package:trainlog_app/services/api/trainlog_http_client.dart';
 import 'package:trainlog_app/services/api/trips_api.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
+
+/// Outcome of [TripsProvider.loadNecessaryTripsData].
+enum TripsSyncResult {
+  success,
+
+  /// The server could not be reached (no network, timeout).
+  offline,
+
+  /// The server sent the user to its login page.
+  sessionExpired,
+
+  /// Any other error (server error, unexpected answer...).
+  failed,
+}
 
 class TripsProvider extends ChangeNotifier {
   TripsRepository? _repository;
@@ -101,7 +118,8 @@ class TripsProvider extends ChangeNotifier {
     if (userChanged) {
       debugPrint("TripsProvider: user changed → auto loading trips");
       _hasLoadedForUser = false;
-      _autoLoadForUser();
+      // Automatic sync: an expired session must not pop up the login sheet.
+      unawaited(runInBackground(_autoLoadForUser));
     }
   }
 
@@ -157,6 +175,13 @@ class TripsProvider extends ChangeNotifier {
     }
   }
 
+  /// Incremental sync started by the app rather than the user (e.g. after
+  /// logging back in): never opens the login sheet.
+  Future<void> syncInBackground() {
+    if (_service == null || _settings == null || _username == null) return Future.value();
+    return runInBackground(_backgroundSync);
+  }
+
   /// Runs an incremental network sync without touching the loading state
   /// (the UI is already showing local data).  Sets [isSyncing] = true for
   /// the duration so the progress bar overlay can react.
@@ -183,7 +208,10 @@ class TripsProvider extends ChangeNotifier {
   /// [silentSync] — if true, the [isLoading] flag is NOT toggled.  Use this
   ///   when calling from a background context where the UI is already showing
   ///   data from the local DB (e.g. [_backgroundSync]).
-  Future<void> loadNecessaryTripsData({Locale? locale, bool hardRefresh = false, bool silentSync = false}) async {
+  ///
+  /// A failed sync never touches the local data, and the result says why it
+  /// failed so the UI can tell the user.
+  Future<TripsSyncResult> loadNecessaryTripsData({Locale? locale, bool hardRefresh = false, bool silentSync = false}) async {
     if (!silentSync) {
       _loading = true;
       notifyListeners();
@@ -251,7 +279,7 @@ class TripsProvider extends ChangeNotifier {
         if (result.updates.isEmpty && deleted.isEmpty) {
           debugPrint("✅ Nothing to update.");
           _settings!.setLastFetchingTrips(cursorToPersist);
-          return; // finally block handles notifyListeners
+          return TripsSyncResult.success; // finally block handles notifyListeners
         }
 
         debugPrint("✅ Finished updating ${result.updates.length} trip(s), removed ${deleted.length}");
@@ -268,18 +296,35 @@ class TripsProvider extends ChangeNotifier {
       final count = await _repository!.count();
       debugPrint("✅ Finished loading trips. Total $count rows");
       _settings!.setLastFetchingTrips(cursorToPersist);
+      return TripsSyncResult.success;
     } catch (e, stack) {
       debugPrint("🛑 loadTrips failed: $e");
       debugPrintStack(stackTrace: stack);
-      // keep safe fallbacks
+      // A failed full refresh (first load, schema update) leaves no
+      // repository: show what the local database has rather than nothing.
+      if (_repository == null) await _loadLocalDbAfterFailedSync();
+      return _syncFailure(e);
+    } finally {
+      if (!silentSync) _loading = false;
+      notifyListeners();
+    }
+  }
+
+  /// Falls back on the local database when a sync failed before any data
+  /// was loaded. The derived lists stay those of the local data.
+  Future<void> _loadLocalDbAfterFailedSync() async {
+    try {
+      _repository = await TripsRepository.loadFromDatabase();
+      await _refreshDerivedLists();
+      _revision++;
+      _polylineRevision++;
+    } catch (e) {
+      debugPrint("🛑 _loadLocalDbAfterFailedSync failed: $e");
       _vehicleTypes = const [VehicleType.unknown];
       _years = const [];
       _operators = const [];
       _countryCodes = const [];
       _mapCountryCodes = const {};
-    } finally {
-      if (!silentSync) _loading = false;
-      notifyListeners();
     }
   }
 
@@ -293,6 +338,14 @@ class TripsProvider extends ChangeNotifier {
 
   /// Inserts [trip], replacing any row that already carries the same uid — so
   /// this doubles as the "refresh one cached trip" entry point.
+  static TripsSyncResult _syncFailure(Object error) {
+    if (error is DioException && error.error is SessionExpiredException) {
+      return TripsSyncResult.sessionExpired;
+    }
+    if (isServerUnreachable(error)) return TripsSyncResult.offline;
+    return TripsSyncResult.failed;
+  }
+
   Future<void> insertTrip(Trips trip, {bool setLoading = false}) async {
     if(_repository == null) return;
     await _repository!.insertTrip(trip);

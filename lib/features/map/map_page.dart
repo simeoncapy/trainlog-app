@@ -13,18 +13,23 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/app/theme/app_colors.dart';
 import 'package:trainlog_app/app/theme/app_nav_bar_theme.dart';
+import 'package:trainlog_app/data/models/location_search_result.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
+import 'package:trainlog_app/features/map/location_category_icons.dart';
 import 'package:trainlog_app/features/map/map_filter_widget.dart';
 import 'package:trainlog_app/features/map/map_marker.dart';
+import 'package:trainlog_app/features/trips_add/widgets/full_screen_search_overlay.dart';
 import 'package:trainlog_app/navigation/nav_models.dart';
 import 'package:trainlog_app/platform/adaptive_trip_card.dart';
 import 'package:trainlog_app/platform/adaptive_widget.dart';
 import 'package:trainlog_app/providers/polyline_provider.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
+import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
 import 'package:trainlog_app/services/geo_permission_service.dart';
 import 'package:trainlog_app/utils/location_utils.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
+import 'package:trainlog_app/utils/text_utils.dart';
 import 'package:trainlog_app/widgets/osm_mark.dart';
 import 'package:trainlog_app/widgets/rendered_polyline_layer.dart';
 import 'package:trainlog_app/widgets/trip_direction_chevron_layer.dart';
@@ -59,6 +64,18 @@ class _MapPageState extends State<MapPage>
   // [_followUser] is active.
   late final AnimationController _pillBlinkController;
 
+  // --- Place search
+  OverlayEntry? _searchOverlay;
+  final TextEditingController _searchCtl = TextEditingController();
+  final FocusNode _searchFocusNode = FocusNode();
+  List<LocationSearchResult> _searchResults = [];
+  bool _isSearching = false;
+  int _searchRequestId = 0;
+  Timer? _searchDebounce;
+
+  /// Place picked in the search, shown with a pin until tapped.
+  LocationSearchResult? _searchedPlace;
+
   @override
   bool get wantKeepAlive => true;
 
@@ -86,6 +103,11 @@ class _MapPageState extends State<MapPage>
 
   @override
   void dispose() {
+    _searchDebounce?.cancel();
+    _searchOverlay?.remove();
+    _searchOverlay = null;
+    _searchCtl.dispose();
+    _searchFocusNode.dispose();
     _pillBlinkController.dispose();
     _stopUserLocationUpdates();
     WidgetsBinding.instance.removeObserver(this);
@@ -279,6 +301,25 @@ class _MapPageState extends State<MapPage>
                   ),
                 ],
               ),
+            if (_searchedPlace != null)
+              MarkerLayer(
+                markers: [
+                  Marker(
+                    width: 40,
+                    height: 40,
+                    point: _searchedPlace!.point,
+                    alignment: Alignment.topCenter,
+                    child: GestureDetector(
+                      onTap: () => setState(() => _searchedPlace = null),
+                      child: Icon(
+                        Icons.location_on,
+                        size: 40,
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
           ],
         ),
 
@@ -290,6 +331,7 @@ class _MapPageState extends State<MapPage>
         ),
 
         if (_followUser) _lockedOnPositionPill(appLocalizations),
+        _searchButton(appLocalizations),
         _mapButtonHelper(),        
       ],
     );
@@ -421,6 +463,213 @@ class _MapPageState extends State<MapPage>
         ),
       ),
     );
+  }
+
+  /// Round search button in the top-right corner of the map.
+  Widget _searchButton(AppLocalizations appLocalizations) {
+    final navColors = Theme.of(context).extension<AppNavBarColors>()!;
+
+    return Positioned(
+      top: MediaQuery.of(context).padding.top + 12,
+      right: 16,
+      child: Tooltip(
+        message: appLocalizations.mapSearchLocationButton,
+        child: ClipOval(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+            child: Container(
+              color: navColors.background,
+              child: AdaptiveFilledIconButton(
+                onPressed: _openSearchOverlay,
+                colorScheme: FilledButtonColorScheme.floating,
+                child: Icon(AdaptiveIcons.search),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  OverlayEntry _buildSearchOverlay() {
+    final loc = AppLocalizations.of(context)!;
+
+    return OverlayEntry(
+      builder: (context) {
+        final theme = Theme.of(context);
+        final showNoResult = !_isSearching &&
+            _searchResults.isEmpty &&
+            _searchCtl.text.trim().isNotEmpty;
+
+        return FullScreenSearchOverlay<LocationSearchResult>(
+          controller: _searchCtl,
+          focusNode: _searchFocusNode,
+          items: _searchResults,
+          isLoading: _isSearching,
+          hintText: loc.mapSearchLocationHint,
+          belowSearchField: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(
+                    Icons.info_outline,
+                    size: 16,
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      loc.mapSearchLocationTip,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              if (showNoResult) ...[
+                const SizedBox(height: 12),
+                Text(
+                  loc.mapSearchLocationNoResult,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ],
+          ),
+          onChanged: (query) {
+            _searchDebounce?.cancel();
+            _searchDebounce = Timer(const Duration(milliseconds: 350), () {
+              _performLocationSearch(query);
+            });
+          },
+          onSubmitted: (query) {
+            _searchDebounce?.cancel();
+            _performLocationSearch(query);
+          },
+          itemBuilder: (context, place) {
+            final flag = place.countryCode.isEmpty
+                ? ''
+                : '${countryCodeToEmoji(place.countryCode)} ';
+            final category = loc.mapSearchLocationCategory(place.category.name);
+            final subtitle = place.subtitle.isEmpty
+                ? category
+                : '$category · ${place.subtitle}';
+
+            return ListTile(
+              leading: Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.06),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  place.category.icon,
+                  size: 20,
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+              title: Text(
+                '$flag${place.name}',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
+              subtitle: Text(
+                subtitle,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            );
+          },
+          onSelected: (place) {
+            _closeSearchOverlay();
+            _goToPlace(place);
+          },
+          onClose: _closeSearchOverlay,
+        );
+      },
+    );
+  }
+
+  void _openSearchOverlay() {
+    if (_searchOverlay != null) return;
+
+    _searchCtl.clear();
+    _searchResults = [];
+    _isSearching = false;
+
+    _searchOverlay = _buildSearchOverlay();
+    Overlay.of(context).insert(_searchOverlay!);
+
+    Future.microtask(() => _searchFocusNode.requestFocus());
+  }
+
+  void _closeSearchOverlay() {
+    _searchDebounce?.cancel();
+    // Drop any in-flight response.
+    _searchRequestId++;
+    _searchOverlay?.remove();
+    _searchOverlay = null;
+    _searchFocusNode.unfocus();
+  }
+
+  Future<void> _performLocationSearch(String query) async {
+    final int requestId = ++_searchRequestId;
+
+    if (query.trim().isEmpty) {
+      _searchResults = [];
+      _isSearching = false;
+      _searchOverlay?.markNeedsBuild();
+      return;
+    }
+
+    _isSearching = true;
+    _searchOverlay?.markNeedsBuild();
+
+    final results = await context.read<TrainlogProvider>().searchLocation(
+          query,
+          visibleBounds: _mapController.camera.visibleBounds,
+          languageCode:
+              context.read<SettingsProvider>().locale.languageCode,
+        );
+
+    if (!mounted || _searchOverlay == null || requestId != _searchRequestId) {
+      return;
+    }
+
+    _searchResults = results;
+    _isSearching = false;
+    _searchOverlay?.markNeedsBuild();
+  }
+
+  void _goToPlace(LocationSearchResult place) {
+    final extent = place.extent;
+    if (extent != null &&
+        extent.north > extent.south &&
+        extent.east > extent.west) {
+      _mapController.fitCamera(
+        CameraFit.bounds(
+          bounds: extent,
+          padding: const EdgeInsets.all(48),
+          maxZoom: 17,
+        ),
+      );
+    } else {
+      _mapController.move(place.point, place.category.focusZoom);
+    }
+
+    setState(() {
+      _followUser = false;
+      _searchedPlace = place;
+    });
   }
 
   /// A slowly blinking black pill anchored at the top of the map, shown while

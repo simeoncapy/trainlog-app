@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:timezone/timezone.dart' as tz;
+import 'package:trainlog_app/utils/timezone_utils.dart';
 import 'package:lat_lng_to_timezone/lat_lng_to_timezone.dart' as tzmap;
 import 'package:trainlog_app/app/theme/app_colors.dart';
 import 'package:trainlog_app/app/theme/app_theme.dart';
@@ -148,7 +149,7 @@ class _AddTripWhenStepState extends State<AddTripWhenStep> {
       : tzmap.latLngToTimezoneString(lat, long);
 
   DateTime _convertUtcToTimezone(DateTime utc, String timezone) {
-    final location = tz.getLocation(timezone);
+    final location = timeZoneLocation(timezone);
     return tz.TZDateTime.from(utc, location);
   }
 

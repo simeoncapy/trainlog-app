@@ -302,9 +302,10 @@
   "statisticsTripsUnitGiga": "milliard de trajet",
 
   "statisticsOtherLabel": "Autres",
+  "statisticsAllVehicles": "Tous les modes",
+  "statisticsPartialLoadWarning": "Impossible de charger les statistiques pour : {types}",
   "statisticsTotalLabel": "Total",
   "statisticsUnitLabel": "Unités :",
-  "statisticsPieWip": "Le camembert est en cours de construction",
   "statisticsTitle": "Statistiques",
   "statisticsViewBar": "Barres",
   "statisticsViewPie": "Camembert",
@@ -478,5 +479,20 @@
   "duplicateTripSaveButton": "Créer un nouveau trajet",
   "editTripComingSoon": "Cette fonctionnalité sera disponible dans une prochaine mise à jour.",
   "editTripSavedMsg": "Trajet enregistré.",
-  "editTripSaveErrorMsg": "Le trajet n'a pas pu être enregistré : {error}"
+  "editTripSaveErrorMsg": "Le trajet n'a pas pu être enregistré : {error}",
+
+  "mapSearchLocationButton": "Rechercher un lieu",
+  "mapSearchLocationHint": "Rechercher un lieu, une adresse, un hôtel...",
+  "mapSearchLocationTip": "Si vous ne trouvez pas votre lieu, recherchez-le dans la langue locale ou en anglais.",
+  "mapSearchLocationNoResult": "Aucun lieu trouvé",
+  "mapSearchLocationCategory": "{category, select, railStation{Gare} metro{Métro} tram{Arrêt de tram} busStop{Arrêt de bus} ferry{Terminal de ferry} airport{Aéroport} aerialway{Remontée mécanique} hotel{Hébergement} food{Restauration} shop{Commerce} publicBuilding{Bâtiment public} health{Santé} education{Enseignement} tourism{Tourisme} religion{Lieu de culte} nature{Nature} sport{Sport} city{Ville} district{Quartier} region{Région} street{Rue} address{Adresse} other{Lieu}}",
+  "sessionExpiredBanner": "Session expirée : vos trajets ne sont pas synchronisés",
+  "sessionExpiredTitle": "Session expirée",
+  "sessionExpiredMessage": "Reconnectez-vous pour synchroniser vos trajets et utiliser les fonctions en ligne. Vos données sur cet appareil sont conservées.",
+  "sessionExpiredContinueOffline": "Continuer hors ligne",
+  "sessionExpiredWrongPassword": "Mot de passe incorrect",
+  "sessionExpiredNetworkError": "Impossible de joindre le serveur. Vérifiez votre connexion et réessayez.",
+  "sessionExpiredWebPage": "Reconnectez-vous pour afficher cette page",
+  "refreshFailedOffline": "Actualisation impossible : pas de connexion. Affichage des trajets enregistrés sur ce téléphone.",
+  "refreshFailed": "Impossible d'actualiser les trajets. Réessayez plus tard."
 }
