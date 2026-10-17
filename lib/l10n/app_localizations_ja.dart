@@ -1042,13 +1042,18 @@ class AppLocalizationsJa extends AppLocalizations {
   String get statisticsOtherLabel => 'その他';
 
   @override
+  String get statisticsAllVehicles => '全ての交通手段';
+
+  @override
+  String statisticsPartialLoadWarning(String types) {
+    return '次の統計を読み込めませんでした：$types';
+  }
+
+  @override
   String get statisticsTotalLabel => '総計';
 
   @override
   String get statisticsUnitLabel => '単位：';
-
-  @override
-  String get statisticsPieWip => '円グラフは仕掛品です';
 
   @override
   String get statisticsTitle => '統計';
@@ -1513,4 +1518,74 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get editCopyTripUnavailableError =>
       'この旅を読み込めませんでした。サーバーに接続できず、この端末にも保存された版がありません。';
+
+  @override
+  String get mapSearchLocationButton => '場所を検索';
+
+  @override
+  String get mapSearchLocationHint => '場所、住所、ホテルなどを検索...';
+
+  @override
+  String get mapSearchLocationTip => '場所が見つからない場合は、現地の言語または英語で検索してください。';
+
+  @override
+  String get mapSearchLocationNoResult => '場所が見つかりません';
+
+  @override
+  String mapSearchLocationCategory(String category) {
+    String _temp0 = intl.Intl.selectLogic(category, {
+      'railStation': '駅',
+      'metro': '地下鉄',
+      'tram': '路面電車停留所',
+      'busStop': 'バス停',
+      'ferry': 'フェリーターミナル',
+      'airport': '空港',
+      'aerialway': 'ロープウェイ',
+      'hotel': '宿泊施設',
+      'food': '飲食店',
+      'shop': '店舗',
+      'publicBuilding': '公共施設',
+      'health': '医療',
+      'education': '教育',
+      'tourism': '観光',
+      'religion': '宗教施設',
+      'nature': '自然',
+      'sport': 'スポーツ',
+      'city': '都市',
+      'district': '地区',
+      'region': '地域',
+      'street': '通り',
+      'address': '住所',
+      'other': '場所',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get sessionExpiredBanner => 'セッションの有効期限が切れました：旅程は同期されていません';
+
+  @override
+  String get sessionExpiredTitle => 'セッションの有効期限切れ';
+
+  @override
+  String get sessionExpiredMessage =>
+      '旅程を同期し、オンライン機能を使うには、もう一度ログインしてください。この端末のデータは保持されます。';
+
+  @override
+  String get sessionExpiredContinueOffline => 'オフラインで続ける';
+
+  @override
+  String get sessionExpiredWrongPassword => 'パスワードが正しくありません';
+
+  @override
+  String get sessionExpiredNetworkError => 'サーバーに接続できません。接続を確認して、もう一度お試しください。';
+
+  @override
+  String get sessionExpiredWebPage => 'このページを表示するには、もう一度ログインしてください';
+
+  @override
+  String get refreshFailedOffline => '更新できません：接続がありません。この端末に保存された旅程を表示しています。';
+
+  @override
+  String get refreshFailed => '旅程を更新できませんでした。しばらくしてから、もう一度お試しください。';
 }

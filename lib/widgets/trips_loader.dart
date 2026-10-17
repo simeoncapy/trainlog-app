@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/providers/polyline_provider.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
-import 'package:trainlog_app/l10n/app_localizations.dart';
+import 'package:trainlog_app/widgets/data_loading_screen.dart';
 
 class TripsLoader extends StatefulWidget {
   final Widget Function(BuildContext) builder;
@@ -29,8 +28,6 @@ class _TripsLoaderState extends State<TripsLoader> {
 
         final showLoader =
             trips.isLoading || trips.repository == null;
-        final theme = Theme.of(context);
-        final l10n = AppLocalizations.of(context)!;
 
         if (!trips.isLoading && trips.repository != null) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -46,27 +43,7 @@ class _TripsLoaderState extends State<TripsLoader> {
 
             //Loader is only an overlay
             if (showLoader)
-              Positioned.fill(
-                child: Container(
-                  color: theme.colorScheme.surfaceContainer,
-                  child: SafeArea(
-                    child: Center(
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(8, 8, 8, 24),
-                        child: Column(
-                          children: [
-                            const SizedBox(height: 24),
-                            Text(l10n.dataLoading,
-                                style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold)),
-                            const SizedBox(height: 16),
-                            Expanded(child: Lottie.asset('assets/animations/loading.json')),                            
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+              const Positioned.fill(child: DataLoadingScreen()),
           ],
         );
       },

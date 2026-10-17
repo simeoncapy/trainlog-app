@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
+import 'package:trainlog_app/features/user/session_expiry_host.dart';
+
 import '../providers/trainlog_provider.dart';
 
 /// Displays an authenticated Trainlog webpage inside a WebView.
@@ -30,6 +32,7 @@ class TrainlogWebPage extends StatefulWidget {
 class _TrainlogWebPageState extends State<TrainlogWebPage> {
   InAppWebViewController? _controller;
   bool _cookiesInjected = false;
+  int? _injectedGeneration;
   late TrainlogProvider provider;
   late String url;
 
@@ -39,10 +42,15 @@ class _TrainlogWebPageState extends State<TrainlogWebPage> {
     provider = context.read<TrainlogProvider>();
     url = provider.generateUserUrl(widget.trainlogPage, publicPage: widget.publicPage);
     _injectCookies();
+    // Opening a server page is an action needing the session.
+    if (provider.sessionExpired) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => provider.requestLogin());
+    }
   }
 
   /// Copy Dio cookies into the WebView cookie store
   Future<void> _injectCookies() async {
+    final generation = provider.sessionGeneration;
     final cookies =
         await provider.getCookiesForWebView(); // ← helper in provider
 
@@ -60,8 +68,10 @@ class _TrainlogWebPageState extends State<TrainlogWebPage> {
       );
     }
 
+    if (!mounted) return;
     setState(() {
       _cookiesInjected = true;
+      _injectedGeneration = generation;
     });
   }
 
@@ -97,6 +107,18 @@ class _TrainlogWebPageState extends State<TrainlogWebPage> {
       );
     }
 
+    if (provider.sessionExpired) {
+      return const SessionExpiredPlaceholder();
+    }
+
+    // Logged back in since the cookies were copied: copy the new ones.
+    if (_injectedGeneration != null &&
+        _injectedGeneration != provider.sessionGeneration) {
+      _injectedGeneration = null;
+      _cookiesInjected = false;
+      _injectCookies();
+    }
+
     if (!_cookiesInjected) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -116,7 +138,8 @@ class _TrainlogWebPageState extends State<TrainlogWebPage> {
       onWebViewCreated: (controller) {
         _controller = controller;
       },
-      onLoadStop: (controller, _) async {
+      onLoadStop: (controller, loadedUrl) async {
+        if (loadedUrl?.path == '/login') provider.reportSessionExpired();
         await _hideNavbar(controller);
       },
       shouldOverrideUrlLoading: (controller, action) async {

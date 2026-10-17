@@ -120,68 +120,97 @@ class StationsApi {
     return result;
   }
 
+  /// `osm_tag` filters sent to `/stationAutocomplete` for each vehicle type.
+  /// An empty list means no filter: Photon then returns any kind of place.
+  static List<String> _osmTagsFor(VehicleType type) {
+    switch (type) {
+      case VehicleType.aerialway:
+        return const ['aerialway:station'];
+      case VehicleType.bus:
+        return const ['amenity:bus_station', 'highway:bus_stop'];
+      case VehicleType.ferry:
+        return const ['amenity:ferry_terminal'];
+      case VehicleType.helicopter:
+        return const ['aeroway:helipad', 'aeroway:heliport', 'aeroway:aerodrome'];
+      case VehicleType.metro:
+        return const ['railway:station', 'railway:subway_entrance'];
+      case VehicleType.train:
+      case VehicleType.rail:
+      case VehicleType.funicular:
+        return const ['railway:halt', 'railway:station'];
+      case VehicleType.tram:
+        return const ['railway:tram_stop', 'railway:station', 'railway:halt'];
+      default:
+        return const [];
+    }
+  }
+
+  /// Raw GeoJSON `features` of `/stationAutocomplete` (a Photon proxy on the
+  /// Trainlog server). Every parameter is forwarded to Photon as is.
+  ///
+  /// Never send `lat`/`lon` here: when both are present the server switches to
+  /// Photon's reverse geocoding and ignores [q]. Use [bbox]
+  /// (`minLon,minLat,maxLon,maxLat`) to restrict results to an area instead.
+  ///
+  /// Returns an empty list on any error (the server answers 500 when Photon
+  /// times out).
+  Future<List<Map<String, dynamic>>> fetchAutocompleteFeatures({
+    required String q,
+    int? limit,
+    List<String> osmTags = const [],
+    String? bbox,
+    String? lang,
+  }) async {
+    try {
+      final res = await _client.safeGet<Map<String, dynamic>>(
+        '/stationAutocomplete',
+        query: {
+          'q': q,
+          if (limit != null) 'limit': limit,
+          if (osmTags.isNotEmpty) 'osm_tag': osmTags,
+          if (bbox != null) 'bbox': bbox,
+          if (lang != null) 'lang': lang,
+        },
+      );
+      final features = res.data?['features'];
+      if (features is! List) return [];
+      return features.whereType<Map<String, dynamic>>().toList();
+    } on Exception catch (e) {
+      debugPrint('🛑 fetchAutocompleteFeatures failed: $e');
+      return [];
+    }
+  }
+
+  /// Raw entries of `/api/airportAutocomplete/<query>`.
+  /// Returns an empty list on any error.
+  Future<List<Map<String, dynamic>>> fetchAirports(String query) async {
+    try {
+      final res = await _client.safeGet<List<dynamic>>(
+        '/api/airportAutocomplete/${Uri.encodeComponent(query)}',
+      );
+      return (res.data ?? const [])
+          .whereType<Map<String, dynamic>>()
+          .toList();
+    } on Exception catch (e) {
+      debugPrint('🛑 fetchAirports failed: $e');
+      return [];
+    }
+  }
+
   Future<List<StationResult>> fetchStations(
     String query,
     VehicleType type,
   ) async {
-    String path;
-    if(type == VehicleType.plane) {
-      path = "/api/airportAutocomplete/";
-    }
-    else {
-      path = "/stationAutocomplete?";
-      switch (type) {
-        case VehicleType.aerialway:
-          path += "osm_tag=aerialway:station&q=";
-          break;
-        case VehicleType.bus:
-          path += "osm_tag=amenity:bus_station&osm_tag=highway:bus_stop&q=";
-          break;
-        case VehicleType.ferry:
-          path += "osm_tag=amenity:ferry_terminal&q=";
-          break;
-        case VehicleType.helicopter:
-          path += "osm_tag=aeroway:helipad&osm_tag=aeroway:heliport&osm_tag=aeroway:aerodrome&q=";
-          break;
-        case VehicleType.metro:
-          path += "osm_tag=railway:station&osm_tag=railway:subway_entrance&q=";
-          break;
-        case VehicleType.train:
-        case VehicleType.rail:
-        case VehicleType.funicular:
-          path += "osm_tag=railway:halt&osm_tag=railway:station&q=";
-          break;
-        case VehicleType.tram:
-          path += "osm_tag=railway:tram_stop&osm_tag=railway:station&osm_tag=railway:halt&q=";
-          break;
-        default:
-          path += "q=";
-          break;
-      }
-    }
-    path += query;
-
-    try
-    {
-      if(type == VehicleType.plane) {
-        final res = await _client.safeGet<List<dynamic>>(path);
-
-        final data = res.data;
-        if (data == null) {
-          return [];
-        }
-
-        return _airportListGenerator(data);
+    try {
+      if (type == VehicleType.plane) {
+        return _airportListGenerator(await fetchAirports(query));
       }
 
-      final res = await _client.safeGet<Map<String, dynamic>>(path);
-
-      final data = res.data;
-      if (data == null) {
-        return [];
-      }
-
-      return _stationListGenerator(data);
+      final features = await fetchAutocompleteFeatures(
+        q: query,
+        osmTags: _osmTagsFor(type),
+      );
+      return _stationListGenerator({'features': features});
     } on Exception catch (e) {
       debugPrint('🛑 fetchStations failed: $e');
       return [];

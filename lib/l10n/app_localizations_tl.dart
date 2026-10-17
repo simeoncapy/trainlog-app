@@ -1044,13 +1044,18 @@ class AppLocalizationsTl extends AppLocalizations {
   String get statisticsOtherLabel => 'Other';
 
   @override
+  String get statisticsAllVehicles => 'Lahat ng uri';
+
+  @override
+  String statisticsPartialLoadWarning(String types) {
+    return 'Hindi ma-load ang statistics para sa: $types';
+  }
+
+  @override
   String get statisticsTotalLabel => 'Lahat';
 
   @override
   String get statisticsUnitLabel => 'Unit:';
-
-  @override
-  String get statisticsPieWip => 'Ang pie chart ay WIP';
 
   @override
   String get statisticsTitle => 'Statistics';
@@ -1530,4 +1535,80 @@ class AppLocalizationsTl extends AppLocalizations {
   @override
   String get editCopyTripUnavailableError =>
       'Hindi ma-load ang biyaheng ito: hindi maabot ang server at walang kopyang naka-save sa device na ito.';
+
+  @override
+  String get mapSearchLocationButton => 'Maghanap ng lugar';
+
+  @override
+  String get mapSearchLocationHint => 'Maghanap ng lugar, address, hotel...';
+
+  @override
+  String get mapSearchLocationTip =>
+      'Kung hindi mo mahanap ang iyong lokasyon, hanapin ang lugar sa lokal na wika o sa Ingles.';
+
+  @override
+  String get mapSearchLocationNoResult => 'Walang nahanap na lugar';
+
+  @override
+  String mapSearchLocationCategory(String category) {
+    String _temp0 = intl.Intl.selectLogic(category, {
+      'railStation': 'Istasyon',
+      'metro': 'Metro',
+      'tram': 'Hintuan ng tram',
+      'busStop': 'Hintuan ng bus',
+      'ferry': 'Terminal ng ferry',
+      'airport': 'Paliparan',
+      'aerialway': 'Cable car',
+      'hotel': 'Matutuluyan',
+      'food': 'Kainan',
+      'shop': 'Tindahan',
+      'publicBuilding': 'Pampublikong gusali',
+      'health': 'Kalusugan',
+      'education': 'Edukasyon',
+      'tourism': 'Turismo',
+      'religion': 'Lugar ng pagsamba',
+      'nature': 'Kalikasan',
+      'sport': 'Isports',
+      'city': 'Lungsod',
+      'district': 'Distrito',
+      'region': 'Rehiyon',
+      'street': 'Kalye',
+      'address': 'Address',
+      'other': 'Lugar',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get sessionExpiredBanner =>
+      'Nag-expire ang session: hindi naka-sync ang mga biyahe mo';
+
+  @override
+  String get sessionExpiredTitle => 'Nag-expire ang session';
+
+  @override
+  String get sessionExpiredMessage =>
+      'Mag-login ulit para i-sync ang mga biyahe mo at gamitin ang mga online na feature. Naka-save pa rin ang data mo sa device na ito.';
+
+  @override
+  String get sessionExpiredContinueOffline => 'Magpatuloy nang offline';
+
+  @override
+  String get sessionExpiredWrongPassword => 'Mali ang password';
+
+  @override
+  String get sessionExpiredNetworkError =>
+      'Hindi maabot ang server. Tingnan ang koneksyon mo at subukan ulit.';
+
+  @override
+  String get sessionExpiredWebPage =>
+      'Mag-login ulit para makita ang page na ito';
+
+  @override
+  String get refreshFailedOffline =>
+      'Hindi ma-refresh: walang koneksyon. Ipinapakita ang mga biyaheng naka-save sa phone na ito.';
+
+  @override
+  String get refreshFailed =>
+      'Hindi ma-refresh ang mga biyahe. Subukan ulit mamaya.';
 }

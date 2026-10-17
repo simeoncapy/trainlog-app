@@ -1,10 +1,30 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
+import 'package:trainlog_app/services/api/session_expiry.dart';
 import 'package:trainlog_app/services/secure_cookie_storage.dart';
+
+/// True when [error] means the server never answered (no network, DNS
+/// failure, timeout), as opposed to an error the server returned.
+bool isServerUnreachable(Object error) {
+  if (error is! DioException) return false;
+  switch (error.type) {
+    case DioExceptionType.connectionTimeout:
+    case DioExceptionType.sendTimeout:
+    case DioExceptionType.receiveTimeout:
+    case DioExceptionType.connectionError:
+      return true;
+    case DioExceptionType.unknown:
+      return error.error is SocketException;
+    default:
+      return false;
+  }
+}
 
 /// Shared transport layer for all Trainlog API domains.
 ///
@@ -18,10 +38,25 @@ class TrainlogHttpClient {
   static const String urlDev = 'https://dev.trainlog.me';
   static const String _userAgent = 'TrainlogApp/1.0 (+Flutter)';
 
+  /// Upper bound for opening a connection (DNS + TCP + TLS). Without it Dio
+  /// waits for the OS to give up, which can take minutes on a phone whose
+  /// network is still waking up. Only the connection is bounded: slow but
+  /// alive downloads (e.g. a full trips export) are left untouched.
+  static const Duration connectTimeout = Duration(seconds: 10);
+
   final Dio dio;
   final CookieJar cookieJar;
 
-  TrainlogHttpClient._(this.dio, this.cookieJar);
+  /// Called when a response shows the session has expired (see
+  /// [SessionExpiryInterceptor]). Set by the owner of the session.
+  void Function({required bool background})? onSessionExpired;
+
+  TrainlogHttpClient._(this.dio, this.cookieJar) {
+    dio.interceptors.add(SessionExpiryInterceptor(
+      ({required bool background}) =>
+          onSessionExpired?.call(background: background),
+    ));
+  }
 
   String get baseUrl => dio.options.baseUrl;
   set baseUrl(String url) {
@@ -35,6 +70,7 @@ class TrainlogHttpClient {
     final dio = Dio(
       BaseOptions(
         baseUrl: baseUrl,
+        connectTimeout: connectTimeout,
         followRedirects: false,
         validateStatus: (s) => s != null && s >= 200 && s < 400, // general
         headers: {'User-Agent': _userAgent},
@@ -72,6 +108,7 @@ class TrainlogHttpClient {
     final dio = Dio(
       BaseOptions(
         baseUrl: baseUrl,
+        connectTimeout: connectTimeout,
         followRedirects: false,
         validateStatus: (s) => s != null && s >= 200 && s < 400,
         headers: {'User-Agent': _userAgent},

@@ -7,6 +7,7 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:provider/provider.dart';
 
 import 'package:trainlog_app/data/controllers/trainlog_web_controller.dart';
+import 'package:trainlog_app/features/user/session_expiry_host.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import '../providers/trainlog_provider.dart';
 
@@ -56,6 +57,7 @@ class _TrainlogRouterPageState extends State<TrainlogRouterPage> {
 
   bool _cookiesInjected = false;
   bool _injecting = false;
+  int? _injectedGeneration;
 
   bool _lastLoadingState = false;
   bool _lastRoutingErrorState = false;
@@ -85,6 +87,11 @@ class _TrainlogRouterPageState extends State<TrainlogRouterPage> {
     );
 
     _injectCookies();
+    // Opening the router is an action needing the session.
+    if (_provider!.sessionExpired) {
+      final provider = _provider!;
+      WidgetsBinding.instance.addPostFrameCallback((_) => provider.requestLogin());
+    }
   }
 
   @override
@@ -111,6 +118,7 @@ class _TrainlogRouterPageState extends State<TrainlogRouterPage> {
     if (provider == null || cookieWebUri == null) return;
 
     try {
+      final generation = provider.sessionGeneration;
       final cookies = await provider.getCookiesForWebView();
       if (!mounted) return;
 
@@ -129,7 +137,10 @@ class _TrainlogRouterPageState extends State<TrainlogRouterPage> {
       }
 
       if (!mounted) return;
-      setState(() => _cookiesInjected = true);
+      setState(() {
+        _cookiesInjected = true;
+        _injectedGeneration = generation;
+      });
     } finally {
       _injecting = false;
     }
@@ -180,6 +191,18 @@ class _TrainlogRouterPageState extends State<TrainlogRouterPage> {
 
     if (!provider.isAuthenticated || provider.username == null) {
       return const Center(child: Text('You must be logged in to view this page'));
+    }
+
+    if (provider.sessionExpired) {
+      return const SessionExpiredPlaceholder();
+    }
+
+    // Logged back in since the cookies were copied: copy the new ones.
+    if (_injectedGeneration != null &&
+        _injectedGeneration != provider.sessionGeneration) {
+      _injectedGeneration = null;
+      _cookiesInjected = false;
+      _injectCookies();
     }
 
     if (!_cookiesInjected) {
@@ -248,8 +271,9 @@ class _TrainlogRouterPageState extends State<TrainlogRouterPage> {
           },
         );
       },
-      onLoadStop: (controller, _) async {
+      onLoadStop: (controller, loadedUrl) async {
         if (!mounted) return;
+        if (loadedUrl?.path == '/login') provider.reportSessionExpired();
         widget.controller.markReady();
       },
       onReceivedError: (_, __, ___) => _setLoading(false),

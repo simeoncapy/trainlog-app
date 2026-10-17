@@ -709,6 +709,21 @@ class _SettingsPageState extends State<SettingsPage> {
         ),
         SettingsTile(
           icon: icon,
+          title: 'Simulate expired session',
+          subtitle: 'debug: forgets the session cookie, keeps local data',
+          trailing: AdaptiveButton.build(
+            context: ctx,
+            label: const Text('Expire'),
+            size: AdaptiveButton.small,
+            onPressed: () async {
+              await trainlog.debugForgetSessionCookie();
+              AdaptiveInformationMessage.showInfo(
+                  'Session cookie deleted: refresh the trips to see the banner');
+            },
+          ),
+        ),
+        SettingsTile(
+          icon: icon,
           title: 'Reset changelog',
           subtitle: 'debug',
           trailing: AdaptiveButton.build(

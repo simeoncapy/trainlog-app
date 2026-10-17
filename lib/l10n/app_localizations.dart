@@ -1770,6 +1770,18 @@ abstract class AppLocalizations {
   /// **'Other'**
   String get statisticsOtherLabel;
 
+  /// No description provided for @statisticsAllVehicles.
+  ///
+  /// In en, this message translates to:
+  /// **'All modes'**
+  String get statisticsAllVehicles;
+
+  /// No description provided for @statisticsPartialLoadWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Statistics could not be loaded for: {types}'**
+  String statisticsPartialLoadWarning(String types);
+
   /// No description provided for @statisticsTotalLabel.
   ///
   /// In en, this message translates to:
@@ -1781,12 +1793,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unit:'**
   String get statisticsUnitLabel;
-
-  /// No description provided for @statisticsPieWip.
-  ///
-  /// In en, this message translates to:
-  /// **'The pie chart is WIP'**
-  String get statisticsPieWip;
 
   /// No description provided for @statisticsTitle.
   ///
@@ -2615,6 +2621,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This trip could not be loaded: the server could not be reached and no copy is saved on this device.'**
   String get editCopyTripUnavailableError;
+
+  /// No description provided for @mapSearchLocationButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Search a place'**
+  String get mapSearchLocationButton;
+
+  /// No description provided for @mapSearchLocationHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search a place, an address, a hotel...'**
+  String get mapSearchLocationHint;
+
+  /// No description provided for @mapSearchLocationTip.
+  ///
+  /// In en, this message translates to:
+  /// **'If you cannot find your location, search for the place in the local language.'**
+  String get mapSearchLocationTip;
+
+  /// No description provided for @mapSearchLocationNoResult.
+  ///
+  /// In en, this message translates to:
+  /// **'No place found'**
+  String get mapSearchLocationNoResult;
+
+  /// Label of a place category in the map search results
+  ///
+  /// In en, this message translates to:
+  /// **'{category, select, railStation{Station} metro{Metro} tram{Tram stop} busStop{Bus stop} ferry{Ferry terminal} airport{Airport} aerialway{Cable car} hotel{Accommodation} food{Food & drink} shop{Shop} publicBuilding{Public building} health{Health} education{Education} tourism{Tourism} religion{Place of worship} nature{Nature} sport{Sport} city{City} district{District} region{Region} street{Street} address{Address} other{Place}}'**
+  String mapSearchLocationCategory(String category);
+
+  /// Banner shown at the top of the app when the session cookie has expired
+  ///
+  /// In en, this message translates to:
+  /// **'Session expired: your trips are not synced'**
+  String get sessionExpiredBanner;
+
+  /// No description provided for @sessionExpiredTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Session expired'**
+  String get sessionExpiredTitle;
+
+  /// Body of the sheet asking the user to log in again after the session expired
+  ///
+  /// In en, this message translates to:
+  /// **'Log in again to sync your trips and use online features. Your data on this device is kept.'**
+  String get sessionExpiredMessage;
+
+  /// Button closing the log-in-again sheet and keeping the app usable with local data
+  ///
+  /// In en, this message translates to:
+  /// **'Continue offline'**
+  String get sessionExpiredContinueOffline;
+
+  /// No description provided for @sessionExpiredWrongPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Incorrect password'**
+  String get sessionExpiredWrongPassword;
+
+  /// No description provided for @sessionExpiredNetworkError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t reach the server. Check your connection and try again.'**
+  String get sessionExpiredNetworkError;
+
+  /// Shown instead of a web page that needs the server while the session is expired
+  ///
+  /// In en, this message translates to:
+  /// **'Log in again to view this page'**
+  String get sessionExpiredWebPage;
+
+  /// No description provided for @refreshFailedOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t refresh: no connection. Showing the trips saved on this phone.'**
+  String get refreshFailedOffline;
+
+  /// No description provided for @refreshFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t refresh the trips. Please try again later.'**
+  String get refreshFailed;
 }
 
 class _AppLocalizationsDelegate
