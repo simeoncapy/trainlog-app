@@ -188,12 +188,11 @@ class _EditCopyPageState extends State<EditCopyPage> {
   /// until the edit is saved, whatever the form picked since.
   VehicleType? get _storedType => _result?.trip?.type;
 
-  /// Whether the trip can be given another vehicle type. An edit can only
-  /// move within the types [VehicleType.canTransform] allows; a copy is a new
-  /// trip, so any type goes.
+  /// Whether the trip can be given another vehicle type. Both an edit and a
+  /// copy can only move within the types [VehicleType.canTransform] allows.
   bool get _canChangeVehicleType {
     final stored = _storedType;
-    if (widget.mode == EditCopy.copy || stored == null) return true;
+    if (stored == null) return true;
     return VehicleTypeGrid.vehicleTypes.any(
       (type) => type != stored && VehicleType.canTransform(stored, type),
     );
@@ -210,7 +209,6 @@ class _EditCopyPageState extends State<EditCopyPage> {
         (_) => EditTripVehicleTypePage(
           currentType: _storedType ?? form.vehicleType ?? VehicleType.train,
           selectedType: form.vehicleType,
-          restrictToTransformable: widget.mode == EditCopy.edit,
         ),
       ),
     );
