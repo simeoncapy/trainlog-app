@@ -46,13 +46,13 @@ class TripFormModel extends ChangeNotifier {
         ? null
         : (manualDuration ~/ 3600, (manualDuration % 3600) ~/ 60);
 
-    if (trip.isUnknownPastFuture) {
+    if (_isUnknownPastFuture(trip)) {
       model.dateType = DateType.unknown;
       model.isPast = trip.startDatetime == unknownPast;
       if (durationParts != null) {
         model.duration[DateType.unknown] = durationParts;
       }
-    } else if (trip.isDateOnly) {
+    } else if (_isDateOnly(trip)) {
       model.dateType = DateType.date;
       model.departureDayDateOnly = trip.startDatetime;
       if (durationParts != null) {
@@ -104,6 +104,25 @@ class TripFormModel extends ChangeNotifier {
     }
     if (points == null || points.isEmpty) return (null, null);
     return (points.first, points.last);
+  }
+
+  /// Same as [Trips.isUnknownPastFuture] / [Trips.isDateOnly], without their
+  /// `utcEndDatetime == null` condition: the edit/copy payload fills the UTC
+  /// end from the stored trip (or its filtered counterpart) even when the trip
+  /// has no time, which would otherwise open such a trip in precise mode.
+  static bool _isUnknownPastFuture(Trips trip) =>
+      trip.isUnknownPastFuture ||
+      trip.startDatetime == unknownPast ||
+      trip.startDatetime == unknownFuture;
+
+  static bool _isDateOnly(Trips trip) {
+    if (trip.isDateOnly) return true;
+    final start = trip.startDatetime;
+    final isMidnight = start.hour == 0 &&
+        start.minute == 0 &&
+        start.second == 0 &&
+        start.millisecond == 0;
+    return isMidnight && start == trip.endDatetime;
   }
 
   static String? _orNull(String? value) =>
