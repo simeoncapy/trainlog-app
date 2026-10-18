@@ -1575,13 +1575,6 @@ class AppLocalizationsTl extends AppLocalizations {
   String get editTripChangeVehicleTypeTitle => 'Baguhin ang uri ng sasakyan';
 
   @override
-  String get editTripChangeVehicleTypeWarning =>
-      'Hiwalay itong aksyon — nag-a-update ito nang mag-isa.';
-
-  @override
-  String get editTripUpdateVehicleTypeButton => 'I-update ang uri ng sasakyan';
-
-  @override
   String get editTripVehicleTypeCurrent => 'Kasalukuyan';
 
   @override

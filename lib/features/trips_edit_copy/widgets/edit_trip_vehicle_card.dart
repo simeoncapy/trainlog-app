@@ -5,12 +5,16 @@ import 'package:trainlog_app/widgets/trip_form/trip_form_card.dart';
 
 /// Card at the top of the edit form showing the vehicle type of the trip,
 /// with a trailing "Change >" button opening the isolated vehicle type page.
+///
+/// A trip whose type cannot be changed into any other has the card greyed out
+/// and no button.
 class EditTripVehicleCard extends StatelessWidget {
   const EditTripVehicleCard({
     super.key,
     required this.type,
     required this.colour,
     required this.onChange,
+    this.canChange = true,
   });
 
   final VehicleType type;
@@ -20,12 +24,15 @@ class EditTripVehicleCard extends StatelessWidget {
 
   final VoidCallback onChange;
 
+  /// Whether the vehicle type can be changed at all.
+  final bool canChange;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final loc = AppLocalizations.of(context)!;
 
-    return TripFormCard(
+    final card = TripFormCard(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       children: [
         Row(
@@ -60,27 +67,32 @@ class EditTripVehicleCard extends StatelessWidget {
                 ],
               ),
             ),
-            TextButton(
-              onPressed: onChange,
-              style: TextButton.styleFrom(
-                foregroundColor: theme.colorScheme.primary,
-                visualDensity: VisualDensity.compact,
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            if (canChange)
+              TextButton(
+                onPressed: onChange,
+                style: TextButton.styleFrom(
+                  foregroundColor: theme.colorScheme.onSurface,
+                  visualDensity: VisualDensity.compact,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      loc.editTripChangeButton,
+                      style: const TextStyle(fontWeight: FontWeight.w700),
+                    ),
+                    const Icon(Icons.chevron_right, size: 18),
+                  ],
+                ),
               ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    loc.editTripChangeButton,
-                    style: const TextStyle(fontWeight: FontWeight.w700),
-                  ),
-                  const Icon(Icons.chevron_right, size: 18),
-                ],
-              ),
-            ),
           ],
         ),
       ],
     );
+
+    if (canChange) return card;
+    return Opacity(opacity: 0.5, child: card);
   }
 }

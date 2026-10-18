@@ -17,6 +17,7 @@ class VehicleTypeGrid extends StatelessWidget {
     required this.onSelected,
     this.currentLabel,
     this.currentType,
+    this.isEnabled,
   });
 
   /// Vehicle categories offered by the picker: every vehicle type a trip can
@@ -32,6 +33,10 @@ class VehicleTypeGrid extends StatelessWidget {
   /// "CURRENT"). Ignored when [currentType] is null.
   final String? currentLabel;
   final VehicleType? currentType;
+
+  /// Whether a type can be picked. Types it rejects are greyed out and cannot
+  /// be tapped. Every type is enabled when null.
+  final bool Function(VehicleType type)? isEnabled;
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +60,9 @@ class VehicleTypeGrid extends StatelessWidget {
             caption: (currentType != null && currentType == type)
                 ? currentLabel
                 : null,
-            onTap: () => onSelected(type),
+            onTap: (isEnabled?.call(type) ?? true)
+                ? () => onSelected(type)
+                : null,
           ),
       ],
     );
@@ -76,7 +83,9 @@ class VehicleTypeCard extends StatelessWidget {
   final VehicleType type;
   final Color colour;
   final bool selected;
-  final VoidCallback onTap;
+
+  /// Null disables the card, which is then greyed out.
+  final VoidCallback? onTap;
 
   /// Small uppercase caption under the label (e.g. the current vehicle type).
   final String? caption;
@@ -92,7 +101,7 @@ class VehicleTypeCard extends StatelessWidget {
     final contentColor = selected ? cs.onPrimary : cs.onSurface;
     final iconColor = selected ? cs.onPrimary : colour;
 
-    return Material(
+    final card = Material(
       color: selected ? cs.primary : theme.cardColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(radius),
@@ -145,5 +154,8 @@ class VehicleTypeCard extends StatelessWidget {
         ),
       ),
     );
+
+    if (onTap != null) return card;
+    return Opacity(opacity: 0.35, child: card);
   }
 }

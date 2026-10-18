@@ -627,8 +627,6 @@
   "editTripVehicleTypeLabel": "Uri ng sasakyan",
   "editTripChangeButton": "Baguhin",
   "editTripChangeVehicleTypeTitle": "Baguhin ang uri ng sasakyan",
-  "editTripChangeVehicleTypeWarning": "Hiwalay itong aksyon — nag-a-update ito nang mag-isa.",
-  "editTripUpdateVehicleTypeButton": "I-update ang uri ng sasakyan",
   "editTripVehicleTypeCurrent": "Kasalukuyan",
   "editTripStationNameHelper": "Ang ipinapakitang pangalan lang ng istasyon ang mababago, hindi ang posisyon nito",
   "editTripAddOperatorButton": "Magdagdag ng operator",

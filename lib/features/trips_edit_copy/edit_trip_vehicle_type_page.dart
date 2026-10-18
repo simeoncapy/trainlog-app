@@ -1,23 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
-import 'package:trainlog_app/widgets/error_banner.dart';
 import 'package:trainlog_app/widgets/primary_action_button.dart';
 import 'package:trainlog_app/widgets/trip_form/vehicle_type_grid.dart';
 
 /// Isolated "Change vehicle type" page of the edit form.
 ///
-/// Changing the vehicle type is not part of the form submission — it is its
-/// own update, which the banner spells out — so the page is pushed on top of
-/// the form and pops with the picked [VehicleType] (or null when cancelled).
-///
-/// UI only for now: applying the change (vehicle material and seat resets)
-/// is left to the caller once the API supports it.
+/// The page is pushed on top of the form and pops with the picked
+/// [VehicleType] (or null when cancelled). Nothing is sent from here: the
+/// type change is applied when the whole edit is saved.
 class EditTripVehicleTypePage extends StatefulWidget {
-  const EditTripVehicleTypePage({super.key, required this.currentType});
+  const EditTripVehicleTypePage({
+    super.key,
+    required this.currentType,
+    this.selectedType,
+    this.restrictToTransformable = true,
+  });
 
-  /// Vehicle type the trip currently has, pre-selected and flagged in the grid.
+  /// Vehicle type the trip is stored with, flagged as "current" in the grid.
   final VehicleType currentType;
+
+  /// Vehicle type picked so far in the form, pre-selected in the grid.
+  /// Defaults to [currentType].
+  final VehicleType? selectedType;
+
+  /// Whether only the types [currentType] can be changed into are offered
+  /// (see [VehicleType.canTransform]). The other ones are greyed out.
+  final bool restrictToTransformable;
 
   @override
   State<EditTripVehicleTypePage> createState() =>
@@ -25,7 +34,7 @@ class EditTripVehicleTypePage extends StatefulWidget {
 }
 
 class _EditTripVehicleTypePageState extends State<EditTripVehicleTypePage> {
-  late VehicleType _selected = widget.currentType;
+  late VehicleType _selected = widget.selectedType ?? widget.currentType;
 
   @override
   Widget build(BuildContext context) {
@@ -36,13 +45,6 @@ class _EditTripVehicleTypePageState extends State<EditTripVehicleTypePage> {
       body: SafeArea(
         child: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 12, 24, 0),
-              child: ErrorBanner(
-                message: loc.editTripChangeVehicleTypeWarning,
-                severity: ErrorSeverity.warning,
-              ),
-            ),
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
@@ -50,6 +52,10 @@ class _EditTripVehicleTypePageState extends State<EditTripVehicleTypePage> {
                   selected: _selected,
                   currentType: widget.currentType,
                   currentLabel: loc.editTripVehicleTypeCurrent,
+                  isEnabled: widget.restrictToTransformable
+                      ? (type) =>
+                          VehicleType.canTransform(widget.currentType, type)
+                      : null,
                   onSelected: (type) => setState(() => _selected = type),
                 ),
               ),
@@ -57,7 +63,7 @@ class _EditTripVehicleTypePageState extends State<EditTripVehicleTypePage> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               child: PrimaryActionButton(
-                label: loc.editTripUpdateVehicleTypeButton,
+                label: loc.validateButton,
                 onPressed: () => Navigator.of(context).pop(_selected),
               ),
             ),
