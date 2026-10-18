@@ -2694,18 +2694,6 @@ abstract class AppLocalizations {
   /// **'Change vehicle type'**
   String get editTripChangeVehicleTypeTitle;
 
-  /// Banner warning that changing the vehicle type is applied independently of the rest of the form
-  ///
-  /// In en, this message translates to:
-  /// **'This is a separate action — it updates on its own.'**
-  String get editTripChangeVehicleTypeWarning;
-
-  /// Footer button confirming the new vehicle type
-  ///
-  /// In en, this message translates to:
-  /// **'Update vehicle type'**
-  String get editTripUpdateVehicleTypeButton;
-
   /// Caption marking the vehicle type the trip currently has
   ///
   /// In en, this message translates to:

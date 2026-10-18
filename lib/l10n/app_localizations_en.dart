@@ -1592,13 +1592,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get editTripChangeVehicleTypeTitle => 'Change vehicle type';
 
   @override
-  String get editTripChangeVehicleTypeWarning =>
-      'This is a separate action — it updates on its own.';
-
-  @override
-  String get editTripUpdateVehicleTypeButton => 'Update vehicle type';
-
-  @override
   String get editTripVehicleTypeCurrent => 'Current';
 
   @override

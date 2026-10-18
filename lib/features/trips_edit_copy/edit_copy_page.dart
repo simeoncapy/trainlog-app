@@ -25,6 +25,7 @@ import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
 import 'package:trainlog_app/widgets/error_banner.dart';
 import 'package:trainlog_app/widgets/primary_action_button.dart';
+import 'package:trainlog_app/widgets/trip_form/vehicle_type_grid.dart';
 
 /// Page backing both "Edit" and "Duplicate" on a trip.
 ///
@@ -183,23 +184,38 @@ class _EditCopyPageState extends State<EditCopyPage> {
   // Actions
   // ─────────────────────────────────────────────────────────────
 
+  /// Vehicle type the trip is stored with, which stays the "current" one
+  /// until the edit is saved, whatever the form picked since.
+  VehicleType? get _storedType => _result?.trip?.type;
+
+  /// Whether the trip can be given another vehicle type. An edit can only
+  /// move within the types [VehicleType.canTransform] allows; a copy is a new
+  /// trip, so any type goes.
+  bool get _canChangeVehicleType {
+    final stored = _storedType;
+    if (widget.mode == EditCopy.copy || stored == null) return true;
+    return VehicleTypeGrid.vehicleTypes.any(
+      (type) => type != stored && VehicleType.canTransform(stored, type),
+    );
+  }
+
+  /// Opens the vehicle type page and keeps the pick in the form. The change
+  /// itself is only sent when the whole edit is saved (see [_save]).
   Future<void> _changeVehicleType() async {
     final form = _form;
-    if (form == null) return;
+    if (form == null || !_canChangeVehicleType) return;
 
     final picked = await Navigator.of(context).push<VehicleType>(
       AdaptivePageRoute.route<VehicleType>(
         (_) => EditTripVehicleTypePage(
-          currentType: form.vehicleType ?? VehicleType.train,
+          currentType: _storedType ?? form.vehicleType ?? VehicleType.train,
+          selectedType: form.vehicleType,
+          restrictToTransformable: widget.mode == EditCopy.edit,
         ),
       ),
     );
 
-    // TODO: Only the form is updated for now. The type is not part of a trip
-    // patch — the server does not take it through an edit — so pushing the new
-    // type (and the vehicle material / seat resets that come with it) needs the
-    // separate call the section's own warning already announces.
-    if (picked == null || !mounted) return;
+    if (picked == null || !mounted || picked == form.vehicleType) return;
     form.setVehicleType(picked);
   }
 
@@ -258,6 +274,8 @@ class _EditCopyPageState extends State<EditCopyPage> {
         username: username,
         tripId: widget.tripId,
         fields: form.toTripColumns(stored: _result?.trip),
+        oldType: _storedType,
+        newType: form.vehicleType,
       );
       if (!mounted) return;
       messenger
@@ -447,6 +465,7 @@ class _EditCopyPageState extends State<EditCopyPage> {
             type: vehicleType,
             colour: vehicleColour,
             onChange: _changeVehicleType,
+            canChange: _canChangeVehicleType,
           ),
           const SizedBox(height: 24),
           _section(

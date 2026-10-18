@@ -468,8 +468,6 @@
   "editTripVehicleTypeLabel": "Type de véhicule",
   "editTripChangeButton": "Modifier",
   "editTripChangeVehicleTypeTitle": "Changer le type de véhicule",
-  "editTripChangeVehicleTypeWarning": "Il s’agit d’une action distincte — elle est appliquée séparément.",
-  "editTripUpdateVehicleTypeButton": "Mettre à jour le type de véhicule",
   "editTripVehicleTypeCurrent": "Actuel",
   "editTripStationNameHelper": "Seul le nom affiché de la gare sera modifié, pas sa position",
   "editTripAddOperatorButton": "Ajouter un opérateur",

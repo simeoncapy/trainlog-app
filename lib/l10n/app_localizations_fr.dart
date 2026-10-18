@@ -1608,14 +1608,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get editTripChangeVehicleTypeTitle => 'Changer le type de véhicule';
 
   @override
-  String get editTripChangeVehicleTypeWarning =>
-      'Il s’agit d’une action distincte — elle est appliquée séparément.';
-
-  @override
-  String get editTripUpdateVehicleTypeButton =>
-      'Mettre à jour le type de véhicule';
-
-  @override
   String get editTripVehicleTypeCurrent => 'Actuel';
 
   @override

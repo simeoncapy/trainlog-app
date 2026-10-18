@@ -160,20 +160,32 @@ class TripEditCopyService {
   /// [TripEditCopySaveResult.cacheRefreshed] and the next incremental sync
   /// picks the trip up.
   ///
+  /// The vehicle type is not a patchable column: when [newType] differs from
+  /// [oldType], the type is changed first through
+  /// [TripsApi.changeTripType], and the patch only runs once that succeeded.
+  ///
   /// Throws [TripPatchException] when the server refused the save, or when
   /// there is no signed-in user to save as.
   Future<TripEditCopySaveResult> save({
     required String? username,
     required int tripId,
     required Map<String, dynamic> fields,
+    VehicleType? oldType,
+    VehicleType? newType,
   }) async {
     if (username == null) {
       throw const TripPatchException('No signed-in user to save the trip as');
     }
 
+    final typeChanged =
+        oldType != null && newType != null && oldType != newType;
+    if (typeChanged) {
+      await _api.changeTripType(username, [tripId], newType, oldType);
+    }
+
     final patch = await _api.patchTrip(username, tripId, fields);
     // Nothing was sent, so there is nothing new to read back either.
-    if (patch.isEmpty) {
+    if (patch.isEmpty && !typeChanged) {
       return TripEditCopySaveResult(patch: patch, saved: null);
     }
 

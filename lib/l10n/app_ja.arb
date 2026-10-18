@@ -469,8 +469,6 @@
   "editTripVehicleTypeLabel": "乗り物の種類",
   "editTripChangeButton": "変更",
   "editTripChangeVehicleTypeTitle": "乗り物の種類を変更",
-  "editTripChangeVehicleTypeWarning": "これは別の操作です — 単独で更新されます。",
-  "editTripUpdateVehicleTypeButton": "乗り物の種類を更新",
   "editTripVehicleTypeCurrent": "現在",
   "editTripStationNameHelper": "駅の表示名のみが変更され、位置は変わりません",
   "editTripAddOperatorButton": "運行会社を追加",
