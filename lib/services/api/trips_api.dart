@@ -380,8 +380,8 @@ class TripsApi {
       'username': _s(data['username']),
       'origin_station': _s(data['origin']),
       'destination_station': _s(data['destination']),
-      'start_datetime': _s(data['start_datetime']),
-      'end_datetime': _s(data['end_datetime']),
+      'start_datetime': _startEnd(data, 'start_datetime'),
+      'end_datetime': _startEnd(data, 'end_datetime'),
       'manual_trip_duration': _manualDuration(data),
       'operator': _s(data['tripOperator']),
       'line_name': _s(data['tripLineName']),
@@ -404,14 +404,42 @@ class TripsApi {
       'estimated_trip_duration': trip['estimated_trip_duration'],
       'trip_length': trip['trip_length'],
       'countries': trip['countries'],
-      'utc_start_datetime':
-          trip['utc_start_datetime'] ?? trip['utc_filtered_start_datetime'],
-      'utc_end_datetime':
-          trip['utc_end_datetime'] ?? trip['utc_filtered_end_datetime'],
+      // A trip without a time has no UTC counterpart: the filtered columns
+      // hold one anyway, which would make it read as a precise trip.
+      'utc_start_datetime': _isPrecise(data, trip)
+          ? trip['utc_start_datetime'] ?? trip['utc_filtered_start_datetime']
+          : null,
+      'utc_end_datetime': _isPrecise(data, trip)
+          ? trip['utc_end_datetime'] ?? trip['utc_filtered_end_datetime']
+          : null,
       'waypoints': trip['waypoints'],
       'created': isEdit ? trip['created'] : null,
       'last_modified': isEdit ? trip['last_modified'] : null,
     };
+  }
+
+  /// Start or end of the trip, preferring the form's precision fields when the
+  /// payload carries them: a date-only trip goes back to the `00:00:01` the
+  /// server stores it at, an unknown one to its -1 / 1 sentinel.
+  static String? _startEnd(Map<String, dynamic> data, String key) {
+    switch (_s(data['precision'])) {
+      case 'onlyDate':
+        final date = _s(data['onlyDate']);
+        if (date != null) return '${date}T00:00:01';
+      case 'unknown':
+        return _s(data['unknownType']) == 'past' ? '-1' : '1';
+    }
+    return _s(data[key]);
+  }
+
+  /// Whether the trip has real times. Without a `precision` field, a date-only
+  /// trip is recognised by the `:01` seconds marker the server stores it with.
+  static bool _isPrecise(Map<String, dynamic> data, Map<String, dynamic> trip) {
+    final precision = _s(data['precision']);
+    if (precision != null) return precision == 'preciseDates';
+    final start = _s(data['start_datetime']) ?? _s(trip['start_datetime']);
+    if (start == null || start == '-1' || start == '1') return false;
+    return !RegExp(r'\d{2}:\d{2}:01').hasMatch(start);
   }
 
   /// Empty strings coming from the Jinja context (`x or ""`) mean "null".

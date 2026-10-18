@@ -115,14 +115,18 @@ class TripFormModel extends ChangeNotifier {
       trip.startDatetime == unknownPast ||
       trip.startDatetime == unknownFuture;
 
+  /// The server stores a date-only trip at `00:00:01` on both ends: the
+  /// seconds field is its precision marker (00 = precise, 01 = date-only), as
+  /// precise times are saved at minute precision.
   static bool _isDateOnly(Trips trip) {
     if (trip.isDateOnly) return true;
     final start = trip.startDatetime;
-    final isMidnight = start.hour == 0 &&
-        start.minute == 0 &&
-        start.second == 0 &&
-        start.millisecond == 0;
-    return isMidnight && start == trip.endDatetime;
+    final end = trip.endDatetime;
+    return start.second == 1 &&
+        end.second == 1 &&
+        start.year == end.year &&
+        start.month == end.month &&
+        start.day == end.day;
   }
 
   static String? _orNull(String? value) =>
