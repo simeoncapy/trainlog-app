@@ -887,14 +887,6 @@
   "@editTripChangeVehicleTypeTitle": {
     "description": "Title of the page selecting a new vehicle type for the trip"
   },
-  "editTripChangeVehicleTypeWarning": "This is a separate action — it updates on its own.",
-  "@editTripChangeVehicleTypeWarning": {
-    "description": "Banner warning that changing the vehicle type is applied independently of the rest of the form"
-  },
-  "editTripUpdateVehicleTypeButton": "Update vehicle type",
-  "@editTripUpdateVehicleTypeButton": {
-    "description": "Footer button confirming the new vehicle type"
-  },
   "editTripVehicleTypeCurrent": "Current",
   "@editTripVehicleTypeCurrent": {
     "description": "Caption marking the vehicle type the trip currently has"

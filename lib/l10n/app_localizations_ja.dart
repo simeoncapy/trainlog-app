@@ -1558,12 +1558,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get editTripChangeVehicleTypeTitle => '乗り物の種類を変更';
 
   @override
-  String get editTripChangeVehicleTypeWarning => 'これは別の操作です — 単独で更新されます。';
-
-  @override
-  String get editTripUpdateVehicleTypeButton => '乗り物の種類を更新';
-
-  @override
   String get editTripVehicleTypeCurrent => '現在';
 
   @override
