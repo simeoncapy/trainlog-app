@@ -592,4 +592,33 @@ enum VehicleType {
         return Icon(Icons.question_mark);
     }
   }
+
+  static bool canTransform(VehicleType originType, VehicleType targetType) {
+    const groups = [
+      {
+        //VehicleType.accommodation,
+        VehicleType.poi,
+        //VehicleType.restaurant,
+      },
+      {VehicleType.aerialway},
+      {VehicleType.plane, VehicleType.helicopter},
+      {VehicleType.bus, VehicleType.car},
+      {VehicleType.cycle, VehicleType.eScooter},
+      {VehicleType.ferry},
+      {
+        VehicleType.metro,
+        VehicleType.train,
+        VehicleType.tram,
+        VehicleType.funicular,
+        VehicleType.rail,
+      },
+      {VehicleType.ski},
+      {VehicleType.walk},
+      {VehicleType.unknown},
+    ];
+
+    return groups.any(
+      (group) => group.contains(originType) && group.contains(targetType),
+    );
+  }
 }

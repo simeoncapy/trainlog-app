@@ -557,4 +557,31 @@ class TripsApi {
     return '${pad(value.year, 4)}-${pad(value.month)}-${pad(value.day)}'
         'T${pad(value.hour)}:${pad(value.minute)}:${pad(value.second)}';
   }
+
+  Future<void> changeTripType(
+    String username,
+    List<int> tripIds,
+    VehicleType newType,
+    VehicleType oldType,
+  ) async {
+    if (!VehicleType.canTransform(oldType, newType)) {
+      throw ArgumentError(
+        'Cannot change trip type from $oldType to $newType',
+      );
+    }
+
+    final path = '/u/$username/toType/${newType.name}/${tripIds.join(',')}';
+    final res = await _client.safeGet<Map<String, dynamic>>(path);
+    final data = res.data;
+    if (data == null) throw Exception('No data in response');
+
+    final error = data['error'];
+    if (error != null) {
+      throw Exception('Failed to change trip type: $error');
+    }
+
+    if (data['message'] != 'Trip types updated successfully') {
+      throw Exception('Unexpected response when changing trip type');
+    }
+  }
 }
