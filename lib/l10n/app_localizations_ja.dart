@@ -1520,6 +1520,76 @@ class AppLocalizationsJa extends AppLocalizations {
       'この旅を読み込めませんでした。サーバーに接続できず、この端末にも保存された版がありません。';
 
   @override
+  String get editTripTitle => '旅を編集';
+
+  @override
+  String get duplicateTripTitle => '旅を複製';
+
+  @override
+  String editTripRouteSummary(String departure, String arrival, String date) {
+    return '$departure → $arrival • $date';
+  }
+
+  @override
+  String get editTripSectionRoute => '経路';
+
+  @override
+  String get editTripSectionOperator => '運行会社';
+
+  @override
+  String get editTripSectionWhen => '日時';
+
+  @override
+  String get editTripSectionDetails => '詳細';
+
+  @override
+  String get editTripSectionTicket => 'チケット';
+
+  @override
+  String get editTripSectionPath => 'ルート';
+
+  @override
+  String get editTripVehicleTypeLabel => '乗り物の種類';
+
+  @override
+  String get editTripChangeButton => '変更';
+
+  @override
+  String get editTripChangeVehicleTypeTitle => '乗り物の種類を変更';
+
+  @override
+  String get editTripVehicleTypeCurrent => '現在';
+
+  @override
+  String get editTripStationNameHelper => '駅の表示名のみが変更され、位置は変わりません';
+
+  @override
+  String get editTripAddOperatorButton => '運行会社を追加';
+
+  @override
+  String get editTripModifyPathButton => 'ルートを編集';
+
+  @override
+  String get editTripPathDescription => '旅のルートは専用の画面で編集します。';
+
+  @override
+  String get editTripSaveButton => '変更を保存';
+
+  @override
+  String get duplicateTripSaveButton => '新しい旅を作成';
+
+  @override
+  String get editTripComingSoon => 'この機能は今後のアップデートで利用できるようになります。';
+
+  @override
+  String get editTripSavedMsg => '旅程を保存しました。';
+
+  @override
+  String editTripSaveErrorMsg(String error) {
+    return '旅程を保存できませんでした：$error';
+  }
+
+  @override
   String get mapSearchLocationButton => '場所を検索';
 
   @override

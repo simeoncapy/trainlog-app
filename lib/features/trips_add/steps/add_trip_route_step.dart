@@ -10,6 +10,8 @@ import 'package:trainlog_app/utils/map_color_palette.dart';
 import 'package:trainlog_app/features/trips_add/widgets/mini_map_box.dart';
 import 'package:trainlog_app/features/trips_add/widgets/station_endpoint_fields.dart';
 import 'package:trainlog_app/widgets/app_steps_tab_bar.dart';
+import 'package:trainlog_app/widgets/trip_form/trip_form_card.dart';
+import 'package:trainlog_app/widgets/trip_form/trip_form_tiles.dart';
 
 /// Step 2 of the "Add Trip" wizard: departure and arrival selection.
 ///
@@ -150,66 +152,45 @@ class _EndpointBlockState extends State<_EndpointBlock> {
     final loc = AppLocalizations.of(context)!;
     final label = isDeparture ? loc.addTripDeparture : loc.addTripArrival;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: theme.cardColor,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: widget.hasError
-              ? theme.colorScheme.error
-              : theme.colorScheme.outline,
+    return TripFormCard(
+      borderColor: widget.hasError ? theme.colorScheme.error : null,
+      children: [
+        // Title row: marker, DEPARTURE/ARRIVAL and the mode toggle.
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 12, 12),
+          child: Row(
+            children: [
+              RouteEndpointMarker(
+                colour: widget.markerColour,
+                filled: !isDeparture,
+              ),
+              const SizedBox(width: 8),
+              Expanded(child: TripFormSectionLabel(label)),
+              const SizedBox(width: 8),
+              AppStepsTabBar(
+                tabs: [
+                  AppStepsTab(label: loc.addTripModeByName),
+                  AppStepsTab(label: loc.addTripModeManual),
+                ],
+                selectedIndex: _geoMode ? 1 : 0,
+                onTabChanged: (index) =>
+                    _fieldsKey.currentState?.setMode(index == 1),
+              ),
+            ],
+          ),
         ),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Title row: marker, DEPARTURE/ARRIVAL and the mode toggle.
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 12, 12),
-            child: Row(
-              children: [
-                _TimelineMarker(
-                    colour: widget.markerColour, filled: !isDeparture),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    label.toUpperCase(),
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 1.2,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                AppStepsTabBar(
-                  tabs: [
-                    AppStepsTab(label: loc.addTripModeByName),
-                    AppStepsTab(label: loc.addTripModeManual),
-                  ],
-                  selectedIndex: _geoMode ? 1 : 0,
-                  onTabChanged: (index) =>
-                      _fieldsKey.currentState?.setMode(index == 1),
-                ),
-              ],
-            ),
+        _stationFields(context, loc),
+        Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _miniMap(loc),
+              ..._miniMapHelper(loc, theme),
+            ],
           ),
-          Divider(height: 1, color: theme.dividerColor),
-          _stationFields(context, loc),
-          Divider(height: 1, color: theme.dividerColor),
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _miniMap(loc),
-                ..._miniMapHelper(loc, theme),
-              ],
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -291,27 +272,5 @@ class _EndpointBlockState extends State<_EndpointBlock> {
         style: theme.textTheme.bodySmall,
       ),
     ] : [];
-  }
-}
-
-/// Trip summary timeline marker: hollow rounded square for the departure,
-/// filled with the vehicle colour for the arrival.
-class _TimelineMarker extends StatelessWidget {
-  const _TimelineMarker({required this.colour, required this.filled});
-
-  final Color colour;
-  final bool filled;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 14,
-      height: 14,
-      decoration: BoxDecoration(
-        color: filled ? colour : Colors.transparent,
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: colour, width: 2.5),
-      ),
-    );
   }
 }

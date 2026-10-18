@@ -1,18 +1,48 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:trainlog_app/data/models/trip_form_model.dart';
+import 'package:trainlog_app/data/models/trips.dart';
+import 'package:trainlog_app/features/trips_edit_copy/edit_trip_section.dart';
+import 'package:trainlog_app/features/trips_edit_copy/edit_trip_vehicle_type_page.dart';
+import 'package:trainlog_app/features/trips_edit_copy/edit_trip_when_page.dart';
+import 'package:trainlog_app/features/trips_edit_copy/sections/edit_trip_details_section.dart';
+import 'package:trainlog_app/features/trips_edit_copy/sections/edit_trip_operator_section.dart';
+import 'package:trainlog_app/features/trips_edit_copy/sections/edit_trip_path_section.dart';
+import 'package:trainlog_app/features/trips_edit_copy/sections/edit_trip_route_section.dart';
+import 'package:trainlog_app/features/trips_edit_copy/sections/edit_trip_ticket_section.dart';
+import 'package:trainlog_app/features/trips_edit_copy/sections/edit_trip_when_section.dart';
+import 'package:trainlog_app/features/trips_edit_copy/widgets/edit_trip_app_bar_title.dart';
+import 'package:trainlog_app/features/trips_edit_copy/widgets/edit_trip_section_bar.dart';
+import 'package:trainlog_app/features/trips_edit_copy/widgets/edit_trip_vehicle_card.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
+import 'package:trainlog_app/platform/adaptive_page_route.dart';
+import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
 import 'package:trainlog_app/services/api/trips_api.dart';
 import 'package:trainlog_app/services/trip_edit_copy_service.dart';
+import 'package:trainlog_app/utils/date_utils.dart';
+import 'package:trainlog_app/utils/map_color_palette.dart';
 import 'package:trainlog_app/widgets/error_banner.dart';
+import 'package:trainlog_app/widgets/primary_action_button.dart';
+import 'package:trainlog_app/widgets/trip_form/vehicle_type_grid.dart';
 
 /// Page backing both "Edit" and "Duplicate" on a trip.
 ///
 /// The trip is loaded through [TripEditCopyService], which reconciles the
 /// locally cached copy with the server's; anything that reconciliation has to
 /// report (a cache refreshed from a newer server version, a fallback on local
-/// data because the server is unreachable) surfaces as an [ErrorBanner].
+/// data because the server is unreachable) surfaces as an [ErrorBanner] above
+/// the section bar.
+///
+/// The loaded trip seeds a [TripFormModel] shared with the add-trip wizard, so
+/// the form blocks are the same widgets. The blocks are laid out in one scroll
+/// view and the sticky [EditTripSectionBar] anchors to them.
+///
+/// Saving hands the form back to [TripEditCopyService.save] as `trips`
+/// columns, which writes it and refreshes the cached trip. Only an edit can be
+/// saved: a duplicate is a new trip, and creating one still goes through the
+/// trip creation pipeline (the routing web view).
 class EditCopyPage extends StatefulWidget {
   /// Id of the trip to edit, or of the trip to copy from.
   final int tripId;
@@ -35,10 +65,41 @@ class _EditCopyPageState extends State<EditCopyPage> {
   TripEditCopyResult? _result;
   bool _warningDismissed = false;
 
+  /// The loader/saver for this trip, kept from the initial load so saving goes
+  /// back through the same service.
+  TripEditCopyService? _service;
+
+  /// True while the form is being written to the server.
+  bool _saving = false;
+
+  /// Form state seeded from the loaded trip; null until it has loaded (or
+  /// when there is no trip to show at all).
+  TripFormModel? _form;
+
+  final ScrollController _scrollController = ScrollController();
+  final GlobalKey _scrollViewKey = GlobalKey();
+  final Map<EditTripSection, GlobalKey> _sectionKeys = {
+    for (final section in EditTripSection.values) section: GlobalKey(),
+  };
+
+  EditTripSection _activeSection = EditTripSection.route;
+
+  /// True while an anchor tap animates the scroll view, so the pill the user
+  /// asked for is not overridden by the positions scrolled past on the way.
+  bool _isAnchorScrolling = false;
+
   @override
   void initState() {
     super.initState();
+    _scrollController.addListener(_syncActiveSection);
     _load();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    _form?.dispose();
+    super.dispose();
   }
 
   Future<void> _load() async {
@@ -47,6 +108,8 @@ class _EditCopyPageState extends State<EditCopyPage> {
       api: trainlog.tripsApi,
       trips: context.read<TripsProvider>(),
     );
+
+    _service = service;
 
     final result = await service.load(
       username: trainlog.username,
@@ -57,8 +120,211 @@ class _EditCopyPageState extends State<EditCopyPage> {
     if (!mounted) return;
     setState(() {
       _result = result;
+      _form = result.trip == null ? null : TripFormModel.fromTrip(result.trip!);
       _loading = false;
     });
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // Anchor navigation
+  // ─────────────────────────────────────────────────────────────
+
+  /// Drives the form to [section], the way an anchor link would.
+  Future<void> _scrollToSection(EditTripSection section) async {
+    final target = _sectionKeys[section]?.currentContext;
+    if (target == null) return;
+
+    setState(() {
+      _activeSection = section;
+      _isAnchorScrolling = true;
+    });
+
+    await Scrollable.ensureVisible(
+      target,
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.easeInOut,
+    );
+
+    if (!mounted) return;
+    setState(() => _isAnchorScrolling = false);
+  }
+
+  /// Keeps the selected pill in sync with what the user scrolled to: the
+  /// active section is the last one whose header has passed the top of the
+  /// viewport.
+  void _syncActiveSection() {
+    if (_isAnchorScrolling || !_scrollController.hasClients) return;
+
+    final viewport =
+        _scrollViewKey.currentContext?.findRenderObject() as RenderBox?;
+    if (viewport == null) return;
+
+    EditTripSection? active;
+    for (final entry in _sectionKeys.entries) {
+      final box = entry.value.currentContext?.findRenderObject() as RenderBox?;
+      if (box == null) continue;
+      if (box.localToGlobal(Offset.zero, ancestor: viewport).dy <= 24) {
+        active = entry.key;
+      }
+    }
+
+    // The last section rarely reaches the top of the viewport; hitting the
+    // end of the list counts as reaching it.
+    final position = _scrollController.position;
+    if (position.pixels >= position.maxScrollExtent - 8) {
+      active = EditTripSection.values.last;
+    }
+
+    if (active != null && active != _activeSection) {
+      setState(() => _activeSection = active!);
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // Actions
+  // ─────────────────────────────────────────────────────────────
+
+  /// Vehicle type the trip is stored with, which stays the "current" one
+  /// until the edit is saved, whatever the form picked since.
+  VehicleType? get _storedType => _result?.trip?.type;
+
+  /// Whether the trip can be given another vehicle type. An edit can only
+  /// move within the types [VehicleType.canTransform] allows; a copy is a new
+  /// trip, so any type goes.
+  bool get _canChangeVehicleType {
+    final stored = _storedType;
+    if (widget.mode == EditCopy.copy || stored == null) return true;
+    return VehicleTypeGrid.vehicleTypes.any(
+      (type) => type != stored && VehicleType.canTransform(stored, type),
+    );
+  }
+
+  /// Opens the vehicle type page and keeps the pick in the form. The change
+  /// itself is only sent when the whole edit is saved (see [_save]).
+  Future<void> _changeVehicleType() async {
+    final form = _form;
+    if (form == null || !_canChangeVehicleType) return;
+
+    final picked = await Navigator.of(context).push<VehicleType>(
+      AdaptivePageRoute.route<VehicleType>(
+        (_) => EditTripVehicleTypePage(
+          currentType: _storedType ?? form.vehicleType ?? VehicleType.train,
+          selectedType: form.vehicleType,
+          restrictToTransformable: widget.mode == EditCopy.edit,
+        ),
+      ),
+    );
+
+    if (picked == null || !mounted || picked == form.vehicleType) return;
+    form.setVehicleType(picked);
+  }
+
+  void _openWhenEditor() {
+    final form = _form;
+    if (form == null) return;
+
+    Navigator.of(context).push(
+      AdaptivePageRoute.route<void>(
+        (_) => ChangeNotifierProvider<TripFormModel>.value(
+          value: form,
+          child: const EditTripWhenPage(),
+        ),
+      ),
+    );
+  }
+
+  /// Writes the form back to the server and closes the page.
+  ///
+  /// Only an edit is saved here: duplicating creates a new trip, which still
+  /// goes through the routing web view.
+  Future<void> _save() async {
+    final form = _form;
+    final service = _service;
+    if (form == null || service == null || _saving) return;
+
+    if (widget.mode == EditCopy.copy) {
+      _showComingSoon();
+      return;
+    }
+
+    final loc = AppLocalizations.of(context)!;
+    final messenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+    final username = context.read<TrainlogProvider>().username;
+
+    // The schedule is the only thing this form can leave invalid: the stations
+    // keep the position they were loaded with, so they cannot be broken here.
+    if (!form.validateDate()) {
+      messenger
+        ..clearSnackBars()
+        ..showSnackBar(SnackBar(content: Text(loc.fillRequiredFields)));
+      await _scrollToSection(EditTripSection.when);
+      return;
+    }
+
+    // Nothing was touched: closing the page is the whole answer.
+    if (!form.hasBeenChanged) {
+      navigator.pop();
+      return;
+    }
+
+    setState(() => _saving = true);
+    try {
+      await service.save(
+        username: username,
+        tripId: widget.tripId,
+        fields: form.toTripColumns(stored: _result?.trip),
+        oldType: _storedType,
+        newType: form.vehicleType,
+      );
+      if (!mounted) return;
+      messenger
+        ..clearSnackBars()
+        ..showSnackBar(SnackBar(content: Text(loc.editTripSavedMsg)));
+      navigator.pop();
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _saving = false);
+      final reason = e is TripPatchException ? e.message : '$e';
+      messenger
+        ..clearSnackBars()
+        ..showSnackBar(
+          SnackBar(content: Text(loc.editTripSaveErrorMsg(reason))),
+        );
+    }
+  }
+
+  /// Placeholder for the actions whose logic is not implemented yet.
+  void _showComingSoon() {
+    final loc = AppLocalizations.of(context)!;
+    ScaffoldMessenger.of(context)
+      ..clearSnackBars()
+      ..showSnackBar(SnackBar(content: Text(loc.editTripComingSoon)));
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // Header
+  // ─────────────────────────────────────────────────────────────
+
+  String _title(AppLocalizations loc) => widget.mode == EditCopy.copy
+      ? loc.duplicateTripTitle
+      : loc.editTripTitle;
+
+  /// "Frankfurt → Offenburg • 30 Mar 2026" — the trip as it was loaded, so it
+  /// keeps identifying the trip whatever the form already changed.
+  String? _subtitle(AppLocalizations loc) {
+    final trip = _result?.trip;
+    if (trip == null) return null;
+
+    final date = trip.isUnknownPastFuture
+        ? loc.addTripDateTypeUnknown
+        : formatDateTime(context, trip.startDatetime, hasTime: false);
+
+    return loc.editTripRouteSummary(
+      trip.originStation,
+      trip.destinationStation,
+      date,
+    );
   }
 
   /// The banner to show for the current load outcome, or null when the data
@@ -88,6 +354,10 @@ class _EditCopyPageState extends State<EditCopyPage> {
     }
   }
 
+  // ─────────────────────────────────────────────────────────────
+  // Build
+  // ─────────────────────────────────────────────────────────────
+
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
@@ -95,29 +365,152 @@ class _EditCopyPageState extends State<EditCopyPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Edit Copy'),
+        centerTitle: true,
+        titleSpacing: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.close),
+          tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
+          onPressed: () => Navigator.of(context).maybePop(),
+        ),
+        title: EditTripAppBarTitle(
+          title: _title(loc),
+          subtitle: _subtitle(loc),
+        ),
+        backgroundColor: widget.mode == EditCopy.edit
+            ? Theme.of(context).colorScheme.error.withValues(alpha: 0.2)
+            : Theme.of(context).colorScheme.secondary.withValues(alpha: 0.2),
       ),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (warning != null)
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-                    child: ErrorBanner(
-                      message: warning.message,
-                      severity: warning.severity,
-                      onClose: () => setState(() => _warningDismissed = true),
-                    ),
-                  ),
-                const Expanded(
-                  child: Center(
-                    child: Text('This is a basic stateful widget page.'),
-                  ),
-                ),
-              ],
+      body: SafeArea(
+        top: false,
+        child: _body(loc, warning),
+      ),
+    );
+  }
+
+  Widget _body(
+    AppLocalizations loc,
+    ({String message, ErrorSeverity severity})? warning,
+  ) {
+    if (_loading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    final form = _form;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // Anything the loader has to report sits above the section bar.
+        if (warning != null)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+            child: ErrorBanner(
+              message: warning.message,
+              severity: warning.severity,
+              onClose: () => setState(() => _warningDismissed = true),
             ),
+          ),
+        if (form == null)
+          const Expanded(child: SizedBox.shrink())
+        else ...[
+          const SizedBox(height: 12),
+          EditTripSectionBar(
+            selected: _activeSection,
+            onSelected: _scrollToSection,
+          ),
+          const SizedBox(height: 8),
+          Expanded(
+            child: ChangeNotifierProvider<TripFormModel>.value(
+              value: form,
+              child: Builder(builder: _formScrollView),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            child: _saving
+                ? const SizedBox(
+                    height: 52,
+                    child: Center(child: CircularProgressIndicator()),
+                  )
+                : PrimaryActionButton(
+                    label: widget.mode == EditCopy.edit
+                        ? loc.editTripSaveButton
+                        : loc.duplicateTripSaveButton,
+                    onPressed: _save,
+                  ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  /// The scrolling form. Built under the form provider, so [context] here is
+  /// the one carrying it.
+  Widget _formScrollView(BuildContext context) {
+    final theme = Theme.of(context);
+    final settings = context.watch<SettingsProvider>();
+    final colours = MapColorPaletteHelper.getPalette(settings.mapColorPalette);
+    final vehicleType = context.watch<TripFormModel>().vehicleType ??
+        VehicleType.train;
+    final vehicleColour = colours[vehicleType] ?? theme.colorScheme.primary;
+
+    return SingleChildScrollView(
+      key: _scrollViewKey,
+      controller: _scrollController,
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          EditTripVehicleCard(
+            type: vehicleType,
+            colour: vehicleColour,
+            onChange: _changeVehicleType,
+            canChange: _canChangeVehicleType,
+          ),
+          const SizedBox(height: 24),
+          _section(
+            EditTripSection.route,
+            EditTripRouteSection(markerColour: vehicleColour),
+          ),
+          const SizedBox(height: 24),
+          _section(
+            EditTripSection.operators,
+            const EditTripOperatorSection(),
+          ),
+          const SizedBox(height: 24),
+          _section(
+            EditTripSection.when,
+            EditTripWhenSection(
+              markerColour: vehicleColour,
+              onEdit: _openWhenEditor,
+            ),
+          ),
+          const SizedBox(height: 24),
+          _section(
+            EditTripSection.details,
+            const EditTripDetailsSection(),
+          ),
+          const SizedBox(height: 24),
+          _section(
+            EditTripSection.ticket,
+            const EditTripTicketSection(),
+          ),
+          const SizedBox(height: 24),
+          _section(
+            EditTripSection.path,
+            // TODO: open the path editor once it exists.
+            EditTripPathSection(onModifyPath: _showComingSoon),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// A form block, keyed so the section bar can scroll to its header.
+  Widget _section(EditTripSection section, Widget child) {
+    return KeyedSubtree(
+      key: _sectionKeys[section],
+      child: EditTripSectionBlock(section: section, child: child),
     );
   }
 }

@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:trainlog_app/data/models/polyline_entry.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:timezone/timezone.dart' as tz;
@@ -9,6 +11,127 @@ import 'package:trainlog_app/widgets/trip_visibility_selector.dart';
 import 'package:trainlog_app/widgets/vehicle_energy_selector.dart';
 
 class TripFormModel extends ChangeNotifier {
+  TripFormModel();
+
+  /// Seeds a form with an existing trip, for the edit/duplicate page.
+  ///
+  /// Only what the form edits is copied. Endpoint coordinates are recovered
+  /// from the trip path — a trip carries station names, not their position —
+  /// so the date pickers can resolve the endpoint timezones.
+  factory TripFormModel.fromTrip(Trips trip) {
+    final model = TripFormModel();
+
+    model.vehicleType = trip.type;
+
+    final (departure, arrival) = _endpointsOf(trip);
+    model.departureStationName = trip.originStation;
+    model.departureStationBaseName = trip.originStation;
+    model.departureLat = departure?.latitude;
+    model.departureLong = departure?.longitude;
+
+    model.arrivalStationName = trip.destinationStation;
+    model.arrivalStationBaseName = trip.destinationStation;
+    model.arrivalLat = arrival?.latitude;
+    model.arrivalLong = arrival?.longitude;
+
+    model.selectedOperators = trip.operatorName
+        .split(',')
+        .map((op) => op.trim())
+        .where((op) => op.isNotEmpty)
+        .toList();
+
+    // --- when ---
+    final manualDuration = trip.manualTripDuration?.round();
+    final durationParts = manualDuration == null
+        ? null
+        : (manualDuration ~/ 3600, (manualDuration % 3600) ~/ 60);
+
+    if (_isUnknownPastFuture(trip)) {
+      model.dateType = DateType.unknown;
+      model.isPast = trip.startDatetime == unknownPast;
+      if (durationParts != null) {
+        model.duration[DateType.unknown] = durationParts;
+      }
+    } else if (_isDateOnly(trip)) {
+      model.dateType = DateType.date;
+      model.departureDayDateOnly = trip.startDatetime;
+      if (durationParts != null) {
+        model.duration[DateType.date] = durationParts;
+      }
+    } else {
+      model.dateType = DateType.precise;
+      model.departureDate = trip.utcStartDatetime ?? trip.startDatetime;
+      model.departureDateLocal = trip.startDatetime;
+      model.hasDepartureDateTime = (depDate: true, depTime: true);
+      model.arrivalDate = trip.utcEndDatetime ?? trip.endDatetime;
+      model.arrivalDateLocal = trip.endDatetime;
+      model.hasArrivalDateTime = (arrDate: true, arrTime: true);
+    }
+
+    model.delayDepartureMinute = trip.departureDelayInMinutes;
+    model.delayDepartureTime = trip.departureDelayDate;
+    model.delayArrivalMinute = trip.arrivalDelayInMinutes;
+    model.delayArrivalTime = trip.arrivalDelayDate;
+
+    // --- details & ticket ---
+    model.line = _orNull(trip.lineName);
+    model.material = _orNull(trip.materialType);
+    model.registration = _orNull(trip.reg);
+    model.seat = _orNull(trip.seat);
+    model.notes = _orNull(trip.notes);
+
+    model.energyType = trip.powerType;
+    model.price = trip.price;
+    model.currencyCode = _orNull(trip.currency);
+    model.purchaseDate = trip.purchasingDate;
+    model.tripVisibility = trip.visibility;
+
+    // Seeding is not a user edit.
+    model.initState();
+    return model;
+  }
+
+  /// First and last point of the trip path, i.e. where the trip departs from
+  /// and arrives at. Both are null when the trip carries no usable path.
+  static (LatLng?, LatLng?) _endpointsOf(Trips trip) {
+    var points = trip.pathPoints;
+    if (points == null && trip.path.isNotEmpty) {
+      try {
+        points = PolylineTools.decodePath(trip.path);
+      } catch (e) {
+        debugPrint('TripFormModel: could not decode the path of ${trip.uid}: $e');
+      }
+    }
+    if (points == null || points.isEmpty) return (null, null);
+    return (points.first, points.last);
+  }
+
+  /// Same as [Trips.isUnknownPastFuture] / [Trips.isDateOnly], without their
+  /// `utcEndDatetime == null` condition: the edit/copy payload fills the UTC
+  /// end from the stored trip (or its filtered counterpart) even when the trip
+  /// has no time, which would otherwise open such a trip in precise mode.
+  static bool _isUnknownPastFuture(Trips trip) =>
+      trip.isUnknownPastFuture ||
+      trip.startDatetime == unknownPast ||
+      trip.startDatetime == unknownFuture;
+
+  /// The server stores a date-only trip at `00:00:01` on both ends: the
+  /// seconds field is its precision marker (00 = precise, 01 = date-only), as
+  /// precise times are saved at minute precision.
+  static bool _isDateOnly(Trips trip) {
+    if (trip.isDateOnly) return true;
+    final start = trip.startDatetime;
+    final end = trip.endDatetime;
+    return start.second == 1 &&
+        end.second == 1 &&
+        start.year == end.year &&
+        start.month == end.month &&
+        start.day == end.day;
+  }
+
+  static String? _orNull(String? value) =>
+      (value == null || value.isEmpty) ? null : value;
+
   bool _hasBeenChanged = false;
   // STEP 1 — Basic info
   bool highlightBasicsErrors = false;
@@ -36,7 +159,11 @@ class TripFormModel extends ChangeNotifier {
 
   // STEP 2 — Dates
   bool dateHasError = false;
-  DateType dateType = DateType.precise;
+
+  DateType _dateType = DateType.precise;
+  DateType get dateType => _dateType;
+  set dateType(DateType value) => _dateType = _edited(_dateType, value);
+
   DateTime? departureDate;
   DateTime? departureDateLocal;
   ({bool depDate, bool depTime}) hasDepartureDateTime = (
@@ -49,13 +176,19 @@ class TripFormModel extends ChangeNotifier {
     arrDate: false,
     arrTime: false,
   );
-  bool isPast = true;
+  bool _isPast = true;
+  bool get isPast => _isPast;
+  set isPast(bool value) => _isPast = _edited(_isPast, value);
+
   Map <DateType, (int?, int?)> duration = {
     DateType.precise: (null, null),
     DateType.unknown: (null, null),
     DateType.date: (null, null)
   };
-  DateTime? departureDayDateOnly;
+  DateTime? _departureDayDateOnly;
+  DateTime? get departureDayDateOnly => _departureDayDateOnly;
+  set departureDayDateOnly(DateTime? value) =>
+      _departureDayDateOnly = _edited(_departureDayDateOnly, value);
 
   bool delayDepartureMinuteMode = false;
   DateTime? delayDepartureTime;
@@ -66,15 +199,44 @@ class TripFormModel extends ChangeNotifier {
   int? delayArrivalMinute;
 
   // STEP 3 — Details
-  String? line;
-  String? material;
-  String? registration;
-  String? seat;
-  String? notes;
+  String? _line;
+  String? get line => _line;
+  set line(String? value) => _line = _edited(_line, value);
 
-  double? price;
-  DateTime? purchaseDate;
-  String? currencyCode;
+  String? _material;
+  String? get material => _material;
+  set material(String? value) => _material = _edited(_material, value);
+
+  String? _registration;
+  String? get registration => _registration;
+  set registration(String? value) =>
+      _registration = _edited(_registration, value);
+
+  String? _seat;
+  String? get seat => _seat;
+  set seat(String? value) => _seat = _edited(_seat, value);
+
+  String? _notes;
+  String? get notes => _notes;
+  set notes(String? value) => _notes = _edited(_notes, value);
+
+  double? _price;
+  double? get price => _price;
+  set price(double? value) => _price = _edited(_price, value);
+
+  DateTime? _purchaseDate;
+  DateTime? get purchaseDate => _purchaseDate;
+  set purchaseDate(DateTime? value) =>
+      _purchaseDate = _edited(_purchaseDate, value);
+
+  String? _currencyCode;
+  String? get currencyCode => _currencyCode;
+  set currencyCode(String? value) =>
+      _currencyCode = _edited(_currencyCode, value);
+
+  /// Seeds the currency without counting as a user edit: the ticket block
+  /// defaults it from the account settings when the trip carries none.
+  void initCurrencyCode(String? code) => _currencyCode = code;
 
   EnergyType energyType = EnergyType.auto;
   TripVisibility? tripVisibility;// = TripVisibility.private;
@@ -179,6 +341,21 @@ class TripFormModel extends ChangeNotifier {
   // Init
   void initState() => _hasBeenChanged = false;
 
+  /// Returns [value] and marks the form as changed when it differs from
+  /// [current].
+  ///
+  /// The form blocks write most fields straight onto the model
+  /// (`model.notes = value`), so the setters themselves are what has to record
+  /// the edit — [hasBeenChanged] is what decides whether saving does anything
+  /// at all, and what the add wizard asks about before discarding a form.
+  /// Seeding a field without counting as an edit goes through an `init…`
+  /// method instead ([initCurrencyCode], [initDepartureDateTime]) or is
+  /// followed by [initState].
+  T _edited<T>(T current, T value) {
+    if (current != value) formDataChanged();
+    return value;
+  }
+
   // -----------------------------
   // Validation
   // -----------------------------
@@ -251,6 +428,21 @@ class TripFormModel extends ChangeNotifier {
     departureLong = long;
     departureAddress = address;
     departureGeoMode = geoMode ?? false;
+    formDataChanged();
+    notifyListeners();
+  }
+
+  /// Renames the departure without touching its position — what the edit
+  /// form's route section offers.
+  void setDepartureDisplayName(String? name) {
+    departureStationName = name;
+    formDataChanged();
+    notifyListeners();
+  }
+
+  /// Renames the arrival without touching its position.
+  void setArrivalDisplayName(String? name) {
+    arrivalStationName = name;
     formDataChanged();
     notifyListeners();
   }
@@ -482,6 +674,126 @@ class TripFormModel extends ChangeNotifier {
     notifyListeners();
   }
 
+
+  // -----------------------------
+  // Trip columns (partial save)
+  // -----------------------------
+
+  /// The form as `trips` columns — the shape a partial save is posted in (see
+  /// `TripsApi.patchTrip`), as opposed to [toJson], which is the payload the
+  /// routing web page consumes.
+  ///
+  /// Every column this form edits is included, so saving writes exactly what
+  /// the page shows, the way pressing save on the web editor does. Two things
+  /// are deliberately left out: the vehicle type, which is not patchable, and
+  /// the route, whose absence is what makes the server keep the trip's stored
+  /// geometry instead of re-routing it.
+  ///
+  /// [stored] is the trip the form was seeded with. It is read for one thing
+  /// only: keeping a date-only trip's exact stamp when its day has not changed.
+  Map<String, dynamic> toTripColumns({Trips? stored}) {
+    return <String, dynamic>{
+      'origin_station': departureStationName,
+      'destination_station': arrivalStationName,
+      'operator': selectedOperators.join(','),
+
+      'line_name': line,
+      'material_type': material,
+      'reg': registration,
+      'seat': seat,
+      'notes': notes,
+
+      'price': price,
+      // The ticket fields only mean anything alongside a price, which is how
+      // the web form posts them too.
+      'currency': price == null ? null : currencyCode,
+      'purchasing_date': (price == null || purchaseDate == null)
+          ? null
+          : _isoDate(purchaseDate),
+
+      'power_type': energyType.name,
+      'visibility': visibilityName,
+
+      'departure_delay': _delayColumn(delayDepartureMinute),
+      'arrival_delay': _delayColumn(delayArrivalMinute),
+
+      ..._dateColumns(stored),
+    };
+  }
+
+  /// The schedule as its three columns. A null value clears the column, so an
+  /// incomplete schedule sends nothing at all rather than wiping the dates the
+  /// trip already has.
+  Map<String, dynamic> _dateColumns(Trips? stored) {
+    switch (dateType) {
+      case DateType.precise:
+        final start = departureDateLocal;
+        final end = arrivalDateLocal;
+        if (start == null || end == null) return const {};
+        return {
+          'start_datetime': start,
+          'end_datetime': end,
+          // A precise schedule has no manual duration field, so there is none
+          // to write — and one the form never showed is not one to throw away.
+          // A duration left over from a date-only or dateless trip would go on
+          // overriding the computed one, though, so a trip that has just
+          // become precise does have it cleared.
+          if (stored != null &&
+              (stored.isDateOnly || stored.isUnknownPastFuture))
+            'manual_trip_duration': null,
+        };
+
+      case DateType.date:
+        final day = departureDayDateOnly;
+        if (day == null) return const {};
+        final stamp = _dateOnlyStamp(day, stored);
+        return {
+          'start_datetime': stamp,
+          'end_datetime': stamp,
+          'manual_trip_duration': _durationColumn(DateType.date),
+        };
+
+      case DateType.unknown:
+        // The sentinels the column uses for a trip with no date at all.
+        final stamp = isPast ? unknownPast : unknownFuture;
+        return {
+          'start_datetime': stamp,
+          'end_datetime': stamp,
+          'manual_trip_duration': _durationColumn(DateType.unknown),
+        };
+    }
+  }
+
+  /// A day without a time, as the column carries it: the day with the `:01`
+  /// seconds marker the site reads back as "this trip has a date but no time".
+  ///
+  /// A trip that was already date-only on that same day keeps the exact stamp
+  /// it had, so re-saving a trip whose date nobody touched does not move the
+  /// UTC datetimes the server derives from it.
+  static DateTime _dateOnlyStamp(DateTime day, Trips? stored) {
+    final current = stored?.startDatetime;
+    if (stored != null &&
+        current != null &&
+        stored.isDateOnly &&
+        current.year == day.year &&
+        current.month == day.month &&
+        current.day == day.day) {
+      return current;
+    }
+    return DateTime(day.year, day.month, day.day, 0, 0, 1);
+  }
+
+  /// A delay column: seconds, as Trainlog stores them, or null to clear it.
+  static int? _delayColumn(int? minutes) =>
+      minutes == null ? null : minutes * 60;
+
+  /// The manual duration in seconds, or null when the form carries none —
+  /// which clears the column, the way an emptied duration field would.
+  int? _durationColumn(DateType type) {
+    final (hour, minute) = duration[type] ?? (null, null);
+    if (hour == null && minute == null) return null;
+    return (hour ?? 0) * 3600 + (minute ?? 0) * 60;
+  }
 
   // -----------------------------
   // JSON
