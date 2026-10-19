@@ -1,4 +1,9 @@
 changelog_fr:
+  - version: 0.5.0
+    date: 2026-10-19
+    changes:
+      - type: fix
+        text: Les trajets traversant la ligne de changement de date affichent désormais correctement leur sens de déplacement sur la carte.
   - version: 0.4.3
     date: 2026-10-10
     changes:

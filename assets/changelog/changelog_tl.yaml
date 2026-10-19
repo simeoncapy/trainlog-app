@@ -1,4 +1,9 @@
 changelog_tl:
+  - version: 0.5.0
+    date: 2026-10-19
+    changes:
+      - type: fix
+        text: Tama na ang pagpapakita ng direksyon sa mapa ng mga biyaheng tumatawid sa International Date Line.
   - version: 0.4.3
     date: 2026-10-10
     changes:

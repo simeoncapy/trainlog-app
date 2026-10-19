@@ -1,4 +1,9 @@
 changelog_en:
+  - version: 0.5.0
+    date: 2026-10-19
+    changes:
+      - type: fix
+        text: Trips crossing the International Date Line now show their direction of travel correctly on the map.
   - version: 0.4.3
     date: 2026-10-10
     changes:
