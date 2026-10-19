@@ -26,7 +26,7 @@ class EditTripPathSection extends StatelessWidget {
         PrimaryActionButton(
           icon: Icons.timeline,
           label: loc.editTripModifyPathButton,
-          variant: PrimaryActionButtonVariant.outlined,
+          variant: PrimaryActionButtonVariant.tonal,
           onPressed: onModifyPath,
         ),
         const SizedBox(height: 12),
