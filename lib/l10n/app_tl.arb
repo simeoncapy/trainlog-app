@@ -631,7 +631,7 @@
   "editTripStationNameHelper": "Ang ipinapakitang pangalan lang ng istasyon ang mababago, hindi ang posisyon nito",
   "editTripAddOperatorButton": "Magdagdag ng operator",
   "editTripModifyPathButton": "Baguhin ang landas",
-  "editTripPathDescription": "Ang iginuhit na landas ng biyahe ay ine-edit sa sarili nitong screen.",
+  "editTripImportGpxButton": "Mag-import ng GPX",
   "editTripSaveButton": "I-save ang mga pagbabago",
   "duplicateTripSaveButton": "Lumikha ng bagong biyahe",
   "editTripComingSoon": "Magiging available ito sa isang susunod na update.",

@@ -472,7 +472,7 @@
   "editTripStationNameHelper": "Seul le nom affiché de la gare sera modifié, pas sa position",
   "editTripAddOperatorButton": "Ajouter un opérateur",
   "editTripModifyPathButton": "Modifier le tracé",
-  "editTripPathDescription": "Le tracé du trajet se modifie sur son propre écran.",
+  "editTripImportGpxButton": "Importer un GPX",
   "editTripSaveButton": "Enregistrer les modifications",
   "duplicateTripSaveButton": "Créer un nouveau trajet",
   "editTripComingSoon": "Cette fonctionnalité sera disponible dans une prochaine mise à jour.",

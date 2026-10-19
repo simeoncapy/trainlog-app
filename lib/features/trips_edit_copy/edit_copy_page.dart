@@ -496,8 +496,11 @@ class _EditCopyPageState extends State<EditCopyPage> {
           const SizedBox(height: 24),
           _section(
             EditTripSection.path,
-            // TODO: open the path editor once it exists.
-            EditTripPathSection(onModifyPath: _showComingSoon),
+            // TODO: open the path editor and the GPX import once they exist.
+            EditTripPathSection(
+              onModifyPath: _showComingSoon,
+              onImportGpx: _showComingSoon,
+            ),
           ),
         ],
       ),

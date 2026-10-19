@@ -2718,11 +2718,11 @@ abstract class AppLocalizations {
   /// **'Modify the path'**
   String get editTripModifyPathButton;
 
-  /// Explanation shown in the path section of the edit form
+  /// Button of the path section, under the modify path button, importing the path from a GPX file
   ///
   /// In en, this message translates to:
-  /// **'The drawn path of the trip is edited on its own screen.'**
-  String get editTripPathDescription;
+  /// **'Import GPX'**
+  String get editTripImportGpxButton;
 
   /// Sticky footer button of the edit form
   ///

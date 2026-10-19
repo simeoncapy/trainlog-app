@@ -903,9 +903,9 @@
   "@editTripModifyPathButton": {
     "description": "Button of the path section, opening the path editor"
   },
-  "editTripPathDescription": "The drawn path of the trip is edited on its own screen.",
-  "@editTripPathDescription": {
-    "description": "Explanation shown in the path section of the edit form"
+  "editTripImportGpxButton": "Import GPX",
+  "@editTripImportGpxButton": {
+    "description": "Button of the path section, under the modify path button, importing the path from a GPX file"
   },
   "editTripSaveButton": "Save changes",
   "@editTripSaveButton": {

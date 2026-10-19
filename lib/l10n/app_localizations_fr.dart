@@ -1621,8 +1621,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get editTripModifyPathButton => 'Modifier le tracé';
 
   @override
-  String get editTripPathDescription =>
-      'Le tracé du trajet se modifie sur son propre écran.';
+  String get editTripImportGpxButton => 'Importer un GPX';
 
   @override
   String get editTripSaveButton => 'Enregistrer les modifications';

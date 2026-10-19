@@ -1570,7 +1570,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get editTripModifyPathButton => 'ルートを編集';
 
   @override
-  String get editTripPathDescription => '旅のルートは専用の画面で編集します。';
+  String get editTripImportGpxButton => 'GPXをインポート';
 
   @override
   String get editTripSaveButton => '変更を保存';

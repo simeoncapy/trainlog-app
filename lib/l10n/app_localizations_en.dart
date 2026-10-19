@@ -1605,8 +1605,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get editTripModifyPathButton => 'Modify the path';
 
   @override
-  String get editTripPathDescription =>
-      'The drawn path of the trip is edited on its own screen.';
+  String get editTripImportGpxButton => 'Import GPX';
 
   @override
   String get editTripSaveButton => 'Save changes';

@@ -473,7 +473,7 @@
   "editTripStationNameHelper": "駅の表示名のみが変更され、位置は変わりません",
   "editTripAddOperatorButton": "運行会社を追加",
   "editTripModifyPathButton": "ルートを編集",
-  "editTripPathDescription": "旅のルートは専用の画面で編集します。",
+  "editTripImportGpxButton": "GPXをインポート",
   "editTripSaveButton": "変更を保存",
   "duplicateTripSaveButton": "新しい旅を作成",
   "editTripComingSoon": "この機能は今後のアップデートで利用できるようになります。",

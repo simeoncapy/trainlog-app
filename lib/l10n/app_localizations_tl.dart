@@ -1588,8 +1588,7 @@ class AppLocalizationsTl extends AppLocalizations {
   String get editTripModifyPathButton => 'Baguhin ang landas';
 
   @override
-  String get editTripPathDescription =>
-      'Ang iginuhit na landas ng biyahe ay ine-edit sa sarili nitong screen.';
+  String get editTripImportGpxButton => 'Mag-import ng GPX';
 
   @override
   String get editTripSaveButton => 'I-save ang mga pagbabago';
