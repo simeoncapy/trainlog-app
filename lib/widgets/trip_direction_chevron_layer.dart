@@ -195,12 +195,11 @@ class _TripDirectionChevronPainter extends CustomPainter {
     final cached = _projectionCache[points];
     if (cached != null) return cached;
 
-    final projection = camera.crs.projection;
-    final offsets = List<Offset>.generate(
-      points.length,
-      (i) => projection.project(points[i]),
-      growable: false,
-    );
+    // projectList keeps consecutive points within half a world of each other,
+    // so a trip crossing the antimeridian (179° → -179°) continues past the
+    // world edge instead of jumping back across the whole map. This matches
+    // how the polyline layer below projects the same line.
+    final offsets = camera.crs.projection.projectList(points);
 
     var minX = offsets.first.dx, maxX = offsets.first.dx;
     var minY = offsets.first.dy, maxY = offsets.first.dy;
