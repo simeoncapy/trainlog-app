@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/data/models/trip_form_model.dart';
 import 'package:trainlog_app/data/models/trips.dart';
+import 'package:trainlog_app/features/trips_edit_copy/edit_trip_path_page.dart';
 import 'package:trainlog_app/features/trips_edit_copy/edit_trip_section.dart';
 import 'package:trainlog_app/features/trips_edit_copy/edit_trip_vehicle_type_page.dart';
 import 'package:trainlog_app/features/trips_edit_copy/edit_trip_when_page.dart';
@@ -231,6 +232,28 @@ class _EditCopyPageState extends State<EditCopyPage> {
     );
   }
 
+  /// Opens the path editor. The path drawn there is kept in the form and only
+  /// sent when the whole edit is saved (see [_save]).
+  void _openPathEditor() {
+    final form = _form;
+    if (form == null) return;
+
+    // A point of interest is a single marker: there is no path to draw.
+    if (form.vehicleType == VehicleType.poi) {
+      _showComingSoon();
+      return;
+    }
+
+    Navigator.of(context).push(
+      AdaptivePageRoute.route<bool>(
+        (_) => ChangeNotifierProvider<TripFormModel>.value(
+          value: form,
+          child: const EditTripPathPage(),
+        ),
+      ),
+    );
+  }
+
   /// Writes the form back to the server and closes the page.
   ///
   /// Only an edit is saved here: duplicating creates a new trip, which still
@@ -274,6 +297,7 @@ class _EditCopyPageState extends State<EditCopyPage> {
         fields: form.toTripColumns(stored: _result?.trip),
         oldType: _storedType,
         newType: form.vehicleType,
+        path: form.editedRoute?.path,
       );
       if (!mounted) return;
       messenger
@@ -448,8 +472,8 @@ class _EditCopyPageState extends State<EditCopyPage> {
     final theme = Theme.of(context);
     final settings = context.watch<SettingsProvider>();
     final colours = MapColorPaletteHelper.getPalette(settings.mapColorPalette);
-    final vehicleType = context.watch<TripFormModel>().vehicleType ??
-        VehicleType.train;
+    final form = context.watch<TripFormModel>();
+    final vehicleType = form.vehicleType ?? VehicleType.train;
     final vehicleColour = colours[vehicleType] ?? theme.colorScheme.primary;
 
     return SingleChildScrollView(
@@ -496,10 +520,11 @@ class _EditCopyPageState extends State<EditCopyPage> {
           const SizedBox(height: 24),
           _section(
             EditTripSection.path,
-            // TODO: open the path editor and the GPX import once they exist.
+            // TODO: open the GPX import once it exists.
             EditTripPathSection(
-              onModifyPath: _showComingSoon,
+              onModifyPath: _openPathEditor,
               onImportGpx: _showComingSoon,
+              pathEdited: form.editedRoute != null,
             ),
           ),
         ],

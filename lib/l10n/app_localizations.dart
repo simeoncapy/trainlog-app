@@ -2754,6 +2754,96 @@ abstract class AppLocalizations {
   /// **'The trip could not be saved: {error}'**
   String editTripSaveErrorMsg(String error);
 
+  /// Accessibility label of the path editor page
+  ///
+  /// In en, this message translates to:
+  /// **'Edit the path'**
+  String get editPathTitle;
+
+  /// Tab of the path editor showing the routing map
+  ///
+  /// In en, this message translates to:
+  /// **'Map'**
+  String get editPathTabMap;
+
+  /// Tab of the path editor showing the route options and summary
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get editPathTabDetails;
+
+  /// Top bar button of the path editor, keeping the drawn path in the edit form
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get editPathSaveButton;
+
+  /// Title of the dialog shown when leaving the path editor with unsaved changes
+  ///
+  /// In en, this message translates to:
+  /// **'Discard the path changes?'**
+  String get editPathExitDialogTitle;
+
+  /// Body of the dialog shown when leaving the path editor with unsaved changes
+  ///
+  /// In en, this message translates to:
+  /// **'The path has been modified but not saved. Do you want to exit without saving?'**
+  String get editPathExitDialogContent;
+
+  /// Confirm button of the dialog leaving the path editor without saving
+  ///
+  /// In en, this message translates to:
+  /// **'Exit without saving'**
+  String get editPathExitDialogConfirm;
+
+  /// Message shown when saving the path while the router is still computing it
+  ///
+  /// In en, this message translates to:
+  /// **'The route is still being computed. Try again in a moment.'**
+  String get editPathRouteNotReady;
+
+  /// Message shown when the server's routing page cannot hand the path back to the app
+  ///
+  /// In en, this message translates to:
+  /// **'The server does not support editing the path from the app yet.'**
+  String get editPathUnsupported;
+
+  /// Label of the router / freehand choice of the path editor
+  ///
+  /// In en, this message translates to:
+  /// **'Drawing mode'**
+  String get editPathModeTitle;
+
+  /// Path drawn by the router, following the network
+  ///
+  /// In en, this message translates to:
+  /// **'Router'**
+  String get editPathModeRouter;
+
+  /// Path drawn by hand, point by point
+  ///
+  /// In en, this message translates to:
+  /// **'Freehand'**
+  String get editPathModeFreehand;
+
+  /// Label of the itinerary of the path editor details
+  ///
+  /// In en, this message translates to:
+  /// **'Route'**
+  String get editPathRouteTitle;
+
+  /// Subtitle of an intermediate point in the path editor itinerary
+  ///
+  /// In en, this message translates to:
+  /// **'Via'**
+  String get editPathVia;
+
+  /// Note of the edit form's path section once the path was redrawn
+  ///
+  /// In en, this message translates to:
+  /// **'Path modified. It will be saved with the trip.'**
+  String get editTripPathEditedNote;
+
   /// No description provided for @mapSearchLocationButton.
   ///
   /// In en, this message translates to:

@@ -933,6 +933,66 @@
       }
     }
   },
+  "editPathTitle": "Edit the path",
+  "@editPathTitle": {
+    "description": "Accessibility label of the path editor page"
+  },
+  "editPathTabMap": "Map",
+  "@editPathTabMap": {
+    "description": "Tab of the path editor showing the routing map"
+  },
+  "editPathTabDetails": "Details",
+  "@editPathTabDetails": {
+    "description": "Tab of the path editor showing the route options and summary"
+  },
+  "editPathSaveButton": "Save",
+  "@editPathSaveButton": {
+    "description": "Top bar button of the path editor, keeping the drawn path in the edit form"
+  },
+  "editPathExitDialogTitle": "Discard the path changes?",
+  "@editPathExitDialogTitle": {
+    "description": "Title of the dialog shown when leaving the path editor with unsaved changes"
+  },
+  "editPathExitDialogContent": "The path has been modified but not saved. Do you want to exit without saving?",
+  "@editPathExitDialogContent": {
+    "description": "Body of the dialog shown when leaving the path editor with unsaved changes"
+  },
+  "editPathExitDialogConfirm": "Exit without saving",
+  "@editPathExitDialogConfirm": {
+    "description": "Confirm button of the dialog leaving the path editor without saving"
+  },
+  "editPathRouteNotReady": "The route is still being computed. Try again in a moment.",
+  "@editPathRouteNotReady": {
+    "description": "Message shown when saving the path while the router is still computing it"
+  },
+  "editPathUnsupported": "The server does not support editing the path from the app yet.",
+  "@editPathUnsupported": {
+    "description": "Message shown when the server's routing page cannot hand the path back to the app"
+  },
+  "editPathModeTitle": "Drawing mode",
+  "@editPathModeTitle": {
+    "description": "Label of the router / freehand choice of the path editor"
+  },
+  "editPathModeRouter": "Router",
+  "@editPathModeRouter": {
+    "description": "Path drawn by the router, following the network"
+  },
+  "editPathModeFreehand": "Freehand",
+  "@editPathModeFreehand": {
+    "description": "Path drawn by hand, point by point"
+  },
+  "editPathRouteTitle": "Route",
+  "@editPathRouteTitle": {
+    "description": "Label of the itinerary of the path editor details"
+  },
+  "editPathVia": "Via",
+  "@editPathVia": {
+    "description": "Subtitle of an intermediate point in the path editor itinerary"
+  },
+  "editTripPathEditedNote": "Path modified. It will be saved with the trip.",
+  "@editTripPathEditedNote": {
+    "description": "Note of the edit form's path section once the path was redrawn"
+  },
 
   "mapSearchLocationButton": "Search a place",
   "mapSearchLocationHint": "Search a place, an address, a hotel...",

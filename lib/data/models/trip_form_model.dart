@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:trainlog_app/data/models/edited_route.dart';
 import 'package:trainlog_app/data/models/polyline_entry.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
@@ -33,6 +34,7 @@ class TripFormModel extends ChangeNotifier {
     model.arrivalStationBaseName = trip.destinationStation;
     model.arrivalLat = arrival?.latitude;
     model.arrivalLong = arrival?.longitude;
+    model.routeWaypoints = _waypointsOf(trip);
 
     model.selectedOperators = trip.operatorName
         .split(',')
@@ -106,6 +108,26 @@ class TripFormModel extends ChangeNotifier {
     return (points.first, points.last);
   }
 
+  /// The trip's intermediate route points, from its `waypoints` column (a JSON
+  /// list of `{lat, lng, name?, stop?, hard?}`). Empty when it has none or the
+  /// column cannot be read.
+  static List<Map<String, dynamic>> _waypointsOf(Trips trip) {
+    final raw = trip.waypoints;
+    if (raw == null || raw.isEmpty) return [];
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is! List) return [];
+      return decoded
+          .whereType<Map>()
+          .map((w) => Map<String, dynamic>.from(w))
+          .where((w) => w['lat'] is num && w['lng'] is num)
+          .toList();
+    } catch (e) {
+      debugPrint('TripFormModel: could not read the waypoints of ${trip.uid}: $e');
+      return [];
+    }
+  }
+
   /// Same as [Trips.isUnknownPastFuture] / [Trips.isDateOnly], without their
   /// `utcEndDatetime == null` condition: the edit/copy payload fills the UTC
   /// end from the stored trip (or its filtered counterpart) even when the trip
@@ -156,6 +178,16 @@ class TripFormModel extends ChangeNotifier {
 
   List<String> selectedOperators = [];
   bool highlightOperatorsErrors = false;
+
+  /// Intermediate points of the route (`trips.waypoints`: `{lat, lng}` plus
+  /// `name`, `stop` and `hard` when set). The routing page is opened with them
+  /// as its via points, so an existing trip is routed through the points it
+  /// was saved with. Empty for a new trip.
+  List<Map<String, dynamic>> routeWaypoints = [];
+
+  /// The path drawn on the edit form's path editor, saved with the rest of the
+  /// edit. Null while the trip keeps its stored path.
+  EditedRoute? editedRoute;
 
   // STEP 2 — Dates
   bool dateHasError = false;
@@ -432,6 +464,24 @@ class TripFormModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Keeps the path drawn on the path editor, to be saved with the edit.
+  ///
+  /// The endpoints and via points follow the new path, so reopening the editor
+  /// starts from it, and the date pickers resolve the timezones of where the
+  /// trip now departs and arrives.
+  void setEditedRoute(EditedRoute route) {
+    editedRoute = route;
+    if (route.path.isNotEmpty) {
+      departureLat = route.path.first.latitude;
+      departureLong = route.path.first.longitude;
+      arrivalLat = route.path.last.latitude;
+      arrivalLong = route.path.last.longitude;
+    }
+    if (route.waypoints != null) routeWaypoints = route.waypoints!;
+    formDataChanged();
+    notifyListeners();
+  }
+
   /// Renames the departure without touching its position — what the edit
   /// form's route section offers.
   void setDepartureDisplayName(String? name) {
@@ -684,10 +734,10 @@ class TripFormModel extends ChangeNotifier {
   /// routing web page consumes.
   ///
   /// Every column this form edits is included, so saving writes exactly what
-  /// the page shows, the way pressing save on the web editor does. Two things
-  /// are deliberately left out: the vehicle type, which is not patchable, and
-  /// the route, whose absence is what makes the server keep the trip's stored
-  /// geometry instead of re-routing it.
+  /// the page shows, the way pressing save on the web editor does. The vehicle
+  /// type is deliberately left out, as it is not patchable. The route is only
+  /// sent when it was redrawn on the path editor ([editedRoute]): its absence
+  /// is what makes the server keep the trip's stored geometry.
   ///
   /// [stored] is the trip the form was seeded with. It is read for one thing
   /// only: keeping a date-only trip's exact stamp when its day has not changed.
@@ -718,6 +768,8 @@ class TripFormModel extends ChangeNotifier {
       'arrival_delay': _delayColumn(delayArrivalMinute),
 
       ..._dateColumns(stored),
+
+      ...?editedRoute?.toTripColumns(),
     };
   }
 
@@ -822,6 +874,22 @@ class TripFormModel extends ChangeNotifier {
       [arrivalLat, arrivalLong],
       arrivalStationBaseName ?? arrivalStationName,
     ];
+
+    // ---- intermediate points ----
+    // [[lat, lng], name, stop, hard], as the routing page reads its via
+    // stations. hard is kept as stored: true (exact), false (made approximate
+    // by hand) or null (never set).
+    if (routeWaypoints.isNotEmpty) {
+      map['viaStations'] = [
+        for (final point in routeWaypoints)
+          [
+            [point['lat'], point['lng']],
+            point['name'] ?? '',
+            point['stop'],
+            point['hard'],
+          ],
+      ];
+    }
 
     final departureDate = _when(dateType == DateType.precise, () => _isoDate(departureDateLocal));
     final departureTime = _when(dateType == DateType.precise, () => _isoTime(departureDateLocal));
