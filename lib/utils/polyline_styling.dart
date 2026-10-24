@@ -58,7 +58,10 @@ class PolylineStyling {
     Map<VehicleType, Color> palette,
   ) {
     return PolylineTools.createPolyline(
-      path ?? trip.pathPoints ?? PolylineTools.decodePath(trip.path),
+      PolylineTools.pointsToDraw(
+        path ?? trip.pathPoints ?? PolylineTools.decodePath(trip.path),
+        trip.vehicleType,
+      ),
       palette[trip.vehicleType] ?? Colors.black,
     );
   }

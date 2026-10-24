@@ -436,7 +436,11 @@ class TripsApi {
   /// trip is recognised by the `:01` seconds marker the server stores it with.
   static bool _isPrecise(Map<String, dynamic> data, Map<String, dynamic> trip) {
     final precision = _s(data['precision']);
-    if (precision != null) return precision == 'preciseDates';
+    // The edit page's context spells it "precise"; the trip forms post it as
+    // "preciseDates".
+    if (precision != null) {
+      return precision == 'precise' || precision == 'preciseDates';
+    }
     final start = _s(data['start_datetime']) ?? _s(trip['start_datetime']);
     if (start == null || start == '-1' || start == '1') return false;
     return !RegExp(r'\d{2}:\d{2}:01').hasMatch(start);

@@ -1642,6 +1642,56 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String get editPathTitle => 'Modifier le tracé';
+
+  @override
+  String get editPathTabMap => 'Carte';
+
+  @override
+  String get editPathTabDetails => 'Détails';
+
+  @override
+  String get editPathSaveButton => 'Enregistrer';
+
+  @override
+  String get editPathExitDialogTitle =>
+      'Abandonner les modifications du tracé ?';
+
+  @override
+  String get editPathExitDialogContent =>
+      'Le tracé a été modifié mais pas enregistré. Voulez-vous quitter sans enregistrer ?';
+
+  @override
+  String get editPathExitDialogConfirm => 'Quitter sans enregistrer';
+
+  @override
+  String get editPathRouteNotReady =>
+      'L\'itinéraire est encore en cours de calcul. Réessayez dans un instant.';
+
+  @override
+  String get editPathUnsupported =>
+      'Le serveur ne permet pas encore de modifier le tracé depuis l\'application.';
+
+  @override
+  String get editPathModeTitle => 'Mode de tracé';
+
+  @override
+  String get editPathModeRouter => 'Routeur';
+
+  @override
+  String get editPathModeFreehand => 'Main levée';
+
+  @override
+  String get editPathRouteTitle => 'Itinéraire';
+
+  @override
+  String get editPathVia => 'Via';
+
+  @override
+  String get editTripPathEditedNote =>
+      'Tracé modifié. Il sera enregistré avec le trajet.';
+
+  @override
   String get mapSearchLocationButton => 'Rechercher un lieu';
 
   @override

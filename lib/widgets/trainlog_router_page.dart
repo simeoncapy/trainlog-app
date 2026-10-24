@@ -26,7 +26,10 @@ class TripRoutingData{
 class TrainlogRouterPage extends StatefulWidget {
   final String tripData;
   final VehicleType vehicleType;
-  final bool isNewRouter;
+
+  /// Drives the page's router choice when it changes; null leaves the choice
+  /// to whoever drives it through [controller].
+  final bool? isNewRouter;
   final TrainlogWebPageController controller;
   final ValueChanged<TripRoutingData>? onRouteInfoChanged;
   final ValueChanged<bool>? onLoading;
@@ -36,7 +39,7 @@ class TrainlogRouterPage extends StatefulWidget {
     super.key,
     required this.tripData,
     required this.vehicleType,
-    required this.isNewRouter,
+    this.isNewRouter,
     required this.controller,
     this.onRouteInfoChanged,
     this.onLoading,
@@ -97,9 +100,10 @@ class _TrainlogRouterPageState extends State<TrainlogRouterPage> {
   @override
   void didUpdateWidget(covariant TrainlogRouterPage oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.isNewRouter != oldWidget.isNewRouter) {
+    final isNewRouter = widget.isNewRouter;
+    if (isNewRouter != null && isNewRouter != oldWidget.isNewRouter) {
       _lastRoutingErrorState = false;
-      _setRouterToggle(widget.isNewRouter);
+      _setRouterToggle(isNewRouter);
     }
   }
 

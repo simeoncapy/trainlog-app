@@ -1,4 +1,6 @@
 import 'package:flutter/foundation.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:trainlog_app/data/models/polyline_entry.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
 import 'package:trainlog_app/services/api/trips_api.dart';
@@ -154,6 +156,10 @@ class TripEditCopyService {
   /// nothing else (see [TripsApi.patchTrip]). Leaving the route out is what
   /// keeps the trip's stored geometry — and the 3D flight track with it.
   ///
+  /// [path] is the path [fields] carries when the route was redrawn on the
+  /// path editor: it is what the trip is cached with afterwards, in place of
+  /// the geometry cached so far.
+  ///
   /// The patch response says which columns were applied but not what the
   /// server derived from them, so the stored trip is read back and cached. A
   /// read that fails does not fail the save: it is reported through
@@ -172,6 +178,7 @@ class TripEditCopyService {
     required Map<String, dynamic> fields,
     VehicleType? oldType,
     VehicleType? newType,
+    List<LatLng>? path,
   }) async {
     if (username == null) {
       throw const TripPatchException('No signed-in user to save the trip as');
@@ -193,12 +200,13 @@ class TripEditCopyService {
     try {
       final stored =
           await _api.fetchTripEditCopy(username, tripId, EditCopy.edit);
-      // Read the cached trip again rather than reusing an older copy: the
-      // patch never carries a route, so the geometry cached here is still the
+      // Read the cached trip again rather than reusing an older copy: unless
+      // the route was redrawn ([path]), the geometry cached here is still the
       // one the server just saved the trip with.
       saved = await _cacheServerTrip(
         stored.serverTrip,
         await _trips.getTripById(tripId),
+        path: path,
       );
     } catch (e) {
       debugPrint(
@@ -210,7 +218,8 @@ class TripEditCopyService {
   }
 
   /// Caches the server's copy of a trip, keeping the geometry already stored
-  /// for it, and returns what was written.
+  /// for it — or giving it [path], a path just redrawn and saved — and
+  /// returns what was written.
   ///
   /// [TripEditCopyData.serverTrip] carries no path: the endpoint describes a
   /// route as its editable waypoint list, which on a trip nobody re-routed is
@@ -218,10 +227,16 @@ class TripEditCopyService {
   /// keeps its shape on the map. With nothing cached there is no geometry to
   /// keep and none to invent — the trip is stored without one and the next
   /// incremental sync fills it in.
-  Future<Trips> _cacheServerTrip(Trips serverTrip, Trips? cached) async {
-    final trip = cached == null
+  Future<Trips> _cacheServerTrip(
+    Trips serverTrip,
+    Trips? cached, {
+    List<LatLng>? path,
+  }) async {
+    final geometry =
+        path != null ? PolylineTools.encodePath(path) : cached?.path;
+    final trip = geometry == null
         ? serverTrip
-        : Trips.fromJson({...serverTrip.toJson(), 'path': cached.path});
+        : Trips.fromJson({...serverTrip.toJson(), 'path': geometry});
     await _trips.insertTrip(trip);
     return trip;
   }
