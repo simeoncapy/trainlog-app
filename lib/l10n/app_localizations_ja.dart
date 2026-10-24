@@ -1590,6 +1590,51 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
+  String get editPathTitle => 'ルートを編集';
+
+  @override
+  String get editPathTabMap => '地図';
+
+  @override
+  String get editPathTabDetails => '詳細';
+
+  @override
+  String get editPathSaveButton => '保存';
+
+  @override
+  String get editPathExitDialogTitle => 'ルートの変更を破棄しますか？';
+
+  @override
+  String get editPathExitDialogContent => 'ルートは変更されましたが保存されていません。保存せずに終了しますか？';
+
+  @override
+  String get editPathExitDialogConfirm => '保存せずに終了';
+
+  @override
+  String get editPathRouteNotReady => 'ルートを計算中です。しばらくしてからもう一度お試しください。';
+
+  @override
+  String get editPathUnsupported => 'サーバーはまだアプリからのルート編集に対応していません。';
+
+  @override
+  String get editPathModeTitle => '描画モード';
+
+  @override
+  String get editPathModeRouter => 'ルーター';
+
+  @override
+  String get editPathModeFreehand => '手描き';
+
+  @override
+  String get editPathRouteTitle => 'ルート';
+
+  @override
+  String get editPathVia => '経由';
+
+  @override
+  String get editTripPathEditedNote => 'ルートが変更されました。旅程と一緒に保存されます。';
+
+  @override
   String get mapSearchLocationButton => '場所を検索';
 
   @override

@@ -1625,6 +1625,55 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get editPathTitle => 'Edit the path';
+
+  @override
+  String get editPathTabMap => 'Map';
+
+  @override
+  String get editPathTabDetails => 'Details';
+
+  @override
+  String get editPathSaveButton => 'Save';
+
+  @override
+  String get editPathExitDialogTitle => 'Discard the path changes?';
+
+  @override
+  String get editPathExitDialogContent =>
+      'The path has been modified but not saved. Do you want to exit without saving?';
+
+  @override
+  String get editPathExitDialogConfirm => 'Exit without saving';
+
+  @override
+  String get editPathRouteNotReady =>
+      'The route is still being computed. Try again in a moment.';
+
+  @override
+  String get editPathUnsupported =>
+      'The server does not support editing the path from the app yet.';
+
+  @override
+  String get editPathModeTitle => 'Drawing mode';
+
+  @override
+  String get editPathModeRouter => 'Router';
+
+  @override
+  String get editPathModeFreehand => 'Freehand';
+
+  @override
+  String get editPathRouteTitle => 'Route';
+
+  @override
+  String get editPathVia => 'Via';
+
+  @override
+  String get editTripPathEditedNote =>
+      'Path modified. It will be saved with the trip.';
+
+  @override
   String get mapSearchLocationButton => 'Search a place';
 
   @override

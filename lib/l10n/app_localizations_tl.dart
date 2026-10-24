@@ -1609,6 +1609,55 @@ class AppLocalizationsTl extends AppLocalizations {
   }
 
   @override
+  String get editPathTitle => 'Baguhin ang landas';
+
+  @override
+  String get editPathTabMap => 'Mapa';
+
+  @override
+  String get editPathTabDetails => 'Mga detalye';
+
+  @override
+  String get editPathSaveButton => 'I-save';
+
+  @override
+  String get editPathExitDialogTitle => 'Itapon ang mga pagbabago sa landas?';
+
+  @override
+  String get editPathExitDialogContent =>
+      'Nabago ang landas pero hindi pa naise-save. Gusto mo bang lumabas nang hindi nagse-save?';
+
+  @override
+  String get editPathExitDialogConfirm => 'Lumabas nang hindi nagse-save';
+
+  @override
+  String get editPathRouteNotReady =>
+      'Kinakalkula pa ang ruta. Subukan muli mamaya.';
+
+  @override
+  String get editPathUnsupported =>
+      'Hindi pa sinusuportahan ng server ang pagbabago ng landas mula sa app.';
+
+  @override
+  String get editPathModeTitle => 'Paraan ng pagguhit';
+
+  @override
+  String get editPathModeRouter => 'Router';
+
+  @override
+  String get editPathModeFreehand => 'Malayang guhit';
+
+  @override
+  String get editPathRouteTitle => 'Ruta';
+
+  @override
+  String get editPathVia => 'Dadaan sa';
+
+  @override
+  String get editTripPathEditedNote =>
+      'Nabago ang landas. Ise-save ito kasama ng biyahe.';
+
+  @override
   String get mapSearchLocationButton => 'Maghanap ng lugar';
 
   @override
