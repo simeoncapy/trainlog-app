@@ -82,6 +82,16 @@ class PolylineTools {
     return RegExp(r'\d{2}:\d{2}').hasMatch(s);
   }
 
+  /// The points to draw for a trip path. A plane path stored as its two
+  /// endpoints is a great circle (the geodesic the routing page saves), so it
+  /// is drawn as one rather than as a straight line on the map.
+  static List<LatLng> pointsToDraw(List<LatLng> points, VehicleType type) {
+    if (type == VehicleType.plane && points.length == 2) {
+      return generateGeodesicPoints(points[0], points[1], 40);
+    }
+    return points;
+  }
+
   static List<LatLng> generateGeodesicPoints(LatLng start, LatLng end, int numPoints) {
     double toRadians(double deg) => deg * math.pi / 180;
     double toDegrees(double rad) => rad * 180 / math.pi;
@@ -145,10 +155,7 @@ class PolylineTools {
         final createdStr = e['created']?.toString();
         final created = createdStr != null ? DateTime.tryParse(createdStr) : null;
 
-        List<LatLng> points = decodePath(path);
-        if (type == VehicleType.plane && points.length == 2) {
-          points = generateGeodesicPoints(points[0], points[1], 40);
-        }
+        final points = pointsToDraw(decodePath(path), type);
 
         final colorInt = colorMap[type.name] ?? Colors.black.value;
 
