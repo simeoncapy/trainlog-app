@@ -69,13 +69,17 @@ class TripEditCopyData {
 }
 
 /// What `patchTrip` reported back: the columns the server actually applied and
-/// the keys it did not recognise.
+/// the keys it did not recognise — and, for a copy, which trip it was made from.
 ///
 /// [ignored] is not an error — the backend reports unknown keys rather than
 /// refusing the whole payload, so a client sending a field that this backend
 /// version predates is told about it instead of being broken by it.
 class TripPatchResult {
+  /// The trip written: the patched one, or the new copy.
   final int tripId;
+
+  /// The trip a copy was made from; null for an edit.
+  final int? copiedFrom;
 
   /// Columns the server applied, as it spelled them back.
   final List<String> patched;
@@ -87,6 +91,7 @@ class TripPatchResult {
     required this.tripId,
     required this.patched,
     required this.ignored,
+    this.copiedFrom,
   });
 
   /// Nothing was sent: the caller had no changes to save.
@@ -101,12 +106,14 @@ class TripPatchResult {
       tripId: TripsApi._i(json['trip_id']) ?? tripId,
       patched: strings(json['patched']),
       ignored: strings(json['ignored']),
+      copiedFrom: TripsApi._i(json['copied_from']),
     );
   }
 
   @override
   String toString() =>
-      'TripPatchResult(trip $tripId, patched: $patched, ignored: $ignored)';
+      'TripPatchResult(trip $tripId${copiedFrom == null ? '' : ' copied from $copiedFrom'}, '
+      'patched: $patched, ignored: $ignored)';
 }
 
 /// A `patchTrip` call the server refused: a bad payload (400), a trip that is
@@ -412,7 +419,11 @@ class TripsApi {
       'utc_end_datetime': _isPrecise(data, trip)
           ? trip['utc_end_datetime'] ?? trip['utc_filtered_end_datetime']
           : null,
-      'waypoints': trip['waypoints'],
+      // A copy's stops come without the copied run's live data, as the page
+      // lists them (`stored_waypoints`); the trip row still holds that data.
+      'waypoints': !isEdit && data['stored_waypoints'] is List
+          ? jsonEncode(data['stored_waypoints'])
+          : trip['waypoints'],
       'created': isEdit ? trip['created'] : null,
       'last_modified': isEdit ? trip['last_modified'] : null,
     };
@@ -495,18 +506,24 @@ class TripsApi {
   /// An empty [fields] is a no-op: nothing is sent and an empty result comes
   /// back, rather than making the server rewrite the trip with its own data.
   ///
+  /// With [copy], [tripId] is left as it is: the server makes a new copy of it,
+  /// the way the website's copy page saves one, and writes [fields] to the
+  /// copy. [TripPatchResult.tripId] is then the copy's id. A copy is made even
+  /// from an empty [fields].
+  ///
   /// Throws [TripPatchException] when the server refused the patch.
   Future<TripPatchResult> patchTrip(
     String username,
     int tripId,
-    Map<String, dynamic> fields,
-  ) async {
+    Map<String, dynamic> fields, {
+    bool copy = false,
+  }) async {
     final payload = <String, dynamic>{
       for (final entry in fields.entries)
         if (entry.key != 'trip_id' && entry.key != 'uid')
           entry.key: _asPatchValue(entry.value),
     };
-    if (payload.isEmpty) {
+    if (payload.isEmpty && !copy) {
       debugPrint('patchTrip: nothing to patch on trip $tripId');
       return TripPatchResult(
         tripId: tripId,
@@ -515,9 +532,11 @@ class TripsApi {
       );
     }
     payload['trip_id'] = tripId;
+    if (copy) payload['copy'] = true;
 
     final path = '/u/$username/patchTrip';
-    debugPrint('Patching trip $tripId for $username: ${fields.keys.toList()}');
+    debugPrint('${copy ? 'Copying' : 'Patching'} trip $tripId for $username: '
+        '${fields.keys.toList()}');
 
     try {
       final res = await _client.safePost(

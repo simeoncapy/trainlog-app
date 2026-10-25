@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:lat_lng_to_timezone/lat_lng_to_timezone.dart' as tzmap;
 import 'package:latlong2/latlong.dart';
 import 'package:trainlog_app/data/models/edited_route.dart';
 import 'package:trainlog_app/data/models/polyline_entry.dart';
@@ -625,6 +626,43 @@ class TripFormModel extends ChangeNotifier {
     departureDateLocal = _setDateTimeLocal(date, time);
     departureDate = _setDateTimeWithTimeZone(date, time, timezone);
   }
+
+  /// Moves a precise schedule to [today] (the current day by default), the way
+  /// the website fills its copy form: departure today, arrival as many days
+  /// after it as before, both at the times they had. The UTC times follow, in
+  /// each end's timezone. Other schedules are left as they are.
+  ///
+  /// Unlike the website, the day span is counted in calendar days, so an
+  /// overnight trip keeps its arrival on the next day.
+  ///
+  /// This seeds the form: it is not counted as an edit.
+  void moveScheduleToToday({DateTime? today}) {
+    final start = departureDateLocal;
+    final end = arrivalDateLocal;
+    if (dateType != DateType.precise || start == null || end == null) return;
+
+    final day = today ?? DateTime.now();
+    final span = DateTime.utc(end.year, end.month, end.day)
+        .difference(DateTime.utc(start.year, start.month, start.day))
+        .inDays;
+    final newStart = DateTime(day.year, day.month, day.day);
+    final newEnd = DateTime(day.year, day.month, day.day + span);
+    final startTime = TimeOfDay(hour: start.hour, minute: start.minute);
+    final endTime = TimeOfDay(hour: end.hour, minute: end.minute);
+
+    departureDateLocal = _setDateTimeLocal(newStart, startTime);
+    departureDate = _setDateTimeWithTimeZone(
+        newStart, startTime, _timezoneAt(departureLat, departureLong));
+    arrivalDateLocal = _setDateTimeLocal(newEnd, endTime);
+    arrivalDate = _setDateTimeWithTimeZone(
+        newEnd, endTime, _timezoneAt(arrivalLat, arrivalLong));
+  }
+
+  /// The timezone at a position, UTC when there is none to read.
+  static String _timezoneAt(double? lat, double? long) =>
+      (lat == null || long == null)
+          ? 'UTC'
+          : tzmap.latLngToTimezoneString(lat, long);
 
   void setArrivalDateTime(DateTime? date, TimeOfDay? time, String timezone)
   {

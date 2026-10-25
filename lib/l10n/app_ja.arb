@@ -478,6 +478,7 @@
   "duplicateTripSaveButton": "新しい旅を作成",
   "editTripComingSoon": "この機能は今後のアップデートで利用できるようになります。",
   "editTripSavedMsg": "旅程を保存しました。",
+  "duplicateTripSavedMsg": "旅程を複製しました。",
   "editTripSaveErrorMsg": "旅程を保存できませんでした：{error}",
   "editPathTitle": "ルートを編集",
   "editPathTabMap": "地図",

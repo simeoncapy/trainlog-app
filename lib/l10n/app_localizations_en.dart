@@ -1620,6 +1620,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get editTripSavedMsg => 'Trip saved.';
 
   @override
+  String get duplicateTripSavedMsg => 'Trip duplicated.';
+
+  @override
   String editTripSaveErrorMsg(String error) {
     return 'The trip could not be saved: $error';
   }
