@@ -1770,4 +1770,75 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get refreshFailed =>
       'Impossible d\'actualiser les trajets. Réessayez plus tard.';
+
+  @override
+  String get geologNoteSectionStation => 'Gare';
+
+  @override
+  String get geologNoteAddButton => 'Ajouter une note';
+
+  @override
+  String get geologNoteEditButton => 'Modifier la note';
+
+  @override
+  String get geologNoteHasNoteTooltip => 'Ce géomémo a une note';
+
+  @override
+  String get geologNoteTitle => 'Note du géomémo';
+
+  @override
+  String geologNoteSummary(String station, String date) {
+    return '$station • $date';
+  }
+
+  @override
+  String get geologNoteSaveButton => 'Enregistrer la note';
+
+  @override
+  String get geologNoteDeleteButton => 'Supprimer la note';
+
+  @override
+  String get geologNoteDeleteConfirm =>
+      'Supprimer la note de ce géomémo ? Le géomémo lui-même est conservé.';
+
+  @override
+  String get geologNoteStationHelper =>
+      'Touchez pour choisir une autre gare autour de la position du géomémo. Le type de véhicule suit la gare.';
+
+  @override
+  String get geologNoteStationSearchTitle => 'Gares à proximité';
+
+  @override
+  String get geologNoteStationSearchHint => 'Rechercher une gare';
+
+  @override
+  String get geologNoteNoStationFound =>
+      'Aucune gare trouvée autour de cette position';
+
+  @override
+  String get geologNoteDateLabel => 'Date';
+
+  @override
+  String get geologNoteTimeLabel => 'Heure';
+
+  @override
+  String geologNoteRecordedAt(String dateTime) {
+    return 'Enregistré le $dateTime';
+  }
+
+  @override
+  String get geologNoteResetDateTime => 'Heure enregistrée';
+
+  @override
+  String get geologNoteConflictPriceTitle => 'Quel prix du billet ?';
+
+  @override
+  String get geologNoteConflictEnergyTitle => 'Quelle énergie ?';
+
+  @override
+  String get geologNoteConflictVisibilityTitle => 'Quelle visibilité ?';
+
+  @override
+  String get geologNoteConflictMessage =>
+      'Les géomémos de départ et d\'arrivée ont des valeurs différentes. Choisissez celle à utiliser pour le trajet.';
 }

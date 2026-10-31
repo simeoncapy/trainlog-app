@@ -2,15 +2,45 @@ import 'package:flutter/material.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/widgets/trip_form/trip_form_card.dart';
 
-/// The blocks of the edit/duplicate form, in the order they appear in the
-/// scroll view. Each one is both a pill of the anchor bar and a scroll target.
-enum EditTripSection { route, operators, when, details, ticket, path }
+/// The blocks of the edit/duplicate form and of the Geolog note page. Each
+/// one is both a pill of the anchor bar and a scroll target.
+enum EditTripSection {
+  route,
+  station,
+  operators,
+  when,
+  details,
+  ticket,
+  path;
+
+  /// The blocks of the edit/duplicate form, in the order they appear.
+  static const List<EditTripSection> trip = [
+    route,
+    operators,
+    when,
+    details,
+    ticket,
+    path,
+  ];
+
+  /// The blocks of the Geolog note page, in the order they appear: a single
+  /// station instead of a route, and no path.
+  static const List<EditTripSection> geologNote = [
+    station,
+    operators,
+    when,
+    details,
+    ticket,
+  ];
+}
 
 extension EditTripSectionL10n on EditTripSection {
   String label(AppLocalizations loc) {
     switch (this) {
       case EditTripSection.route:
         return loc.editTripSectionRoute;
+      case EditTripSection.station:
+        return loc.geologNoteSectionStation;
       case EditTripSection.operators:
         return loc.editTripSectionOperator;
       case EditTripSection.when:

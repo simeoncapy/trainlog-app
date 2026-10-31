@@ -13,7 +13,7 @@ class EditTripSectionBar extends StatefulWidget {
     super.key,
     required this.selected,
     required this.onSelected,
-    this.sections = EditTripSection.values,
+    this.sections = EditTripSection.trip,
   });
 
   final EditTripSection selected;
