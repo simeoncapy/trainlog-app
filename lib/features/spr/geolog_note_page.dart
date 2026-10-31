@@ -222,6 +222,9 @@ class _GeologNotePageState extends State<GeologNotePage> {
       message: loc.geologNoteDeleteConfirm,
       confirmLabel: MaterialLocalizations.of(context).deleteButtonTooltip,
       destructive: true,
+      // This page sits on the root navigator, which can therefore always
+      // pop: without this the confirmation would silently be skipped.
+      skipWhenRootCanPop: false,
     );
     if (!confirmed || !mounted) return;
     Navigator.of(context).pop(const GeologNoteResult(note: null));

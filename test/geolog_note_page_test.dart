@@ -133,4 +133,54 @@ void main() {
     expect(result!.note?.seat, '12');
     expect(result!.note?.delayMinutes, 4);
   });
+
+  testWidgets('deleting the note asks for confirmation first', (tester) async {
+    GeologNoteResult? result;
+    var closed = false;
+    await _pump(
+      tester,
+      Builder(
+        builder: (context) => Scaffold(
+          body: TextButton(
+            onPressed: () async {
+              result = await Navigator.of(context).push<GeologNoteResult>(
+                MaterialPageRoute(
+                  builder: (_) => GeologNotePage(
+                    record: _record(note: const GeologNote(seat: '12')),
+                  ),
+                ),
+              );
+              closed = true;
+            },
+            child: const Text('open'),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
+
+    // Cancelling keeps the page and the note.
+    await tester.tap(find.byTooltip('Delete note'));
+    await tester.pumpAndSettle();
+    expect(
+      find.text('Delete the note of this Geolog? The Geolog itself is kept.'),
+      findsOneWidget,
+    );
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+    expect(closed, isFalse);
+    expect(find.text('Geolog note'), findsOneWidget);
+
+    // Confirming closes the page with the note removed.
+    await tester.tap(find.byTooltip('Delete note'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(ElevatedButton, 'Delete'));
+    await tester.pumpAndSettle();
+    expect(closed, isTrue);
+    expect(result, isNotNull);
+    expect(result!.note, isNull);
+    expect(result!.station, isNull);
+  });
 }

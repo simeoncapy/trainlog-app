@@ -56,8 +56,15 @@ class AdaptiveDialog {
 
     /// If true, tapping outside closes (Material: barrierDismissible; iOS AlertDialog: false by convention).
     bool barrierDismissible = false,
+
+    /// By default nothing is shown while the root navigator can pop, so a
+    /// dialog never stacks on another one. A page pushed on the root
+    /// navigator (which can then always pop) sets this to false to show its
+    /// own dialogs.
+    bool skipWhenRootCanPop = true,
   }) async {
-    if (Navigator.of(context, rootNavigator: true).canPop()) {
+    if (skipWhenRootCanPop &&
+        Navigator.of(context, rootNavigator: true).canPop()) {
       return AdaptiveDialogResult.cancelled;
     }
 
@@ -275,6 +282,7 @@ class AdaptiveDialog {
     String? confirmLabel,
     bool destructive = false,
     bool useActionSheetOnIOS = true,
+    bool skipWhenRootCanPop = true,
   }) async {
     final res = await show(
       context: context,
@@ -282,6 +290,7 @@ class AdaptiveDialog {
       message: message,
       content: content,
       useActionSheetOnIOS: useActionSheetOnIOS && destructive,
+      skipWhenRootCanPop: skipWhenRootCanPop,
       actions: [
         AdaptiveDialogAction.cancel(context),
         AdaptiveDialogAction(
