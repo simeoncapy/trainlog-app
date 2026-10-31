@@ -2748,6 +2748,12 @@ abstract class AppLocalizations {
   /// **'Trip saved.'**
   String get editTripSavedMsg;
 
+  /// Confirmation shown once the duplicate has been created on the server
+  ///
+  /// In en, this message translates to:
+  /// **'Trip duplicated.'**
+  String get duplicateTripSavedMsg;
+
   /// Error message shown when saving the edited trip fails
   ///
   /// In en, this message translates to:

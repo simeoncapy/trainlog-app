@@ -1604,6 +1604,9 @@ class AppLocalizationsTl extends AppLocalizations {
   String get editTripSavedMsg => 'Na-save ang biyahe.';
 
   @override
+  String get duplicateTripSavedMsg => 'Nadoble ang biyahe.';
+
+  @override
   String editTripSaveErrorMsg(String error) {
     return 'Hindi na-save ang biyahe: $error';
   }

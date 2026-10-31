@@ -923,6 +923,10 @@
   "@editTripSavedMsg": {
     "description": "Confirmation shown once the edited trip has been saved on the server"
   },
+  "duplicateTripSavedMsg": "Trip duplicated.",
+  "@duplicateTripSavedMsg": {
+    "description": "Confirmation shown once the duplicate has been created on the server"
+  },
   "editTripSaveErrorMsg": "The trip could not be saved: {error}",
   "@editTripSaveErrorMsg": {
     "description": "Error message shown when saving the edited trip fails",

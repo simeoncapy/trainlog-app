@@ -1585,6 +1585,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get editTripSavedMsg => '旅程を保存しました。';
 
   @override
+  String get duplicateTripSavedMsg => '旅程を複製しました。';
+
+  @override
   String editTripSaveErrorMsg(String error) {
     return '旅程を保存できませんでした：$error';
   }

@@ -1637,6 +1637,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get editTripSavedMsg => 'Trajet enregistré.';
 
   @override
+  String get duplicateTripSavedMsg => 'Trajet dupliqué.';
+
+  @override
   String editTripSaveErrorMsg(String error) {
     return 'Le trajet n\'a pas pu être enregistré : $error';
   }

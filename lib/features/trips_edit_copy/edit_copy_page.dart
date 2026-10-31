@@ -40,10 +40,10 @@ import 'package:trainlog_app/widgets/trip_form/vehicle_type_grid.dart';
 /// the form blocks are the same widgets. The blocks are laid out in one scroll
 /// view and the sticky [EditTripSectionBar] anchors to them.
 ///
-/// Saving hands the form back to [TripEditCopyService.save] as `trips`
-/// columns, which writes it and refreshes the cached trip. Only an edit can be
-/// saved: a duplicate is a new trip, and creating one still goes through the
-/// trip creation pipeline (the routing web view).
+/// Saving hands the form back to [TripEditCopyService] as `trips` columns:
+/// [TripEditCopyService.save] writes an edit, [TripEditCopyService.duplicate]
+/// creates the copy, and both refresh the cached trip. A duplicate opens on
+/// today's date, as the website's copy form does.
 class EditCopyPage extends StatefulWidget {
   /// Id of the trip to edit, or of the trip to copy from.
   final int tripId;
@@ -121,9 +121,17 @@ class _EditCopyPageState extends State<EditCopyPage> {
     if (!mounted) return;
     setState(() {
       _result = result;
-      _form = result.trip == null ? null : TripFormModel.fromTrip(result.trip!);
+      _form = result.trip == null ? null : _seedForm(result.trip!);
       _loading = false;
     });
+  }
+
+  /// The form for the loaded trip. A duplicate starts on today, as the
+  /// website's copy form does: a trip copied is usually taken again.
+  TripFormModel _seedForm(Trips trip) {
+    final form = TripFormModel.fromTrip(trip);
+    if (widget.mode == EditCopy.copy) form.moveScheduleToToday();
+    return form;
   }
 
   // ─────────────────────────────────────────────────────────────
@@ -254,19 +262,13 @@ class _EditCopyPageState extends State<EditCopyPage> {
     );
   }
 
-  /// Writes the form back to the server and closes the page.
-  ///
-  /// Only an edit is saved here: duplicating creates a new trip, which still
-  /// goes through the routing web view.
+  /// Writes the form back to the server and closes the page: the edited trip,
+  /// or a new trip for a duplicate.
   Future<void> _save() async {
     final form = _form;
     final service = _service;
     if (form == null || service == null || _saving) return;
-
-    if (widget.mode == EditCopy.copy) {
-      _showComingSoon();
-      return;
-    }
+    final isCopy = widget.mode == EditCopy.copy;
 
     final loc = AppLocalizations.of(context)!;
     final messenger = ScaffoldMessenger.of(context);
@@ -283,26 +285,44 @@ class _EditCopyPageState extends State<EditCopyPage> {
       return;
     }
 
-    // Nothing was touched: closing the page is the whole answer.
-    if (!form.hasBeenChanged) {
+    // Nothing was touched: closing the page is the whole answer. Not for a
+    // duplicate, which is a new trip whatever was changed.
+    if (!isCopy && !form.hasBeenChanged) {
       navigator.pop();
       return;
     }
 
     setState(() => _saving = true);
     try {
-      await service.save(
-        username: username,
-        tripId: widget.tripId,
-        fields: form.toTripColumns(stored: _result?.trip),
-        oldType: _storedType,
-        newType: form.vehicleType,
-        path: form.editedRoute?.path,
-      );
+      final fields = form.toTripColumns(stored: _result?.trip);
+      final path = form.editedRoute?.path;
+      if (isCopy) {
+        await service.duplicate(
+          username: username,
+          tripId: widget.tripId,
+          fields: fields,
+          oldType: _storedType,
+          newType: form.vehicleType,
+          path: path,
+        );
+      } else {
+        await service.save(
+          username: username,
+          tripId: widget.tripId,
+          fields: fields,
+          oldType: _storedType,
+          newType: form.vehicleType,
+          path: path,
+        );
+      }
       if (!mounted) return;
       messenger
         ..clearSnackBars()
-        ..showSnackBar(SnackBar(content: Text(loc.editTripSavedMsg)));
+        ..showSnackBar(SnackBar(
+          content: Text(
+            isCopy ? loc.duplicateTripSavedMsg : loc.editTripSavedMsg,
+          ),
+        ));
       navigator.pop();
     } catch (e) {
       if (!mounted) return;

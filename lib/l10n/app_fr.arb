@@ -477,6 +477,7 @@
   "duplicateTripSaveButton": "Créer un nouveau trajet",
   "editTripComingSoon": "Cette fonctionnalité sera disponible dans une prochaine mise à jour.",
   "editTripSavedMsg": "Trajet enregistré.",
+  "duplicateTripSavedMsg": "Trajet dupliqué.",
   "editTripSaveErrorMsg": "Le trajet n'a pas pu être enregistré : {error}",
   "editPathTitle": "Modifier le tracé",
   "editPathTabMap": "Carte",
