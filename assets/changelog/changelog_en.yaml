@@ -3,7 +3,7 @@ changelog_en:
     date: 2026-10-19
     changes:
       - type: feature
-        text: "You can now edit your trips (everything except the path). This is a beta: export your trips before editing them, just in case."
+        text: "You can now edit your trips (everything except the path). Reminder: the app is still in beta, so export your trips before editing them, just in case."
       - type: fix
         text: Trips crossing the International Date Line now show their direction of travel correctly on the map.
   - version: 0.4.3
