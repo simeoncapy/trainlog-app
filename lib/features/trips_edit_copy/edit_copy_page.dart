@@ -242,6 +242,8 @@ class _EditCopyPageState extends State<EditCopyPage> {
 
   /// Opens the path editor. The path drawn there is kept in the form and only
   /// sent when the whole edit is saved (see [_save]).
+  // Unused while path editing waits on the backend (see the TODO in build).
+  // ignore: unused_element
   void _openPathEditor() {
     final form = _form;
     if (form == null) return;
@@ -542,7 +544,9 @@ class _EditCopyPageState extends State<EditCopyPage> {
             EditTripSection.path,
             // TODO: open the GPX import once it exists.
             EditTripPathSection(
-              onModifyPath: _openPathEditor,
+              // TODO(backend): restore `_openPathEditor` once the backend PR
+              // for editing a trip's path is approved.
+              onModifyPath: _showComingSoon,
               onImportGpx: _showComingSoon,
               pathEdited: form.editedRoute != null,
             ),

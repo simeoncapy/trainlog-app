@@ -47,7 +47,10 @@ class TripDetailsActions extends StatelessWidget {
             background: detailSurfaceColor(context),
             foreground: cs.onSurface,
             border: detailBorderColor(context),
-            onTap: () => _openEditCopy(context, EditCopy.copy),
+            // TODO(backend): restore `_openEditCopy(context, EditCopy.copy)`
+            // once the backend PR for duplicating a trip is approved.
+            onTap: () =>
+                AdaptiveInformationMessage.showInfo(l10n.editTripComingSoon),
           ),
         ),
         const SizedBox(width: 8),
