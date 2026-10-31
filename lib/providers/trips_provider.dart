@@ -225,6 +225,9 @@ class TripsProvider extends ChangeNotifier {
     DateTime? originalLastRefresh = lastRefresh;
     if (lastRefresh != null && await TripsRepository.needsSchemaUpdate()) {
       debugPrint("🔄 Schema update detected, forcing hard refresh to fill new columns");
+      // Persisted before the download so an interrupted refresh is picked up
+      // again on the next launch instead of leaving the new column empty.
+      _settings!.setLastFetchingTrips(forceRefreshDate.toUtc());
       lastRefresh = null;
     }
 
@@ -242,6 +245,9 @@ class TripsProvider extends ChangeNotifier {
           replace: true,
           path: false,
         );
+        // Every row has just been rewritten, so any column added this run now
+        // holds whatever the export carries for it.
+        TripsRepository.schemaUpdateHandled();
       } else {
         debugPrint("🔄 Refreshing only necessary $_username's trips from ${lastRefresh.toIso8601String()}");
         final result = await _service!.fetchLastUpdatedTripsData(_username??"", lastRefresh);
@@ -322,6 +328,16 @@ class TripsProvider extends ChangeNotifier {
     }
   }
 
+  /// Reads a single trip from the local cache. Null when the repository has
+  /// not been loaded yet or the trip is unknown locally.
+  Future<Trips?> getTripById(int tripId) async {
+    final repo = _repository;
+    if (repo == null) return null;
+    return repo.getTripById(tripId);
+  }
+
+  /// Inserts [trip], replacing any row that already carries the same uid — so
+  /// this doubles as the "refresh one cached trip" entry point.
   static TripsSyncResult _syncFailure(Object error) {
     if (error is DioException && error.error is SessionExpiredException) {
       return TripsSyncResult.sessionExpired;

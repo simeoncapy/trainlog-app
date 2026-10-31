@@ -20,12 +20,18 @@ class TripTableView extends StatefulWidget {
   final TripsFilterResult? filter;
   final TimeMoment timeMoment;
 
+  /// `TripsProvider.revision` at build time. The repository object stays the
+  /// same when a trip is edited, added or deleted, so this counter is what
+  /// tells the already-built data source that its rows are stale.
+  final int revision;
+
   const TripTableView({
     super.key,
     required this.repo,
     required this.trainlog,
     required this.filter,
     required this.timeMoment,
+    required this.revision,
   });
 
   @override
@@ -46,6 +52,10 @@ class _TripTableViewState extends State<TripTableView> {
         old.repo != widget.repo) {
       _dataSource = null;
       _tableKey = UniqueKey();
+    } else if (old.revision != widget.revision) {
+      // Same query, changed data: re-read the rows but keep the table's own
+      // state (sort column, current page) rather than rebuilding it.
+      _dataSource?.refresh();
     }
   }
 
@@ -193,6 +203,13 @@ class _TripsDataSource extends DataTableSource {
 
   void setTimeMoment(TimeMoment moment) {
     _timeMoment = moment;
+    _cache.clear();
+    _fetchRowCount();
+  }
+
+  /// Drops the cached rows and re-reads them, for when the underlying trips
+  /// changed while the query did not.
+  void refresh() {
     _cache.clear();
     _fetchRowCount();
   }

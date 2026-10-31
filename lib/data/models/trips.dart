@@ -8,6 +8,7 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/utils/text_utils.dart';
 import 'package:trainlog_app/widgets/trip_visibility_selector.dart';
+import 'package:trainlog_app/widgets/vehicle_energy_selector.dart';
 import 'package:trainlog_app/data/models/polyline_entry.dart';
 import 'package:trainlog_app/data/models/country_detail.dart';
 
@@ -29,6 +30,12 @@ class Trips {
   final DateTime created;
   final DateTime lastModified;
   final VehicleType type;
+
+  /// Energy the vehicle ran on, as the site's `power_type`. Trips that carry
+  /// none — including every row cached before the column existed — read back
+  /// as [EnergyType.auto], the site's own default.
+  final EnergyType powerType;
+
   final String? materialType;
   final String? seat;
   final String? reg;
@@ -61,6 +68,7 @@ class Trips {
     required this.created,
     required this.lastModified,
     required this.type,
+    this.powerType = EnergyType.auto,
     this.materialType,
     this.seat,
     this.reg,
@@ -200,15 +208,16 @@ class Trips {
       countries: json['countries']?.toString() ?? '',
       utcStartDatetime: _toDateTimeOrCopy(
           json['utc_start_datetime'] ?? json['utc_filtered_start_datetime'], start),
-      utcEndDatetime: _toDateTimeOrNull(
+      utcEndDatetime: toDateTimeOrNull(
           json['utc_end_datetime'] ?? json['utc_filtered_end_datetime']),
       lineName: json['line_name']?.toString() ?? '',
       // The getTripsPaths incremental endpoint omits created/last_modified;
       // default them so parsing succeeds (these columns are not overwritten on
       // an incremental merge of an existing trip).
-      created: _toDateTimeOrNull(json['created'], forceUtc: false) ?? DateTime.now().toUtc(),
-      lastModified: _toDateTimeOrNull(json['last_modified'], forceUtc: false) ?? DateTime.now().toUtc(),
+      created: toDateTimeOrNull(json['created']) ?? DateTime.now().toUtc(),
+      lastModified: toDateTimeOrNull(json['last_modified']) ?? DateTime.now().toUtc(),
       type: VehicleType.fromString(json['type']?.toString()),
+      powerType: EnergyType.fromString(json['power_type']?.toString()),
       materialType: json['material_type']?.toString() ?? '',
       seat: json['seat']?.toString() ?? '',
       reg: json['reg']?.toString() ?? '',
@@ -216,7 +225,7 @@ class Trips {
       notes: json['notes']?.toString() ?? '',
       price: _toDoubleOrNull(json['price']),
       currency: json['currency']?.toString() ?? '',
-      purchasingDate: _toDateTimeOrNull(json['purchasing_date']),
+      purchasingDate: toDateTimeOrNull(json['purchasing_date']),
       path: pathAsGooglePolyline ? (json['path']?.toString() ?? '') : PolylineTools.encodePath(json['path']),
       pathPoints: pathAsGooglePolyline 
                   ? (decodePolyline ? PolylineTools.decodePath(json['path']?.toString() ?? '') : null) 
@@ -246,6 +255,7 @@ class Trips {
       'created': created.toIso8601String(),
       'last_modified': lastModified.toIso8601String(),
       'type': type.toShortString(),
+      'power_type': powerType.name,
       'material_type': materialType,
       'seat': seat,
       'reg': reg,
@@ -272,7 +282,7 @@ class Trips {
     return double.tryParse(value.toString())?.toInt();
   }
 
-  static DateTime? _toDateTimeOrNull(dynamic value, {bool forceUtc = true}) {
+  static DateTime? toDateTimeOrNull(dynamic value, {bool forceUtc = true}) {
     if (value == null || value.toString().trim().isEmpty) return null;
     final str = value.toString();
     // For naive ISO strings, appending 'Z' makes them parse as UTC. RFC 1123
@@ -581,5 +591,34 @@ enum VehicleType {
       case VehicleType.unknown:
         return Icon(Icons.question_mark);
     }
+  }
+
+  static bool canTransform(VehicleType originType, VehicleType targetType) {
+    const groups = [
+      {
+        //VehicleType.accommodation,
+        VehicleType.poi,
+        //VehicleType.restaurant,
+      },
+      {VehicleType.aerialway},
+      {VehicleType.plane, VehicleType.helicopter},
+      {VehicleType.bus, VehicleType.car},
+      {VehicleType.cycle, VehicleType.eScooter},
+      {VehicleType.ferry},
+      {
+        VehicleType.metro,
+        VehicleType.train,
+        VehicleType.tram,
+        VehicleType.funicular,
+        VehicleType.rail,
+      },
+      {VehicleType.ski},
+      {VehicleType.walk},
+      {VehicleType.unknown},
+    ];
+
+    return groups.any(
+      (group) => group.contains(originType) && group.contains(targetType),
+    );
   }
 }

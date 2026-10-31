@@ -2604,6 +2604,252 @@ abstract class AppLocalizations {
   /// **'Bug fixes'**
   String get changelogTypeFix;
 
+  /// Banner on the edit/duplicate page when the server held a newer version of the trip than the local cache, which has been refreshed with it
+  ///
+  /// In en, this message translates to:
+  /// **'This trip has been modified elsewhere. The latest version from the server has been loaded.'**
+  String get editCopyTripRefreshedWarning;
+
+  /// Banner on the edit/duplicate page when the server is unreachable and the locally cached trip is used instead
+  ///
+  /// In en, this message translates to:
+  /// **'The server could not be reached. The version of this trip saved on this device is being used.'**
+  String get editCopyServerUnreachableWarning;
+
+  /// Banner on the edit/duplicate page when the server is unreachable and there is no locally cached copy of the trip either
+  ///
+  /// In en, this message translates to:
+  /// **'This trip could not be loaded: the server could not be reached and no copy is saved on this device.'**
+  String get editCopyTripUnavailableError;
+
+  /// App bar title of the trip edit form
+  ///
+  /// In en, this message translates to:
+  /// **'Edit trip'**
+  String get editTripTitle;
+
+  /// App bar title of the form when the trip is duplicated instead of edited
+  ///
+  /// In en, this message translates to:
+  /// **'Duplicate trip'**
+  String get duplicateTripTitle;
+
+  /// App bar subtitle recalling the trip being edited: departure, arrival and date
+  ///
+  /// In en, this message translates to:
+  /// **'{departure} → {arrival} • {date}'**
+  String editTripRouteSummary(String departure, String arrival, String date);
+
+  /// Section pill and header of the departure/arrival block
+  ///
+  /// In en, this message translates to:
+  /// **'Route'**
+  String get editTripSectionRoute;
+
+  /// Section pill and header of the operator block
+  ///
+  /// In en, this message translates to:
+  /// **'Operator'**
+  String get editTripSectionOperator;
+
+  /// Section pill and header of the dates block
+  ///
+  /// In en, this message translates to:
+  /// **'When'**
+  String get editTripSectionWhen;
+
+  /// Section pill and header of the details block
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get editTripSectionDetails;
+
+  /// Section pill and header of the ticket block
+  ///
+  /// In en, this message translates to:
+  /// **'Ticket'**
+  String get editTripSectionTicket;
+
+  /// Section pill and header of the block editing the drawn path of the trip
+  ///
+  /// In en, this message translates to:
+  /// **'Path'**
+  String get editTripSectionPath;
+
+  /// Label of the card showing the vehicle type of the edited trip
+  ///
+  /// In en, this message translates to:
+  /// **'Vehicle type'**
+  String get editTripVehicleTypeLabel;
+
+  /// Trailing button of the vehicle type card, opening the vehicle type page
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get editTripChangeButton;
+
+  /// Title of the page selecting a new vehicle type for the trip
+  ///
+  /// In en, this message translates to:
+  /// **'Change vehicle type'**
+  String get editTripChangeVehicleTypeTitle;
+
+  /// Caption marking the vehicle type the trip currently has
+  ///
+  /// In en, this message translates to:
+  /// **'Current'**
+  String get editTripVehicleTypeCurrent;
+
+  /// Helper note under the departure and arrival fields of the edit form
+  ///
+  /// In en, this message translates to:
+  /// **'Only the station displayed name will be changed, not its position'**
+  String get editTripStationNameHelper;
+
+  /// Dashed button under the operator list, opening the operator search
+  ///
+  /// In en, this message translates to:
+  /// **'Add operator'**
+  String get editTripAddOperatorButton;
+
+  /// Button of the path section, opening the path editor
+  ///
+  /// In en, this message translates to:
+  /// **'Modify the path'**
+  String get editTripModifyPathButton;
+
+  /// Button of the path section, under the modify path button, importing the path from a GPX file
+  ///
+  /// In en, this message translates to:
+  /// **'Import GPX'**
+  String get editTripImportGpxButton;
+
+  /// Sticky footer button of the edit form
+  ///
+  /// In en, this message translates to:
+  /// **'Save changes'**
+  String get editTripSaveButton;
+
+  /// Sticky footer button of the duplicate form
+  ///
+  /// In en, this message translates to:
+  /// **'Create a new trip'**
+  String get duplicateTripSaveButton;
+
+  /// Message shown when tapping an action of the edit form that is not implemented yet
+  ///
+  /// In en, this message translates to:
+  /// **'This will be available in a future update.'**
+  String get editTripComingSoon;
+
+  /// Confirmation shown once the edited trip has been saved on the server
+  ///
+  /// In en, this message translates to:
+  /// **'Trip saved.'**
+  String get editTripSavedMsg;
+
+  /// Confirmation shown once the duplicate has been created on the server
+  ///
+  /// In en, this message translates to:
+  /// **'Trip duplicated.'**
+  String get duplicateTripSavedMsg;
+
+  /// Error message shown when saving the edited trip fails
+  ///
+  /// In en, this message translates to:
+  /// **'The trip could not be saved: {error}'**
+  String editTripSaveErrorMsg(String error);
+
+  /// Accessibility label of the path editor page
+  ///
+  /// In en, this message translates to:
+  /// **'Edit the path'**
+  String get editPathTitle;
+
+  /// Tab of the path editor showing the routing map
+  ///
+  /// In en, this message translates to:
+  /// **'Map'**
+  String get editPathTabMap;
+
+  /// Tab of the path editor showing the route options and summary
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get editPathTabDetails;
+
+  /// Top bar button of the path editor, keeping the drawn path in the edit form
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get editPathSaveButton;
+
+  /// Title of the dialog shown when leaving the path editor with unsaved changes
+  ///
+  /// In en, this message translates to:
+  /// **'Discard the path changes?'**
+  String get editPathExitDialogTitle;
+
+  /// Body of the dialog shown when leaving the path editor with unsaved changes
+  ///
+  /// In en, this message translates to:
+  /// **'The path has been modified but not saved. Do you want to exit without saving?'**
+  String get editPathExitDialogContent;
+
+  /// Confirm button of the dialog leaving the path editor without saving
+  ///
+  /// In en, this message translates to:
+  /// **'Exit without saving'**
+  String get editPathExitDialogConfirm;
+
+  /// Message shown when saving the path while the router is still computing it
+  ///
+  /// In en, this message translates to:
+  /// **'The route is still being computed. Try again in a moment.'**
+  String get editPathRouteNotReady;
+
+  /// Message shown when the server's routing page cannot hand the path back to the app
+  ///
+  /// In en, this message translates to:
+  /// **'The server does not support editing the path from the app yet.'**
+  String get editPathUnsupported;
+
+  /// Label of the router / freehand choice of the path editor
+  ///
+  /// In en, this message translates to:
+  /// **'Drawing mode'**
+  String get editPathModeTitle;
+
+  /// Path drawn by the router, following the network
+  ///
+  /// In en, this message translates to:
+  /// **'Router'**
+  String get editPathModeRouter;
+
+  /// Path drawn by hand, point by point
+  ///
+  /// In en, this message translates to:
+  /// **'Freehand'**
+  String get editPathModeFreehand;
+
+  /// Label of the itinerary of the path editor details
+  ///
+  /// In en, this message translates to:
+  /// **'Route'**
+  String get editPathRouteTitle;
+
+  /// Subtitle of an intermediate point in the path editor itinerary
+  ///
+  /// In en, this message translates to:
+  /// **'Via'**
+  String get editPathVia;
+
+  /// Note of the edit form's path section once the path was redrawn
+  ///
+  /// In en, this message translates to:
+  /// **'Path modified. It will be saved with the trip.'**
+  String get editTripPathEditedNote;
+
   /// No description provided for @mapSearchLocationButton.
   ///
   /// In en, this message translates to:

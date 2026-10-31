@@ -820,6 +820,184 @@
   "changelogTypeMinor": "Improvements",
   "changelogTypeOther": "Other changes",
   "changelogTypeFix": "Bug fixes",
+
+  "editCopyTripRefreshedWarning": "This trip has been modified elsewhere. The latest version from the server has been loaded.",
+  "@editCopyTripRefreshedWarning": {
+    "description": "Banner on the edit/duplicate page when the server held a newer version of the trip than the local cache, which has been refreshed with it"
+  },
+  "editCopyServerUnreachableWarning": "The server could not be reached. The version of this trip saved on this device is being used.",
+  "@editCopyServerUnreachableWarning": {
+    "description": "Banner on the edit/duplicate page when the server is unreachable and the locally cached trip is used instead"
+  },
+  "editCopyTripUnavailableError": "This trip could not be loaded: the server could not be reached and no copy is saved on this device.",
+  "@editCopyTripUnavailableError": {
+    "description": "Banner on the edit/duplicate page when the server is unreachable and there is no locally cached copy of the trip either"
+  },
+
+  "editTripTitle": "Edit trip",
+  "@editTripTitle": {
+    "description": "App bar title of the trip edit form"
+  },
+  "duplicateTripTitle": "Duplicate trip",
+  "@duplicateTripTitle": {
+    "description": "App bar title of the form when the trip is duplicated instead of edited"
+  },
+  "editTripRouteSummary": "{departure} → {arrival} • {date}",
+  "@editTripRouteSummary": {
+    "description": "App bar subtitle recalling the trip being edited: departure, arrival and date",
+    "placeholders": {
+      "departure": { "type": "String" },
+      "arrival": { "type": "String" },
+      "date": { "type": "String" }
+    }
+  },
+  "editTripSectionRoute": "Route",
+  "@editTripSectionRoute": {
+    "description": "Section pill and header of the departure/arrival block"
+  },
+  "editTripSectionOperator": "Operator",
+  "@editTripSectionOperator": {
+    "description": "Section pill and header of the operator block"
+  },
+  "editTripSectionWhen": "When",
+  "@editTripSectionWhen": {
+    "description": "Section pill and header of the dates block"
+  },
+  "editTripSectionDetails": "Details",
+  "@editTripSectionDetails": {
+    "description": "Section pill and header of the details block"
+  },
+  "editTripSectionTicket": "Ticket",
+  "@editTripSectionTicket": {
+    "description": "Section pill and header of the ticket block"
+  },
+  "editTripSectionPath": "Path",
+  "@editTripSectionPath": {
+    "description": "Section pill and header of the block editing the drawn path of the trip"
+  },
+  "editTripVehicleTypeLabel": "Vehicle type",
+  "@editTripVehicleTypeLabel": {
+    "description": "Label of the card showing the vehicle type of the edited trip"
+  },
+  "editTripChangeButton": "Change",
+  "@editTripChangeButton": {
+    "description": "Trailing button of the vehicle type card, opening the vehicle type page"
+  },
+  "editTripChangeVehicleTypeTitle": "Change vehicle type",
+  "@editTripChangeVehicleTypeTitle": {
+    "description": "Title of the page selecting a new vehicle type for the trip"
+  },
+  "editTripVehicleTypeCurrent": "Current",
+  "@editTripVehicleTypeCurrent": {
+    "description": "Caption marking the vehicle type the trip currently has"
+  },
+  "editTripStationNameHelper": "Only the station displayed name will be changed, not its position",
+  "@editTripStationNameHelper": {
+    "description": "Helper note under the departure and arrival fields of the edit form"
+  },
+  "editTripAddOperatorButton": "Add operator",
+  "@editTripAddOperatorButton": {
+    "description": "Dashed button under the operator list, opening the operator search"
+  },
+  "editTripModifyPathButton": "Modify the path",
+  "@editTripModifyPathButton": {
+    "description": "Button of the path section, opening the path editor"
+  },
+  "editTripImportGpxButton": "Import GPX",
+  "@editTripImportGpxButton": {
+    "description": "Button of the path section, under the modify path button, importing the path from a GPX file"
+  },
+  "editTripSaveButton": "Save changes",
+  "@editTripSaveButton": {
+    "description": "Sticky footer button of the edit form"
+  },
+  "duplicateTripSaveButton": "Create a new trip",
+  "@duplicateTripSaveButton": {
+    "description": "Sticky footer button of the duplicate form"
+  },
+  "editTripComingSoon": "This will be available in a future update.",
+  "@editTripComingSoon": {
+    "description": "Message shown when tapping an action of the edit form that is not implemented yet"
+  },
+  "editTripSavedMsg": "Trip saved.",
+  "@editTripSavedMsg": {
+    "description": "Confirmation shown once the edited trip has been saved on the server"
+  },
+  "duplicateTripSavedMsg": "Trip duplicated.",
+  "@duplicateTripSavedMsg": {
+    "description": "Confirmation shown once the duplicate has been created on the server"
+  },
+  "editTripSaveErrorMsg": "The trip could not be saved: {error}",
+  "@editTripSaveErrorMsg": {
+    "description": "Error message shown when saving the edited trip fails",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "description": "The reason the server gave for refusing the save"
+      }
+    }
+  },
+  "editPathTitle": "Edit the path",
+  "@editPathTitle": {
+    "description": "Accessibility label of the path editor page"
+  },
+  "editPathTabMap": "Map",
+  "@editPathTabMap": {
+    "description": "Tab of the path editor showing the routing map"
+  },
+  "editPathTabDetails": "Details",
+  "@editPathTabDetails": {
+    "description": "Tab of the path editor showing the route options and summary"
+  },
+  "editPathSaveButton": "Save",
+  "@editPathSaveButton": {
+    "description": "Top bar button of the path editor, keeping the drawn path in the edit form"
+  },
+  "editPathExitDialogTitle": "Discard the path changes?",
+  "@editPathExitDialogTitle": {
+    "description": "Title of the dialog shown when leaving the path editor with unsaved changes"
+  },
+  "editPathExitDialogContent": "The path has been modified but not saved. Do you want to exit without saving?",
+  "@editPathExitDialogContent": {
+    "description": "Body of the dialog shown when leaving the path editor with unsaved changes"
+  },
+  "editPathExitDialogConfirm": "Exit without saving",
+  "@editPathExitDialogConfirm": {
+    "description": "Confirm button of the dialog leaving the path editor without saving"
+  },
+  "editPathRouteNotReady": "The route is still being computed. Try again in a moment.",
+  "@editPathRouteNotReady": {
+    "description": "Message shown when saving the path while the router is still computing it"
+  },
+  "editPathUnsupported": "The server does not support editing the path from the app yet.",
+  "@editPathUnsupported": {
+    "description": "Message shown when the server's routing page cannot hand the path back to the app"
+  },
+  "editPathModeTitle": "Drawing mode",
+  "@editPathModeTitle": {
+    "description": "Label of the router / freehand choice of the path editor"
+  },
+  "editPathModeRouter": "Router",
+  "@editPathModeRouter": {
+    "description": "Path drawn by the router, following the network"
+  },
+  "editPathModeFreehand": "Freehand",
+  "@editPathModeFreehand": {
+    "description": "Path drawn by hand, point by point"
+  },
+  "editPathRouteTitle": "Route",
+  "@editPathRouteTitle": {
+    "description": "Label of the itinerary of the path editor details"
+  },
+  "editPathVia": "Via",
+  "@editPathVia": {
+    "description": "Subtitle of an intermediate point in the path editor itinerary"
+  },
+  "editTripPathEditedNote": "Path modified. It will be saved with the trip.",
+  "@editTripPathEditedNote": {
+    "description": "Note of the edit form's path section once the path was redrawn"
+  },
+
   "mapSearchLocationButton": "Search a place",
   "mapSearchLocationHint": "Search a place, an address, a hotel...",
   "mapSearchLocationTip": "If you cannot find your location, search for the place in the local language.",

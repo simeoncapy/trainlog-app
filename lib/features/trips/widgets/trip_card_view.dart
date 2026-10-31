@@ -22,12 +22,18 @@ class TripCardView extends StatefulWidget {
   final TripsFilterResult? filter;
   final TimeMoment timeMoment;
 
+  /// `TripsProvider.revision` at build time. The repository object stays the
+  /// same when a trip is edited, added or deleted, so this counter is what
+  /// tells the already-loaded page that its rows are stale.
+  final int revision;
+
   const TripCardView({
     super.key,
     required this.repo,
     required this.trainlog,
     required this.filter,
     required this.timeMoment,
+    required this.revision,
   });
 
   @override
@@ -57,6 +63,10 @@ class _TripCardViewState extends State<TripCardView> {
         old.timeMoment != widget.timeMoment ||
         old.repo != widget.repo) {
       _loadInitial();
+    } else if (old.revision != widget.revision) {
+      // Same query, changed data: re-read the rows in place instead of
+      // flashing a spinner over the list already on screen.
+      _loadInitial(showLoader: false);
     }
   }
 
@@ -66,20 +76,31 @@ class _TripCardViewState extends State<TripCardView> {
     super.dispose();
   }
 
-  Future<void> _loadInitial() async {
-    setState(() {
-      _initialLoading = true;
-      _items.clear();
-      _totalCount = 0;
-    });
+  /// (Re)loads the first page. With [showLoader] the list is emptied first and
+  /// a spinner takes over; without it the current rows stay on screen until
+  /// the fresh ones land, which is what a data-only refresh wants.
+  Future<void> _loadInitial({bool showLoader = true}) async {
+    if (showLoader) {
+      setState(() {
+        _initialLoading = true;
+        _items.clear();
+        _totalCount = 0;
+      });
+    }
 
-    _totalCount = await widget.repo.countFilteredTrips(
+    final total = await widget.repo.countFilteredTrips(
       showFutureTrips: widget.timeMoment == TimeMoment.future,
       filter: widget.filter,
     );
-    _items.addAll(List.generate(_totalCount, (_) => null));
+    if (!mounted) return;
 
-    if (_totalCount > 0) {
+    // Resize before loading, since _loadPage writes by index into _items.
+    _totalCount = total;
+    _items
+      ..clear()
+      ..addAll(List.generate(total, (_) => null));
+
+    if (total > 0) {
       await _loadPage(0);
     }
 

@@ -4,6 +4,9 @@ import 'package:flutter/foundation.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/services/api/session_expiry.dart';
 import 'package:trainlog_app/services/api/trainlog_http_client.dart';
+import 'package:trainlog_app/utils/date_utils.dart';
+
+enum EditCopy { edit, copy }
 
 /// Result of an incremental `getTripsPaths` sync.
 class IncrementalTripsResult {
@@ -32,7 +35,102 @@ class IncrementalTripsResult {
       IncrementalTripsResult(updates: [], serverTripIds: [], lastLocal: null);
 }
 
-/// Trip data domain: fetching the user's trip exports/paths and deleting trips.
+/// Parsed `/u/<user>/{edit,copy}/<id>` payload.
+class TripEditCopyData {
+  /// The trip shaped for the form that is about to be shown: the same trip as
+  /// [serverTrip] in [EditCopy.edit], carrying the route as the editor works
+  /// on it; in [EditCopy.copy] the uid and the created/last-modified stamps
+  /// are stripped because it becomes a new trip.
+  final Trips formTrip;
+
+  /// The trip as the server currently stores it, always keyed on the requested
+  /// trip id — this is what the local cache should be refreshed with.
+  ///
+  /// It carries no path. The endpoint describes a trip's route as `wplist`,
+  /// the editable waypoint list, which on a trip nobody re-routed is just its
+  /// two endpoints — writing that over the stored geometry would turn the trip
+  /// into a straight line on the map. Whoever caches this trip keeps the
+  /// geometry it already holds (see [TripEditCopyService.load]).
+  final Trips serverTrip;
+
+  /// `last_modified` the server reported for the trip, when it sent one.
+  final DateTime? serverLastModified;
+
+  /// True when the server's copy is newer than the `lastUpdate` the caller
+  /// passed in. Null when either side has no timestamp to compare.
+  final bool? hasBeenEdited;
+
+  const TripEditCopyData({
+    required this.formTrip,
+    required this.serverTrip,
+    required this.serverLastModified,
+    required this.hasBeenEdited,
+  });
+}
+
+/// What `patchTrip` reported back: the columns the server actually applied and
+/// the keys it did not recognise — and, for a copy, which trip it was made from.
+///
+/// [ignored] is not an error — the backend reports unknown keys rather than
+/// refusing the whole payload, so a client sending a field that this backend
+/// version predates is told about it instead of being broken by it.
+class TripPatchResult {
+  /// The trip written: the patched one, or the new copy.
+  final int tripId;
+
+  /// The trip a copy was made from; null for an edit.
+  final int? copiedFrom;
+
+  /// Columns the server applied, as it spelled them back.
+  final List<String> patched;
+
+  /// Keys the payload carried that name no column and no route field.
+  final List<String> ignored;
+
+  const TripPatchResult({
+    required this.tripId,
+    required this.patched,
+    required this.ignored,
+    this.copiedFrom,
+  });
+
+  /// Nothing was sent: the caller had no changes to save.
+  bool get isEmpty => patched.isEmpty;
+
+  factory TripPatchResult.fromJson(Map<String, dynamic> json, int tripId) {
+    List<String> strings(dynamic value) => value is List
+        ? value.map((e) => e.toString()).toList()
+        : const <String>[];
+
+    return TripPatchResult(
+      tripId: TripsApi._i(json['trip_id']) ?? tripId,
+      patched: strings(json['patched']),
+      ignored: strings(json['ignored']),
+      copiedFrom: TripsApi._i(json['copied_from']),
+    );
+  }
+
+  @override
+  String toString() =>
+      'TripPatchResult(trip $tripId${copiedFrom == null ? '' : ' copied from $copiedFrom'}, '
+      'patched: $patched, ignored: $ignored)';
+}
+
+/// A `patchTrip` call the server refused: a bad payload (400), a trip that is
+/// not the caller's or no longer exists (404), a session that has expired (a
+/// redirect to the login page), or a server-side failure.
+class TripPatchException implements Exception {
+  final String message;
+  final int? statusCode;
+
+  const TripPatchException(this.message, {this.statusCode});
+
+  @override
+  String toString() => 'TripPatchException($statusCode): $message';
+}
+
+/// Trip data domain: fetching the user's trip exports/paths, saving trip
+/// edits and deleting trips.
 class TripsApi {
   final TrainlogHttpClient _client;
 
@@ -207,5 +305,334 @@ class TripsApi {
     }
 
     return ok;
+  }
+
+
+  /// Fetches the `/u/<user>/{edit,copy}/<id>` context for [tripId].
+  ///
+  /// [lastUpdate] is the `last_modified` of the copy the caller already has
+  /// cached; it only drives [TripEditCopyData.hasBeenEdited] and never changes
+  /// what the server returns. Throws when the endpoint cannot be reached or
+  /// sends no body — callers that want to fall back on cached data must catch.
+  Future<TripEditCopyData> fetchTripEditCopy(
+    String username,
+    int tripId,
+    EditCopy editCopy,
+    {DateTime? lastUpdate}
+  ) async {
+    final path = '/u/$username/${editCopy.name}/$tripId?fromApp=true';
+    try {
+      final res = await _client.safeGet<Map<String, dynamic>>(path);
+      final data = res.data;
+      if (data == null) throw Exception('No data in response');
+      final trip = (data['trip'] as Map?)?.cast<String, dynamic>() ??
+        const <String, dynamic>{};
+
+      final lastModified = Trips.toDateTimeOrNull(trip['last_modified']);
+      final bool? hasBeenEdited = (lastUpdate == null || lastModified == null)
+          ? null
+          : lastUpdate.isBefore(lastModified);
+
+      // The form keeps `wplist` as its path: it is the route as the editor
+      // works on it, and the first and last of its points are where the form
+      // recovers the endpoint coordinates its date pickers need.
+      final formTrip = Trips.fromJson(
+        {
+          ..._editCopyToTripJson(data, trip, editCopy),
+          if (editCopy == EditCopy.edit) 'uid': tripId.toString(),
+        },
+        pathAsGooglePolyline: false,
+      );
+
+      // The copy shape strips the identity fields (a copy is a new trip), so
+      // the cache-facing trip is always parsed with the edit shape and pinned
+      // to the requested id — the payload describes that trip either way. Its
+      // path is dropped rather than carried over: see [serverTrip].
+      final serverTrip = Trips.fromJson(
+        {
+          ..._editCopyToTripJson(data, trip, EditCopy.edit),
+          'uid': tripId.toString(),
+          'path': '',
+        },
+        // An (empty) encoded path rather than the raw point list the payload
+        // carries, since the one it carries is not this trip's geometry.
+        pathAsGooglePolyline: true,
+      );
+
+      return TripEditCopyData(
+        formTrip: formTrip,
+        serverTrip: serverTrip,
+        serverLastModified: lastModified,
+        hasBeenEdited: hasBeenEdited,
+      );
+    } catch (e) {
+      debugPrint('error fetching $path: $e');
+      rethrow;
+    }
+  }
+
+  /// Maps the `/u/<user>/{edit,copy}/<id>` context onto the shape expected by
+  /// [Trips.fromJson]. Form (`trip*`-prefixed) values win; the nested `trip`
+  /// object is only read for fields the form does not expose at all.
+  Map<String, dynamic> _editCopyToTripJson(
+    Map<String, dynamic> data,
+    Map<String, dynamic> trip,
+    EditCopy editCopy,
+  ) {
+    final isEdit = editCopy == EditCopy.edit;
+
+    return <String, dynamic>{
+      // A copy is a new trip: no uid, no created/last_modified.
+      'uid': isEdit ? _s(data['tripId']) : null,
+      'username': _s(data['username']),
+      'origin_station': _s(data['origin']),
+      'destination_station': _s(data['destination']),
+      'start_datetime': _startEnd(data, 'start_datetime'),
+      'end_datetime': _startEnd(data, 'end_datetime'),
+      'manual_trip_duration': _manualDuration(data),
+      'operator': _s(data['tripOperator']),
+      'line_name': _s(data['tripLineName']),
+      'type': _s(data['tripType']),
+      'power_type': _s(data['power_type']) ?? _s(trip['power_type']),
+      'material_type': _s(data['tripMaterialType']) ??
+          _s(data['tripMaterialTypeAdvanced']),
+      'seat': _s(data['tripSeat']),
+      'reg': _s(data['tripReg']),
+      'notes': _s(data['tripNotes']),
+      'price': _d(data['tripPrice']),
+      'currency': _s(data['tripCurrency']),
+      'purchasing_date': _s(data['tripPurchasingDate']),
+      'visibility': _s(data['tripVisibility']),
+      'departure_delay': _delaySeconds(data['tripDepartureDelay']),
+      'arrival_delay': _delaySeconds(data['tripArrivalDelay']),
+      'path': data['wplist'],
+
+      // --- not available as trip*-prefixed values (TODO: check if useful) ---
+      'estimated_trip_duration': trip['estimated_trip_duration'],
+      'trip_length': trip['trip_length'],
+      'countries': trip['countries'],
+      // A trip without a time has no UTC counterpart: the filtered columns
+      // hold one anyway, which would make it read as a precise trip.
+      'utc_start_datetime': _isPrecise(data, trip)
+          ? trip['utc_start_datetime'] ?? trip['utc_filtered_start_datetime']
+          : null,
+      'utc_end_datetime': _isPrecise(data, trip)
+          ? trip['utc_end_datetime'] ?? trip['utc_filtered_end_datetime']
+          : null,
+      // A copy's stops come without the copied run's live data, as the page
+      // lists them (`stored_waypoints`); the trip row still holds that data.
+      'waypoints': !isEdit && data['stored_waypoints'] is List
+          ? jsonEncode(data['stored_waypoints'])
+          : trip['waypoints'],
+      'created': isEdit ? trip['created'] : null,
+      'last_modified': isEdit ? trip['last_modified'] : null,
+    };
+  }
+
+  /// Start or end of the trip, preferring the form's precision fields when the
+  /// payload carries them: a date-only trip goes back to the `00:00:01` the
+  /// server stores it at, an unknown one to its -1 / 1 sentinel.
+  static String? _startEnd(Map<String, dynamic> data, String key) {
+    switch (_s(data['precision'])) {
+      case 'onlyDate':
+        final date = _s(data['onlyDate']);
+        if (date != null) return '${date}T00:00:01';
+      case 'unknown':
+        return _s(data['unknownType']) == 'past' ? '-1' : '1';
+    }
+    return _s(data[key]);
+  }
+
+  /// Whether the trip has real times. Without a `precision` field, a date-only
+  /// trip is recognised by the `:01` seconds marker the server stores it with.
+  static bool _isPrecise(Map<String, dynamic> data, Map<String, dynamic> trip) {
+    final precision = _s(data['precision']);
+    // The edit page's context spells it "precise"; the trip forms post it as
+    // "preciseDates".
+    if (precision != null) {
+      return precision == 'precise' || precision == 'preciseDates';
+    }
+    final start = _s(data['start_datetime']) ?? _s(trip['start_datetime']);
+    if (start == null || start == '-1' || start == '1') return false;
+    return !RegExp(r'\d{2}:\d{2}:01').hasMatch(start);
+  }
+
+  /// Empty strings coming from the Jinja context (`x or ""`) mean "null".
+  static String? _s(dynamic v) {
+    final s = v?.toString().trim();
+    return (s == null || s.isEmpty) ? null : s;
+  }
+
+  static double? _d(dynamic v) =>
+      v is num ? v.toDouble() : double.tryParse(_s(v) ?? '');
+
+  static int? _i(dynamic v) =>
+      v is num ? v.toInt() : int.tryParse(_s(v) ?? '');
+
+  /// `tripHours` / `tripMinutes` hold i18n placeholder labels when the manual
+  /// duration is unset, so anything non-numeric collapses to null.
+  static double? _manualDuration(Map<String, dynamic> data) {
+    final h = _i(data['tripHours']);
+    final m = _i(data['tripMinutes']);
+    if (h == null && m == null) return null;
+    return ((h ?? 0) * 3600 + (m ?? 0) * 60).toDouble();
+  }
+
+  static int? _delaySeconds(dynamic v) {
+    final minutes = _i(v);
+    return minutes == null ? null : minutes * 60;
+  }
+
+  /// Saves a partial edit of [tripId] through `/u/<user>/patchTrip`.
+  ///
+  /// [fields] is keyed on `trips` columns — the shape trips are read in — so a
+  /// caller sends back a subset of what it was given. Only the keys present are
+  /// written; every other column keeps its stored value, and an explicit null
+  /// clears one. Values are normalised the way the endpoint expects them:
+  ///
+  /// * a [DateTime] becomes the local wall-clock time it carries (its UTC
+  ///   marker is dropped rather than converted — `start_datetime` is local and
+  ///   its UTC counterpart is derived server-side), with [unknownPast] /
+  ///   [unknownFuture] going back as the -1 / 1 sentinels the column uses;
+  /// * an enum becomes its name, which is how `power_type` and `visibility`
+  ///   are spelled (`type` is not patchable, no more than it is through the
+  ///   edit page);
+  /// * lists and maps are passed on as JSON, and everything else as text.
+  ///
+  /// Patching a field is equivalent to opening the editor, changing that one
+  /// field and pressing save — so leaving `path` out is what makes the server
+  /// reuse the stored geometry instead of re-routing the trip.
+  ///
+  /// An empty [fields] is a no-op: nothing is sent and an empty result comes
+  /// back, rather than making the server rewrite the trip with its own data.
+  ///
+  /// With [copy], [tripId] is left as it is: the server makes a new copy of it,
+  /// the way the website's copy page saves one, and writes [fields] to the
+  /// copy. [TripPatchResult.tripId] is then the copy's id. A copy is made even
+  /// from an empty [fields].
+  ///
+  /// Throws [TripPatchException] when the server refused the patch.
+  Future<TripPatchResult> patchTrip(
+    String username,
+    int tripId,
+    Map<String, dynamic> fields, {
+    bool copy = false,
+  }) async {
+    final payload = <String, dynamic>{
+      for (final entry in fields.entries)
+        if (entry.key != 'trip_id' && entry.key != 'uid')
+          entry.key: _asPatchValue(entry.value),
+    };
+    if (payload.isEmpty && !copy) {
+      debugPrint('patchTrip: nothing to patch on trip $tripId');
+      return TripPatchResult(
+        tripId: tripId,
+        patched: const [],
+        ignored: const [],
+      );
+    }
+    payload['trip_id'] = tripId;
+    if (copy) payload['copy'] = true;
+
+    final path = '/u/$username/patchTrip';
+    debugPrint('${copy ? 'Copying' : 'Patching'} trip $tripId for $username: '
+        '${fields.keys.toList()}');
+
+    try {
+      final res = await _client.safePost(
+        path,
+        data: payload,
+        contentType: Headers.jsonContentType,
+        headers: {'Accept': 'application/json'},
+        followRedirects: false,
+      );
+      return _readPatchResponse(res, tripId);
+    } on TripPatchException {
+      rethrow;
+    } catch (e) {
+      debugPrint('patchTrip failed: $e');
+      throw TripPatchException('$e');
+    }
+  }
+
+  /// The `patchTrip` response, or the refusal it carries.
+  TripPatchResult _readPatchResponse(Response res, int tripId) {
+    final code = res.statusCode ?? 0;
+    final data = res.data;
+
+    if (code < 200 || code >= 300) {
+      // The endpoint reports its own refusals as {"error": "…"}; anything else
+      // (a login redirect, an abort page) only carries its status.
+      final error = data is Map ? data['error']?.toString() : null;
+      debugPrint('patchTrip failed: $code ${error ?? res.statusMessage}');
+      throw TripPatchException(
+        error ?? 'HTTP $code ${res.statusMessage ?? ''}'.trim(),
+        statusCode: code,
+      );
+    }
+
+    if (data is! Map) {
+      throw TripPatchException(
+        'Unexpected patchTrip response',
+        statusCode: code,
+      );
+    }
+
+    final result = TripPatchResult.fromJson(
+      data.cast<String, dynamic>(),
+      tripId,
+    );
+    if (result.ignored.isNotEmpty) {
+      debugPrint('patchTrip: server ignored ${result.ignored}');
+    }
+    return result;
+  }
+
+  /// A patch value as the endpoint reads it. See [patchTrip].
+  static Object? _asPatchValue(dynamic value) {
+    if (value == null) return null; // an explicit clear
+    if (value is DateTime) return _asPatchDate(value);
+    if (value is Enum) return value.name;
+    if (value is num || value is bool || value is String) return value;
+    if (value is List || value is Map) return value;
+    return value.toString();
+  }
+
+  /// A trip datetime as its column holds it: the 1 / -1 "no date" sentinels,
+  /// or a naive local wall-clock time with no zone marker on it.
+  static Object _asPatchDate(DateTime value) {
+    if (value == unknownPast) return -1;
+    if (value == unknownFuture) return 1;
+
+    String pad(int v, [int width = 2]) => v.toString().padLeft(width, '0');
+    return '${pad(value.year, 4)}-${pad(value.month)}-${pad(value.day)}'
+        'T${pad(value.hour)}:${pad(value.minute)}:${pad(value.second)}';
+  }
+
+  Future<void> changeTripType(
+    String username,
+    List<int> tripIds,
+    VehicleType newType,
+    VehicleType oldType,
+  ) async {
+    if (!VehicleType.canTransform(oldType, newType)) {
+      throw ArgumentError(
+        'Cannot change trip type from $oldType to $newType',
+      );
+    }
+
+    final path = '/u/$username/toType/${newType.name}/${tripIds.join(',')}';
+    final res = await _client.safeGet<Map<String, dynamic>>(path);
+    final data = res.data;
+    if (data == null) throw Exception('No data in response');
+
+    final error = data['error'];
+    if (error != null) {
+      throw Exception('Failed to change trip type: $error');
+    }
+
+    if (data['message'] != 'Trip types updated successfully') {
+      throw Exception('Unexpected response when changing trip type');
+    }
   }
 }

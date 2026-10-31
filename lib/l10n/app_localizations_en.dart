@@ -1542,6 +1542,141 @@ class AppLocalizationsEn extends AppLocalizations {
   String get changelogTypeFix => 'Bug fixes';
 
   @override
+  String get editCopyTripRefreshedWarning =>
+      'This trip has been modified elsewhere. The latest version from the server has been loaded.';
+
+  @override
+  String get editCopyServerUnreachableWarning =>
+      'The server could not be reached. The version of this trip saved on this device is being used.';
+
+  @override
+  String get editCopyTripUnavailableError =>
+      'This trip could not be loaded: the server could not be reached and no copy is saved on this device.';
+
+  @override
+  String get editTripTitle => 'Edit trip';
+
+  @override
+  String get duplicateTripTitle => 'Duplicate trip';
+
+  @override
+  String editTripRouteSummary(String departure, String arrival, String date) {
+    return '$departure → $arrival • $date';
+  }
+
+  @override
+  String get editTripSectionRoute => 'Route';
+
+  @override
+  String get editTripSectionOperator => 'Operator';
+
+  @override
+  String get editTripSectionWhen => 'When';
+
+  @override
+  String get editTripSectionDetails => 'Details';
+
+  @override
+  String get editTripSectionTicket => 'Ticket';
+
+  @override
+  String get editTripSectionPath => 'Path';
+
+  @override
+  String get editTripVehicleTypeLabel => 'Vehicle type';
+
+  @override
+  String get editTripChangeButton => 'Change';
+
+  @override
+  String get editTripChangeVehicleTypeTitle => 'Change vehicle type';
+
+  @override
+  String get editTripVehicleTypeCurrent => 'Current';
+
+  @override
+  String get editTripStationNameHelper =>
+      'Only the station displayed name will be changed, not its position';
+
+  @override
+  String get editTripAddOperatorButton => 'Add operator';
+
+  @override
+  String get editTripModifyPathButton => 'Modify the path';
+
+  @override
+  String get editTripImportGpxButton => 'Import GPX';
+
+  @override
+  String get editTripSaveButton => 'Save changes';
+
+  @override
+  String get duplicateTripSaveButton => 'Create a new trip';
+
+  @override
+  String get editTripComingSoon => 'This will be available in a future update.';
+
+  @override
+  String get editTripSavedMsg => 'Trip saved.';
+
+  @override
+  String get duplicateTripSavedMsg => 'Trip duplicated.';
+
+  @override
+  String editTripSaveErrorMsg(String error) {
+    return 'The trip could not be saved: $error';
+  }
+
+  @override
+  String get editPathTitle => 'Edit the path';
+
+  @override
+  String get editPathTabMap => 'Map';
+
+  @override
+  String get editPathTabDetails => 'Details';
+
+  @override
+  String get editPathSaveButton => 'Save';
+
+  @override
+  String get editPathExitDialogTitle => 'Discard the path changes?';
+
+  @override
+  String get editPathExitDialogContent =>
+      'The path has been modified but not saved. Do you want to exit without saving?';
+
+  @override
+  String get editPathExitDialogConfirm => 'Exit without saving';
+
+  @override
+  String get editPathRouteNotReady =>
+      'The route is still being computed. Try again in a moment.';
+
+  @override
+  String get editPathUnsupported =>
+      'The server does not support editing the path from the app yet.';
+
+  @override
+  String get editPathModeTitle => 'Drawing mode';
+
+  @override
+  String get editPathModeRouter => 'Router';
+
+  @override
+  String get editPathModeFreehand => 'Freehand';
+
+  @override
+  String get editPathRouteTitle => 'Route';
+
+  @override
+  String get editPathVia => 'Via';
+
+  @override
+  String get editTripPathEditedNote =>
+      'Path modified. It will be saved with the trip.';
+
+  @override
   String get mapSearchLocationButton => 'Search a place';
 
   @override

@@ -220,6 +220,7 @@ class _TripsPageState extends State<TripsPage> {
                       trainlog: trainlog,
                       filter: _activeFilter,
                       timeMoment: _timeMoment,
+                      revision: revision,
                     )
                   : TripTableView(
                       key: ValueKey('table-$_timeMoment-${_activeFilter.hashCode}'),
@@ -227,6 +228,7 @@ class _TripsPageState extends State<TripsPage> {
                       trainlog: trainlog,
                       filter: _activeFilter,
                       timeMoment: _timeMoment,
+                      revision: revision,
                     ),
             ),
           ],

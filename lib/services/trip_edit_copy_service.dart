@@ -1,0 +1,316 @@
+import 'package:flutter/foundation.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:trainlog_app/data/models/polyline_entry.dart';
+import 'package:trainlog_app/data/models/trips.dart';
+import 'package:trainlog_app/providers/trips_provider.dart';
+import 'package:trainlog_app/services/api/trips_api.dart';
+
+/// Where the trip handed to the edit/copy page ended up coming from, and
+/// therefore what (if anything) the user has to be warned about.
+enum TripEditCopySource {
+  /// The server copy matched the cached one — nothing to report.
+  upToDate,
+
+  /// The server held a newer version: the local cache was refreshed with it
+  /// and the user should be told the data changed under them.
+  refreshedFromServer,
+
+  /// The server could not be reached, so the cached trip is used instead.
+  cacheFallback,
+
+  /// The server could not be reached and nothing was cached locally: there is
+  /// no trip to show at all.
+  unavailable,
+}
+
+/// Outcome of [TripEditCopyService.load].
+class TripEditCopyResult {
+  /// The trip to seed the page with, already shaped for [mode]. Null only when
+  /// [source] is [TripEditCopySource.unavailable].
+  final Trips? trip;
+
+  final EditCopy mode;
+  final TripEditCopySource source;
+
+  const TripEditCopyResult({
+    required this.trip,
+    required this.mode,
+    required this.source,
+  });
+
+  bool get hasTrip => trip != null;
+
+  /// True when the user has to be told something about how this data was
+  /// obtained (stale local copy, silently refreshed cache, nothing at all).
+  bool get needsWarning => source != TripEditCopySource.upToDate;
+}
+
+/// Outcome of [TripEditCopyService.save].
+class TripEditCopySaveResult {
+  /// What the server reported applying — the columns it wrote, and any key it
+  /// did not recognise.
+  final TripPatchResult patch;
+
+  /// The saved trip as the server now stores it, re-read after the patch so
+  /// the columns it derives (countries, trip length, the UTC datetimes) are
+  /// the server's own. Null when it could not be read back — the save still
+  /// stands, and the next incremental sync brings the local copy in line.
+  final Trips? saved;
+
+  const TripEditCopySaveResult({required this.patch, required this.saved});
+
+  /// Nothing was sent because the caller had no changes to save.
+  bool get isEmpty => patch.isEmpty;
+
+  /// True when the local cache now holds the server's version of the trip.
+  bool get cacheRefreshed => saved != null;
+}
+
+/// Loads a trip for the edit/copy page, reconciling the locally cached copy
+/// with the server's.
+///
+/// The cached copy is read first so its `last_modified` can be handed to the
+/// server, then [TripsApi.fetchTripEditCopy] decides which of the two is
+/// current:
+///
+/// 1. server not newer → the fetched trip is used as-is;
+/// 2. server newer → the local cache is refreshed with the server version and
+///    the caller reports [TripEditCopySource.refreshedFromServer];
+/// 3. server unreachable → the cached trip is used and the caller reports
+///    [TripEditCopySource.cacheFallback] (or [TripEditCopySource.unavailable]
+///    when there is no cached trip either).
+///
+/// [save] is the way back: it writes an edit to the server and refreshes the
+/// cached trip with the result. [duplicate] does the same for a copy, which
+/// the server creates from the trip with the form's changes applied.
+class TripEditCopyService {
+  final TripsApi _api;
+  final TripsProvider _trips;
+
+  TripEditCopyService({
+    required TripsApi api,
+    required TripsProvider trips,
+  })  : _api = api,
+        _trips = trips;
+
+  Future<TripEditCopyResult> load({
+    required String? username,
+    required int tripId,
+    required EditCopy mode,
+  }) async {
+    final cached = await _trips.getTripById(tripId);
+
+    TripEditCopyData? remote;
+    if (username != null) {
+      try {
+        remote = await _api.fetchTripEditCopy(
+          username,
+          tripId,
+          mode,
+          lastUpdate: cached?.lastModified,
+        );
+      } catch (e) {
+        debugPrint('TripEditCopyService: fetching trip $tripId failed: $e');
+      }
+    } else {
+      debugPrint('TripEditCopyService: no username, skipping remote fetch');
+    }
+
+    // Case 3: nothing came back from the server.
+    if (remote == null) {
+      return TripEditCopyResult(
+        trip: cached == null
+            ? null
+            : (mode == EditCopy.copy ? _asNewCopy(cached) : cached),
+        mode: mode,
+        source: cached == null
+            ? TripEditCopySource.unavailable
+            : TripEditCopySource.cacheFallback,
+      );
+    }
+
+    // `hasBeenEdited` is null when either side had no timestamp to compare: a
+    // trip missing from the cache still has to be stored, anything else is
+    // left alone rather than overwritten on a guess.
+    final serverIsNewer = remote.hasBeenEdited ?? (cached == null);
+    if (serverIsNewer) {
+      await _cacheServerTrip(remote.serverTrip, cached);
+    }
+
+    return TripEditCopyResult(
+      trip: remote.formTrip,
+      mode: mode,
+      // Case 2 only when there was a cached version to be superseded; a trip
+      // simply absent from the cache is not something to warn about.
+      source: serverIsNewer && cached != null
+          ? TripEditCopySource.refreshedFromServer
+          : TripEditCopySource.upToDate,
+    );
+  }
+
+  /// Saves an edit of [tripId] and brings the local cache in line with it.
+  ///
+  /// [fields] is the partial edit, keyed on `trips` columns: only the columns
+  /// it carries are written, so the caller sends what the user changed and
+  /// nothing else (see [TripsApi.patchTrip]). Leaving the route out is what
+  /// keeps the trip's stored geometry — and the 3D flight track with it.
+  ///
+  /// [path] is the path [fields] carries when the route was redrawn on the
+  /// path editor: it is what the trip is cached with afterwards, in place of
+  /// the geometry cached so far.
+  ///
+  /// The patch response says which columns were applied but not what the
+  /// server derived from them, so the stored trip is read back and cached. A
+  /// read that fails does not fail the save: it is reported through
+  /// [TripEditCopySaveResult.cacheRefreshed] and the next incremental sync
+  /// picks the trip up.
+  ///
+  /// The vehicle type is not a patchable column: when [newType] differs from
+  /// [oldType], the type is changed first through
+  /// [TripsApi.changeTripType], and the patch only runs once that succeeded.
+  ///
+  /// Throws [TripPatchException] when the server refused the save, or when
+  /// there is no signed-in user to save as.
+  Future<TripEditCopySaveResult> save({
+    required String? username,
+    required int tripId,
+    required Map<String, dynamic> fields,
+    VehicleType? oldType,
+    VehicleType? newType,
+    List<LatLng>? path,
+  }) async {
+    if (username == null) {
+      throw const TripPatchException('No signed-in user to save the trip as');
+    }
+
+    final typeChanged =
+        oldType != null && newType != null && oldType != newType;
+    if (typeChanged) {
+      await _api.changeTripType(username, [tripId], newType, oldType);
+    }
+
+    final patch = await _api.patchTrip(username, tripId, fields);
+    // Nothing was sent, so there is nothing new to read back either.
+    if (patch.isEmpty && !typeChanged) {
+      return TripEditCopySaveResult(patch: patch, saved: null);
+    }
+
+    Trips? saved;
+    try {
+      final stored =
+          await _api.fetchTripEditCopy(username, tripId, EditCopy.edit);
+      // Read the cached trip again rather than reusing an older copy: unless
+      // the route was redrawn ([path]), the geometry cached here is still the
+      // one the server just saved the trip with.
+      saved = await _cacheServerTrip(
+        stored.serverTrip,
+        await _trips.getTripById(tripId),
+        path: path,
+      );
+    } catch (e) {
+      debugPrint(
+        'TripEditCopyService: trip $tripId saved, reading it back failed: $e',
+      );
+    }
+
+    return TripEditCopySaveResult(patch: patch, saved: saved);
+  }
+
+  /// Creates a copy of [tripId] with the duplicate form's [fields] applied,
+  /// and caches it.
+  ///
+  /// The server makes the copy the way the website's copy page saves one (see
+  /// [TripsApi.patchTrip] with `copy`): it starts from the trip, without its
+  /// delays and its stops' live data, and takes [fields] on top. It is made
+  /// even when the form was not changed. [TripPatchResult.tripId] of the
+  /// result is the new trip.
+  ///
+  /// The vehicle type is changed on the copy once it exists, when [newType]
+  /// differs from [oldType]. Should that fail, the copy is deleted again, so a
+  /// failed duplicate leaves no trip behind.
+  ///
+  /// The copy is cached with [path] when the route was redrawn, else with the
+  /// geometry cached for [tripId] — the server gives the copy the same one.
+  ///
+  /// Throws [TripPatchException] when the copy could not be made, or when
+  /// there is no signed-in user to make it as.
+  Future<TripEditCopySaveResult> duplicate({
+    required String? username,
+    required int tripId,
+    required Map<String, dynamic> fields,
+    VehicleType? oldType,
+    VehicleType? newType,
+    List<LatLng>? path,
+  }) async {
+    if (username == null) {
+      throw const TripPatchException('No signed-in user to save the trip as');
+    }
+
+    final patch = await _api.patchTrip(username, tripId, fields, copy: true);
+    final copyId = patch.tripId;
+
+    if (oldType != null && newType != null && oldType != newType) {
+      try {
+        await _api.changeTripType(username, [copyId], newType, oldType);
+      } catch (e) {
+        await _api.deleteTrips(username, [copyId]);
+        throw TripPatchException('$e');
+      }
+    }
+
+    Trips? saved;
+    try {
+      final stored =
+          await _api.fetchTripEditCopy(username, copyId, EditCopy.edit);
+      saved = await _cacheServerTrip(
+        stored.serverTrip,
+        await _trips.getTripById(tripId),
+        path: path,
+      );
+    } catch (e) {
+      debugPrint(
+        'TripEditCopyService: trip $tripId copied to $copyId, '
+        'reading it back failed: $e',
+      );
+    }
+
+    return TripEditCopySaveResult(patch: patch, saved: saved);
+  }
+
+  /// Caches the server's copy of a trip, keeping the geometry already stored
+  /// for it — or giving it [path], a path just redrawn and saved — and
+  /// returns what was written.
+  ///
+  /// [TripEditCopyData.serverTrip] carries no path: the endpoint describes a
+  /// route as its editable waypoint list, which on a trip nobody re-routed is
+  /// just the two endpoints, so the cached path is carried over and the trip
+  /// keeps its shape on the map. With nothing cached there is no geometry to
+  /// keep and none to invent — the trip is stored without one and the next
+  /// incremental sync fills it in.
+  Future<Trips> _cacheServerTrip(
+    Trips serverTrip,
+    Trips? cached, {
+    List<LatLng>? path,
+  }) async {
+    final geometry =
+        path != null ? PolylineTools.encodePath(path) : cached?.path;
+    final trip = geometry == null
+        ? serverTrip
+        : Trips.fromJson({...serverTrip.toJson(), 'path': geometry});
+    await _trips.insertTrip(trip);
+    return trip;
+  }
+
+  /// Re-shapes a cached trip the way the server's copy payload would: a copy
+  /// is a new trip, so the identity fields are dropped, and it is another
+  /// journey, so the delays are too. Only needed on the offline path — a
+  /// payload the server actually sent is already shaped.
+  Trips _asNewCopy(Trips trip) => Trips.fromJson({
+        ...trip.toJson(),
+        'uid': null,
+        'created': null,
+        'last_modified': null,
+        'departure_delay': null,
+        'arrival_delay': null,
+      });
+}

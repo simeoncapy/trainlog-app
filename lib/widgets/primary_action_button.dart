@@ -6,6 +6,10 @@ enum PrimaryActionButtonVariant {
   /// content) — the main action.
   filled,
 
+  /// Filled with the theme's secondary container colour — the main action of
+  /// a section, when the screen already has a [filled] main button.
+  tonal,
+
   /// Outlined with a transparent background — a secondary action shown next
   /// to a filled one (e.g. "Validate and continue the journey").
   outlined,
@@ -62,6 +66,20 @@ class PrimaryActionButton extends StatelessWidget {
             ? ElevatedButton(
                 onPressed: onPressed, style: style, child: labelText)
             : ElevatedButton.icon(
+                onPressed: onPressed,
+                style: style,
+                icon: iconWidget,
+                label: labelText,
+              );
+      case PrimaryActionButtonVariant.tonal:
+        final style = FilledButton.styleFrom(
+          shape: shape,
+          textStyle: textStyle,
+        );
+        button = iconWidget == null
+            ? FilledButton.tonal(
+                onPressed: onPressed, style: style, child: labelText)
+            : FilledButton.tonalIcon(
                 onPressed: onPressed,
                 style: style,
                 icon: iconWidget,

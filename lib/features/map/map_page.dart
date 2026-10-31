@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math' as math;
 import 'dart:ui';
 
@@ -55,6 +56,7 @@ class _MapPageState extends State<MapPage>
   LatLng? _userPosition;
   final LayerHitNotifier<int> hitNotifier = ValueNotifier(null);
   StreamSubscription<Position>? _posSub;
+  Timer? _posPollTimer;
   bool _followUser = false;
 
   // --- UI state
@@ -157,27 +159,44 @@ class _MapPageState extends State<MapPage>
       }
     }
 
-    await _posSub?.cancel();
+    await _stopUserLocationUpdates();
+
+    // geolocator_windows emits position stream events from a non-platform
+    // thread, which Flutter reports as an error and may drop or crash on.
+    // Poll single fixes instead on Windows.
+    if (!kIsWeb && Platform.isWindows) {
+      _posPollTimer = Timer.periodic(const Duration(seconds: 15), (_) async {
+        final p = await _geo.getCurrentPositionOrNull();
+        if (p == null || !mounted) return;
+        _onUserPosition(p, settings);
+      });
+      return;
+    }
 
     _posSub = Geolocator.getPositionStream(
       locationSettings: platformLocationSettings().copyWith(distanceFilter: 10),
     ).listen(
       (pos) {
-        final p = LatLng(pos.latitude, pos.longitude);
         if (!mounted) return;
-        setState(() => _userPosition = p);
-        settings.setLastUserPosition(p);
-
-        if (_followUser) {
-          _mapController.move(p, _zoom);
-          setState(() => _center = p);
-        }
+        _onUserPosition(LatLng(pos.latitude, pos.longitude), settings);
       },
       onError: (e) => debugPrint('Location stream error: $e'),
     );
   }
 
+  void _onUserPosition(LatLng p, SettingsProvider settings) {
+    setState(() => _userPosition = p);
+    settings.setLastUserPosition(p);
+
+    if (_followUser) {
+      _mapController.move(p, _zoom);
+      setState(() => _center = p);
+    }
+  }
+
   Future<void> _stopUserLocationUpdates() async {
+    _posPollTimer?.cancel();
+    _posPollTimer = null;
     await _posSub?.cancel();
     _posSub = null;
   }

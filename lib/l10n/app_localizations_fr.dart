@@ -1558,6 +1558,143 @@ class AppLocalizationsFr extends AppLocalizations {
   String get changelogTypeFix => 'Corrections de bugs';
 
   @override
+  String get editCopyTripRefreshedWarning =>
+      'Ce trajet a été modifié ailleurs. La dernière version du serveur a été chargée.';
+
+  @override
+  String get editCopyServerUnreachableWarning =>
+      'Le serveur n\'a pas pu être contacté. La version de ce trajet enregistrée sur cet appareil est utilisée.';
+
+  @override
+  String get editCopyTripUnavailableError =>
+      'Ce trajet n\'a pas pu être chargé : le serveur n\'a pas pu être contacté et aucune copie n\'est enregistrée sur cet appareil.';
+
+  @override
+  String get editTripTitle => 'Modifier le trajet';
+
+  @override
+  String get duplicateTripTitle => 'Dupliquer le trajet';
+
+  @override
+  String editTripRouteSummary(String departure, String arrival, String date) {
+    return '$departure → $arrival • $date';
+  }
+
+  @override
+  String get editTripSectionRoute => 'Itinéraire';
+
+  @override
+  String get editTripSectionOperator => 'Opérateur';
+
+  @override
+  String get editTripSectionWhen => 'Quand';
+
+  @override
+  String get editTripSectionDetails => 'Détails';
+
+  @override
+  String get editTripSectionTicket => 'Billet';
+
+  @override
+  String get editTripSectionPath => 'Tracé';
+
+  @override
+  String get editTripVehicleTypeLabel => 'Type de véhicule';
+
+  @override
+  String get editTripChangeButton => 'Modifier';
+
+  @override
+  String get editTripChangeVehicleTypeTitle => 'Changer le type de véhicule';
+
+  @override
+  String get editTripVehicleTypeCurrent => 'Actuel';
+
+  @override
+  String get editTripStationNameHelper =>
+      'Seul le nom affiché de la gare sera modifié, pas sa position';
+
+  @override
+  String get editTripAddOperatorButton => 'Ajouter un opérateur';
+
+  @override
+  String get editTripModifyPathButton => 'Modifier le tracé';
+
+  @override
+  String get editTripImportGpxButton => 'Importer un GPX';
+
+  @override
+  String get editTripSaveButton => 'Enregistrer les modifications';
+
+  @override
+  String get duplicateTripSaveButton => 'Créer un nouveau trajet';
+
+  @override
+  String get editTripComingSoon =>
+      'Cette fonctionnalité sera disponible dans une prochaine mise à jour.';
+
+  @override
+  String get editTripSavedMsg => 'Trajet enregistré.';
+
+  @override
+  String get duplicateTripSavedMsg => 'Trajet dupliqué.';
+
+  @override
+  String editTripSaveErrorMsg(String error) {
+    return 'Le trajet n\'a pas pu être enregistré : $error';
+  }
+
+  @override
+  String get editPathTitle => 'Modifier le tracé';
+
+  @override
+  String get editPathTabMap => 'Carte';
+
+  @override
+  String get editPathTabDetails => 'Détails';
+
+  @override
+  String get editPathSaveButton => 'Enregistrer';
+
+  @override
+  String get editPathExitDialogTitle =>
+      'Abandonner les modifications du tracé ?';
+
+  @override
+  String get editPathExitDialogContent =>
+      'Le tracé a été modifié mais pas enregistré. Voulez-vous quitter sans enregistrer ?';
+
+  @override
+  String get editPathExitDialogConfirm => 'Quitter sans enregistrer';
+
+  @override
+  String get editPathRouteNotReady =>
+      'L\'itinéraire est encore en cours de calcul. Réessayez dans un instant.';
+
+  @override
+  String get editPathUnsupported =>
+      'Le serveur ne permet pas encore de modifier le tracé depuis l\'application.';
+
+  @override
+  String get editPathModeTitle => 'Mode de tracé';
+
+  @override
+  String get editPathModeRouter => 'Routeur';
+
+  @override
+  String get editPathModeFreehand => 'Main levée';
+
+  @override
+  String get editPathRouteTitle => 'Itinéraire';
+
+  @override
+  String get editPathVia => 'Via';
+
+  @override
+  String get editTripPathEditedNote =>
+      'Tracé modifié. Il sera enregistré avec le trajet.';
+
+  @override
   String get mapSearchLocationButton => 'Rechercher un lieu';
 
   @override

@@ -1525,6 +1525,142 @@ class AppLocalizationsTl extends AppLocalizations {
   String get changelogTypeFix => 'Mga bug fix';
 
   @override
+  String get editCopyTripRefreshedWarning =>
+      'Nabago ang biyaheng ito sa ibang lugar. Na-load ang pinakabagong bersyon mula sa server.';
+
+  @override
+  String get editCopyServerUnreachableWarning =>
+      'Hindi maabot ang server. Ginagamit ang bersyon ng biyaheng ito na naka-save sa device na ito.';
+
+  @override
+  String get editCopyTripUnavailableError =>
+      'Hindi ma-load ang biyaheng ito: hindi maabot ang server at walang kopyang naka-save sa device na ito.';
+
+  @override
+  String get editTripTitle => 'I-edit ang biyahe';
+
+  @override
+  String get duplicateTripTitle => 'I-duplicate ang biyahe';
+
+  @override
+  String editTripRouteSummary(String departure, String arrival, String date) {
+    return '$departure → $arrival • $date';
+  }
+
+  @override
+  String get editTripSectionRoute => 'Ruta';
+
+  @override
+  String get editTripSectionOperator => 'Operator';
+
+  @override
+  String get editTripSectionWhen => 'Kailan';
+
+  @override
+  String get editTripSectionDetails => 'Mga detalye';
+
+  @override
+  String get editTripSectionTicket => 'Tiket';
+
+  @override
+  String get editTripSectionPath => 'Landas';
+
+  @override
+  String get editTripVehicleTypeLabel => 'Uri ng sasakyan';
+
+  @override
+  String get editTripChangeButton => 'Baguhin';
+
+  @override
+  String get editTripChangeVehicleTypeTitle => 'Baguhin ang uri ng sasakyan';
+
+  @override
+  String get editTripVehicleTypeCurrent => 'Kasalukuyan';
+
+  @override
+  String get editTripStationNameHelper =>
+      'Ang ipinapakitang pangalan lang ng istasyon ang mababago, hindi ang posisyon nito';
+
+  @override
+  String get editTripAddOperatorButton => 'Magdagdag ng operator';
+
+  @override
+  String get editTripModifyPathButton => 'Baguhin ang landas';
+
+  @override
+  String get editTripImportGpxButton => 'Mag-import ng GPX';
+
+  @override
+  String get editTripSaveButton => 'I-save ang mga pagbabago';
+
+  @override
+  String get duplicateTripSaveButton => 'Lumikha ng bagong biyahe';
+
+  @override
+  String get editTripComingSoon =>
+      'Magiging available ito sa isang susunod na update.';
+
+  @override
+  String get editTripSavedMsg => 'Na-save ang biyahe.';
+
+  @override
+  String get duplicateTripSavedMsg => 'Nadoble ang biyahe.';
+
+  @override
+  String editTripSaveErrorMsg(String error) {
+    return 'Hindi na-save ang biyahe: $error';
+  }
+
+  @override
+  String get editPathTitle => 'Baguhin ang landas';
+
+  @override
+  String get editPathTabMap => 'Mapa';
+
+  @override
+  String get editPathTabDetails => 'Mga detalye';
+
+  @override
+  String get editPathSaveButton => 'I-save';
+
+  @override
+  String get editPathExitDialogTitle => 'Itapon ang mga pagbabago sa landas?';
+
+  @override
+  String get editPathExitDialogContent =>
+      'Nabago ang landas pero hindi pa naise-save. Gusto mo bang lumabas nang hindi nagse-save?';
+
+  @override
+  String get editPathExitDialogConfirm => 'Lumabas nang hindi nagse-save';
+
+  @override
+  String get editPathRouteNotReady =>
+      'Kinakalkula pa ang ruta. Subukan muli mamaya.';
+
+  @override
+  String get editPathUnsupported =>
+      'Hindi pa sinusuportahan ng server ang pagbabago ng landas mula sa app.';
+
+  @override
+  String get editPathModeTitle => 'Paraan ng pagguhit';
+
+  @override
+  String get editPathModeRouter => 'Router';
+
+  @override
+  String get editPathModeFreehand => 'Malayang guhit';
+
+  @override
+  String get editPathRouteTitle => 'Ruta';
+
+  @override
+  String get editPathVia => 'Dadaan sa';
+
+  @override
+  String get editTripPathEditedNote =>
+      'Nabago ang landas. Ise-save ito kasama ng biyahe.';
+
+  @override
   String get mapSearchLocationButton => 'Maghanap ng lugar';
 
   @override
