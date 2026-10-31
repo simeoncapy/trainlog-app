@@ -2,6 +2,8 @@ changelog_fr:
   - version: 0.5.0
     date: 2026-10-19
     changes:
+      - type: feature
+        text: "Vous pouvez désormais modifier vos trajets (tout sauf le tracé). Cette fonction est en bêta : exportez vos trajets avant de les modifier, au cas où."
       - type: fix
         text: Les trajets traversant la ligne de changement de date affichent désormais correctement leur sens de déplacement sur la carte.
   - version: 0.4.3

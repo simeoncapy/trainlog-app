@@ -2,6 +2,8 @@ changelog_tl:
   - version: 0.5.0
     date: 2026-10-19
     changes:
+      - type: feature
+        text: "Maaari mo nang i-edit ang iyong mga biyahe (lahat maliban sa landas). Beta pa ito: i-export muna ang iyong mga biyahe bago mag-edit, para sigurado."
       - type: fix
         text: Tama na ang pagpapakita ng direksyon sa mapa ng mga biyaheng tumatawid sa International Date Line.
   - version: 0.4.3
