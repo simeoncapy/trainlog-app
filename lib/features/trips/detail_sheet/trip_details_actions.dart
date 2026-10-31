@@ -50,7 +50,9 @@ class TripDetailsActions extends StatelessWidget {
             // TODO(backend): restore `_openEditCopy(context, EditCopy.copy)`
             // once the backend PR for duplicating a trip is approved.
             onTap: () =>
-                AdaptiveInformationMessage.showInfo(l10n.editTripComingSoon),
+                AdaptiveInformationMessage.showInfoAboveModal(
+                  l10n.editTripComingSoon,
+                ),
           ),
         ),
         const SizedBox(width: 8),
