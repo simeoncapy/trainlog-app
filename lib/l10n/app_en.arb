@@ -1032,5 +1032,102 @@
     "description": "Shown instead of a web page that needs the server while the session is expired"
   },
   "refreshFailedOffline": "Couldn't refresh: no connection. Showing the trips saved on this phone.",
-  "refreshFailed": "Couldn't refresh the trips. Please try again later."
+  "refreshFailed": "Couldn't refresh the trips. Please try again later.",
+  "geologNoteSectionStation": "Station",
+  "@geologNoteSectionStation": {
+    "description": "Section pill and header of the station block of the Geolog note page"
+  },
+  "geologNoteAddButton": "Add note",
+  "@geologNoteAddButton": {
+    "description": "Button on a Geolog card without a note, opening the note page"
+  },
+  "geologNoteEditButton": "Edit note",
+  "@geologNoteEditButton": {
+    "description": "Button on a Geolog card that has a note, opening the note page"
+  },
+  "geologNoteHasNoteTooltip": "This Geolog has a note",
+  "@geologNoteHasNoteTooltip": {
+    "description": "Tooltip of the note icon next to the time on a Geolog card"
+  },
+  "geologNoteTitle": "Geolog note",
+  "@geologNoteTitle": {
+    "description": "Title of the Geolog note page"
+  },
+  "geologNoteSummary": "{station} • {date}",
+  "@geologNoteSummary": {
+    "description": "Subtitle of the Geolog note page: the station and the day the Geolog was recorded",
+    "placeholders": {
+      "station": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "geologNoteSaveButton": "Save note",
+  "@geologNoteSaveButton": {
+    "description": "Save button of the Geolog note page"
+  },
+  "geologNoteDeleteButton": "Delete note",
+  "@geologNoteDeleteButton": {
+    "description": "Action deleting the note of a Geolog"
+  },
+  "geologNoteDeleteConfirm": "Delete the note of this Geolog? The Geolog itself is kept.",
+  "@geologNoteDeleteConfirm": {
+    "description": "Confirmation before deleting the note of a Geolog"
+  },
+  "geologNoteStationHelper": "Tap to pick another station around the Geolog position. The vehicle type follows the station.",
+  "@geologNoteStationHelper": {
+    "description": "Helper under the station block of the Geolog note page"
+  },
+  "geologNoteStationSearchTitle": "Stations nearby",
+  "@geologNoteStationSearchTitle": {
+    "description": "Title of the page listing the stations around a Geolog"
+  },
+  "geologNoteStationSearchHint": "Search a station",
+  "@geologNoteStationSearchHint": {
+    "description": "Hint of the field filtering the stations around a Geolog"
+  },
+  "geologNoteNoStationFound": "No station found around this position",
+  "@geologNoteNoStationFound": {
+    "description": "Shown when no station is found around a Geolog"
+  },
+  "geologNoteDateLabel": "Date",
+  "@geologNoteDateLabel": {
+    "description": "Label of the date field of the Geolog note page"
+  },
+  "geologNoteTimeLabel": "Time",
+  "@geologNoteTimeLabel": {
+    "description": "Label of the time field of the Geolog note page"
+  },
+  "geologNoteRecordedAt": "Recorded on {dateTime}",
+  "@geologNoteRecordedAt": {
+    "description": "When the Geolog was recorded, under the date and time fields",
+    "placeholders": {
+      "dateTime": {
+        "type": "String"
+      }
+    }
+  },
+  "geologNoteResetDateTime": "Use recorded time",
+  "@geologNoteResetDateTime": {
+    "description": "Button restoring the recorded date and time on the Geolog note page"
+  },
+  "geologNoteConflictPriceTitle": "Which ticket price?",
+  "@geologNoteConflictPriceTitle": {
+    "description": "Title of the dialog choosing between the ticket prices of two Geolog notes"
+  },
+  "geologNoteConflictEnergyTitle": "Which energy?",
+  "@geologNoteConflictEnergyTitle": {
+    "description": "Title of the dialog choosing between the energies of two Geolog notes"
+  },
+  "geologNoteConflictVisibilityTitle": "Which visibility?",
+  "@geologNoteConflictVisibilityTitle": {
+    "description": "Title of the dialog choosing between the visibilities of two Geolog notes"
+  },
+  "geologNoteConflictMessage": "The departure and arrival Geologs have different values. Choose the one to use for the trip.",
+  "@geologNoteConflictMessage": {
+    "description": "Message of the dialog choosing between two Geolog note values"
+  }
 }

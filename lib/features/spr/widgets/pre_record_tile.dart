@@ -21,12 +21,17 @@ class PreRecordTile extends StatelessWidget {
   final int selectionIndex;
   final VoidCallback onTap;
 
+  /// Opens the note page of the record. The note button is only shown once
+  /// the record has finished loading.
+  final VoidCallback? onNote;
+
   const PreRecordTile({
     super.key,
     required this.record,
     required this.selected,
     required this.selectionIndex,
     required this.onTap,
+    this.onNote,
   });
 
   @override
@@ -103,51 +108,110 @@ class PreRecordTile extends StatelessWidget {
           ],
         ),
         padding: const EdgeInsets.all(16),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            leadingIcon,
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  record.loaded
-                      ? Text(
-                          record.stationName ?? loc.prerecorderUnknownStation,
-                          style: theme.textTheme.titleMedium
-                              ?.copyWith(fontWeight: FontWeight.w600),
-                        )
-                      : const ShimmerBox(width: 180, height: 18),
-                  const SizedBox(height: 4),
-                  Text(
-                    formatDateTime(context, record.dateTime),
-                    style: AppTheme.monoFont.copyWith(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w800,
-                      color: cs.onSurface,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  hasCoordinates
-                      ? Text(
-                          hasAddress
-                              ? record.address!
-                              : '${record.lat!.toStringAsFixed(6)}, ${record.long!.toStringAsFixed(6)}',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: cs.onSurfaceVariant,
+            Row(
+              children: [
+                leadingIcon,
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      record.loaded
+                          ? Text(
+                              record.stationName ??
+                                  loc.prerecorderUnknownStation,
+                              style: theme.textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            )
+                          : const ShimmerBox(width: 180, height: 18),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Flexible(
+                            child: Text(
+                              formatDateTime(context, record.effectiveDateTime),
+                              style: AppTheme.monoFont.copyWith(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w800,
+                                color: cs.onSurface,
+                              ),
+                            ),
                           ),
-                        )
-                      : const ShimmerBox(width: 180, height: 14),
+                          if (record.hasNote) ...[
+                            const SizedBox(width: 6),
+                            Tooltip(
+                              message: loc.geologNoteHasNoteTooltip,
+                              child: Icon(
+                                Icons.sticky_note_2,
+                                size: 14,
+                                color: cs.primary,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                      const SizedBox(height: 2),
+                      hasCoordinates
+                          ? Text(
+                              hasAddress
+                                  ? record.address!
+                                  : '${record.lat!.toStringAsFixed(6)}, ${record.long!.toStringAsFixed(6)}',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: cs.onSurfaceVariant,
+                              ),
+                            )
+                          : const ShimmerBox(width: 180, height: 14),
+                    ],
+                  ),
+                ),
+                if (selectionTrailing != null) ...[
+                  const SizedBox(width: 8),
+                  selectionTrailing,
                 ],
-              ),
+              ],
             ),
-            if (selectionTrailing != null) ...[
-              const SizedBox(width: 8),
-              selectionTrailing,
+            if (record.loaded && onNote != null) ...[
+              const SizedBox(height: 12),
+              Align(
+                alignment: AlignmentDirectional.centerEnd,
+                child: _noteButton(context, loc),
+              ),
             ],
           ],
         ),
       ),
+    );
+  }
+
+  /// "Add note" (outlined) for a record without a note, "Edit note" (filled)
+  /// for one that has a note, so the two read apart at a glance.
+  Widget _noteButton(BuildContext context, AppLocalizations loc) {
+    final style = ButtonStyle(
+      visualDensity: VisualDensity.compact,
+      padding: const WidgetStatePropertyAll(
+        EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+      ),
+    );
+
+    if (record.hasNote) {
+      return FilledButton.tonalIcon(
+        key: const ValueKey('geolog-note-edit'),
+        style: style,
+        onPressed: onNote,
+        icon: const Icon(Icons.sticky_note_2, size: 18),
+        label: Text(loc.geologNoteEditButton),
+      );
+    }
+    return OutlinedButton.icon(
+      key: const ValueKey('geolog-note-add'),
+      style: style,
+      onPressed: onNote,
+      icon: const Icon(Icons.note_add_outlined, size: 18),
+      label: Text(loc.geologNoteAddButton),
     );
   }
 

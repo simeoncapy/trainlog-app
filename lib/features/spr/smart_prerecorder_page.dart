@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/data/models/trips.dart';
+import 'package:trainlog_app/data/models/pre_record_model.dart';
+import 'package:trainlog_app/features/spr/geolog_note_page.dart';
 import 'package:trainlog_app/features/spr/widgets/pre_record_tile.dart';
 import 'package:trainlog_app/features/spr/widgets/spr_button_bar.dart';
 import 'package:trainlog_app/features/spr/widgets/spr_dialogs.dart';
@@ -9,12 +11,14 @@ import 'package:trainlog_app/features/trips_add/add_trip_wizard_page.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/navigation/nav_models.dart';
 import 'package:trainlog_app/platform/adaptive_dialog.dart';
+import 'package:trainlog_app/platform/adaptive_page_route.dart';
 import 'package:trainlog_app/platform/adaptive_expansion_title.dart';
 import 'package:trainlog_app/platform/adaptive_information_message.dart';
 import 'package:trainlog_app/providers/pre_record_provider.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/services/geo_permission_service.dart';
+import 'package:trainlog_app/services/geolog_note_merger.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 import 'package:trainlog_app/widgets/error_banner.dart';
 
@@ -148,6 +152,7 @@ class _SmartPrerecorderViewState extends State<_SmartPrerecorderView> {
                               }
                               prerecords.toggleSelection(record.id);
                             },
+                            onNote: () => _openNote(record),
                           ),
                         );
                       },
@@ -270,7 +275,26 @@ class _SmartPrerecorderViewState extends State<_SmartPrerecorderView> {
     }
     if (resolvedType == null) return; // user dismissed a dialog
 
-    final tripModel = prerecords.buildTripForm(resolvedType);
+    // Fields both notes fill in differently: the user picks a side for each.
+    final choices = <GeologNoteConflict, GeologNoteSide>{};
+    final conflicts = prerecords.noteConflictsForSelection();
+    if (conflicts.isNotEmpty) {
+      final departure = prerecords.recordById(prerecords.selectedIds[0]).note!;
+      final arrival = prerecords.recordById(prerecords.selectedIds[1]).note!;
+      for (final conflict in conflicts) {
+        if (!mounted) return;
+        final side = await showNoteConflictDialog(
+          context,
+          conflict: conflict,
+          departure: departure,
+          arrival: arrival,
+        );
+        if (side == null) return; // user cancelled
+        choices[conflict] = side;
+      }
+    }
+
+    final tripModel = prerecords.buildTripForm(resolvedType, choices: choices);
     final selectedIds = List<int>.of(prerecords.selectedIds);
     if (!mounted) return;
 
@@ -295,6 +319,22 @@ class _SmartPrerecorderViewState extends State<_SmartPrerecorderView> {
       prerecords.clearSelection();
       await prerecords.loadRecords();
     }
+  }
+
+  /// Opens the note page of [record] and saves what it hands back.
+  Future<void> _openNote(PreRecordModel record) async {
+    final prerecords = _prerecords;
+    final result = await Navigator.of(context).push<GeologNoteResult>(
+      AdaptivePageRoute.route<GeologNoteResult>(
+        (_) => GeologNotePage(record: record),
+      ),
+    );
+    if (result == null || !mounted) return;
+    await prerecords.saveNote(
+      record.id,
+      note: result.note,
+      station: result.station,
+    );
   }
 
   Future<void> _recordNewLog() async {

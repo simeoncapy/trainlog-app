@@ -80,7 +80,7 @@ class _EditCopyPageState extends State<EditCopyPage> {
   final ScrollController _scrollController = ScrollController();
   final GlobalKey _scrollViewKey = GlobalKey();
   final Map<EditTripSection, GlobalKey> _sectionKeys = {
-    for (final section in EditTripSection.values) section: GlobalKey(),
+    for (final section in EditTripSection.trip) section: GlobalKey(),
   };
 
   EditTripSection _activeSection = EditTripSection.route;
@@ -181,7 +181,7 @@ class _EditCopyPageState extends State<EditCopyPage> {
     // end of the list counts as reaching it.
     final position = _scrollController.position;
     if (position.pixels >= position.maxScrollExtent - 8) {
-      active = EditTripSection.values.last;
+      active = EditTripSection.trip.last;
     }
 
     if (active != null && active != _activeSection) {

@@ -1750,4 +1750,75 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get refreshFailed =>
       'Couldn\'t refresh the trips. Please try again later.';
+
+  @override
+  String get geologNoteSectionStation => 'Station';
+
+  @override
+  String get geologNoteAddButton => 'Add note';
+
+  @override
+  String get geologNoteEditButton => 'Edit note';
+
+  @override
+  String get geologNoteHasNoteTooltip => 'This Geolog has a note';
+
+  @override
+  String get geologNoteTitle => 'Geolog note';
+
+  @override
+  String geologNoteSummary(String station, String date) {
+    return '$station • $date';
+  }
+
+  @override
+  String get geologNoteSaveButton => 'Save note';
+
+  @override
+  String get geologNoteDeleteButton => 'Delete note';
+
+  @override
+  String get geologNoteDeleteConfirm =>
+      'Delete the note of this Geolog? The Geolog itself is kept.';
+
+  @override
+  String get geologNoteStationHelper =>
+      'Tap to pick another station around the Geolog position. The vehicle type follows the station.';
+
+  @override
+  String get geologNoteStationSearchTitle => 'Stations nearby';
+
+  @override
+  String get geologNoteStationSearchHint => 'Search a station';
+
+  @override
+  String get geologNoteNoStationFound =>
+      'No station found around this position';
+
+  @override
+  String get geologNoteDateLabel => 'Date';
+
+  @override
+  String get geologNoteTimeLabel => 'Time';
+
+  @override
+  String geologNoteRecordedAt(String dateTime) {
+    return 'Recorded on $dateTime';
+  }
+
+  @override
+  String get geologNoteResetDateTime => 'Use recorded time';
+
+  @override
+  String get geologNoteConflictPriceTitle => 'Which ticket price?';
+
+  @override
+  String get geologNoteConflictEnergyTitle => 'Which energy?';
+
+  @override
+  String get geologNoteConflictVisibilityTitle => 'Which visibility?';
+
+  @override
+  String get geologNoteConflictMessage =>
+      'The departure and arrival Geologs have different values. Choose the one to use for the trip.';
 }

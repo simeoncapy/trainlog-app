@@ -1,3 +1,4 @@
+import 'package:trainlog_app/data/models/geolog_note.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 
 class PreRecordModel {
@@ -11,6 +12,10 @@ class PreRecordModel {
   final VehicleType type;
   final bool loaded;
 
+  /// Extra trip details the user attached to this Geolog, null when there
+  /// are none.
+  final GeologNote? note;
+
   PreRecordModel({
     required this.id,
     this.stationName,
@@ -21,7 +26,54 @@ class PreRecordModel {
     DateTime? dateTimeUtc,
     this.type = VehicleType.unknown,
     this.loaded = false,
+    this.note,
   })  : dateTimeUtc = dateTimeUtc ?? dateTime.toUtc();
+
+  bool get hasNote => note != null;
+
+  /// The time this Geolog stands for: the note's date and time when it has
+  /// one, the recorded time otherwise.
+  DateTime get effectiveDateTime => note?.dateTime ?? dateTime;
+
+  /// [effectiveDateTime] in UTC, used to sort and to validate a selection.
+  DateTime get effectiveDateTimeUtc => note?.dateTime?.toUtc() ?? dateTimeUtc;
+
+  /// Copy with another station (name and address may be null for an
+  /// unknown station), as picked on the note page.
+  PreRecordModel withStation({
+    required String? stationName,
+    required String? address,
+    required VehicleType type,
+  }) {
+    return PreRecordModel(
+      id: id,
+      stationName: stationName,
+      address: address,
+      lat: lat,
+      long: long,
+      dateTime: dateTime,
+      dateTimeUtc: dateTimeUtc,
+      type: type,
+      loaded: loaded,
+      note: note,
+    );
+  }
+
+  /// Copy with [note] attached; a null or empty note removes it.
+  PreRecordModel withNote(GeologNote? note) {
+    return PreRecordModel(
+      id: id,
+      stationName: stationName,
+      address: address,
+      lat: lat,
+      long: long,
+      dateTime: dateTime,
+      dateTimeUtc: dateTimeUtc,
+      type: type,
+      loaded: loaded,
+      note: (note == null || note.isEmpty) ? null : note,
+    );
+  }
 
   PreRecordModel copyWith({
     double? lat,
@@ -41,6 +93,7 @@ class PreRecordModel {
       dateTimeUtc: dateTimeUtc,
       type: type ?? this.type,
       loaded: loaded ?? this.loaded,
+      note: note,
     );
   }
 
@@ -60,6 +113,9 @@ class PreRecordModel {
       dateTimeUtc: utc,
       type: VehicleType.fromString(json['type']),
       loaded: json['loaded'] ?? true,
+      note: json['note'] is Map
+          ? GeologNote.fromJson(Map<String, dynamic>.from(json['note']))
+          : null,
     );
   }
 
@@ -74,6 +130,7 @@ class PreRecordModel {
       'date_time_utc': dateTimeUtc.toIso8601String(),
       'type': type.toShortString(),
       'loaded': loaded,
+      if (note != null) 'note': note!.toJson(),
     };
   }
 

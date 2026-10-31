@@ -1735,4 +1735,75 @@ class AppLocalizationsTl extends AppLocalizations {
   @override
   String get refreshFailed =>
       'Hindi ma-refresh ang mga biyahe. Subukan ulit mamaya.';
+
+  @override
+  String get geologNoteSectionStation => 'Istasyon';
+
+  @override
+  String get geologNoteAddButton => 'Magdagdag ng tala';
+
+  @override
+  String get geologNoteEditButton => 'I-edit ang tala';
+
+  @override
+  String get geologNoteHasNoteTooltip => 'May tala ang Geolog na ito';
+
+  @override
+  String get geologNoteTitle => 'Tala ng Geolog';
+
+  @override
+  String geologNoteSummary(String station, String date) {
+    return '$station • $date';
+  }
+
+  @override
+  String get geologNoteSaveButton => 'I-save ang tala';
+
+  @override
+  String get geologNoteDeleteButton => 'Burahin ang tala';
+
+  @override
+  String get geologNoteDeleteConfirm =>
+      'Burahin ang tala ng Geolog na ito? Mananatili ang Geolog mismo.';
+
+  @override
+  String get geologNoteStationHelper =>
+      'I-tap para pumili ng ibang istasyon malapit sa posisyon ng Geolog. Susunod sa istasyon ang uri ng sasakyan.';
+
+  @override
+  String get geologNoteStationSearchTitle => 'Mga istasyon sa malapit';
+
+  @override
+  String get geologNoteStationSearchHint => 'Maghanap ng istasyon';
+
+  @override
+  String get geologNoteNoStationFound =>
+      'Walang istasyong nakita malapit sa posisyong ito';
+
+  @override
+  String get geologNoteDateLabel => 'Petsa';
+
+  @override
+  String get geologNoteTimeLabel => 'Oras';
+
+  @override
+  String geologNoteRecordedAt(String dateTime) {
+    return 'Naitala noong $dateTime';
+  }
+
+  @override
+  String get geologNoteResetDateTime => 'Gamitin ang naitalang oras';
+
+  @override
+  String get geologNoteConflictPriceTitle => 'Aling presyo ng tiket?';
+
+  @override
+  String get geologNoteConflictEnergyTitle => 'Aling enerhiya?';
+
+  @override
+  String get geologNoteConflictVisibilityTitle => 'Aling visibility?';
+
+  @override
+  String get geologNoteConflictMessage =>
+      'Magkaiba ang halaga ng Geolog ng pag-alis at pagdating. Piliin ang gagamitin para sa biyahe.';
 }
