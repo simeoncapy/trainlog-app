@@ -264,7 +264,7 @@ class TripsRepository {
     final maps = await _db.query(
       TripsTable.tableName,
       columns: ['path'],
-      where: 'path IS NOT NULL AND path != ""',
+      where: 'path IS NOT NULL AND path != \'\'',
     );
     return maps.map((m) => m['path'] as String).toList();
   }
@@ -275,7 +275,7 @@ class TripsRepository {
     final maps = await _db.query(
       TripsTable.tableName,
       columns: ['uid'],
-      where: 'path IS NOT NULL AND path != ""',
+      where: 'path IS NOT NULL AND path != \'\'',
     );
     return maps.map((m) => m['uid'] as String).toList();
   }
@@ -300,7 +300,7 @@ class TripsRepository {
         'utc_end_datetime',
         'created',
       ],
-      where: 'uid IN ($placeholders) AND path IS NOT NULL AND path != ""',
+      where: 'uid IN ($placeholders) AND path IS NOT NULL AND path != \'\'',
       whereArgs: ids,
     );
 
@@ -330,7 +330,7 @@ class TripsRepository {
         'utc_end_datetime',
         'created',              // Needed for sorting by creationDate
       ],
-      where: 'path IS NOT NULL AND path != ""',
+      where: 'path IS NOT NULL AND path != \'\'',
     );
 
     final list = maps.map((e) {
@@ -376,7 +376,7 @@ class TripsRepository {
     final maps = await _db.query(
       TripsTable.tableName,
       columns: ['type'],
-      where: 'type IS NOT NULL AND type != ""',
+      where: 'type IS NOT NULL AND type != \'\'',
     );
 
     final types = maps
@@ -393,7 +393,7 @@ class TripsRepository {
     final maps = await _db.query(
       TripsTable.tableName,
       columns: ['operator'],
-      where: 'operator IS NOT NULL AND operator != ""',
+      where: 'operator IS NOT NULL AND operator != \'\'',
     );
 
     // Use a Set to dedupe after splitting
@@ -432,7 +432,7 @@ class TripsRepository {
     final maps = await _db.query(
       TripsTable.tableName,
       columns: ['start_datetime'],
-      where: 'start_datetime IS NOT NULL AND start_datetime != ""',
+      where: 'start_datetime IS NOT NULL AND start_datetime != \'\'',
     );
 
     final dates = maps
@@ -448,7 +448,7 @@ class TripsRepository {
     final maps = await _db.query(
       TripsTable.tableName,
       columns: ['countries'],
-      where: 'countries IS NOT NULL AND countries != ""',
+      where: 'countries IS NOT NULL AND countries != \'\'',
     );
 
     final Set<String> countryCodes = {};
@@ -504,7 +504,7 @@ class TripsRepository {
     final whereInfo = _buildWhereClause(showFutureTrips: showFutureTrips, filter: filter);
     final where = [
       whereInfo['where'] as String,
-      'operator IS NOT NULL AND operator != ""',
+      'operator IS NOT NULL AND operator != \'\'',
       'trip_length IS NOT NULL'
     ].where((w) => w.isNotEmpty).join(' AND ');
     final args = (whereInfo['args'] as List<dynamic>);
@@ -547,7 +547,7 @@ class TripsRepository {
     // Add operator/trip_length constraints
     String _augmentWhere(Map<String, dynamic> info) => [
       info['where'] as String,
-      'operator IS NOT NULL AND operator != ""',
+      'operator IS NOT NULL AND operator != \'\'',
       'trip_length IS NOT NULL'
     ].where((w) => w.isNotEmpty).join(' AND ');
 
@@ -607,7 +607,7 @@ class TripsRepository {
     final whereInfo = _buildWhereClause(showFutureTrips: showFutureTrips, filter: filter);
     final where = [
       whereInfo['where'] as String,
-      'operator IS NOT NULL AND operator != ""',
+      'operator IS NOT NULL AND operator != \'\'',
     ].where((w) => w.isNotEmpty).join(' AND ');
     final args = (whereInfo['args'] as List<dynamic>);
 
@@ -640,7 +640,7 @@ class TripsRepository {
 
     String _augmentWhere(Map<String, dynamic> info) => [
       info['where'] as String,
-      'operator IS NOT NULL AND operator != ""',
+      'operator IS NOT NULL AND operator != \'\'',
     ].where((w) => w.isNotEmpty).join(' AND ');
 
     final pastRows = await _db.query(
@@ -689,7 +689,7 @@ class TripsRepository {
 
     String _augmentWhere(Map<String, dynamic> info) => [
       info['where'] as String,
-      'countries IS NOT NULL AND countries != ""',
+      'countries IS NOT NULL AND countries != \'\'',
       'trip_length IS NOT NULL'
     ].where((w) => w.isNotEmpty).join(' AND ');
 
@@ -758,7 +758,7 @@ class TripsRepository {
 
     String _augmentWhere(Map<String, dynamic> info) => [
       info['where'] as String,
-      'countries IS NOT NULL AND countries != ""',
+      'countries IS NOT NULL AND countries != \'\'',
     ].where((w) => w.isNotEmpty).join(' AND ');
 
     final pastRows = await _db.query(
