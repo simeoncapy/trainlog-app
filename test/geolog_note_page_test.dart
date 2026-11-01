@@ -12,6 +12,8 @@ import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/services/api/trainlog_http_client.dart';
+import 'package:trainlog_app/widgets/trip_form/energy_choice_card_selector.dart';
+import 'package:trainlog_app/widgets/trip_form/visibility_choice_card_selector.dart';
 
 import 'fake_trainlog_server.dart';
 
@@ -122,6 +124,15 @@ void main() {
     expect(find.text('Lyon Part-Dieu'), findsOneWidget);
     expect(find.text('45.760585, 4.859435'), findsOneWidget);
     expect(find.byTooltip('Delete note'), findsOneWidget);
+    // No visibility choice on a note.
+    expect(
+      find.byType(VisibilityChoiceCardSelector, skipOffstage: false),
+      findsNothing,
+    );
+    expect(
+      find.byType(EnergyChoiceCardSelector, skipOffstage: false),
+      findsOneWidget,
+    );
     // No path block on a note.
     expect(find.text('PATH'), findsNothing);
 

@@ -104,7 +104,6 @@ class _GeologNotePageState extends State<GeologNotePage> {
       form.currencyCode = note.currency;
       form.purchaseDate = note.purchaseDate;
       if (note.energy != null) form.energyType = note.energy!;
-      form.tripVisibility = note.visibility;
     }
     form.initState();
     return form;
@@ -130,7 +129,6 @@ class _GeologNotePageState extends State<GeologNotePage> {
       currency: price == null ? null : GeologNote.clean(_form.currencyCode),
       purchaseDate: price == null ? null : _form.purchaseDate,
       energy: _form.energyType == EnergyType.auto ? null : _form.energyType,
-      visibility: _form.tripVisibility,
     );
   }
 
@@ -346,7 +344,10 @@ class _GeologNotePageState extends State<GeologNotePage> {
           const SizedBox(height: 24),
           _section(EditTripSection.details, const EditTripDetailsSection()),
           const SizedBox(height: 24),
-          _section(EditTripSection.ticket, const EditTripTicketSection()),
+          _section(
+            EditTripSection.ticket,
+            const EditTripTicketSection(showVisibility: false),
+          ),
         ],
       ),
     );
