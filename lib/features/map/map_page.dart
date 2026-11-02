@@ -21,6 +21,7 @@ import 'package:trainlog_app/features/map/map_filter_widget.dart';
 import 'package:trainlog_app/features/map/map_marker.dart';
 import 'package:trainlog_app/features/trips_add/widgets/full_screen_search_overlay.dart';
 import 'package:trainlog_app/navigation/nav_models.dart';
+import 'package:trainlog_app/platform/adaptive_bottom_navbar.dart' show kNavBarClearance;
 import 'package:trainlog_app/platform/adaptive_trip_card.dart';
 import 'package:trainlog_app/platform/adaptive_widget.dart';
 import 'package:trainlog_app/providers/polyline_provider.dart';
@@ -342,11 +343,14 @@ class _MapPageState extends State<MapPage>
           ],
         ),
 
-        const OsmMark(
-          isCompact: false,
-          alignment: Alignment.topLeft,
-          //orientation: MarkOrientation.vertical,
-          //margin: EdgeInsets.only(left: 6, bottom: 80, right: 6, top: 6),
+        // The map runs under the status bar, so keep the credit below it.
+        const SafeArea(
+          child: OsmMark(
+            isCompact: false,
+            alignment: Alignment.topLeft,
+            //orientation: MarkOrientation.vertical,
+            //margin: EdgeInsets.only(left: 6, bottom: 80, right: 6, top: 6),
+          ),
         ),
 
         if (_followUser) _lockedOnPositionPill(appLocalizations),
@@ -414,10 +418,10 @@ class _MapPageState extends State<MapPage>
       _rotationNotifier.value = 0;
     }
 
-    // On Apple the primary-action FAB sits at kNavBarClearance+16 from the
-    // screen bottom and is 56 px tall, so push these controls clear of it.
+    // On Apple the primary-action FAB sits kNavBarClearance+16 above the
+    // safe area and is 56 px tall, so push these controls clear of it.
     final double buttonsBottom = AppPlatform.isApple
-        ? 160.0 - MediaQuery.of(context).padding.bottom
+        ? kNavBarClearance + MediaQuery.of(context).padding.bottom + 16 + 56 + 12
         : 16 + MediaQuery.of(context).padding.bottom + 56 + 12;
 
     return Positioned(
