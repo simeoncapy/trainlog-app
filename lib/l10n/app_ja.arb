@@ -175,7 +175,7 @@
   "menuFriendsTitle": "フレンド",
   "menuSmartPrerecorderTitle": "ジオログ",
   "menuSettingsTitle": "設定",
-  "menuAboutTitle": "ついて",
+  "menuAboutTitle": "アプリについて",
   "menuYouTitle": "あなた",
   "menuExploreSectionTitle": "探索",
   "menuMenuSectionTitle": "メニュー",
@@ -389,7 +389,7 @@
 
   "aboutPageAboutSubPageTitle": "Trainlog",
   "aboutPageHowToSubPageTitle": "使い方",
-  "aboutPagePrivacySubPageTitle": "プライバシ",
+  "aboutPagePrivacySubPageTitle": "プライバシー",
 
   "supportTrainlogButton": "トレインログをサポートする",
   "joinDiscordButton": "Discordでコミュニティに参加しましょう",

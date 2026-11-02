@@ -570,7 +570,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get menuSettingsTitle => '設定';
 
   @override
-  String get menuAboutTitle => 'ついて';
+  String get menuAboutTitle => 'アプリについて';
 
   @override
   String get menuYouTitle => 'あなた';
@@ -1320,7 +1320,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get aboutPageHowToSubPageTitle => '使い方';
 
   @override
-  String get aboutPagePrivacySubPageTitle => 'プライバシ';
+  String get aboutPagePrivacySubPageTitle => 'プライバシー';
 
   @override
   String get supportTrainlogButton => 'トレインログをサポートする';
