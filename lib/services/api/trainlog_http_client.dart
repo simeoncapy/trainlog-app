@@ -95,9 +95,9 @@ class TrainlogHttpClient {
       await secure.migrateFromFileStorage(cookieDir);
       cookieStorage = secure;
     } else {
-      // No keychain on this platform (e.g. Linux without a Secret Service
-      // keyring): keep the legacy plaintext file storage rather than
-      // breaking login persistence.
+      // No usable keychain on this platform (macOS, or Linux without a
+      // Secret Service keyring): keep the legacy plaintext file storage
+      // rather than breaking login persistence.
       cookieStorage = FileStorage(cookieDir);
     }
 

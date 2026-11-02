@@ -62,10 +62,17 @@ class SecureCookieStorage implements Storage {
     }
   }
 
+  /// macOS is not a target platform: unsigned dev builds either lack the
+  /// data protection keychain entitlement (-34018) or, with the login
+  /// keychain, hit a password prompt on every rebuild. Skip the keychain
+  /// there entirely so it is never touched.
+  static bool get _platformSupported => !Platform.isMacOS;
+
   /// Returns true when the platform keychain/keystore actually works here.
   /// It can be missing at runtime (e.g. Linux without a Secret Service
   /// keyring), in which case the caller should fall back to file storage.
   static Future<bool> isAvailable() async {
+    if (!_platformSupported) return false;
     const probeKey = '${_keyPrefix}__probe__';
     try {
       return await _synchronized(() async {
@@ -85,6 +92,7 @@ class SecureCookieStorage implements Storage {
   /// Needed on fresh installs: the iOS Keychain survives app uninstall, so
   /// without this a reinstalled app would silently resume the old session.
   static Future<void> clearAllCookies() async {
+    if (!_platformSupported) return;
     try {
       await _synchronized(() async {
         final all = await _defaultStorage.readAll();
