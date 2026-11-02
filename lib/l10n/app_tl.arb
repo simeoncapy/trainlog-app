@@ -667,5 +667,102 @@
   "sessionExpiredNetworkError": "Hindi maabot ang server. Tingnan ang koneksyon mo at subukan ulit.",
   "sessionExpiredWebPage": "Mag-login ulit para makita ang page na ito",
   "refreshFailedOffline": "Hindi ma-refresh: walang koneksyon. Ipinapakita ang mga biyaheng naka-save sa phone na ito.",
-  "refreshFailed": "Hindi ma-refresh ang mga biyahe. Subukan ulit mamaya."
+  "refreshFailed": "Hindi ma-refresh ang mga biyahe. Subukan ulit mamaya.",
+  "geologNoteSectionStation": "Istasyon",
+  "@geologNoteSectionStation": {
+    "description": "Section pill and header of the station block of the Geolog note page"
+  },
+  "geologNoteAddButton": "Magdagdag ng tala",
+  "@geologNoteAddButton": {
+    "description": "Button on a Geolog card without a note, opening the note page"
+  },
+  "geologNoteEditButton": "I-edit ang tala",
+  "@geologNoteEditButton": {
+    "description": "Button on a Geolog card that has a note, opening the note page"
+  },
+  "geologNoteHasNoteTooltip": "May tala ang Geolog na ito",
+  "@geologNoteHasNoteTooltip": {
+    "description": "Tooltip of the note icon next to the time on a Geolog card"
+  },
+  "geologNoteTitle": "Tala ng Geolog",
+  "@geologNoteTitle": {
+    "description": "Title of the Geolog note page"
+  },
+  "geologNoteSummary": "{station} • {date}",
+  "@geologNoteSummary": {
+    "description": "Subtitle of the Geolog note page: the station and the day the Geolog was recorded",
+    "placeholders": {
+      "station": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "geologNoteSaveButton": "I-save ang tala",
+  "@geologNoteSaveButton": {
+    "description": "Save button of the Geolog note page"
+  },
+  "geologNoteDeleteButton": "Burahin ang tala",
+  "@geologNoteDeleteButton": {
+    "description": "Action deleting the note of a Geolog"
+  },
+  "geologNoteDeleteConfirm": "Burahin ang tala ng Geolog na ito? Mananatili ang Geolog mismo.",
+  "@geologNoteDeleteConfirm": {
+    "description": "Confirmation before deleting the note of a Geolog"
+  },
+  "geologNoteStationHelper": "I-tap para pumili ng ibang istasyon malapit sa posisyon ng Geolog. Susunod sa istasyon ang uri ng sasakyan.",
+  "@geologNoteStationHelper": {
+    "description": "Helper under the station block of the Geolog note page"
+  },
+  "geologNoteStationSearchTitle": "Mga istasyon sa malapit",
+  "@geologNoteStationSearchTitle": {
+    "description": "Title of the page listing the stations around a Geolog"
+  },
+  "geologNoteStationSearchHint": "Maghanap ng istasyon",
+  "@geologNoteStationSearchHint": {
+    "description": "Hint of the field filtering the stations around a Geolog"
+  },
+  "geologNoteNoStationFound": "Walang istasyong nakita malapit sa posisyong ito",
+  "@geologNoteNoStationFound": {
+    "description": "Shown when no station is found around a Geolog"
+  },
+  "geologNoteDateLabel": "Petsa",
+  "@geologNoteDateLabel": {
+    "description": "Label of the date field of the Geolog note page"
+  },
+  "geologNoteTimeLabel": "Oras",
+  "@geologNoteTimeLabel": {
+    "description": "Label of the time field of the Geolog note page"
+  },
+  "geologNoteRecordedAt": "Naitala noong {dateTime}",
+  "@geologNoteRecordedAt": {
+    "description": "When the Geolog was recorded, under the date and time fields",
+    "placeholders": {
+      "dateTime": {
+        "type": "String"
+      }
+    }
+  },
+  "geologNoteResetDateTime": "Gamitin ang naitalang oras",
+  "@geologNoteResetDateTime": {
+    "description": "Button restoring the recorded date and time on the Geolog note page"
+  },
+  "geologNoteConflictPriceTitle": "Aling presyo ng tiket?",
+  "@geologNoteConflictPriceTitle": {
+    "description": "Title of the dialog choosing between the ticket prices of two Geolog notes"
+  },
+  "geologNoteConflictEnergyTitle": "Aling enerhiya?",
+  "@geologNoteConflictEnergyTitle": {
+    "description": "Title of the dialog choosing between the energies of two Geolog notes"
+  },
+  "geologNoteConflictVisibilityTitle": "Aling visibility?",
+  "@geologNoteConflictVisibilityTitle": {
+    "description": "Title of the dialog choosing between the visibilities of two Geolog notes"
+  },
+  "geologNoteConflictMessage": "Magkaiba ang halaga ng Geolog ng pag-alis at pagdating. Piliin ang gagamitin para sa biyahe.",
+  "@geologNoteConflictMessage": {
+    "description": "Message of the dialog choosing between two Geolog note values"
+  }
 }

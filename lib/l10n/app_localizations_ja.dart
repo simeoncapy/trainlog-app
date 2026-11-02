@@ -1706,4 +1706,72 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get refreshFailed => '旅程を更新できませんでした。しばらくしてから、もう一度お試しください。';
+
+  @override
+  String get geologNoteSectionStation => '駅';
+
+  @override
+  String get geologNoteAddButton => 'メモを追加';
+
+  @override
+  String get geologNoteEditButton => 'メモを編集';
+
+  @override
+  String get geologNoteHasNoteTooltip => 'このジオログにはメモがあります';
+
+  @override
+  String get geologNoteTitle => 'ジオログのメモ';
+
+  @override
+  String geologNoteSummary(String station, String date) {
+    return '$station • $date';
+  }
+
+  @override
+  String get geologNoteSaveButton => 'メモを保存';
+
+  @override
+  String get geologNoteDeleteButton => 'メモを削除';
+
+  @override
+  String get geologNoteDeleteConfirm => 'このジオログのメモを削除しますか？ジオログ自体は残ります。';
+
+  @override
+  String get geologNoteStationHelper =>
+      'タップしてジオログの位置周辺の別の駅を選択します。乗り物の種類は駅に合わせて変わります。';
+
+  @override
+  String get geologNoteStationSearchTitle => '周辺の駅';
+
+  @override
+  String get geologNoteStationSearchHint => '駅を検索';
+
+  @override
+  String get geologNoteNoStationFound => 'この位置の周辺に駅が見つかりません';
+
+  @override
+  String get geologNoteDateLabel => '日付';
+
+  @override
+  String get geologNoteTimeLabel => '時刻';
+
+  @override
+  String geologNoteRecordedAt(String dateTime) {
+    return '記録日時：$dateTime';
+  }
+
+  @override
+  String get geologNoteResetDateTime => '記録時刻に戻す';
+
+  @override
+  String get geologNoteConflictPriceTitle => 'どの運賃を使いますか？';
+
+  @override
+  String get geologNoteConflictEnergyTitle => 'どの動力を使いますか？';
+
+  @override
+  String get geologNoteConflictVisibilityTitle => 'どの公開範囲を使いますか？';
+
+  @override
+  String get geologNoteConflictMessage => '出発と到着のジオログの値が異なります。旅程に使う値を選択してください。';
 }

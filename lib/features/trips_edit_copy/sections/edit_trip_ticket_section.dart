@@ -18,7 +18,11 @@ import 'package:trainlog_app/widgets/trip_form/trip_form_tiles.dart';
 /// with its currency picker, purchase date, then the energy and visibility
 /// choice cards.
 class EditTripTicketSection extends StatefulWidget {
-  const EditTripTicketSection({super.key});
+  const EditTripTicketSection({super.key, this.showVisibility = true});
+
+  /// Whether the visibility choice cards are shown. The Geolog note page
+  /// hides them: visibility is chosen when the trip is created.
+  final bool showVisibility;
 
   @override
   State<EditTripTicketSection> createState() => _EditTripTicketSectionState();
@@ -158,14 +162,15 @@ class _EditTripTicketSectionState extends State<EditTripTicketSection> {
           value: model.energyType,
           onChanged: model.setEnergyType,
         ),
-        const SizedBox(height: 20),
-
-        TripFormSectionLabel(loc.visibility),
-        const SizedBox(height: 8),
-        VisibilityChoiceCardSelector(
-          value: model.visibility,
-          onChanged: model.setVisibility,
-        ),
+        if (widget.showVisibility) ...[
+          const SizedBox(height: 20),
+          TripFormSectionLabel(loc.visibility),
+          const SizedBox(height: 8),
+          VisibilityChoiceCardSelector(
+            value: model.visibility,
+            onChanged: model.setVisibility,
+          ),
+        ],
       ],
     );
   }

@@ -1,4 +1,9 @@
 changelog_tl:
+  - version: 0.5.1
+    date: 2026-11-01
+    changes:
+      - type: feature
+        text: "Magdagdag ng tala sa isang Geolog para paunang punan ang mga detalye ng biyahe. Pagsasamahin ang mga tala ng pag-alis at pagdating kapag ginawa ang biyahe, at ikaw ang pipili kapag magkasalungat ang mga ito."
   - version: 0.5.0
     date: 2026-10-19
     changes:

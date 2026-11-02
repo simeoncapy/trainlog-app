@@ -2,10 +2,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' show TimeOfDay;
 import 'package:geolocator/geolocator.dart';
 import 'package:lat_lng_to_timezone/lat_lng_to_timezone.dart' as tzmap;
+import 'package:trainlog_app/data/models/geolog_note.dart';
 import 'package:trainlog_app/data/models/pre_record_model.dart';
 import 'package:trainlog_app/data/models/trip_form_model.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
+import 'package:trainlog_app/services/geolog_note_merger.dart';
 import 'package:trainlog_app/services/pre_record_service.dart';
 import 'package:trainlog_app/utils/location_utils.dart';
 
@@ -110,8 +112,35 @@ class PreRecordProvider with ChangeNotifier {
 
   void _sortRecords() {
     _records.sort((a, b) => _ascending
-        ? a.dateTimeUtc.compareTo(b.dateTimeUtc)
-        : b.dateTimeUtc.compareTo(a.dateTimeUtc));
+        ? a.effectiveDateTimeUtc.compareTo(b.effectiveDateTimeUtc)
+        : b.effectiveDateTimeUtc.compareTo(a.effectiveDateTimeUtc));
+  }
+
+  // ── Notes ────────────────────────────────────────────────────────────────
+
+  /// Saves the note page of record [id]: its [note] (null or empty removes
+  /// it) and, when [station] is given, the station picked for it — which also
+  /// sets the record's vehicle type.
+  Future<void> saveNote(
+    int id, {
+    required GeologNote? note,
+    StationChoice? station,
+  }) async {
+    _updateRecord(id, (r) {
+      var updated = r.withNote(note);
+      if (station != null) {
+        final (name, address, type) = station;
+        updated = updated.withStation(
+          stationName: name,
+          address: address,
+          type: type,
+        );
+      }
+      return updated;
+    });
+    _sortRecords();
+    notifyListeners();
+    await _service.saveAll(_records);
   }
 
   // ── Selection validation ─────────────────────────────────────────────────
@@ -131,7 +160,7 @@ class PreRecordProvider with ChangeNotifier {
       final b = recordById(_selectedIds[1]);
 
       // Rule 1: departure must be before arrival
-      if (a.dateTimeUtc.isAfter(b.dateTimeUtc)) {
+      if (a.effectiveDateTimeUtc.isAfter(b.effectiveDateTimeUtc)) {
         errors.add(SelectionError.departureAfterArrival);
       }
 
@@ -176,14 +205,34 @@ class PreRecordProvider with ChangeNotifier {
     return (TypeResolution.known, knownType);
   }
 
+  /// The fields whose notes disagree between the selected departure and
+  /// arrival; the user picks a side for each before [buildTripForm].
+  List<GeologNoteConflict> noteConflictsForSelection() =>
+      GeologNoteMerger.conflicts(
+        recordById(_selectedIds[0]).note,
+        recordById(_selectedIds[1]).note,
+      );
+
   /// Builds the trip form for the current selection once [type] has been
-  /// resolved (see [typeResolutionForSelection]).
-  TripFormModel buildTripForm(VehicleType type) {
+  /// resolved (see [typeResolutionForSelection]) and the note conflicts, if
+  /// any, settled in [choices] (see [noteConflictsForSelection]).
+  TripFormModel buildTripForm(
+    VehicleType type, {
+    Map<GeologNoteConflict, GeologNoteSide> choices = const {},
+  }) {
     final model = TripFormModel();
     model.vehicleType = type;
 
-    _applyEndpoint(model, recordById(_selectedIds[0]), isDeparture: true);
-    _applyEndpoint(model, recordById(_selectedIds[1]), isDeparture: false);
+    final departure = recordById(_selectedIds[0]);
+    final arrival = recordById(_selectedIds[1]);
+    _applyEndpoint(model, departure, isDeparture: true);
+    _applyEndpoint(model, arrival, isDeparture: false);
+    GeologNoteMerger.apply(
+      model,
+      departure: departure.note,
+      arrival: arrival.note,
+      choices: choices,
+    );
 
     model.initState(); // Toggle hasBeenModified
     return model;
@@ -195,12 +244,10 @@ class PreRecordProvider with ChangeNotifier {
     required bool isDeparture,
   }) {
     final timezone = tzmap.latLngToTimezoneString(record.lat!, record.long!);
-    final dateOnly = DateTime(
-      record.dateTime.year,
-      record.dateTime.month,
-      record.dateTime.day,
-    );
-    final timeOnly = TimeOfDay.fromDateTime(record.dateTime);
+    // The note's date and time, when it has one, replace the recorded ones.
+    final dateTime = record.effectiveDateTime;
+    final dateOnly = DateTime(dateTime.year, dateTime.month, dateTime.day);
+    final timeOnly = TimeOfDay.fromDateTime(dateTime);
     final geoMode = record.stationName?.trim().isEmpty ?? true;
 
     if (isDeparture) {

@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/app/theme/app_theme.dart';
+import 'package:trainlog_app/data/models/geolog_note.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/platform/adaptive_button.dart';
 import 'package:trainlog_app/platform/adaptive_dialog.dart';
 import 'package:trainlog_app/providers/pre_record_provider.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
+import 'package:trainlog_app/services/geolog_note_merger.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
 import 'package:trainlog_app/utils/number_formatter.dart';
+import 'package:trainlog_app/widgets/trip_visibility_selector.dart';
+import 'package:trainlog_app/widgets/vehicle_energy_selector.dart';
 
 /// Lets the user disambiguate within the rail family (train/metro/rail).
 /// Returns null when dismissed.
@@ -253,6 +257,113 @@ Future<StationChoice?> showStationSelectionDialog(
             ),
           ),
         ],
+      );
+    },
+  );
+}
+
+/// Asks which Geolog of the pair a conflicting note field is taken from
+/// (see [GeologNoteMerger.conflicts]). Returns null when dismissed.
+Future<GeologNoteSide?> showNoteConflictDialog(
+  BuildContext context, {
+  required GeologNoteConflict conflict,
+  required GeologNote departure,
+  required GeologNote arrival,
+}) async {
+  final loc = AppLocalizations.of(context)!;
+
+  final String title;
+  String valueOf(GeologNote note) {
+    switch (conflict) {
+      case GeologNoteConflict.price:
+        final price = formatNumber(context, note.price ?? 0);
+        return note.currency == null ? price : '$price ${note.currency}';
+      case GeologNoteConflict.energy:
+        switch (note.energy) {
+          case EnergyType.electric:
+            return loc.energyElectric;
+          case EnergyType.thermic:
+            return loc.energyThermic;
+          case EnergyType.auto:
+          case null:
+            return loc.auto;
+        }
+      case GeologNoteConflict.visibility:
+        return (note.visibility ?? TripVisibility.private).label(loc);
+    }
+  }
+
+  switch (conflict) {
+    case GeologNoteConflict.price:
+      title = loc.geologNoteConflictPriceTitle;
+    case GeologNoteConflict.energy:
+      title = loc.geologNoteConflictEnergyTitle;
+    case GeologNoteConflict.visibility:
+      title = loc.geologNoteConflictVisibilityTitle;
+  }
+
+  return AdaptiveDialog.showCustom<GeologNoteSide>(
+    context: context,
+    barrierDismissible: false,
+    builder: (ctx) {
+      final theme = Theme.of(ctx);
+
+      Widget option(GeologNoteSide side, String label, String value,
+          Color markerColour) {
+        return ListTile(
+          leading: Text(
+            side == GeologNoteSide.departure
+                ? loc.departureSingleCharacter
+                : loc.arrivalSingleCharacter,
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: markerColour,
+            ),
+          ),
+          title: Text(label),
+          subtitle: Text(
+            value,
+            style: theme.textTheme.titleMedium
+                ?.copyWith(fontWeight: FontWeight.w600),
+          ),
+          onTap: () => AdaptiveDialog.pop(ctx, side),
+        );
+      }
+
+      return Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              title,
+              style: theme.textTheme.titleLarge
+                  ?.copyWith(fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              loc.geologNoteConflictMessage,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            option(GeologNoteSide.departure, loc.addTripDeparture,
+                valueOf(departure), Colors.green),
+            option(GeologNoteSide.arrival, loc.addTripArrival,
+                valueOf(arrival), Colors.red),
+            const SizedBox(height: 8),
+            SizedBox(
+              width: double.infinity,
+              child: AdaptiveButton.build(
+                context: ctx,
+                type: AdaptiveButtonType.secondary,
+                onPressed: () => AdaptiveDialog.pop(ctx, null),
+                label: Text(MaterialLocalizations.of(ctx).cancelButtonLabel),
+              ),
+            ),
+          ],
+        ),
       );
     },
   );

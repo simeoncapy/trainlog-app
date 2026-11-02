@@ -2933,6 +2933,132 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Couldn\'t refresh the trips. Please try again later.'**
   String get refreshFailed;
+
+  /// Section pill and header of the station block of the Geolog note page
+  ///
+  /// In en, this message translates to:
+  /// **'Station'**
+  String get geologNoteSectionStation;
+
+  /// Button on a Geolog card without a note, opening the note page
+  ///
+  /// In en, this message translates to:
+  /// **'Add note'**
+  String get geologNoteAddButton;
+
+  /// Button on a Geolog card that has a note, opening the note page
+  ///
+  /// In en, this message translates to:
+  /// **'Edit note'**
+  String get geologNoteEditButton;
+
+  /// Tooltip of the note icon next to the time on a Geolog card
+  ///
+  /// In en, this message translates to:
+  /// **'This Geolog has a note'**
+  String get geologNoteHasNoteTooltip;
+
+  /// Title of the Geolog note page
+  ///
+  /// In en, this message translates to:
+  /// **'Geolog note'**
+  String get geologNoteTitle;
+
+  /// Subtitle of the Geolog note page: the station and the day the Geolog was recorded
+  ///
+  /// In en, this message translates to:
+  /// **'{station} • {date}'**
+  String geologNoteSummary(String station, String date);
+
+  /// Save button of the Geolog note page
+  ///
+  /// In en, this message translates to:
+  /// **'Save note'**
+  String get geologNoteSaveButton;
+
+  /// Action deleting the note of a Geolog
+  ///
+  /// In en, this message translates to:
+  /// **'Delete note'**
+  String get geologNoteDeleteButton;
+
+  /// Confirmation before deleting the note of a Geolog
+  ///
+  /// In en, this message translates to:
+  /// **'Delete the note of this Geolog? The Geolog itself is kept.'**
+  String get geologNoteDeleteConfirm;
+
+  /// Helper under the station block of the Geolog note page
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to pick another station around the Geolog position. The vehicle type follows the station.'**
+  String get geologNoteStationHelper;
+
+  /// Title of the page listing the stations around a Geolog
+  ///
+  /// In en, this message translates to:
+  /// **'Stations nearby'**
+  String get geologNoteStationSearchTitle;
+
+  /// Hint of the field filtering the stations around a Geolog
+  ///
+  /// In en, this message translates to:
+  /// **'Search a station'**
+  String get geologNoteStationSearchHint;
+
+  /// Shown when no station is found around a Geolog
+  ///
+  /// In en, this message translates to:
+  /// **'No station found around this position'**
+  String get geologNoteNoStationFound;
+
+  /// Label of the date field of the Geolog note page
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get geologNoteDateLabel;
+
+  /// Label of the time field of the Geolog note page
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get geologNoteTimeLabel;
+
+  /// When the Geolog was recorded, under the date and time fields
+  ///
+  /// In en, this message translates to:
+  /// **'Recorded on {dateTime}'**
+  String geologNoteRecordedAt(String dateTime);
+
+  /// Button restoring the recorded date and time on the Geolog note page
+  ///
+  /// In en, this message translates to:
+  /// **'Use recorded time'**
+  String get geologNoteResetDateTime;
+
+  /// Title of the dialog choosing between the ticket prices of two Geolog notes
+  ///
+  /// In en, this message translates to:
+  /// **'Which ticket price?'**
+  String get geologNoteConflictPriceTitle;
+
+  /// Title of the dialog choosing between the energies of two Geolog notes
+  ///
+  /// In en, this message translates to:
+  /// **'Which energy?'**
+  String get geologNoteConflictEnergyTitle;
+
+  /// Title of the dialog choosing between the visibilities of two Geolog notes
+  ///
+  /// In en, this message translates to:
+  /// **'Which visibility?'**
+  String get geologNoteConflictVisibilityTitle;
+
+  /// Message of the dialog choosing between two Geolog note values
+  ///
+  /// In en, this message translates to:
+  /// **'The departure and arrival Geologs have different values. Choose the one to use for the trip.'**
+  String get geologNoteConflictMessage;
 }
 
 class _AppLocalizationsDelegate
