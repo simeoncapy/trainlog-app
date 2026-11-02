@@ -137,11 +137,8 @@ class _CupertinoShellState extends State<CupertinoShell> {
           onClose: () => Navigator.of(ctx).pop(),
           onSettingsTap: () {
             Navigator.of(ctx).pop();
-            Navigator.of(context).push(PageRouteBuilder(
-              pageBuilder: (_, __, ___) => const SettingsPage(),
-              transitionDuration: Duration.zero,
-              reverseTransitionDuration: Duration.zero,
-            ));
+            _pushSubPage(context, (c) => AppLocalizations.of(c)!.menuSettingsTitle,
+                (_, __) => const SettingsPage());
           },
           onPageTap: (id) {
             Navigator.of(ctx).pop();
@@ -325,17 +322,22 @@ class _ShellSubPageState extends State<_ShellSubPage> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        appBar: AdaptiveAppBar(
-          title: widget.titleBuilder(context),
-          onBack: () => Navigator.of(context).pop(),
-          cupertinoTrailing: ValueListenableBuilder<List<AppPrimaryAction>>(
-            valueListenable: _actions,
-            builder: (_, actions, __) => CupertinoPrimaryActionsRow(actions: actions),
-          ),
+    // The Scaffold spans the whole screen so its background (and the nav
+    // bar's) fills the status bar and home indicator areas; wrapping it in a
+    // SafeArea would leave those as black bands. The nav bar pads itself for
+    // the status bar; the body only needs to keep clear of the bottom.
+    return Scaffold(
+      appBar: AdaptiveAppBar(
+        title: widget.titleBuilder(context),
+        onBack: () => Navigator.of(context).pop(),
+        cupertinoTrailing: ValueListenableBuilder<List<AppPrimaryAction>>(
+          valueListenable: _actions,
+          builder: (_, actions, __) => CupertinoPrimaryActionsRow(actions: actions),
         ),
-        body: widget.builder(context, (actions) => _actions.value = actions),
+      ),
+      body: SafeArea(
+        top: false,
+        child: widget.builder(context, (actions) => _actions.value = actions),
       ),
     );
   }
@@ -402,16 +404,16 @@ class _CupertinoRootPageState extends State<_CupertinoRootPage> {
   }
 
   Widget _childWithoutNavBar(MediaQueryData mq) {
+    // The page (the map) runs edge to edge, under the home indicator and the
+    // floating nav bar, so no blank strip is left below it. The FABs sit above
+    // the nav bar, which itself sits above the system safe area.
     return Stack(
       children: [
         Positioned.fill(
-          child: Padding(
-            padding: EdgeInsets.only(bottom: mq.padding.bottom),
-            child: widget.builder(context, (actions) => _actions.value = actions),
-          ),
+          child: widget.builder(context, (actions) => _actions.value = actions),
         ),
         Positioned(
-          bottom: kNavBarClearance + 16,
+          bottom: kNavBarClearance + mq.padding.bottom + 16,
           right: 16,
           child: ValueListenableBuilder<List<AppPrimaryAction>>(
             valueListenable: _actions,

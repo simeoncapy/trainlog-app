@@ -1,4 +1,3 @@
-import 'dart:math' as math;
 import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' show showModalBottomSheet, Theme;
@@ -49,14 +48,17 @@ Future<void> _showTripCardCupertino(
     barrierColor: CupertinoColors.black.withValues(alpha: .25),
     transitionDuration: const Duration(milliseconds: 260),
     pageBuilder: (ctx, animation, secondaryAnimation) {
-      final mq = MediaQuery.of(ctx);
-      final bottomInset = math.max(mq.viewPadding.bottom, mq.viewInsets.bottom);
+      // The card runs down to the screen edge like an Apple Maps card: the
+      // pinned action footer inside it already keeps clear of the home
+      // indicator, so only the keyboard needs reserving here.
+      final bottomInset = MediaQuery.of(ctx).viewInsets.bottom;
 
       return GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () => Navigator.of(ctx).pop(),
         child: SafeArea(
           top: false,
+          bottom: false,
           child: Align(
             alignment: Alignment.bottomCenter,
             child: GestureDetector(
