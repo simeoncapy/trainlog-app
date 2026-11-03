@@ -279,7 +279,10 @@ class _TripsPageState extends State<TripsPage> {
     final loc = AppLocalizations.of(context)!;
     return AppPrimaryAction(
       onPressed: () async {
-        final didSave = await Navigator.of(context).push<bool>(
+        // Root navigator: on iOS the tab's own navigator sits under the
+        // floating tab bar, which would cover the wizard's footer button.
+        final didSave =
+            await Navigator.of(context, rootNavigator: true).push<bool>(
           PageRouteBuilder(
             pageBuilder: (_, __, ___) => ChangeNotifierProvider(
               create: (_) => TripFormModel(),
