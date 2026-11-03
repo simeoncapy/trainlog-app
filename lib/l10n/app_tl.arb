@@ -130,14 +130,16 @@
   "settingsDisplayUserMarker": "Ipakita ang kasalukurang lugar",
   "settingsDisplayTripDirection": "Ipakita ang direksyon ng biyahe",
   "settingsDeleteAccount": "Ibura ang account",
-  "settingsDeleteAccountRequest": "Request",
-  "settingsDeleteAccountError": "Hindi kaya ibukas ang email client, request sa {email}",
-  "@settingsDeleteAccountError": {
-    "description": "email address to request the account deletion",
-    "placeholders": {
-      "email": {}
-    }
-  },
+  "settingsDeleteAccountButton": "Ibura",
+  "deleteAccountDialogTitle": "Ibura ang iyong account",
+  "deleteAccountDialogWarning": "Permanenteng buburahin nito ang iyong account at lahat ng laman nito: mga biyahe, plano, tag, tiket, trainset, at setting. Hindi na ito maibabalik.",
+  "deleteAccountPasswordLabel": "Ilagay ang iyong password para kumpirmahin",
+  "deleteAccountConfirmLabel": "I-type ang iyong username para kumpirmahin: {username}",
+  "deleteAccountConfirmButton": "Permanenteng ibura ang aking account",
+  "deleteAccountConfirmMismatch": "Hindi tugma ang username na itinype mo. Hindi nabura ang account.",
+  "deleteAccountWrongPassword": "Mali ang password. Hindi nabura ang account.",
+  "deleteAccountFailed": "Hindi nabura ang account. Tingnan ang iyong koneksyon at subukang muli.",
+  "deleteAccountSuccess": "Permanenteng nabura ang iyong account at lahat ng data nito.",
   "settingsHideWarningMessage": "Itago ang babala",
   "settingsAccountLeaderboard": "Lumabas sa pampublikong leaderboard",
   "settingsAccountFriendSearch": "Lumabas sa friend search",

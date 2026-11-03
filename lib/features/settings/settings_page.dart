@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/app/theme/app_tab_theme.dart';
 import 'package:trainlog_app/platform/adaptive_widget.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import 'package:trainlog_app/app/theme/app_theme.dart';
 import 'package:trainlog_app/features/trainlog/egg.dart';
@@ -14,6 +13,7 @@ import 'package:trainlog_app/platform/adaptive_dialog.dart';
 import 'package:trainlog_app/platform/adaptive_information_message.dart';
 import 'package:trainlog_app/platform/adaptive_page_route.dart';
 import 'package:trainlog_app/platform/adaptive_switch.dart';
+import 'package:trainlog_app/features/settings/widgets/delete_account_dialog.dart';
 import 'package:trainlog_app/features/settings/widgets/settings_group.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
@@ -174,20 +174,11 @@ class _SettingsPageState extends State<SettingsPage> {
     }
   }
 
-  Future<void> _requestDeleteAccountMail() async {
+  Future<void> _deleteAccount() async {
     final l10n = AppLocalizations.of(context)!;
-    final trainlog = context.read<TrainlogProvider>();
-
-    final uri = _vm.buildDeleteAccountMailUri(username: trainlog.username ?? '');
-
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri);
-    } else {
-      if (!mounted) return;
-      AdaptiveInformationMessage.showInfo(
-        l10n.settingsDeleteAccountError(SettingsVm.deleteAccountEmail),
-      );
-    }
+    final deleted = await showDeleteAccountDialog(context);
+    if (deleted != true || !mounted) return;
+    AdaptiveInformationMessage.showInfo(l10n.deleteAccountSuccess);
   }
 
   // ── Build ─────────────────────────────────────────────────────────────────
@@ -585,10 +576,10 @@ class _SettingsPageState extends State<SettingsPage> {
         title: l10n.settingsDeleteAccount,
         trailing: AdaptiveButton.build(
           context: ctx,
-          icon: AdaptiveIcons.mail,
+          type: AdaptiveButtonType.destructive,
           size: AdaptiveButton.small,
-          label: Text(l10n.settingsDeleteAccountRequest),
-          onPressed: _requestDeleteAccountMail,
+          label: Text(l10n.settingsDeleteAccountButton),
+          onPressed: _deleteAccount,
         ),
       ),
     ]);

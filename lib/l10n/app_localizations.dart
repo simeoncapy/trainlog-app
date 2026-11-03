@@ -840,17 +840,65 @@ abstract class AppLocalizations {
   /// **'Delete my account'**
   String get settingsDeleteAccount;
 
-  /// No description provided for @settingsDeleteAccountRequest.
+  /// No description provided for @settingsDeleteAccountButton.
   ///
   /// In en, this message translates to:
-  /// **'Request'**
-  String get settingsDeleteAccountRequest;
+  /// **'Delete'**
+  String get settingsDeleteAccountButton;
 
-  /// email address to request the account deletion
+  /// No description provided for @deleteAccountDialogTitle.
   ///
   /// In en, this message translates to:
-  /// **'Unable to open email client, request at {email}'**
-  String settingsDeleteAccountError(Object email);
+  /// **'Delete your account'**
+  String get deleteAccountDialogTitle;
+
+  /// No description provided for @deleteAccountDialogWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'This permanently deletes your account and everything in it: trips, plans, tags, tickets, trainsets, and settings. This cannot be undone.'**
+  String get deleteAccountDialogWarning;
+
+  /// No description provided for @deleteAccountPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your password to confirm'**
+  String get deleteAccountPasswordLabel;
+
+  /// Label of the field where the user types their username back to confirm the deletion
+  ///
+  /// In en, this message translates to:
+  /// **'Type your username to confirm: {username}'**
+  String deleteAccountConfirmLabel(Object username);
+
+  /// No description provided for @deleteAccountConfirmButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Permanently delete my account'**
+  String get deleteAccountConfirmButton;
+
+  /// No description provided for @deleteAccountConfirmMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'The username you typed doesn\'t match. Account not deleted.'**
+  String get deleteAccountConfirmMismatch;
+
+  /// No description provided for @deleteAccountWrongPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Incorrect password. Account not deleted.'**
+  String get deleteAccountWrongPassword;
+
+  /// No description provided for @deleteAccountFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The account could not be deleted. Check your connection and try again.'**
+  String get deleteAccountFailed;
+
+  /// No description provided for @deleteAccountSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account and all its data have been permanently deleted.'**
+  String get deleteAccountSuccess;
 
   /// No description provided for @settingsHideWarningMessage.
   ///

@@ -160,14 +160,22 @@
   "settingsDisplayUserMarker": "Display current position",
   "settingsDisplayTripDirection": "Display trip direction",
   "settingsDeleteAccount": "Delete my account",
-  "settingsDeleteAccountRequest": "Request",
-  "settingsDeleteAccountError": "Unable to open email client, request at {email}",
-  "@settingsDeleteAccountError" :{
-    "description": "email address to request the account deletion",
+  "settingsDeleteAccountButton": "Delete",
+  "deleteAccountDialogTitle": "Delete your account",
+  "deleteAccountDialogWarning": "This permanently deletes your account and everything in it: trips, plans, tags, tickets, trainsets, and settings. This cannot be undone.",
+  "deleteAccountPasswordLabel": "Enter your password to confirm",
+  "deleteAccountConfirmLabel": "Type your username to confirm: {username}",
+  "@deleteAccountConfirmLabel": {
+    "description": "Label of the field where the user types their username back to confirm the deletion",
     "placeholders": {
-      "email": {}
+      "username": {}
     }
   },
+  "deleteAccountConfirmButton": "Permanently delete my account",
+  "deleteAccountConfirmMismatch": "The username you typed doesn't match. Account not deleted.",
+  "deleteAccountWrongPassword": "Incorrect password. Account not deleted.",
+  "deleteAccountFailed": "The account could not be deleted. Check your connection and try again.",
+  "deleteAccountSuccess": "Your account and all its data have been permanently deleted.",
   "settingsHideWarningMessage": "Hide warning messages",
   "settingsAccountLeaderboard": "Appear in the public leaderboard",
   "settingsAccountFriendSearch": "Appear in friend search",

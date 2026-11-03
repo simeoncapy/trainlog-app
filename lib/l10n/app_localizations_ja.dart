@@ -385,12 +385,38 @@ class AppLocalizationsJa extends AppLocalizations {
   String get settingsDeleteAccount => 'アカウントを削除する';
 
   @override
-  String get settingsDeleteAccountRequest => '申請';
+  String get settingsDeleteAccountButton => '削除';
 
   @override
-  String settingsDeleteAccountError(Object email) {
-    return 'メールクライアントを開けません。$email に申請してください';
+  String get deleteAccountDialogTitle => 'アカウントを削除';
+
+  @override
+  String get deleteAccountDialogWarning =>
+      'この操作は、旅行記録、プラン、タグ、チケット、編成、設定など、アカウント内のすべてのデータを完全に削除します。この操作は元に戻せません。';
+
+  @override
+  String get deleteAccountPasswordLabel => '確認のためパスワードを入力してください';
+
+  @override
+  String deleteAccountConfirmLabel(Object username) {
+    return '確認のためユーザー名を入力してください: $username';
   }
+
+  @override
+  String get deleteAccountConfirmButton => 'アカウントを完全に削除する';
+
+  @override
+  String get deleteAccountConfirmMismatch =>
+      '入力されたユーザー名が一致しません。アカウントは削除されませんでした。';
+
+  @override
+  String get deleteAccountWrongPassword => 'パスワードが正しくありません。アカウントは削除されませんでした。';
+
+  @override
+  String get deleteAccountFailed => 'アカウントを削除できませんでした。接続を確認して、もう一度お試しください。';
+
+  @override
+  String get deleteAccountSuccess => 'アカウントとそのすべてのデータは完全に削除されました。';
 
   @override
   String get settingsHideWarningMessage => '警告メッセージを非表示にする';
