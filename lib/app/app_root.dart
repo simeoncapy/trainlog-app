@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
-import 'package:trainlog_app/app/theme/app_colors.dart';
 import 'package:trainlog_app/app/app_globals.dart';
 import 'package:trainlog_app/app/theme/app_theme.dart';
 import 'package:trainlog_app/app/home_gate.dart';
@@ -105,8 +104,12 @@ class AppRoot extends StatelessWidget {
   }
 
   Widget _buildCupertinoApp(SettingsProvider settings) {
-    final brightness =
-        settings.themeMode == ThemeMode.dark ? Brightness.dark : Brightness.light;
+    // null = follow the system appearance (ThemeMode.system), like Material.
+    final Brightness? brightness = switch (settings.themeMode) {
+      ThemeMode.dark => Brightness.dark,
+      ThemeMode.light => Brightness.light,
+      ThemeMode.system => null,
+    };
 
     return CupertinoApp(
       navigatorKey: rootNavigatorKey,
@@ -116,22 +119,25 @@ class AppRoot extends StatelessWidget {
         const _FallbackCountryLocalizationsDelegate(),
       ],
       supportedLocales: AppLocalizations.supportedLocales,
-      theme: CupertinoThemeData(
-        brightness: brightness,
-        primaryColor: const CupertinoDynamicColor.withBrightness(
-          color: AppColors.amber,
-          darkColor: AppColors.amber,
-        ),
-      ),
+      theme: AppTheme.cupertino(brightness),
 
-      builder: (_, child) {
+      builder: (context, child) {
+        final effective =
+            brightness ?? MediaQuery.platformBrightnessOf(context);
         final themeData =
-            brightness == Brightness.dark ? AppTheme.dark : AppTheme.light;
-        return Theme(
-          data: themeData,
-          child: ScaffoldMessenger(
-            key: rootScaffoldMessengerKey,
-            child: child!,
+            effective == Brightness.dark ? AppTheme.dark : AppTheme.light;
+        return AnnotatedRegion<SystemUiOverlayStyle>(
+          // App-wide default; pages drawn under the status bar (the map)
+          // override it locally.
+          value: effective == Brightness.dark
+              ? SystemUiOverlayStyle.light
+              : SystemUiOverlayStyle.dark,
+          child: Theme(
+            data: themeData,
+            child: ScaffoldMessenger(
+              key: rootScaffoldMessengerKey,
+              child: child!,
+            ),
           ),
         );
       },

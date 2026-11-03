@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -101,6 +102,63 @@ class _TripsPageState extends State<TripsPage> {
     if (mounted) setState(() => _summaryCount = count);
   }
 
+  Future<void> _openFilter(TripsProvider tripsProvider) async {
+    final repo = tripsProvider.repository;
+    if (repo == null) return;
+    final locale = Localizations.localeOf(context);
+    final countries = await tripsProvider.getMapCountryCodesSafe(locale: locale);
+    final types = tripsProvider.vehicleTypes;
+
+    if (!mounted) return;
+    final result = await showTripsSearchFilterSheet(
+      context,
+      repo: repo,
+      countryOptions: countries,
+      typeOptions: types,
+      showFutureTrips: _timeMoment == TimeMoment.future,
+      initialFilter: _activeFilter,
+    );
+
+    if (result != null) {
+      // An all-defaults result is equivalent to "no filter".
+      setState(() => _activeFilter = result.isEmpty ? null : result);
+      _refreshSummaryCount(tripsProvider);
+    }
+  }
+
+  void _clearFilter(TripsProvider tripsProvider) {
+    setState(() => _activeFilter = null);
+    _refreshSummaryCount(tripsProvider);
+  }
+
+  /// Actions surfaced by the shell. On Apple the view toggle and the filter
+  /// live in the navigation bar (grouped glass buttons) next to "New trip",
+  /// instead of in a header row inside the page.
+  List<AppPrimaryAction> _primaryActions(TripsProvider tripsProvider) {
+    final loc = AppLocalizations.of(context)!;
+    return [
+      _buildPrimaryAction(context),
+      if (AppPlatform.isApple) ...[
+        AppPrimaryAction(
+          icon: AdaptiveIcons.search,
+          tooltip: loc.filterButton,
+          onPressed: () => _openFilter(tripsProvider),
+        ),
+        AppPrimaryAction(
+          icon: _isCardView ? CupertinoIcons.table : CupertinoIcons.rectangle_grid_1x2,
+          tooltip: _isCardView ? 'Table view' : 'Card view',
+          onPressed: () => _setCardView(!_isCardView),
+        ),
+        if (_activeFilter != null)
+          AppPrimaryAction(
+            icon: CupertinoIcons.clear,
+            tooltip: loc.filterClearButton,
+            onPressed: () => _clearFilter(tripsProvider),
+          ),
+      ],
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     _isShown = Visibility.of(context) && (ModalRoute.of(context)?.isCurrent ?? true);
@@ -120,7 +178,7 @@ class _TripsPageState extends State<TripsPage> {
     }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) widget.onPrimaryActionsReady([_buildPrimaryAction(context)]);
+      if (mounted) widget.onPrimaryActionsReady(_primaryActions(tripsProvider));
     });
 
     return SafeArea(
@@ -149,36 +207,16 @@ class _TripsPageState extends State<TripsPage> {
         },
         child: Column(
           children: [
-            // ── Page header ─────────────────────────────────────────────
+            // ── Page header (Apple: actions are in the navigation bar) ──
+            if (AppPlatform.isApple)
+              const SizedBox(height: 4)
+            else
             _PageHeader(
               isCardView: _isCardView,
               activeFilter: _activeFilter,
               onToggleView: () => _setCardView(!_isCardView),
-              onFilterTap: () async {
-                final locale = Localizations.localeOf(context);
-                final countries = await tripsProvider.getMapCountryCodesSafe(locale: locale);
-                final types = tripsProvider.vehicleTypes;
-
-                if (!context.mounted) return;
-                final result = await showTripsSearchFilterSheet(
-                  context,
-                  repo: repo,
-                  countryOptions: countries,
-                  typeOptions: types,
-                  showFutureTrips: _timeMoment == TimeMoment.future,
-                  initialFilter: _activeFilter,
-                );
-
-                if (result != null) {
-                  // An all-defaults result is equivalent to "no filter".
-                  setState(() => _activeFilter = result.isEmpty ? null : result);
-                  _refreshSummaryCount(tripsProvider);
-                }
-              },
-              onClearFilter: () {
-                setState(() => _activeFilter = null);
-                _refreshSummaryCount(tripsProvider);
-              },
+              onFilterTap: () => _openFilter(tripsProvider),
+              onClearFilter: () => _clearFilter(tripsProvider),
             ),
 
             // ── Summary block (card view only) ──────────────────────────
@@ -257,7 +295,10 @@ class _TripsPageState extends State<TripsPage> {
         if (didSave == true) {
           setState(() {});
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) widget.onPrimaryActionsReady([_buildPrimaryAction(context)]);
+            if (mounted) {
+              widget.onPrimaryActionsReady(
+                  _primaryActions(context.read<TripsProvider>()));
+            }
           });
         }
       },
