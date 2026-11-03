@@ -1,5 +1,6 @@
 import 'package:currency_picker/currency_picker.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/app/theme/app_tab_theme.dart';
@@ -23,6 +24,7 @@ import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
+import 'package:trainlog_app/widgets/app_steps_tab_bar.dart';
 import 'package:trainlog_app/widgets/bottom_sheet_picker.dart';
 
 import 'settings_vm.dart';
@@ -787,7 +789,9 @@ class _ThemeRow extends StatelessWidget {
           // Segmented control, centred within the tile
           Padding(
             padding: const EdgeInsets.only(left: 52),
-            child: Container(
+            child: AppPlatform.isApple
+                ? _appleSelector()
+                : Container(
               decoration: BoxDecoration(
                 color: tabColors.tabBackground,
                 borderRadius: BorderRadius.circular(10),
@@ -830,6 +834,26 @@ class _ThemeRow extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  /// Apple: the same iOS segmented control as the other selectors, with an
+  /// icon per mode so the selected one picks up the Trainlog amber.
+  Widget _appleSelector() {
+    IconData iconFor(ThemeMode m) => switch (m) {
+          ThemeMode.light => CupertinoIcons.sun_max,
+          ThemeMode.system => CupertinoIcons.circle_lefthalf_fill,
+          ThemeMode.dark => CupertinoIcons.moon,
+        };
+    final index = options.indexWhere((o) => o.value == selected);
+    return AppStepsTabBar(
+      fullWidth: true,
+      tabs: [
+        for (final o in options)
+          AppStepsTab(label: o.label, leadingIcon: Icon(iconFor(o.value))),
+      ],
+      selectedIndex: index < 0 ? 0 : index,
+      onTabChanged: (i) => onChanged(options[i].value),
     );
   }
 }

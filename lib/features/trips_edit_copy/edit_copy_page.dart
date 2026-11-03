@@ -12,7 +12,7 @@ import 'package:trainlog_app/features/trips_edit_copy/sections/edit_trip_path_se
 import 'package:trainlog_app/features/trips_edit_copy/sections/edit_trip_route_section.dart';
 import 'package:trainlog_app/features/trips_edit_copy/sections/edit_trip_ticket_section.dart';
 import 'package:trainlog_app/features/trips_edit_copy/sections/edit_trip_when_section.dart';
-import 'package:trainlog_app/features/trips_edit_copy/widgets/edit_trip_app_bar_title.dart';
+import 'package:trainlog_app/features/trips_edit_copy/widgets/edit_trip_app_bar.dart';
 import 'package:trainlog_app/features/trips_edit_copy/widgets/edit_trip_section_bar.dart';
 import 'package:trainlog_app/features/trips_edit_copy/widgets/edit_trip_vehicle_card.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
@@ -408,19 +408,10 @@ class _EditCopyPageState extends State<EditCopyPage> {
     final warning = _warning(loc);
 
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        titleSpacing: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.close),
-          tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
-          onPressed: () => Navigator.of(context).maybePop(),
-        ),
-        title: EditTripAppBarTitle(
-          title: _title(loc),
-          subtitle: _subtitle(loc),
-        ),
-        backgroundColor: widget.mode == EditCopy.edit
+      appBar: EditTripAppBar(
+        title: _title(loc),
+        subtitle: _subtitle(loc),
+        tint: widget.mode == EditCopy.edit
             ? Theme.of(context).colorScheme.error.withValues(alpha: 0.2)
             : Theme.of(context).colorScheme.secondary.withValues(alpha: 0.2),
       ),
