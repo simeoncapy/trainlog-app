@@ -176,8 +176,17 @@ class _SettingsPageState extends State<SettingsPage> {
     }
   }
 
+  /// In-app account deletion needs the `?raw=1` JSON mode of the backend's
+  /// delete_account route. Until that is deployed, the button only tells the
+  /// user it is coming: set this to true once the server supports it.
+  static const bool _accountDeletionEnabled = false;
+
   Future<void> _deleteAccount() async {
     final l10n = AppLocalizations.of(context)!;
+    if (!_accountDeletionEnabled) {
+      AdaptiveInformationMessage.showInfo(l10n.featureAvailableNextUpdate);
+      return;
+    }
     final deleted = await showDeleteAccountDialog(context);
     if (deleted != true || !mounted) return;
     AdaptiveInformationMessage.showInfo(l10n.deleteAccountSuccess);

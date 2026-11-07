@@ -436,6 +436,10 @@ class AppLocalizationsFr extends AppLocalizations {
       'Votre compte et toutes ses données ont été définitivement supprimés.';
 
   @override
+  String get featureAvailableNextUpdate =>
+      'Disponible dans la prochaine mise à jour';
+
+  @override
   String get settingsHideWarningMessage =>
       'Ne plus afficher les messages d\'avertissement';
 

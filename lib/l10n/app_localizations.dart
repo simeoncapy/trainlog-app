@@ -900,6 +900,12 @@ abstract class AppLocalizations {
   /// **'Your account and all its data have been permanently deleted.'**
   String get deleteAccountSuccess;
 
+  /// No description provided for @featureAvailableNextUpdate.
+  ///
+  /// In en, this message translates to:
+  /// **'Available in the next update'**
+  String get featureAvailableNextUpdate;
+
   /// No description provided for @settingsHideWarningMessage.
   ///
   /// In en, this message translates to:

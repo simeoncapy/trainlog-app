@@ -176,6 +176,7 @@
   "deleteAccountWrongPassword": "Incorrect password. Account not deleted.",
   "deleteAccountFailed": "The account could not be deleted. Check your connection and try again.",
   "deleteAccountSuccess": "Your account and all its data have been permanently deleted.",
+  "featureAvailableNextUpdate": "Available in the next update",
   "settingsHideWarningMessage": "Hide warning messages",
   "settingsAccountLeaderboard": "Appear in the public leaderboard",
   "settingsAccountFriendSearch": "Appear in friend search",

@@ -140,6 +140,7 @@
   "deleteAccountWrongPassword": "Mali ang password. Hindi nabura ang account.",
   "deleteAccountFailed": "Hindi nabura ang account. Tingnan ang iyong koneksyon at subukang muli.",
   "deleteAccountSuccess": "Permanenteng nabura ang iyong account at lahat ng data nito.",
+  "featureAvailableNextUpdate": "Magiging available sa susunod na update",
   "settingsHideWarningMessage": "Itago ang babala",
   "settingsAccountLeaderboard": "Lumabas sa pampublikong leaderboard",
   "settingsAccountFriendSearch": "Lumabas sa friend search",

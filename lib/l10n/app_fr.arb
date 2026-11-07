@@ -133,6 +133,7 @@
   "deleteAccountWrongPassword": "Mot de passe incorrect. Compte non supprimé.",
   "deleteAccountFailed": "Le compte n'a pas pu être supprimé. Vérifiez votre connexion et réessayez.",
   "deleteAccountSuccess": "Votre compte et toutes ses données ont été définitivement supprimés.",
+  "featureAvailableNextUpdate": "Disponible dans la prochaine mise à jour",
   "settingsHideWarningMessage": "Ne plus afficher les messages d'avertissement",
   "settingsAccountLeaderboard": "Apparaître dans le classement public",
   "settingsAccountFriendSearch": "Apparaître dans la recherche d'amis",

@@ -431,6 +431,10 @@ class AppLocalizationsTl extends AppLocalizations {
       'Permanenteng nabura ang iyong account at lahat ng data nito.';
 
   @override
+  String get featureAvailableNextUpdate =>
+      'Magiging available sa susunod na update';
+
+  @override
   String get settingsHideWarningMessage => 'Itago ang babala';
 
   @override

@@ -419,6 +419,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get deleteAccountSuccess => 'アカウントとそのすべてのデータは完全に削除されました。';
 
   @override
+  String get featureAvailableNextUpdate => '次回のアップデートで利用可能になります';
+
+  @override
   String get settingsHideWarningMessage => '警告メッセージを非表示にする';
 
   @override

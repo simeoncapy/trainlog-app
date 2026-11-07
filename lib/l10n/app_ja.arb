@@ -132,6 +132,7 @@
   "deleteAccountWrongPassword": "パスワードが正しくありません。アカウントは削除されませんでした。",
   "deleteAccountFailed": "アカウントを削除できませんでした。接続を確認して、もう一度お試しください。",
   "deleteAccountSuccess": "アカウントとそのすべてのデータは完全に削除されました。",
+  "featureAvailableNextUpdate": "次回のアップデートで利用可能になります",
   "settingsHideWarningMessage": "警告メッセージを非表示にする",
   "settingsAccountLeaderboard": "公開ランキングに表示する",
   "settingsAccountFriendSearch": "フレンド検索に表示する",

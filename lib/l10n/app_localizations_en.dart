@@ -431,6 +431,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your account and all its data have been permanently deleted.';
 
   @override
+  String get featureAvailableNextUpdate => 'Available in the next update';
+
+  @override
   String get settingsHideWarningMessage => 'Hide warning messages';
 
   @override
