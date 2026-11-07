@@ -22,6 +22,7 @@ import 'package:trainlog_app/features/map/map_marker.dart';
 import 'package:trainlog_app/features/trips_add/widgets/full_screen_search_overlay.dart';
 import 'package:trainlog_app/navigation/nav_models.dart';
 import 'package:trainlog_app/platform/adaptive_bottom_navbar.dart' show kNavBarClearance;
+import 'package:trainlog_app/platform/liquid_glass.dart';
 import 'package:trainlog_app/platform/adaptive_trip_card.dart';
 import 'package:trainlog_app/platform/adaptive_widget.dart';
 import 'package:trainlog_app/providers/polyline_provider.dart';
@@ -238,7 +239,13 @@ class _MapPageState extends State<MapPage>
         widget.onPrimaryActionsReady(const []);
       });
 
-      return Center(
+      return SafeArea(
+        // The Apple map runs under the status bar and the floating tab bar.
+        top: AppPlatform.isApple,
+        bottom: AppPlatform.isApple,
+        left: false,
+        right: false,
+        child: Center(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(8, 8, 8, 24),
           child: Column(
@@ -251,6 +258,7 @@ class _MapPageState extends State<MapPage>
               Expanded(child: lt.Lottie.asset('assets/animations/loading.json')),     
             ],
           ),
+        ),
         ),
       );
     }
@@ -424,6 +432,48 @@ class _MapPageState extends State<MapPage>
         ? kNavBarClearance + MediaQuery.of(context).padding.bottom + 16 + 56 + 12
         : 16 + MediaQuery.of(context).padding.bottom + 56 + 12;
 
+    if (AppPlatform.isApple) {
+      // iOS 26 map controls: one vertical glass capsule, like Apple Maps.
+      Widget item(Widget icon, VoidCallback onTap) => GlassPressable(
+            onPressed: onTap,
+            pressedScale: 1.15,
+            child: SizedBox.square(
+              dimension: 48,
+              child: Center(
+                child: IconTheme(
+                  data: IconThemeData(
+                    size: 22,
+                    color: CupertinoColors.label.resolveFrom(context),
+                  ),
+                  child: icon,
+                ),
+              ),
+            ),
+          );
+      final divider = Container(
+        width: 26,
+        height: 0.5,
+        color: CupertinoColors.separator.resolveFrom(context),
+      );
+      return Positioned(
+        bottom: buttonsBottom,
+        right: 16,
+        child: LiquidGlass(
+          borderRadius: BorderRadius.circular(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              item(recenterUserIcon, recenterFct),
+              divider,
+              item(followUserIcon, followUserFct),
+              divider,
+              item(orientationIconBuilder(), resetMapOrientationFct),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Positioned(
       bottom: buttonsBottom,
       right: 16,
@@ -490,6 +540,20 @@ class _MapPageState extends State<MapPage>
 
   /// Round search button in the top-right corner of the map.
   Widget _searchButton(AppLocalizations appLocalizations) {
+    if (AppPlatform.isApple) {
+      return Positioned(
+        top: MediaQuery.of(context).padding.top + 8,
+        right: 16,
+        child: GlassIconButton(
+          icon: AdaptiveIcons.search,
+          size: 48,
+          iconSize: 22,
+          onPressed: _openSearchOverlay,
+          tooltip: appLocalizations.mapSearchLocationButton,
+        ),
+      );
+    }
+
     final navColors = Theme.of(context).extension<AppNavBarColors>()!;
 
     return Positioned(

@@ -10,12 +10,17 @@ class EditTripAppBarTitle extends StatelessWidget {
     super.key,
     required this.title,
     required this.subtitle,
+    this.accent,
   });
 
   final String title;
 
   /// Null (or empty) while the trip is still loading: only the title shows.
   final String? subtitle;
+
+  /// When set, a small dot of this colour leads the title (the mode colour
+  /// on Apple, where the bar itself is not tinted).
+  final Color? accent;
 
   @override
   Widget build(BuildContext context) {
@@ -25,15 +30,29 @@ class EditTripAppBarTitle extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Text(
-          title,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: AppTheme.displayFont.copyWith(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-            color: theme.colorScheme.onSurface,
-          ),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (accent != null) ...[
+              DecoratedBox(
+                decoration: BoxDecoration(color: accent, shape: BoxShape.circle),
+                child: const SizedBox.square(dimension: 8),
+              ),
+              const SizedBox(width: 7),
+            ],
+            Flexible(
+              child: Text(
+                title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTheme.displayFont.copyWith(
+                  fontSize: accent != null ? 17 : 18,
+                  fontWeight: accent != null ? FontWeight.w600 : FontWeight.w700,
+                  color: theme.colorScheme.onSurface,
+                ),
+              ),
+            ),
+          ],
         ),
         if (subtitle != null && subtitle!.isNotEmpty)
           Text(

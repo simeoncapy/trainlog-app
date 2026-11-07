@@ -1,10 +1,10 @@
 import 'package:currency_picker/currency_picker.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/app/theme/app_tab_theme.dart';
 import 'package:trainlog_app/platform/adaptive_widget.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import 'package:trainlog_app/app/theme/app_theme.dart';
 import 'package:trainlog_app/features/trainlog/egg.dart';
@@ -14,6 +14,7 @@ import 'package:trainlog_app/platform/adaptive_dialog.dart';
 import 'package:trainlog_app/platform/adaptive_information_message.dart';
 import 'package:trainlog_app/platform/adaptive_page_route.dart';
 import 'package:trainlog_app/platform/adaptive_switch.dart';
+import 'package:trainlog_app/features/settings/widgets/delete_account_dialog.dart';
 import 'package:trainlog_app/features/settings/widgets/settings_group.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
@@ -23,6 +24,7 @@ import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
+import 'package:trainlog_app/widgets/app_steps_tab_bar.dart';
 import 'package:trainlog_app/widgets/bottom_sheet_picker.dart';
 
 import 'settings_vm.dart';
@@ -174,20 +176,20 @@ class _SettingsPageState extends State<SettingsPage> {
     }
   }
 
-  Future<void> _requestDeleteAccountMail() async {
+  /// In-app account deletion needs the `?raw=1` JSON mode of the backend's
+  /// delete_account route. Until that is deployed, the button only tells the
+  /// user it is coming: set this to true once the server supports it.
+  static const bool _accountDeletionEnabled = false;
+
+  Future<void> _deleteAccount() async {
     final l10n = AppLocalizations.of(context)!;
-    final trainlog = context.read<TrainlogProvider>();
-
-    final uri = _vm.buildDeleteAccountMailUri(username: trainlog.username ?? '');
-
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri);
-    } else {
-      if (!mounted) return;
-      AdaptiveInformationMessage.showInfo(
-        l10n.settingsDeleteAccountError(SettingsVm.deleteAccountEmail),
-      );
+    if (!_accountDeletionEnabled) {
+      AdaptiveInformationMessage.showInfo(l10n.featureAvailableNextUpdate);
+      return;
     }
+    final deleted = await showDeleteAccountDialog(context);
+    if (deleted != true || !mounted) return;
+    AdaptiveInformationMessage.showInfo(l10n.deleteAccountSuccess);
   }
 
   // ── Build ─────────────────────────────────────────────────────────────────
@@ -585,10 +587,10 @@ class _SettingsPageState extends State<SettingsPage> {
         title: l10n.settingsDeleteAccount,
         trailing: AdaptiveButton.build(
           context: ctx,
-          icon: AdaptiveIcons.mail,
+          type: AdaptiveButtonType.destructive,
           size: AdaptiveButton.small,
-          label: Text(l10n.settingsDeleteAccountRequest),
-          onPressed: _requestDeleteAccountMail,
+          label: Text(l10n.settingsDeleteAccountButton),
+          onPressed: _deleteAccount,
         ),
       ),
     ]);
@@ -796,7 +798,9 @@ class _ThemeRow extends StatelessWidget {
           // Segmented control, centred within the tile
           Padding(
             padding: const EdgeInsets.only(left: 52),
-            child: Container(
+            child: AppPlatform.isApple
+                ? _appleSelector()
+                : Container(
               decoration: BoxDecoration(
                 color: tabColors.tabBackground,
                 borderRadius: BorderRadius.circular(10),
@@ -839,6 +843,26 @@ class _ThemeRow extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  /// Apple: the same iOS segmented control as the other selectors, with an
+  /// icon per mode so the selected one picks up the Trainlog amber.
+  Widget _appleSelector() {
+    IconData iconFor(ThemeMode m) => switch (m) {
+          ThemeMode.light => CupertinoIcons.sun_max,
+          ThemeMode.system => CupertinoIcons.circle_lefthalf_fill,
+          ThemeMode.dark => CupertinoIcons.moon,
+        };
+    final index = options.indexWhere((o) => o.value == selected);
+    return AppStepsTabBar(
+      fullWidth: true,
+      tabs: [
+        for (final o in options)
+          AppStepsTab(label: o.label, leadingIcon: Icon(iconFor(o.value))),
+      ],
+      selectedIndex: index < 0 ? 0 : index,
+      onTabChanged: (i) => onChanged(options[i].value),
     );
   }
 }
