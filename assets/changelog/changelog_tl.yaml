@@ -4,6 +4,10 @@ changelog_tl:
     changes:
       - type: feature
         text: "Magdagdag ng tala sa isang Geolog para paunang punan ang mga detalye ng biyahe. Pagsasamahin ang mga tala ng pag-alis at pagdating kapag ginawa ang biyahe, at ikaw ang pipili kapag magkasalungat ang mga ito."
+      - type: minor
+        text: "Ipinapakita na ng mga mensahe sa Mga balita at update ang kanilang format (bold, listahan, link...)."
+      - type: fix
+        text: "Hindi na ipinapakita ng privacy policy sa Tungkol sa app ang mga link na Sign up at Log in ng website."
   - version: 0.5.0
     date: 2026-10-19
     changes:

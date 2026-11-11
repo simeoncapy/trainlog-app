@@ -397,12 +397,47 @@ class AppLocalizationsFr extends AppLocalizations {
   String get settingsDeleteAccount => 'Supprimer mon compte';
 
   @override
-  String get settingsDeleteAccountRequest => 'Demander';
+  String get settingsDeleteAccountButton => 'Supprimer';
 
   @override
-  String settingsDeleteAccountError(Object email) {
-    return 'Impossible d\'ouvrir le client mail, demander à $email';
+  String get deleteAccountDialogTitle => 'Supprimer votre compte';
+
+  @override
+  String get deleteAccountDialogWarning =>
+      'Cette action supprime définitivement votre compte et tout son contenu : voyages, plans, tags, billets, rames, et paramètres. Cette action est irréversible.';
+
+  @override
+  String get deleteAccountPasswordLabel =>
+      'Entrez votre mot de passe pour confirmer';
+
+  @override
+  String deleteAccountConfirmLabel(Object username) {
+    return 'Tapez votre nom d\'utilisateur pour confirmer : $username';
   }
+
+  @override
+  String get deleteAccountConfirmButton =>
+      'Supprimer définitivement mon compte';
+
+  @override
+  String get deleteAccountConfirmMismatch =>
+      'Le nom d\'utilisateur saisi ne correspond pas. Compte non supprimé.';
+
+  @override
+  String get deleteAccountWrongPassword =>
+      'Mot de passe incorrect. Compte non supprimé.';
+
+  @override
+  String get deleteAccountFailed =>
+      'Le compte n\'a pas pu être supprimé. Vérifiez votre connexion et réessayez.';
+
+  @override
+  String get deleteAccountSuccess =>
+      'Votre compte et toutes ses données ont été définitivement supprimés.';
+
+  @override
+  String get featureAvailableNextUpdate =>
+      'Disponible dans la prochaine mise à jour';
 
   @override
   String get settingsHideWarningMessage =>

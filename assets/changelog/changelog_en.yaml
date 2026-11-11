@@ -4,6 +4,10 @@ changelog_en:
     changes:
       - type: feature
         text: "Add a note to a Geolog to prefill the trip details. When you create the trip, the departure and arrival notes are merged, and you choose if they conflict."
+      - type: minor
+        text: "Messages in News & Updates now display their formatting (bold, lists, links...)."
+      - type: fix
+        text: "The privacy policy in About no longer shows the website's Sign up and Log in links."
   - version: 0.5.0
     date: 2026-10-19
     changes:

@@ -394,12 +394,44 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsDeleteAccount => 'Delete my account';
 
   @override
-  String get settingsDeleteAccountRequest => 'Request';
+  String get settingsDeleteAccountButton => 'Delete';
 
   @override
-  String settingsDeleteAccountError(Object email) {
-    return 'Unable to open email client, request at $email';
+  String get deleteAccountDialogTitle => 'Delete your account';
+
+  @override
+  String get deleteAccountDialogWarning =>
+      'This permanently deletes your account and everything in it: trips, plans, tags, tickets, trainsets, and settings. This cannot be undone.';
+
+  @override
+  String get deleteAccountPasswordLabel => 'Enter your password to confirm';
+
+  @override
+  String deleteAccountConfirmLabel(Object username) {
+    return 'Type your username to confirm: $username';
   }
+
+  @override
+  String get deleteAccountConfirmButton => 'Permanently delete my account';
+
+  @override
+  String get deleteAccountConfirmMismatch =>
+      'The username you typed doesn\'t match. Account not deleted.';
+
+  @override
+  String get deleteAccountWrongPassword =>
+      'Incorrect password. Account not deleted.';
+
+  @override
+  String get deleteAccountFailed =>
+      'The account could not be deleted. Check your connection and try again.';
+
+  @override
+  String get deleteAccountSuccess =>
+      'Your account and all its data have been permanently deleted.';
+
+  @override
+  String get featureAvailableNextUpdate => 'Available in the next update';
 
   @override
   String get settingsHideWarningMessage => 'Hide warning messages';

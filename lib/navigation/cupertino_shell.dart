@@ -1,13 +1,15 @@
 // cupertino_shell.dart
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart' show Icon, PageRouteBuilder, Scaffold, Theme;
+import 'package:flutter/foundation.dart' show ValueListenable;
+import 'package:flutter/services.dart' show SystemUiOverlayStyle;
+import 'package:flutter/material.dart' show Scaffold;
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/navigation/nav_models.dart';
 import 'package:trainlog_app/platform/adaptive_app_bar.dart';
 import 'package:trainlog_app/platform/adaptive_bottom_navbar.dart'
     show AdaptiveBottomNavBar, kNavBarClearance;
-import 'package:trainlog_app/platform/cupertino_fab.dart';
+import 'package:trainlog_app/platform/liquid_glass.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 
@@ -73,13 +75,11 @@ class _CupertinoShellState extends State<CupertinoShell> {
     Widget Function(BuildContext, SetPrimaryActions) builder,
   ) {
     Navigator.of(context).push(
-      PageRouteBuilder(
-        pageBuilder: (_, __, ___) => _ShellSubPage(
+      CupertinoPageRoute(
+        builder: (_) => _ShellSubPage(
           titleBuilder: titleBuilder,
           builder: builder,
         ),
-        transitionDuration: Duration.zero,
-        reverseTransitionDuration: Duration.zero,
       ),
     );
   }
@@ -129,11 +129,13 @@ class _CupertinoShellState extends State<CupertinoShell> {
     }
   }
 
+  /// The "You" menu is presented as an iOS sheet: it slides up over the
+  /// current tab (which recedes behind it) and can be swiped down to dismiss.
   void _openFullScreenMenu(BuildContext context) {
-    Navigator.of(context).push(
-      PageRouteBuilder(
-        opaque: true,
-        pageBuilder: (ctx, _, __) => FullScreenMenuPage(
+    Navigator.of(context, rootNavigator: true).push(
+      CupertinoSheetRoute<void>(
+        scrollableBuilder: (ctx, scrollController) => FullScreenMenuPage(
+          scrollController: scrollController,
           onClose: () => Navigator.of(ctx).pop(),
           onSettingsTap: () {
             Navigator.of(ctx).pop();
@@ -155,12 +157,6 @@ class _CupertinoShellState extends State<CupertinoShell> {
                 (_, __) => const TrainlogStatusPage());
           },
         ),
-        transitionsBuilder: (_, animation, __, child) => FadeTransition(
-          opacity: animation,
-          child: child,
-        ),
-        transitionDuration: const Duration(milliseconds: 200),
-        reverseTransitionDuration: const Duration(milliseconds: 150),
       ),
     );
   }
@@ -211,6 +207,7 @@ class _CupertinoShellState extends State<CupertinoShell> {
                 builder: (ctx) => _CupertinoRootPage(
                   key: ValueKey(AppPageId.ranking.name),
                   title: l10n.menuRankingTitle,
+                  selfTitled: true,
                   builder: (_, __) => const RankingPage(),
                 ),
               ),
@@ -219,11 +216,41 @@ class _CupertinoShellState extends State<CupertinoShell> {
                 builder: (ctx) => _CupertinoRootPage(
                   key: ValueKey(AppPageId.statistics.name),
                   title: l10n.menuStatisticsTitle,
+                  selfTitled: true,
                   builder: (_, __) => const StatisticsPage(),
                 ),
               ),
             ],
           ),
+
+          // Scroll-edge effect: content fading out softly under the glass
+          // tab bar keeps the bar legible over busy lists (not on the map,
+          // which is meant to be seen edge to edge).
+          if (_currentIndex != 0)
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              height: kNavBarClearance + MediaQuery.of(context).padding.bottom,
+              child: IgnorePointer(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        CupertinoTheme.of(context)
+                            .scaffoldBackgroundColor
+                            .withValues(alpha: 0),
+                        CupertinoTheme.of(context)
+                            .scaffoldBackgroundColor
+                            .withValues(alpha: 0.85),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
 
           // Floating nav bar at bottom
           Positioned(
@@ -261,6 +288,8 @@ class _TabNavigator extends StatelessWidget {
   }
 }
 
+/// Trailing navigation bar actions, iOS 26 style: the first (main) action is
+/// an amber-tinted glass button, the others are grouped in one glass capsule.
 class CupertinoPrimaryActionsRow extends StatelessWidget {
   final List<AppPrimaryAction> actions;
 
@@ -270,28 +299,41 @@ class CupertinoPrimaryActionsRow extends StatelessWidget {
   Widget build(BuildContext context) {
     if (actions.isEmpty) return const SizedBox.shrink();
 
-    final reversed = actions.reversed.toList();
+    final main = actions.first;
+    final others = actions.skip(1).toList().reversed.toList();
+    final destructive = CupertinoColors.systemRed.resolveFrom(context);
 
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        for (int i = 0; i < reversed.length; i++) ...[
-          CupertinoButton(
-            padding: EdgeInsets.zero,
-            onPressed: reversed[i].onPressed,
-            foregroundColor: reversed[i].isDestructive ? CupertinoColors.systemRed.resolveFrom(context) : null,
-            child: reversed[i].label == null
-                ? Icon(reversed[i].icon)
-                : Row(
-                    children: [
-                      Icon(reversed[i].icon),
-                      const SizedBox(width: 4),
-                      Text(reversed[i].label!),
-                    ],
-                  ),
+        if (others.isNotEmpty) ...[
+          GlassButtonGroup(
+            children: [
+              for (final a in others)
+                GlassGroupItem(
+                  icon: a.icon,
+                  onPressed: a.onPressed,
+                  semanticLabel: a.tooltip ?? a.label,
+                  color: a.isDestructive ? destructive : null,
+                ),
+            ],
           ),
-          if (i != reversed.length - 1) const SizedBox(width: 6),
+          const SizedBox(width: 8),
         ],
+        if (main.isDestructive)
+          GlassIconButton(
+            icon: main.icon,
+            onPressed: main.onPressed,
+            tooltip: main.tooltip ?? main.label,
+            color: destructive,
+          )
+        else
+          GlassIconButton(
+            icon: main.icon,
+            onPressed: main.onPressed,
+            tooltip: main.tooltip ?? main.label,
+            prominent: true,
+          ),
       ],
     );
   }
@@ -348,11 +390,16 @@ class _CupertinoRootPage extends StatefulWidget {
   final Widget Function(BuildContext context, SetPrimaryActions setActions) builder;
   final bool hasNavBar;
 
+  /// The page draws its own title row (with its controls next to it), so the
+  /// shell only keeps it clear of the status bar instead of adding a header.
+  final bool selfTitled;
+
   const _CupertinoRootPage({
     super.key,
     required this.title,
     required this.builder,
     this.hasNavBar = true,
+    this.selfTitled = false,
   });
 
   @override
@@ -371,35 +418,38 @@ class _CupertinoRootPageState extends State<_CupertinoRootPage> {
   @override
   Widget build(BuildContext context) {
     final mq = MediaQuery.of(context);
-    final bottomPadding = mq.padding.bottom;
-    final navBg = CupertinoTheme.of(context).scaffoldBackgroundColor;
 
     return CupertinoPageScaffold(
-      navigationBar: widget.hasNavBar
-          ? CupertinoNavigationBar(
-              backgroundColor: navBg,
-              middle: Text(widget.title),
-              trailing: ValueListenableBuilder<List<AppPrimaryAction>>(
-                valueListenable: _actions,
-                builder: (_, actions, __) => CupertinoPrimaryActionsRow(actions: actions),
-              ),
-            )
-          : null,
-      child: widget.hasNavBar ? _childWithNavBar(bottomPadding) : _childWithoutNavBar(mq),
+      child: widget.hasNavBar ? _childWithNavBar() : _childWithoutNavBar(mq),
     );
   }
 
-  Widget _childWithNavBar(double systemBottomPadding) {
-    // Physical padding handles the system safe area (home indicator etc.).
-    // The MediaQuery override exposes kNavBarClearance as padding.bottom so
-    // scrollable pages can add the right bottom clearance without platform checks.
+  Widget _childWithNavBar() {
+    // The page runs under the floating glass tab bar, as on iOS 26: content
+    // scrolls behind the glass instead of stopping above it. The MediaQuery
+    // override exposes the tab bar height plus the system safe area as
+    // padding.bottom so scrollable pages keep their last items reachable
+    // without any platform checks.
     final mq = MediaQuery.of(context);
-    return MediaQuery(
-      data: mq.copyWith(padding: mq.padding.copyWith(bottom: kNavBarClearance)),
-      child: Padding(
-        padding: EdgeInsets.only(bottom: systemBottomPadding),
-        child: widget.builder(context, (actions) => _actions.value = actions),
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (widget.selfTitled)
+          SizedBox(height: mq.padding.top)
+        else
+          _LargeTitleBar(title: widget.title, actions: _actions),
+        Expanded(
+          child: MediaQuery(
+            data: mq.copyWith(
+              padding: mq.padding.copyWith(
+                top: 0,
+                bottom: kNavBarClearance + mq.padding.bottom,
+              ),
+            ),
+            child: widget.builder(context, (actions) => _actions.value = actions),
+          ),
+        ),
+      ],
     );
   }
 
@@ -407,38 +457,81 @@ class _CupertinoRootPageState extends State<_CupertinoRootPage> {
     // The page (the map) runs edge to edge, under the home indicator and the
     // floating nav bar, so no blank strip is left below it. The FABs sit above
     // the nav bar, which itself sits above the system safe area.
-    return Stack(
-      children: [
-        Positioned.fill(
-          child: widget.builder(context, (actions) => _actions.value = actions),
-        ),
-        Positioned(
-          bottom: kNavBarClearance + mq.padding.bottom + 16,
-          right: 16,
-          child: ValueListenableBuilder<List<AppPrimaryAction>>(
-            valueListenable: _actions,
-            builder: (_, actions, __) {
-              if (actions.isEmpty) return const SizedBox.shrink();
-              final reversed = actions.reversed.toList();
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  for (int i = 0; i < reversed.length; i++) ...[
-                    _CupertinoMapFab(action: reversed[i]),
-                    if (i != reversed.length - 1) const SizedBox(height: 8),
-                  ],
-                ],
-              );
-            },
+    // OSM tiles are always light, so keep dark status bar icons over the map
+    // even in dark mode.
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.dark,
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: widget.builder(context, (actions) => _actions.value = actions),
           ),
-        ),
-      ],
+          Positioned(
+            bottom: kNavBarClearance + mq.padding.bottom + 16,
+            right: 16,
+            child: ValueListenableBuilder<List<AppPrimaryAction>>(
+              valueListenable: _actions,
+              builder: (_, actions, __) {
+                if (actions.isEmpty) return const SizedBox.shrink();
+                final reversed = actions.reversed.toList();
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    for (int i = 0; i < reversed.length; i++) ...[
+                      _CupertinoMapFab(action: reversed[i]),
+                      if (i != reversed.length - 1) const SizedBox(height: 8),
+                    ],
+                  ],
+                );
+              },
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
 
-/// Squarish primary-colour FAB used on the Cupertino map page (no nav bar).
+/// Root-tab header in the iOS large-title style: the page name in the
+/// Trainlog display font, left-aligned, with the page actions as glass
+/// buttons on the trailing side.
+class _LargeTitleBar extends StatelessWidget {
+  final String title;
+  final ValueListenable<List<AppPrimaryAction>> actions;
+
+  const _LargeTitleBar({required this.title, required this.actions});
+
+  @override
+  Widget build(BuildContext context) {
+    final top = MediaQuery.of(context).padding.top;
+    return Padding(
+      padding: EdgeInsets.fromLTRB(20, top + 6, 16, 6),
+      child: SizedBox(
+        height: 48,
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: CupertinoTheme.of(context).textTheme.navLargeTitleTextStyle,
+              ),
+            ),
+            ValueListenableBuilder<List<AppPrimaryAction>>(
+              valueListenable: actions,
+              builder: (_, a, __) => CupertinoPrimaryActionsRow(actions: a),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Round amber glass button used for the map's primary action (no nav bar
+/// on the map, so it floats above the tab bar instead).
 class _CupertinoMapFab extends StatelessWidget {
   final AppPrimaryAction action;
 
@@ -446,33 +539,13 @@ class _CupertinoMapFab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final primary = Theme.of(context).colorScheme.primary;
-    final onPrimary = Theme.of(context).colorScheme.onPrimary;
-
-    return CupertinoButton(
-      padding: EdgeInsets.zero,
+    return GlassIconButton(
+      icon: action.icon,
       onPressed: action.onPressed,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: primary,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x44000000),
-              blurRadius: 12,
-              offset: Offset(0, 6),
-            ),
-          ],
-        ),
-        child: SizedBox(
-          width: 56,
-          height: 56,
-          child: Center(
-            child: Icon(action.icon, size: 24, color: onPrimary),
-          ),
-        ),
-      ),
+      tooltip: action.tooltip ?? action.label,
+      size: 56,
+      iconSize: 24,
+      prominent: true,
     );
   }
 }
-

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:trainlog_app/app/theme/app_colors.dart';
 import 'package:trainlog_app/app/theme/app_nav_bar_theme.dart';
+import 'package:trainlog_app/platform/liquid_glass.dart';
+import 'package:trainlog_app/utils/platform_utils.dart';
 
 /// Height of the nav bar pill + its top/bottom padding, excluding the system
 /// safe area. Both shells expose this value as MediaQuery.padding.bottom so
@@ -31,6 +33,15 @@ class AdaptiveBottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (AppPlatform.isApple) {
+      return _GlassTabBar(
+        currentIndex: currentIndex,
+        items: items,
+        onTap: onTap,
+        onMenuTap: onMenuTap,
+      );
+    }
+
     final navColors = Theme.of(context).extension<AppNavBarColors>()!;
     final mq = MediaQuery.of(context);
 
@@ -47,9 +58,7 @@ class AdaptiveBottomNavBar extends StatelessWidget {
           ),
         ],
       ),
-      child: onMenuTap != null
-          ? _rowWithGap(navColors)
-          : _rowFull(navColors),
+      child: onMenuTap != null ? _rowWithGap(navColors) : _rowFull(navColors),
     );
 
     return Container(
@@ -142,7 +151,11 @@ class _MenuButton extends StatelessWidget {
           shape: BoxShape.circle,
           border: Border.all(color: AppColors.amber, width: 2.5),
           boxShadow: const [
-            BoxShadow(color: Colors.black26, blurRadius: 8, offset: Offset(0, 3)),
+            BoxShadow(
+              color: Colors.black26,
+              blurRadius: 8,
+              offset: Offset(0, 3),
+            ),
           ],
         ),
         child: Center(
@@ -150,7 +163,10 @@ class _MenuButton extends StatelessWidget {
             'assets/icon/trainlog_icon_foreground_only.svg',
             width: 26,
             height: 26,
-            colorFilter: const ColorFilter.mode(AppColors.amber, BlendMode.srcIn),
+            colorFilter: const ColorFilter.mode(
+              AppColors.amber,
+              BlendMode.srcIn,
+            ),
           ),
         ),
       ),
@@ -199,6 +215,202 @@ class _NavBarItem extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// ── Apple: Liquid Glass tab bar ───────────────────────────────────────────────
+
+const double _kGlassBarHeight = 62.0;
+
+/// iOS 26 style tab bar: a floating glass capsule holding the tabs, with the
+/// selected tab sitting in a sliding glass "lens". The Trainlog menu lives in
+/// its own round glass button at the trailing end — the place iOS gives to a
+/// screen's extra action (usually Search) — branded with the amber logo.
+class _GlassTabBar extends StatelessWidget {
+  final int currentIndex;
+  final List<BottomNavigationBarItem> items;
+  final ValueChanged<int> onTap;
+  final VoidCallback? onMenuTap;
+
+  const _GlassTabBar({
+    required this.currentIndex,
+    required this.items,
+    required this.onTap,
+    required this.onMenuTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final mq = MediaQuery.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    // Amber is too light on white glass for small labels: use the pressed
+    // amber in light mode, the regular one in dark mode.
+    final active = isDark ? AppColors.amber : AppColors.amberDk;
+    final inactive = isDark ? AppColors.darkText : AppColors.lightText;
+
+    // Sit close to the bottom edge like the system bar does, while staying
+    // clear of the home indicator.
+    final bottom = mq.padding.bottom > 0 ? mq.padding.bottom - 10 : 12.0;
+
+    return Padding(
+      padding: EdgeInsets.fromLTRB(20, 8, 20, bottom),
+      child: Row(
+        children: [
+          Expanded(
+            child: SizedBox(
+              height: _kGlassBarHeight,
+              child: LiquidGlass(
+                padding: const EdgeInsets.all(4),
+                child: LayoutBuilder(
+                  builder: (context, c) {
+                    final itemWidth = c.maxWidth / items.length;
+                    return Stack(
+                      children: [
+                        AnimatedPositioned(
+                          duration: const Duration(milliseconds: 420),
+                          curve: Curves.easeOutBack,
+                          left: itemWidth * currentIndex,
+                          top: 0,
+                          bottom: 0,
+                          width: itemWidth,
+                          child: _Lens(isDark: isDark),
+                        ),
+                        Row(
+                          children: [
+                            for (int i = 0; i < items.length; i++)
+                              Expanded(
+                                child: _GlassTabItem(
+                                  item: items[i],
+                                  isSelected: i == currentIndex,
+                                  color: i == currentIndex ? active : inactive,
+                                  onTap: () => onTap(i),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ),
+            ),
+          ),
+          if (onMenuTap != null) ...[
+            const SizedBox(width: 10),
+            GlassIconButton(
+              icon: AdaptiveIcons.other,
+              size: _kGlassBarHeight,
+              onPressed: onMenuTap,
+              tooltip: MaterialLocalizations.of(context).showMenuTooltip,
+              // Navy glass with the amber logo: the Trainlog signature.
+              color: AppColors.amber,
+              child: _BrandGlassFill(
+                child: SvgPicture.asset(
+                  'assets/icon/trainlog_icon_foreground_only.svg',
+                  width: 26,
+                  height: 26,
+                  colorFilter: const ColorFilter.mode(
+                    AppColors.amber,
+                    BlendMode.srcIn,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// Navy wash filling the round menu button so it reads as the brand mark
+/// while the glass rim and sheen stay visible on top.
+class _BrandGlassFill extends StatelessWidget {
+  final Widget child;
+  const _BrandGlassFill({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: AppColors.navy.withValues(alpha: 0.92),
+      ),
+      alignment: Alignment.center,
+      child: child,
+    );
+  }
+}
+
+class _Lens extends StatelessWidget {
+  final bool isDark;
+  const _Lens({required this.isDark});
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: ShapeDecoration(
+        shape: const StadiumBorder(),
+        // A faint amber cast on the lens keeps a Trainlog warmth in the bar.
+        color: Color.alphaBlend(
+          AppColors.amber.withValues(alpha: isDark ? 0.14 : 0.12),
+          isDark
+              ? Colors.white.withValues(alpha: 0.10)
+              : Colors.black.withValues(alpha: 0.05),
+        ),
+      ),
+    );
+  }
+}
+
+class _GlassTabItem extends StatelessWidget {
+  final BottomNavigationBarItem item;
+  final bool isSelected;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _GlassTabItem({
+    required this.item,
+    required this.isSelected,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      selected: isSelected,
+      button: true,
+      label: item.label,
+      excludeSemantics: true,
+      child: GlassPressable(
+        onPressed: onTap,
+        pressedScale: 1.1,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            IconTheme(
+              data: IconThemeData(color: color, size: 24),
+              child: isSelected && item.activeIcon != item.icon
+                  ? item.activeIcon
+                  : item.icon,
+            ),
+            const SizedBox(height: 2),
+            Text(
+              item.label ?? '',
+              maxLines: 1,
+              overflow: TextOverflow.fade,
+              softWrap: false,
+              style: TextStyle(
+                color: color,
+                fontSize: 10,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

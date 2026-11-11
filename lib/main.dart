@@ -11,6 +11,7 @@ import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/services/api/trainlog_http_client.dart';
 import 'package:trainlog_app/services/secure_cookie_storage.dart';
+import 'package:trainlog_app/utils/app_user_agent.dart';
 import 'package:trainlog_app/utils/cached_data_utils.dart';
 
 import 'package:firebase_core/firebase_core.dart';
@@ -64,6 +65,7 @@ Future<void> main() async {
   await Future.wait([
     _initFirebase(),
     AppCacheFilePath.init(),
+    AppUserAgent.init(),
     settings.ready,
   ]);
 

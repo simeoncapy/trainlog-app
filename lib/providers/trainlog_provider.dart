@@ -814,6 +814,29 @@ class TrainlogProvider extends ChangeNotifier {
     await _account.updateAccountSettings(_username!, settings);
   }
 
+  /// Permanently deletes the signed-in account on the server (see
+  /// [AccountApi.deleteAccount]). On success the local session and data are
+  /// wiped as for [logout], so the app is back on the login screen.
+  Future<DeleteAccountResult> deleteAccount({
+    required String password,
+    required String confirmUsername,
+    required SettingsProvider settings,
+    required TripsProvider trips,
+  }) async {
+    final username = _username;
+    if (username == null) return DeleteAccountResult.failed;
+
+    final result = await _account.deleteAccount(
+      username,
+      password: password,
+      confirmUsername: confirmUsername,
+    );
+    if (result == DeleteAccountResult.deleted) {
+      await logout(settings, trips);
+    }
+    return result;
+  }
+
   Future<List<String>> fetchAvailableCurrencies() async {
     if (_username == null) return [];
     return await _account.fetchAvailableCurrencies(_username!);

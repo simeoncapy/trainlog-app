@@ -4,6 +4,10 @@ changelog_fr:
     changes:
       - type: feature
         text: "Ajoutez une note à un géomémo pour préremplir les détails du trajet. À la création du trajet, les notes du départ et de l'arrivée sont fusionnées ; en cas de conflit, vous choisissez."
+      - type: minor
+        text: "Les messages affichent désormais leur mise en forme (gras, listes, liens...)."
+      - type: fix
+        text: "La politique de confidentialité dans À propos n'affiche plus les liens Créer un compte et Se connecter du site web."
   - version: 0.5.0
     date: 2026-10-19
     changes:
