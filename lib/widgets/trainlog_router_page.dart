@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:trainlog_app/data/controllers/trainlog_web_controller.dart';
 import 'package:trainlog_app/features/user/session_expiry_host.dart';
 import 'package:trainlog_app/data/models/trips.dart';
+import 'package:trainlog_app/utils/app_user_agent.dart';
 import '../providers/trainlog_provider.dart';
 
 class TripRoutingData{
@@ -222,6 +223,7 @@ class _TrainlogRouterPageState extends State<TrainlogRouterPage> {
         mediaPlaybackRequiresUserGesture: false,
         allowsInlineMediaPlayback: true,
         transparentBackground: false,
+        applicationNameForUserAgent: AppUserAgent.token,
         isInspectable: kDebugMode,
       ),
       onConsoleMessage: (_, msg) => debugPrint('🗺️ JS: ${msg.message}'),
