@@ -4,6 +4,7 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 import 'package:trainlog_app/features/user/session_expiry_host.dart';
 
+import 'package:trainlog_app/utils/app_user_agent.dart';
 import '../providers/trainlog_provider.dart';
 
 /// Displays an authenticated Trainlog webpage inside a WebView.
@@ -134,6 +135,7 @@ class _TrainlogWebPageState extends State<TrainlogWebPage> {
         mediaPlaybackRequiresUserGesture: false,
         allowsInlineMediaPlayback: true,
         transparentBackground: false,
+        applicationNameForUserAgent: AppUserAgent.token,
       ),
       onWebViewCreated: (controller) {
         _controller = controller;
