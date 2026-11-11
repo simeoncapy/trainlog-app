@@ -36,6 +36,7 @@ class AppUserAgent {
         _http = 'Mozilla/5.0 (${i.model}; CPU ${i.model} OS '
             '${i.systemVersion.replaceAll('.', '_')} like Mac OS X) $token';
       }
+      debugPrint('AppUserAgent.init: $_http');
     } catch (e) {
       // Keep the TrainlogApp/<version> fallback rather than block startup.
       debugPrint('AppUserAgent.init failed: $e');
