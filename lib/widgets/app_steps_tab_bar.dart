@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart'
+    show GlassSegment, GlassSegmentedControl;
 import 'package:trainlog_app/app/theme/app_colors.dart';
 import 'package:trainlog_app/app/theme/app_tab_theme.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
@@ -185,11 +187,50 @@ class _AppStepsTabBarState extends State<AppStepsTabBar> {
     if (_pressed != v) setState(() => _pressed = v);
   }
 
+  /// Apple: liquid_glass_widgets' iOS 26 segmented control, whose glass
+  /// lens follows the finger and refracts the labels under it.
+  Widget _buildGlass(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final accent = isDark ? AppColors.amber : AppColors.amberDk;
+    final segments = [
+      for (final t in widget.tabs)
+        GlassSegment(
+          icon: t.leadingIcon,
+          label: t.iconOnly
+              ? null
+              : (t.count == null ? t.label : '${t.label}  ${t.count}'),
+          tooltip: t.iconOnly ? t.label : null,
+          semanticLabel: t.label,
+        ),
+    ];
+
+    if (widget.fullWidth) {
+      return GlassSegmentedControl(
+        segments: segments,
+        selectedIndex: widget.selectedIndex,
+        onSegmentSelected: widget.onTabChanged,
+        height: _height,
+        iconSize: 18,
+        selectedIconColor: accent,
+      );
+    }
+    return GlassSegmentedControl.scrollable(
+      segments: segments,
+      selectedIndex: widget.selectedIndex,
+      onSegmentSelected: widget.onTabChanged,
+      height: _height,
+      iconSize: 16,
+      selectedIconColor: accent,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cs = Theme.of(context).colorScheme;
     final tabColors = Theme.of(context).extension<AppTabColors>()!;
+
+    if (_isApple) return _buildGlass(context);
 
     if (widget.fullWidth) {
       return Container(

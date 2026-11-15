@@ -149,6 +149,8 @@
 
   "menuHomeLabel": "Accueil",
   "mapResetOrientation": "Orienter au nord",
+  "mapRecenter": "Recentrer sur ma position",
+  "mapFollowPosition": "Suivre ma position",
   "menuMapTitle": "Carte",
   "menuTripsTitle": "Trajets",
   "menuRankingTitle": "Classement",

@@ -156,6 +156,8 @@
 
   "menuHomeLabel": "Home",
   "mapResetOrientation": "Ituro sa hilaga",
+  "mapRecenter": "Bumalik sa aking posisyon",
+  "mapFollowPosition": "Sundan ang aking posisyon",
   "menuMapTitle": "Mapa",
   "menuTripsTitle": "Byahe",
   "menuRankingTitle": "Ranking",

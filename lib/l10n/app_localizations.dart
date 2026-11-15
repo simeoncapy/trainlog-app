@@ -990,6 +990,18 @@ abstract class AppLocalizations {
   /// **'Point north'**
   String get mapResetOrientation;
 
+  /// No description provided for @mapRecenter.
+  ///
+  /// In en, this message translates to:
+  /// **'Recenter on my position'**
+  String get mapRecenter;
+
+  /// No description provided for @mapFollowPosition.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow my position'**
+  String get mapFollowPosition;
+
   /// No description provided for @menuMapTitle.
   ///
   /// In en, this message translates to:

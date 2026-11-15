@@ -483,6 +483,12 @@ class AppLocalizationsTl extends AppLocalizations {
   String get mapResetOrientation => 'Ituro sa hilaga';
 
   @override
+  String get mapRecenter => 'Bumalik sa aking posisyon';
+
+  @override
+  String get mapFollowPosition => 'Sundan ang aking posisyon';
+
+  @override
   String get menuMapTitle => 'Mapa';
 
   @override

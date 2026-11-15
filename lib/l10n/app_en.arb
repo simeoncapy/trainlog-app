@@ -192,6 +192,8 @@
   
   "menuHomeLabel": "Home",
   "mapResetOrientation": "Point north",
+  "mapRecenter": "Recenter on my position",
+  "mapFollowPosition": "Follow my position",
   "menuMapTitle": "Map",
   "menuTripsTitle": "Trips",
   "menuRankingTitle": "Ranking",

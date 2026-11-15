@@ -1,15 +1,11 @@
-import 'dart:ui' show ImageFilter;
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' show Theme, Tooltip;
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart' as lg;
 import 'package:trainlog_app/app/theme/app_colors.dart';
 
-/// Approximation of Apple's "Liquid Glass" material (iOS 26 / macOS 26),
-/// used only by the Apple flavour of the UI.
-///
-/// The surface blurs and saturates whatever is behind it, adds a thin
-/// translucent fill, a soft diagonal sheen and a light rim that catches the
-/// "light" on the top-left and bottom-right edges.
+/// Apple's "Liquid Glass" material (iOS 26 / macOS 26), used only by the
+/// Apple flavour of the UI. Rendered by liquid_glass_widgets: the surface
+/// refracts and blurs what is behind it, with a specular rim.
 class LiquidGlass extends StatelessWidget {
   const LiquidGlass({
     super.key,
@@ -44,116 +40,26 @@ class LiquidGlass extends StatelessWidget {
       ? const Color(0xFF242B3A).withValues(alpha: 0.55)
       : const Color(0xFFFFFFFF).withValues(alpha: 0.62);
 
+  /// The material itself comes from liquid_glass_widgets (shader refraction,
+  /// specular rim, chromatic aberration); [blur] and [shadow] are kept for
+  /// the callers but the package decides them.
   @override
   Widget build(BuildContext context) {
-    final isDark = _isDark(context);
-
-    Color fill = baseFill(context);
-    if (tint != null && tintStrength > 0) {
-      fill = Color.alphaBlend(tint!.withValues(alpha: tintStrength), fill);
-    }
-
-    final ShapeBorder shape = borderRadius == null
-        ? const StadiumBorder()
-        : RoundedRectangleBorder(borderRadius: borderRadius!);
-
-    Widget content = child;
-    if (padding != null) content = Padding(padding: padding!, child: content);
-
-    final glass = ClipPath(
-      clipper: ShapeBorderClipper(shape: shape),
-      child: BackdropFilter(
-        filter: ImageFilter.compose(
-          outer: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
-          inner: const ColorFilter.matrix(_saturate),
-        ),
-        child: CustomPaint(
-          foregroundPainter: _GlassRimPainter(shape: shape, isDark: isDark),
-          child: DecoratedBox(
-            decoration: ShapeDecoration(shape: shape, color: fill),
-            child: DecoratedBox(
-              decoration: ShapeDecoration(
-                shape: shape,
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    CupertinoColors.white.withValues(
-                      alpha: isDark ? 0.10 : 0.30,
-                    ),
-                    CupertinoColors.white.withValues(alpha: 0.0),
-                    CupertinoColors.white.withValues(
-                      alpha: isDark ? 0.04 : 0.10,
-                    ),
-                  ],
-                  stops: const [0.0, 0.55, 1.0],
-                ),
-              ),
-              child: content,
-            ),
-          ),
-        ),
+    return lg.GlassContainer(
+      useOwnLayer: true,
+      quality: lg.GlassQuality.premium,
+      shape: lg.LiquidRoundedSuperellipse(
+        borderRadius:
+            borderRadius?.topLeft.x ?? lg.GlassDefaults.capsuleRadius,
       ),
-    );
-
-    if (!shadow) return glass;
-
-    return DecoratedBox(
-      decoration: ShapeDecoration(
-        shape: shape,
-        shadows: [
-          BoxShadow(
-            color: const Color(
-              0xFF000000,
-            ).withValues(alpha: isDark ? 0.35 : 0.12),
-            blurRadius: 24,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: glass,
+      settings: tint != null && tintStrength > 0
+          ? lg.LiquidGlassSettings(
+              glassColor: tint!.withValues(alpha: tintStrength))
+          : null,
+      padding: padding,
+      child: child,
     );
   }
-}
-
-/// Boosts the saturation of what is behind the glass (≈ 1.6×), which is what
-/// gives Liquid Glass its vivid look compared to a plain frosted blur.
-const List<double> _saturate = <double>[
-  1.4293, -0.3854, -0.0439, 0, 0, //
-  -0.1146, 1.1717, -0.0571, 0, 0, //
-  -0.1146, -0.3854, 1.5000, 0, 0, //
-  0, 0, 0, 1, 0, //
-];
-
-class _GlassRimPainter extends CustomPainter {
-  _GlassRimPainter({required this.shape, required this.isDark});
-
-  final ShapeBorder shape;
-  final bool isDark;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final rect = Offset.zero & size;
-    final path = shape.getInnerPath(rect.deflate(0.5));
-    final paint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.0
-      ..shader = LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [
-          CupertinoColors.white.withValues(alpha: isDark ? 0.38 : 0.85),
-          CupertinoColors.white.withValues(alpha: isDark ? 0.06 : 0.25),
-          CupertinoColors.white.withValues(alpha: isDark ? 0.22 : 0.55),
-        ],
-        stops: const [0.0, 0.5, 1.0],
-      ).createShader(rect);
-    canvas.drawPath(path, paint);
-  }
-
-  @override
-  bool shouldRepaint(_GlassRimPainter old) =>
-      old.isDark != isDark || old.shape != shape;
 }
 
 /// Gives a glass control the "liquid" press response: it swells slightly
@@ -248,44 +154,79 @@ class GlassIconButton extends StatelessWidget {
             ? AppColors.navy
             : CupertinoColors.label.resolveFrom(context));
 
-    Widget button = GlassPressable(
+    Widget button = lg.GlassIconButton(
+      icon: child ?? Icon(icon, size: iconSize, color: fg),
       onPressed: onPressed,
-      child: SizedBox.square(
-        dimension: size,
-        child: LiquidGlass(
-          tint: prominent ? AppColors.amber : null,
-          tintStrength: prominent ? 0.88 : 0,
-          shadow: shadow,
-          child: Center(
-            child: child ?? Icon(icon, size: iconSize, color: fg),
-          ),
-        ),
-      ),
+      size: size,
+      iconSize: iconSize,
+      useOwnLayer: true,
+      quality: lg.GlassQuality.premium,
+      // Prominent: the glass tinted with the Trainlog amber, which is how
+      // the primary action of a screen stands out.
+      settings: prominent
+          ? lg.LiquidGlassSettings(
+              glassColor: AppColors.amber.withValues(alpha: 0.88))
+          : null,
+      semanticLabel: tooltip,
     );
 
     if (tooltip != null && tooltip!.isNotEmpty) {
       button = Tooltip(message: tooltip!, child: button);
     }
-    return Semantics(button: true, label: tooltip, child: button);
+    return button;
   }
 }
 
 /// A capsule of glass holding several controls side by side, like the
 /// grouped toolbar items of iOS 26.
 class GlassButtonGroup extends StatelessWidget {
-  const GlassButtonGroup({super.key, required this.children, this.height = 44});
+  const GlassButtonGroup({
+    super.key,
+    required this.children,
+    this.height = 44,
+    this.direction = Axis.horizontal,
+  });
 
+  /// [GlassGroupItem]s become the package's group items (one glass pill that
+  /// stretches as a whole); any other widget is laid out as is.
   final List<Widget> children;
   final double height;
+  final Axis direction;
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: height,
-      child: LiquidGlass(
-        padding: const EdgeInsets.symmetric(horizontal: 4),
-        child: Row(mainAxisSize: MainAxisSize.min, children: children),
-      ),
+    if (children.every((c) => c is GlassGroupItem && c.label == null)) {
+      return lg.GlassButtonGroup.icons(
+        useOwnLayer: true,
+        quality: lg.GlassQuality.premium,
+        direction: direction,
+        borderRadius: lg.GlassDefaults.capsuleRadius,
+        iconSize: 20,
+        itemPadding: EdgeInsets.all((height - 20) / 2),
+        items: [
+          for (final c in children.cast<GlassGroupItem>())
+            lg.GlassButtonGroupItem(
+              icon: c.color == null ? Icon(c.icon) : Icon(c.icon, color: c.color),
+              onTap: c.onPressed,
+              label: c.semanticLabel,
+              enabled: c.onPressed != null,
+            ),
+        ],
+      );
+    }
+
+    return lg.GlassButtonGroup(
+      useOwnLayer: true,
+      quality: lg.GlassQuality.premium,
+      direction: direction,
+      borderRadius: lg.GlassDefaults.capsuleRadius,
+      showDividers: false,
+      children: [
+        for (final c in children)
+          direction == Axis.horizontal
+              ? SizedBox(height: height, child: c)
+              : SizedBox(width: height, child: c),
+      ],
     );
   }
 }

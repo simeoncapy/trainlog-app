@@ -373,7 +373,8 @@ class _MapPageState extends State<MapPage>
     );
   }
 
-  Positioned _mapButtonHelper() { 
+  Positioned _mapButtonHelper() {
+    final appLocalizations = AppLocalizations.of(context)!;
     // iOS: the "scope" crosshair, close to Android's my_location icon.
     final Icon recenterUserIcon = Icon(
         AppPlatform.isApple ? CupertinoIcons.scope : Icons.my_location);
@@ -423,40 +424,24 @@ class _MapPageState extends State<MapPage>
 
     if (AppPlatform.isApple) {
       // iOS 26 map controls: one vertical glass capsule, like Apple Maps.
-      Widget item(Widget icon, VoidCallback onTap) => GlassPressable(
-            onPressed: onTap,
-            pressedScale: 1.15,
-            child: SizedBox.square(
-              dimension: 48,
-              child: Center(
-                child: IconTheme(
-                  data: IconThemeData(
-                    size: 22,
-                    color: CupertinoColors.label.resolveFrom(context),
-                  ),
-                  child: icon,
-                ),
-              ),
-            ),
-          );
-      final divider = Container(
-        width: 26,
-        height: 0.5,
-        color: CupertinoColors.separator.resolveFrom(context),
-      );
       return Positioned(
         bottom: buttonsBottom,
         right: 16,
-        child: LiquidGlass(
-          borderRadius: BorderRadius.circular(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              item(recenterUserIcon, recenterFct),
-              divider,
-              item(followUserIcon, followUserFct),
-            ],
-          ),
+        child: GlassButtonGroup(
+          direction: Axis.vertical,
+          height: 48,
+          children: [
+            GlassGroupItem(
+              icon: recenterUserIcon.icon!,
+              onPressed: recenterFct,
+              semanticLabel: appLocalizations.mapRecenter,
+            ),
+            GlassGroupItem(
+              icon: followUserIcon.icon!,
+              onPressed: followUserFct,
+              semanticLabel: appLocalizations.mapFollowPosition,
+            ),
+          ],
         ),
       );
     }
@@ -602,28 +587,18 @@ class _MapPageState extends State<MapPage>
     required VoidCallback onPressed,
   }) {
     if (AppPlatform.isApple) {
-      return Semantics(
-        button: true,
-        label: tooltip,
-        excludeSemantics: true,
-        child: LiquidGlass(
-          borderRadius: BorderRadius.circular(20),
-          child: GlassPressable(
-            onPressed: onPressed,
-            pressedScale: 1.15,
-            child: SizedBox.square(
-              dimension: 40,
-              child: Center(
-                child: IconTheme(
-                  data: IconThemeData(
-                    size: 19,
-                    color: CupertinoColors.label.resolveFrom(context),
-                  ),
-                  child: icon,
-                ),
-              ),
-            ),
+      return GlassIconButton(
+        icon: AdaptiveIcons.filter,
+        size: 40,
+        iconSize: 19,
+        tooltip: tooltip,
+        onPressed: onPressed,
+        child: IconTheme(
+          data: IconThemeData(
+            size: 19,
+            color: CupertinoColors.label.resolveFrom(context),
           ),
+          child: icon,
         ),
       );
     }

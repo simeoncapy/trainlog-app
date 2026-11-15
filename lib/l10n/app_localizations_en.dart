@@ -480,6 +480,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mapResetOrientation => 'Point north';
 
   @override
+  String get mapRecenter => 'Recenter on my position';
+
+  @override
+  String get mapFollowPosition => 'Follow my position';
+
+  @override
   String get menuMapTitle => 'Map';
 
   @override

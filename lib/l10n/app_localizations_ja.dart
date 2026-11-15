@@ -468,6 +468,12 @@ class AppLocalizationsJa extends AppLocalizations {
   String get mapResetOrientation => '北を上にする';
 
   @override
+  String get mapRecenter => '現在地に戻る';
+
+  @override
+  String get mapFollowPosition => '現在地を追従';
+
+  @override
   String get menuMapTitle => '地図';
 
   @override
