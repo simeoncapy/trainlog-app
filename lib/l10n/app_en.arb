@@ -190,6 +190,8 @@
   "settingsInstanceMsg": "You can change the path of the Trainlog instance used by the application on the login page.",
   "settingsLicenses": "Licenses",
   
+  "menuHomeLabel": "Home",
+  "mapResetOrientation": "Point north",
   "menuMapTitle": "Map",
   "menuTripsTitle": "Trips",
   "menuRankingTitle": "Ranking",

@@ -8,6 +8,8 @@ changelog_fr:
         text: "Les messages affichent désormais leur mise en forme (gras, listes, liens...)."
       - type: fix
         text: "La politique de confidentialité dans À propos n'affiche plus les liens Créer un compte et Se connecter du site web."
+      - type: minor
+        text: "Nouveaux boutons sur la carte : le bouton principal ajoute un trajet, le filtre est sous la recherche et la boussole n'apparaît que si la carte est tournée. Le bouton du menu s'appelle désormais Accueil."
   - version: 0.5.0
     date: 2026-10-19
     changes:

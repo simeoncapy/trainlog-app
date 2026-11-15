@@ -462,6 +462,12 @@ class AppLocalizationsJa extends AppLocalizations {
   String get settingsLicenses => 'ライセンス';
 
   @override
+  String get menuHomeLabel => 'ホーム';
+
+  @override
+  String get mapResetOrientation => '北を上にする';
+
+  @override
   String get menuMapTitle => '地図';
 
   @override

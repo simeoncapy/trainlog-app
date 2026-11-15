@@ -8,6 +8,8 @@ changelog_tl:
         text: "Ipinapakita na ng mga mensahe sa Mga balita at update ang kanilang format (bold, listahan, link...)."
       - type: fix
         text: "Hindi na ipinapakita ng privacy policy sa Tungkol sa app ang mga link na Sign up at Log in ng website."
+      - type: minor
+        text: "Bagong disenyo ng mga button sa mapa: ang pangunahing button ay nagdadagdag na ng bagong biyahe, ang filter ay nasa ilalim ng search, at lumalabas lang ang compass kapag naka-ikot ang mapa. Home na ang tawag sa menu button."
   - version: 0.5.0
     date: 2026-10-19
     changes:

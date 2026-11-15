@@ -394,6 +394,7 @@ class _MaterialShellState extends State<MaterialShell> {
                 currentIndex: _selectedIndex, // 0..3 here
                 onTap: _onItemTapped,
                 onMenuTap: () => _openFullScreenMenu(context),
+                menuLabel: AppLocalizations.of(context)!.menuHomeLabel,
                 items: [
                   for (int i = 0; i < 4; i++)
                     BottomNavigationBarItem(

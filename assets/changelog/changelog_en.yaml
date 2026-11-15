@@ -8,6 +8,8 @@ changelog_en:
         text: "Messages in News & Updates now display their formatting (bold, lists, links...)."
       - type: fix
         text: "The privacy policy in About no longer shows the website's Sign up and Log in links."
+      - type: minor
+        text: "Redesigned map buttons: the main button now adds a new trip, the filter sits under the search, and the compass only shows when the map is rotated. The menu button is now labelled Home."
   - version: 0.5.0
     date: 2026-10-19
     changes:
