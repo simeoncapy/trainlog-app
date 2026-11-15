@@ -2,7 +2,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:flutter/services.dart' show SystemUiOverlayStyle;
-import 'package:flutter/material.dart' show Scaffold;
+import 'package:flutter/material.dart' show Material, MaterialType, Scaffold;
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/navigation/nav_models.dart';
@@ -451,6 +451,15 @@ class _CupertinoRootPageState extends State<_CupertinoRootPage> {
     super.dispose();
   }
 
+  /// The root pages sit in a CupertinoPageScaffold, which has no Material:
+  /// give them a transparent one so Material widgets (TextField, InkWell…)
+  /// work, keeping the current text style.
+  Widget _page(BuildContext context) => Material(
+        type: MaterialType.transparency,
+        textStyle: DefaultTextStyle.of(context).style,
+        child: widget.builder(context, _setActions),
+      );
+
   void _setActions(List<AppPrimaryAction> actions) {
     final main = widget.mainAction;
     if (main == null) {
@@ -496,7 +505,7 @@ class _CupertinoRootPageState extends State<_CupertinoRootPage> {
                 bottom: kNavBarClearance + mq.padding.bottom,
               ),
             ),
-            child: widget.builder(context, _setActions),
+            child: _page(context),
           ),
         ),
       ],
@@ -514,7 +523,7 @@ class _CupertinoRootPageState extends State<_CupertinoRootPage> {
       child: Stack(
         children: [
           Positioned.fill(
-            child: widget.builder(context, _setActions),
+            child: _page(context),
           ),
           Positioned(
             bottom: kNavBarClearance + mq.padding.bottom + 16,
