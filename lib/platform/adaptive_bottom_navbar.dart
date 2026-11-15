@@ -3,7 +3,8 @@ import 'package:flutter_svg/svg.dart';
 import 'package:trainlog_app/app/theme/app_colors.dart';
 import 'package:trainlog_app/app/theme/app_nav_bar_theme.dart';
 import 'package:trainlog_app/navigation/nav_models.dart';
-import 'package:trainlog_app/platform/liquid_glass.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart'
+    show GlassTab, GlassTabBar, GlassTabBarExtraButton;
 import 'package:trainlog_app/utils/platform_utils.dart';
 
 /// Height of the nav bar pill + its top/bottom padding, excluding the system
@@ -261,9 +262,10 @@ class _NavBarItem extends StatelessWidget {
 
 const double _kGlassBarHeight = 62.0;
 
-/// iOS 26 style tab bar: a floating glass capsule holding the tabs, with the
-/// selected tab sitting in a sliding glass "lens". The Trainlog menu ("Home",
-/// the amber logo on navy) sits in the middle of the capsule like a tab; the
+/// iOS 26 tab bar, drawn by liquid_glass_widgets' [GlassTabBar]: a floating
+/// glass capsule whose lens follows the finger, magnifies and refracts the
+/// content behind it. The Trainlog menu ("Home", the amber logo on navy) is
+/// the middle item; tapping it opens the menu instead of selecting it. The
 /// trailing round glass button holds the current page's main action ("New
 /// trip" on Map and Trips), and disappears on pages without one.
 class _GlassTabBar extends StatelessWidget {
@@ -299,143 +301,85 @@ class _GlassTabBar extends StatelessWidget {
     // The menu takes the middle slot: tabs 0..half-1, menu, then the rest.
     final hasMenu = onMenuTap != null;
     final half = items.length ~/ 2;
-    final slotCount = items.length + (hasMenu ? 1 : 0);
+    final menuSlot = hasMenu ? half : -1;
     final selectedSlot =
         hasMenu && currentIndex >= half ? currentIndex + 1 : currentIndex;
 
-    Widget tab(int i) => _GlassTabItem(
-          item: items[i],
-          isSelected: i == currentIndex,
-          color: i == currentIndex ? active : inactive,
-          onTap: () => onTap(i),
+    GlassTab tab(BottomNavigationBarItem item) => GlassTab(
+          icon: item.icon,
+          activeIcon: item.activeIcon,
+          label: item.label,
         );
+
+    final tabs = <GlassTab>[
+      for (int i = 0; i < (hasMenu ? half : items.length); i++) tab(items[i]),
+      if (hasMenu)
+        GlassTab(
+          icon: const _MenuLogo(),
+          label: menuLabel ?? '',
+          semanticLabel: (menuLabel?.isNotEmpty ?? false)
+              ? menuLabel
+              : MaterialLocalizations.of(context).showMenuTooltip,
+        ),
+      if (hasMenu)
+        for (int i = half; i < items.length; i++) tab(items[i]),
+    ];
 
     final action = trailingAction;
 
     return Padding(
-      padding: EdgeInsets.fromLTRB(20, 8, 20, bottom),
-      child: Row(
-        children: [
-          Expanded(
-            child: SizedBox(
-              height: _kGlassBarHeight,
-              child: LiquidGlass(
-                padding: const EdgeInsets.all(4),
-                child: LayoutBuilder(
-                  builder: (context, c) {
-                    final itemWidth = c.maxWidth / slotCount;
-                    return Stack(
-                      children: [
-                        AnimatedPositioned(
-                          duration: const Duration(milliseconds: 420),
-                          curve: Curves.easeOutBack,
-                          left: itemWidth * selectedSlot,
-                          top: 0,
-                          bottom: 0,
-                          width: itemWidth,
-                          child: _Lens(isDark: isDark),
-                        ),
-                        Row(
-                          children: [
-                            for (int i = 0; i < (hasMenu ? half : items.length); i++)
-                              Expanded(child: tab(i)),
-                            if (hasMenu)
-                              Expanded(
-                                child: _GlassMenuItem(
-                                  label: menuLabel ?? '',
-                                  color: inactive,
-                                  onTap: onMenuTap!,
-                                ),
-                              ),
-                            if (hasMenu)
-                              for (int i = half; i < items.length; i++)
-                                Expanded(child: tab(i)),
-                          ],
-                        ),
-                      ],
-                    );
-                  },
-                ),
+      padding: EdgeInsets.only(bottom: bottom),
+      child: GlassTabBar.bottom(
+        tabs: tabs,
+        selectedIndex: selectedSlot,
+        onTabSelected: (slot) {
+          if (slot == menuSlot) {
+            onMenuTap!();
+          } else {
+            onTap(hasMenu && slot > menuSlot ? slot - 1 : slot);
+          }
+        },
+        horizontalPadding: 20,
+        verticalPadding: 8,
+        barHeight: _kGlassBarHeight,
+        spacing: 10,
+        iconSize: 24,
+        labelFontSize: 10,
+        selectedIconColor: active,
+        selectedLabelColor: active,
+        unselectedIconColor: inactive,
+        unselectedLabelColor: inactive,
+        extraButton: action == null
+            ? null
+            : GlassTabBarExtraButton(
+                icon: Icon(action.icon),
+                iconColor: active,
+                label: action.tooltip ?? action.label ?? '',
+                onTap: action.onPressed,
+                size: _kGlassBarHeight,
               ),
-            ),
-          ),
-          AnimatedSize(
-            duration: const Duration(milliseconds: 250),
-            curve: Curves.easeOut,
-            child: action == null
-                ? const SizedBox(height: _kGlassBarHeight)
-                : Padding(
-                    padding: const EdgeInsets.only(left: 10),
-                    child: GlassIconButton(
-                      icon: action.icon,
-                      size: _kGlassBarHeight,
-                      iconSize: 26,
-                      onPressed: action.onPressed,
-                      tooltip: action.tooltip ?? action.label,
-                      prominent: true,
-                    ),
-                  ),
-          ),
-        ],
       ),
     );
   }
 }
 
-/// The Trainlog menu as a tab: the amber logo on a small navy disc, with its
-/// label under it like the other tabs.
-class _GlassMenuItem extends StatelessWidget {
-  final String label;
-  final Color color;
-  final VoidCallback onTap;
-
-  const _GlassMenuItem({
-    required this.label,
-    required this.color,
-    required this.onTap,
-  });
+/// The Trainlog logo on a small navy disc, used as the menu tab's icon.
+class _MenuLogo extends StatelessWidget {
+  const _MenuLogo();
 
   @override
   Widget build(BuildContext context) {
-    return Semantics(
-      button: true,
-      label: label.isEmpty
-          ? MaterialLocalizations.of(context).showMenuTooltip
-          : label,
-      excludeSemantics: true,
-      child: GlassPressable(
-        onPressed: onTap,
-        pressedScale: 1.1,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SizedBox.square(
-              dimension: 26,
-              child: _BrandGlassFill(
-                child: SvgPicture.asset(
-                  'assets/icon/trainlog_icon_foreground_only.svg',
-                  width: 16,
-                  height: 16,
-                  colorFilter: const ColorFilter.mode(
-                    AppColors.amber,
-                    BlendMode.srcIn,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              label,
-              maxLines: 1,
-              overflow: TextOverflow.fade,
-              softWrap: false,
-              style: TextStyle(
-                color: color,
-                fontSize: 10,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
+    return SizedBox.square(
+      dimension: 26,
+      child: _BrandGlassFill(
+        child: SvgPicture.asset(
+          'assets/icon/trainlog_icon_foreground_only.svg',
+          width: 16,
+          height: 16,
+          colorFilter: const ColorFilter.mode(
+            AppColors.amber,
+            BlendMode.srcIn,
+          ),
         ),
       ),
     );
@@ -461,74 +405,3 @@ class _BrandGlassFill extends StatelessWidget {
   }
 }
 
-class _Lens extends StatelessWidget {
-  final bool isDark;
-  const _Lens({required this.isDark});
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: ShapeDecoration(
-        shape: const StadiumBorder(),
-        // A faint amber cast on the lens keeps a Trainlog warmth in the bar.
-        color: Color.alphaBlend(
-          AppColors.amber.withValues(alpha: isDark ? 0.14 : 0.12),
-          isDark
-              ? Colors.white.withValues(alpha: 0.10)
-              : Colors.black.withValues(alpha: 0.05),
-        ),
-      ),
-    );
-  }
-}
-
-class _GlassTabItem extends StatelessWidget {
-  final BottomNavigationBarItem item;
-  final bool isSelected;
-  final Color color;
-  final VoidCallback onTap;
-
-  const _GlassTabItem({
-    required this.item,
-    required this.isSelected,
-    required this.color,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Semantics(
-      selected: isSelected,
-      button: true,
-      label: item.label,
-      excludeSemantics: true,
-      child: GlassPressable(
-        onPressed: onTap,
-        pressedScale: 1.1,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            IconTheme(
-              data: IconThemeData(color: color, size: 24),
-              child: isSelected && item.activeIcon != item.icon
-                  ? item.activeIcon
-                  : item.icon,
-            ),
-            const SizedBox(height: 2),
-            Text(
-              item.label ?? '',
-              maxLines: 1,
-              overflow: TextOverflow.fade,
-              softWrap: false,
-              style: TextStyle(
-                color: color,
-                fontSize: 10,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
