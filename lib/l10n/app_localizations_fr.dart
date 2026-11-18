@@ -485,6 +485,18 @@ class AppLocalizationsFr extends AppLocalizations {
   String get settingsLicenses => 'Licences';
 
   @override
+  String get menuHomeLabel => 'Accueil';
+
+  @override
+  String get mapResetOrientation => 'Orienter au nord';
+
+  @override
+  String get mapRecenter => 'Recentrer sur ma position';
+
+  @override
+  String get mapFollowPosition => 'Suivre ma position';
+
+  @override
   String get menuMapTitle => 'Carte';
 
   @override

@@ -2,7 +2,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:flutter/services.dart' show SystemUiOverlayStyle;
-import 'package:flutter/material.dart' show Scaffold;
+import 'package:flutter/material.dart' show Material, MaterialType, Scaffold;
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/navigation/nav_models.dart';
@@ -47,6 +47,19 @@ class _CupertinoShellState extends State<CupertinoShell> {
     GlobalKey<NavigatorState>(),
     GlobalKey<NavigatorState>(),
   ];
+
+  /// Each tab's main action ("New trip"), shown as the round button at the
+  /// trailing end of the tab bar instead of in the page itself.
+  final List<ValueNotifier<AppPrimaryAction?>> _mainActions =
+      List.generate(4, (_) => ValueNotifier<AppPrimaryAction?>(null));
+
+  @override
+  void dispose() {
+    for (final n in _mainActions) {
+      n.dispose();
+    }
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -191,6 +204,7 @@ class _CupertinoShellState extends State<CupertinoShell> {
                   key: ValueKey(AppPageId.map.name),
                   title: l10n.menuMapTitle,
                   hasNavBar: false,
+                  mainAction: _mainActions[0],
                   builder: (c, setActions) => MapPage(onPrimaryActionsReady: setActions),
                 ),
               ),
@@ -199,6 +213,7 @@ class _CupertinoShellState extends State<CupertinoShell> {
                 builder: (ctx) => _CupertinoRootPage(
                   key: ValueKey(AppPageId.trips.name),
                   title: l10n.menuTripsTitle,
+                  mainAction: _mainActions[1],
                   builder: (c, setActions) => TripsPage(onPrimaryActionsReady: setActions),
                 ),
               ),
@@ -257,11 +272,16 @@ class _CupertinoShellState extends State<CupertinoShell> {
             left: 0,
             right: 0,
             bottom: 0,
-            child: AdaptiveBottomNavBar(
-              currentIndex: _currentIndex,
-              items: navItems,
-              onTap: _onTabTapped,
-              onMenuTap: () => _openFullScreenMenu(context),
+            child: ValueListenableBuilder<AppPrimaryAction?>(
+              valueListenable: _mainActions[_currentIndex],
+              builder: (_, mainAction, __) => AdaptiveBottomNavBar(
+                currentIndex: _currentIndex,
+                items: navItems,
+                onTap: _onTabTapped,
+                onMenuTap: () => _openFullScreenMenu(context),
+                menuLabel: l10n.menuHomeLabel,
+                trailingAction: mainAction,
+              ),
             ),
           ),
         ],
@@ -293,14 +313,23 @@ class _TabNavigator extends StatelessWidget {
 class CupertinoPrimaryActionsRow extends StatelessWidget {
   final List<AppPrimaryAction> actions;
 
-  const CupertinoPrimaryActionsRow({super.key, required this.actions});
+  /// The page's main action is shown elsewhere (the tab bar), so every
+  /// action here goes in the grouped capsule.
+  final bool groupAll;
+
+  const CupertinoPrimaryActionsRow({
+    super.key,
+    required this.actions,
+    this.groupAll = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     if (actions.isEmpty) return const SizedBox.shrink();
 
-    final main = actions.first;
-    final others = actions.skip(1).toList().reversed.toList();
+    final main = groupAll ? null : actions.first;
+    final others =
+        (groupAll ? actions : actions.skip(1)).toList().reversed.toList();
     final destructive = CupertinoColors.systemRed.resolveFrom(context);
 
     return Row(
@@ -318,9 +347,11 @@ class CupertinoPrimaryActionsRow extends StatelessWidget {
                 ),
             ],
           ),
-          const SizedBox(width: 8),
+          if (main != null) const SizedBox(width: 8),
         ],
-        if (main.isDestructive)
+        if (main == null)
+          const SizedBox.shrink()
+        else if (main.isDestructive)
           GlassIconButton(
             icon: main.icon,
             onPressed: main.onPressed,
@@ -394,12 +425,17 @@ class _CupertinoRootPage extends StatefulWidget {
   /// shell only keeps it clear of the status bar instead of adding a header.
   final bool selfTitled;
 
+  /// When set, the page's first (main) action goes here, for the tab bar's
+  /// trailing button, and only the other actions stay on the page.
+  final ValueNotifier<AppPrimaryAction?>? mainAction;
+
   const _CupertinoRootPage({
     super.key,
     required this.title,
     required this.builder,
     this.hasNavBar = true,
     this.selfTitled = false,
+    this.mainAction,
   });
 
   @override
@@ -413,6 +449,25 @@ class _CupertinoRootPageState extends State<_CupertinoRootPage> {
   void dispose() {
     _actions.dispose();
     super.dispose();
+  }
+
+  /// The root pages sit in a CupertinoPageScaffold, which has no Material:
+  /// give them a transparent one so Material widgets (TextField, InkWell…)
+  /// work, keeping the current text style.
+  Widget _page(BuildContext context) => Material(
+        type: MaterialType.transparency,
+        textStyle: DefaultTextStyle.of(context).style,
+        child: widget.builder(context, _setActions),
+      );
+
+  void _setActions(List<AppPrimaryAction> actions) {
+    final main = widget.mainAction;
+    if (main == null) {
+      _actions.value = actions;
+      return;
+    }
+    main.value = actions.isEmpty ? null : actions.first;
+    _actions.value = actions.skip(1).toList();
   }
 
   @override
@@ -437,7 +492,11 @@ class _CupertinoRootPageState extends State<_CupertinoRootPage> {
         if (widget.selfTitled)
           SizedBox(height: mq.padding.top)
         else
-          _LargeTitleBar(title: widget.title, actions: _actions),
+          _LargeTitleBar(
+            title: widget.title,
+            actions: _actions,
+            groupAll: widget.mainAction != null,
+          ),
         Expanded(
           child: MediaQuery(
             data: mq.copyWith(
@@ -446,7 +505,7 @@ class _CupertinoRootPageState extends State<_CupertinoRootPage> {
                 bottom: kNavBarClearance + mq.padding.bottom,
               ),
             ),
-            child: widget.builder(context, (actions) => _actions.value = actions),
+            child: _page(context),
           ),
         ),
       ],
@@ -464,7 +523,7 @@ class _CupertinoRootPageState extends State<_CupertinoRootPage> {
       child: Stack(
         children: [
           Positioned.fill(
-            child: widget.builder(context, (actions) => _actions.value = actions),
+            child: _page(context),
           ),
           Positioned(
             bottom: kNavBarClearance + mq.padding.bottom + 16,
@@ -499,8 +558,13 @@ class _CupertinoRootPageState extends State<_CupertinoRootPage> {
 class _LargeTitleBar extends StatelessWidget {
   final String title;
   final ValueListenable<List<AppPrimaryAction>> actions;
+  final bool groupAll;
 
-  const _LargeTitleBar({required this.title, required this.actions});
+  const _LargeTitleBar({
+    required this.title,
+    required this.actions,
+    this.groupAll = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -521,7 +585,8 @@ class _LargeTitleBar extends StatelessWidget {
             ),
             ValueListenableBuilder<List<AppPrimaryAction>>(
               valueListenable: actions,
-              builder: (_, a, __) => CupertinoPrimaryActionsRow(actions: a),
+              builder: (_, a, __) =>
+                  CupertinoPrimaryActionsRow(actions: a, groupAll: groupAll),
             ),
           ],
         ),

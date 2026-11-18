@@ -146,6 +146,10 @@
   "settingsInstanceMsg": "ログインページで、アプリケーションで使用されるTrainlogのインスタンスのパスを変更できます。",
   "settingsLicenses": "ライセンス",
 
+  "menuHomeLabel": "ホーム",
+  "mapResetOrientation": "北を上にする",
+  "mapRecenter": "現在地に戻る",
+  "mapFollowPosition": "現在地を追従",
   "menuMapTitle": "地図",
   "menuTripsTitle": "旅行",
   "menuRankingTitle": "ランキング",

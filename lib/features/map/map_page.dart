@@ -19,6 +19,7 @@ import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/features/map/location_category_icons.dart';
 import 'package:trainlog_app/features/map/map_filter_widget.dart';
 import 'package:trainlog_app/features/map/map_marker.dart';
+import 'package:trainlog_app/features/trips_add/open_add_trip_wizard.dart';
 import 'package:trainlog_app/features/trips_add/widgets/full_screen_search_overlay.dart';
 import 'package:trainlog_app/navigation/nav_models.dart';
 import 'package:trainlog_app/platform/adaptive_bottom_navbar.dart' show kNavBarClearance;
@@ -38,6 +39,10 @@ import 'package:trainlog_app/widgets/rendered_polyline_layer.dart';
 import 'package:trainlog_app/widgets/trip_direction_chevron_layer.dart';
 
 class MapPage extends StatefulWidget {
+  /// Android: show the "New trip" FAB with its label (extended FAB) or as a
+  /// plain round + button. iOS always shows a round + in the tab bar.
+  static const bool newTripFabShowsLabel = true;
+
   final SetPrimaryActions onPrimaryActionsReady;
 
   const MapPage({super.key, required this.onPrimaryActionsReady});
@@ -362,29 +367,19 @@ class _MapPageState extends State<MapPage>
         ),
 
         if (_followUser) _lockedOnPositionPill(appLocalizations),
-        _searchButton(appLocalizations),
-        _mapButtonHelper(),        
+        _topRightButtons(appLocalizations),
+        _mapButtonHelper(),
       ],
     );
   }
 
-  Positioned _mapButtonHelper() { 
-    final Icon recenterUserIcon = Icon(AdaptiveIcons.position);
+  Positioned _mapButtonHelper() {
+    final appLocalizations = AppLocalizations.of(context)!;
+    // iOS: the "scope" crosshair, close to Android's my_location icon.
+    final Icon recenterUserIcon = Icon(
+        AppPlatform.isApple ? CupertinoIcons.scope : Icons.my_location);
     final Icon followUserIcon = Icon(_followUser ? Symbols.frame_person_off : Symbols.frame_person);
-    final cs = Theme.of(context).colorScheme;
     final navColors = Theme.of(context).extension<AppNavBarColors>()!;
-
-    Widget orientationIconBuilder() {
-      return ValueListenableBuilder<double>(
-        valueListenable: _rotationNotifier,
-        builder: (context, rotation, _) {
-          return Transform.rotate(
-            angle: -(rotation + 45.0) * (math.pi / 180.0),
-            child: Icon(AdaptiveIcons.compass),
-          );
-        },
-      );
-    }
 
     Future<void> recenterFct () async {
       // No fix yet: this is an explicit user action, so it's fine to ask the
@@ -421,55 +416,32 @@ class _MapPageState extends State<MapPage>
         _followUser = true;
       });
     }
-    void resetMapOrientationFct () {
-      _mapController.rotate(0);
-      _rotationNotifier.value = 0;
-    }
-
-    // On Apple the primary-action FAB sits kNavBarClearance+16 above the
-    // safe area and is 56 px tall, so push these controls clear of it.
+    // Apple: "New trip" lives in the tab bar, so these controls only clear
+    // the tab bar. Material: they sit above the 56 px tall FAB.
     final double buttonsBottom = AppPlatform.isApple
-        ? kNavBarClearance + MediaQuery.of(context).padding.bottom + 16 + 56 + 12
+        ? kNavBarClearance + MediaQuery.of(context).padding.bottom + 16
         : 16 + MediaQuery.of(context).padding.bottom + 56 + 12;
 
     if (AppPlatform.isApple) {
       // iOS 26 map controls: one vertical glass capsule, like Apple Maps.
-      Widget item(Widget icon, VoidCallback onTap) => GlassPressable(
-            onPressed: onTap,
-            pressedScale: 1.15,
-            child: SizedBox.square(
-              dimension: 48,
-              child: Center(
-                child: IconTheme(
-                  data: IconThemeData(
-                    size: 22,
-                    color: CupertinoColors.label.resolveFrom(context),
-                  ),
-                  child: icon,
-                ),
-              ),
-            ),
-          );
-      final divider = Container(
-        width: 26,
-        height: 0.5,
-        color: CupertinoColors.separator.resolveFrom(context),
-      );
       return Positioned(
         bottom: buttonsBottom,
         right: 16,
-        child: LiquidGlass(
-          borderRadius: BorderRadius.circular(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              item(recenterUserIcon, recenterFct),
-              divider,
-              item(followUserIcon, followUserFct),
-              divider,
-              item(orientationIconBuilder(), resetMapOrientationFct),
-            ],
-          ),
+        child: GlassButtonGroup(
+          direction: Axis.vertical,
+          height: 48,
+          children: [
+            GlassGroupItem(
+              icon: recenterUserIcon.icon!,
+              onPressed: recenterFct,
+              semanticLabel: appLocalizations.mapRecenter,
+            ),
+            GlassGroupItem(
+              icon: followUserIcon.icon!,
+              onPressed: followUserFct,
+              semanticLabel: appLocalizations.mapFollowPosition,
+            ),
+          ],
         ),
       );
     }
@@ -513,23 +485,6 @@ class _MapPageState extends State<MapPage>
                     child: followUserIcon,
                   ),
                 ),
-                // Reorientation of the map
-                DecoratedBox(
-                  decoration: BoxDecoration(
-                    border: Border(
-                      top: BorderSide(
-                        color: navColors.inactive,
-                        width: 0.5,
-                      ),
-                    ),
-                  ),
-                  child: 
-                  AdaptiveFilledIconButton(
-                    onPressed: resetMapOrientationFct,
-                    colorScheme: FilledButtonColorScheme.floating, 
-                    child: orientationIconBuilder(),
-                  ),
-                ),
               ],
             ),
           ),
@@ -538,38 +493,137 @@ class _MapPageState extends State<MapPage>
     );
   }
 
-  /// Round search button in the top-right corner of the map.
+  void _resetMapOrientation() {
+    _mapController.rotate(0);
+    _rotationNotifier.value = 0;
+  }
+
+  /// Top-right column: search, then a smaller filter button, then the compass
+  /// while the map is rotated away from north (tapping it brings north back
+  /// up, which hides it again).
+  Widget _topRightButtons(AppLocalizations appLocalizations) {
+    final compass = ValueListenableBuilder<double>(
+      valueListenable: _rotationNotifier,
+      builder: (context, rotation, _) {
+        final r = rotation % 360;
+        final isNorth = r < 0.5 || r > 359.5;
+        return AnimatedSwitcher(
+          duration: const Duration(milliseconds: 200),
+          transitionBuilder: (child, animation) =>
+              ScaleTransition(scale: animation, child: child),
+          child: isNorth
+              ? const SizedBox.shrink()
+              : Padding(
+                  key: const ValueKey('compass'),
+                  padding: const EdgeInsets.only(top: 10),
+                  child: _smallMapButton(
+                    icon: Transform.rotate(
+                      angle: -(rotation + 45.0) * (math.pi / 180.0),
+                      child: Icon(AdaptiveIcons.compass),
+                    ),
+                    tooltip: appLocalizations.mapResetOrientation,
+                    onPressed: _resetMapOrientation,
+                  ),
+                ),
+        );
+      },
+    );
+
+    return Positioned(
+      top: MediaQuery.of(context).padding.top + (AppPlatform.isApple ? 8 : 12),
+      right: 16,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _searchButton(appLocalizations),
+          const SizedBox(height: 10),
+          _smallMapButton(
+            icon: Icon(AdaptiveIcons.filter),
+            tooltip: appLocalizations.filterButton,
+            onPressed: _openFilterSheet,
+          ),
+          compass,
+        ],
+      ),
+    );
+  }
+
+  /// Round search button, at the top of [_topRightButtons].
   Widget _searchButton(AppLocalizations appLocalizations) {
     if (AppPlatform.isApple) {
-      return Positioned(
-        top: MediaQuery.of(context).padding.top + 8,
-        right: 16,
-        child: GlassIconButton(
-          icon: AdaptiveIcons.search,
-          size: 48,
-          iconSize: 22,
-          onPressed: _openSearchOverlay,
-          tooltip: appLocalizations.mapSearchLocationButton,
-        ),
+      return GlassIconButton(
+        icon: AdaptiveIcons.search,
+        size: 48,
+        iconSize: 22,
+        onPressed: _openSearchOverlay,
+        tooltip: appLocalizations.mapSearchLocationButton,
       );
     }
 
     final navColors = Theme.of(context).extension<AppNavBarColors>()!;
 
-    return Positioned(
-      top: MediaQuery.of(context).padding.top + 12,
-      right: 16,
-      child: Tooltip(
-        message: appLocalizations.mapSearchLocationButton,
-        child: ClipOval(
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-            child: Container(
-              color: navColors.background,
-              child: AdaptiveFilledIconButton(
-                onPressed: _openSearchOverlay,
-                colorScheme: FilledButtonColorScheme.floating,
-                child: Icon(AdaptiveIcons.search),
+    return Tooltip(
+      message: appLocalizations.mapSearchLocationButton,
+      child: ClipOval(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+          child: Container(
+            color: navColors.background,
+            child: AdaptiveFilledIconButton(
+              onPressed: _openSearchOverlay,
+              colorScheme: FilledButtonColorScheme.floating,
+              child: Icon(AdaptiveIcons.search),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Smaller round button under the search one (filter, compass).
+  Widget _smallMapButton({
+    required Widget icon,
+    required String tooltip,
+    required VoidCallback onPressed,
+  }) {
+    if (AppPlatform.isApple) {
+      return GlassIconButton(
+        icon: AdaptiveIcons.filter,
+        size: 40,
+        iconSize: 19,
+        tooltip: tooltip,
+        onPressed: onPressed,
+        child: IconTheme(
+          data: IconThemeData(
+            size: 19,
+            color: CupertinoColors.label.resolveFrom(context),
+          ),
+          child: icon,
+        ),
+      );
+    }
+
+    final navColors = Theme.of(context).extension<AppNavBarColors>()!;
+    final (_, fg) = FilledButtonColorScheme.resolveColors(
+        context, FilledButtonColorScheme.floating);
+
+    return Tooltip(
+      message: tooltip,
+      child: ClipOval(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+          child: Material(
+            color: navColors.background,
+            child: InkWell(
+              onTap: onPressed,
+              child: SizedBox.square(
+                dimension: 36,
+                child: Center(
+                  child: IconTheme(
+                    data: IconThemeData(size: 20, color: fg),
+                    child: icon,
+                  ),
+                ),
               ),
             ),
           ),
@@ -796,10 +850,12 @@ class _MapPageState extends State<MapPage>
   }
 
   AppPrimaryAction? _buildPrimaryAction(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     return AppPrimaryAction(
-      icon: AdaptiveIcons.filter, // add if missing
-      tooltip: AppLocalizations.of(context)!.filterButton,
-      onPressed: _openFilterSheet,
+      icon: AdaptiveIcons.add,
+      tooltip: loc.tripsAddButton,
+      label: MapPage.newTripFabShowsLabel ? loc.tripsAddButton : null,
+      onPressed: () => openAddTripWizard(context),
     );
   }
 

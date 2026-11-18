@@ -978,6 +978,30 @@ abstract class AppLocalizations {
   /// **'Licenses'**
   String get settingsLicenses;
 
+  /// No description provided for @menuHomeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get menuHomeLabel;
+
+  /// No description provided for @mapResetOrientation.
+  ///
+  /// In en, this message translates to:
+  /// **'Point north'**
+  String get mapResetOrientation;
+
+  /// No description provided for @mapRecenter.
+  ///
+  /// In en, this message translates to:
+  /// **'Recenter on my position'**
+  String get mapRecenter;
+
+  /// No description provided for @mapFollowPosition.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow my position'**
+  String get mapFollowPosition;
+
   /// No description provided for @menuMapTitle.
   ///
   /// In en, this message translates to:

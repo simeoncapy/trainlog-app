@@ -6,10 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:trainlog_app/data/models/trip_form_model.dart';
 import 'package:trainlog_app/data/models/trips_filter.dart';
 import 'package:trainlog_app/features/menu/menu_summary_card.dart';
-import 'package:trainlog_app/features/trips_add/add_trip_wizard_page.dart';
+import 'package:trainlog_app/features/trips_add/open_add_trip_wizard.dart';
 import 'package:trainlog_app/features/trips/search_filter_sheet/trips_search_filter_sheet.dart';
 import 'package:trainlog_app/features/trips/widgets/trip_card_view.dart';
 import 'package:trainlog_app/features/trips/widgets/trip_table_view.dart';
@@ -279,23 +278,11 @@ class _TripsPageState extends State<TripsPage> {
     final loc = AppLocalizations.of(context)!;
     return AppPrimaryAction(
       onPressed: () async {
-        // Root navigator: on iOS the tab's own navigator sits under the
-        // floating tab bar, which would cover the wizard's footer button.
-        final didSave =
-            await Navigator.of(context, rootNavigator: true).push<bool>(
-          PageRouteBuilder(
-            pageBuilder: (_, __, ___) => ChangeNotifierProvider(
-              create: (_) => TripFormModel(),
-              child: const AddTripWizardPage(),
-            ),
-            transitionDuration: Duration.zero,
-            reverseTransitionDuration: Duration.zero,
-          ),
-        );
+        final didSave = await openAddTripWizard(context);
 
         if (!context.mounted) return;
 
-        if (didSave == true) {
+        if (didSave) {
           setState(() {});
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted) {

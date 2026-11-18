@@ -147,6 +147,10 @@
   "settingsInstanceMsg": "Vous pouvez modifier l'URL de l'instance Trainlog utilisée par l'application sur la page de connexion.",
   "settingsLicenses": "Licences",
 
+  "menuHomeLabel": "Accueil",
+  "mapResetOrientation": "Orienter au nord",
+  "mapRecenter": "Recentrer sur ma position",
+  "mapFollowPosition": "Suivre ma position",
   "menuMapTitle": "Carte",
   "menuTripsTitle": "Trajets",
   "menuRankingTitle": "Classement",
