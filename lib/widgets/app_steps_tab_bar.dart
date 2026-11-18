@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart'
     show GlassSegment, GlassSegmentedControl;
@@ -58,17 +57,13 @@ class AppStepsTabBar extends StatefulWidget {
 }
 
 class _AppStepsTabBarState extends State<AppStepsTabBar> {
-  static final _isApple = AppPlatform.isApple;
-  static final _trackPadding = _isApple ? 3.0 : 4.0;
-  static final double _height = _isApple ? 40 : 46;
+  static const _trackPadding = 4.0;
 
-  // iOS segmented controls glide with a light spring; Material eases.
-  static final _slideDuration = Duration(milliseconds: _isApple ? 380 : 250);
-  static final Curve _slideCurve =
-      _isApple ? Curves.easeOutBack : Curves.easeInOut;
-
-  /// Apple: the thumb swells slightly while a finger is on the control.
-  bool _pressed = false;
+  /// Height of the Material track. Apple uses liquid_glass_widgets'
+  /// segmented control instead (see [_buildGlass]).
+  static const double _height = 46;
+  static const _slideDuration = Duration(milliseconds: 250);
+  static const Curve _slideCurve = Curves.easeInOut;
 
   final List<GlobalKey> _keys = [];
   List<double> _widths = [];
@@ -140,52 +135,27 @@ class _AppStepsTabBarState extends State<AppStepsTabBar> {
       top: 0,
       bottom: 0,
       width: _indicatorWidth,
-      child: AppPlatform.isApple
-          ? _AppleThumb(isDark: isDark, pressed: _pressed)
-          : Container(
-              decoration: BoxDecoration(
-                color: tabColors.selectedBackground,
-                borderRadius: BorderRadius.circular(10),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.10),
-                    blurRadius: 6,
-                    offset: const Offset(0, 1),
-                  ),
-                ],
-              ),
+      child: Container(
+        decoration: BoxDecoration(
+          color: tabColors.selectedBackground,
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.10),
+              blurRadius: 6,
+              offset: const Offset(0, 1),
             ),
+          ],
+        ),
+      ),
     );
   }
 
-  /// Track behind the chips: a rounded grey well on Material, the iOS
-  /// capsule filled with the system fill on Apple.
-  BoxDecoration _trackDecoration(AppTabColors tabColors) {
-    if (_isApple) {
-      return BoxDecoration(
-        color: CupertinoColors.tertiarySystemFill.resolveFrom(context),
-        borderRadius: BorderRadius.circular(_height / 2),
+  /// Track behind the chips: a rounded grey well.
+  BoxDecoration _trackDecoration(AppTabColors tabColors) => BoxDecoration(
+        color: tabColors.tabBackground,
+        borderRadius: BorderRadius.circular(14),
       );
-    }
-    return BoxDecoration(
-      color: tabColors.tabBackground,
-      borderRadius: BorderRadius.circular(14),
-    );
-  }
-
-  /// Apple: like UISegmentedControl, dragging a finger along the control
-  /// moves the selection to the segment under it.
-  void _selectAt(double dx, double width) {
-    if (width <= 0) return;
-    final i = (dx / (width / widget.tabs.length))
-        .floor()
-        .clamp(0, widget.tabs.length - 1);
-    if (i != widget.selectedIndex) widget.onTabChanged(i);
-  }
-
-  void _setPressed(bool v) {
-    if (_pressed != v) setState(() => _pressed = v);
-  }
 
   /// Apple: liquid_glass_widgets' iOS 26 segmented control, whose glass
   /// lens follows the finger and refracts the labels under it.
@@ -230,7 +200,7 @@ class _AppStepsTabBarState extends State<AppStepsTabBar> {
     final cs = Theme.of(context).colorScheme;
     final tabColors = Theme.of(context).extension<AppTabColors>()!;
 
-    if (_isApple) return _buildGlass(context);
+    if (AppPlatform.isApple) return _buildGlass(context);
 
     if (widget.fullWidth) {
       return Container(
@@ -241,7 +211,7 @@ class _AppStepsTabBarState extends State<AppStepsTabBar> {
           child: LayoutBuilder(
             builder: (context, constraints) {
               final chipWidth = constraints.maxWidth / widget.tabs.length;
-              final track = Stack(
+              return Stack(
                 clipBehavior: Clip.none,
                 children: [
                   // Indicator derived purely from layout — always correct on resize.
@@ -252,21 +222,19 @@ class _AppStepsTabBarState extends State<AppStepsTabBar> {
                     top: 0,
                     bottom: 0,
                     width: chipWidth,
-                    child: _isApple
-                        ? _AppleThumb(isDark: isDark, pressed: _pressed)
-                        : Container(
-                            decoration: BoxDecoration(
-                              color: tabColors.selectedBackground,
-                              borderRadius: BorderRadius.circular(10),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.10),
-                                  blurRadius: 6,
-                                  offset: const Offset(0, 1),
-                                ),
-                              ],
-                            ),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: tabColors.selectedBackground,
+                        borderRadius: BorderRadius.circular(10),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.10),
+                            blurRadius: 6,
+                            offset: const Offset(0, 1),
                           ),
+                        ],
+                      ),
+                    ),
                   ),
                   Row(
                     mainAxisSize: MainAxisSize.max,
@@ -286,19 +254,6 @@ class _AppStepsTabBarState extends State<AppStepsTabBar> {
                     ],
                   ),
                 ],
-              );
-              if (!_isApple) return track;
-              return GestureDetector(
-                behavior: HitTestBehavior.translucent,
-                onTapDown: (_) => _setPressed(true),
-                onTapUp: (_) => _setPressed(false),
-                onTapCancel: () => _setPressed(false),
-                onHorizontalDragStart: (_) => _setPressed(true),
-                onHorizontalDragUpdate: (d) =>
-                    _selectAt(d.localPosition.dx, constraints.maxWidth),
-                onHorizontalDragEnd: (_) => _setPressed(false),
-                onHorizontalDragCancel: () => _setPressed(false),
-                child: track,
               );
             },
           ),
@@ -337,49 +292,6 @@ class _AppStepsTabBarState extends State<AppStepsTabBar> {
   }
 }
 
-/// iOS 26 segmented-control thumb: a raised capsule (white in light mode,
-/// a lifted grey in dark mode) with a soft shadow and a faint amber rim — the
-/// Trainlog accent — that swells a little while pressed.
-class _AppleThumb extends StatelessWidget {
-  final bool isDark;
-  final bool pressed;
-
-  const _AppleThumb({required this.isDark, required this.pressed});
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedScale(
-      scale: pressed ? 1.04 : 1.0,
-      duration: Duration(milliseconds: pressed ? 120 : 320),
-      curve: pressed ? Curves.easeOut : Curves.elasticOut,
-      child: DecoratedBox(
-        decoration: ShapeDecoration(
-          shape: StadiumBorder(
-            side: BorderSide(
-              color: AppColors.amber.withValues(alpha: isDark ? 0.35 : 0.30),
-              width: 0.8,
-            ),
-          ),
-          color: isDark ? const Color(0xFF3A4255) : CupertinoColors.white,
-          shadows: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: isDark ? 0.30 : 0.10),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-            BoxShadow(
-              color: Colors.black.withValues(alpha: isDark ? 0.15 : 0.04),
-              blurRadius: 1,
-              offset: const Offset(0, 0.5),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-
 class _AppStepsTabChip extends StatelessWidget {
   final String label;
   final int? count;
@@ -404,8 +316,6 @@ class _AppStepsTabChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (AppPlatform.isApple) return _buildApple(context);
-
     final cs = Theme.of(context).colorScheme;
     final tabColors = Theme.of(context).extension<AppTabColors>()!;
 
@@ -499,97 +409,6 @@ class _AppStepsTabChip extends StatelessWidget {
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: centerContent ? Center(child: content) : content,
-    );
-  }
-
-  /// iOS segment: label in the system label colours (semibold when
-  /// selected), icon kept and tinted with the Trainlog amber when selected.
-  Widget _buildApple(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final accent = isDark ? AppColors.amber : AppColors.amberDk;
-    final label = CupertinoColors.label.resolveFrom(context);
-    final secondary = CupertinoColors.secondaryLabel.resolveFrom(context);
-    const duration = Duration(milliseconds: 200);
-
-    Widget icon(double size) => TweenAnimationBuilder<Color?>(
-          tween: ColorTween(end: isSelected ? accent : secondary),
-          duration: duration,
-          builder: (_, c, child) => IconTheme(
-            data: IconThemeData(color: c, size: size),
-            child: child!,
-          ),
-          child: leadingIcon!,
-        );
-
-    final text = AnimatedDefaultTextStyle(
-      duration: duration,
-      style: TextStyle(
-        color: isSelected ? label : secondary,
-        fontSize: 14,
-        letterSpacing: -0.15,
-        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-      ),
-      child: Text(this.label, maxLines: 1, overflow: TextOverflow.ellipsis),
-    );
-
-    final Widget content;
-    if (iconOnly && leadingIcon != null) {
-      content = Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 14),
-        child: Tooltip(message: this.label, child: icon(19)),
-      );
-    } else {
-      content = Padding(
-        // Equal-width segments are narrow, so keep their padding tight.
-        padding: EdgeInsets.symmetric(horizontal: centerContent ? 6 : 12),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (leadingIcon != null) ...[
-              icon(17),
-              const SizedBox(width: 6),
-            ],
-            // Equal-width segments may need to truncate a long label; the
-            // scrollable bar sizes each segment to its content instead.
-            if (centerContent) Flexible(child: text) else text,
-            if (count != null) ...[
-              const SizedBox(width: 6),
-              AnimatedContainer(
-                duration: duration,
-                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 1),
-                decoration: BoxDecoration(
-                  color: isSelected
-                      ? accent.withValues(alpha: 0.16)
-                      : CupertinoColors.tertiarySystemFill.resolveFrom(context),
-                  borderRadius: BorderRadius.circular(99),
-                ),
-                child: Text(
-                  '$count',
-                  style: TextStyle(
-                    color: isSelected ? accent : secondary,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ],
-          ],
-        ),
-      );
-    }
-
-    return Semantics(
-      button: true,
-      selected: isSelected,
-      label: this.label,
-      excludeSemantics: true,
-      child: GestureDetector(
-        onTap: onTap,
-        behavior: HitTestBehavior.opaque,
-        child: centerContent
-            ? Center(child: content)
-            : Align(widthFactor: 1, child: content),
-      ),
     );
   }
 }
