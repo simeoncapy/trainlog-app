@@ -386,6 +386,7 @@ class _ShellSubPage extends StatefulWidget {
 
 class _ShellSubPageState extends State<_ShellSubPage> {
   final ValueNotifier<List<AppPrimaryAction>> _actions = ValueNotifier(const []);
+  late final _sink = _ActionsSink(_actions);
 
   @override
   void dispose() {
@@ -410,7 +411,7 @@ class _ShellSubPageState extends State<_ShellSubPage> {
       ),
       body: SafeArea(
         top: false,
-        child: widget.builder(context, (actions) => _actions.value = actions),
+        child: widget.builder(context, _sink.set),
       ),
     );
   }
@@ -444,6 +445,9 @@ class _CupertinoRootPage extends StatefulWidget {
 
 class _CupertinoRootPageState extends State<_CupertinoRootPage> {
   final ValueNotifier<List<AppPrimaryAction>> _actions = ValueNotifier(const []);
+  late final _sink = _ActionsSink(_actions);
+  late final _mainSink =
+      widget.mainAction == null ? null : _MainActionSink(widget.mainAction!);
 
   @override
   void dispose() {
@@ -461,13 +465,13 @@ class _CupertinoRootPageState extends State<_CupertinoRootPage> {
       );
 
   void _setActions(List<AppPrimaryAction> actions) {
-    final main = widget.mainAction;
+    final main = _mainSink;
     if (main == null) {
-      _actions.value = actions;
+      _sink.set(actions);
       return;
     }
-    main.value = actions.isEmpty ? null : actions.first;
-    _actions.value = actions.skip(1).toList();
+    main.set(actions.isEmpty ? null : actions.first);
+    _sink.set(actions.skip(1).toList());
   }
 
   @override
@@ -612,5 +616,70 @@ class _CupertinoMapFab extends StatelessWidget {
       iconSize: 24,
       prominent: true,
     );
+  }
+}
+
+// ── Primary actions plumbing ──────────────────────────────────────────────────
+
+/// Pages report their actions after every build, each time as new objects
+/// (new closures). Pushing them straight into a [ValueNotifier] would rebuild
+/// the glass tab bar / title bar on every page rebuild (on the map, at each
+/// position update). These sinks only notify when what is shown changes
+/// (icon, tooltip, label, colour); the buttons they publish forward taps to
+/// the latest reported callback, so they never run a stale closure.
+
+bool _sameLook(AppPrimaryAction a, AppPrimaryAction b) =>
+    a.icon == b.icon &&
+    a.tooltip == b.tooltip &&
+    a.label == b.label &&
+    a.isDestructive == b.isDestructive;
+
+AppPrimaryAction _forwarding(
+  AppPrimaryAction look,
+  VoidCallback Function() latest,
+) =>
+    AppPrimaryAction(
+      icon: look.icon,
+      tooltip: look.tooltip,
+      label: look.label,
+      isDestructive: look.isDestructive,
+      onPressed: () => latest()(),
+    );
+
+class _MainActionSink {
+  _MainActionSink(this._notifier);
+
+  final ValueNotifier<AppPrimaryAction?> _notifier;
+  AppPrimaryAction? _latest;
+
+  void set(AppPrimaryAction? action) {
+    _latest = action;
+    final shown = _notifier.value;
+    if (action == null) {
+      _notifier.value = null;
+    } else if (shown == null || !_sameLook(shown, action)) {
+      _notifier.value = _forwarding(action, () => _latest!.onPressed);
+    }
+  }
+}
+
+class _ActionsSink {
+  _ActionsSink(this._notifier);
+
+  final ValueNotifier<List<AppPrimaryAction>> _notifier;
+  List<AppPrimaryAction> _latest = const [];
+
+  void set(List<AppPrimaryAction> actions) {
+    _latest = actions;
+    final shown = _notifier.value;
+    var unchanged = shown.length == actions.length;
+    for (var i = 0; unchanged && i < actions.length; i++) {
+      unchanged = _sameLook(shown[i], actions[i]);
+    }
+    if (unchanged) return;
+    _notifier.value = [
+      for (var i = 0; i < actions.length; i++)
+        _forwarding(actions[i], () => _latest[i].onPressed),
+    ];
   }
 }

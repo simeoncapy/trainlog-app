@@ -294,6 +294,8 @@
   "tripsSearchFilterDone": "Terminé",
   "filterClearButton": "Supprimer les filtres",
   "tripsAddButton": "Nouv. trajet",
+  "tripsTableViewTooltip": "Vue tableau",
+  "tripsCardViewTooltip": "Vue cartes",
 
   "graphTypeCountry": "Pays",
   "graphTypeYears": "Années",

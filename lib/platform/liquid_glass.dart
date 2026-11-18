@@ -118,7 +118,7 @@ class _GlassPressableState extends State<GlassPressable> {
 class GlassIconButton extends StatelessWidget {
   const GlassIconButton({
     super.key,
-    required this.icon,
+    this.icon,
     required this.onPressed,
     this.size = 44,
     this.iconSize = 20,
@@ -127,9 +127,11 @@ class GlassIconButton extends StatelessWidget {
     this.color,
     this.child,
     this.shadow = true,
-  });
+  }) : assert(icon != null || child != null,
+            'GlassIconButton needs an icon or a child');
 
-  final IconData icon;
+  /// The icon to show. May be omitted when [child] is given.
+  final IconData? icon;
   final VoidCallback? onPressed;
   final double size;
   final double iconSize;

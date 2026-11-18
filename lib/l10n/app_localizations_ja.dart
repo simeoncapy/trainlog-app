@@ -911,6 +911,12 @@ class AppLocalizationsJa extends AppLocalizations {
   String get tripsAddButton => '旅行を追加';
 
   @override
+  String get tripsTableViewTooltip => '表形式で表示';
+
+  @override
+  String get tripsCardViewTooltip => 'カード形式で表示';
+
+  @override
   String get graphTypeCountry => '国';
 
   @override

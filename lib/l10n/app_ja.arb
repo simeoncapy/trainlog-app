@@ -293,6 +293,8 @@
   "tripsSearchFilterDone": "完了",
   "filterClearButton": "フィルターを消す",
   "tripsAddButton": "旅行を追加",
+  "tripsTableViewTooltip": "表形式で表示",
+  "tripsCardViewTooltip": "カード形式で表示",
 
   "graphTypeCountry": "国",
   "graphTypeYears": "年",

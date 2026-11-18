@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:trainlog_app/app/theme/app_tab_theme.dart';
 import 'package:trainlog_app/platform/adaptive_widget.dart';
 
+import 'package:trainlog_app/app/app_globals.dart';
 import 'package:trainlog_app/app/theme/app_theme.dart';
 import 'package:trainlog_app/features/trainlog/egg.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
@@ -188,7 +189,12 @@ class _SettingsPageState extends State<SettingsPage> {
       return;
     }
     final deleted = await showDeleteAccountDialog(context);
-    if (deleted != true || !mounted) return;
+    if (deleted != true) return;
+    // The user is logged out by now and the app root shows the login page,
+    // but this page (and any other pushed route) may still sit on top of it:
+    // go back to the root before telling them it worked. Not tied to this
+    // page's context, which may already be unmounted.
+    rootNavigatorKey.currentState?.popUntil((route) => route.isFirst);
     AdaptiveInformationMessage.showInfo(l10n.deleteAccountSuccess);
   }
 

@@ -420,6 +420,8 @@
 
   "filterClearButton": "Clear filter",
   "tripsAddButton": "New trip",
+  "tripsTableViewTooltip": "Table view",
+  "tripsCardViewTooltip": "Card view",
 
   "graphTypeCountry": "Country",
   "graphTypeYears": "Years",

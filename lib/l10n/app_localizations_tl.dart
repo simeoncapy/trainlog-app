@@ -935,6 +935,12 @@ class AppLocalizationsTl extends AppLocalizations {
   String get tripsAddButton => 'Bag. biyahe';
 
   @override
+  String get tripsTableViewTooltip => 'Talahanayan';
+
+  @override
+  String get tripsCardViewTooltip => 'Mga card';
+
+  @override
   String get graphTypeCountry => 'Bansa';
 
   @override

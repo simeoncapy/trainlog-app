@@ -1746,6 +1746,18 @@ abstract class AppLocalizations {
   /// **'New trip'**
   String get tripsAddButton;
 
+  /// No description provided for @tripsTableViewTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Table view'**
+  String get tripsTableViewTooltip;
+
+  /// No description provided for @tripsCardViewTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Card view'**
+  String get tripsCardViewTooltip;
+
   /// No description provided for @graphTypeCountry.
   ///
   /// In en, this message translates to:

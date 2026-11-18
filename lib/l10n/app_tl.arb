@@ -304,6 +304,8 @@
   "tripsSearchFilterDone": "Tapos na",
   "filterClearButton": "Ibura ang filter",
   "tripsAddButton": "Bag. biyahe",
+  "tripsTableViewTooltip": "Talahanayan",
+  "tripsCardViewTooltip": "Mga card",
   "graphTypeCountry": "Bansa",
   "graphTypeYears": "Taon",
   "graphTypeItinerary": "Itinerary",

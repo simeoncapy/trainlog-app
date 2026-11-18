@@ -138,11 +138,15 @@ class AdaptiveBottomNavBar extends StatelessWidget {
           child: GestureDetector(
             onTap: onMenuTap,
             behavior: HitTestBehavior.opaque,
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 11),
-                child: Text(
+            // Same layout as _NavBarItem (24 px icon slot, 3 px gap, label),
+            // with an empty icon slot under the protruding button, so the
+            // label lines up exactly with the other tabs' labels.
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SizedBox(height: 24),
+                const SizedBox(height: 3),
+                Text(
                   menuLabel ?? '',
                   maxLines: 1,
                   overflow: TextOverflow.fade,
@@ -153,7 +157,7 @@ class AdaptiveBottomNavBar extends StatelessWidget {
                     fontWeight: FontWeight.w400,
                   ),
                 ),
-              ),
+              ],
             ),
           ),
         ),
