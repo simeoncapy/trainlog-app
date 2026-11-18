@@ -949,6 +949,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get tripsAddButton => 'Nouv. trajet';
 
   @override
+  String get tripsTableViewTooltip => 'Vue tableau';
+
+  @override
+  String get tripsCardViewTooltip => 'Vue cartes';
+
+  @override
   String get graphTypeCountry => 'Pays';
 
   @override

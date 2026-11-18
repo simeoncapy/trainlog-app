@@ -145,7 +145,7 @@ class _TripsPageState extends State<TripsPage> {
         ),
         AppPrimaryAction(
           icon: _isCardView ? CupertinoIcons.table : CupertinoIcons.rectangle_grid_1x2,
-          tooltip: _isCardView ? 'Table view' : 'Card view',
+          tooltip: _isCardView ? loc.tripsTableViewTooltip : loc.tripsCardViewTooltip,
           onPressed: () => _setCardView(!_isCardView),
         ),
         if (_activeFilter != null)
@@ -340,7 +340,9 @@ class _PageHeader extends StatelessWidget {
           AdaptiveAppBarSquareButton(
             icon: isCardView ? Icons.table_chart_outlined : Icons.view_agenda_outlined,
             onPressed: onToggleView,
-            tooltip: isCardView ? 'Table view' : 'Card view',
+            tooltip: isCardView
+                ? AppLocalizations.of(context)!.tripsTableViewTooltip
+                : AppLocalizations.of(context)!.tripsCardViewTooltip,
             size: 36,
             iconSize: 18,
           ),
