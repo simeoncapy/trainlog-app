@@ -588,7 +588,6 @@ class _MapPageState extends State<MapPage>
   }) {
     if (AppPlatform.isApple) {
       return GlassIconButton(
-        icon: AdaptiveIcons.filter,
         size: 40,
         iconSize: 19,
         tooltip: tooltip,
