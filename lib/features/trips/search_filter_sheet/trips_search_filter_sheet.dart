@@ -334,13 +334,19 @@ class _TripsSearchFilterSheetState extends State<TripsSearchFilterSheet> {
       child: AnimatedPadding(
         duration: const Duration(milliseconds: 150),
         padding: EdgeInsets.only(bottom: bottomInset),
-        child: Column(
-          children: [
-            // The Apple glass sheet draws its own grab handle.
-            if (!AppPlatform.isApple) _grabHandle(context),
-            Expanded(child: body),
-            if (_view == _SheetView.main) _actionFooter(context, l10n),
-          ],
+        // While the sheet closes with the keyboard still animating away, the
+        // space left here can drop to almost nothing: skip the layout then.
+        child: LayoutBuilder(
+          builder: (context, constraints) => constraints.maxHeight < 120
+              ? const SizedBox.shrink()
+              : Column(
+                  children: [
+                    // The Apple glass sheet draws its own grab handle.
+                    if (!AppPlatform.isApple) _grabHandle(context),
+                    Expanded(child: body),
+                    if (_view == _SheetView.main) _actionFooter(context, l10n),
+                  ],
+                ),
         ),
       ),
     );
