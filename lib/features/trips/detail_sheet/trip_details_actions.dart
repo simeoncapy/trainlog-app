@@ -8,7 +8,6 @@ import 'package:trainlog_app/app/theme/app_colors.dart';
 import 'package:trainlog_app/features/trips/detail_sheet/trip_details_common.dart';
 import 'package:trainlog_app/features/trips_edit_copy/edit_copy_page.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
-import 'package:trainlog_app/platform/adaptive_dialog.dart';
 import 'package:trainlog_app/platform/adaptive_information_message.dart';
 import 'package:trainlog_app/platform/adaptive_page_route.dart';
 import 'package:trainlog_app/providers/polyline_provider.dart';
@@ -118,17 +117,7 @@ class TripDetailsActions extends StatelessWidget {
     final polylineProvider = Provider.of<PolylineProvider>(context, listen: false);
 
     final confirmed = AppPlatform.isApple
-        // iOS alert with Delete in the destructive red. The sheet itself is
-        // on the root navigator, hence skipWhenRootCanPop: false.
-        ? await AdaptiveDialog.confirm(
-            context: context,
-            title: l10n.tripsDetailsDeleteDialogTitle,
-            message: l10n.tripsDetailsDeleteDialogMessage,
-            confirmLabel: l10n.deleteButton,
-            destructive: true,
-            useActionSheetOnIOS: false,
-            skipWhenRootCanPop: false,
-          )
+        ? await _confirmDeleteApple(context, l10n)
         : await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -165,6 +154,44 @@ class TripDetailsActions extends StatelessWidget {
     } else {
       AdaptiveInformationMessage.showInfo(l10n.tripsDetailsDeleteFailed);
     }
+  }
+
+  /// iOS alert with Delete in the destructive red. It keeps the theme of
+  /// the sheet it is opened from (e.g. the map's), not the app's.
+  Future<bool> _confirmDeleteApple(
+    BuildContext context,
+    AppLocalizations l10n,
+  ) async {
+    final theme = Theme.of(context);
+    final cupertinoTheme = CupertinoTheme.of(context);
+    final result = await showCupertinoDialog<bool>(
+      context: context,
+      useRootNavigator: true,
+      builder: (dialogContext) => Theme(
+        data: theme,
+        child: CupertinoTheme(
+          data: cupertinoTheme,
+          child: CupertinoAlertDialog(
+            title: Text(l10n.tripsDetailsDeleteDialogTitle),
+            content: Text(l10n.tripsDetailsDeleteDialogMessage),
+            actions: [
+              CupertinoDialogAction(
+                onPressed: () => Navigator.of(dialogContext).pop(false),
+                child: Text(
+                  CupertinoLocalizations.of(dialogContext).cancelButtonLabel,
+                ),
+              ),
+              CupertinoDialogAction(
+                isDestructiveAction: true,
+                onPressed: () => Navigator.of(dialogContext).pop(true),
+                child: Text(l10n.deleteButton),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    return result ?? false;
   }
 
   /// iOS: full-width tinted rows stacked at the end of the sheet's content,
