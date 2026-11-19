@@ -6,6 +6,7 @@ import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/platform/adaptive_vehicle_type_filter_chips.dart';
 import 'package:trainlog_app/providers/polyline_provider.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
+import 'package:trainlog_app/utils/platform_utils.dart';
 import 'package:trainlog_app/widgets/app_steps_tab_bar.dart';
 import 'package:trainlog_app/widgets/primary_action_button.dart';
 
@@ -17,8 +18,8 @@ import 'package:trainlog_app/widgets/primary_action_button.dart';
 /// while the form contents live inside a [Flexible] scroll area so they never
 /// overflow on short screens.
 ///
-/// Designed to be hosted by `showModalBottomSheet`; [onClose] should dismiss
-/// the sheet (e.g. `Navigator.pop`).
+/// Designed to be hosted by `showAdaptiveContentSheet`; [onClose] should
+/// dismiss the sheet (e.g. `Navigator.pop`).
 class MapFilterWidget extends StatefulWidget {
   final VoidCallback onClose;
 
@@ -49,18 +50,25 @@ class _MapFilterWidgetState extends State<MapFilterWidget> {
     final maxHeight =
         (mediaQuery.size.height - mediaQuery.padding.top) * 0.9;
 
+    // On Apple the sheet is a Liquid Glass surface that brings its own grab
+    // handle, so the widget paints neither a background nor a handle there.
+    final isApple = AppPlatform.isApple;
+
     return Container(
       constraints: BoxConstraints(maxHeight: maxHeight),
-      decoration: BoxDecoration(
-        color: theme.cardColor,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-      ),
+      decoration: isApple
+          ? null
+          : BoxDecoration(
+              color: theme.cardColor,
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(24)),
+            ),
       child: SafeArea(
         top: false,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _grabHandle(theme),
+            isApple ? const SizedBox(height: 12) : _grabHandle(theme),
             _header(context, l10n, theme),
             Flexible(
               fit: FlexFit.loose,

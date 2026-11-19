@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart'
+    show GlassSheetDetent, GlassSheetState;
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/data/models/trips_filter.dart';
@@ -11,6 +13,7 @@ import 'package:trainlog_app/features/trips/search_filter_sheet/group_picker_vie
 import 'package:trainlog_app/features/trips/search_filter_sheet/sheet_common.dart';
 import 'package:trainlog_app/features/trips/search_filter_sheet/when_section.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
+import 'package:trainlog_app/platform/adaptive_sheet.dart';
 import 'package:trainlog_app/platform/adaptive_vehicle_type_filter_chips.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
@@ -20,8 +23,8 @@ import 'package:trainlog_app/widgets/primary_action_button.dart';
 
 /// Opens the trips search & filter interface as a bottom sheet, using the
 /// same native presentation hooks as `showAdaptiveTripBottomSheet` (the trip
-/// details sheet): a Material modal bottom sheet on Android, a Cupertino
-/// modal popup on Apple platforms.
+/// details sheet): a Material modal bottom sheet on Android, a Liquid Glass
+/// sheet on Apple platforms.
 ///
 /// Resolves with the new [TripsFilterResult] when the user confirms via the
 /// "Show N trips" action, or null when the sheet is dismissed.
@@ -34,30 +37,19 @@ Future<TripsFilterResult?> showTripsSearchFilterSheet(
   TripsFilterResult? initialFilter,
 }) {
   if (AppPlatform.isApple) {
-    return showCupertinoModalPopup<TripsFilterResult>(
+    // A large-detent Liquid Glass sheet: opaque at rest like iOS 26 form
+    // sheets, glass while it is dragged away.
+    return showAppleDetentSheet<TripsFilterResult>(
       context: context,
-      useRootNavigator: true,
-      builder: (ctx) {
-        final mq = MediaQuery.of(ctx);
-        return Container(
-          height: mq.size.height * 0.92,
-          decoration: BoxDecoration(
-            color: Theme.of(ctx).colorScheme.surface,
-            // iOS 26 sheets have the generous corner radius of the device.
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(34)),
-          ),
-          child: SafeArea(
-            top: false,
-            child: TripsSearchFilterSheet(
-              repo: repo,
-              countryOptions: countryOptions,
-              typeOptions: typeOptions,
-              showFutureTrips: showFutureTrips,
-              initialFilter: initialFilter,
-            ),
-          ),
-        );
-      },
+      detents: const {GlassSheetDetent.large},
+      initialState: GlassSheetState.full,
+      builder: (ctx) => TripsSearchFilterSheet(
+        repo: repo,
+        countryOptions: countryOptions,
+        typeOptions: typeOptions,
+        showFutureTrips: showFutureTrips,
+        initialFilter: initialFilter,
+      ),
     );
   }
 
@@ -335,8 +327,8 @@ class _TripsSearchFilterSheetState extends State<TripsSearchFilterSheet> {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
     // The SafeArea keeps the footer above the system navigation bar — the
-    // Material host only avoids the status bar. On Apple the hosting popup
-    // has already consumed the bottom inset, so it is a no-op there.
+    // Material host only avoids the status bar. On Apple it keeps the footer
+    // above the home indicator.
     return SafeArea(
       top: false,
       child: AnimatedPadding(
@@ -344,7 +336,8 @@ class _TripsSearchFilterSheetState extends State<TripsSearchFilterSheet> {
         padding: EdgeInsets.only(bottom: bottomInset),
         child: Column(
           children: [
-            _grabHandle(context),
+            // The Apple glass sheet draws its own grab handle.
+            if (!AppPlatform.isApple) _grabHandle(context),
             Expanded(child: body),
             if (_view == _SheetView.main) _actionFooter(context, l10n),
           ],

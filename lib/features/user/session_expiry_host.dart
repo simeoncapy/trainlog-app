@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:trainlog_app/app/theme/app_theme.dart';
 import 'package:trainlog_app/features/user/widgets/auth_form.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
+import 'package:trainlog_app/platform/adaptive_sheet.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
 
@@ -74,9 +75,8 @@ class _SessionExpiryHostState extends State<SessionExpiryHost>
 
     _sheetOpen = true;
     final trips = context.read<TripsProvider>();
-    final loggedIn = await showModalBottomSheet<bool>(
+    final loggedIn = await showAdaptiveContentSheet<bool>(
       context: context,
-      isScrollControlled: true,
       useRootNavigator: true,
       builder: (_) => const _LogInAgainSheet(),
     );

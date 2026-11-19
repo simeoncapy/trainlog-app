@@ -1,4 +1,7 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:trainlog_app/platform/adaptive_sheet.dart';
+import 'package:trainlog_app/utils/platform_utils.dart';
 
 /// One choice in a [showBottomSheetPicker] sheet.
 ///
@@ -26,6 +29,8 @@ class BottomSheetPickerOption<T> {
 /// picker styling stays consistent and isn't duplicated.
 ///
 /// The currently [selected] value is marked with a trailing check.
+///
+/// Android shows a Material modal bottom sheet; Apple a Liquid Glass sheet.
 Future<void> showBottomSheetPicker<T>({
   required BuildContext context,
   required String title,
@@ -33,9 +38,11 @@ Future<void> showBottomSheetPicker<T>({
   required T selected,
   required ValueChanged<T> onChanged,
 }) {
-  return showModalBottomSheet<void>(
+  final isApple = AppPlatform.isApple;
+
+  return showAdaptiveContentSheet<void>(
     context: context,
-    isScrollControlled: true,
+    maxHeightFactor: 0.8,
     builder: (ctx) {
       final maxHeight = MediaQuery.sizeOf(ctx).height * 0.8;
       final cs = Theme.of(ctx).colorScheme;
@@ -47,7 +54,8 @@ Future<void> showBottomSheetPicker<T>({
             mainAxisSize: MainAxisSize.min,
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+                // The glass sheet's grab handle already sits above the title.
+                padding: EdgeInsets.fromLTRB(16, isApple ? 4 : 16, 16, 12),
                 child: Text(
                   title,
                   textAlign: TextAlign.center,
@@ -57,7 +65,11 @@ Future<void> showBottomSheetPicker<T>({
                       ?.copyWith(fontWeight: FontWeight.w700),
                 ),
               ),
-              const Divider(height: 1),
+              Divider(
+                height: 1,
+                // Hairline on glass, like iOS list separators.
+                thickness: isApple ? 0.5 : null,
+              ),
               Flexible(
                 child: ListView.builder(
                   shrinkWrap: true,
@@ -115,7 +127,12 @@ Future<void> showBottomSheetPicker<T>({
                             ],
                             if (isSelected) ...[
                               const SizedBox(width: 12),
-                              Icon(Icons.check_rounded, color: cs.primary),
+                              Icon(
+                                isApple
+                                    ? CupertinoIcons.checkmark_alt
+                                    : Icons.check_rounded,
+                                color: cs.primary,
+                              ),
                             ],
                           ],
                         ),

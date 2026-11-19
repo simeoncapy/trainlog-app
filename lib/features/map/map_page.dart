@@ -25,6 +25,7 @@ import 'package:trainlog_app/navigation/nav_models.dart';
 import 'package:trainlog_app/platform/adaptive_bottom_navbar.dart' show kNavBarClearance;
 import 'package:trainlog_app/platform/liquid_glass.dart';
 import 'package:trainlog_app/platform/adaptive_trip_card.dart';
+import 'package:trainlog_app/platform/adaptive_sheet.dart';
 import 'package:trainlog_app/platform/adaptive_widget.dart';
 import 'package:trainlog_app/providers/polyline_provider.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
@@ -859,11 +860,10 @@ class _MapPageState extends State<MapPage>
   }
 
   void _openFilterSheet() {
-    showModalBottomSheet(
+    showAdaptiveContentSheet<void>(
       context: context,
-      isScrollControlled: true,
       useRootNavigator: true,
-      backgroundColor: Colors.transparent,
+      materialBackgroundColor: Colors.transparent,
       builder: (sheetContext) => MapFilterWidget(
         onClose: () => Navigator.of(sheetContext).pop(),
       ),

@@ -4,16 +4,17 @@ import 'package:trainlog_app/app/theme/app_theme.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/platform/adaptive_button.dart';
 import 'package:trainlog_app/platform/adaptive_information_message.dart';
+import 'package:trainlog_app/platform/adaptive_sheet.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
+import 'package:trainlog_app/utils/platform_utils.dart';
 
 class InstanceSelectorWidget extends StatelessWidget {
   const InstanceSelectorWidget({super.key});
 
   void _showBottomSheet(BuildContext context) {
-    showModalBottomSheet(
+    showAdaptiveContentSheet<void>(
       context: context,
-      isScrollControlled: true,
       // Resize sheet when keyboard appears
       builder: (ctx) => const _InstanceBottomSheet(),
     );
@@ -162,8 +163,8 @@ class _InstanceBottomSheetState extends State<_InstanceBottomSheet> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Handle
-              Center(
+              // Handle (the Apple glass sheet draws its own).
+              if (!AppPlatform.isApple) Center(
                 child: Container(
                   width: 40,
                   height: 4,

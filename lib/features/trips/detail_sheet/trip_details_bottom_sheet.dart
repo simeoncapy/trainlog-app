@@ -19,15 +19,14 @@ import 'package:trainlog_app/utils/platform_utils.dart';
 /// (and degrade gracefully on missing data) on its own.
 ///
 /// The scrollable content and the action button row are split so the actions
-/// stay pinned to the bottom regardless of scrolling. On iOS the hosting
-/// draggable card supplies its [scrollController] so dragging keeps working.
+/// stay pinned to the bottom regardless of scrolling. On iOS the sheet is
+/// hosted by a Liquid Glass sheet (see `showAdaptiveTripBottomSheet`) that
+/// gives it a bounded height and its own grab handle.
 class TripDetailsBottomSheet extends StatelessWidget {
   final Trips trip;
   final ScrollController? scrollController;
 
-  /// Closes the sheet. Supplied by the iOS draggable card so the close button
-  /// triggers the same animated dismissal as the swipe gesture; on Material it
-  /// falls back to popping the modal route.
+  /// Closes the sheet. Defaults to popping the sheet's route.
   final VoidCallback? onClose;
 
   const TripDetailsBottomSheet({
@@ -76,7 +75,8 @@ class TripDetailsBottomSheet extends StatelessWidget {
             controller: scrollController,
             child: SingleChildScrollView(
               controller: scrollController,
-              physics: const BouncingScrollPhysics(),
+              // No explicit physics: the glass sheet installs its own so a
+              // drag grows the sheet to its large detent before scrolling.
               child: content,
             ),
           )
@@ -95,7 +95,7 @@ class TripDetailsBottomSheet extends StatelessWidget {
       ),
     );
 
-    // Grab handle. On iOS the hosting draggable card already provides one, so
+    // Grab handle. On iOS the hosting glass sheet already provides one, so
     // this is only rendered for the Material sheet.
     final handle = Padding(
       padding: const EdgeInsets.only(top: 10, bottom: 2),
