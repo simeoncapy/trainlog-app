@@ -294,8 +294,12 @@ class _EditTripPathPageState extends State<EditTripPathPage> {
           tooltip: loc.editPathSaveButton,
           color: _modified
               ? selected
-              : CupertinoColors.tertiaryLabel.resolveFrom(context),
-          onPressed: _modified && !_saving ? _save : null,
+              : CupertinoColors.secondaryLabel.resolveFrom(context),
+          // The package fades a disabled glass button to near invisible;
+          // keep it drawn (grey) and ignore taps until there is a change.
+          onPressed: () {
+            if (_modified && !_saving) _save();
+          },
         ),
       ],
     );
@@ -340,13 +344,9 @@ class _EditTripPathPageState extends State<EditTripPathPage> {
         appBar: AppPlatform.isApple
             ? AdaptiveAppBar(
                 title: loc.editPathTitle,
-                // The trailing buttons leave little room: let a long title
-                // (French, Japanese) end with an ellipsis rather than clip.
-                titleWidget: Text(
-                  loc.editPathTitle,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
+                // iOS 26 layout: title next to the back button, actions
+                // trailing; a long title ends with an ellipsis.
+                cupertinoLeadingTitle: true,
                 onBack: () => Navigator.of(context).maybePop(),
                 cupertinoTrailing: _appleTrailing(loc),
               )

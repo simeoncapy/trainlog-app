@@ -14,6 +14,10 @@ class AdaptiveAppBar extends StatelessWidget implements PreferredSizeWidget {
   final List<Widget> materialActions;
   final Widget? cupertinoTrailing; // use this if you want iOS-style trailing
 
+  /// iOS only: show the title on the leading side, next to the back button,
+  /// instead of centred (iOS 26 toolbars with several trailing items).
+  final bool cupertinoLeadingTitle;
+
   const AdaptiveAppBar({
     super.key,
     required this.title,
@@ -21,6 +25,7 @@ class AdaptiveAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.onBack,
     this.materialActions = const [],
     this.cupertinoTrailing,
+    this.cupertinoLeadingTitle = false,
   });
 
   @override
@@ -40,8 +45,56 @@ class AdaptiveAppBar extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 
+  /// iOS 26 bar with the title on the leading side: back button, title
+  /// (ellipsized when the trailing items need the room), then trailing.
+  Widget _leadingTitleBar(BuildContext context) {
+    final cupertino = CupertinoTheme.of(context);
+    return ColoredBox(
+      color: cupertino.scaffoldBackgroundColor,
+      child: SafeArea(
+        bottom: false,
+        child: SizedBox(
+          height: preferredSize.height,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Row(
+              children: [
+                if (onBack != null) ...[
+                  GlassIconButton(
+                    icon: CupertinoIcons.chevron_back,
+                    size: 40,
+                    shadow: false,
+                    onPressed: onBack,
+                    tooltip:
+                        MaterialLocalizations.of(context).backButtonTooltip,
+                  ),
+                  const SizedBox(width: 10),
+                ],
+                Expanded(
+                  child: DefaultTextStyle(
+                    style: cupertino.textTheme.navTitleTextStyle,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    child: titleWidget ?? Text(title),
+                  ),
+                ),
+                if (cupertinoTrailing != null) ...[
+                  const SizedBox(width: 8),
+                  cupertinoTrailing!,
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (AppPlatform.isApple && cupertinoLeadingTitle) {
+      return _leadingTitleBar(context);
+    }
     if (AppPlatform.isApple) {
       // iOS 26: no hairline, the bar blends into the page and its controls
       // float as glass buttons.
