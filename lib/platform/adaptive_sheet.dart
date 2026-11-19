@@ -56,7 +56,7 @@ Future<T?> showAdaptiveContentSheet<T>({
     useRootNavigator: useRootNavigator,
     // Forms and lists sit on these sheets: tint the glass well enough that
     // small and muted text stays readable over a busy background.
-    settings: _readableGlass(surface, tint: 0.78),
+    settings: _readableGlass(surface, tint: 0.85),
     isDismissible: isDismissible,
     enableDrag: isDismissible,
     // The content brings its own scroll view (in a Flexible) where it needs
@@ -77,7 +77,13 @@ Future<T?> showAdaptiveContentSheet<T>({
       return _MaterialHost(
         child: ConstrainedBox(
           constraints: BoxConstraints(maxHeight: maxHeight),
-          child: builder(sheetContext),
+          // The sheet never reaches the status bar: drop the top inset so a
+          // SafeArea in the content doesn't add a gap under the grab handle.
+          child: MediaQuery.removePadding(
+            context: sheetContext,
+            removeTop: true,
+            child: Builder(builder: builder),
+          ),
         ),
       );
     },
@@ -121,13 +127,25 @@ Future<T?> showAppleDetentSheet<T>({
     expandedColor: surface,
     expandedDarkColor: surface,
     // Lighter tint at the medium detent, so the map still shows through.
-    settings: _readableGlass(surface, tint: 0.6),
+    settings: _readableGlass(surface, tint: 0.72),
     enableSaturationGlow: false,
     interactionScale: 1.0,
     builder: (sheetContext) => _MaterialHost(
-      child: Padding(
-        padding: const EdgeInsets.only(top: kAppleSheetHandleInset),
-        child: builder(sheetContext),
+      // At the large detent the sheet sinks below the screen's bottom edge to
+      // hide its lower corners; lift the content by that much so pinned
+      // footers stay on screen.
+      child: Builder(
+        builder: (ctx) {
+          final submerged =
+              lg.GlassModalSheetStateProvider.of(ctx)?.submergedBottom ?? 0;
+          return Padding(
+            padding: EdgeInsets.only(
+              top: kAppleSheetHandleInset,
+              bottom: submerged,
+            ),
+            child: builder(ctx),
+          );
+        },
       ),
     ),
   );
