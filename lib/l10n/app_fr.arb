@@ -101,6 +101,8 @@
   "settingsSprRadius": "Rayon maximum pour la recherche de gare dans Géomémo",
   "settingsLandingPage": "Page de démarrage",
   "settingsSystem": "Système",
+  "settingsMapTheme": "Thème de la carte",
+  "settingsMapThemeFollowApp": "Comme l'app",
   "settingsMapPathDisplayOrder": "Ordre des trajets sur la carte",
   "settingMapPathDisplayOrderByCreation": "Par date de création",
   "settingMapPathDisplayOrderByTrip": "Par date du trajet",

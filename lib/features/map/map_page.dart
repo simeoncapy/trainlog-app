@@ -24,6 +24,7 @@ import 'package:trainlog_app/features/trips_add/widgets/full_screen_search_overl
 import 'package:trainlog_app/navigation/nav_models.dart';
 import 'package:trainlog_app/platform/adaptive_bottom_navbar.dart' show kNavBarClearance;
 import 'package:trainlog_app/platform/liquid_glass.dart';
+import 'package:trainlog_app/platform/map_theme.dart';
 import 'package:trainlog_app/platform/adaptive_trip_card.dart';
 import 'package:trainlog_app/platform/adaptive_sheet.dart';
 import 'package:trainlog_app/platform/adaptive_widget.dart';
@@ -310,6 +311,11 @@ class _MapPageState extends State<MapPage>
               urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
               userAgentPackageName: 'me.trainlog.app',
               errorTileCallback: (tile, error, stackTrace) {},
+              // OSM only serves light tiles: the "Map theme" setting's dark
+              // mode inverts them (flutter_map's built-in dark filter).
+              tileBuilder: mapBrightness(context) == Brightness.dark
+                  ? darkModeTileBuilder
+                  : null,
             ),
             RenderedPolylineLayer(
               onTripTap: (tripId) async {

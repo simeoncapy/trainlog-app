@@ -10,6 +10,7 @@ import 'package:trainlog_app/platform/adaptive_app_bar.dart';
 import 'package:trainlog_app/platform/adaptive_bottom_navbar.dart'
     show AdaptiveBottomNavBar, kNavBarClearance;
 import 'package:trainlog_app/platform/liquid_glass.dart';
+import 'package:trainlog_app/platform/map_theme.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 
@@ -274,14 +275,18 @@ class _CupertinoShellState extends State<CupertinoShell> {
             bottom: 0,
             child: ValueListenableBuilder<AppPrimaryAction?>(
               valueListenable: _mainActions[_currentIndex],
-              builder: (_, mainAction, __) => AdaptiveBottomNavBar(
-                currentIndex: _currentIndex,
-                items: navItems,
-                onTap: _onTabTapped,
-                onMenuTap: () => _openFullScreenMenu(context),
-                menuLabel: l10n.menuHomeLabel,
-                trailingAction: mainAction,
-              ),
+              builder: (_, mainAction, __) {
+                final bar = AdaptiveBottomNavBar(
+                  currentIndex: _currentIndex,
+                  items: navItems,
+                  onTap: _onTabTapped,
+                  onMenuTap: () => _openFullScreenMenu(context),
+                  menuLabel: l10n.menuHomeLabel,
+                  trailingAction: mainAction,
+                );
+                // Over the map, the tab bar follows the map's theme.
+                return _currentIndex == 0 ? MapThemeScope(child: bar) : bar;
+              },
             ),
           ),
         ],
@@ -520,11 +525,13 @@ class _CupertinoRootPageState extends State<_CupertinoRootPage> {
     // The page (the map) runs edge to edge, under the home indicator and the
     // floating nav bar, so no blank strip is left below it. The FABs sit above
     // the nav bar, which itself sits above the system safe area.
-    // OSM tiles are always light, so keep dark status bar icons over the map
-    // even in dark mode.
+    // The map, its buttons and the status bar icons follow the "Map theme"
+    // setting rather than the app theme.
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.dark,
-      child: Stack(
+      value: mapBrightness(context) == Brightness.dark
+          ? SystemUiOverlayStyle.light
+          : SystemUiOverlayStyle.dark,
+      child: MapThemeScope(child: Stack(
         children: [
           Positioned.fill(
             child: _page(context),
@@ -551,7 +558,7 @@ class _CupertinoRootPageState extends State<_CupertinoRootPage> {
             ),
           ),
         ],
-      ),
+      )),
     );
   }
 }

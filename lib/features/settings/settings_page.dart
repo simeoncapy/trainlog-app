@@ -432,7 +432,20 @@ class _SettingsPageState extends State<SettingsPage> {
         )
         .label;
 
+    final mapThemeOptions = [
+      (label: l10n.settingsLight, value: ThemeMode.light),
+      (label: l10n.settingsMapThemeFollowApp, value: ThemeMode.system),
+      (label: l10n.settingsDark, value: ThemeMode.dark),
+    ];
+
     return SettingsGroup(children: [
+      _ThemeRow(
+        icon: AdaptiveIcons.map,
+        title: l10n.settingsMapTheme,
+        options: mapThemeOptions,
+        selected: settings.mapThemeMode,
+        onChanged: settings.setMapTheme,
+      ),
       SettingsTile(
         icon: AdaptiveIcons.layers,
         title: l10n.settingsMapPathDisplayOrder,

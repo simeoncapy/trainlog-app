@@ -323,6 +323,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsSystem => 'System';
 
   @override
+  String get settingsMapTheme => 'Map theme';
+
+  @override
+  String get settingsMapThemeFollowApp => 'Same as app';
+
+  @override
   String get settingsMapPathDisplayOrder => 'Order of trip paths on the map';
 
   @override

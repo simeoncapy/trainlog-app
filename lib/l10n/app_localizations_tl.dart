@@ -318,6 +318,12 @@ class AppLocalizationsTl extends AppLocalizations {
   String get settingsSystem => 'Sistema';
 
   @override
+  String get settingsMapTheme => 'Tema ng mapa';
+
+  @override
+  String get settingsMapThemeFollowApp => 'Katulad ng app';
+
+  @override
   String get settingsMapPathDisplayOrder =>
       'Ayos ng mga ruta ng biyahe sa mapa';
 

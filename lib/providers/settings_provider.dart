@@ -24,6 +24,8 @@ enum LandingPage {
 
 class SettingsProvider with ChangeNotifier {
   ThemeMode _themeMode = ThemeMode.system;
+  /// Map tiles theme. [ThemeMode.system] means "same as the app" here.
+  ThemeMode _mapThemeMode = ThemeMode.system;
   Locale _locale = const Locale('en');
   String _dateFormat = 'yyyy/MM/dd';
   bool _hourFormat12 = false;
@@ -73,6 +75,7 @@ class SettingsProvider with ChangeNotifier {
 
   // Getters
   ThemeMode get themeMode => _themeMode;
+  ThemeMode get mapThemeMode => _mapThemeMode;
   Locale get locale => _locale;
   String get dateFormat => _dateFormat;
   bool get hourFormat12 => _hourFormat12;
@@ -133,6 +136,7 @@ class SettingsProvider with ChangeNotifier {
     final loaders = <void Function(SharedPreferences)>[
       // Shared Preference in settings
       _loadTheme,
+      _loadMapTheme,
       _loadLocale,
       _loadDateFormat,
       _loadHourFormat12,
@@ -278,6 +282,29 @@ class SettingsProvider with ChangeNotifier {
     _pathDisplayOrder = pathOrder;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('path_display_order', pathOrder.name);
+    notifyListeners();
+  }
+
+  // ------------------------------------------------------------------------------
+
+  /// 'light' / 'dark'; absent means the map follows the app theme.
+  void _loadMapTheme(SharedPreferences prefs) {
+    _mapThemeMode = switch (prefs.getString('map_theme')) {
+      'dark' => ThemeMode.dark,
+      'light' => ThemeMode.light,
+      _ => ThemeMode.system,
+    };
+  }
+
+  void setMapTheme(ThemeMode mode) async {
+    if (_mapThemeMode == mode) return;
+    _mapThemeMode = mode;
+    final prefs = await SharedPreferences.getInstance();
+    if (mode == ThemeMode.system) {
+      await prefs.remove('map_theme');
+    } else {
+      await prefs.setString('map_theme', mode.name);
+    }
     notifyListeners();
   }
 

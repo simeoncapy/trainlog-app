@@ -708,6 +708,18 @@ abstract class AppLocalizations {
   /// **'System'**
   String get settingsSystem;
 
+  /// Settings row choosing the map tiles theme (light, dark or same as the app).
+  ///
+  /// In en, this message translates to:
+  /// **'Map theme'**
+  String get settingsMapTheme;
+
+  /// Map theme option: follow the app theme.
+  ///
+  /// In en, this message translates to:
+  /// **'Same as app'**
+  String get settingsMapThemeFollowApp;
+
   /// No description provided for @settingsMapPathDisplayOrder.
   ///
   /// In en, this message translates to:

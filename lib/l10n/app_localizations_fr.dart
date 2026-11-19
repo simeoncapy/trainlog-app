@@ -325,6 +325,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get settingsSystem => 'Système';
 
   @override
+  String get settingsMapTheme => 'Thème de la carte';
+
+  @override
+  String get settingsMapThemeFollowApp => 'Comme l\'app';
+
+  @override
   String get settingsMapPathDisplayOrder => 'Ordre des trajets sur la carte';
 
   @override

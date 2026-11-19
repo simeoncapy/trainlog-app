@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart' as lg;
 import 'package:trainlog_app/utils/platform_utils.dart';
@@ -49,7 +50,9 @@ Future<T?> showAdaptiveContentSheet<T>({
     );
   }
 
-  final surface = Theme.of(context).colorScheme.surface;
+  final theme = Theme.of(context);
+  final cupertinoTheme = CupertinoTheme.of(context);
+  final surface = theme.colorScheme.surface;
 
   return lg.GlassSheet.show<T>(
     context: context,
@@ -75,6 +78,8 @@ Future<T?> showAdaptiveContentSheet<T>({
           : (mq.size.height - mq.padding.top - mq.padding.bottom) *
                 maxHeightFactor;
       return _MaterialHost(
+        theme: theme,
+        cupertinoTheme: cupertinoTheme,
         child: ConstrainedBox(
           constraints: BoxConstraints(maxHeight: maxHeight),
           // The sheet never reaches the status bar: drop the top inset so a
@@ -115,7 +120,9 @@ Future<T?> showAppleDetentSheet<T>({
 }) {
   // The large detent turns opaque; fill it with the app's own surface so it
   // matches the rest of the UI in both light and dark mode.
-  final surface = Theme.of(context).colorScheme.surface;
+  final theme = Theme.of(context);
+  final cupertinoTheme = CupertinoTheme.of(context);
+  final surface = theme.colorScheme.surface;
 
   return lg.GlassModalSheet.show<T>(
     context: context,
@@ -131,6 +138,8 @@ Future<T?> showAppleDetentSheet<T>({
     enableSaturationGlow: false,
     interactionScale: 1.0,
     builder: (sheetContext) => _MaterialHost(
+      theme: theme,
+      cupertinoTheme: cupertinoTheme,
       // At the large detent the sheet sinks below the screen's bottom edge to
       // hide its lower corners; lift the content by that much so pinned
       // footers stay on screen.
@@ -183,17 +192,33 @@ lg.LiquidGlassSettings _readableGlass(Color surface, {required double tint}) {
 /// widgets inside (InkWell, TextField, ListTile…) need a Material ancestor,
 /// and text needs the theme's default style instead of the debug fallback.
 class _MaterialHost extends StatelessWidget {
-  const _MaterialHost({required this.child});
+  const _MaterialHost({
+    required this.theme,
+    required this.cupertinoTheme,
+    required this.child,
+  });
 
+  /// The theme where the sheet was opened. The sheet route sits above the
+  /// app's navigator, so without this it would lose a local theme, such as
+  /// the map's (see `MapThemeScope`).
+  final ThemeData theme;
+  final CupertinoThemeData cupertinoTheme;
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      type: MaterialType.transparency,
-      child: DefaultTextStyle.merge(
-        style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
-        child: child,
+    return Theme(
+      data: theme,
+      // Theme derives a plain Cupertino theme; restore the caller's.
+      child: CupertinoTheme(
+        data: cupertinoTheme,
+        child: Material(
+          type: MaterialType.transparency,
+          child: DefaultTextStyle.merge(
+            style: TextStyle(color: theme.colorScheme.onSurface),
+            child: child,
+          ),
+        ),
       ),
     );
   }
