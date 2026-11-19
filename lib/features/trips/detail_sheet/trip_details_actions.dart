@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:trainlog_app/app/app_globals.dart';
 import 'package:trainlog_app/data/models/trips.dart';
-import 'package:trainlog_app/app/theme/app_colors.dart';
 import 'package:trainlog_app/features/trips/detail_sheet/trip_details_common.dart';
 import 'package:trainlog_app/features/trips_edit_copy/edit_copy_page.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
@@ -198,11 +197,9 @@ class TripDetailsActions extends StatelessWidget {
   /// like the action buttons at the bottom of an Apple Maps sheet. Delete
   /// uses the system destructive red.
   Widget _buildApple(BuildContext context, AppLocalizations l10n) {
-    // The theme's light-mode amber is too pale for text on its own wash
-    // (~2:1); use a deeper amber for these rows in light mode (~4.8:1).
-    final tint = Theme.of(context).brightness == Brightness.dark
-        ? AppColors.amber
-        : const Color(0xFF9A5B00);
+    // The app's secondary colour (blue), like the system tint on Apple
+    // Maps' action buttons; it reads well on its own wash in both modes.
+    final tint = Theme.of(context).colorScheme.secondary;
     final destructive = CupertinoColors.systemRed.resolveFrom(context);
 
     final rows = [
