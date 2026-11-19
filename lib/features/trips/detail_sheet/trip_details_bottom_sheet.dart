@@ -111,7 +111,7 @@ class TripDetailsBottomSheet extends StatelessWidget {
       ),
     );
 
-    return Column(
+    final column = Column(
       // iOS hosts us inside a bounded card → fill it; Material lets the sheet
       // size to its content with the footer pinned beneath the scroll area.
       mainAxisSize: isApple ? MainAxisSize.max : MainAxisSize.min,
@@ -120,6 +120,16 @@ class TripDetailsBottomSheet extends StatelessWidget {
         isApple ? Expanded(child: scrollArea) : Flexible(child: scrollArea),
         footer,
       ],
+    );
+    if (!isApple) return column;
+
+    // The glass sheet shrinks through very small heights while it is swiped
+    // away; below the footer's own height there is nothing worth laying out
+    // (and the pinned footer would overflow).
+    return LayoutBuilder(
+      builder: (context, constraints) => constraints.maxHeight < 140
+          ? const SizedBox.shrink()
+          : column,
     );
   }
 }
