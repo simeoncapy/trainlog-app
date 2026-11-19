@@ -165,7 +165,9 @@ class _AppStepsTabBarState extends State<AppStepsTabBar> {
     final segments = [
       for (final t in widget.tabs)
         GlassSegment(
-          icon: t.leadingIcon,
+          // iOS guideline: a segment shows an icon OR text, never both. A
+          // labelled tab drops its icon here (Android keeps it).
+          icon: t.iconOnly ? t.leadingIcon : null,
           label: t.iconOnly
               ? null
               : (t.count == null ? t.label : '${t.label}  ${t.count}'),

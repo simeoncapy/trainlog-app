@@ -865,21 +865,13 @@ class _ThemeRow extends StatelessWidget {
     );
   }
 
-  /// Apple: the same iOS segmented control as the other selectors, with an
-  /// icon per mode so the selected one picks up the Trainlog amber.
+  /// Apple: the same iOS segmented control as the other selectors, text
+  /// only (iOS segments show an icon or text, not both).
   Widget _appleSelector() {
-    IconData iconFor(ThemeMode m) => switch (m) {
-          ThemeMode.light => CupertinoIcons.sun_max,
-          ThemeMode.system => CupertinoIcons.circle_lefthalf_fill,
-          ThemeMode.dark => CupertinoIcons.moon,
-        };
     final index = options.indexWhere((o) => o.value == selected);
     return AppStepsTabBar(
       fullWidth: true,
-      tabs: [
-        for (final o in options)
-          AppStepsTab(label: o.label, leadingIcon: Icon(iconFor(o.value))),
-      ],
+      tabs: [for (final o in options) AppStepsTab(label: o.label)],
       selectedIndex: index < 0 ? 0 : index,
       onTabChanged: (i) => onChanged(options[i].value),
     );
