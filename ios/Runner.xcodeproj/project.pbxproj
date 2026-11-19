@@ -199,6 +199,7 @@
 				9705A1C41CF9048500538489 /* Embed Frameworks */,
 				3B06AD1E1E4923F5004D2608 /* Thin Binary */,
 				87CA3C7318654A3D0BE4EBB8 /* [CP] Embed Pods Frameworks */,
+				C7A51D0E2F8B4A6100D1E5A3 /* Upload Crashlytics dSYMs */,
 			);
 			buildRules = (
 			);
@@ -361,6 +362,28 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "/bin/sh \"$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh\" build";
+		};
+		C7A51D0E2F8B4A6100D1E5A3 /* Upload Crashlytics dSYMs */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${TARGET_NAME}",
+				"$(SRCROOT)/$(BUILT_PRODUCTS_DIR)/$(INFOPLIST_PATH)",
+			);
+			name = "Upload Crashlytics dSYMs";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Upload the dSYM of release/profile builds (archives, flutter build ipa)\n# to Firebase Crashlytics so iOS crashes are symbolicated.\nif [ \"${CONFIGURATION}\" = \"Debug\" ]; then\n  exit 0\nfi\nPLIST=\"${PROJECT_DIR}/Runner/GoogleService-Info.plist\"\nDSYM=\"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}\"\nif [ ! -f \"${PLIST}\" ]; then\n  echo \"warning: ${PLIST} not found, Crashlytics dSYM upload skipped.\"\n  exit 0\nfi\n\"${PODS_ROOT}/FirebaseCrashlytics/upload-symbols\" -gsp \"${PLIST}\" -p ios \"${DSYM}\"\n";
+			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
 
