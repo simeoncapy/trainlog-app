@@ -143,7 +143,14 @@ Future<T?> showAppleDetentSheet<T>({
               top: kAppleSheetHandleInset,
               bottom: submerged,
             ),
-            child: builder(ctx),
+            // While the sheet is swiped away it passes through heights too
+            // small for any header + pinned footer; skip the content there
+            // rather than overflow.
+            child: LayoutBuilder(
+              builder: (ctx, constraints) => constraints.maxHeight < 140
+                  ? const SizedBox.shrink()
+                  : builder(ctx),
+            ),
           );
         },
       ),
