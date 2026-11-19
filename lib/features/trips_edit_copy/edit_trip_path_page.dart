@@ -1,6 +1,9 @@
 import 'dart:convert';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:trainlog_app/platform/adaptive_app_bar.dart';
+import 'package:trainlog_app/platform/adaptive_dialog.dart';
 import 'package:trainlog_app/platform/adaptive_segmented_button.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/app/theme/app_theme.dart';
@@ -14,6 +17,7 @@ import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
 import 'package:trainlog_app/utils/number_formatter.dart';
+import 'package:trainlog_app/utils/platform_utils.dart';
 import 'package:trainlog_app/widgets/error_banner.dart';
 import 'package:trainlog_app/widgets/shimmer_box.dart';
 import 'package:trainlog_app/widgets/trainlog_router_page.dart';
@@ -187,6 +191,21 @@ class _EditTripPathPageState extends State<EditTripPathPage> {
   /// Asked when leaving with a route that was changed but not saved.
   Future<void> _confirmLeave() async {
     final loc = AppLocalizations.of(context)!;
+    if (AppPlatform.isApple) {
+      final leave = await AdaptiveDialog.confirm(
+        context: context,
+        title: loc.editPathExitDialogTitle,
+        message: loc.editPathExitDialogContent,
+        confirmLabel: loc.editPathExitDialogConfirm,
+        destructive: true,
+        // A centred alert, not an action sheet, like the Android dialog.
+        useActionSheetOnIOS: false,
+        // This page is pushed on the root navigator, which can always pop.
+        skipWhenRootCanPop: false,
+      );
+      if (leave && mounted) Navigator.of(context).pop();
+      return;
+    }
     final leave = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -209,6 +228,22 @@ class _EditTripPathPageState extends State<EditTripPathPage> {
 
   void _showRouterHelp() {
     final loc = AppLocalizations.of(context)!;
+    if (AppPlatform.isApple) {
+      AdaptiveDialog.show(
+        context: context,
+        title: loc.helpTitle,
+        message: loc.addTripPathHelp,
+        actions: [
+          AdaptiveDialogAction(
+            label: MaterialLocalizations.of(context).closeButtonLabel,
+            result: AdaptiveDialogResult.primary,
+            isDefault: true,
+          ),
+        ],
+        skipWhenRootCanPop: false,
+      );
+      return;
+    }
     showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
@@ -232,51 +267,73 @@ class _EditTripPathPageState extends State<EditTripPathPage> {
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
 
+    final tabs = Semantics(
+      label: loc.editPathTitle,
+      child: AdaptiveSegmentedButton.build<_EditPathTab>(
+        context: context,
+        showSelectedIcon: false,
+        segments: [
+          AdaptiveSegmentedButtonSegment(
+            value: _EditPathTab.map,
+            icon: const Icon(Icons.map_outlined),
+            label: Text(loc.editPathTabMap),
+          ),
+          AdaptiveSegmentedButtonSegment(
+            value: _EditPathTab.details,
+            icon: const Icon(Icons.tune),
+            label: Text(loc.editPathTabDetails),
+          ),
+        ],
+        selectedValue: _tab,
+        onChanged: _selectTab,
+      ),
+    );
+
     return PopScope(
       canPop: !_modified,
       onPopInvokedWithResult: (didPop, _) {
         if (!didPop) _confirmLeave();
       },
       child: Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            tooltip: MaterialLocalizations.of(context).backButtonTooltip,
-            onPressed: () => Navigator.of(context).maybePop(),
-          ),
-          title: Semantics(
-            label: loc.editPathTitle,
-            child: AdaptiveSegmentedButton.build<_EditPathTab>(
-              context: context,
-              showSelectedIcon: false,
-              segments: [
-                AdaptiveSegmentedButtonSegment(
-                  value: _EditPathTab.map,
-                  icon: const Icon(Icons.map_outlined),
-                  label: Text(loc.editPathTabMap),
+        appBar: AppPlatform.isApple
+            ? AdaptiveAppBar(
+                title: loc.editPathTitle,
+                titleWidget: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 260),
+                  child: tabs,
                 ),
-                AdaptiveSegmentedButtonSegment(
-                  value: _EditPathTab.details,
-                  icon: const Icon(Icons.tune),
-                  label: Text(loc.editPathTabDetails),
+                onBack: () => Navigator.of(context).maybePop(),
+                cupertinoTrailing: _modified
+                    ? CupertinoButton(
+                        padding: EdgeInsets.zero,
+                        minimumSize: const Size(44, 44),
+                        onPressed: _saving ? null : _save,
+                        child: Text(
+                          loc.editPathSaveButton,
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                      )
+                    : null,
+              )
+            : AppBar(
+                centerTitle: true,
+                leading: IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+                  onPressed: () => Navigator.of(context).maybePop(),
                 ),
-              ],
-              selectedValue: _tab,
-              onChanged: _selectTab,
-            ),
-          ),
-          actions: [
-            if (_modified)
-              Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: FilledButton(
-                  onPressed: _saving ? null : _save,
-                  child: Text(loc.editPathSaveButton),
-                ),
+                title: tabs,
+                actions: [
+                  if (_modified)
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: FilledButton(
+                        onPressed: _saving ? null : _save,
+                        child: Text(loc.editPathSaveButton),
+                      ),
+                    ),
+                ],
               ),
-          ],
-        ),
         body: SafeArea(
           top: false,
           // Both tabs stay built: the web view, and the route drawn on it,
