@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:trainlog_app/platform/adaptive_app_bar.dart';
 import 'package:trainlog_app/platform/adaptive_dialog.dart';
 import 'package:trainlog_app/platform/adaptive_segmented_button.dart';
+import 'package:trainlog_app/platform/liquid_glass.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/app/theme/app_theme.dart';
 import 'package:trainlog_app/data/controllers/trainlog_web_controller.dart';
@@ -259,6 +260,42 @@ class _EditTripPathPageState extends State<EditTripPathPage> {
     );
   }
 
+  /// iOS trailing actions, like the trips page's: the Map / Details views
+  /// grouped in one glass capsule, then Save on its own at the far right.
+  /// Save stays in place (disabled) until the route changes, so the bar
+  /// doesn't shift.
+  Widget _appleTrailing(AppLocalizations loc) {
+    final selected = Theme.of(context).colorScheme.secondary;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        GlassButtonGroup(
+          children: [
+            GlassGroupItem(
+              icon: CupertinoIcons.map,
+              semanticLabel: loc.editPathTabMap,
+              color: _tab == _EditPathTab.map ? selected : null,
+              onPressed: () => _selectTab(_EditPathTab.map),
+            ),
+            GlassGroupItem(
+              icon: CupertinoIcons.slider_horizontal_3,
+              semanticLabel: loc.editPathTabDetails,
+              color: _tab == _EditPathTab.details ? selected : null,
+              onPressed: () => _selectTab(_EditPathTab.details),
+            ),
+          ],
+        ),
+        const SizedBox(width: 8),
+        GlassIconButton(
+          icon: CupertinoIcons.checkmark,
+          tooltip: loc.editPathSaveButton,
+          prominent: _modified,
+          onPressed: _modified && !_saving ? _save : null,
+        ),
+      ],
+    );
+  }
+
   // ─────────────────────────────────────────────────────────────
   // Build
   // ─────────────────────────────────────────────────────────────
@@ -298,22 +335,8 @@ class _EditTripPathPageState extends State<EditTripPathPage> {
         appBar: AppPlatform.isApple
             ? AdaptiveAppBar(
                 title: loc.editPathTitle,
-                titleWidget: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 260),
-                  child: tabs,
-                ),
                 onBack: () => Navigator.of(context).maybePop(),
-                cupertinoTrailing: _modified
-                    ? CupertinoButton(
-                        padding: EdgeInsets.zero,
-                        minimumSize: const Size(44, 44),
-                        onPressed: _saving ? null : _save,
-                        child: Text(
-                          loc.editPathSaveButton,
-                          style: const TextStyle(fontWeight: FontWeight.w600),
-                        ),
-                      )
-                    : null,
+                cupertinoTrailing: _appleTrailing(loc),
               )
             : AppBar(
                 centerTitle: true,

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:trainlog_app/platform/adaptive_dialog.dart';
 import 'package:trainlog_app/app/app_globals.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
@@ -99,7 +100,7 @@ class AdaptiveInformationMessage {
 
     showCupertinoDialog(
       context: context,
-      builder: (_) => CupertinoAlertDialog(
+      builder: (_) => appleDialogTint(context, CupertinoAlertDialog(
         title: Text(title ?? AppLocalizations.of(context)!.dialogueDefaultInfoTitle),
         content: Text(message),
         actions: [
@@ -108,7 +109,7 @@ class AdaptiveInformationMessage {
             onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
           ),
         ],
-      ),
+      )),
     );
   }
 

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:trainlog_app/platform/adaptive_dialog.dart';
 import 'package:trainlog_app/platform/widget/adaptive_widget_base.dart';
 
 /// A single item in an [AdaptivePopup] menu.
@@ -66,7 +67,7 @@ class AdaptivePopup<T> extends AdaptiveWidget {
       onTap: enabled
           ? () => showCupertinoModalPopup<void>(
                 context: context,
-                builder: (sheetContext) => CupertinoActionSheet(
+                builder: (sheetContext) => appleDialogTint(context, CupertinoActionSheet(
                   actions: items
                       .map(
                         (item) => CupertinoActionSheetAction(
@@ -83,7 +84,7 @@ class AdaptivePopup<T> extends AdaptiveWidget {
                     onPressed: () => Navigator.of(sheetContext).pop(),
                     child: Text(CupertinoLocalizations.of(sheetContext).cancelButtonLabel),
                   ),
-                ),
+                )),
               )
           : null,
       child: child,

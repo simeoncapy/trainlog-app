@@ -203,7 +203,7 @@ class AdaptiveDialog {
     final result = await showCupertinoDialog<AdaptiveDialogResult>(
       context: context,
       builder: (_) {
-        return CupertinoAlertDialog(
+        return appleDialogTint(context, CupertinoAlertDialog(
           title: title.isEmpty ? null : Text(title),
           content: _buildBody(
             message: message,
@@ -218,7 +218,7 @@ class AdaptiveDialog {
               child: Text(a.label),
             );
           }).toList(),
-        );
+        ));
       },
     );
 
@@ -245,7 +245,7 @@ class AdaptiveDialog {
         final cancel = actions.where((a) => a.result == AdaptiveDialogResult.cancelled).toList();
         final nonCancel = actions.where((a) => a.result != AdaptiveDialogResult.cancelled).toList();
 
-        return CupertinoActionSheet(
+        return appleDialogTint(context, CupertinoActionSheet(
           title: title.isEmpty ? null : Text(title),
           message: _buildBody(
             message: message,
@@ -266,7 +266,7 @@ class AdaptiveDialog {
                   onPressed: () => Navigator.of(context, rootNavigator: true).pop(cancel.first.result),
                   child: Text(cancel.first.label),
                 ),
-        );
+        ));
       },
     );
 
@@ -372,4 +372,15 @@ class AdaptiveDialog {
       },
     );
   }
+}
+
+/// iOS alerts and action sheets use the app's blue (secondary colour) for
+/// their buttons, like the trip sheet's actions: Apple uses one tint.
+Widget appleDialogTint(BuildContext context, Widget child) {
+  return CupertinoTheme(
+    data: CupertinoTheme.of(context).copyWith(
+      primaryColor: Theme.of(context).colorScheme.secondary,
+    ),
+    child: child,
+  );
 }
