@@ -49,9 +49,14 @@ Future<T?> showAdaptiveContentSheet<T>({
     );
   }
 
+  final surface = Theme.of(context).colorScheme.surface;
+
   return lg.GlassSheet.show<T>(
     context: context,
     useRootNavigator: useRootNavigator,
+    // Forms and lists sit on these sheets: tint the glass well enough that
+    // small and muted text stays readable over a busy background.
+    settings: _readableGlass(surface, tint: 0.78),
     isDismissible: isDismissible,
     enableDrag: isDismissible,
     // The content brings its own scroll view (in a Flexible) where it needs
@@ -62,9 +67,13 @@ Future<T?> showAdaptiveContentSheet<T>({
     interactionScale: 1.0,
     builder: (sheetContext) {
       final mq = MediaQuery.of(sheetContext);
-      final maxHeight =
-          (mq.size.height - mq.padding.top - mq.padding.bottom) *
-          maxHeightFactor;
+      // Content with text fields pads itself above the keyboard, so with the
+      // keyboard up the sheet may use the whole height below the status bar;
+      // otherwise the form gets squeezed into a scroll view behind it.
+      final maxHeight = mq.viewInsets.bottom > 0
+          ? mq.size.height - mq.padding.top - 16
+          : (mq.size.height - mq.padding.top - mq.padding.bottom) *
+                maxHeightFactor;
       return _MaterialHost(
         child: ConstrainedBox(
           constraints: BoxConstraints(maxHeight: maxHeight),
@@ -111,6 +120,8 @@ Future<T?> showAppleDetentSheet<T>({
     fullSize: fullSize,
     expandedColor: surface,
     expandedDarkColor: surface,
+    // Lighter tint at the medium detent, so the map still shows through.
+    settings: _readableGlass(surface, tint: 0.6),
     enableSaturationGlow: false,
     interactionScale: 1.0,
     builder: (sheetContext) => _MaterialHost(
@@ -119,6 +130,23 @@ Future<T?> showAppleDetentSheet<T>({
         child: builder(sheetContext),
       ),
     ),
+  );
+}
+
+/// The package's sheet glass is a ~12% white tint, which leaves muted text
+/// unreadable over the map or a form. Tint it with the app's surface colour
+/// instead (light and dark mode alike) and frost it a little more.
+lg.LiquidGlassSettings _readableGlass(Color surface, {required double tint}) {
+  return lg.LiquidGlassSettings(
+    glassColor: surface.withValues(alpha: tint),
+    thickness: 10,
+    blur: 20,
+    lightIntensity: 0.7,
+    lightAngle: 2.356194,
+    chromaticAberration: 0,
+    refractiveIndex: 0.15,
+    saturation: 1.2,
+    ambientStrength: 0.4,
   );
 }
 
