@@ -104,7 +104,7 @@
   "settingsLandingPage": "Panimulang pahina",
   "settingsSystem": "Sistema",
   "settingsMapTheme": "Tema ng mapa",
-  "settingsMapThemeFollowApp": "Katulad ng app",
+  "settingsMapThemeFollowApp": "Auto",
   "settingsMapPathDisplayOrder": "Ayos ng mga ruta ng biyahe sa mapa",
   "settingMapPathDisplayOrderByCreation": "Ayusin ayon sa petsa ng paglikha",
   "settingMapPathDisplayOrderByTrip": "Ayusin ayon sa petsa ng lakbay",

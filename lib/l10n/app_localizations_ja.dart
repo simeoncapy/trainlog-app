@@ -319,7 +319,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get settingsMapTheme => '地図のテーマ';
 
   @override
-  String get settingsMapThemeFollowApp => 'アプリに合わせる';
+  String get settingsMapThemeFollowApp => '自動';
 
   @override
   String get settingsMapPathDisplayOrder => '地図上の経路の表示順';

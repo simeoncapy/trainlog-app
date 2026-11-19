@@ -326,7 +326,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsMapTheme => 'Map theme';
 
   @override
-  String get settingsMapThemeFollowApp => 'Same as app';
+  String get settingsMapThemeFollowApp => 'Auto';
 
   @override
   String get settingsMapPathDisplayOrder => 'Order of trip paths on the map';

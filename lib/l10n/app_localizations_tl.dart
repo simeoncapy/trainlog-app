@@ -321,7 +321,7 @@ class AppLocalizationsTl extends AppLocalizations {
   String get settingsMapTheme => 'Tema ng mapa';
 
   @override
-  String get settingsMapThemeFollowApp => 'Katulad ng app';
+  String get settingsMapThemeFollowApp => 'Auto';
 
   @override
   String get settingsMapPathDisplayOrder =>

@@ -714,10 +714,10 @@ abstract class AppLocalizations {
   /// **'Map theme'**
   String get settingsMapTheme;
 
-  /// Map theme option: follow the app theme.
+  /// Map theme option: follow the app theme. Keep it short (segmented button).
   ///
   /// In en, this message translates to:
-  /// **'Same as app'**
+  /// **'Auto'**
   String get settingsMapThemeFollowApp;
 
   /// No description provided for @settingsMapPathDisplayOrder.
