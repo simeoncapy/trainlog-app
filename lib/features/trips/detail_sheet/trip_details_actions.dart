@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -27,6 +28,8 @@ class TripDetailsActions extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
+
+    if (AppPlatform.isApple) return _buildApple(context, l10n);
 
     return Row(
       children: [
@@ -149,6 +152,55 @@ class TripDetailsActions extends StatelessWidget {
       AdaptiveInformationMessage.showInfo(l10n.tripsDetailsDeleteFailed);
     }
   }
+
+  /// iOS: full-width tinted rows stacked at the end of the sheet's content,
+  /// like the action buttons at the bottom of an Apple Maps sheet. Delete
+  /// uses the system destructive red.
+  Widget _buildApple(BuildContext context, AppLocalizations l10n) {
+    final tint = CupertinoTheme.of(context).primaryColor;
+    final destructive = CupertinoColors.systemRed.resolveFrom(context);
+
+    final rows = [
+      _AppleActionRow(
+        icon: AdaptiveIcons.edit,
+        label: l10n.tripsDetailsEditButton,
+        color: tint,
+        onTap: () => _openEditCopy(context, EditCopy.edit),
+      ),
+      _AppleActionRow(
+        icon: AdaptiveIcons.copy,
+        label: l10n.duplicateBtnLabel,
+        color: tint,
+        // TODO(backend): restore `_openEditCopy(context, EditCopy.copy)`
+        // once the backend PR for duplicating a trip is approved.
+        onTap: () => AdaptiveInformationMessage.showInfoAboveModal(
+          l10n.editTripComingSoon,
+        ),
+      ),
+      _AppleActionRow(
+        icon: AdaptiveIcons.share,
+        label: MaterialLocalizations.of(context).shareButtonLabel,
+        color: tint,
+        onTap: () => _share(context),
+      ),
+      _AppleActionRow(
+        icon: AdaptiveIcons.delete,
+        label: l10n.deleteButton,
+        color: destructive,
+        onTap: () => _delete(context, l10n),
+      ),
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (var i = 0; i < rows.length; i++) ...[
+          if (i > 0) const SizedBox(height: 10),
+          rows[i],
+        ],
+      ],
+    );
+  }
 }
 
 class _ActionButton extends StatelessWidget {
@@ -195,6 +247,66 @@ class _ActionButton extends StatelessWidget {
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   color: foreground,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// One iOS action row: a tinted capsule with the icon on the leading edge and
+/// the label centred, in the row's [color] (iOS "tinted" button style).
+class _AppleActionRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _AppleActionRow({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      label: label,
+      excludeSemantics: true,
+      child: CupertinoButton(
+        padding: EdgeInsets.zero,
+        minimumSize: const Size(0, 56),
+        onPressed: onTap,
+        child: Container(
+          height: 56,
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.14),
+            borderRadius: BorderRadius.circular(28),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: Icon(icon, color: color, size: 24),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 36),
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: color,
+                    fontSize: 17,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ],

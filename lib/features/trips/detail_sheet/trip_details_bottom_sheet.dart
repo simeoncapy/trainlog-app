@@ -66,6 +66,13 @@ class TripDetailsBottomSheet extends StatelessWidget {
             const SizedBox(height: 20),
             TripDetailsNotes(trip: trip),
           ],
+          // iOS: the actions end the content as full-width rows, like an
+          // Apple Maps sheet, instead of a pinned footer.
+          if (isApple) ...[
+            const SizedBox(height: 28),
+            TripDetailsActions(trip: trip),
+            SizedBox(height: MediaQuery.paddingOf(context).bottom + 8),
+          ],
         ],
       ),
     );
@@ -118,7 +125,7 @@ class TripDetailsBottomSheet extends StatelessWidget {
       children: [
         if (!isApple) handle,
         isApple ? Expanded(child: scrollArea) : Flexible(child: scrollArea),
-        footer,
+        if (!isApple) footer,
       ],
     );
     if (!isApple) return column;
