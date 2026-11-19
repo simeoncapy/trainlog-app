@@ -4,9 +4,11 @@ import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:trainlog_app/app/app_globals.dart';
 import 'package:trainlog_app/data/models/trips.dart';
+import 'package:trainlog_app/app/theme/app_colors.dart';
 import 'package:trainlog_app/features/trips/detail_sheet/trip_details_common.dart';
 import 'package:trainlog_app/features/trips_edit_copy/edit_copy_page.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
+import 'package:trainlog_app/platform/adaptive_dialog.dart';
 import 'package:trainlog_app/platform/adaptive_information_message.dart';
 import 'package:trainlog_app/platform/adaptive_page_route.dart';
 import 'package:trainlog_app/providers/polyline_provider.dart';
@@ -115,7 +117,19 @@ class TripDetailsActions extends StatelessWidget {
     final tripsProvider = Provider.of<TripsProvider>(context, listen: false);
     final polylineProvider = Provider.of<PolylineProvider>(context, listen: false);
 
-    final confirmed = await showDialog<bool>(
+    final confirmed = AppPlatform.isApple
+        // iOS alert with Delete in the destructive red. The sheet itself is
+        // on the root navigator, hence skipWhenRootCanPop: false.
+        ? await AdaptiveDialog.confirm(
+            context: context,
+            title: l10n.tripsDetailsDeleteDialogTitle,
+            message: l10n.tripsDetailsDeleteDialogMessage,
+            confirmLabel: l10n.deleteButton,
+            destructive: true,
+            useActionSheetOnIOS: false,
+            skipWhenRootCanPop: false,
+          )
+        : await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(l10n.tripsDetailsDeleteDialogTitle),
@@ -157,7 +171,11 @@ class TripDetailsActions extends StatelessWidget {
   /// like the action buttons at the bottom of an Apple Maps sheet. Delete
   /// uses the system destructive red.
   Widget _buildApple(BuildContext context, AppLocalizations l10n) {
-    final tint = CupertinoTheme.of(context).primaryColor;
+    // The theme's light-mode amber is too pale for text on its own wash
+    // (~2:1); use a deeper amber for these rows in light mode (~4.8:1).
+    final tint = Theme.of(context).brightness == Brightness.dark
+        ? AppColors.amber
+        : const Color(0xFF9A5B00);
     final destructive = CupertinoColors.systemRed.resolveFrom(context);
 
     final rows = [
@@ -259,7 +277,7 @@ class _ActionButton extends StatelessWidget {
 
 /// One iOS action row: a tinted capsule with the icon on the leading edge and
 /// the label centred, in the row's [color] (iOS "tinted" button style).
-class _AppleActionRow extends StatelessWidget {
+class _AppleActionRow extends StatefulWidget {
   final IconData icon;
   final String label;
   final Color color;
@@ -273,43 +291,64 @@ class _AppleActionRow extends StatelessWidget {
   });
 
   @override
+  State<_AppleActionRow> createState() => _AppleActionRowState();
+}
+
+class _AppleActionRowState extends State<_AppleActionRow> {
+  bool _pressed = false;
+
+  void _setPressed(bool value) {
+    if (_pressed != value) setState(() => _pressed = value);
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final color = widget.color;
+    // A plain tap recognizer (not CupertinoButton, which keeps the pointer):
+    // a vertical drag starting on a row must still scroll the sheet.
     return Semantics(
       button: true,
-      label: label,
+      label: widget.label,
       excludeSemantics: true,
-      child: CupertinoButton(
-        padding: EdgeInsets.zero,
-        minimumSize: const Size(0, 56),
-        onPressed: onTap,
-        child: Container(
-          height: 56,
-          decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.14),
-            borderRadius: BorderRadius.circular(28),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              Align(
-                alignment: AlignmentDirectional.centerStart,
-                child: Icon(icon, color: color, size: 24),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 36),
-                child: Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: color,
-                    fontSize: 17,
-                    fontWeight: FontWeight.w600,
+      onTap: widget.onTap,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTapDown: (_) => _setPressed(true),
+        onTapUp: (_) => _setPressed(false),
+        onTapCancel: () => _setPressed(false),
+        onTap: widget.onTap,
+        child: AnimatedOpacity(
+          opacity: _pressed ? 0.45 : 1,
+          duration: Duration(milliseconds: _pressed ? 10 : 150),
+          child: Container(
+            height: 56,
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(28),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: Icon(widget.icon, color: color, size: 24),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 36),
+                  child: Text(
+                    widget.label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: color,
+                      fontSize: 17,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
