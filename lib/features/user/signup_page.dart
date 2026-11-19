@@ -4,6 +4,8 @@ import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/features/about/privacy_tab.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
+import 'package:trainlog_app/services/api/api_import.dart';
+import 'package:trainlog_app/services/signup_captcha.dart';
 import 'package:trainlog_app/features/user/widgets/auth_form.dart';
 import 'package:trainlog_app/widgets/error_banner.dart';
 import 'package:trainlog_app/widgets/footer.dart';
@@ -17,11 +19,16 @@ class SignupPage extends StatefulWidget {
 
 class _SignupPageState extends State<SignupPage> {
   bool _signingUp = false;
+  bool _verifying = false;
   String? _error;
+  late final SignupCaptcha _captcha;
 
   @override
   void initState() {
     super.initState();
+    // Solve the anti-bot challenge while the user fills in the form
+    final trainlog = context.read<TrainlogProvider>();
+    _captcha = SignupCaptcha(trainlog.fetchSignupChallenge)..prepare();
   }
 
   Future<void> _onSignup(
@@ -32,32 +39,73 @@ class _SignupPageState extends State<SignupPage> {
   ) async {
     if (_signingUp) return;
 
-    setState(() => _signingUp = true);
+    setState(() {
+      _signingUp = true;
+      _error = null;
+    });
 
     final settings = context.read<SettingsProvider>();
-    final tempError = loc.errorCreationAccount;
+    final navigator = Navigator.of(context);
 
     try {
-      final (success, failureReason) = await auth.signup(
-        username: result.username,
-        password: result.password,
-        email: result.email!,
-        settings: settings,
-      );
+      SignupResult res = await _attempt(result, auth, settings);
+      // A refused captcha is usually an expired or already used challenge:
+      // retry once with a fresh one (_attempt already asked for it) before
+      // bothering the user
+      if (!res.success && res.isCaptchaError && mounted) {
+        res = await _attempt(result, auth, settings);
+      }
 
       if (!mounted) return;
 
-      if (!success) {
-          _error = failureReason ?? tempError;
+      if (!res.success) {
+        _error = switch (res.code) {
+          'unreachable' => loc.errorCreationAccountUnreachable,
+          'login_failed' => loc.errorCreationAccountLogin,
+          _ => res.message ?? loc.errorCreationAccount,
+        };
       } else {
-        Navigator.of(context).pop();
+        navigator.pop();
         settings.setShouldLoadTripsFromApi(true);
       }
     } catch (e) {
       if (!mounted) return;
-       _error = tempError;
+      _error = isServerUnreachable(e)
+          ? loc.errorCreationAccountUnreachable
+          : loc.errorCreationAccount;
     } finally {
-      if (mounted) setState(() => _signingUp = false);
+      if (mounted) {
+        setState(() {
+          _signingUp = false;
+          _verifying = false;
+        });
+      }
+    }
+  }
+
+  Future<SignupResult> _attempt(
+    AuthResult result,
+    TrainlogProvider auth,
+    SettingsProvider settings,
+  ) async {
+    if (mounted) setState(() => _verifying = true);
+    final String altcha;
+    try {
+      altcha = await _captcha.payload();
+    } finally {
+      if (mounted) setState(() => _verifying = false);
+    }
+    try {
+      return await auth.signup(
+        username: result.username,
+        password: result.password,
+        email: result.email!,
+        altcha: altcha,
+        settings: settings,
+      );
+    } finally {
+      // The server accepts each solved challenge only once
+      _captcha.reset();
     }
   }
 
@@ -157,8 +205,21 @@ class _SignupPageState extends State<SignupPage> {
                           decoration: BoxDecoration(
                             color: Colors.black.withValues(alpha: 0.25),
                           ),
-                          child: const Center(
-                            child: CircularProgressIndicator(),
+                          child: Center(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const CircularProgressIndicator(),
+                                if (_verifying) ...[
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    loc.createAccountVerifying,
+                                    textAlign: TextAlign.center,
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                ],
+                              ],
+                            ),
                           ),
                         ),
                       ),

@@ -121,6 +121,18 @@ class AppLocalizationsFr extends AppLocalizations {
   String get errorCreationAccount => 'Erreur lors de la création du compte.';
 
   @override
+  String get errorCreationAccountUnreachable =>
+      'Le serveur n\'a pas pu être contacté. Vérifiez votre connexion et réessayez.';
+
+  @override
+  String get errorCreationAccountLogin =>
+      'Votre compte a été créé, mais la connexion a échoué. Veuillez vous connecter.';
+
+  @override
+  String get createAccountVerifying =>
+      'Vérification que vous n\'êtes pas un robot…';
+
+  @override
   String get connectionError =>
       'Echec de la connexion, vérifiez vos identifiants';
 

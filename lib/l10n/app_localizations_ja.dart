@@ -121,6 +121,17 @@ class AppLocalizationsJa extends AppLocalizations {
   String get errorCreationAccount => 'アカウントの作成中にエラーが発生しました。';
 
   @override
+  String get errorCreationAccountUnreachable =>
+      'サーバーに接続できませんでした。接続を確認して、もう一度お試しください。';
+
+  @override
+  String get errorCreationAccountLogin =>
+      'アカウントは作成されましたが、ログインできませんでした。ログインしてください。';
+
+  @override
+  String get createAccountVerifying => 'ロボットでないことを確認しています…';
+
+  @override
   String get connectionError => 'ログインに失敗しました。資格情報を確認してください。';
 
   @override

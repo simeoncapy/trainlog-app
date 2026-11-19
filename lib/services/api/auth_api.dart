@@ -1,8 +1,10 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:cookie_jar/cookie_jar.dart';
-import 'package:flutter/foundation.dart';
 import 'package:trainlog_app/services/api/session_expiry.dart';
 import 'package:trainlog_app/services/api/trainlog_http_client.dart';
+import 'package:trainlog_app/utils/altcha.dart';
 
 class TrainlogLoginResult {
   final bool success;
@@ -18,6 +20,29 @@ class TrainlogLoginResult {
     this.lastResponse,
     this.failureReason,
   });
+}
+
+/// Outcome of a signup request.
+class SignupResult {
+  final bool success;
+
+  /// Message from the server, already in the user's language.
+  final String? message;
+
+  /// Machine-readable reason: `captcha_*`/`honeypot`/`no_captcha` (captcha
+  /// refused), `missing_fields`, `invalid_email`, `invalid_username`,
+  /// `not_available`, `server_error`, `unsupported_server`.
+  final String? code;
+
+  const SignupResult.success()
+      : success = true,
+        message = null,
+        code = null;
+
+  const SignupResult.failure({this.message, this.code}) : success = false;
+
+  bool get isCaptchaError =>
+      code != null && (code!.startsWith('captcha_') || code == 'no_captcha');
 }
 
 /// Authentication and session domain: login, signup, session checks and the
@@ -107,39 +132,81 @@ class AuthApi {
     );
   }
 
-  Future<(bool, String?)> signup({
+  /// A fresh proof-of-work challenge for the signup captcha.
+  Future<AltchaChallenge> fetchSignupChallenge() async {
+    final resp = await _client.dio.get(
+      '$_signupPath/challenge',
+      options: Options(
+        responseType: ResponseType.json,
+        headers: {'Accept': 'application/json'},
+        extra: const {skipSessionCheckExtraKey: true},
+      ),
+    );
+    final data = resp.data is String ? jsonDecode(resp.data as String) : resp.data;
+    if (data is! Map) {
+      throw const FormatException('Unexpected signup challenge response');
+    }
+    return AltchaChallenge.fromJson(Map<String, dynamic>.from(data));
+  }
+
+  /// Creates the account with `POST /signup/?raw=1`, which answers in JSON:
+  /// `{"username": ...}` on success (the session cookie is then set), else
+  /// `{"error": <localised message>, "code": <machine code>}`.
+  ///
+  /// [altcha] is the solved captcha payload (see [AltchaChallenge]).
+  Future<SignupResult> signup({
     required String username,
     required String password,
     required String email,
     required String locale,
+    required String altcha,
   }) async {
     final resp = await _client.dio.post(
-      _signupPath,
+      '$_signupPath/',
+      queryParameters: const {'raw': '1'},
       data: {
         'username': username,
         'password': password,
         'email': email,
-        'fromApp': 'true',
         'locale': locale,
+        'altcha': altcha,
       },
       options: Options(
         contentType: Headers.formUrlEncodedContentType,
+        responseType: ResponseType.json,
         headers: {
+          'Accept': 'application/json',
           'Origin': _baseUrl,
           'Referer': '$_baseUrl$_signupPath',
         },
-        validateStatus: (s) => s != null && s >= 200 && s <= 503,
+        validateStatus: (s) => s != null && s >= 200 && s < 600,
         followRedirects: false,
         extra: const {skipSessionCheckExtraKey: true},
       ),
     );
 
-    debugPrint('Signup response: ${resp.statusCode} ${resp.statusMessage} ${resp.data}');
-    String? message = resp.data is Map<String, dynamic>
-        ? resp.data["error"] as String?
-        : null;
-    if ((resp.statusCode ?? 0) >= 500) message = "Server error, please try again later.";
-    return (resp.statusCode == 200, message);
+    final status = resp.statusCode ?? 0;
+    Object? data = resp.data;
+    if (data is String) {
+      try {
+        data = jsonDecode(data);
+      } catch (_) {
+        // Not JSON: an older server, or a proxy error page
+      }
+    }
+    final body = data is Map ? data : const {};
+
+    if (status == 200 && body['username'] is String) {
+      return const SignupResult.success();
+    }
+    if (status >= 500) {
+      return const SignupResult.failure(code: 'server_error');
+    }
+    return SignupResult.failure(
+      message: body['error'] as String?,
+      // A server without the JSON API answers with an HTML page
+      code: body['code'] as String? ?? 'unsupported_server',
+    );
   }
 
   Future<List<Cookie>> getCookiesForWebView() async {
