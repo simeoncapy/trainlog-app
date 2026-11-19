@@ -262,8 +262,8 @@ class _EditTripPathPageState extends State<EditTripPathPage> {
 
   /// iOS trailing actions, like the trips page's: the Map / Details views
   /// grouped in one glass capsule, then Save on its own at the far right.
-  /// Save stays in place (disabled) until the route changes, so the bar
-  /// doesn't shift.
+  /// Save stays in place (greyed out) until the route changes, so the bar
+  /// doesn't shift, then turns blue.
   Widget _appleTrailing(AppLocalizations loc) {
     final selected = Theme.of(context).colorScheme.secondary;
     return Row(
@@ -286,10 +286,15 @@ class _EditTripPathPageState extends State<EditTripPathPage> {
           ],
         ),
         const SizedBox(width: 8),
+        // Plain glass with a blue checkmark: the amber "prominent" glass only
+        // reads as amber over the map, and turns maroon over a dark page.
         GlassIconButton(
           icon: CupertinoIcons.checkmark,
+          iconSize: 22,
           tooltip: loc.editPathSaveButton,
-          prominent: _modified,
+          color: _modified
+              ? selected
+              : CupertinoColors.tertiaryLabel.resolveFrom(context),
           onPressed: _modified && !_saving ? _save : null,
         ),
       ],
@@ -335,6 +340,13 @@ class _EditTripPathPageState extends State<EditTripPathPage> {
         appBar: AppPlatform.isApple
             ? AdaptiveAppBar(
                 title: loc.editPathTitle,
+                // The trailing buttons leave little room: let a long title
+                // (French, Japanese) end with an ellipsis rather than clip.
+                titleWidget: Text(
+                  loc.editPathTitle,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
                 onBack: () => Navigator.of(context).maybePop(),
                 cupertinoTrailing: _appleTrailing(loc),
               )
