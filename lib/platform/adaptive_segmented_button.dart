@@ -63,17 +63,12 @@ class AdaptiveSegmentedButton {
   static Widget _cupertinoChild<T extends Object>(
     AdaptiveSegmentedButtonSegment<T> seg,
   ) {
-    if (seg.icon != null && seg.label != null) {
+    // iOS guideline: a segment shows text OR an icon, never both. When a
+    // segment has a label, the icon is dropped (Android keeps both).
+    if (seg.label != null) {
       return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            seg.icon!,
-            const SizedBox(width: 4),
-            seg.label!,
-          ],
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        child: seg.label!,
       );
     }
     if (seg.icon != null) {

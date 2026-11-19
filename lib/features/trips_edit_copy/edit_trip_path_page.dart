@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:trainlog_app/platform/adaptive_segmented_button.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/app/theme/app_theme.dart';
 import 'package:trainlog_app/data/controllers/trainlog_web_controller.dart';
@@ -246,22 +247,23 @@ class _EditTripPathPageState extends State<EditTripPathPage> {
           ),
           title: Semantics(
             label: loc.editPathTitle,
-            child: SegmentedButton<_EditPathTab>(
+            child: AdaptiveSegmentedButton.build<_EditPathTab>(
+              context: context,
               showSelectedIcon: false,
               segments: [
-                ButtonSegment(
+                AdaptiveSegmentedButtonSegment(
                   value: _EditPathTab.map,
                   icon: const Icon(Icons.map_outlined),
                   label: Text(loc.editPathTabMap),
                 ),
-                ButtonSegment(
+                AdaptiveSegmentedButtonSegment(
                   value: _EditPathTab.details,
                   icon: const Icon(Icons.tune),
                   label: Text(loc.editPathTabDetails),
                 ),
               ],
-              selected: {_tab},
-              onSelectionChanged: (selection) => _selectTab(selection.first),
+              selectedValue: _tab,
+              onChanged: _selectTab,
             ),
           ),
           actions: [
@@ -361,21 +363,22 @@ class _EditTripPathPageState extends State<EditTripPathPage> {
         if (_supportsFreehand) ...[
           TripFormSectionLabel(loc.editPathModeTitle),
           const SizedBox(height: 8),
-          SegmentedButton<bool>(
+          AdaptiveSegmentedButton.build<bool>(
+            context: context,
             segments: [
-              ButtonSegment(
+              AdaptiveSegmentedButtonSegment(
                 value: false,
                 icon: const Icon(Icons.alt_route),
                 label: Text(loc.editPathModeRouter),
               ),
-              ButtonSegment(
+              AdaptiveSegmentedButtonSegment(
                 value: true,
                 icon: const Icon(Icons.draw_outlined),
                 label: Text(loc.editPathModeFreehand),
               ),
             ],
-            selected: {_freehand},
-            onSelectionChanged: (selection) => _setFreehand(selection.first),
+            selectedValue: _freehand,
+            onChanged: _setFreehand,
           ),
           const SizedBox(height: 16),
         ],
