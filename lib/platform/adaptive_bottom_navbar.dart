@@ -300,7 +300,10 @@ class _GlassTabBar extends StatelessWidget {
 
     // Sit close to the bottom edge like the system bar does, while staying
     // clear of the home indicator.
-    final bottom = mq.padding.bottom > 0 ? mq.padding.bottom - 10 : 12.0;
+    // viewPadding, not padding: padding.bottom shrinks while the keyboard
+    // animates, which made this go negative and broke the tab bar layout.
+    final inset = mq.viewPadding.bottom;
+    final bottom = inset > 0 ? (inset - 10).clamp(0.0, inset) : 12.0;
 
     // The menu takes the middle slot: tabs 0..half-1, menu, then the rest.
     final hasMenu = onMenuTap != null;
