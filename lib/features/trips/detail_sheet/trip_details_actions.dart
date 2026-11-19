@@ -169,7 +169,8 @@ class TripDetailsActions extends StatelessWidget {
       builder: (dialogContext) => Theme(
         data: theme,
         child: CupertinoTheme(
-          data: cupertinoTheme,
+          // Same blue tint as the action rows (Apple uses one tint for both).
+          data: cupertinoTheme.copyWith(primaryColor: theme.colorScheme.secondary),
           child: CupertinoAlertDialog(
             title: Text(l10n.tripsDetailsDeleteDialogTitle),
             content: Text(l10n.tripsDetailsDeleteDialogMessage),
