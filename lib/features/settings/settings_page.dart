@@ -1,6 +1,5 @@
 import 'package:currency_picker/currency_picker.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/app/theme/app_tab_theme.dart';
