@@ -4,6 +4,7 @@ import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/features/trips/detail_sheet/trip_details_common.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/utils/number_formatter.dart';
+import 'package:trainlog_app/utils/platform_utils.dart';
 
 /// Summary metric cards (Distance, Average speed). The "Duration" card is
 /// deliberately omitted because the timeline already surfaces the duration
@@ -74,10 +75,10 @@ class _MetricCard extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: detailSurfaceColor(context),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: detailBorderColor(context)),
+      // iOS: Apple's ~12 pt grouped box; Android keeps 16 px.
+      decoration: detailFillDecoration(
+        context,
+        radius: AppPlatform.isApple ? 12 : 16,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

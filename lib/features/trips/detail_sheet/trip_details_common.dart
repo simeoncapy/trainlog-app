@@ -1,9 +1,11 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/app/theme/app_colors.dart';
 import 'package:trainlog_app/data/models/trips.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
+import 'package:trainlog_app/utils/platform_utils.dart';
 
 /// Resolves the route/vehicle palette colour for [trip] using the user's
 /// selected map colour palette. Falls back to the theme primary colour when the
@@ -27,6 +29,32 @@ Color detailSurfaceColor(BuildContext context) {
 Color detailBorderColor(BuildContext context) {
   final isDark = Theme.of(context).brightness == Brightness.dark;
   return isDark ? Colors.white.withValues(alpha: 0.08) : AppColors.lightLine;
+}
+
+/// Background of the small surfaces in the sheet (metric cards, duration
+/// pill, visibility chip, notes box).
+///
+/// iOS: like the grouped boxes and the "Now" / "Avoid" pills of an Apple Maps
+/// sheet, a translucent system grey fill with no border, so the glass of the
+/// sheet shows through. [capsule] gives the fully rounded pill shape.
+/// Android keeps the solid surface with a hairline border.
+BoxDecoration detailFillDecoration(
+  BuildContext context, {
+  double radius = 12,
+  bool capsule = false,
+}) {
+  final borderRadius = BorderRadius.circular(capsule ? 999 : radius);
+  if (AppPlatform.isApple) {
+    return BoxDecoration(
+      color: CupertinoColors.secondarySystemFill.resolveFrom(context),
+      borderRadius: borderRadius,
+    );
+  }
+  return BoxDecoration(
+    color: detailSurfaceColor(context),
+    borderRadius: borderRadius,
+    border: Border.all(color: detailBorderColor(context)),
+  );
 }
 
 /// Muted foreground colour for secondary text/icons inside the sheet.

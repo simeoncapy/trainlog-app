@@ -264,11 +264,7 @@ class _DurationPill extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: detailSurfaceColor(context),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: detailBorderColor(context)),
-      ),
+      decoration: detailFillDecoration(context, capsule: true),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

@@ -27,11 +27,7 @@ class TripDetailsNotes extends StatelessWidget {
         Container(
           width: double.infinity,
           padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: detailSurfaceColor(context),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: detailBorderColor(context)),
-          ),
+          decoration: detailFillDecoration(context),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
