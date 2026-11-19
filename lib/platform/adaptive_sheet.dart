@@ -71,7 +71,7 @@ Future<T?> showAdaptiveContentSheet<T>({
       // keyboard up the sheet may use the whole height below the status bar;
       // otherwise the form gets squeezed into a scroll view behind it.
       final maxHeight = mq.viewInsets.bottom > 0
-          ? mq.size.height - mq.padding.top - 16
+          ? mq.size.height - mq.padding.top - _glassSheetChrome
           : (mq.size.height - mq.padding.top - mq.padding.bottom) *
                 maxHeightFactor;
       return _MaterialHost(
@@ -132,6 +132,10 @@ Future<T?> showAppleDetentSheet<T>({
     ),
   );
 }
+
+/// Height GlassSheet adds around its content (grab handle row, bottom spacer,
+/// outer margins) plus a small gap, kept free below the status bar.
+const double _glassSheetChrome = 72;
 
 /// The package's sheet glass is a ~12% white tint, which leaves muted text
 /// unreadable over the map or a form. Tint it with the app's surface colour
