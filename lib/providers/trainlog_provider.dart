@@ -14,6 +14,7 @@ import 'package:trainlog_app/providers/trips_provider.dart';
 import 'package:trainlog_app/services/api/api_import.dart';
 import 'package:trainlog_app/utils/cached_data_utils.dart';
 import 'package:trainlog_app/utils/text_utils.dart';
+import 'package:trainlog_app/utils/altcha.dart';
 import 'package:latlong2/latlong.dart';
 import "package:unorm_dart/unorm_dart.dart" as unorm;
 
@@ -242,30 +243,41 @@ class TrainlogProvider extends ChangeNotifier {
     }
   }
 
-  Future<(bool, String?)> signup({
+  /// A proof-of-work challenge for the signup captcha (see [SignupCaptcha]).
+  Future<AltchaChallenge> fetchSignupChallenge() => _auth.fetchSignupChallenge();
+
+  /// Creates the account, then logs it in. [altcha] is the solved signup
+  /// captcha.
+  Future<SignupResult> signup({
     required String username,
     required String password,
     required String email,
+    required String altcha,
     SettingsProvider? settings
   }) async {
     _loading = true;
     notifyListeners();
 
     try {
-      final (res, failureReason) = await _auth.signup(
-        username: username, 
-        password: password, 
-        email: email, 
-        locale: settings?.locale.languageCode ?? 'en'
+      final res = await _auth.signup(
+        username: username,
+        password: password,
+        email: email,
+        locale: settings?.locale.languageCode ?? 'en',
+        altcha: altcha,
       );
-      if (res) {
-        // Signup successful, now log in the user
-        return (await login(username: username, password: password, settings: settings), null);
-      } else {
-        return (false, failureReason);
-      }
+      if (!res.success) return res;
+
+      // The server already opened a session; logging in as usual also loads
+      // the user's data and saves the username like any other login.
+      final loggedIn = await login(username: username, password: password, settings: settings);
+      return loggedIn
+          ? res
+          : SignupResult.failure(message: _error, code: 'login_failed');
     } catch (e) {
-      return (false, '$e');
+      return SignupResult.failure(
+        code: isServerUnreachable(e) ? 'unreachable' : 'unexpected',
+      );
     } finally {
       _loading = false;
       notifyListeners();
