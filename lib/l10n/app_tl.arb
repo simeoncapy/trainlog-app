@@ -215,6 +215,8 @@
   "mapFilterYearsNoneBtn": "Wala",
   "mapFilterVehicleTypeAllBtn": "Lahat",
   "mapFilterVehicleTypeNoneBtn": "Wala",
+  "filterSelectAll": "Piliin lahat",
+  "filterDeselectAll": "Alisin lahat",
 
   "mapFilterTitle": "I-filter ang mapa",
   "mapFilterReset": "I-reset",

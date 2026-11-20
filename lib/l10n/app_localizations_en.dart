@@ -683,6 +683,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mapFilterVehicleTypeNoneBtn => 'None';
 
   @override
+  String get filterSelectAll => 'Select All';
+
+  @override
+  String get filterDeselectAll => 'Deselect All';
+
+  @override
   String get mapFilterTitle => 'Filter map';
 
   @override

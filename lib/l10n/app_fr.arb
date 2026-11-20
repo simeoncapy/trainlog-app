@@ -209,6 +209,8 @@
   "mapFilterYearsNoneBtn": "Aucune",
   "mapFilterVehicleTypeAllBtn": "Tous",
   "mapFilterVehicleTypeNoneBtn": "Aucun",
+  "filterSelectAll": "Tout sélectionner",
+  "filterDeselectAll": "Tout désélectionner",
 
   "mapFilterTitle": "Filtrer la carte",
   "mapFilterReset": "Réinitialiser",

@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/data/models/trips.dart';
+import 'package:trainlog_app/platform/glass_filter_parts.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
@@ -36,6 +37,8 @@ class AdaptiveVehicleTypeFilterChips extends StatelessWidget {
   }
 }
 
+/// iOS: vehicle capsules. Selected = filled with the vehicle's map colour;
+/// unselected = grey capsule whose icon keeps the map colour.
 class _CupertinoVehicleTypeChips extends StatelessWidget {
   final List<VehicleType> availableTypes;
   final Set<VehicleType> selectedTypes;
@@ -51,60 +54,22 @@ class _CupertinoVehicleTypeChips extends StatelessWidget {
   Widget build(BuildContext context) {
     final settings = context.watch<SettingsProvider>();
     final colours = MapColorPaletteHelper.getPalette(settings.mapColorPalette);
+    final fallback = CupertinoTheme.of(context).primaryColor;
 
     return Wrap(
       spacing: 8,
       runSpacing: 8,
-      children: availableTypes.map((type) {
-        final selected = selectedTypes.contains(type);
-        final backgroundColor = colours[type];
-        final brightness = backgroundColor != null
-            ? ThemeData.estimateBrightnessForColor(backgroundColor)
-            : Brightness.light;
-        final contentColor =
-            brightness == Brightness.dark ? CupertinoColors.white : CupertinoColors.black;
-
-        final bgColor = selected
-            ? (backgroundColor ?? CupertinoTheme.of(context).primaryColor)
-            : CupertinoColors.tertiarySystemFill.resolveFrom(context);
-        final fgColor = selected
-            ? contentColor
-            : CupertinoColors.secondaryLabel.resolveFrom(context);
-
-        return GestureDetector(
-          onTap: () => onTypeToggle(type, !selected),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
-            decoration: BoxDecoration(
-              color: bgColor,
-              borderRadius: BorderRadius.circular(12),
-              border: selected
-                  ? null
-                  : Border.all(
-                      color: CupertinoColors.separator.resolveFrom(context),
-                    ),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconTheme(
-                  data: IconThemeData(color: fgColor, size: 16),
-                  child: type.icon(),
-                ),
-                const SizedBox(width: 5),
-                Text(
-                  type.label(context),
-                  style: TextStyle(
-                    color: fgColor,
-                    fontSize: 14,
-                    fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
-                  ),
-                ),
-              ],
-            ),
+      children: [
+        for (final type in availableTypes)
+          FilterCapsule(
+            label: type.label(context),
+            leading: type.icon().icon,
+            leadingColor: colours[type] ?? fallback,
+            selectedColor: colours[type] ?? fallback,
+            selected: selectedTypes.contains(type),
+            onTap: () => onTypeToggle(type, !selectedTypes.contains(type)),
           ),
-        );
-      }).toList(),
+      ],
     );
   }
 }

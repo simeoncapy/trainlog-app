@@ -683,6 +683,12 @@ class AppLocalizationsTl extends AppLocalizations {
   String get mapFilterVehicleTypeNoneBtn => 'Wala';
 
   @override
+  String get filterSelectAll => 'Piliin lahat';
+
+  @override
+  String get filterDeselectAll => 'Alisin lahat';
+
+  @override
   String get mapFilterTitle => 'I-filter ang mapa';
 
   @override

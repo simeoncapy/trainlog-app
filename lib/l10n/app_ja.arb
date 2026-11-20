@@ -208,6 +208,8 @@
   "mapFilterYearsNoneBtn": "なし",
   "mapFilterVehicleTypeAllBtn": "全て",
   "mapFilterVehicleTypeNoneBtn": "なし",
+  "filterSelectAll": "すべて選択",
+  "filterDeselectAll": "すべて選択解除",
 
   "mapFilterTitle": "地図を絞り込む",
   "mapFilterReset": "リセット",

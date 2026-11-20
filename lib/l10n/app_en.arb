@@ -290,6 +290,8 @@
   "mapFilterYearsNoneBtn": "None",
   "mapFilterVehicleTypeAllBtn": "All",
   "mapFilterVehicleTypeNoneBtn": "None",
+  "filterSelectAll": "Select All",
+  "filterDeselectAll": "Deselect All",
 
   "mapFilterTitle": "Filter map",
   "mapFilterReset": "Reset",

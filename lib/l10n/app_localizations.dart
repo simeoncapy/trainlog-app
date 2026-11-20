@@ -1308,6 +1308,18 @@ abstract class AppLocalizations {
   /// **'None'**
   String get mapFilterVehicleTypeNoneBtn;
 
+  /// No description provided for @filterSelectAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Select All'**
+  String get filterSelectAll;
+
+  /// No description provided for @filterDeselectAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Deselect All'**
+  String get filterDeselectAll;
+
   /// No description provided for @mapFilterTitle.
   ///
   /// In en, this message translates to:

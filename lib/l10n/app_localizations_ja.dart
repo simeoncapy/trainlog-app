@@ -666,6 +666,12 @@ class AppLocalizationsJa extends AppLocalizations {
   String get mapFilterVehicleTypeNoneBtn => 'なし';
 
   @override
+  String get filterSelectAll => 'すべて選択';
+
+  @override
+  String get filterDeselectAll => 'すべて選択解除';
+
+  @override
   String get mapFilterTitle => '地図を絞り込む';
 
   @override
