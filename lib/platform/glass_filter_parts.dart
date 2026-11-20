@@ -71,8 +71,8 @@ class GlassSheetHeader extends StatelessWidget {
   }
 }
 
-/// The sheet's main action: a full-width capsule of glass tinted with the
-/// Trainlog amber (iOS 26 "prominent" glass), with a leading icon.
+/// The sheet's main action: a full-width amber capsule with a leading icon
+/// and the liquid press response.
 class GlassPrimaryButton extends StatelessWidget {
   const GlassPrimaryButton({
     super.key,
@@ -89,40 +89,53 @@ class GlassPrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // A solid amber capsule: the tinted glass of the package rendered too
+    // yellow in light mode and red-orange in dark, with poor contrast.
     const fg = AppColors.navy;
-    return LayoutBuilder(
-      builder: (context, constraints) => lg.GlassButton.custom(
-        onTap: onPressed ?? () {},
-        enabled: onPressed != null,
-        label: label,
-        width: constraints.maxWidth,
-        height: height,
-        useOwnLayer: true,
-        quality: lg.GlassQuality.premium,
-        shape: const lg.LiquidRoundedSuperellipse(borderRadius: height / 2),
-        settings: lg.LiquidGlassSettings(
-          glassColor: AppColors.amber.withValues(alpha: 0.9),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 19, color: fg),
-            const SizedBox(width: 8),
-            Flexible(
-              child: Text(
-                label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: -0.4,
-                  color: fg,
+    final enabled = onPressed != null;
+    return Semantics(
+      button: true,
+      enabled: enabled,
+      child: GlassPressable(
+        onPressed: onPressed,
+        pressedScale: 1.03,
+        child: Container(
+            height: height,
+            width: double.infinity,
+            alignment: Alignment.center,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            decoration: ShapeDecoration(
+              color: AppColors.amber,
+              shape: const StadiumBorder(),
+              shadows: [
+                BoxShadow(
+                  color: AppColors.amber.withValues(alpha: 0.35),
+                  blurRadius: 16,
+                  offset: const Offset(0, 6),
                 ),
-              ),
+              ],
             ),
-          ],
-        ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(icon, size: 19, color: fg),
+                const SizedBox(width: 8),
+                Flexible(
+                  child: Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: -0.4,
+                      color: fg,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
       ),
     );
   }
@@ -226,33 +239,35 @@ class FilterCapsule extends StatelessWidget {
     final fg = selected ? onFill : label_;
     final iconColor = selected ? onFill : (leadingColor ?? label_);
 
-    Widget content = Row(
-      mainAxisSize: expand ? MainAxisSize.max : MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        if (leading != null) ...[
-          Icon(leading, size: 15, color: iconColor),
-          const SizedBox(width: 5),
-        ],
-        Flexible(
-          child: Text(
-            label,
-            maxLines: 1,
-            overflow: TextOverflow.fade,
-            softWrap: false,
-            style: TextStyle(
-              fontSize: 15,
-              letterSpacing: -0.2,
-              fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
-              color: fg,
-            ),
-          ),
-        ),
-      ],
+    final text = Text(
+      label,
+      maxLines: 1,
+      softWrap: false,
+      style: TextStyle(
+        fontSize: 15,
+        letterSpacing: -0.2,
+        fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+        color: fg,
+      ),
     );
-    if (expand) {
-      content = FittedBox(fit: BoxFit.scaleDown, child: content);
-    }
+    final icon = leading == null
+        ? null
+        : [Icon(leading, size: 15, color: iconColor), const SizedBox(width: 5)];
+
+    // Expanded (grid cell): natural-size row scaled down to fit the cell.
+    // Otherwise (Wrap): the capsule hugs its content.
+    final Widget content = expand
+        ? FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [...?icon, text],
+            ),
+          )
+        : Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [...?icon, Flexible(child: text)],
+          );
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Semantics(
@@ -266,8 +281,9 @@ class FilterCapsule extends StatelessWidget {
           duration: const Duration(milliseconds: 180),
           curve: Curves.easeOut,
           height: height,
-          padding: const EdgeInsets.symmetric(horizontal: 13),
-          alignment: Alignment.center,
+          width: expand ? double.infinity : null,
+          padding: EdgeInsets.symmetric(horizontal: expand ? 6 : 13),
+          alignment: expand ? Alignment.center : null,
           decoration: ShapeDecoration(
             color: bg,
             shape: StadiumBorder(
