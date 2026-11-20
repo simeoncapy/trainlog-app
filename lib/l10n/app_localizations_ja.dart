@@ -893,6 +893,18 @@ class AppLocalizationsJa extends AppLocalizations {
   String get tripsSearchFilterOnHelper => 'この日の旅行のみを表示します';
 
   @override
+  String get tripsSearchFilterCustom => 'カスタム';
+
+  @override
+  String get tripsSearchFilterCustomMenu => 'カスタム…';
+
+  @override
+  String get tripsSearchFilterAny => 'すべて';
+
+  @override
+  String get tripsSearchFilterNoDate => 'なし';
+
+  @override
   String get tripsSearchFilterCountries => '国';
 
   @override

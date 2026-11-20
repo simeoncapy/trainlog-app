@@ -15,6 +15,7 @@ import 'package:trainlog_app/features/trips/search_filter_sheet/when_section.dar
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/platform/adaptive_sheet.dart';
 import 'package:trainlog_app/platform/adaptive_vehicle_type_filter_chips.dart';
+import 'package:trainlog_app/platform/glass_filter_parts.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 import 'package:trainlog_app/utils/style_utils.dart';
@@ -272,7 +273,9 @@ class _TripsSearchFilterSheetState extends State<TripsSearchFilterSheet> {
     final Widget body;
     switch (_view) {
       case _SheetView.main:
-        body = _buildMainView(context, l10n, trainlog);
+        body = AppPlatform.isApple
+            ? _buildMainViewApple(context, l10n, trainlog)
+            : _buildMainView(context, l10n, trainlog);
       case _SheetView.countries:
         body = GroupPickerView(
           key: const ValueKey('countries-picker'),
@@ -344,7 +347,10 @@ class _TripsSearchFilterSheetState extends State<TripsSearchFilterSheet> {
                     // The Apple glass sheet draws its own grab handle.
                     if (!AppPlatform.isApple) _grabHandle(context),
                     Expanded(child: body),
-                    if (_view == _SheetView.main) _actionFooter(context, l10n),
+                    if (_view == _SheetView.main)
+                      AppPlatform.isApple
+                          ? _actionFooterApple(context, l10n)
+                          : _actionFooter(context, l10n),
                   ],
                 ),
         ),
@@ -536,6 +542,146 @@ class _TripsSearchFilterSheetState extends State<TripsSearchFilterSheet> {
           ),
         ),
       ],
+    );
+  }
+
+  // ── Apple (iOS 26) ───────────────────────────────────────────────────────
+
+  /// iOS 26 form: glass ✕ / title / ↺ bar, search field, a grouped list
+  /// (period menu with optional From / To dates, countries and operators as
+  /// summary rows opening the pickers) and the vehicle capsules.
+  Widget _buildMainViewApple(
+    BuildContext context,
+    AppLocalizations l10n,
+    TrainlogProvider trainlog,
+  ) {
+    String summary(List<GroupEntry> selected) {
+      if (selected.isEmpty) return l10n.tripsSearchFilterAny;
+      final shown = selected.take(2).map((e) => e.label).join(', ');
+      return selected.length > 2 ? '$shown +${selected.length - 2}' : shown;
+    }
+
+    final selectedCountryEntries = _countryEntries()
+        .where((e) => _countries.contains(e.value))
+        .toList();
+    final selectedOperatorEntries = _operatorEntries(trainlog)
+        .where((e) => _operators.contains(e.value))
+        .toList();
+    final allTypesSelected = widget.typeOptions.isNotEmpty &&
+        widget.typeOptions.every(_types.contains);
+
+    return Column(
+      children: [
+        GlassSheetHeader(
+          title: l10n.tripsSearchFilterTitle,
+          closeTooltip: MaterialLocalizations.of(context).closeButtonTooltip,
+          resetTooltip: l10n.mapFilterReset,
+          onClose: () => Navigator.of(context, rootNavigator: true).pop(),
+          onReset: _reset,
+        ),
+        Expanded(
+          child: SingleChildScrollView(
+            controller: _mainScrollController,
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                SheetSearchField(
+                  controller: _keywordController,
+                  placeholder: l10n.tripsSearchFilterSearchHint,
+                ),
+                const SizedBox(height: 18),
+                WhenSection(
+                  quickFilter: _quickFilter,
+                  fromDate: _fromDate,
+                  toDate: _toDate,
+                  onQuickFilterSelected: (value) {
+                    setState(() {
+                      _quickFilter = value;
+                      _fromDate = null;
+                      _toDate = null;
+                    });
+                    _scheduleCountRefresh();
+                  },
+                  onCustomSelected: () {
+                    setState(() => _quickFilter = null);
+                    _scheduleCountRefresh();
+                  },
+                  onFromDateChanged: (date) {
+                    setState(() {
+                      _fromDate = date;
+                      _quickFilter = null;
+                    });
+                    _scheduleCountRefresh();
+                  },
+                  onToDateChanged: (date) {
+                    setState(() {
+                      _toDate = date;
+                      _quickFilter = null;
+                    });
+                    _scheduleCountRefresh();
+                  },
+                ),
+                const SizedBox(height: 18),
+                GlassFormGroup(children: [
+                  GlassFormRow(
+                    title: l10n.tripsSearchFilterCountries,
+                    trailing: GlassDisclosure(
+                        value: summary(selectedCountryEntries)),
+                    onTap: () => setState(() => _view = _SheetView.countries),
+                  ),
+                  GlassFormRow(
+                    title: l10n.tripsSearchFilterOperators,
+                    trailing: GlassDisclosure(
+                        value: summary(selectedOperatorEntries)),
+                    onTap: () => setState(() => _view = _SheetView.operators),
+                  ),
+                ]),
+                const SizedBox(height: 22),
+                GlassFilterSectionHeader(
+                  title: l10n.typeTitle,
+                  actionLabel: allTypesSelected
+                      ? l10n.filterDeselectAll
+                      : l10n.filterSelectAll,
+                  onAction: () {
+                    setState(() {
+                      if (allTypesSelected) {
+                        _types.clear();
+                      } else {
+                        _types = Set.of(widget.typeOptions);
+                      }
+                    });
+                    _scheduleCountRefresh();
+                  },
+                ),
+                const SizedBox(height: 6),
+                AdaptiveVehicleTypeFilterChips(
+                  availableTypes: widget.typeOptions,
+                  selectedTypes: _types,
+                  onTypeToggle: (type, selected) {
+                    setState(() {
+                      selected ? _types.add(type) : _types.remove(type);
+                    });
+                    _scheduleCountRefresh();
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _actionFooterApple(BuildContext context, AppLocalizations l10n) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+      child: GlassPrimaryButton(
+        icon: Icons.directions_transit_outlined,
+        label: l10n.mapFilterShowTrips(_matchCount),
+        onPressed: () =>
+            Navigator.of(context, rootNavigator: true).pop(_buildResult()),
+      ),
     );
   }
 

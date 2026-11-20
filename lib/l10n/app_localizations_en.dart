@@ -914,6 +914,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tripsSearchFilterOnHelper => 'Only trips on this exact day';
 
   @override
+  String get tripsSearchFilterCustom => 'Custom';
+
+  @override
+  String get tripsSearchFilterCustomMenu => 'Custom…';
+
+  @override
+  String get tripsSearchFilterAny => 'All';
+
+  @override
+  String get tripsSearchFilterNoDate => 'None';
+
+  @override
   String get tripsSearchFilterCountries => 'Countries';
 
   @override

@@ -915,6 +915,18 @@ class AppLocalizationsTl extends AppLocalizations {
       'Mga biyahe lang sa eksaktong araw na ito';
 
   @override
+  String get tripsSearchFilterCustom => 'Custom';
+
+  @override
+  String get tripsSearchFilterCustomMenu => 'Custom…';
+
+  @override
+  String get tripsSearchFilterAny => 'Lahat';
+
+  @override
+  String get tripsSearchFilterNoDate => 'Wala';
+
+  @override
   String get tripsSearchFilterCountries => 'Mga bansa';
 
   @override

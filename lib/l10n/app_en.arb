@@ -406,6 +406,10 @@
     "description": "Replaces the 'From' date label when no 'To' date is set, meaning the filter matches that exact day"
   },
   "tripsSearchFilterOnHelper": "Only trips on this exact day",
+  "tripsSearchFilterCustom": "Custom",
+  "tripsSearchFilterCustomMenu": "Custom…",
+  "tripsSearchFilterAny": "All",
+  "tripsSearchFilterNoDate": "None",
   "@tripsSearchFilterOnHelper": {
     "description": "Helper text shown under the date pickers while the From date acts as an exact-day filter"
   },

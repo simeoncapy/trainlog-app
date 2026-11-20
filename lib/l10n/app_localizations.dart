@@ -1710,6 +1710,30 @@ abstract class AppLocalizations {
   /// **'Only trips on this exact day'**
   String get tripsSearchFilterOnHelper;
 
+  /// No description provided for @tripsSearchFilterCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get tripsSearchFilterCustom;
+
+  /// No description provided for @tripsSearchFilterCustomMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom…'**
+  String get tripsSearchFilterCustomMenu;
+
+  /// No description provided for @tripsSearchFilterAny.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get tripsSearchFilterAny;
+
+  /// No description provided for @tripsSearchFilterNoDate.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get tripsSearchFilterNoDate;
+
   /// No description provided for @tripsSearchFilterCountries.
   ///
   /// In en, this message translates to:

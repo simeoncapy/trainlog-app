@@ -328,3 +328,320 @@ class FilterPageDots extends StatelessWidget {
     );
   }
 }
+
+// ── Grouped form (trips search & filter) ─────────────────────────────────────
+
+/// iOS inset grouped section without icons: rounded card, hairline
+/// separators starting under the text.
+class GlassFormGroup extends StatelessWidget {
+  const GlassFormGroup({super.key, required this.children});
+
+  final List<Widget> children;
+
+  static const double radius = 26;
+
+  @override
+  Widget build(BuildContext context) {
+    final separator = CupertinoColors.separator.resolveFrom(context);
+    return ClipRSuperellipse(
+      borderRadius: const BorderRadius.all(Radius.circular(radius)),
+      child: ColoredBox(
+        color: CupertinoColors.secondarySystemGroupedBackground
+            .resolveFrom(context),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (int i = 0; i < children.length; i++) ...[
+              if (i > 0)
+                Padding(
+                  padding: const EdgeInsetsDirectional.only(start: 16),
+                  child: Container(height: 0.5, color: separator),
+                ),
+              children[i],
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// One row of a [GlassFormGroup]: 17 pt title, trailing widget, grey
+/// highlight while pressed when [onTap] is set.
+class GlassFormRow extends StatefulWidget {
+  const GlassFormRow({
+    super.key,
+    required this.title,
+    this.trailing,
+    this.onTap,
+  });
+
+  final String title;
+  final Widget? trailing;
+  final VoidCallback? onTap;
+
+  @override
+  State<GlassFormRow> createState() => _GlassFormRowState();
+}
+
+class _GlassFormRowState extends State<GlassFormRow> {
+  bool _pressed = false;
+
+  void _set(bool v) {
+    if (_pressed != v) setState(() => _pressed = v);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final tappable = widget.onTap != null;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTapDown: tappable ? (_) => _set(true) : null,
+      onTapUp: tappable ? (_) => _set(false) : null,
+      onTapCancel: tappable ? () => _set(false) : null,
+      onTap: widget.onTap,
+      child: AnimatedContainer(
+        duration: Duration(milliseconds: _pressed ? 0 : 250),
+        color: _pressed
+            ? CupertinoColors.systemGrey4.resolveFrom(context)
+            : const Color(0x00000000),
+        constraints: const BoxConstraints(minHeight: 48),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                widget.title,
+                style: TextStyle(
+                  fontSize: 17,
+                  letterSpacing: -0.4,
+                  color: CupertinoColors.label.resolveFrom(context),
+                ),
+              ),
+            ),
+            if (widget.trailing != null) ...[
+              const SizedBox(width: 8),
+              widget.trailing!,
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Trailing of a row that opens another view: grey value, then a chevron.
+class GlassDisclosure extends StatelessWidget {
+  const GlassDisclosure({super.key, this.value});
+
+  final String? value;
+
+  @override
+  Widget build(BuildContext context) {
+    return ConstrainedBox(
+      constraints:
+          BoxConstraints(maxWidth: MediaQuery.sizeOf(context).width * 0.55),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (value != null)
+            Flexible(
+              child: Text(
+                value!,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 17,
+                  letterSpacing: -0.4,
+                  color: CupertinoColors.secondaryLabel.resolveFrom(context),
+                ),
+              ),
+            ),
+          const SizedBox(width: 6),
+          Icon(
+            CupertinoIcons.chevron_forward,
+            size: 15,
+            color: CupertinoColors.tertiaryLabel.resolveFrom(context),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// One choice of a [GlassFormMenuRow]. [dividerBefore] separates it from the
+/// choices above (e.g. "Custom…").
+class GlassMenuChoice<T> {
+  const GlassMenuChoice({
+    required this.value,
+    required this.label,
+    this.menuLabel,
+    this.dividerBefore = false,
+  });
+
+  final T value;
+
+  /// Shown as the row's value.
+  final String label;
+
+  /// Shown in the menu when it differs (e.g. "Custom…" vs "Custom").
+  final String? menuLabel;
+  final bool dividerBefore;
+}
+
+/// iOS 26 pop-up button row: the current value with up/down chevrons opens
+/// a Liquid Glass menu morphing out of it; the selected choice is checked.
+class GlassFormMenuRow<T> extends StatefulWidget {
+  const GlassFormMenuRow({
+    super.key,
+    required this.title,
+    required this.choices,
+    required this.selected,
+    required this.onChanged,
+    this.menuWidth = 250,
+  });
+
+  final String title;
+  final List<GlassMenuChoice<T>> choices;
+  final T selected;
+  final ValueChanged<T> onChanged;
+  final double menuWidth;
+
+  @override
+  State<GlassFormMenuRow<T>> createState() => _GlassFormMenuRowState<T>();
+}
+
+class _GlassFormMenuRowState<T> extends State<GlassFormMenuRow<T>> {
+  final lg.GlassMenuController _menu = lg.GlassMenuController();
+
+  @override
+  Widget build(BuildContext context) {
+    final secondary = CupertinoColors.secondaryLabel.resolveFrom(context);
+    final label = CupertinoColors.label.resolveFrom(context);
+    final current = widget.choices
+        .where((c) => c.value == widget.selected)
+        .map((c) => c.label)
+        .firstOrNull;
+
+    final trigger = ConstrainedBox(
+      constraints:
+          BoxConstraints(maxWidth: MediaQuery.sizeOf(context).width * 0.55),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 6),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Flexible(
+              child: Text(
+                current ?? '—',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                    fontSize: 17, letterSpacing: -0.4, color: secondary),
+              ),
+            ),
+            const SizedBox(width: 4),
+            Icon(CupertinoIcons.chevron_up_chevron_down,
+                size: 14, color: secondary),
+          ],
+        ),
+      ),
+    );
+
+    return GlassFormRow(
+      title: widget.title,
+      onTap: _menu.open,
+      trailing: lg.GlassMenu(
+        controller: _menu,
+        trigger: trigger,
+        menuWidth: widget.menuWidth,
+        menuAlignment: lg.GlassMenuAlignment.topRight,
+        autoAdjustToScreen: true,
+        menuPadding: const EdgeInsets.all(12),
+        menuSemanticLabel: widget.title,
+        items: [
+          for (final c in widget.choices) ...[
+            if (c.dividerBefore) const lg.GlassMenuDivider(),
+            lg.GlassMenuItem(
+              title: c.menuLabel ?? c.label,
+              maxLines: 1,
+              titleStyle: TextStyle(fontSize: 17, color: label),
+              icon: SizedBox(
+                width: 20,
+                child: c.value == widget.selected
+                    ? const Icon(CupertinoIcons.checkmark, size: 17)
+                    : null,
+              ),
+              iconSize: 17,
+              semanticsChecked: c.value == widget.selected,
+              onTap: () => widget.onChanged(c.value),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// iOS compact date button (as in Calendar): grey rounded rectangle holding
+/// the date, tinted when set. [onClear] adds a small clear button after it.
+class GlassDateButton extends StatelessWidget {
+  const GlassDateButton({
+    super.key,
+    required this.text,
+    required this.isSet,
+    required this.onTap,
+    this.onClear,
+  });
+
+  final String text;
+  final bool isSet;
+  final VoidCallback onTap;
+  final VoidCallback? onClear;
+
+  @override
+  Widget build(BuildContext context) {
+    final tint = CupertinoTheme.of(context).primaryColor;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: onTap,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 6),
+            decoration: ShapeDecoration(
+              color: CupertinoColors.tertiarySystemFill.resolveFrom(context),
+              shape: const RoundedSuperellipseBorder(
+                borderRadius: BorderRadius.all(Radius.circular(9)),
+              ),
+            ),
+            child: Text(
+              text,
+              style: TextStyle(
+                fontSize: 17,
+                letterSpacing: -0.4,
+                color: isSet
+                    ? tint
+                    : CupertinoColors.secondaryLabel.resolveFrom(context),
+              ),
+            ),
+          ),
+        ),
+        if (onClear != null)
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: onClear,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 8),
+              child: Icon(
+                CupertinoIcons.xmark_circle_fill,
+                size: 20,
+                color: CupertinoColors.tertiaryLabel.resolveFrom(context),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}

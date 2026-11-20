@@ -928,6 +928,18 @@ class AppLocalizationsFr extends AppLocalizations {
       'Uniquement les trajets de ce jour précis';
 
   @override
+  String get tripsSearchFilterCustom => 'Personnalisée';
+
+  @override
+  String get tripsSearchFilterCustomMenu => 'Personnalisée…';
+
+  @override
+  String get tripsSearchFilterAny => 'Tous';
+
+  @override
+  String get tripsSearchFilterNoDate => 'Aucune';
+
+  @override
   String get tripsSearchFilterCountries => 'Pays';
 
   @override
