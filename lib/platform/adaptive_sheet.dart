@@ -19,6 +19,11 @@ import 'package:trainlog_app/utils/platform_utils.dart';
 /// by this starts just below the pill, as on native iOS sheets.
 const double kAppleSheetHandleInset = 20;
 
+/// Grab handle size, as on Apple Maps' sheets (wider than UIKit's 36pt
+/// default, which the package draws).
+const double _grabberWidth = 60;
+const double _grabberHeight = 5;
+
 /// Shows a modal sheet that sizes to its content.
 ///
 /// The builder's content must not paint its own background or grab handle on
@@ -65,6 +70,8 @@ Future<T?> showAdaptiveContentSheet<T>({
     // The content brings its own scroll view (in a Flexible) where it needs
     // one; a second, outer one would leave it with unbounded height.
     isScrollable: false,
+    // The package's handle is a fixed 36pt; draw a wider one ourselves.
+    showDragIndicator: false,
     // Taps on rows and buttons shouldn't pulse the whole sheet.
     enableSaturationGlow: false,
     interactionScale: 1.0,
@@ -87,7 +94,19 @@ Future<T?> showAdaptiveContentSheet<T>({
           child: MediaQuery.removePadding(
             context: sheetContext,
             removeTop: true,
-            child: Builder(builder: builder),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Without its own handle the sheet leaves a 16pt top gap;
+                // lift ours into it, 5pt below the sheet's edge as on iOS.
+                Transform.translate(
+                  offset: const Offset(0, -11),
+                  child: const Center(child: _AppleGrabber()),
+                ),
+                Flexible(child: Builder(builder: builder)),
+              ],
+            ),
           ),
         ),
       );
@@ -131,6 +150,8 @@ Future<T?> showAppleDetentSheet<T>({
     initialState: initialState,
     halfSize: halfSize,
     fullSize: fullSize,
+    dragIndicatorWidth: _grabberWidth,
+    dragIndicatorHeight: _grabberHeight,
     expandedColor: surface,
     expandedDarkColor: surface,
     // Lighter tint at the medium detent, so the map still shows through.
@@ -165,6 +186,25 @@ Future<T?> showAppleDetentSheet<T>({
       ),
     ),
   );
+}
+
+/// The grab handle of the content sheets, sized like Apple Maps'.
+class _AppleGrabber extends StatelessWidget {
+  const _AppleGrabber();
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Container(
+      width: _grabberWidth,
+      height: _grabberHeight,
+      decoration: BoxDecoration(
+        // iOS grabber colours: white 35% in dark mode, black 20% in light.
+        color: isDark ? const Color(0x59FFFFFF) : const Color(0x33000000),
+        borderRadius: BorderRadius.circular(_grabberHeight / 2),
+      ),
+    );
+  }
 }
 
 /// Height GlassSheet adds around its content (grab handle row, bottom spacer,
