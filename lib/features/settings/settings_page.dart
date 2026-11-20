@@ -37,6 +37,14 @@ class SettingsPage extends StatefulWidget {
   State<SettingsPage> createState() => _SettingsPageState();
 }
 
+// iOS icon colours: one per section, so the colour says where you are
+// (Apple has no rule for this; its own Settings app is mostly per item).
+const Color _appleAppColor = CupertinoColors.systemBlue;
+const Color _appleMapColor = CupertinoColors.systemGreen;
+const Color _appleAccountColor = CupertinoColors.systemIndigo;
+const Color _appleDangerColor = CupertinoColors.systemRed;
+const Color _appleAboutColor = CupertinoColors.systemGrey;
+
 class _SettingsPageState extends State<SettingsPage> {
   final SettingsVm _vm = SettingsVm();
   final GeoPermissionService _geo = const GeoPermissionService();
@@ -338,7 +346,7 @@ class _SettingsPageState extends State<SettingsPage> {
     return SettingsGroup(children: [
       _ThemeRow(
         icon: AdaptiveIcons.theme,
-        appleColor: CupertinoColors.systemIndigo,
+        appleColor: _appleAppColor,
         title: l10n.settingsThemeMode,
         options: themeOptions,
         selected: settings.themeMode,
@@ -347,7 +355,7 @@ class _SettingsPageState extends State<SettingsPage> {
       _pickerTile<String>(
         ctx,
         icon: AdaptiveIcons.language,
-        appleColor: CupertinoColors.systemBlue,
+        appleColor: _appleAppColor,
         title: l10n.settingsLanguage,
         options: languageOptions,
         selected: settings.locale.languageCode,
@@ -356,7 +364,7 @@ class _SettingsPageState extends State<SettingsPage> {
       _pickerTile<String>(
         ctx,
         icon: AdaptiveIcons.date,
-        appleColor: CupertinoColors.systemRed,
+        appleColor: _appleAppColor,
         title: l10n.settingsDateFormat,
         subtitle: '(${l10n.settingsExampleShort} $dateExample)',
         options: dateFormatOptions,
@@ -365,7 +373,7 @@ class _SettingsPageState extends State<SettingsPage> {
       ),
       SettingsTile(
         icon: AdaptiveIcons.hour,
-        appleIconColor: CupertinoColors.systemOrange,
+        appleIconColor: _appleAppColor,
         title: l10n.settingsHourFormat12,
         subtitle: '(${l10n.settingsExampleShort} $timeExample)',
         trailing: AdaptiveSwitch(
@@ -375,7 +383,7 @@ class _SettingsPageState extends State<SettingsPage> {
       ),
       SettingsTile(
         icon: AdaptiveIcons.currency,
-        appleIconColor: CupertinoColors.systemGreen,
+        appleIconColor: _appleAppColor,
         title: l10n.settingsCurrency,
         onTap: isApple ? _showCurrencyPicker : null,
         trailing: isApple
@@ -394,7 +402,7 @@ class _SettingsPageState extends State<SettingsPage> {
       ),
       SettingsTile(
         icon: AdaptiveIcons.warningMsg,
-        appleIconColor: CupertinoColors.systemYellow,
+        appleIconColor: _appleAppColor,
         title: l10n.settingsHideWarningMessage,
         trailing: AdaptiveSwitch(
           value: settings.hideWarningMessage,
@@ -404,7 +412,7 @@ class _SettingsPageState extends State<SettingsPage> {
       _pickerTile<int>(
         ctx,
         icon: AdaptiveIcons.radar,
-        appleColor: CupertinoColors.systemTeal,
+        appleColor: _appleAppColor,
         title: l10n.settingsSprRadius,
         options: radiusOptions,
         selected: settings.sprRadius,
@@ -413,7 +421,7 @@ class _SettingsPageState extends State<SettingsPage> {
       _pickerTile<LandingPage>(
         ctx,
         icon: AdaptiveIcons.landingPage,
-        appleColor: CupertinoColors.systemPurple,
+        appleColor: _appleAppColor,
         title: l10n.settingsLandingPage,
         options: landingPageOptions,
         selected: settings.landingPage,
@@ -452,7 +460,7 @@ class _SettingsPageState extends State<SettingsPage> {
     return SettingsGroup(children: [
       _ThemeRow(
         icon: AdaptiveIcons.map,
-        appleColor: CupertinoColors.systemCyan,
+        appleColor: _appleMapColor,
         title: l10n.settingsMapTheme,
         options: mapThemeOptions,
         selected: settings.mapThemeMode,
@@ -461,7 +469,7 @@ class _SettingsPageState extends State<SettingsPage> {
       _pickerTile<PathDisplayOrder>(
         ctx,
         icon: AdaptiveIcons.layers,
-        appleColor: CupertinoColors.systemOrange,
+        appleColor: _appleMapColor,
         title: l10n.settingsMapPathDisplayOrder,
         options: orderOptions,
         selected: settings.pathDisplayOrder,
@@ -473,7 +481,7 @@ class _SettingsPageState extends State<SettingsPage> {
       _pickerTile<MapColorPalette>(
         ctx,
         icon: AdaptiveIcons.palette,
-        appleColor: CupertinoColors.systemPink,
+        appleColor: _appleMapColor,
         title: l10n.settingsMapColorPalette,
         noDivider: true,
         options: paletteOptions,
@@ -486,7 +494,7 @@ class _SettingsPageState extends State<SettingsPage> {
       _PaletteLegendRow(palette: settings.mapColorPalette),
       SettingsTile(
         icon: AdaptiveIcons.position,
-        appleIconColor: CupertinoColors.systemBlue,
+        appleIconColor: _appleMapColor,
         title: l10n.settingsDisplayUserMarker,
         trailing: AdaptiveSwitch(
           value: settings.mapDisplayUserLocationMarker,
@@ -503,7 +511,7 @@ class _SettingsPageState extends State<SettingsPage> {
       ),
       SettingsTile(
         icon: AdaptiveIcons.tripDirection,
-        appleIconColor: CupertinoColors.systemGreen,
+        appleIconColor: _appleMapColor,
         title: l10n.settingsDisplayTripDirection,
         trailing: AdaptiveSwitch(
           value: settings.mapDisplayTripDirection,
@@ -528,7 +536,7 @@ class _SettingsPageState extends State<SettingsPage> {
       _pickerTile<int>(
         ctx,
         icon: AdaptiveIcons.visibility,
-        appleColor: CupertinoColors.systemBlue,
+        appleColor: _appleAccountColor,
         title: l10n.settingsAccountVisibility,
         subtitle: _vm.accountVisibilityHelperText.isEmpty
             ? null
@@ -544,7 +552,7 @@ class _SettingsPageState extends State<SettingsPage> {
       ),
       SettingsTile(
         icon: AdaptiveIcons.ranking,
-        appleIconColor: CupertinoColors.systemOrange,
+        appleIconColor: _appleAccountColor,
         title: l10n.settingsAccountLeaderboard,
         enabled: _vm.accountLeaderboard != null,
         trailing: AdaptiveSwitch(
@@ -556,7 +564,7 @@ class _SettingsPageState extends State<SettingsPage> {
       ),
       SettingsTile(
         icon: AdaptiveIcons.friends,
-        appleIconColor: CupertinoColors.systemGreen,
+        appleIconColor: _appleAccountColor,
         title: l10n.settingsAccountFriendSearch,
         enabled: _vm.accountFriendSearch != null,
         trailing: AdaptiveSwitch(
@@ -568,7 +576,7 @@ class _SettingsPageState extends State<SettingsPage> {
       ),
       SettingsTile(
         icon: AdaptiveIcons.world,
-        appleIconColor: CupertinoColors.systemIndigo,
+        appleIconColor: _appleAccountColor,
         title: l10n.settingsAccountAppearGlobal,
         subtitle: l10n.settingsAccountAppearGlobalSubtitle,
         enabled: _vm.accountAppearGlobal != null,
@@ -595,7 +603,7 @@ class _SettingsPageState extends State<SettingsPage> {
       return SettingsGroup(children: [
         SettingsTile(
           icon: AdaptiveIcons.cache,
-          appleIconColor: CupertinoColors.systemGrey,
+          appleIconColor: _appleDangerColor,
           title: l10n.settingsCacheTitle,
           subtitle: _vm.cacheSizeLabel(l10n, ctx),
           enabled: hasCache,
@@ -611,7 +619,7 @@ class _SettingsPageState extends State<SettingsPage> {
         ),
         SettingsTile(
           icon: AdaptiveIcons.deleteAccount,
-          appleIconColor: CupertinoColors.systemRed,
+          appleIconColor: _appleDangerColor,
           title: l10n.settingsDeleteAccount,
           destructive: true,
           onTap: _deleteAccount,
@@ -654,7 +662,7 @@ class _SettingsPageState extends State<SettingsPage> {
     return SettingsGroup(children: [
       SettingsTile(
         icon: AdaptiveIcons.instance,
-        appleIconColor: CupertinoColors.systemGrey,
+        appleIconColor: _appleAboutColor,
         title: l10n.settingsInstanceUrl,
         onTap: AppPlatform.isApple
             ? () => AdaptiveInformationMessage.show(
@@ -682,7 +690,7 @@ class _SettingsPageState extends State<SettingsPage> {
       ),
       SettingsTile(
         icon: AdaptiveIcons.info,
-        appleIconColor: CupertinoColors.systemGrey,
+        appleIconColor: _appleAboutColor,
         title: l10n.appVersion,
         trailing: FutureBuilder<String>(
           future: _vm.getVersionString(),
@@ -709,7 +717,7 @@ class _SettingsPageState extends State<SettingsPage> {
       ),
       SettingsTile(
         icon: AdaptiveIcons.license,
-        appleIconColor: CupertinoColors.systemGrey,
+        appleIconColor: _appleAboutColor,
         title: l10n.settingsLicenses,
         trailing: AppPlatform.isApple
             ? const SettingsAppleDisclosure()
