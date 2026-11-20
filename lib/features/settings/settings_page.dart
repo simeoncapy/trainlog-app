@@ -1,4 +1,5 @@
 import 'package:currency_picker/currency_picker.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -64,6 +65,7 @@ class _SettingsPageState extends State<SettingsPage> {
   // ── Helpers ──────────────────────────────────────────────────────────────
 
   Widget _sectionHeader(BuildContext context, String label) {
+    if (AppPlatform.isApple) return SettingsSectionHeader(label);
     final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.fromLTRB(4, 20, 4, 6),
@@ -124,6 +126,58 @@ class _SettingsPageState extends State<SettingsPage> {
         for (final o in options)
           BottomSheetPickerOption<T>(value: o.value, label: o.label),
       ],
+    );
+  }
+
+  /// A row whose value is picked from [options]: a bottom sheet on Android,
+  /// an iOS 26 pop-up menu (Liquid Glass) on Apple.
+  Widget _pickerTile<T>(
+    BuildContext ctx, {
+    required IconData icon,
+    required Color appleColor,
+    required String title,
+    String? subtitle,
+    required List<({String label, T value})> options,
+    required T? selected,
+    required ValueChanged<T> onChanged,
+    bool enabled = true,
+    bool noDivider = false,
+  }) {
+    if (AppPlatform.isApple) {
+      return SettingsAppleMenuTile<T>(
+        icon: icon,
+        iconColor: appleColor,
+        title: title,
+        subtitle: subtitle,
+        options: options,
+        selected: selected,
+        onChanged: onChanged,
+        enabled: enabled && selected != null,
+        noDivider: noDivider,
+      );
+    }
+    final name = selected == null
+        ? '—'
+        : options
+            .firstWhere((o) => o.value == selected,
+                orElse: () => options.first)
+            .label;
+    return SettingsTile(
+      icon: icon,
+      title: title,
+      subtitle: subtitle,
+      enabled: enabled,
+      noDivider: noDivider,
+      trailing: _chevronTrailing(ctx, name),
+      onTap: !enabled || selected == null
+          ? null
+          : () => _showPicker<T>(
+                context: ctx,
+                title: title,
+                options: options,
+                selected: selected,
+                onChanged: onChanged,
+              ),
     );
   }
 
@@ -271,76 +325,47 @@ class _SettingsPageState extends State<SettingsPage> {
       (label: '1 km', value: 1000),
     ];
 
-    final langName = languageOptions
-        .firstWhere(
-          (o) => o.value == settings.locale.languageCode,
-          orElse: () => languageOptions.first,
-        )
-        .label;
-
-    final dateFormatName = dateFormatOptions
-        .firstWhere(
-          (o) => o.value == settings.dateFormat,
-          orElse: () => dateFormatOptions.first,
-        )
-        .label; 
-    
     final dateExample = formatDateTime(ctx, trevithickBirth, hasTime: false);
     final timeExample = formatDateTime(ctx, DateTime.now(), timeOnly: true);
-    final radiusName = radiusOptions
-        .firstWhere(
-          (o) => o.value == settings.sprRadius,
-          orElse: () => radiusOptions.first,
-        )
-        .label;
 
     final landingPageOptions = [
       (label: l10n.menuMapTitle, value: LandingPage.map),
       (label: l10n.menuTripsTitle, value: LandingPage.trips),
     ];
 
-    final landingPageName = landingPageOptions
-        .firstWhere(
-          (o) => o.value == settings.landingPage,
-          orElse: () => landingPageOptions.first,
-        )
-        .label;
+    final isApple = AppPlatform.isApple;
 
     return SettingsGroup(children: [
       _ThemeRow(
         icon: AdaptiveIcons.theme,
+        appleColor: CupertinoColors.systemIndigo,
         title: l10n.settingsThemeMode,
         options: themeOptions,
         selected: settings.themeMode,
         onChanged: settings.setTheme,
       ),
-      SettingsTile(
+      _pickerTile<String>(
+        ctx,
         icon: AdaptiveIcons.language,
+        appleColor: CupertinoColors.systemBlue,
         title: l10n.settingsLanguage,
-        trailing: _chevronTrailing(ctx, langName),
-        onTap: () => _showPicker<String>(
-          context: ctx,
-          title: l10n.settingsLanguage,
-          options: languageOptions,
-          selected: settings.locale.languageCode,
-          onChanged: (v) => settings.setLocale(Locale(v)),
-        ),
+        options: languageOptions,
+        selected: settings.locale.languageCode,
+        onChanged: (v) => settings.setLocale(Locale(v)),
       ),
-      SettingsTile(
+      _pickerTile<String>(
+        ctx,
         icon: AdaptiveIcons.date,
+        appleColor: CupertinoColors.systemRed,
         title: l10n.settingsDateFormat,
         subtitle: '(${l10n.settingsExampleShort} $dateExample)',
-        trailing: _chevronTrailing(ctx, dateFormatName),
-        onTap: () => _showPicker<String>(
-          context: ctx,
-          title: l10n.settingsDateFormat,
-          options: dateFormatOptions,
-          selected: settings.dateFormat,
-          onChanged: settings.setDateFormat,
-        ),
+        options: dateFormatOptions,
+        selected: settings.dateFormat,
+        onChanged: settings.setDateFormat,
       ),
       SettingsTile(
         icon: AdaptiveIcons.hour,
+        appleIconColor: CupertinoColors.systemOrange,
         title: l10n.settingsHourFormat12,
         subtitle: '(${l10n.settingsExampleShort} $timeExample)',
         trailing: AdaptiveSwitch(
@@ -350,49 +375,49 @@ class _SettingsPageState extends State<SettingsPage> {
       ),
       SettingsTile(
         icon: AdaptiveIcons.currency,
+        appleIconColor: CupertinoColors.systemGreen,
         title: l10n.settingsCurrency,
-        trailing: OutlinedButton(
-          onPressed: _showCurrencyPicker,
-          style: OutlinedButton.styleFrom(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(6),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          ),
-          child: Text(settings.currency),
-        ),
+        onTap: isApple ? _showCurrencyPicker : null,
+        trailing: isApple
+            ? SettingsAppleDisclosure(value: settings.currency)
+            : OutlinedButton(
+                onPressed: _showCurrencyPicker,
+                style: OutlinedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                ),
+                child: Text(settings.currency),
+              ),
       ),
       SettingsTile(
         icon: AdaptiveIcons.warningMsg,
+        appleIconColor: CupertinoColors.systemYellow,
         title: l10n.settingsHideWarningMessage,
         trailing: AdaptiveSwitch(
           value: settings.hideWarningMessage,
           onChanged: settings.setHideWarningMessage,
         ),
       ),
-      SettingsTile(
+      _pickerTile<int>(
+        ctx,
         icon: AdaptiveIcons.radar,
+        appleColor: CupertinoColors.systemTeal,
         title: l10n.settingsSprRadius,
-        trailing: _chevronTrailing(ctx, radiusName),
-        onTap: () => _showPicker<int>(
-          context: ctx,
-          title: l10n.settingsSprRadius,
-          options: radiusOptions,
-          selected: settings.sprRadius,
-          onChanged: settings.setSprRadius,
-        ),
+        options: radiusOptions,
+        selected: settings.sprRadius,
+        onChanged: settings.setSprRadius,
       ),
-      SettingsTile(
+      _pickerTile<LandingPage>(
+        ctx,
         icon: AdaptiveIcons.landingPage,
+        appleColor: CupertinoColors.systemPurple,
         title: l10n.settingsLandingPage,
-        trailing: _chevronTrailing(ctx, landingPageName),
-        onTap: () => _showPicker<LandingPage>(
-          context: ctx,
-          title: l10n.settingsLandingPage,
-          options: landingPageOptions,
-          selected: settings.landingPage,
-          onChanged: settings.setLandingPage,
-        ),
+        options: landingPageOptions,
+        selected: settings.landingPage,
+        onChanged: settings.setLandingPage,
       ),
     ]);
   }
@@ -418,19 +443,6 @@ class _SettingsPageState extends State<SettingsPage> {
       (label: l10n.settingsMapColorPaletteTrainlogBlue, value: MapColorPalette.blue),
     ];
 
-    final orderName = orderOptions
-        .firstWhere(
-          (o) => o.value == settings.pathDisplayOrder,
-          orElse: () => orderOptions.first,
-        )
-        .label;
-    final paletteName = paletteOptions
-        .firstWhere(
-          (o) => o.value == settings.mapColorPalette,
-          orElse: () => paletteOptions.first,
-        )
-        .label;
-
     final mapThemeOptions = [
       (label: l10n.settingsLight, value: ThemeMode.light),
       (label: l10n.settingsMapThemeFollowApp, value: ThemeMode.system),
@@ -440,45 +452,41 @@ class _SettingsPageState extends State<SettingsPage> {
     return SettingsGroup(children: [
       _ThemeRow(
         icon: AdaptiveIcons.map,
+        appleColor: CupertinoColors.systemCyan,
         title: l10n.settingsMapTheme,
         options: mapThemeOptions,
         selected: settings.mapThemeMode,
         onChanged: settings.setMapTheme,
       ),
-      SettingsTile(
+      _pickerTile<PathDisplayOrder>(
+        ctx,
         icon: AdaptiveIcons.layers,
+        appleColor: CupertinoColors.systemOrange,
         title: l10n.settingsMapPathDisplayOrder,
-        trailing: _chevronTrailing(ctx, orderName),
-        onTap: () => _showPicker<PathDisplayOrder>(
-          context: ctx,
-          title: l10n.settingsMapPathDisplayOrder,
-          options: orderOptions,
-          selected: settings.pathDisplayOrder,
-          onChanged: (v) {
-            settings.setPathDisplayOrder(v);
-            settings.setShouldReloadPolylines(true);
-          },
-        ),
+        options: orderOptions,
+        selected: settings.pathDisplayOrder,
+        onChanged: (v) {
+          settings.setPathDisplayOrder(v);
+          settings.setShouldReloadPolylines(true);
+        },
       ),
-      SettingsTile(
+      _pickerTile<MapColorPalette>(
+        ctx,
         icon: AdaptiveIcons.palette,
+        appleColor: CupertinoColors.systemPink,
         title: l10n.settingsMapColorPalette,
-        trailing: _chevronTrailing(ctx, paletteName),
         noDivider: true,
-        onTap: () => _showPicker<MapColorPalette>(
-          context: ctx,
-          title: l10n.settingsMapColorPalette,
-          options: paletteOptions,
-          selected: settings.mapColorPalette,
-          onChanged: (v) {
-            settings.setMapColorPalette(v);
-            settings.setShouldReloadPolylines(true);
-          },
-        ),
+        options: paletteOptions,
+        selected: settings.mapColorPalette,
+        onChanged: (v) {
+          settings.setMapColorPalette(v);
+          settings.setShouldReloadPolylines(true);
+        },
       ),
       _PaletteLegendRow(palette: settings.mapColorPalette),
       SettingsTile(
         icon: AdaptiveIcons.position,
+        appleIconColor: CupertinoColors.systemBlue,
         title: l10n.settingsDisplayUserMarker,
         trailing: AdaptiveSwitch(
           value: settings.mapDisplayUserLocationMarker,
@@ -495,6 +503,7 @@ class _SettingsPageState extends State<SettingsPage> {
       ),
       SettingsTile(
         icon: AdaptiveIcons.tripDirection,
+        appleIconColor: CupertinoColors.systemGreen,
         title: l10n.settingsDisplayTripDirection,
         trailing: AdaptiveSwitch(
           value: settings.mapDisplayTripDirection,
@@ -515,40 +524,27 @@ class _SettingsPageState extends State<SettingsPage> {
       (label: l10n.visibilityPublic, value: 2),
     ];
 
-    final visibilityLabel = _vm.accountVisibility != null
-        ? visibilityOptions
-            .firstWhere(
-              (o) => o.value == _vm.accountVisibility,
-              orElse: () => visibilityOptions.first,
-            )
-            .label
-        : '—';
-
     return SettingsGroup(children: [
-      SettingsTile(
+      _pickerTile<int>(
+        ctx,
         icon: AdaptiveIcons.visibility,
+        appleColor: CupertinoColors.systemBlue,
         title: l10n.settingsAccountVisibility,
         subtitle: _vm.accountVisibilityHelperText.isEmpty
             ? null
             : _vm.accountVisibilityHelperText,
         enabled: _vm.accountVisibility != null,
-        trailing: _chevronTrailing(ctx, visibilityLabel),
-        onTap: _vm.accountVisibility == null
-            ? null
-            : () => _showPicker<int>(
-                  context: ctx,
-                  title: l10n.settingsAccountVisibility,
-                  options: visibilityOptions,
-                  selected: _vm.accountVisibility!,
-                  onChanged: (v) => _vm.setAccountVisibility(
-                    value: v,
-                    l10n: l10n,
-                    trainlog: trainlog,
-                  ),
-                ),
+        options: visibilityOptions,
+        selected: _vm.accountVisibility,
+        onChanged: (v) => _vm.setAccountVisibility(
+          value: v,
+          l10n: l10n,
+          trainlog: trainlog,
+        ),
       ),
       SettingsTile(
         icon: AdaptiveIcons.ranking,
+        appleIconColor: CupertinoColors.systemOrange,
         title: l10n.settingsAccountLeaderboard,
         enabled: _vm.accountLeaderboard != null,
         trailing: AdaptiveSwitch(
@@ -560,6 +556,7 @@ class _SettingsPageState extends State<SettingsPage> {
       ),
       SettingsTile(
         icon: AdaptiveIcons.friends,
+        appleIconColor: CupertinoColors.systemGreen,
         title: l10n.settingsAccountFriendSearch,
         enabled: _vm.accountFriendSearch != null,
         trailing: AdaptiveSwitch(
@@ -571,6 +568,7 @@ class _SettingsPageState extends State<SettingsPage> {
       ),
       SettingsTile(
         icon: AdaptiveIcons.world,
+        appleIconColor: CupertinoColors.systemIndigo,
         title: l10n.settingsAccountAppearGlobal,
         subtitle: l10n.settingsAccountAppearGlobalSubtitle,
         enabled: _vm.accountAppearGlobal != null,
@@ -590,6 +588,36 @@ class _SettingsPageState extends State<SettingsPage> {
     SettingsProvider settings,
     TripsProvider tripsProvider,
   ) {
+    if (AppPlatform.isApple) {
+      // iOS: the size reads as the row's value and the actions are plain red
+      // text, like "Clear History" / "Delete Account" in iOS Settings.
+      final hasCache = _vm.totalCacheSize > 0;
+      return SettingsGroup(children: [
+        SettingsTile(
+          icon: AdaptiveIcons.cache,
+          appleIconColor: CupertinoColors.systemGrey,
+          title: l10n.settingsCacheTitle,
+          subtitle: _vm.cacheSizeLabel(l10n, ctx),
+          enabled: hasCache,
+          onTap: hasCache ? _confirmAndClearCache : null,
+          trailing: Text(
+            l10n.settingsCacheClearButton,
+            style: TextStyle(
+              color: hasCache
+                  ? CupertinoColors.destructiveRed.resolveFrom(ctx)
+                  : CupertinoColors.tertiaryLabel.resolveFrom(ctx),
+            ),
+          ),
+        ),
+        SettingsTile(
+          icon: AdaptiveIcons.deleteAccount,
+          appleIconColor: CupertinoColors.systemRed,
+          title: l10n.settingsDeleteAccount,
+          destructive: true,
+          onTap: _deleteAccount,
+        ),
+      ]);
+    }
     return SettingsGroup(children: [
       SettingsTile(
         icon: AdaptiveIcons.cache,
@@ -626,7 +654,15 @@ class _SettingsPageState extends State<SettingsPage> {
     return SettingsGroup(children: [
       SettingsTile(
         icon: AdaptiveIcons.instance,
+        appleIconColor: CupertinoColors.systemGrey,
         title: l10n.settingsInstanceUrl,
+        onTap: AppPlatform.isApple
+            ? () => AdaptiveInformationMessage.show(
+                  ctx,
+                  l10n.settingsInstanceMsg,
+                  isImportant: true,
+                )
+            : null,
         trailing: GestureDetector(
           onTap: () => AdaptiveInformationMessage.show(
             ctx,
@@ -646,6 +682,7 @@ class _SettingsPageState extends State<SettingsPage> {
       ),
       SettingsTile(
         icon: AdaptiveIcons.info,
+        appleIconColor: CupertinoColors.systemGrey,
         title: l10n.appVersion,
         trailing: FutureBuilder<String>(
           future: _vm.getVersionString(),
@@ -672,8 +709,11 @@ class _SettingsPageState extends State<SettingsPage> {
       ),
       SettingsTile(
         icon: AdaptiveIcons.license,
+        appleIconColor: CupertinoColors.systemGrey,
         title: l10n.settingsLicenses,
-        trailing: Icon(Icons.chevron_right, color: cs.onSurfaceVariant, size: 20),
+        trailing: AppPlatform.isApple
+            ? const SettingsAppleDisclosure()
+            : Icon(Icons.chevron_right, color: cs.onSurfaceVariant, size: 20),
         onTap: () async {
             final version = await _vm.getVersionString();
             if (!mounted) return;
@@ -765,6 +805,7 @@ class _SettingsPageState extends State<SettingsPage> {
 /// Inline segmented-control row for theme selection.
 class _ThemeRow extends StatelessWidget {
   final IconData icon;
+  final Color appleColor;
   final String title;
   final List<({String label, ThemeMode value})> options;
   final ThemeMode selected;
@@ -772,6 +813,7 @@ class _ThemeRow extends StatelessWidget {
 
   const _ThemeRow({
     required this.icon,
+    required this.appleColor,
     required this.title,
     required this.options,
     required this.selected,
@@ -780,6 +822,7 @@ class _ThemeRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (AppPlatform.isApple) return _buildApple(context);
     final cs = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bgColor = isDark ? const Color(0xFF3A3A3C) : const Color(0xFFE5E5EA);
@@ -864,6 +907,40 @@ class _ThemeRow extends StatelessWidget {
     );
   }
 
+  /// Apple: iOS row header (coloured icon + 17 pt title) with the glass
+  /// segmented control under it, aligned with the title.
+  Widget _buildApple(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 11, 16, 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              SettingsAppleIcon(icon: icon, color: appleColor),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 17,
+                    letterSpacing: -0.4,
+                    color: CupertinoColors.label.resolveFrom(context),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Padding(
+            padding: const EdgeInsets.only(left: 44),
+            child: _appleSelector(),
+          ),
+        ],
+      ),
+    );
+  }
+
   /// Apple: the same iOS segmented control as the other selectors, text
   /// only (iOS segments show an icon or text, not both).
   Widget _appleSelector() {
@@ -886,7 +963,8 @@ class _PaletteLegendRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = MapColorPaletteHelper.getPalette(palette);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 6, 16, 10),
+      // Apple: start under the row titles, like the separators.
+      padding: EdgeInsets.fromLTRB(AppPlatform.isApple ? 52 : 16, 6, 16, 10),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
