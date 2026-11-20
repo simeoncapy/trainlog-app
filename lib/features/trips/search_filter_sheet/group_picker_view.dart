@@ -1,7 +1,6 @@
 import 'package:diacritic/diacritic.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:trainlog_app/app/theme/app_colors.dart';
 import 'package:trainlog_app/features/trips/search_filter_sheet/filter_group_section.dart';
 import 'package:trainlog_app/features/trips/search_filter_sheet/sheet_common.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
@@ -291,24 +290,14 @@ class _GroupPickerViewState extends State<GroupPickerView> {
                   ),
                 ),
               ),
-              // Solid amber "Done" (the tinted glass renders too pale in
-              // light mode and dark red in dark mode).
-              Semantics(
-                button: true,
-                label: l10n.tripsSearchFilterDone,
-                child: GlassPressable(
-                  onPressed: widget.onDone,
-                  child: Container(
-                    width: 40,
-                    height: 40,
-                    decoration: const BoxDecoration(
-                      color: AppColors.amber,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(CupertinoIcons.checkmark,
-                        size: 18, color: AppColors.navy),
-                  ),
-                ),
+              // Plain glass "Done", matching the back button (a tinted glass
+              // turns pale yellow in light mode and dark red in dark mode).
+              GlassIconButton(
+                icon: CupertinoIcons.checkmark,
+                size: 40,
+                shadow: false,
+                tooltip: l10n.tripsSearchFilterDone,
+                onPressed: widget.onDone,
               ),
             ],
           ),
