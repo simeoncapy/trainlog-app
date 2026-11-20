@@ -12,14 +12,20 @@ import 'package:trainlog_app/utils/platform_utils.dart';
 abstract final class AppTheme {
   // ── Typography ────────────────────────────────────────────────────────────
 
-  /// "Hanken Grotesk" — interface & body copy.
+  /// Typography switch for Apple platforms.
   ///
-  /// On Apple platforms body copy and controls use the system font (San
-  /// Francisco) as the Human Interface Guidelines recommend, and only the
-  /// large display / headline / title styles keep the Trainlog "Space
-  /// Grotesk" signature.
+  /// true: iOS uses the same fonts as Android everywhere ("Hanken Grotesk"
+  /// for interface & body copy, "Space Grotesk" for titles).
+  /// false: body copy and controls use the system font (San Francisco) as the
+  /// Human Interface Guidelines recommend, and only the large display /
+  /// headline / title styles keep the Trainlog "Space Grotesk" signature.
+  static const bool appleUsesBrandFonts = true;
+
+  /// "Hanken Grotesk" — interface & body copy.
   static TextTheme get _baseTextTheme =>
-      AppPlatform.isApple ? _appleTextTheme : GoogleFonts.hankenGroteskTextTheme();
+      AppPlatform.isApple && !appleUsesBrandFonts
+          ? _appleTextTheme
+          : GoogleFonts.hankenGroteskTextTheme();
 
   static TextTheme get _appleTextTheme {
     final base = Typography.material2021(platform: defaultTargetPlatform)
@@ -41,14 +47,17 @@ abstract final class AppTheme {
 
   /// Theme for the Apple flavour. [brightness] null follows the system.
   static CupertinoThemeData cupertino(Brightness? brightness) {
-    final base = CupertinoThemeData(brightness: brightness);
+    const primary = CupertinoDynamicColor.withBrightness(
+      color: AppColors.amberDk,
+      darkColor: AppColors.amber,
+    );
+    // Built with the same primary colour so the action text styles copied
+    // from it (see [_cupertinoBodyFonts]) keep the amber.
+    final base = CupertinoThemeData(brightness: brightness, primaryColor: primary);
     final label = CupertinoColors.label;
     return CupertinoThemeData(
       brightness: brightness,
-      primaryColor: const CupertinoDynamicColor.withBrightness(
-        color: AppColors.amberDk,
-        darkColor: AppColors.amber,
-      ),
+      primaryColor: primary,
       scaffoldBackgroundColor: const CupertinoDynamicColor.withBrightness(
         color: AppColors.lightSurface,
         darkColor: AppColors.darkBg,
@@ -57,7 +66,7 @@ abstract final class AppTheme {
         color: AppColors.lightSurface,
         darkColor: AppColors.darkBg,
       ),
-      textTheme: base.textTheme.copyWith(
+      textTheme: _cupertinoBodyFonts(base.textTheme).copyWith(
         navTitleTextStyle: GoogleFonts.spaceGrotesk(
           fontSize: 17,
           fontWeight: FontWeight.w600,
@@ -71,6 +80,22 @@ abstract final class AppTheme {
           letterSpacing: -0.6,
         ),
       ),
+    );
+  }
+
+  /// With [appleUsesBrandFonts], swaps the Cupertino body and control
+  /// styles from San Francisco to "Hanken Grotesk"; otherwise leaves them.
+  static CupertinoTextThemeData _cupertinoBodyFonts(CupertinoTextThemeData t) {
+    if (!appleUsesBrandFonts) return t;
+    TextStyle hk(TextStyle s) => GoogleFonts.hankenGrotesk(textStyle: s);
+    return t.copyWith(
+      textStyle: hk(t.textStyle),
+      actionTextStyle: hk(t.actionTextStyle),
+      actionSmallTextStyle: hk(t.actionSmallTextStyle),
+      tabLabelTextStyle: hk(t.tabLabelTextStyle),
+      navActionTextStyle: hk(t.navActionTextStyle),
+      pickerTextStyle: hk(t.pickerTextStyle),
+      dateTimePickerTextStyle: hk(t.dateTimePickerTextStyle),
     );
   }
 
