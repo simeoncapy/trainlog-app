@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/app/theme/app_colors.dart';
@@ -11,7 +12,7 @@ import 'package:trainlog_app/features/trips_edit_copy/edit_trip_section.dart';
 import 'package:trainlog_app/features/trips_edit_copy/sections/edit_trip_details_section.dart';
 import 'package:trainlog_app/features/trips_edit_copy/sections/edit_trip_operator_section.dart';
 import 'package:trainlog_app/features/trips_edit_copy/sections/edit_trip_ticket_section.dart';
-import 'package:trainlog_app/features/trips_edit_copy/widgets/edit_trip_app_bar_title.dart';
+import 'package:trainlog_app/features/trips_edit_copy/widgets/edit_trip_app_bar.dart';
 import 'package:trainlog_app/features/trips_edit_copy/widgets/edit_trip_section_bar.dart';
 import 'package:trainlog_app/features/trips_edit_copy/widgets/edit_trip_vehicle_card.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
@@ -21,6 +22,7 @@ import 'package:trainlog_app/providers/pre_record_provider.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
+import 'package:trainlog_app/utils/platform_utils.dart';
 import 'package:trainlog_app/widgets/primary_action_button.dart';
 import 'package:trainlog_app/widgets/vehicle_energy_selector.dart';
 
@@ -239,30 +241,21 @@ class _GeologNotePageState extends State<GeologNotePage> {
     final (stationName, _, _) = _station;
 
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        titleSpacing: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.close),
-          tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
-          onPressed: () => Navigator.of(context).maybePop(),
+      appBar: EditTripAppBar(
+        title: loc.geologNoteTitle,
+        subtitle: loc.geologNoteSummary(
+          stationName ?? loc.prerecorderUnknownStation,
+          formatDateTime(context, record.dateTime, hasTime: false),
         ),
-        title: EditTripAppBarTitle(
-          title: loc.geologNoteTitle,
-          subtitle: loc.geologNoteSummary(
-            stationName ?? loc.prerecorderUnknownStation,
-            formatDateTime(context, record.dateTime, hasTime: false),
-          ),
-        ),
-        actions: [
-          if (record.hasNote)
-            IconButton(
-              icon: const Icon(Icons.delete_outline),
-              tooltip: loc.geologNoteDeleteButton,
-              onPressed: _delete,
-            ),
-        ],
-        backgroundColor: GeologNotePage.appBarColour(context),
+        tint: GeologNotePage.appBarColour(context),
+        actionIcon: !record.hasNote
+            ? null
+            : AppPlatform.isApple
+                ? CupertinoIcons.trash
+                : Icons.delete_outline,
+        actionTooltip: loc.geologNoteDeleteButton,
+        onAction: _delete,
+        actionDestructive: true,
       ),
       body: SafeArea(
         top: false,

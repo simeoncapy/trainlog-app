@@ -1,16 +1,78 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:trainlog_app/app/theme/app_colors.dart';
 import 'package:trainlog_app/app/theme/app_nav_bar_theme.dart';
 import 'package:trainlog_app/app/theme/app_tab_theme.dart';
+import 'package:trainlog_app/utils/platform_utils.dart';
 
 /// Trainlog design-system themes and typography.
 abstract final class AppTheme {
   // ── Typography ────────────────────────────────────────────────────────────
 
   /// "Hanken Grotesk" — interface & body copy.
-  static TextTheme get _baseTextTheme => GoogleFonts.hankenGroteskTextTheme();
+  ///
+  /// On Apple platforms body copy and controls use the system font (San
+  /// Francisco) as the Human Interface Guidelines recommend, and only the
+  /// large display / headline / title styles keep the Trainlog "Space
+  /// Grotesk" signature.
+  static TextTheme get _baseTextTheme =>
+      AppPlatform.isApple ? _appleTextTheme : GoogleFonts.hankenGroteskTextTheme();
+
+  static TextTheme get _appleTextTheme {
+    final base = Typography.material2021(platform: defaultTargetPlatform)
+        .black
+        .merge(Typography.englishLike2021);
+    TextStyle? sg(TextStyle? s) => GoogleFonts.spaceGrotesk(textStyle: s);
+    return base.copyWith(
+      displayLarge: sg(base.displayLarge),
+      displayMedium: sg(base.displayMedium),
+      displaySmall: sg(base.displaySmall),
+      headlineLarge: sg(base.headlineLarge),
+      headlineMedium: sg(base.headlineMedium),
+      headlineSmall: sg(base.headlineSmall),
+      titleLarge: sg(base.titleLarge),
+    );
+  }
+
+  // ── Cupertino theme (Apple) ───────────────────────────────────────────────
+
+  /// Theme for the Apple flavour. [brightness] null follows the system.
+  static CupertinoThemeData cupertino(Brightness? brightness) {
+    final base = CupertinoThemeData(brightness: brightness);
+    final label = CupertinoColors.label;
+    return CupertinoThemeData(
+      brightness: brightness,
+      primaryColor: const CupertinoDynamicColor.withBrightness(
+        color: AppColors.amberDk,
+        darkColor: AppColors.amber,
+      ),
+      scaffoldBackgroundColor: const CupertinoDynamicColor.withBrightness(
+        color: AppColors.lightSurface,
+        darkColor: AppColors.darkBg,
+      ),
+      barBackgroundColor: const CupertinoDynamicColor.withBrightness(
+        color: AppColors.lightSurface,
+        darkColor: AppColors.darkBg,
+      ),
+      textTheme: base.textTheme.copyWith(
+        navTitleTextStyle: GoogleFonts.spaceGrotesk(
+          fontSize: 17,
+          fontWeight: FontWeight.w600,
+          color: label,
+          letterSpacing: -0.2,
+        ),
+        navLargeTitleTextStyle: GoogleFonts.spaceGrotesk(
+          fontSize: 30,
+          fontWeight: FontWeight.w700,
+          color: label,
+          letterSpacing: -0.6,
+        ),
+      ),
+    );
+  }
 
   /// "Space Grotesk" — display / headings.
   static TextStyle get displayFont => GoogleFonts.spaceGrotesk();

@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart'
+    show GlassSegment, GlassSegmentedControl;
+import 'package:trainlog_app/app/theme/app_colors.dart';
 import 'package:trainlog_app/app/theme/app_tab_theme.dart';
+import 'package:trainlog_app/utils/platform_utils.dart';
 
 class AppStepsTab {
   final String label;
@@ -54,6 +58,12 @@ class AppStepsTabBar extends StatefulWidget {
 
 class _AppStepsTabBarState extends State<AppStepsTabBar> {
   static const _trackPadding = 4.0;
+
+  /// Height of the Material track. Apple uses liquid_glass_widgets'
+  /// segmented control instead (see [_buildGlass]).
+  static const double _height = 46;
+  static const _slideDuration = Duration(milliseconds: 250);
+  static const Curve _slideCurve = Curves.easeInOut;
 
   final List<GlobalKey> _keys = [];
   List<double> _widths = [];
@@ -119,8 +129,8 @@ class _AppStepsTabBarState extends State<AppStepsTabBar> {
     final tabColors = Theme.of(context).extension<AppTabColors>()!;
     if (_widths.isEmpty) return const SizedBox.shrink();
     return AnimatedPositioned(
-      duration: const Duration(milliseconds: 250),
-      curve: Curves.easeInOut,
+      duration: _slideDuration,
+      curve: _slideCurve,
       left: _indicatorLeft,
       top: 0,
       bottom: 0,
@@ -141,21 +151,63 @@ class _AppStepsTabBarState extends State<AppStepsTabBar> {
     );
   }
 
+  /// Track behind the chips: a rounded grey well.
+  BoxDecoration _trackDecoration(AppTabColors tabColors) => BoxDecoration(
+        color: tabColors.tabBackground,
+        borderRadius: BorderRadius.circular(14),
+      );
+
+  /// Apple: liquid_glass_widgets' iOS 26 segmented control, whose glass
+  /// lens follows the finger and refracts the labels under it.
+  Widget _buildGlass(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final accent = isDark ? AppColors.amber : AppColors.amberDk;
+    final segments = [
+      for (final t in widget.tabs)
+        GlassSegment(
+          icon: t.leadingIcon,
+          label: t.iconOnly
+              ? null
+              : (t.count == null ? t.label : '${t.label}  ${t.count}'),
+          tooltip: t.iconOnly ? t.label : null,
+          semanticLabel: t.label,
+        ),
+    ];
+
+    if (widget.fullWidth) {
+      return GlassSegmentedControl(
+        segments: segments,
+        selectedIndex: widget.selectedIndex,
+        onSegmentSelected: widget.onTabChanged,
+        height: _height,
+        iconSize: 18,
+        selectedIconColor: accent,
+      );
+    }
+    return GlassSegmentedControl.scrollable(
+      segments: segments,
+      selectedIndex: widget.selectedIndex,
+      onSegmentSelected: widget.onTabChanged,
+      height: _height,
+      iconSize: 16,
+      selectedIconColor: accent,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cs = Theme.of(context).colorScheme;
     final tabColors = Theme.of(context).extension<AppTabColors>()!;
 
+    if (AppPlatform.isApple) return _buildGlass(context);
+
     if (widget.fullWidth) {
       return Container(
-        height: 46,
-        decoration: BoxDecoration(
-          color: tabColors.tabBackground,
-          borderRadius: BorderRadius.circular(14),
-        ),
+        height: _height,
+        decoration: _trackDecoration(tabColors),
         child: Padding(
-          padding: const EdgeInsets.all(_trackPadding),
+          padding: EdgeInsets.all(_trackPadding),
           child: LayoutBuilder(
             builder: (context, constraints) {
               final chipWidth = constraints.maxWidth / widget.tabs.length;
@@ -164,8 +216,8 @@ class _AppStepsTabBarState extends State<AppStepsTabBar> {
                 children: [
                   // Indicator derived purely from layout — always correct on resize.
                   AnimatedPositioned(
-                    duration: const Duration(milliseconds: 250),
-                    curve: Curves.easeInOut,
+                    duration: _slideDuration,
+                    curve: _slideCurve,
                     left: widget.selectedIndex * chipWidth,
                     top: 0,
                     bottom: 0,
@@ -210,14 +262,11 @@ class _AppStepsTabBarState extends State<AppStepsTabBar> {
     }
 
     return Container(
-      height: 46,
-      decoration: BoxDecoration(
-        color: tabColors.tabBackground,
-        borderRadius: BorderRadius.circular(14),
-      ),
+      height: _height,
+      decoration: _trackDecoration(tabColors),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.all(_trackPadding),
+        padding: EdgeInsets.all(_trackPadding),
         child: Stack(
           clipBehavior: Clip.none,
           children: [
@@ -242,7 +291,6 @@ class _AppStepsTabBarState extends State<AppStepsTabBar> {
     );
   }
 }
-
 
 class _AppStepsTabChip extends StatelessWidget {
   final String label;

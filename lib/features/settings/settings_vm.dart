@@ -32,8 +32,6 @@ class SettingsVm extends ChangeNotifier {
   static const String accountSettingsKeyAppearGlobal = "appear_on_global";
   static const String accountSettingsKeyVisibility = "share_level";
 
-  static const String deleteAccountEmail = 'admin@trainlog.me';
-
   bool _isInitDone = false;
   bool get isInitDone => _isInitDone;
 
@@ -202,27 +200,5 @@ class SettingsVm extends ChangeNotifier {
     }
 
     notifyListeners();
-  }
-
-  Uri buildDeleteAccountMailUri({
-    required String username,
-  }) {
-    final body = [
-      'Hello,',
-      '',
-      'I would like to delete my account, my username is $username.',
-      '',
-      'Thanks in advance,',
-      '',
-      'NB: message sent with Trainlog App.',
-    ].join('\r\n');
-
-    const subject = 'Request to delete my account';
-
-    return Uri.parse(
-      'mailto:$deleteAccountEmail'
-      '?subject=${Uri.encodeComponent(subject)}'
-      '&body=${Uri.encodeComponent(body)}',
-    );
   }
 }

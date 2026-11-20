@@ -22,6 +22,10 @@ class FullScreenMenuPage extends StatefulWidget {
   final VoidCallback onInboxTap;
   final VoidCallback onTrainlogStatusTap;
 
+  /// Controller of the menu's scroll view. On Apple the menu is shown in a
+  /// sheet, which passes its controller so a pull-down at the top dismisses it.
+  final ScrollController? scrollController;
+
   const FullScreenMenuPage({
     super.key,
     required this.onClose,
@@ -29,6 +33,7 @@ class FullScreenMenuPage extends StatefulWidget {
     required this.onPageTap,
     required this.onInboxTap,
     required this.onTrainlogStatusTap,
+    this.scrollController,
   });
 
   @override
@@ -70,6 +75,7 @@ class _FullScreenMenuPageState extends State<FullScreenMenuPage> {
             _TopBar(onClose: widget.onClose, onSettings: widget.onSettingsTap, loc: loc),
             Expanded(
               child: SingleChildScrollView(
+                controller: widget.scrollController,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -162,7 +168,8 @@ class _TopBar extends StatelessWidget {
       child: Row(
         children: [
           AdaptiveAppBarSquareButton(
-            icon: Icons.keyboard_arrow_down,
+            // A sheet on Apple closes with an ✕; the Material page slides down.
+            icon: AppPlatform.isApple ? Icons.close : Icons.keyboard_arrow_down,
             onPressed: onClose,
             tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
           ),

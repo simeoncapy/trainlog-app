@@ -392,12 +392,47 @@ class AppLocalizationsTl extends AppLocalizations {
   String get settingsDeleteAccount => 'Ibura ang account';
 
   @override
-  String get settingsDeleteAccountRequest => 'Request';
+  String get settingsDeleteAccountButton => 'Ibura';
 
   @override
-  String settingsDeleteAccountError(Object email) {
-    return 'Hindi kaya ibukas ang email client, request sa $email';
+  String get deleteAccountDialogTitle => 'Ibura ang iyong account';
+
+  @override
+  String get deleteAccountDialogWarning =>
+      'Permanenteng buburahin nito ang iyong account at lahat ng laman nito: mga biyahe, plano, tag, tiket, trainset, at setting. Hindi na ito maibabalik.';
+
+  @override
+  String get deleteAccountPasswordLabel =>
+      'Ilagay ang iyong password para kumpirmahin';
+
+  @override
+  String deleteAccountConfirmLabel(Object username) {
+    return 'I-type ang iyong username para kumpirmahin: $username';
   }
+
+  @override
+  String get deleteAccountConfirmButton =>
+      'Permanenteng ibura ang aking account';
+
+  @override
+  String get deleteAccountConfirmMismatch =>
+      'Hindi tugma ang username na itinype mo. Hindi nabura ang account.';
+
+  @override
+  String get deleteAccountWrongPassword =>
+      'Mali ang password. Hindi nabura ang account.';
+
+  @override
+  String get deleteAccountFailed =>
+      'Hindi nabura ang account. Tingnan ang iyong koneksyon at subukang muli.';
+
+  @override
+  String get deleteAccountSuccess =>
+      'Permanenteng nabura ang iyong account at lahat ng data nito.';
+
+  @override
+  String get featureAvailableNextUpdate =>
+      'Magiging available sa susunod na update';
 
   @override
   String get settingsHideWarningMessage => 'Itago ang babala';
@@ -440,6 +475,18 @@ class AppLocalizationsTl extends AppLocalizations {
 
   @override
   String get settingsLicenses => 'Mga lisensya';
+
+  @override
+  String get menuHomeLabel => 'Home';
+
+  @override
+  String get mapResetOrientation => 'Ituro sa hilaga';
+
+  @override
+  String get mapRecenter => 'Bumalik sa aking posisyon';
+
+  @override
+  String get mapFollowPosition => 'Sundan ang aking posisyon';
 
   @override
   String get menuMapTitle => 'Mapa';
@@ -886,6 +933,12 @@ class AppLocalizationsTl extends AppLocalizations {
 
   @override
   String get tripsAddButton => 'Bag. biyahe';
+
+  @override
+  String get tripsTableViewTooltip => 'Talahanayan';
+
+  @override
+  String get tripsCardViewTooltip => 'Mga card';
 
   @override
   String get graphTypeCountry => 'Bansa';

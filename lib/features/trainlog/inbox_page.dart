@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:markdown/markdown.dart' as md;
+import 'package:markdown_widget/markdown_widget.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:trainlog_app/data/models/news_model.dart';
 import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
@@ -69,6 +72,10 @@ class _InboxPageState extends State<InboxPage> {
 
     await showDialog(
       context: context,
+      // The dialog is full screen: its app bar pads itself for the status bar
+      // and the body for the home indicator. The default safe area would leave
+      // the barrier showing as grey bands above and below it.
+      useSafeArea: false,
       builder: (BuildContext context) {
         return Dialog.fullscreen(
           child: Scaffold(
@@ -82,7 +89,8 @@ class _InboxPageState extends State<InboxPage> {
               ),
             ),
             body: SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(16.0)
+                  + EdgeInsets.only(bottom: MediaQuery.paddingOf(context).bottom),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -106,9 +114,10 @@ class _InboxPageState extends State<InboxPage> {
                   ],
                   const SizedBox(height: 16),
                   // Content
-                  Text(
-                    news.content,
-                    style: theme.textTheme.bodyLarge,
+                  MarkdownBlock(
+                    data: news.content,
+                    selectable: true,
+                    config: _markdownConfig(theme),
                   ),
                 ],
               ),
@@ -169,9 +178,11 @@ class _InboxPageState extends State<InboxPage> {
                 ),
               ],
             ),
+            // Rendered Markdown cannot be cut at 3 lines, so the preview shows
+            // the same text with the Markdown syntax removed.
             Text(
-              news.content,
-              maxLines: 3, // Limits to a maximum of 2 lines
+              _markdownToPlainText(news.content),
+              maxLines: 3,
               overflow: TextOverflow.ellipsis,
             )
           ],
@@ -185,6 +196,34 @@ class _InboxPageState extends State<InboxPage> {
         },
       ),
     );
+  }
+
+  MarkdownConfig _markdownConfig(ThemeData theme) {
+    final base = theme.brightness == Brightness.dark
+        ? MarkdownConfig.darkConfig
+        : MarkdownConfig.defaultConfig;
+
+    return base.copy(configs: [
+      PConfig(textStyle: theme.textTheme.bodyLarge!),
+      LinkConfig(
+        style: TextStyle(
+          color: theme.colorScheme.primary,
+          decoration: TextDecoration.underline,
+        ),
+        onTap: (url) {
+          final uri = Uri.tryParse(url);
+          if (uri != null) launchUrl(uri, mode: LaunchMode.externalApplication);
+        },
+      ),
+    ]);
+  }
+
+  static String _markdownToPlainText(String markdown) {
+    final nodes = md.Document().parseLines(markdown.split('\n'));
+    return nodes
+        .map((node) => node.textContent.replaceAll(RegExp(r'\s+'), ' ').trim())
+        .where((text) => text.isNotEmpty)
+        .join(' ');
   }
 
   Container _authorBadgeHelper(bool isAdmin, ThemeData theme, String author) {

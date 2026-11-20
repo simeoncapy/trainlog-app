@@ -11,6 +11,8 @@ import 'package:trainlog_app/providers/settings_provider.dart';
 import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/services/api/trainlog_http_client.dart';
 import 'package:trainlog_app/services/secure_cookie_storage.dart';
+import 'package:trainlog_app/utils/app_user_agent.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'package:trainlog_app/utils/cached_data_utils.dart';
 
 import 'package:firebase_core/firebase_core.dart';
@@ -64,6 +66,9 @@ Future<void> main() async {
   await Future.wait([
     _initFirebase(),
     AppCacheFilePath.init(),
+    AppUserAgent.init(),
+    // iOS/macOS tab bar glass: preload the shaders before the first frame.
+    if (AppPlatform.isApple) LiquidGlassWidgets.initialize(),
     settings.ready,
   ]);
 
@@ -104,13 +109,14 @@ Future<void> main() async {
     );
   });
 
-  runApp(
-    AppProviders(
-      settings: settings,
-      auth: auth,
-      signedInBuilder: (_) => const PlatformShell(),
-    ),
+  final app = AppProviders(
+    settings: settings,
+    auth: auth,
+    signedInBuilder: (_) => const PlatformShell(),
   );
+  // Only Apple uses the liquid_glass_widgets tab bar; Android and Windows
+  // keep their Material look and skip the package entirely.
+  runApp(AppPlatform.isApple ? LiquidGlassWidgets.wrap(child: app) : app);
 
   // Only needed by the trip forms, which load it on demand if this hasn't
   // run yet.

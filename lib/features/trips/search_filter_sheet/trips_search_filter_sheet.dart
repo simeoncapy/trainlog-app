@@ -43,7 +43,8 @@ Future<TripsFilterResult?> showTripsSearchFilterSheet(
           height: mq.size.height * 0.92,
           decoration: BoxDecoration(
             color: Theme.of(ctx).colorScheme.surface,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+            // iOS 26 sheets have the generous corner radius of the device.
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(34)),
           ),
           child: SafeArea(
             top: false,

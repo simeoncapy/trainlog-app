@@ -8,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:trainlog_app/services/api/session_expiry.dart';
 import 'package:trainlog_app/services/secure_cookie_storage.dart';
+import 'package:trainlog_app/utils/app_user_agent.dart';
 
 /// True when [error] means the server never answered (no network, DNS
 /// failure, timeout), as opposed to an error the server returned.
@@ -36,7 +37,6 @@ class TrainlogHttpClient {
   static const String urlLocalhost = 'http://localhost:5000';
   static const String urlLegacy = 'https://trainlog.me';
   static const String urlDev = 'https://dev.trainlog.me';
-  static const String _userAgent = 'TrainlogApp/1.0 (+Flutter)';
 
   /// Upper bound for opening a connection (DNS + TCP + TLS). Without it Dio
   /// waits for the OS to give up, which can take minutes on a phone whose
@@ -73,7 +73,7 @@ class TrainlogHttpClient {
         connectTimeout: connectTimeout,
         followRedirects: false,
         validateStatus: (s) => s != null && s >= 200 && s < 400, // general
-        headers: {'User-Agent': _userAgent},
+        headers: {'User-Agent': AppUserAgent.http},
       ),
     );
     final jar = CookieJar();
@@ -111,7 +111,7 @@ class TrainlogHttpClient {
         connectTimeout: connectTimeout,
         followRedirects: false,
         validateStatus: (s) => s != null && s >= 200 && s < 400,
-        headers: {'User-Agent': _userAgent},
+        headers: {'User-Agent': AppUserAgent.http},
       ),
     );
     dio.interceptors.add(CookieManager(jar));

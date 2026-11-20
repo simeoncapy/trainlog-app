@@ -108,14 +108,23 @@ class _PrivacyHtmlTabState extends State<PrivacyHtmlTab> {
               child: Html(
                 data: snap.data!,
                 style: {
+                  // The website's navigation bar (logo, sign up and log in
+                  // links) is page chrome, not part of the policy.
+                  "nav": Style(display: Display.none),
+                  // Like the website's dark theme: a subtly raised surface,
+                  // with the primary colour only on the left accent bar.
                   ".tldr": isDark
                       ? Style(
                           backgroundColor: Theme.of(context)
                               .colorScheme
-                              .primaryContainer,
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onPrimaryContainer,
+                              .surfaceContainerHigh,
+                          color: Theme.of(context).colorScheme.onSurface,
+                          border: Border(
+                            left: BorderSide(
+                              color: Theme.of(context).colorScheme.primary,
+                              width: 5,
+                            ),
+                          ),
                         )
                       : Style(),
                   ".content-wrapper": Style(

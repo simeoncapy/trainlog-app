@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:trainlog_app/platform/liquid_glass.dart';
 import 'package:trainlog_app/platform/widget/adaptive_app_bar_square_button.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 
@@ -25,7 +26,7 @@ class AdaptiveAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Size get preferredSize => Size.fromHeight(
         AppPlatform.isApple
-            ? kMinInteractiveDimensionCupertino
+            ? kMinInteractiveDimensionCupertino + 8
             : kToolbarHeight,
       );
 
@@ -42,9 +43,25 @@ class AdaptiveAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     if (AppPlatform.isApple) {
+      // iOS 26: no hairline, the bar blends into the page and its controls
+      // float as glass buttons.
       return CupertinoNavigationBar(
+        backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
+        border: null,
+        padding: const EdgeInsetsDirectional.symmetric(horizontal: 12),
         middle: titleWidget ?? Text(title),
-        leading: onBack == null ? null : _backButton(context),
+        leading: onBack == null
+            ? null
+            : Center(
+                widthFactor: 1,
+                child: GlassIconButton(
+                  icon: CupertinoIcons.chevron_back,
+                  size: 40,
+                  shadow: false,
+                  onPressed: onBack,
+                  tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+                ),
+              ),
         trailing: cupertinoTrailing,
       );
     }

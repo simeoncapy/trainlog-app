@@ -128,14 +128,14 @@ class _CupertinoDraggableCard extends StatelessWidget {
     ).resolveFrom(context);
 
     return ClipRRect(
-      borderRadius: const BorderRadius.vertical(top: Radius.circular(22)),
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(34)),
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 28, sigmaY: 28), // closer to iOS
         child: DecoratedBox(
           // This is the missing part: a translucent "material" tint above the blur
           decoration: BoxDecoration(
             color: sheetFill,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(22)),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(34)),
             border: Border(
               top: BorderSide(
                 color: CupertinoColors.separator.resolveFrom(context).withValues(alpha: 0.25),
