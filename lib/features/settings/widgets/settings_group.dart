@@ -519,9 +519,10 @@ class _SettingsAppleMenuTileState<T> extends State<SettingsAppleMenuTile<T>> {
                 for (final o in widget.options)
                   lg.GlassMenuItem(
                     title: o.label,
-                    // One line: the menu sizes itself from maxLines, so 2
-                    // would leave an empty band under the last item.
-                    maxLines: 1,
+                    // The menu sizes each item from maxLines, so only long
+                    // labels get a second line (else an empty band shows
+                    // under the last item).
+                    maxLines: o.label.length > 30 ? 2 : 1,
                     titleStyle: TextStyle(fontSize: 17, color: label),
                     // Same slot width with or without the check, so the
                     // labels line up.
