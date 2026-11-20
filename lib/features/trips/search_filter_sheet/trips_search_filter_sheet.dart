@@ -558,8 +558,11 @@ class _TripsSearchFilterSheetState extends State<TripsSearchFilterSheet> {
     AppLocalizations l10n,
     TrainlogProvider trainlog,
   ) {
-    String summary(List<GroupEntry> selected) {
-      if (selected.isEmpty) return l10n.tripsSearchFilterAny;
+    String summary(List<GroupEntry> selected, int total) {
+      // None selected = no restriction; all selected reads the same.
+      if (selected.isEmpty || selected.length == total) {
+        return l10n.tripsSearchFilterAny;
+      }
       final shown = selected.take(2).map((e) => e.label).join(', ');
       return selected.length > 2 ? '$shown +${selected.length - 2}' : shown;
     }
@@ -630,13 +633,15 @@ class _TripsSearchFilterSheetState extends State<TripsSearchFilterSheet> {
                   GlassFormRow(
                     title: l10n.tripsSearchFilterCountries,
                     trailing: GlassDisclosure(
-                        value: summary(selectedCountryEntries)),
+                        value: summary(selectedCountryEntries,
+                            _countryEntries().length)),
                     onTap: () => setState(() => _view = _SheetView.countries),
                   ),
                   GlassFormRow(
                     title: l10n.tripsSearchFilterOperators,
                     trailing: GlassDisclosure(
-                        value: summary(selectedOperatorEntries)),
+                        value: summary(selectedOperatorEntries,
+                            _operatorEntries(trainlog).length)),
                     onTap: () => setState(() => _view = _SheetView.operators),
                   ),
                 ]),
