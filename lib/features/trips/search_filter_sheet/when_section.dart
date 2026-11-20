@@ -4,6 +4,8 @@ import 'package:trainlog_app/data/models/trips_filter.dart';
 import 'package:trainlog_app/features/trips/search_filter_sheet/sheet_common.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/platform/glass_filter_parts.dart';
+import 'package:intl/intl.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart' as lg;
 import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 
@@ -157,6 +159,7 @@ class WhenSection extends StatelessWidget {
                 value: null,
                 label: l10n.tripsSearchFilterCustom,
                 menuLabel: l10n.tripsSearchFilterCustomMenu,
+                menuIcon: CupertinoIcons.calendar,
                 dividerBefore: true,
               ),
             ],
@@ -207,7 +210,8 @@ class WhenSection extends StatelessWidget {
 
     final DateTime? picked;
     if (AppPlatform.isApple) {
-      picked = await _pickDateCupertino(context, initial: initial, minimum: minimum);
+      picked = await _pickDateGlassCalendar(context,
+          initial: initial, minimum: minimum);
     } else {
       picked = await showDatePicker(
         context: context,
@@ -229,56 +233,72 @@ class WhenSection extends StatelessWidget {
     }
   }
 
-  Future<DateTime?> _pickDateCupertino(
+  /// iOS: the graphical calendar of the compact date picker, in a popover
+  /// card. Tapping a day picks it and closes; tapping outside cancels.
+  Future<DateTime?> _pickDateGlassCalendar(
     BuildContext context, {
     required DateTime initial,
     required DateTime minimum,
-  }) {
+  }) async {
+    final locale = Localizations.localeOf(context).toString();
     final effectiveInitial = initial.isBefore(minimum) ? minimum : initial;
-    DateTime temp = effectiveInitial;
+    // Flutter: 0 = Sunday; the picker: 7 = Sunday, 1 = Monday.
+    final first = MaterialLocalizations.of(context).firstDayOfWeekIndex;
+    final firstDayOfWeek = first == 0 ? 7 : first;
+    final monthNames = [
+      for (int m = 1; m <= 12; m++)
+        _capitalize(DateFormat.MMMM(locale).format(DateTime(2024, m, 1))),
+    ];
+    // 2024-01-07 is a Sunday; shift to the first day of the week.
+    final weekdayNames = [
+      for (int i = 0; i < 7; i++)
+        DateFormat.E(locale)
+            .format(DateTime(2024, 1, 7 + (first + i) % 7))
+            .toUpperCase(),
+    ];
 
-    return showCupertinoModalPopup<DateTime>(
+    DateTime? picked;
+    await showGeneralDialog<void>(
       context: context,
       useRootNavigator: true,
-      builder: (sheetCtx) => Container(
-        color: CupertinoColors.systemBackground.resolveFrom(sheetCtx),
-        child: SafeArea(
-          top: false,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  CupertinoButton(
-                    child: Text(
-                        MaterialLocalizations.of(context).cancelButtonLabel),
-                    onPressed: () =>
-                        Navigator.of(sheetCtx, rootNavigator: true).pop(),
-                  ),
-                  CupertinoButton(
-                    child:
-                        Text(MaterialLocalizations.of(context).okButtonLabel),
-                    onPressed: () =>
-                        Navigator.of(sheetCtx, rootNavigator: true).pop(temp),
-                  ),
-                ],
-              ),
-              SizedBox(
-                height: 220,
-                child: CupertinoDatePicker(
-                  mode: CupertinoDatePickerMode.date,
-                  initialDateTime: effectiveInitial,
-                  minimumDate: minimum,
-                  maximumDate: DateTime(2200),
-                  onDateTimeChanged: (dt) => temp = dt,
-                ),
-              ),
-            ],
+      barrierDismissible: true,
+      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+      barrierColor: const Color(0x14000000),
+      transitionDuration: const Duration(milliseconds: 220),
+      transitionBuilder: (ctx, anim, _, child) => FadeTransition(
+        opacity: anim,
+        child: ScaleTransition(
+          scale: Tween(begin: 0.92, end: 1.0).animate(
+              CurvedAnimation(parent: anim, curve: Curves.easeOutCubic)),
+          child: child,
+        ),
+      ),
+      pageBuilder: (ctx, _, __) => Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 380),
+            child: lg.GlassDatePicker(
+              initialDateTime: effectiveInitial,
+              minimumDate: minimum,
+              maximumDate: DateTime(2200),
+              tintColor: CupertinoTheme.of(context).primaryColor,
+              firstDayOfWeek: firstDayOfWeek,
+              monthNames: monthNames,
+              weekdayNames: weekdayNames,
+              surfaceStyle: lg.GlassSurfaceStyle.solid,
+              // Fires only when a day is tapped: pick it and close, as the
+              // iOS compact date picker does.
+              onDateTimeChanged: (d) {
+                picked = d;
+                Navigator.of(ctx, rootNavigator: true).maybePop();
+              },
+            ),
           ),
         ),
       ),
     );
+    return picked;
   }
 }
 
@@ -375,4 +395,7 @@ class _DateTile extends StatelessWidget {
       ),
     );
   }
+
+  static String _capitalize(String s) =>
+      s.isEmpty ? s : s[0].toUpperCase() + s.substring(1);
 }

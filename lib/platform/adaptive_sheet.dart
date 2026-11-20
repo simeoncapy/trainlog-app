@@ -136,12 +136,15 @@ Future<T?> showAppleDetentSheet<T>({
   double halfSize = 0.5,
   double? fullSize,
   bool useRootNavigator = true,
+  Color? expandedColor,
 }) {
   // The large detent turns opaque; fill it with the app's own surface so it
-  // matches the rest of the UI in both light and dark mode.
+  // matches the rest of the UI in both light and dark mode. Forms of grouped
+  // cells pass the page colour ([expandedColor]) so the cells stand out.
   final theme = Theme.of(context);
   final cupertinoTheme = CupertinoTheme.of(context);
   final surface = theme.colorScheme.surface;
+  final opaque = expandedColor ?? surface;
 
   return lg.GlassModalSheet.show<T>(
     context: context,
@@ -152,8 +155,8 @@ Future<T?> showAppleDetentSheet<T>({
     fullSize: fullSize,
     dragIndicatorWidth: _grabberWidth,
     dragIndicatorHeight: _grabberHeight,
-    expandedColor: surface,
-    expandedDarkColor: surface,
+    expandedColor: opaque,
+    expandedDarkColor: opaque,
     // Lighter tint at the medium detent, so the map still shows through.
     settings: _readableGlass(surface, tint: 0.72),
     enableSaturationGlow: false,

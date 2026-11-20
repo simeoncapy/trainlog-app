@@ -362,8 +362,9 @@ class GlassFormGroup extends StatelessWidget {
     return ClipRSuperellipse(
       borderRadius: const BorderRadius.all(Radius.circular(radius)),
       child: ColoredBox(
-        color: CupertinoColors.secondarySystemGroupedBackground
-            .resolveFrom(context),
+        // Cells take the app surface over the sheet's page colour, like the
+        // iOS Settings page (white on beige / navy on dark navy).
+        color: Theme.of(context).colorScheme.surface,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -388,11 +389,13 @@ class GlassFormRow extends StatefulWidget {
   const GlassFormRow({
     super.key,
     required this.title,
+    this.leading,
     this.trailing,
     this.onTap,
   });
 
   final String title;
+  final Widget? leading;
   final Widget? trailing;
   final VoidCallback? onTap;
 
@@ -425,6 +428,10 @@ class _GlassFormRowState extends State<GlassFormRow> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
         child: Row(
           children: [
+            if (widget.leading != null) ...[
+              widget.leading!,
+              const SizedBox(width: 12),
+            ],
             Expanded(
               child: Text(
                 widget.title,
@@ -492,8 +499,12 @@ class GlassMenuChoice<T> {
     required this.value,
     required this.label,
     this.menuLabel,
+    this.menuIcon,
     this.dividerBefore = false,
   });
+
+  /// Optional icon on the trailing side of the menu item (iOS style).
+  final IconData? menuIcon;
 
   final T value;
 
@@ -589,6 +600,9 @@ class _GlassFormMenuRowState<T> extends State<GlassFormMenuRow<T>> {
                     : null,
               ),
               iconSize: 17,
+              trailing: c.menuIcon == null
+                  ? null
+                  : Icon(c.menuIcon, size: 18, color: label),
               semanticsChecked: c.value == widget.selected,
               onTap: () => widget.onChanged(c.value),
             ),

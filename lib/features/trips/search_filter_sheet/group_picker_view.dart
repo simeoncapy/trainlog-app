@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:trainlog_app/features/trips/search_filter_sheet/filter_group_section.dart';
 import 'package:trainlog_app/features/trips/search_filter_sheet/sheet_common.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
+import 'package:trainlog_app/platform/glass_filter_parts.dart';
+import 'package:trainlog_app/platform/liquid_glass.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 
 /// Secondary picker view of the search & filter sheet, used to select the
@@ -84,6 +86,10 @@ class _GroupPickerViewState extends State<GroupPickerView> {
     final selectedEntries = widget.entries
         .where((e) => widget.selectedValues.contains(e.value))
         .toList();
+
+    if (AppPlatform.isApple) {
+      return _buildApple(context, l10n, filtered);
+    }
 
     return Column(
       children: [
@@ -231,6 +237,142 @@ class _GroupPickerViewState extends State<GroupPickerView> {
                       ),
                       const SizedBox(width: 12),
                       SheetCheckIndicator(checked: selected),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// iOS 26: glass back / title / glass ✓ bar, search field, sentence-case
+  /// header with Select All / Deselect All, and an inset grouped list with
+  /// a check mark on the selected rows (as in iOS Settings pickers).
+  Widget _buildApple(
+    BuildContext context,
+    AppLocalizations l10n,
+    List<GroupEntry> filtered,
+  ) {
+    final allSelected = widget.entries.isNotEmpty &&
+        widget.entries.every((e) => widget.selectedValues.contains(e.value));
+    final cell = Theme.of(context).colorScheme.surface;
+    final separator = CupertinoColors.separator.resolveFrom(context);
+    final tint = CupertinoTheme.of(context).primaryColor;
+    const radius = Radius.circular(GlassFormGroup.radius);
+
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(14, 2, 14, 8),
+          child: Row(
+            children: [
+              GlassIconButton(
+                icon: CupertinoIcons.chevron_back,
+                size: 40,
+                shadow: false,
+                tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+                onPressed: widget.onDone,
+              ),
+              Expanded(
+                child: Text(
+                  widget.title,
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: -0.4,
+                    color: CupertinoColors.label.resolveFrom(context),
+                  ),
+                ),
+              ),
+              GlassIconButton(
+                icon: CupertinoIcons.checkmark,
+                size: 40,
+                shadow: false,
+                prominent: true,
+                tooltip: l10n.tripsSearchFilterDone,
+                onPressed: widget.onDone,
+              ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+          child: SheetSearchField(
+            controller: _searchController,
+            placeholder: widget.searchPlaceholder,
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 6),
+          child: GlassFilterSectionHeader(
+            title: widget.subHeadline,
+            actionLabel:
+                allSelected ? l10n.filterDeselectAll : l10n.filterSelectAll,
+            onAction: allSelected ? widget.onSelectNone : widget.onSelectAll,
+          ),
+        ),
+        Expanded(
+          child: ListView.builder(
+            controller: _scrollController,
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            itemCount: filtered.length,
+            itemBuilder: (context, index) {
+              final entry = filtered[index];
+              final selected = widget.selectedValues.contains(entry.value);
+              final first = index == 0;
+              final last = index == filtered.length - 1;
+              return ClipRRect(
+                borderRadius: BorderRadius.vertical(
+                  top: first ? radius : Radius.zero,
+                  bottom: last ? radius : Radius.zero,
+                ),
+                child: ColoredBox(
+                  color: cell,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (!first)
+                        Padding(
+                          padding: EdgeInsetsDirectional.only(
+                              start: entry.leading != null ? 62 : 16),
+                          child: Container(height: 0.5, color: separator),
+                        ),
+                      GlassFormRow(
+                        title: entry.label,
+                        leading: entry.leading == null
+                            ? null
+                            : SizedBox(
+                                width: 34,
+                                child: Center(child: entry.leading!),
+                              ),
+                        onTap: () => widget.onToggle(entry.value, !selected),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              '${entry.tripCount}',
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: CupertinoColors.secondaryLabel
+                                    .resolveFrom(context),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 30,
+                              child: selected
+                                  ? Icon(CupertinoIcons.checkmark,
+                                      size: 18, color: tint)
+                                  : null,
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),
