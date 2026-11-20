@@ -300,6 +300,9 @@ class WhenSection extends StatelessWidget {
     );
     return picked;
   }
+
+  static String _capitalize(String s) =>
+      s.isEmpty ? s : s[0].toUpperCase() + s.substring(1);
 }
 
 class _DateTile extends StatelessWidget {
@@ -395,7 +398,4 @@ class _DateTile extends StatelessWidget {
       ),
     );
   }
-
-  static String _capitalize(String s) =>
-      s.isEmpty ? s : s[0].toUpperCase() + s.substring(1);
 }
