@@ -471,7 +471,7 @@ class _SettingsAppleMenuTileState<T> extends State<SettingsAppleMenuTile<T>> {
 
     final trigger = ConstrainedBox(
       constraints:
-          BoxConstraints(maxWidth: MediaQuery.sizeOf(context).width * 0.42),
+          BoxConstraints(maxWidth: MediaQuery.sizeOf(context).width * 0.34),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 6),
         child: Row(
@@ -507,7 +507,10 @@ class _SettingsAppleMenuTileState<T> extends State<SettingsAppleMenuTile<T>> {
           : lg.GlassMenu(
               controller: _menu,
               trigger: trigger,
-              menuWidth: widget.menuWidth,
+              // Wider for long labels (e.g. path display order).
+              menuWidth: widget.options.any((o) => o.label.length > 24)
+                  ? MediaQuery.sizeOf(context).width - 48
+                  : widget.menuWidth,
               menuAlignment: lg.GlassMenuAlignment.topRight,
               autoAdjustToScreen: true,
               menuPadding: const EdgeInsets.all(12),
@@ -516,11 +519,18 @@ class _SettingsAppleMenuTileState<T> extends State<SettingsAppleMenuTile<T>> {
                 for (final o in widget.options)
                   lg.GlassMenuItem(
                     title: o.label,
-                    maxLines: 2,
+                    // One line: the menu sizes itself from maxLines, so 2
+                    // would leave an empty band under the last item.
+                    maxLines: 1,
                     titleStyle: TextStyle(fontSize: 17, color: label),
-                    icon: o.value == widget.selected
-                        ? const Icon(CupertinoIcons.checkmark)
-                        : const SizedBox(width: 20),
+                    // Same slot width with or without the check, so the
+                    // labels line up.
+                    icon: SizedBox(
+                      width: 20,
+                      child: o.value == widget.selected
+                          ? const Icon(CupertinoIcons.checkmark, size: 17)
+                          : null,
+                    ),
                     iconSize: 17,
                     semanticsChecked: o.value == widget.selected,
                     onTap: () => widget.onChanged(o.value),

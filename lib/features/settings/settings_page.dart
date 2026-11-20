@@ -738,7 +738,6 @@ class _SettingsPageState extends State<SettingsPage> {
     TrainlogProvider trainlog,
     TripsProvider tripsProvider,
   ) {
-      final cs = Theme.of(ctx).colorScheme;
       final icon = AdaptiveIcons.debug;
 
       return SettingsGroup(children: [
@@ -962,9 +961,24 @@ class _PaletteLegendRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = MapColorPaletteHelper.getPalette(palette);
+    if (AppPlatform.isApple) {
+      // iOS: the icons wrap under the row title instead of scrolling, so
+      // none is cut at the cell edge.
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(60, 0, 16, 12),
+        child: Wrap(
+          spacing: 14,
+          runSpacing: 8,
+          children: [
+            for (final type in VehicleType.values)
+              Icon(type.icon().icon, color: colors[type] ?? Colors.grey, size: 22),
+          ],
+        ),
+      );
+    }
     return Padding(
       // Apple: start under the row titles, like the separators.
-      padding: EdgeInsets.fromLTRB(AppPlatform.isApple ? 52 : 16, 6, 16, 10),
+      padding: const EdgeInsets.fromLTRB(16, 6, 16, 10),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
