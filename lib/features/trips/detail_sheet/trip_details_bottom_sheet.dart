@@ -49,8 +49,13 @@ class TripDetailsBottomSheet extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          TripDetailsHeader(trip: trip, onClose: onClose),
-          const SizedBox(height: 20),
+          // iOS pins the header (and its close button) above the scroll
+          // area, like Apple Maps; Android scrolls it with the content.
+          if (!isApple) ...[
+            TripDetailsHeader(trip: trip, onClose: onClose),
+            const SizedBox(height: 20),
+          ] else
+            const SizedBox(height: 8),
           TripDetailsTimeline(trip: trip),
           if (hasMetrics) ...[
             const SizedBox(height: 20),
@@ -124,6 +129,11 @@ class TripDetailsBottomSheet extends StatelessWidget {
       mainAxisSize: isApple ? MainAxisSize.max : MainAxisSize.min,
       children: [
         if (!isApple) handle,
+        if (isApple)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 8, 20, 4),
+            child: TripDetailsHeader(trip: trip, onClose: onClose),
+          ),
         isApple ? Expanded(child: scrollArea) : Flexible(child: scrollArea),
         if (!isApple) footer,
       ],

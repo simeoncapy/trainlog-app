@@ -74,7 +74,8 @@ class TripDetailsHeader extends StatelessWidget {
         _VisibilityChip(trip: trip),
         const SizedBox(width: 8),
         AdaptiveAppBarSquareButton(
-          icon: AdaptiveIcons.chevronDown,
+          // iOS sheets close with a cross; Material keeps the down chevron.
+          icon: AppPlatform.isApple ? Icons.close : Icons.keyboard_arrow_down,
           onPressed: onClose ?? () => Navigator.of(context).maybePop(),
           tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
           size: 36,
