@@ -98,12 +98,12 @@ void main() {
 
     test('returns the server message and code', () async {
       final res = await _signup(_api((_) => _json(
-            {'error': "Nom d'utilisateur indisponible", 'code': 'not_available'},
+            {'error': "Nom d'utilisateur indisponible"},
             409,
           )));
       expect(res.success, isFalse);
       expect(res.message, "Nom d'utilisateur indisponible");
-      expect(res.code, 'not_available');
+      expect(res.code, isNull);
       expect(res.isCaptchaError, isFalse);
     });
 

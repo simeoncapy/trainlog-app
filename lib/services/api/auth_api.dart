@@ -29,9 +29,9 @@ class SignupResult {
   /// Message from the server, already in the user's language.
   final String? message;
 
-  /// Machine-readable reason: `captcha_*`/`honeypot`/`no_captcha` (captcha
-  /// refused), `missing_fields`, `invalid_email`, `invalid_username`,
-  /// `not_available`, `server_error`, `unsupported_server`.
+  /// Machine-readable reason, when there is one: `captcha_*`/`honeypot`/
+  /// `no_captcha` (captcha refused, from the server), `server_error`,
+  /// `unsupported_server`. Other refusals only carry [message].
   final String? code;
 
   const SignupResult.success()
@@ -202,10 +202,11 @@ class AuthApi {
     if (status >= 500) {
       return const SignupResult.failure(code: 'server_error');
     }
+    final message = body['error'] as String?;
     return SignupResult.failure(
-      message: body['error'] as String?,
+      message: message,
       // A server without the JSON API answers with an HTML page
-      code: body['code'] as String? ?? 'unsupported_server',
+      code: body['code'] as String? ?? (message == null ? 'unsupported_server' : null),
     );
   }
 
