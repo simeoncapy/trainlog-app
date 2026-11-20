@@ -85,11 +85,21 @@ class TripDetailsBottomSheet extends StatelessWidget {
     final Widget scrollArea = isApple
         ? CupertinoScrollbar(
             controller: scrollController,
-            child: SingleChildScrollView(
+            child: CustomScrollView(
               controller: scrollController,
               // No explicit physics: the glass sheet installs its own so a
               // drag grows the sheet to its large detent before scrolling.
-              child: content,
+              slivers: [
+                // The header is pinned inside the scroll view rather than
+                // above it, so a drag on it still moves the sheet, as on
+                // Apple Maps.
+                PinnedHeaderSliver(
+                  child: _PinnedHeader(
+                    child: TripDetailsHeader(trip: trip, onClose: onClose),
+                  ),
+                ),
+                SliverToBoxAdapter(child: content),
+              ],
             ),
           )
         : SingleChildScrollView(child: content);
@@ -129,11 +139,6 @@ class TripDetailsBottomSheet extends StatelessWidget {
       mainAxisSize: isApple ? MainAxisSize.max : MainAxisSize.min,
       children: [
         if (!isApple) handle,
-        if (isApple)
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 8, 20, 4),
-            child: TripDetailsHeader(trip: trip, onClose: onClose),
-          ),
         isApple ? Expanded(child: scrollArea) : Flexible(child: scrollArea),
         if (!isApple) footer,
       ],
@@ -147,6 +152,50 @@ class TripDetailsBottomSheet extends StatelessWidget {
       builder: (context, constraints) => constraints.maxHeight < 140
           ? const SizedBox.shrink()
           : column,
+    );
+  }
+}
+
+/// iOS pinned header of the trip sheet. Once the content scrolls under it,
+/// it gets the sheet's opaque surface and a hairline so the rows passing
+/// beneath don't show through or end in a hard cut.
+class _PinnedHeader extends StatelessWidget {
+  final Widget child;
+
+  const _PinnedHeader({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    final position = Scrollable.maybeOf(context)?.position;
+    final padded = Padding(
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+      child: child,
+    );
+    if (position == null) return padded;
+
+    return ListenableBuilder(
+      listenable: position,
+      builder: (context, child) {
+        final scrolled = position.hasPixels && position.pixels > 0;
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          decoration: BoxDecoration(
+            color: scrolled
+                ? Theme.of(context).colorScheme.surface
+                : Colors.transparent,
+            border: Border(
+              bottom: BorderSide(
+                color: scrolled
+                    ? detailBorderColor(context)
+                    : Colors.transparent,
+                width: 0.5,
+              ),
+            ),
+          ),
+          child: child,
+        );
+      },
+      child: padded,
     );
   }
 }
