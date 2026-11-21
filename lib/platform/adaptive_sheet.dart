@@ -19,6 +19,12 @@ import 'package:trainlog_app/utils/platform_utils.dart';
 /// by this starts just below the pill, as on native iOS sheets.
 const double kAppleSheetHandleInset = 20;
 
+/// Top inset for content whose first row is a header of glass buttons
+/// (✕ / title / ↺). As in iOS 26 sheets the buttons sit level with the grab
+/// handle, on either side of it, 15pt below the sheet's edge (13 here plus
+/// the header's own 2pt padding).
+const double kAppleSheetHeaderInset = 13;
+
 /// Grab handle size, as on Apple Maps' sheets (wider than UIKit's 36pt
 /// default, which the package draws).
 const double _grabberWidth = 60;
@@ -41,6 +47,7 @@ Future<T?> showAdaptiveContentSheet<T>({
   bool isDismissible = true,
   double maxHeightFactor = 0.9,
   Color? materialBackgroundColor,
+  bool appleHeaderBesideGrabber = false,
 }) {
   if (!AppPlatform.isApple) {
     return showModalBottomSheet<T>(
@@ -94,19 +101,41 @@ Future<T?> showAdaptiveContentSheet<T>({
           child: MediaQuery.removePadding(
             context: sheetContext,
             removeTop: true,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Without its own handle the sheet leaves a 16pt top gap;
-                // lift ours into it, 5pt below the sheet's edge as on iOS.
-                Transform.translate(
-                  offset: const Offset(0, -11),
-                  child: const Center(child: _AppleGrabber()),
-                ),
-                Flexible(child: Builder(builder: builder)),
-              ],
-            ),
+            child: appleHeaderBesideGrabber
+                // Header of glass buttons: they sit level with the handle,
+                // on either side of it. The sheet leaves a 16pt top gap; lift
+                // the content 3pt so the header lands where
+                // [kAppleSheetHeaderInset] puts it on the detent sheets, and
+                // draw the handle over it, 5pt below the sheet's edge.
+                ? Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Transform.translate(
+                        offset: const Offset(0, -(16 - kAppleSheetHeaderInset)),
+                        child: Builder(builder: builder),
+                      ),
+                      const Positioned(
+                        top: -11,
+                        left: 0,
+                        right: 0,
+                        child: Center(child: _AppleGrabber()),
+                      ),
+                    ],
+                  )
+                : Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Without its own handle the sheet leaves a 16pt top
+                      // gap; lift ours into it, 5pt below the sheet's edge as
+                      // on iOS.
+                      Transform.translate(
+                        offset: const Offset(0, -11),
+                        child: const Center(child: _AppleGrabber()),
+                      ),
+                      Flexible(child: Builder(builder: builder)),
+                    ],
+                  ),
           ),
         ),
       );
@@ -137,6 +166,7 @@ Future<T?> showAppleDetentSheet<T>({
   double? fullSize,
   bool useRootNavigator = true,
   Color? expandedColor,
+  double topInset = kAppleSheetHandleInset,
 }) {
   // The large detent turns opaque; fill it with the app's own surface so it
   // matches the rest of the UI in both light and dark mode. Forms of grouped
@@ -173,7 +203,7 @@ Future<T?> showAppleDetentSheet<T>({
               lg.GlassModalSheetStateProvider.of(ctx)?.submergedBottom ?? 0;
           return Padding(
             padding: EdgeInsets.only(
-              top: kAppleSheetHandleInset,
+              top: topInset,
               bottom: submerged,
             ),
             // While the sheet is swiped away it passes through heights too

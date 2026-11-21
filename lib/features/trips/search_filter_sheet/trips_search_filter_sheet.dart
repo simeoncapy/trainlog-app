@@ -44,6 +44,8 @@ Future<TripsFilterResult?> showTripsSearchFilterSheet(
       context: context,
       detents: const {GlassSheetDetent.large},
       initialState: GlassSheetState.full,
+      // ✕ / title / ↺ level with the grab handle, as in iOS 26 sheets.
+      topInset: kAppleSheetHeaderInset,
       // Page colour behind the grouped cells, as on the Settings page.
       expandedColor: CupertinoDynamicColor.resolve(
           CupertinoTheme.of(context).scaffoldBackgroundColor, context),

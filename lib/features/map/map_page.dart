@@ -870,6 +870,7 @@ class _MapPageState extends State<MapPage>
       context: context,
       useRootNavigator: true,
       materialBackgroundColor: Colors.transparent,
+      appleHeaderBesideGrabber: true,
       builder: (sheetContext) => MapFilterWidget(
         onClose: () => Navigator.of(sheetContext).pop(),
       ),
