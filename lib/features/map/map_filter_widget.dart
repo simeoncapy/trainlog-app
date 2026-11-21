@@ -154,7 +154,9 @@ class _MapFilterWidgetState extends State<MapFilterWidget> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const SizedBox(height: 12),
+            // No top spacer: the sheet already leaves room for its grab
+            // handle, so the header sits at the same height as on the trips
+            // filter sheet.
             GlassSheetHeader(
               title: l10n.mapFilterTitle,
               closeTooltip:
