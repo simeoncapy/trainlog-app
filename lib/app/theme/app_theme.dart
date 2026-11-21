@@ -71,13 +71,11 @@ abstract final class AppTheme {
           fontSize: 17,
           fontWeight: FontWeight.w600,
           color: label,
-          letterSpacing: -0.2,
         ),
         navLargeTitleTextStyle: GoogleFonts.spaceGrotesk(
           fontSize: 30,
           fontWeight: FontWeight.w700,
           color: label,
-          letterSpacing: -0.6,
         ),
       ),
     );
@@ -87,7 +85,10 @@ abstract final class AppTheme {
   /// styles from San Francisco to "Hanken Grotesk"; otherwise leaves them.
   static CupertinoTextThemeData _cupertinoBodyFonts(CupertinoTextThemeData t) {
     if (!appleUsesBrandFonts) return t;
-    TextStyle hk(TextStyle s) => GoogleFonts.hankenGrotesk(textStyle: s);
+    // Flutter's iOS defaults carry San Francisco's tracking (-0.41 at 17pt);
+    // Hanken Grotesk keeps its own spacing.
+    TextStyle hk(TextStyle s) =>
+        GoogleFonts.hankenGrotesk(textStyle: s.copyWith(letterSpacing: 0));
     return t.copyWith(
       textStyle: hk(t.textStyle),
       actionTextStyle: hk(t.actionTextStyle),

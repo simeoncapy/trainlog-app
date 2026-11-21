@@ -157,7 +157,6 @@ class _AppleSectionChip extends StatelessWidget {
                     ? CupertinoColors.label.resolveFrom(context)
                     : CupertinoColors.secondaryLabel.resolveFrom(context),
                 fontSize: 15,
-                letterSpacing: -0.2,
                 fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
               ),
               child: Text(label),

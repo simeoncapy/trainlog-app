@@ -49,7 +49,6 @@ class GlassSheetHeader extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.w600,
-                  letterSpacing: -0.4,
                   color: CupertinoColors.label.resolveFrom(context),
                 ),
               ),
@@ -124,7 +123,6 @@ class GlassPrimaryButton extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.w600,
-                      letterSpacing: -0.4,
                       color: fg,
                     ),
                   ),
@@ -164,7 +162,6 @@ class GlassFilterSectionHeader extends StatelessWidget {
               style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
-                letterSpacing: -0.2,
                 color: CupertinoColors.secondaryLabel.resolveFrom(context),
               ),
             ),
@@ -241,7 +238,6 @@ class FilterCapsule extends StatelessWidget {
       softWrap: false,
       style: TextStyle(
         fontSize: 15,
-        letterSpacing: -0.2,
         fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
         color: fg,
       ),
@@ -433,7 +429,6 @@ class _GlassFormRowState extends State<GlassFormRow> {
                 widget.title,
                 style: TextStyle(
                   fontSize: 17,
-                  letterSpacing: -0.4,
                   color: CupertinoColors.label.resolveFrom(context),
                 ),
               ),
@@ -471,7 +466,6 @@ class GlassDisclosure extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   fontSize: 17,
-                  letterSpacing: -0.4,
                   color: CupertinoColors.secondaryLabel.resolveFrom(context),
                 ),
               ),
@@ -560,7 +554,7 @@ class _GlassFormMenuRowState<T> extends State<GlassFormMenuRow<T>> {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                    fontSize: 17, letterSpacing: -0.4, color: secondary),
+                    fontSize: 17, color: secondary),
               ),
             ),
             const SizedBox(width: 4),
@@ -646,7 +640,6 @@ class GlassDateButton extends StatelessWidget {
               text,
               style: TextStyle(
                 fontSize: 17,
-                letterSpacing: -0.4,
                 color: isSet
                     ? tint
                     : CupertinoColors.secondaryLabel.resolveFrom(context),

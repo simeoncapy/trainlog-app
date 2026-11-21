@@ -32,7 +32,6 @@ class SettingsSectionHeader extends StatelessWidget {
         style: TextStyle(
           fontSize: 15,
           fontWeight: FontWeight.w600,
-          letterSpacing: -0.2,
           color: CupertinoColors.secondaryLabel.resolveFrom(context),
         ),
       ),
@@ -53,7 +52,6 @@ class SettingsSectionFooter extends StatelessWidget {
         text,
         style: TextStyle(
           fontSize: 13,
-          letterSpacing: -0.1,
           color: CupertinoColors.secondaryLabel.resolveFrom(context),
         ),
       ),
@@ -352,7 +350,6 @@ class _AppleSettingsRowState extends State<_AppleSettingsRow> {
                     widget.title,
                     style: TextStyle(
                       fontSize: 17,
-                      letterSpacing: -0.4,
                       color: titleColor,
                     ),
                   ),
@@ -362,7 +359,6 @@ class _AppleSettingsRowState extends State<_AppleSettingsRow> {
                       widget.subtitle!,
                       style: TextStyle(
                         fontSize: 13,
-                        letterSpacing: -0.1,
                         color: widget.enabled ? secondary : disabled,
                       ),
                     ),
@@ -375,7 +371,6 @@ class _AppleSettingsRowState extends State<_AppleSettingsRow> {
               DefaultTextStyle.merge(
                 style: TextStyle(
                   fontSize: 17,
-                  letterSpacing: -0.4,
                   color: widget.enabled ? secondary : disabled,
                 ),
                 child: widget.trailing!,

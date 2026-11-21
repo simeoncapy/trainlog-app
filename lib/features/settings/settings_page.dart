@@ -931,7 +931,6 @@ class _ThemeRow extends StatelessWidget {
                   title,
                   style: TextStyle(
                     fontSize: 17,
-                    letterSpacing: -0.4,
                     color: CupertinoColors.label.resolveFrom(context),
                   ),
                 ),

@@ -284,7 +284,6 @@ class _GroupPickerViewState extends State<GroupPickerView> {
                   style: TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.w600,
-                    letterSpacing: -0.4,
                     color: CupertinoColors.label.resolveFrom(context),
                   ),
                 ),
