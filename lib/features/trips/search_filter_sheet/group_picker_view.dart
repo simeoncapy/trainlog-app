@@ -271,7 +271,6 @@ class _GroupPickerViewState extends State<GroupPickerView> {
             children: [
               GlassIconButton(
                 icon: CupertinoIcons.chevron_back,
-                size: 40,
                 shadow: false,
                 tooltip: MaterialLocalizations.of(context).backButtonTooltip,
                 onPressed: widget.onDone,
@@ -294,7 +293,6 @@ class _GroupPickerViewState extends State<GroupPickerView> {
               // turns pale yellow in light mode and dark red in dark mode).
               GlassIconButton(
                 icon: CupertinoIcons.checkmark,
-                size: 40,
                 shadow: false,
                 tooltip: l10n.tripsSearchFilterDone,
                 onPressed: widget.onDone,

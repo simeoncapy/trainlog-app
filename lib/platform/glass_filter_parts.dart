@@ -34,8 +34,6 @@ class GlassSheetHeader extends StatelessWidget {
         children: [
           GlassIconButton(
             icon: CupertinoIcons.xmark,
-            size: 40,
-            iconSize: 17,
             shadow: false,
             tooltip: closeTooltip,
             onPressed: onClose,
@@ -59,8 +57,6 @@ class GlassSheetHeader extends StatelessWidget {
           ),
           GlassIconButton(
             icon: CupertinoIcons.arrow_counterclockwise,
-            size: 40,
-            iconSize: 18,
             shadow: false,
             tooltip: resetTooltip,
             onPressed: onReset,
