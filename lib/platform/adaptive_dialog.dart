@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
+import 'package:trainlog_app/platform/apple_brand_font.dart';
 
 enum AdaptiveDialogResult {
   primary,
@@ -204,18 +205,20 @@ class AdaptiveDialog {
       context: context,
       builder: (_) {
         return appleDialogTint(context, CupertinoAlertDialog(
-          title: title.isEmpty ? null : Text(title),
-          content: _buildBody(
-            message: message,
-            content: content,
-            wrapContentInMaterial: true,
+          title: title.isEmpty ? null : AppleBrandFont(child: Text(title)),
+          content: AppleBrandFont(
+            child: _buildBody(
+              message: message,
+              content: content,
+              wrapContentInMaterial: true,
+            ),
           ),
           actions: actions.map((a) {
             return CupertinoDialogAction(
               isDefaultAction: a.isDefault,
               isDestructiveAction: a.isDestructive,
               onPressed: () => Navigator.of(context, rootNavigator: true).pop(a.result),
-              child: Text(a.label),
+              child: AppleBrandFont(child: Text(a.label)),
             );
           }).toList(),
         ));
@@ -246,25 +249,27 @@ class AdaptiveDialog {
         final nonCancel = actions.where((a) => a.result != AdaptiveDialogResult.cancelled).toList();
 
         return appleDialogTint(context, CupertinoActionSheet(
-          title: title.isEmpty ? null : Text(title),
-          message: _buildBody(
-            message: message,
-            content: content,
-            wrapContentInMaterial: true,
+          title: title.isEmpty ? null : AppleBrandFont(child: Text(title)),
+          message: AppleBrandFont(
+            child: _buildBody(
+              message: message,
+              content: content,
+              wrapContentInMaterial: true,
+            ),
           ),
           actions: nonCancel.map((a) {
             return CupertinoActionSheetAction(
               isDestructiveAction: a.isDestructive,
               isDefaultAction: a.isDefault,
               onPressed: () => Navigator.of(context, rootNavigator: true).pop(a.result),
-              child: Text(a.label),
+              child: AppleBrandFont(child: Text(a.label)),
             );
           }).toList(),
           cancelButton: cancel.isEmpty
               ? null
               : CupertinoActionSheetAction(
                   onPressed: () => Navigator.of(context, rootNavigator: true).pop(cancel.first.result),
-                  child: Text(cancel.first.label),
+                  child: AppleBrandFont(child: Text(cancel.first.label)),
                 ),
         ));
       },

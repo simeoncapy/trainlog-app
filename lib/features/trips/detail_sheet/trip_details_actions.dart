@@ -14,6 +14,7 @@ import 'package:trainlog_app/providers/trainlog_provider.dart';
 import 'package:trainlog_app/providers/trips_provider.dart';
 import 'package:trainlog_app/services/api/trips_api.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
+import 'package:trainlog_app/platform/apple_brand_font.dart';
 
 /// The action button row (Edit, Duplicate, Share, Delete). Buttons are equal
 /// width, stack an icon above the label, and are meant to be pinned at the
@@ -172,19 +173,22 @@ class TripDetailsActions extends StatelessWidget {
           // Same blue tint as the action rows (Apple uses one tint for both).
           data: cupertinoTheme.copyWith(primaryColor: theme.colorScheme.secondary),
           child: CupertinoAlertDialog(
-            title: Text(l10n.tripsDetailsDeleteDialogTitle),
-            content: Text(l10n.tripsDetailsDeleteDialogMessage),
+            title: AppleBrandFont(child: Text(l10n.tripsDetailsDeleteDialogTitle)),
+            content:
+                AppleBrandFont(child: Text(l10n.tripsDetailsDeleteDialogMessage)),
             actions: [
               CupertinoDialogAction(
                 onPressed: () => Navigator.of(dialogContext).pop(false),
-                child: Text(
-                  CupertinoLocalizations.of(dialogContext).cancelButtonLabel,
+                child: AppleBrandFont(
+                  child: Text(
+                    CupertinoLocalizations.of(dialogContext).cancelButtonLabel,
+                  ),
                 ),
               ),
               CupertinoDialogAction(
                 isDestructiveAction: true,
                 onPressed: () => Navigator.of(dialogContext).pop(true),
-                child: Text(l10n.deleteButton),
+                child: AppleBrandFont(child: Text(l10n.deleteButton)),
               ),
             ],
           ),

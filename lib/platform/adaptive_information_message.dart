@@ -6,6 +6,7 @@ import 'package:trainlog_app/app/app_globals.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
+import 'package:trainlog_app/platform/apple_brand_font.dart';
 
 class AdaptiveInformationMessage {
 
@@ -101,11 +102,13 @@ class AdaptiveInformationMessage {
     showCupertinoDialog(
       context: context,
       builder: (_) => appleDialogTint(context, CupertinoAlertDialog(
-        title: Text(title ?? AppLocalizations.of(context)!.dialogueDefaultInfoTitle),
-        content: Text(message),
+        title: AppleBrandFont(
+            child: Text(title ?? AppLocalizations.of(context)!.dialogueDefaultInfoTitle)),
+        content: AppleBrandFont(child: Text(message)),
         actions: [
           CupertinoDialogAction(
-            child: Text(MaterialLocalizations.of(context).okButtonLabel),
+            child: AppleBrandFont(
+                child: Text(MaterialLocalizations.of(context).okButtonLabel)),
             onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
           ),
         ],

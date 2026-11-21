@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:trainlog_app/platform/adaptive_dialog.dart';
 import 'package:trainlog_app/platform/widget/adaptive_widget_base.dart';
+import 'package:trainlog_app/platform/apple_brand_font.dart';
 
 /// A single item in an [AdaptivePopup] menu.
 ///
@@ -76,13 +77,14 @@ class AdaptivePopup<T> extends AdaptiveWidget {
                             Navigator.of(sheetContext).pop();
                             onSelected(item.value);
                           },
-                          child: _itemChild(item),
+                          child: AppleBrandFont(child: _itemChild(item)),
                         ),
                       )
                       .toList(),
                   cancelButton: CupertinoActionSheetAction(
                     onPressed: () => Navigator.of(sheetContext).pop(),
-                    child: Text(CupertinoLocalizations.of(sheetContext).cancelButtonLabel),
+                    child: AppleBrandFont(
+                        child: Text(CupertinoLocalizations.of(sheetContext).cancelButtonLabel)),
                   ),
                 )),
               )
