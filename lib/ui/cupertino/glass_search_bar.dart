@@ -1,10 +1,11 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart' show Theme;
+import 'package:flutter/material.dart' show MaterialLocalizations, Theme;
+import 'package:trainlog_app/ui/cupertino/liquid_glass.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart' as lg;
 
 /// The iOS 26 search bar: liquid_glass_widgets' glass pill with its
-/// search glyph, clear button and a round glass ✕ (cancel) that slides in
-/// while the field has focus. Typed in Hanken Grotesk, like the rest of the
+/// search glyph and clear button, and a round glass ✕ beside it, always
+/// shown, that closes the search. Typed in Hanken Grotesk, like the rest of the
 /// app.
 class AppGlassSearchBar extends StatelessWidget {
   const AppGlassSearchBar({
@@ -33,21 +34,36 @@ class AppGlassSearchBar extends StatelessWidget {
       color: CupertinoColors.label.resolveFrom(context),
       letterSpacing: 0,
     );
-    return lg.GlassSearchBar(
-      controller: controller,
-      focusNode: focusNode,
-      placeholder: placeholder,
-      showsCancelButton: true,
-      onCancel: onCancel,
-      onChanged: onChanged,
-      onSubmitted: onSubmitted,
-      textStyle: body,
-      placeholderStyle: body?.copyWith(
-        color: CupertinoColors.placeholderText.resolveFrom(context),
-      ),
-      useOwnLayer: true,
-      quality: lg.GlassQuality.premium,
-      height: height,
+    // The package shows its ✕ only while the field has focus; Apple's apps
+    // keep it, so the bar draws its own, always there. The clear button
+    // stays inside the field while there is text.
+    return Row(
+      children: [
+        Expanded(
+          child: lg.GlassSearchBar(
+            controller: controller,
+            focusNode: focusNode,
+            placeholder: placeholder,
+            showsCancelButton: false,
+            onChanged: onChanged,
+            onSubmitted: onSubmitted,
+            textStyle: body,
+            placeholderStyle: body?.copyWith(
+              color: CupertinoColors.placeholderText.resolveFrom(context),
+            ),
+            useOwnLayer: true,
+            quality: lg.GlassQuality.premium,
+            height: height,
+          ),
+        ),
+        const SizedBox(width: 10),
+        GlassIconButton(
+          icon: CupertinoIcons.xmark,
+          size: height,
+          tooltip: MaterialLocalizations.of(context).cancelButtonLabel,
+          onPressed: onCancel,
+        ),
+      ],
     );
   }
 }
