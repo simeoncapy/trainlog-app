@@ -137,8 +137,6 @@ final _rules = <_Rule>[
       'lib/features/trips/detail_sheet/trip_details_common.dart',
       'lib/features/trips/detail_sheet/trip_details_header.dart',
       'lib/features/trips/detail_sheet/trip_details_metrics.dart',
-      'lib/features/trips/trips_page.dart',
-      'lib/features/trips/widgets/trip_table_view.dart',
       'lib/features/trips_edit_copy/edit_trip_path_page.dart',
       'lib/features/trips_edit_copy/widgets/edit_trip_app_bar.dart',
       'lib/features/trips_edit_copy/widgets/edit_trip_section_bar.dart',
