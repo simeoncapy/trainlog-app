@@ -11,6 +11,7 @@ import 'package:trainlog_app/core/providers/polyline_provider.dart';
 import 'package:trainlog_app/core/providers/settings_provider.dart';
 import 'package:trainlog_app/features/map/cupertino/map_controls_cupertino.dart';
 import 'package:trainlog_app/features/map/cupertino/map_cupertino_view.dart';
+import 'package:trainlog_app/features/map/cupertino/map_search_cupertino.dart';
 import 'package:trainlog_app/features/map/map_page.dart';
 import 'package:trainlog_app/features/map/map_page_controller.dart';
 import 'package:trainlog_app/features/map/material/map_controls_material.dart';
@@ -146,7 +147,7 @@ void main() {
             : find.bySemanticsLabel('Search a place'),
       );
       await t.pump();
-      await t.enterText(find.byType(TextField), 'Kyoto');
+      await t.enterText(find.byType(EditableText), 'Kyoto');
       await t.pump();
       await t.pump(const Duration(milliseconds: 10));
       await t.pump();
@@ -156,7 +157,10 @@ void main() {
       await t.pump();
 
       expect(controller.searchedPlace, _kyoto);
-      expect(find.byType(TextField), findsNothing);
+      expect(controller.searchOpen, isFalse);
+      expect(find.byType(EditableText), findsNothing);
+      expect(find.byType(CupertinoMapSearch), findsNothing);
     });
   }
 }
+

@@ -5,7 +5,7 @@ import 'package:trainlog_app/features/map/map_page_controller.dart';
 import 'package:trainlog_app/features/map/material/locked_on_position_pill_material.dart';
 import 'package:trainlog_app/features/map/widgets/map_canvas.dart';
 import 'package:trainlog_app/features/map/widgets/map_controls.dart';
-import 'package:trainlog_app/features/map/widgets/map_search_overlay.dart';
+import 'package:trainlog_app/features/map/material/map_search_overlay_material.dart';
 import 'package:trainlog_app/widgets/osm_mark.dart';
 
 /// Map page, Material: the map with the OSM credit, the "locked on

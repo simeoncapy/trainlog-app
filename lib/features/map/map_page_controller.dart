@@ -114,6 +114,10 @@ class MapPageController extends ChangeNotifier {
   List<LocationSearchResult> get results => _results;
   bool get isSearching => _isSearching;
 
+  /// The place search is open.
+  bool get searchOpen => _searchOpen;
+  bool _searchOpen = false;
+
   /// A search was typed and found nothing.
   bool get hasNoResult =>
       !_isSearching && _results.isEmpty && _query.trim().isNotEmpty;
@@ -235,6 +239,7 @@ class MapPageController extends ChangeNotifier {
 
   /// The search opens empty.
   void openSearch() {
+    _searchOpen = true;
     _debounce?.cancel();
     _searchRequestId++;
     _query = '';
@@ -248,6 +253,10 @@ class MapPageController extends ChangeNotifier {
     _debounce?.cancel();
     _searchRequestId++;
     _isSearching = false;
+    if (_searchOpen) {
+      _searchOpen = false;
+      if (!_disposed) notifyListeners();
+    }
   }
 
   /// Typed: searches once typing pauses.

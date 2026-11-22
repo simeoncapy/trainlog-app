@@ -168,7 +168,9 @@ void main() {
         },
         searchDebounce: const Duration(milliseconds: 20),
       );
+      expect(c.searchOpen, isFalse);
       c.openSearch();
+      expect(c.searchOpen, isTrue);
       c.queryChanged('Kyo');
       c.queryChanged('Kyoto');
       await Future<void>.delayed(const Duration(milliseconds: 60));
@@ -180,6 +182,9 @@ void main() {
       await Future<void>.delayed(const Duration(milliseconds: 60));
       expect(c.results, isEmpty);
       expect(c.hasNoResult, isTrue);
+
+      c.closeSearch();
+      expect(c.searchOpen, isFalse);
     });
 
     test(
