@@ -69,6 +69,9 @@ class TrainlogProvider extends ChangeNotifier {
   String? _username;
   TrainlogLoginResult? _session;
   Map<String, String> _listOperatorsLogoUrl = Map();
+
+  /// The operator logo list was fetched for this user (it may be empty).
+  bool _operatorLogosLoaded = false;
   Map<String, String> _listOperators = Map();
   List<String> _availableCurrencies = [];
 
@@ -204,6 +207,7 @@ class TrainlogProvider extends ChangeNotifier {
         _username = username; // keep what the user typed
         settings?.setUsername(username);
         _listOperatorsLogoUrl = await _misc.fetchAllOperatorLogosUrl(username);
+        _operatorLogosLoaded = true;
         _availableCurrencies = await _account.fetchAvailableCurrencies(username);
       } else {
         _username = null;
@@ -442,6 +446,7 @@ class TrainlogProvider extends ChangeNotifier {
     try {
       _listOperatorsLogoUrl = await runInBackground(
           () => _misc.fetchAllOperatorLogosUrl(_username ?? ""));
+      _operatorLogosLoaded = true;
       _operatorLogosLastFailure = null;
       notifyListeners();
     } catch (e) {
@@ -468,7 +473,9 @@ class TrainlogProvider extends ChangeNotifier {
     String separator = "&&"
   }) {
     final lastFailure = _operatorLogosLastFailure;
-    if (_listOperatorsLogoUrl.isEmpty &&
+    // Fetch once, not again each time the list comes back empty: every
+    // fetch notifies, which rebuilds the callers, which would fetch again.
+    if (!_operatorLogosLoaded &&
         !_loading &&
         (lastFailure == null ||
             DateTime.now().difference(lastFailure) > _operatorLogosRetryDelay)) {
