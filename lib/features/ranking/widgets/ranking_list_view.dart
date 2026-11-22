@@ -293,7 +293,7 @@ class _CarbonPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = CarbonThreshold.colorOf(gPerKm);
+    final color = carbonColorOf(gPerKm);
     final value = NumberFormatter.decimal(
       gPerKm,
       locale: Localizations.localeOf(context),

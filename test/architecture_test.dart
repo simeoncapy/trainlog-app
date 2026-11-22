@@ -67,13 +67,7 @@ final _rules = <_Rule>[
       'package:flutter/cupertino.dart',
       'package:liquid_glass_widgets/',
     ]),
-    known: {
-      'lib/core/data/models/geolog_note.dart',
-      'lib/core/data/models/trip_form_model.dart',
-      'lib/core/data/models/trips.dart',
-      'lib/core/providers/ranking_provider.dart',
-      'lib/core/providers/statistics_provider.dart',
-    },
+    known: {},
   ),
   _Rule(
     name: 'controllers-are-pure',
@@ -91,11 +85,11 @@ final _rules = <_Rule>[
       'package:liquid_glass_widgets/',
       ..._appUi,
     ]),
-    known: {'lib/features/settings/settings_vm.dart'},
   ),
   _Rule(
     name: 'glass-only-in-ui',
-    why: 'Liquid Glass is iOS only: liquid_glass_widgets is imported in '
+    why:
+        'Liquid Glass is iOS only: liquid_glass_widgets is imported in '
         'lib/ui/cupertino (the iOS components) and lib/ui/adaptive (the '
         'facades that draw them on iOS), plus main.dart, which starts it. '
         'Screens use those components, so a Material view cannot reach a '
