@@ -20,6 +20,11 @@ import 'package:trainlog_app/utils/text_utils.dart';
 class CupertinoMapSearch extends StatefulWidget {
   const CupertinoMapSearch({super.key});
 
+  /// true: the results cover the whole screen behind the search bar, under
+  /// the status bar, like Journal or Photos. false: they sit in a rounded
+  /// blurred panel above the bar, the map visible around it.
+  static const bool fullScreenResults = true;
+
   @override
   State<CupertinoMapSearch> createState() => _CupertinoMapSearchState();
 }
@@ -59,6 +64,47 @@ class _CupertinoMapSearchState extends State<CupertinoMapSearch> {
         ? keyboard + 8
         : kNavBarClearance + media.padding.bottom + 8;
 
+    const fullScreen = CupertinoMapSearch.fullScreenResults;
+    void onDragEnd(DragEndDetails d) {
+      if ((d.primaryVelocity ?? 0) > 250) _close();
+    }
+
+    final searchBar = AppGlassSearchBar(
+      controller: _text,
+      focusNode: _focus,
+      placeholder: loc.mapSearchLocationHint,
+      onChanged: controller.queryChanged,
+      onSubmitted: controller.submitQuery,
+      onCancel: _close,
+    );
+
+    if (fullScreen) {
+      return Stack(
+        children: [
+          // The results page: the whole screen, blurred, behind the bar.
+          Positioned.fill(
+            child: GestureDetector(
+              onVerticalDragEnd: onDragEnd,
+              child: _ResultsPanel(
+                controller: controller,
+                onClose: _close,
+                fullScreen: true,
+                bottomInset: bottom + AppGlassSearchBar.height + 8,
+              ),
+            ),
+          ),
+          AnimatedPositioned(
+            duration: const Duration(milliseconds: 220),
+            curve: Curves.easeOutCubic,
+            left: 12,
+            right: 12,
+            bottom: bottom,
+            child: searchBar,
+          ),
+        ],
+      );
+    }
+
     return Stack(
       children: [
         // Swiping down anywhere closes, like the system search.
@@ -67,9 +113,7 @@ class _CupertinoMapSearchState extends State<CupertinoMapSearch> {
             behavior: HitTestBehavior.translucent,
             // A first tap lowers the keyboard, the next one closes.
             onTap: () => _focus.hasFocus ? _focus.unfocus() : _close(),
-            onVerticalDragEnd: (d) {
-              if ((d.primaryVelocity ?? 0) > 250) _close();
-            },
+            onVerticalDragEnd: onDragEnd,
           ),
         ),
         AnimatedPositioned(
@@ -84,21 +128,12 @@ class _CupertinoMapSearchState extends State<CupertinoMapSearch> {
             children: [
               Flexible(
                 child: GestureDetector(
-                  onVerticalDragEnd: (d) {
-                    if ((d.primaryVelocity ?? 0) > 250) _close();
-                  },
+                  onVerticalDragEnd: onDragEnd,
                   child: _ResultsPanel(controller: controller, onClose: _close),
                 ),
               ),
               const SizedBox(height: 10),
-              AppGlassSearchBar(
-                controller: _text,
-                focusNode: _focus,
-                placeholder: loc.mapSearchLocationHint,
-                onChanged: controller.queryChanged,
-                onSubmitted: controller.submitQuery,
-                onCancel: _close,
-              ),
+              searchBar,
             ],
           ),
         ),
@@ -107,13 +142,21 @@ class _CupertinoMapSearchState extends State<CupertinoMapSearch> {
   }
 }
 
-/// The blurred panel above the search bar: the tip, "no result", the
-/// results.
+/// The blurred results: the tip, "no result", the results. A rounded panel
+/// above the search bar, or with [fullScreen] the whole screen, its list
+/// kept clear of the status bar and of the bar ([bottomInset]).
 class _ResultsPanel extends StatelessWidget {
-  const _ResultsPanel({required this.controller, required this.onClose});
+  const _ResultsPanel({
+    required this.controller,
+    required this.onClose,
+    this.fullScreen = false,
+    this.bottomInset = 0,
+  });
 
   final MapPageController controller;
   final VoidCallback onClose;
+  final bool fullScreen;
+  final double bottomInset;
 
   @override
   Widget build(BuildContext context) {
@@ -163,17 +206,21 @@ class _ResultsPanel extends StatelessWidget {
     );
 
     return ClipRSuperellipse(
-      borderRadius: BorderRadius.circular(26),
+      borderRadius: BorderRadius.circular(fullScreen ? 0 : 26),
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 28, sigmaY: 28),
         child: ColoredBox(
           color: CupertinoColors.systemBackground
               .resolveFrom(context)
-              .withValues(alpha: 0.72),
+              .withValues(alpha: fullScreen ? 0.85 : 0.72),
           child: CustomScrollView(
-            shrinkWrap: true,
+            shrinkWrap: !fullScreen,
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             slivers: [
+              if (fullScreen)
+                SliverToBoxAdapter(
+                  child: SizedBox(height: MediaQuery.paddingOf(context).top),
+                ),
               SliverToBoxAdapter(child: header),
               SliverList.builder(
                 itemCount: results.length,
@@ -182,7 +229,7 @@ class _ResultsPanel extends StatelessWidget {
                   onTap: () => controller.choosePlace(results[i]),
                 ),
               ),
-              const SliverToBoxAdapter(child: SizedBox(height: 8)),
+              SliverToBoxAdapter(child: SizedBox(height: 8 + bottomInset)),
             ],
           ),
         ),

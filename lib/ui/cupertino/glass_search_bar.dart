@@ -24,6 +24,9 @@ class AppGlassSearchBar extends StatelessWidget {
   final ValueChanged<String>? onChanged;
   final ValueChanged<String>? onSubmitted;
 
+  /// Height of the bar.
+  static const double height = 44;
+
   @override
   Widget build(BuildContext context) {
     final body = Theme.of(context).textTheme.bodyLarge?.copyWith(
@@ -44,6 +47,7 @@ class AppGlassSearchBar extends StatelessWidget {
       ),
       useOwnLayer: true,
       quality: lg.GlassQuality.premium,
+      height: height,
     );
   }
 }
