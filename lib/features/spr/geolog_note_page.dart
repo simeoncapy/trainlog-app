@@ -250,9 +250,7 @@ class _GeologNotePageState extends State<GeologNotePage> {
         tint: GeologNotePage.appBarColour(context),
         actionIcon: !record.hasNote
             ? null
-            : AppPlatform.isApple
-                ? CupertinoIcons.trash
-                : Icons.delete_outline,
+            : AdaptiveIcons.deleteOutline,
         actionTooltip: loc.geologNoteDeleteButton,
         onAction: _delete,
         actionDestructive: true,

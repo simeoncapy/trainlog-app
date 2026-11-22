@@ -128,10 +128,6 @@ final _rules = <_Rule>[
     breaks: (p, s) => s.contains('AppPlatform.isApple'),
     known: {
       'lib/features/menu/full_screen_menu_page.dart',
-      'lib/features/spr/geolog_note_page.dart',
-      'lib/features/spr/smart_prerecorder_page.dart',
-      'lib/features/spr/widgets/pre_record_tile.dart',
-      'lib/features/spr/widgets/spr_button_bar.dart',
       'lib/features/trips_edit_copy/edit_trip_path_page.dart',
       'lib/features/trips_edit_copy/widgets/edit_trip_app_bar.dart',
       'lib/features/trips_edit_copy/widgets/edit_trip_section_bar.dart',

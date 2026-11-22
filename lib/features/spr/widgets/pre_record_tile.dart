@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:trainlog_app/ui/adaptive/adaptive_progress_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/ui/tokens/app_theme.dart';
 import 'package:trainlog_app/core/data/models/pre_record_model.dart';
@@ -7,7 +8,6 @@ import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/core/providers/settings_provider.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
-import 'package:trainlog_app/utils/platform_utils.dart';
 import 'package:trainlog_app/widgets/shimmer_box.dart';
 
 /// A single Smart Prerecorder record card: leading type icon (or spinner
@@ -55,9 +55,7 @@ class PreRecordTile extends StatelessWidget {
         width: 36,
         height: 36,
         child: Center(
-          child: AppPlatform.isApple
-              ? const CupertinoActivityIndicator()
-              : const CircularProgressIndicator(strokeWidth: 3),
+          child: const AdaptiveProgressIndicator(strokeWidth: 3),
         ),
       );
     } else if (hasStation) {
