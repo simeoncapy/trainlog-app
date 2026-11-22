@@ -127,7 +127,6 @@ final _rules = <_Rule>[
         _under(p, 'navigation'),
     breaks: (p, s) => s.contains('AppPlatform.isApple'),
     known: {
-      'lib/features/map/map_page.dart',
       'lib/features/menu/full_screen_menu_page.dart',
       'lib/features/spr/geolog_note_page.dart',
       'lib/features/spr/smart_prerecorder_page.dart',
