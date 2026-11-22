@@ -7,8 +7,9 @@ import 'package:trainlog_app/ui/design.dart';
 /// button, the title and an optional trailing action.
 ///
 /// Material keeps a bar tinted with [tint] to tell the modes apart. On iOS
-/// the bar blends into the page with glass buttons, and the mode colour shows
-/// as a small dot before the title instead.
+/// the bar blends into the page with glass buttons, and the mode shows before
+/// the title instead: [appleModeIcon] in the mode colour. Without an icon
+/// (Geolog note, a neutral page) nothing marks the title.
 class EditTripAppBar extends PlatformAppBar {
   EditTripAppBar({
     super.key,
@@ -18,6 +19,9 @@ class EditTripAppBar extends PlatformAppBar {
     IconData? actionIcon,
     String? actionTooltip,
     VoidCallback? onAction,
+
+    /// iOS only: icon of the mode (edit, duplicate) before the title.
+    IconData? appleModeIcon,
 
     /// Shows the iOS action in the destructive (red) colour.
     bool actionDestructive = false,
@@ -34,6 +38,7 @@ class EditTripAppBar extends PlatformAppBar {
            title: title,
            subtitle: subtitle,
            tint: tint,
+           modeIcon: appleModeIcon,
            actionIcon: actionIcon,
            actionTooltip: actionTooltip,
            onAction: onAction,

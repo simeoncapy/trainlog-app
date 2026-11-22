@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:trainlog_app/ui/adaptive/adaptive_switch.dart';
 import 'package:trainlog_app/ui/design.dart';
 import 'package:trainlog_app/ui/adaptive/adaptive_app_bar.dart';
 import 'package:trainlog_app/ui/adaptive/adaptive_dialog.dart';
@@ -545,7 +546,7 @@ class _EditTripPathPageState extends State<EditTripPathPage> {
               ),
             ),
             const SizedBox(width: 4),
-            Switch(value: isNewRouter, onChanged: _setNewRouter),
+            AdaptiveSwitch(value: isNewRouter, onChanged: _setNewRouter),
           ],
         ),
       ],
