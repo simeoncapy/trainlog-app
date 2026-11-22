@@ -3,8 +3,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:trainlog_app/ui/tokens/app_tab_theme.dart';
-import 'package:trainlog_app/ui/adaptive/adaptive_widget.dart';
 
 import 'package:trainlog_app/app/app_globals.dart';
 import 'package:trainlog_app/ui/tokens/app_theme.dart';
@@ -21,12 +19,9 @@ import 'package:trainlog_app/core/providers/settings_provider.dart';
 import 'package:trainlog_app/core/providers/trainlog_provider.dart';
 import 'package:trainlog_app/core/providers/trips_provider.dart';
 import 'package:trainlog_app/core/services/geo_permission_service.dart';
-import 'package:trainlog_app/core/data/models/trips.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
-import 'package:trainlog_app/widgets/app_steps_tab_bar.dart';
-import 'package:trainlog_app/widgets/bottom_sheet_picker.dart';
 
 import 'settings_vm.dart';
 
@@ -70,125 +65,6 @@ class _SettingsPageState extends State<SettingsPage> {
     super.dispose();
   }
 
-  // ── Helpers ──────────────────────────────────────────────────────────────
-
-  Widget _sectionHeader(BuildContext context, String label) {
-    if (AppPlatform.isApple) return SettingsSectionHeader(label);
-    final theme = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(4, 20, 4, 6),
-      child: Text(
-        label.toUpperCase(),
-        style: theme.textTheme.labelSmall!.copyWith(
-          color: theme.colorScheme.primary,
-          fontWeight: FontWeight.bold,
-          letterSpacing: 0.8,
-        ),
-      ),
-    );
-  }
-
-  Widget _chevronTrailing(BuildContext context, String label) {
-    final cs = Theme.of(context).colorScheme;
-
-    return SizedBox(
-      width: MediaQuery.sizeOf(context).width * 0.35,
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              label,
-              maxLines: 2,
-              textAlign: TextAlign.end,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: cs.onSurfaceVariant,
-                fontSize: 14,
-              ),
-            ),
-          ),
-          const SizedBox(width: 2),
-          Icon(
-            Icons.chevron_right,
-            color: cs.onSurfaceVariant,
-            size: 20,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<void> _showPicker<T>({
-    required BuildContext context,
-    required String title,
-    required List<({String label, T value})> options,
-    required T selected,
-    required ValueChanged<T> onChanged,
-  }) {
-    return showBottomSheetPicker<T>(
-      context: context,
-      title: title,
-      selected: selected,
-      onChanged: onChanged,
-      options: [
-        for (final o in options)
-          BottomSheetPickerOption<T>(value: o.value, label: o.label),
-      ],
-    );
-  }
-
-  /// A row whose value is picked from [options]: a bottom sheet on Android,
-  /// an iOS 26 pop-up menu (Liquid Glass) on Apple.
-  Widget _pickerTile<T>(
-    BuildContext ctx, {
-    required IconData icon,
-    required Color appleColor,
-    required String title,
-    String? subtitle,
-    required List<({String label, T value})> options,
-    required T? selected,
-    required ValueChanged<T> onChanged,
-    bool enabled = true,
-    bool noDivider = false,
-  }) {
-    if (AppPlatform.isApple) {
-      return SettingsAppleMenuTile<T>(
-        icon: icon,
-        iconColor: appleColor,
-        title: title,
-        subtitle: subtitle,
-        options: options,
-        selected: selected,
-        onChanged: onChanged,
-        enabled: enabled && selected != null,
-        noDivider: noDivider,
-      );
-    }
-    final name = selected == null
-        ? '—'
-        : options
-            .firstWhere((o) => o.value == selected,
-                orElse: () => options.first)
-            .label;
-    return SettingsTile(
-      icon: icon,
-      title: title,
-      subtitle: subtitle,
-      enabled: enabled,
-      noDivider: noDivider,
-      trailing: _chevronTrailing(ctx, name),
-      onTap: !enabled || selected == null
-          ? null
-          : () => _showPicker<T>(
-                context: ctx,
-                title: title,
-                options: options,
-                selected: selected,
-                onChanged: onChanged,
-              ),
-    );
-  }
-
   // ── Actions ──────────────────────────────────────────────────────────────
 
   Future<void> _showCurrencyPicker() async {
@@ -198,8 +74,9 @@ class _SettingsPageState extends State<SettingsPage> {
     showCurrencyPicker(
       context: context,
       showFlag: true,
-      currencyFilter:
-          trainlog.availableCurrencies.isEmpty ? null : trainlog.availableCurrencies,
+      currencyFilter: trainlog.availableCurrencies.isEmpty
+          ? null
+          : trainlog.availableCurrencies,
       showCurrencyName: true,
       onSelect: (currency) => settings.setCurrency(currency.code),
     );
@@ -274,25 +151,31 @@ class _SettingsPageState extends State<SettingsPage> {
         builder: (ctx, _) {
           _vm.setVisibilityHelperText(l10n);
           return ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          children: [
-            const SizedBox(height: 8),
-            _sectionHeader(ctx, l10n.settingsAppCategory),
-            _buildAppSection(ctx, l10n, settings),
-            _sectionHeader(ctx, l10n.settingsMapCategory),
-            _buildMapSection(ctx, l10n, settings),
-            _sectionHeader(ctx, l10n.settingsAccountCategory),
-            _buildAccountSection(ctx, l10n, trainlog),
-            _sectionHeader(ctx, l10n.settingsDangerZoneCategory),
-            _buildDangerSection(ctx, l10n, settings, tripsProvider),
-            _sectionHeader(ctx, l10n.menuAboutTitle),
-            _buildAboutSection(ctx, l10n, settings, trainlog, tripsProvider),
-            if (kDebugMode) ...[
-              _sectionHeader(ctx, 'Debug'),
-              _buildDebugSection(ctx, l10n, settings, trainlog, tripsProvider),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            children: [
+              const SizedBox(height: 8),
+              SettingsSectionHeader(l10n.settingsAppCategory),
+              _buildAppSection(ctx, l10n, settings),
+              SettingsSectionHeader(l10n.settingsMapCategory),
+              _buildMapSection(ctx, l10n, settings),
+              SettingsSectionHeader(l10n.settingsAccountCategory),
+              _buildAccountSection(ctx, l10n, trainlog),
+              SettingsSectionHeader(l10n.settingsDangerZoneCategory),
+              _buildDangerSection(ctx, l10n, settings, tripsProvider),
+              SettingsSectionHeader(l10n.menuAboutTitle),
+              _buildAboutSection(ctx, l10n, settings, trainlog, tripsProvider),
+              if (kDebugMode) ...[
+                SettingsSectionHeader('Debug'),
+                _buildDebugSection(
+                  ctx,
+                  l10n,
+                  settings,
+                  trainlog,
+                  tripsProvider,
+                ),
+              ],
+              const SizedBox(height: 24),
             ],
-            const SizedBox(height: 24),
-          ],
           );
         },
       ),
@@ -341,93 +224,80 @@ class _SettingsPageState extends State<SettingsPage> {
       (label: l10n.menuTripsTitle, value: LandingPage.trips),
     ];
 
-    final isApple = AppPlatform.isApple;
-
-    return SettingsGroup(children: [
-      _ThemeRow(
-        icon: AdaptiveIcons.theme,
-        appleColor: _appleAppColor,
-        title: l10n.settingsThemeMode,
-        options: themeOptions,
-        selected: settings.themeMode,
-        onChanged: settings.setTheme,
-      ),
-      _pickerTile<String>(
-        ctx,
-        icon: AdaptiveIcons.language,
-        appleColor: _appleAppColor,
-        title: l10n.settingsLanguage,
-        options: languageOptions,
-        selected: settings.locale.languageCode,
-        onChanged: (v) => settings.setLocale(Locale(v)),
-      ),
-      _pickerTile<String>(
-        ctx,
-        icon: AdaptiveIcons.date,
-        appleColor: _appleAppColor,
-        title: l10n.settingsDateFormat,
-        subtitle: '(${l10n.settingsExampleShort} $dateExample)',
-        options: dateFormatOptions,
-        selected: settings.dateFormat,
-        onChanged: settings.setDateFormat,
-      ),
-      SettingsTile(
-        icon: AdaptiveIcons.hour,
-        appleIconColor: _appleAppColor,
-        title: l10n.settingsHourFormat12,
-        subtitle: '(${l10n.settingsExampleShort} $timeExample)',
-        trailing: AdaptiveSwitch(
-          value: settings.hourFormat12,
-          onChanged: settings.setHourFormat12,
+    return SettingsGroup(
+      children: [
+        SettingsThemeRow(
+          icon: AdaptiveIcons.theme,
+          appleIconColor: _appleAppColor,
+          title: l10n.settingsThemeMode,
+          options: themeOptions,
+          selected: settings.themeMode,
+          onChanged: settings.setTheme,
         ),
-      ),
-      SettingsTile(
-        icon: AdaptiveIcons.currency,
-        appleIconColor: _appleAppColor,
-        title: l10n.settingsCurrency,
-        onTap: isApple ? _showCurrencyPicker : null,
-        trailing: isApple
-            ? SettingsAppleDisclosure(value: settings.currency)
-            : OutlinedButton(
-                onPressed: _showCurrencyPicker,
-                style: OutlinedButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                ),
-                child: Text(settings.currency),
-              ),
-      ),
-      SettingsTile(
-        icon: AdaptiveIcons.warningMsg,
-        appleIconColor: _appleAppColor,
-        title: l10n.settingsHideWarningMessage,
-        trailing: AdaptiveSwitch(
-          value: settings.hideWarningMessage,
-          onChanged: settings.setHideWarningMessage,
+        SettingsPickerTile<String>(
+          icon: AdaptiveIcons.language,
+          appleIconColor: _appleAppColor,
+          title: l10n.settingsLanguage,
+          options: languageOptions,
+          selected: settings.locale.languageCode,
+          onChanged: (v) => settings.setLocale(Locale(v)),
         ),
-      ),
-      _pickerTile<int>(
-        ctx,
-        icon: AdaptiveIcons.radar,
-        appleColor: _appleAppColor,
-        title: l10n.settingsSprRadius,
-        options: radiusOptions,
-        selected: settings.sprRadius,
-        onChanged: settings.setSprRadius,
-      ),
-      _pickerTile<LandingPage>(
-        ctx,
-        icon: AdaptiveIcons.landingPage,
-        appleColor: _appleAppColor,
-        title: l10n.settingsLandingPage,
-        options: landingPageOptions,
-        selected: settings.landingPage,
-        onChanged: settings.setLandingPage,
-      ),
-    ]);
+        SettingsPickerTile<String>(
+          icon: AdaptiveIcons.date,
+          appleIconColor: _appleAppColor,
+          title: l10n.settingsDateFormat,
+          subtitle: '(${l10n.settingsExampleShort} $dateExample)',
+          options: dateFormatOptions,
+          selected: settings.dateFormat,
+          onChanged: settings.setDateFormat,
+        ),
+        SettingsTile(
+          icon: AdaptiveIcons.hour,
+          appleIconColor: _appleAppColor,
+          title: l10n.settingsHourFormat12,
+          subtitle: '(${l10n.settingsExampleShort} $timeExample)',
+          trailing: AdaptiveSwitch(
+            value: settings.hourFormat12,
+            onChanged: settings.setHourFormat12,
+          ),
+        ),
+        SettingsTile(
+          icon: AdaptiveIcons.currency,
+          appleIconColor: _appleAppColor,
+          title: l10n.settingsCurrency,
+          appleOnTap: _showCurrencyPicker,
+          trailing: SettingsValueButton(
+            value: settings.currency,
+            onPressed: _showCurrencyPicker,
+          ),
+        ),
+        SettingsTile(
+          icon: AdaptiveIcons.warningMsg,
+          appleIconColor: _appleAppColor,
+          title: l10n.settingsHideWarningMessage,
+          trailing: AdaptiveSwitch(
+            value: settings.hideWarningMessage,
+            onChanged: settings.setHideWarningMessage,
+          ),
+        ),
+        SettingsPickerTile<int>(
+          icon: AdaptiveIcons.radar,
+          appleIconColor: _appleAppColor,
+          title: l10n.settingsSprRadius,
+          options: radiusOptions,
+          selected: settings.sprRadius,
+          onChanged: settings.setSprRadius,
+        ),
+        SettingsPickerTile<LandingPage>(
+          icon: AdaptiveIcons.landingPage,
+          appleIconColor: _appleAppColor,
+          title: l10n.settingsLandingPage,
+          options: landingPageOptions,
+          selected: settings.landingPage,
+          onChanged: settings.setLandingPage,
+        ),
+      ],
+    );
   }
 
   Widget _buildMapSection(
@@ -436,19 +306,49 @@ class _SettingsPageState extends State<SettingsPage> {
     SettingsProvider settings,
   ) {
     final orderOptions = [
-      (label: l10n.settingMapPathDisplayOrderByCreation, value: PathDisplayOrder.creationDate),
-      (label: l10n.settingMapPathDisplayOrderByTrip, value: PathDisplayOrder.tripDate),
-      (label: l10n.settingMapPathDisplayOrderByTripAndPlane, value: PathDisplayOrder.tripDatePlaneOver),
+      (
+        label: l10n.settingMapPathDisplayOrderByCreation,
+        value: PathDisplayOrder.creationDate,
+      ),
+      (
+        label: l10n.settingMapPathDisplayOrderByTrip,
+        value: PathDisplayOrder.tripDate,
+      ),
+      (
+        label: l10n.settingMapPathDisplayOrderByTripAndPlane,
+        value: PathDisplayOrder.tripDatePlaneOver,
+      ),
     ];
 
     final paletteOptions = [
-      (label: l10n.settingsMapColorPaletteTrainlogApp, value: MapColorPalette.trainlogApp),
-      (label: l10n.settingsMapColorPaletteTrainlogWeb, value: MapColorPalette.trainlogWeb),
-      (label: l10n.settingsMapColorPaletteColourBlind, value: MapColorPalette.colorBlind),
-      (label: l10n.settingsMapColorPaletteVibrantTones, value: MapColorPalette.vibrantTones),
-      (label: l10n.settingsMapColorPaletteTrainlogRed, value: MapColorPalette.red),
-      (label: l10n.settingsMapColorPaletteTrainlogGreen, value: MapColorPalette.green),
-      (label: l10n.settingsMapColorPaletteTrainlogBlue, value: MapColorPalette.blue),
+      (
+        label: l10n.settingsMapColorPaletteTrainlogApp,
+        value: MapColorPalette.trainlogApp,
+      ),
+      (
+        label: l10n.settingsMapColorPaletteTrainlogWeb,
+        value: MapColorPalette.trainlogWeb,
+      ),
+      (
+        label: l10n.settingsMapColorPaletteColourBlind,
+        value: MapColorPalette.colorBlind,
+      ),
+      (
+        label: l10n.settingsMapColorPaletteVibrantTones,
+        value: MapColorPalette.vibrantTones,
+      ),
+      (
+        label: l10n.settingsMapColorPaletteTrainlogRed,
+        value: MapColorPalette.red,
+      ),
+      (
+        label: l10n.settingsMapColorPaletteTrainlogGreen,
+        value: MapColorPalette.green,
+      ),
+      (
+        label: l10n.settingsMapColorPaletteTrainlogBlue,
+        value: MapColorPalette.blue,
+      ),
     ];
 
     final mapThemeOptions = [
@@ -457,68 +357,68 @@ class _SettingsPageState extends State<SettingsPage> {
       (label: l10n.settingsDark, value: ThemeMode.dark),
     ];
 
-    return SettingsGroup(children: [
-      _ThemeRow(
-        icon: AdaptiveIcons.map,
-        appleColor: _appleMapColor,
-        title: l10n.settingsMapTheme,
-        options: mapThemeOptions,
-        selected: settings.mapThemeMode,
-        onChanged: settings.setMapTheme,
-      ),
-      _pickerTile<PathDisplayOrder>(
-        ctx,
-        icon: AdaptiveIcons.layers,
-        appleColor: _appleMapColor,
-        title: l10n.settingsMapPathDisplayOrder,
-        options: orderOptions,
-        selected: settings.pathDisplayOrder,
-        onChanged: (v) {
-          settings.setPathDisplayOrder(v);
-          settings.setShouldReloadPolylines(true);
-        },
-      ),
-      _pickerTile<MapColorPalette>(
-        ctx,
-        icon: AdaptiveIcons.palette,
-        appleColor: _appleMapColor,
-        title: l10n.settingsMapColorPalette,
-        noDivider: true,
-        options: paletteOptions,
-        selected: settings.mapColorPalette,
-        onChanged: (v) {
-          settings.setMapColorPalette(v);
-          settings.setShouldReloadPolylines(true);
-        },
-      ),
-      _PaletteLegendRow(palette: settings.mapColorPalette),
-      SettingsTile(
-        icon: AdaptiveIcons.position,
-        appleIconColor: _appleMapColor,
-        title: l10n.settingsDisplayUserMarker,
-        trailing: AdaptiveSwitch(
-          value: settings.mapDisplayUserLocationMarker,
-          onChanged: (value) async {
-            // Enabling the marker needs location access: prompt via the
-            // service first and only flip the switch on if it's granted.
-            if (value && !await _geo.hasPermission()) {
-              final granted = await _geo.requestPermission(settings);
-              if (!granted) return;
-            }
-            settings.setMapDisplayUserLocationMarker(value);
+    return SettingsGroup(
+      children: [
+        SettingsThemeRow(
+          icon: AdaptiveIcons.map,
+          appleIconColor: _appleMapColor,
+          title: l10n.settingsMapTheme,
+          options: mapThemeOptions,
+          selected: settings.mapThemeMode,
+          onChanged: settings.setMapTheme,
+        ),
+        SettingsPickerTile<PathDisplayOrder>(
+          icon: AdaptiveIcons.layers,
+          appleIconColor: _appleMapColor,
+          title: l10n.settingsMapPathDisplayOrder,
+          options: orderOptions,
+          selected: settings.pathDisplayOrder,
+          onChanged: (v) {
+            settings.setPathDisplayOrder(v);
+            settings.setShouldReloadPolylines(true);
           },
         ),
-      ),
-      SettingsTile(
-        icon: AdaptiveIcons.tripDirection,
-        appleIconColor: _appleMapColor,
-        title: l10n.settingsDisplayTripDirection,
-        trailing: AdaptiveSwitch(
-          value: settings.mapDisplayTripDirection,
-          onChanged: settings.setMapDisplayTripDirection,
+        SettingsPickerTile<MapColorPalette>(
+          icon: AdaptiveIcons.palette,
+          appleIconColor: _appleMapColor,
+          title: l10n.settingsMapColorPalette,
+          noDivider: true,
+          options: paletteOptions,
+          selected: settings.mapColorPalette,
+          onChanged: (v) {
+            settings.setMapColorPalette(v);
+            settings.setShouldReloadPolylines(true);
+          },
         ),
-      ),
-    ]);
+        SettingsPaletteLegend(palette: settings.mapColorPalette),
+        SettingsTile(
+          icon: AdaptiveIcons.position,
+          appleIconColor: _appleMapColor,
+          title: l10n.settingsDisplayUserMarker,
+          trailing: AdaptiveSwitch(
+            value: settings.mapDisplayUserLocationMarker,
+            onChanged: (value) async {
+              // Enabling the marker needs location access: prompt via the
+              // service first and only flip the switch on if it's granted.
+              if (value && !await _geo.hasPermission()) {
+                final granted = await _geo.requestPermission(settings);
+                if (!granted) return;
+              }
+              settings.setMapDisplayUserLocationMarker(value);
+            },
+          ),
+        ),
+        SettingsTile(
+          icon: AdaptiveIcons.tripDirection,
+          appleIconColor: _appleMapColor,
+          title: l10n.settingsDisplayTripDirection,
+          trailing: AdaptiveSwitch(
+            value: settings.mapDisplayTripDirection,
+            onChanged: settings.setMapDisplayTripDirection,
+          ),
+        ),
+      ],
+    );
   }
 
   Widget _buildAccountSection(
@@ -532,62 +432,66 @@ class _SettingsPageState extends State<SettingsPage> {
       (label: l10n.visibilityPublic, value: 2),
     ];
 
-    return SettingsGroup(children: [
-      _pickerTile<int>(
-        ctx,
-        icon: AdaptiveIcons.visibility,
-        appleColor: _appleAccountColor,
-        title: l10n.settingsAccountVisibility,
-        subtitle: _vm.accountVisibilityHelperText.isEmpty
-            ? null
-            : _vm.accountVisibilityHelperText,
-        enabled: _vm.accountVisibility != null,
-        options: visibilityOptions,
-        selected: _vm.accountVisibility,
-        onChanged: (v) => _vm.setAccountVisibility(
-          value: v,
-          l10n: l10n,
-          trainlog: trainlog,
-        ),
-      ),
-      SettingsTile(
-        icon: AdaptiveIcons.ranking,
-        appleIconColor: _appleAccountColor,
-        title: l10n.settingsAccountLeaderboard,
-        enabled: _vm.accountLeaderboard != null,
-        trailing: AdaptiveSwitch(
-          value: _vm.accountLeaderboard ?? false,
-          onChanged: _vm.accountLeaderboard == null
+    return SettingsGroup(
+      children: [
+        SettingsPickerTile<int>(
+          icon: AdaptiveIcons.visibility,
+          appleIconColor: _appleAccountColor,
+          title: l10n.settingsAccountVisibility,
+          subtitle: _vm.accountVisibilityHelperText.isEmpty
               ? null
-              : (v) => _vm.setAccountLeaderboard(value: v, trainlog: trainlog),
+              : _vm.accountVisibilityHelperText,
+          enabled: _vm.accountVisibility != null,
+          options: visibilityOptions,
+          selected: _vm.accountVisibility,
+          onChanged: (v) => _vm.setAccountVisibility(
+            value: v,
+            l10n: l10n,
+            trainlog: trainlog,
+          ),
         ),
-      ),
-      SettingsTile(
-        icon: AdaptiveIcons.friends,
-        appleIconColor: _appleAccountColor,
-        title: l10n.settingsAccountFriendSearch,
-        enabled: _vm.accountFriendSearch != null,
-        trailing: AdaptiveSwitch(
-          value: _vm.accountFriendSearch ?? false,
-          onChanged: _vm.accountFriendSearch == null
-              ? null
-              : (v) => _vm.setAccountFriendSearch(value: v, trainlog: trainlog),
+        SettingsTile(
+          icon: AdaptiveIcons.ranking,
+          appleIconColor: _appleAccountColor,
+          title: l10n.settingsAccountLeaderboard,
+          enabled: _vm.accountLeaderboard != null,
+          trailing: AdaptiveSwitch(
+            value: _vm.accountLeaderboard ?? false,
+            onChanged: _vm.accountLeaderboard == null
+                ? null
+                : (v) =>
+                      _vm.setAccountLeaderboard(value: v, trainlog: trainlog),
+          ),
         ),
-      ),
-      SettingsTile(
-        icon: AdaptiveIcons.world,
-        appleIconColor: _appleAccountColor,
-        title: l10n.settingsAccountAppearGlobal,
-        subtitle: l10n.settingsAccountAppearGlobalSubtitle,
-        enabled: _vm.accountAppearGlobal != null,
-        trailing: AdaptiveSwitch(
-          value: _vm.accountAppearGlobal ?? false,
-          onChanged: _vm.accountAppearGlobal == null
-              ? null
-              : (v) => _vm.setAccountAppearGlobal(value: v, trainlog: trainlog),
+        SettingsTile(
+          icon: AdaptiveIcons.friends,
+          appleIconColor: _appleAccountColor,
+          title: l10n.settingsAccountFriendSearch,
+          enabled: _vm.accountFriendSearch != null,
+          trailing: AdaptiveSwitch(
+            value: _vm.accountFriendSearch ?? false,
+            onChanged: _vm.accountFriendSearch == null
+                ? null
+                : (v) =>
+                      _vm.setAccountFriendSearch(value: v, trainlog: trainlog),
+          ),
         ),
-      ),
-    ]);
+        SettingsTile(
+          icon: AdaptiveIcons.world,
+          appleIconColor: _appleAccountColor,
+          title: l10n.settingsAccountAppearGlobal,
+          subtitle: l10n.settingsAccountAppearGlobalSubtitle,
+          enabled: _vm.accountAppearGlobal != null,
+          trailing: AdaptiveSwitch(
+            value: _vm.accountAppearGlobal ?? false,
+            onChanged: _vm.accountAppearGlobal == null
+                ? null
+                : (v) =>
+                      _vm.setAccountAppearGlobal(value: v, trainlog: trainlog),
+          ),
+        ),
+      ],
+    );
   }
 
   Widget _buildDangerSection(
@@ -596,58 +500,26 @@ class _SettingsPageState extends State<SettingsPage> {
     SettingsProvider settings,
     TripsProvider tripsProvider,
   ) {
-    if (AppPlatform.isApple) {
-      // iOS: the size reads as the row's value and the actions are plain red
-      // text, like "Clear History" / "Delete Account" in iOS Settings.
-      final hasCache = _vm.totalCacheSize > 0;
-      return SettingsGroup(children: [
-        SettingsTile(
+    return SettingsGroup(
+      children: [
+        SettingsClearCacheTile(
           icon: AdaptiveIcons.cache,
           appleIconColor: _appleDangerColor,
           title: l10n.settingsCacheTitle,
           subtitle: _vm.cacheSizeLabel(l10n, ctx),
-          enabled: hasCache,
-          onTap: hasCache ? _confirmAndClearCache : null,
-          trailing: Text(
-            l10n.settingsCacheClearButton,
-            style: TextStyle(
-              color: hasCache
-                  ? CupertinoColors.destructiveRed.resolveFrom(ctx)
-                  : CupertinoColors.tertiaryLabel.resolveFrom(ctx),
-            ),
-          ),
+          buttonLabel: l10n.settingsCacheClearButton,
+          enabled: _vm.totalCacheSize > 0,
+          onClear: _confirmAndClearCache,
         ),
-        SettingsTile(
+        SettingsDeleteAccountTile(
           icon: AdaptiveIcons.deleteAccount,
           appleIconColor: _appleDangerColor,
           title: l10n.settingsDeleteAccount,
-          destructive: true,
-          onTap: _deleteAccount,
+          buttonLabel: l10n.settingsDeleteAccountButton,
+          onDelete: _deleteAccount,
         ),
-      ]);
-    }
-    return SettingsGroup(children: [
-      SettingsTile(
-        icon: AdaptiveIcons.cache,
-        title: l10n.settingsCacheTitle,
-        subtitle: _vm.cacheSizeLabel(l10n, ctx),
-        enabled: _vm.totalCacheSize > 0,
-        trailing: AdaptiveDestructiveButton(
-                  onPressed: () => _vm.totalCacheSize > 0 ? _confirmAndClearCache() : null,
-                ),
-      ),
-      SettingsTile(
-        icon: AdaptiveIcons.deleteAccount,
-        title: l10n.settingsDeleteAccount,
-        trailing: AdaptiveButton.build(
-          context: ctx,
-          type: AdaptiveButtonType.destructive,
-          size: AdaptiveButton.small,
-          label: Text(l10n.settingsDeleteAccountButton),
-          onPressed: _deleteAccount,
-        ),
-      ),
-    ]);
+      ],
+    );
   }
 
   Widget _buildAboutSection(
@@ -659,70 +531,68 @@ class _SettingsPageState extends State<SettingsPage> {
   ) {
     final cs = Theme.of(ctx).colorScheme;
 
-    return SettingsGroup(children: [
-      SettingsTile(
-        icon: AdaptiveIcons.instance,
-        appleIconColor: _appleAboutColor,
-        title: l10n.settingsInstanceUrl,
-        onTap: AppPlatform.isApple
-            ? () => AdaptiveInformationMessage.show(
-                  ctx,
-                  l10n.settingsInstanceMsg,
-                  isImportant: true,
-                )
-            : null,
-        trailing: GestureDetector(
-          onTap: () => AdaptiveInformationMessage.show(
+    return SettingsGroup(
+      children: [
+        SettingsTile(
+          icon: AdaptiveIcons.instance,
+          appleIconColor: _appleAboutColor,
+          title: l10n.settingsInstanceUrl,
+          appleOnTap: () => AdaptiveInformationMessage.show(
             ctx,
             l10n.settingsInstanceMsg,
             isImportant: true,
           ),
-          child: Text(
-            trainlog.instanceUrl,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: AppTheme.monoFont.copyWith(
-              fontSize: 13,
-              color: cs.primary,
+          trailing: GestureDetector(
+            onTap: () => AdaptiveInformationMessage.show(
+              ctx,
+              l10n.settingsInstanceMsg,
+              isImportant: true,
+            ),
+            child: Text(
+              trainlog.instanceUrl,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: AppTheme.monoFont.copyWith(
+                fontSize: 13,
+                color: cs.primary,
+              ),
             ),
           ),
         ),
-      ),
-      SettingsTile(
-        icon: AdaptiveIcons.info,
-        appleIconColor: _appleAboutColor,
-        title: l10n.appVersion,
-        trailing: FutureBuilder<String>(
-          future: _vm.getVersionString(),
-          builder: (_, snap) {
-            if (!snap.hasData) return const SizedBox.shrink();
-            return GestureDetector(
-              onTap: () => _vm.onVersionTapped(
-                l10n: l10n,
-                showCopiedInfo: () =>
-                    AdaptiveInformationMessage.showInfo(l10n.appVersionCopied),
-                openSnakeGame: () =>
-                    AdaptivePageRoute.push(ctx, (_) => const SnakeGame()),
-              ),
-              child: Text(
-                snap.data!,
-                style: AppTheme.monoFont.copyWith(
-                  fontSize: 13,
-                  color: cs.onSurfaceVariant,
+        SettingsTile(
+          icon: AdaptiveIcons.info,
+          appleIconColor: _appleAboutColor,
+          title: l10n.appVersion,
+          trailing: FutureBuilder<String>(
+            future: _vm.getVersionString(),
+            builder: (_, snap) {
+              if (!snap.hasData) return const SizedBox.shrink();
+              return GestureDetector(
+                onTap: () => _vm.onVersionTapped(
+                  l10n: l10n,
+                  showCopiedInfo: () => AdaptiveInformationMessage.showInfo(
+                    l10n.appVersionCopied,
+                  ),
+                  openSnakeGame: () =>
+                      AdaptivePageRoute.push(ctx, (_) => const SnakeGame()),
                 ),
-              ),
-            );
-          },
+                child: Text(
+                  snap.data!,
+                  style: AppTheme.monoFont.copyWith(
+                    fontSize: 13,
+                    color: cs.onSurfaceVariant,
+                  ),
+                ),
+              );
+            },
+          ),
         ),
-      ),
-      SettingsTile(
-        icon: AdaptiveIcons.license,
-        appleIconColor: _appleAboutColor,
-        title: l10n.settingsLicenses,
-        trailing: AppPlatform.isApple
-            ? const SettingsAppleDisclosure()
-            : Icon(Icons.chevron_right, color: cs.onSurfaceVariant, size: 20),
-        onTap: () async {
+        SettingsTile(
+          icon: AdaptiveIcons.license,
+          appleIconColor: _appleAboutColor,
+          title: l10n.settingsLicenses,
+          trailing: const SettingsChevron(),
+          onTap: () async {
             final version = await _vm.getVersionString();
             if (!mounted) return;
             showLicensePage(
@@ -735,8 +605,9 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
             );
           },
-      ),
-    ]);
+        ),
+      ],
+    );
   }
 
   Widget _buildDebugSection(
@@ -746,9 +617,10 @@ class _SettingsPageState extends State<SettingsPage> {
     TrainlogProvider trainlog,
     TripsProvider tripsProvider,
   ) {
-      final icon = AdaptiveIcons.debug;
+    final icon = AdaptiveIcons.debug;
 
-      return SettingsGroup(children: [
+    return SettingsGroup(
+      children: [
         SettingsTile(
           icon: icon,
           title: 'Reset Onboarding',
@@ -785,7 +657,8 @@ class _SettingsPageState extends State<SettingsPage> {
             onPressed: () async {
               await trainlog.debugForgetSessionCookie();
               AdaptiveInformationMessage.showInfo(
-                  'Session cookie deleted: refresh the trips to see the banner');
+                'Session cookie deleted: refresh the trips to see the banner',
+              );
             },
           ),
         ),
@@ -803,199 +676,7 @@ class _SettingsPageState extends State<SettingsPage> {
             },
           ),
         ),
-      ]);
-  }
-}
-
-// ── Sub-widgets ───────────────────────────────────────────────────────────────
-
-/// Inline segmented-control row for theme selection.
-class _ThemeRow extends StatelessWidget {
-  final IconData icon;
-  final Color appleColor;
-  final String title;
-  final List<({String label, ThemeMode value})> options;
-  final ThemeMode selected;
-  final ValueChanged<ThemeMode> onChanged;
-
-  const _ThemeRow({
-    required this.icon,
-    required this.appleColor,
-    required this.title,
-    required this.options,
-    required this.selected,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    if (AppPlatform.isApple) return _buildApple(context);
-    final cs = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDark ? const Color(0xFF3A3A3C) : const Color(0xFFE5E5EA);
-    final fgColor = isDark ? const Color(0xFFEEEEF0) : const Color(0xFF3A3A3C);
-    final tabColors = Theme.of(context).extension<AppTabColors>()!;
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 11, 16, 11),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header row: icon square + label
-          Row(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: bgColor,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(icon, color: fgColor, size: 22),
-              ),
-              const SizedBox(width: 12),
-              Text(
-                title,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          // Segmented control, centred within the tile
-          Padding(
-            padding: const EdgeInsets.only(left: 52),
-            child: Container(
-              decoration: BoxDecoration(
-                color: tabColors.tabBackground,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              padding: const EdgeInsets.all(3),
-              child: Row(
-                children: options.map((entry) {
-                  final selectedItem = selected == entry.value;
-                  return Expanded(
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      decoration: BoxDecoration(
-                        color: selectedItem ? tabColors.selectedBackground : Colors.transparent,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(8),
-                        onTap: () => onChanged(entry.value),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          child: Text(
-                            entry.label,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 13,
-                              color:
-                                  selectedItem ? tabColors.onSelected : cs.onSurface,
-                              fontWeight: selectedItem
-                                  ? FontWeight.w600
-                                  : FontWeight.normal,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                }).toList(),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Apple: iOS row header (coloured icon + 17 pt title) with the glass
-  /// segmented control under it, aligned with the title.
-  Widget _buildApple(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 11, 16, 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              SettingsAppleIcon(icon: icon, color: appleColor),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 17,
-                    color: CupertinoColors.label.resolveFrom(context),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Padding(
-            padding: const EdgeInsets.only(left: 44),
-            child: _appleSelector(),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Apple: the same iOS segmented control as the other selectors, text
-  /// only (iOS segments show an icon or text, not both).
-  Widget _appleSelector() {
-    final index = options.indexWhere((o) => o.value == selected);
-    return AppStepsTabBar(
-      fullWidth: true,
-      tabs: [for (final o in options) AppStepsTab(label: o.label)],
-      selectedIndex: index < 0 ? 0 : index,
-      onTabChanged: (i) => onChanged(options[i].value),
-    );
-  }
-}
-
-/// Horizontal scrollable row showing the current palette's vehicle-type colours.
-class _PaletteLegendRow extends StatelessWidget {
-  final MapColorPalette palette;
-  const _PaletteLegendRow({required this.palette});
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = MapColorPaletteHelper.getPalette(palette);
-    if (AppPlatform.isApple) {
-      // iOS: the icons wrap under the row title instead of scrolling, so
-      // none is cut at the cell edge.
-      return Padding(
-        padding: const EdgeInsets.fromLTRB(60, 0, 16, 12),
-        child: Wrap(
-          spacing: 14,
-          runSpacing: 8,
-          children: [
-            for (final type in VehicleType.values)
-              Icon(type.icon().icon, color: colors[type] ?? Colors.grey, size: 22),
-          ],
-        ),
-      );
-    }
-    return Padding(
-      // Apple: start under the row titles, like the separators.
-      padding: const EdgeInsets.fromLTRB(16, 6, 16, 10),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          children: VehicleType.values.map((type) {
-            final color = colors[type] ?? Colors.grey;
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: Icon(type.icon().icon, color: color),
-            );
-          }).toList(),
-        ),
-      ),
+      ],
     );
   }
 }
