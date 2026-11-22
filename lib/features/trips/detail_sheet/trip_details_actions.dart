@@ -156,15 +156,17 @@ class TripDetailsActions extends StatelessWidget {
     }
   }
 
-  /// iOS alert with Delete in the destructive red. It keeps the theme of
-  /// the sheet it is opened from (e.g. the map's), not the app's.
+  /// iOS action sheet with Delete in the destructive red and a separate
+  /// Cancel, as Photos and Mail confirm a deletion. Unlike an alert, a tap
+  /// outside cancels it. It keeps the theme of the sheet it is opened from
+  /// (e.g. the map's), not the app's.
   Future<bool> _confirmDeleteApple(
     BuildContext context,
     AppLocalizations l10n,
   ) async {
     final theme = Theme.of(context);
     final cupertinoTheme = CupertinoTheme.of(context);
-    final result = await showCupertinoDialog<bool>(
+    final result = await showCupertinoModalPopup<bool>(
       context: context,
       useRootNavigator: true,
       builder: (dialogContext) => Theme(
@@ -172,25 +174,26 @@ class TripDetailsActions extends StatelessWidget {
         child: CupertinoTheme(
           // Same blue tint as the action rows (Apple uses one tint for both).
           data: cupertinoTheme.copyWith(primaryColor: theme.colorScheme.secondary),
-          child: CupertinoAlertDialog(
+          child: CupertinoActionSheet(
             title: AppleBrandFont(child: Text(l10n.tripsDetailsDeleteDialogTitle)),
-            content:
+            message:
                 AppleBrandFont(child: Text(l10n.tripsDetailsDeleteDialogMessage)),
             actions: [
-              CupertinoDialogAction(
-                onPressed: () => Navigator.of(dialogContext).pop(false),
-                child: AppleBrandFont(
-                  child: Text(
-                    CupertinoLocalizations.of(dialogContext).cancelButtonLabel,
-                  ),
-                ),
-              ),
-              CupertinoDialogAction(
+              CupertinoActionSheetAction(
                 isDestructiveAction: true,
                 onPressed: () => Navigator.of(dialogContext).pop(true),
                 child: AppleBrandFont(child: Text(l10n.deleteButton)),
               ),
             ],
+            cancelButton: CupertinoActionSheetAction(
+              isDefaultAction: true,
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: AppleBrandFont(
+                child: Text(
+                  CupertinoLocalizations.of(dialogContext).cancelButtonLabel,
+                ),
+              ),
+            ),
           ),
         ),
       ),
