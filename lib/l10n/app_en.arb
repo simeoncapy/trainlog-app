@@ -40,6 +40,18 @@
   "changeInstance": "Change instance",
   "instanceSelectorLabel": "Instance",
   "errorCreationAccount": "Error while creating account.",
+  "errorCreationAccountUnreachable": "The server could not be reached. Check your connection and try again.",
+  "@errorCreationAccountUnreachable": {
+    "description": "Error on the sign up page when the server cannot be reached"
+  },
+  "errorCreationAccountLogin": "Your account was created, but you could not be logged in. Please log in.",
+  "@errorCreationAccountLogin": {
+    "description": "Error on the sign up page when the account was created but the automatic login that follows failed"
+  },
+  "createAccountVerifying": "Checking that you are not a robot\u2026",
+  "@createAccountVerifying": {
+    "description": "Shown under the progress indicator while the app solves the signup anti-bot challenge"
+  },
   "connectionError": "Login failed, please check your credentials",
   "refreshCompleted": "Refresh completed",
   "nextButton": "Next",

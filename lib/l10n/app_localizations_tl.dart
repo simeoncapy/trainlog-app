@@ -121,6 +121,17 @@ class AppLocalizationsTl extends AppLocalizations {
   String get errorCreationAccount => 'May mali sa pag gawa ng account.';
 
   @override
+  String get errorCreationAccountUnreachable =>
+      'Hindi maabot ang server. Suriin ang iyong koneksyon at subukang muli.';
+
+  @override
+  String get errorCreationAccountLogin =>
+      'Nagawa ang iyong account, pero hindi ka naka-log in. Mangyaring mag-log in.';
+
+  @override
+  String get createAccountVerifying => 'Sinusuri na hindi ka robot…';
+
+  @override
   String get connectionError => 'May mali sa credentials mo';
 
   @override

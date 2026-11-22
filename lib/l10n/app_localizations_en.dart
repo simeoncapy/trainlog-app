@@ -121,6 +121,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorCreationAccount => 'Error while creating account.';
 
   @override
+  String get errorCreationAccountUnreachable =>
+      'The server could not be reached. Check your connection and try again.';
+
+  @override
+  String get errorCreationAccountLogin =>
+      'Your account was created, but you could not be logged in. Please log in.';
+
+  @override
+  String get createAccountVerifying => 'Checking that you are not a robot…';
+
+  @override
   String get connectionError => 'Login failed, please check your credentials';
 
   @override

@@ -324,6 +324,24 @@ abstract class AppLocalizations {
   /// **'Error while creating account.'**
   String get errorCreationAccount;
 
+  /// Error on the sign up page when the server cannot be reached
+  ///
+  /// In en, this message translates to:
+  /// **'The server could not be reached. Check your connection and try again.'**
+  String get errorCreationAccountUnreachable;
+
+  /// Error on the sign up page when the account was created but the automatic login that follows failed
+  ///
+  /// In en, this message translates to:
+  /// **'Your account was created, but you could not be logged in. Please log in.'**
+  String get errorCreationAccountLogin;
+
+  /// Shown under the progress indicator while the app solves the signup anti-bot challenge
+  ///
+  /// In en, this message translates to:
+  /// **'Checking that you are not a robot…'**
+  String get createAccountVerifying;
+
   /// No description provided for @connectionError.
   ///
   /// In en, this message translates to:
