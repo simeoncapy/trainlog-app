@@ -4,7 +4,7 @@ import 'package:trainlog_app/ui/adaptive/adaptive_button.dart';
 import 'package:trainlog_app/ui/adaptive/adaptive_widget.dart';
 import 'package:trainlog_app/ui/tokens/app_tab_theme.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
-import 'package:trainlog_app/widgets/bottom_sheet_picker.dart';
+import 'package:trainlog_app/ui/adaptive/bottom_sheet_picker.dart';
 
 // Material 3 (Android) renderings of the settings rows. The page uses the
 // facades in settings_group.dart, which pick these or the iOS ones.

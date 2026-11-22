@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/core/providers/trainlog_provider.dart';
 import 'package:trainlog_app/features/trips/search_filter_sheet/filter_group_section.dart';
-import 'package:trainlog_app/features/trips/search_filter_sheet/sheet_common.dart';
 import 'package:trainlog_app/features/trips/search_filter_sheet/trips_filter_controller.dart';
 import 'package:trainlog_app/features/trips/search_filter_sheet/trips_filter_entries.dart';
-import 'package:trainlog_app/features/trips/search_filter_sheet/when_section.dart';
+import 'package:trainlog_app/features/trips/search_filter_sheet/cupertino/when_section_cupertino.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
+import 'package:trainlog_app/ui/adaptive/adaptive_search_field.dart';
 import 'package:trainlog_app/ui/adaptive/adaptive_vehicle_type_filter_chips.dart';
 import 'package:trainlog_app/ui/cupertino/glass_filter_parts.dart';
 
@@ -84,12 +84,12 @@ class TripsFilterCupertinoView extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                SheetSearchField(
+                AdaptiveSearchField(
                   controller: keywordController,
                   placeholder: l10n.tripsSearchFilterSearchHint,
                 ),
                 const SizedBox(height: 18),
-                WhenSection(
+                CupertinoWhenSection(
                   quickFilter: filter.quickFilter,
                   fromDate: filter.fromDate,
                   toDate: filter.toDate,

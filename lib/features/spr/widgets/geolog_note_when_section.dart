@@ -5,7 +5,7 @@ import 'package:trainlog_app/ui/tokens/app_theme.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/utils/signed_int_formatter.dart';
-import 'package:trainlog_app/widgets/app_steps_tab_bar.dart';
+import 'package:trainlog_app/ui/adaptive/app_steps_tab_bar.dart';
 import 'package:trainlog_app/widgets/trip_form/trip_form_card.dart';
 import 'package:trainlog_app/widgets/trip_form/trip_form_tiles.dart';
 
