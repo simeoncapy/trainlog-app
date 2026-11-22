@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 
-/// A slowly blinking black pill anchored at the top of the map, shown while
+/// Android: a slowly blinking black pill anchored at the top of the map, shown while
 /// the map follows the user's position. Returns a [Positioned]: put it
 /// directly in the map's Stack.
-class LockedOnPositionPill extends StatefulWidget {
-  const LockedOnPositionPill({super.key});
+class MaterialLockedOnPositionPill extends StatefulWidget {
+  const MaterialLockedOnPositionPill({super.key});
 
   @override
-  State<LockedOnPositionPill> createState() => _LockedOnPositionPillState();
+  State<MaterialLockedOnPositionPill> createState() => _MaterialLockedOnPositionPillState();
 }
 
-class _LockedOnPositionPillState extends State<LockedOnPositionPill>
+class _MaterialLockedOnPositionPillState extends State<MaterialLockedOnPositionPill>
     with SingleTickerProviderStateMixin {
   late final AnimationController _blink = AnimationController(
     vsync: this,

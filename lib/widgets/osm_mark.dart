@@ -1,8 +1,14 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:trainlog_app/ui/design.dart';
+import 'package:trainlog_app/widgets/cupertino/osm_mark_cupertino.dart';
+import 'package:trainlog_app/widgets/material/osm_mark_material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 enum MarkOrientation { horizontal, vertical }
 
+/// The OpenStreetMap credit shown over a map; tapping it opens the OSM
+/// copyright page. A translucent tag on Android, a Liquid Glass capsule on
+/// iOS.
 class OsmMark extends StatelessWidget {
   final bool isCompact;
   final Alignment alignment;
@@ -21,51 +27,21 @@ class OsmMark extends StatelessWidget {
     this.orientation = MarkOrientation.horizontal,
   });
 
+  String get text => isCompact ? osmCreditCompact : osmCredit;
+
+  /// [label], turned upwards when the mark is [MarkOrientation.vertical].
+  Widget orient(Widget label) => orientation == MarkOrientation.horizontal
+      ? label
+      : RotatedBox(quarterTurns: 3, child: label);
+
+  static void openCredit() => launchUrl(
+    Uri.parse(osmCreditUrl),
+    mode: LaunchMode.externalApplication,
+  );
+
   @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    final text = isCompact ? osmCreditCompact : osmCredit;
-
-    final label = Text(
-      text,
-      style: theme.textTheme.labelSmall?.copyWith(
-        fontSize: isCompact ? 9 : 11,
-        decoration: TextDecoration.underline,
-        color: theme.colorScheme.onSurface.withValues(alpha: 0.85),
-      ),
-    );
-
-    final content = orientation == MarkOrientation.horizontal
-        ? label
-        : RotatedBox(
-            quarterTurns: 3,
-            child: label,
-          );
-
-    return Align(
-      alignment: alignment,
-      child: Padding(
-        padding: margin,
-        child: Material(
-          color: theme.colorScheme.surface.withValues(alpha: 0.75),
-          borderRadius: BorderRadius.circular(4),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(4),
-            onTap: () => launchUrl(
-              Uri.parse(osmCreditUrl),
-              mode: LaunchMode.externalApplication,
-            ),
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: isCompact ? 4 : 6,
-                vertical: 2,
-              ),
-              child: content,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => PlatformView(
+    material: (_) => MaterialOsmMark(mark: this),
+    cupertino: (_) => CupertinoOsmMark(mark: this),
+  );
 }

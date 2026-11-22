@@ -42,9 +42,10 @@ class MapLocationControls extends StatelessWidget {
   );
 }
 
-/// Top-right column: search, then a smaller filter button, then the compass
-/// while the map is rotated away from north (tapping it brings north back
-/// up, which hides it again).
+/// Top-right column: search and filter, then the compass while the map is
+/// rotated away from north (tapping it brings north back up, which hides it
+/// again). Android shows separate round buttons; iOS groups search and
+/// filter in one glass capsule, with the compass apart below it.
 class MapTopControls extends StatelessWidget {
   const MapTopControls({
     super.key,
@@ -61,23 +62,40 @@ class MapTopControls extends StatelessWidget {
   final VoidCallback onResetOrientation;
 
   @override
-  Widget build(BuildContext context) => PlatformView(
-    material: (_) => MapTopControlsLayout(
-      top: 12,
-      searchButton: MaterialMapSearchButton(onPressed: onSearch),
-      smallButton: MaterialMapSmallButton.new,
-      controls: this,
-    ),
-    cupertino: (_) => MapTopControlsLayout(
-      top: 8,
-      searchButton: CupertinoMapSearchButton(onPressed: onSearch),
-      smallButton: CupertinoMapSmallButton.new,
-      controls: this,
-    ),
-  );
+  Widget build(BuildContext context) {
+    final filterTooltip = AppLocalizations.of(context)!.filterButton;
+    return PlatformView(
+      material: (_) => MapTopControlsLayout(
+        top: 12,
+        buttons: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            MaterialMapSearchButton(onPressed: onSearch),
+            const SizedBox(height: 10),
+            MaterialMapSmallButton(
+              icon: Icon(AdaptiveIcons.filter),
+              tooltip: filterTooltip,
+              onPressed: onFilter,
+            ),
+          ],
+        ),
+        compassButton: MaterialMapSmallButton.new,
+        controls: this,
+      ),
+      cupertino: (_) => MapTopControlsLayout(
+        top: 8,
+        buttons: CupertinoMapSearchFilterGroup(
+          onSearch: onSearch,
+          onFilter: onFilter,
+        ),
+        compassButton: CupertinoMapSmallButton.new,
+        controls: this,
+      ),
+    );
+  }
 }
 
-/// Builds a small round map button (filter, compass).
+/// Builds the round compass button of one design.
 typedef MapSmallButtonBuilder =
     Widget Function({
       Key? key,
@@ -86,20 +104,21 @@ typedef MapSmallButtonBuilder =
       required VoidCallback onPressed,
     });
 
-/// The column of [MapTopControls], with the buttons of one design.
+/// The column of [MapTopControls]: the search and filter [buttons] of one
+/// design, then the compass.
 class MapTopControlsLayout extends StatelessWidget {
   const MapTopControlsLayout({
     super.key,
     required this.top,
-    required this.searchButton,
-    required this.smallButton,
+    required this.buttons,
+    required this.compassButton,
     required this.controls,
   });
 
   /// Distance under the status bar.
   final double top;
-  final Widget searchButton;
-  final MapSmallButtonBuilder smallButton;
+  final Widget buttons;
+  final MapSmallButtonBuilder compassButton;
   final MapTopControls controls;
 
   @override
@@ -119,7 +138,7 @@ class MapTopControlsLayout extends StatelessWidget {
               : Padding(
                   key: const ValueKey('compass'),
                   padding: const EdgeInsets.only(top: 10),
-                  child: smallButton(
+                  child: compassButton(
                     icon: Transform.rotate(
                       angle: -(rotation + 45.0) * (math.pi / 180.0),
                       child: Icon(AdaptiveIcons.compass),
@@ -137,16 +156,7 @@ class MapTopControlsLayout extends StatelessWidget {
       right: 16,
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        children: [
-          searchButton,
-          const SizedBox(height: 10),
-          smallButton(
-            icon: Icon(AdaptiveIcons.filter),
-            tooltip: appLocalizations.filterButton,
-            onPressed: controls.onFilter,
-          ),
-          compass,
-        ],
+        children: [buttons, compass],
       ),
     );
   }

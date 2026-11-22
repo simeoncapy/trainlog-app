@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/features/map/map_page.dart';
 import 'package:trainlog_app/features/map/map_page_controller.dart';
-import 'package:trainlog_app/features/map/widgets/locked_on_position_pill.dart';
+import 'package:trainlog_app/features/map/material/locked_on_position_pill_material.dart';
 import 'package:trainlog_app/features/map/widgets/map_canvas.dart';
 import 'package:trainlog_app/features/map/widgets/map_controls.dart';
 import 'package:trainlog_app/features/map/widgets/map_search_overlay.dart';
@@ -52,7 +52,7 @@ class _MapMaterialViewState extends State<MapMaterialView> {
           child: OsmMark(isCompact: false, alignment: Alignment.topLeft),
         ),
 
-        if (controller.following) const LockedOnPositionPill(),
+        if (controller.following) const MaterialLockedOnPositionPill(),
         MapTopControls(
           rotation: actions.rotation,
           onSearch: () => _search.open(context),

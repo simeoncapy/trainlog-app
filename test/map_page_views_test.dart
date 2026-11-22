@@ -15,11 +15,14 @@ import 'package:trainlog_app/features/map/map_page.dart';
 import 'package:trainlog_app/features/map/map_page_controller.dart';
 import 'package:trainlog_app/features/map/material/map_controls_material.dart';
 import 'package:trainlog_app/features/map/material/map_material_view.dart';
-import 'package:trainlog_app/features/map/widgets/locked_on_position_pill.dart';
+import 'package:trainlog_app/features/map/material/locked_on_position_pill_material.dart';
+import 'package:trainlog_app/features/map/cupertino/locked_on_position_pill_cupertino.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/ui/design.dart';
 import 'package:trainlog_app/ui/tokens/app_theme.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
+import 'package:trainlog_app/widgets/cupertino/osm_mark_cupertino.dart';
+import 'package:trainlog_app/widgets/material/osm_mark_material.dart';
 
 class _GrantedLocation implements MapLocationSource {
   @override
@@ -94,6 +97,9 @@ void main() {
 
   for (final design in DesignLanguage.values) {
     final isMaterial = design == DesignLanguage.material;
+    final pill = isMaterial
+        ? MaterialLockedOnPositionPill
+        : CupertinoLockedOnPositionPill;
 
     testWidgets('${design.name}: its own view and controls', (t) async {
       await pump(t, design);
@@ -111,10 +117,14 @@ void main() {
         isMaterial ? findsOneWidget : findsNothing,
       );
       expect(
-        find.byType(CupertinoMapSearchButton),
+        find.byType(CupertinoMapSearchFilterGroup),
         isMaterial ? findsNothing : findsOneWidget,
       );
-      expect(find.byType(LockedOnPositionPill), findsNothing);
+      expect(
+        find.byType(isMaterial ? MaterialOsmMark : CupertinoOsmMark),
+        findsOneWidget,
+      );
+      expect(find.byType(pill), findsNothing);
     });
 
     testWidgets('${design.name}: following shows the pill', (t) async {
@@ -124,16 +134,16 @@ void main() {
       await t.pump();
 
       expect(controller.following, isTrue);
-      expect(find.byType(LockedOnPositionPill), findsOneWidget);
+      expect(find.byType(pill), findsOneWidget);
     });
 
     testWidgets('${design.name}: search and pick a place', (t) async {
       final controller = await pump(t, design);
 
       await t.tap(
-        find.byType(
-          isMaterial ? MaterialMapSearchButton : CupertinoMapSearchButton,
-        ),
+        isMaterial
+            ? find.byType(MaterialMapSearchButton)
+            : find.bySemanticsLabel('Search a place'),
       );
       await t.pump();
       await t.enterText(find.byType(TextField), 'Kyoto');

@@ -100,7 +100,8 @@ class MaterialMapSearchButton extends StatelessWidget {
   }
 }
 
-/// Smaller round blurred button under the search one (filter, compass).
+/// Round blurred button under the search one (filter, compass), the same
+/// size and look as the search button.
 class MaterialMapSmallButton extends StatelessWidget {
   const MaterialMapSmallButton({
     super.key,
@@ -116,29 +117,17 @@ class MaterialMapSmallButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final navColors = Theme.of(context).extension<AppNavBarColors>()!;
-    final (_, fg) = FilledButtonColorScheme.resolveColors(
-      context,
-      FilledButtonColorScheme.floating,
-    );
-
     return Tooltip(
       message: tooltip,
       child: ClipOval(
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-          child: Material(
+          child: Container(
             color: navColors.background,
-            child: InkWell(
-              onTap: onPressed,
-              child: SizedBox.square(
-                dimension: 36,
-                child: Center(
-                  child: IconTheme(
-                    data: IconThemeData(size: 20, color: fg),
-                    child: icon,
-                  ),
-                ),
-              ),
+            child: AdaptiveFilledIconButton(
+              onPressed: onPressed,
+              colorScheme: FilledButtonColorScheme.floating,
+              child: icon,
             ),
           ),
         ),
