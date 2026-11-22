@@ -4,7 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:trainlog_app/services/api/session_expiry.dart';
 import 'package:trainlog_app/services/api/trainlog_http_client.dart';
-import 'package:trainlog_app/utils/altcha.dart';
+import 'package:altcha_lib/altcha_lib.dart' show Challenge;
 
 class TrainlogLoginResult {
   final bool success;
@@ -133,7 +133,7 @@ class AuthApi {
   }
 
   /// A fresh proof-of-work challenge for the signup captcha.
-  Future<AltchaChallenge> fetchSignupChallenge() async {
+  Future<Challenge> fetchSignupChallenge() async {
     final resp = await _client.dio.get(
       '$_signupPath/challenge',
       options: Options(
@@ -146,14 +146,14 @@ class AuthApi {
     if (data is! Map) {
       throw const FormatException('Unexpected signup challenge response');
     }
-    return AltchaChallenge.fromJson(Map<String, dynamic>.from(data));
+    return Challenge.fromJson(Map<String, dynamic>.from(data));
   }
 
   /// Creates the account with `POST /signup/?raw=1`, which answers in JSON:
   /// `{"username": ...}` on success (the session cookie is then set), else
   /// `{"error": <localised message>, "code": <machine code>}`.
   ///
-  /// [altcha] is the solved captcha payload (see [AltchaChallenge]).
+  /// [altcha] is the solved captcha payload (see `SignupCaptcha`).
   Future<SignupResult> signup({
     required String username,
     required String password,

@@ -14,7 +14,7 @@ import 'package:trainlog_app/providers/trips_provider.dart';
 import 'package:trainlog_app/services/api/api_import.dart';
 import 'package:trainlog_app/utils/cached_data_utils.dart';
 import 'package:trainlog_app/utils/text_utils.dart';
-import 'package:trainlog_app/utils/altcha.dart';
+import 'package:altcha_lib/altcha_lib.dart' show Challenge;
 import 'package:latlong2/latlong.dart';
 import "package:unorm_dart/unorm_dart.dart" as unorm;
 
@@ -244,7 +244,7 @@ class TrainlogProvider extends ChangeNotifier {
   }
 
   /// A proof-of-work challenge for the signup captcha (see [SignupCaptcha]).
-  Future<AltchaChallenge> fetchSignupChallenge() => _auth.fetchSignupChallenge();
+  Future<Challenge> fetchSignupChallenge() => _auth.fetchSignupChallenge();
 
   /// Creates the account, then logs it in. [altcha] is the solved signup
   /// captcha.

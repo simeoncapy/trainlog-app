@@ -1,154 +1,95 @@
-import 'dart:convert';
 import 'dart:typed_data';
 
-/// Solver for the ALTCHA v2 proof-of-work captcha that protects the Trainlog
-/// signup (see `src/captcha.py` on the server).
+import 'package:altcha_lib/algorithms.dart' show adaptiveDeriveKey;
+import 'package:altcha_lib/altcha_lib.dart' show ChallengeParameters, DeriveKeyResult;
+
+// ===========================================================================
+// Faster PBKDF2 for the signup captcha (optional, see the switch
+// `SignupCaptcha.useFastPbkdf2`)
+// ===========================================================================
+//
+// WHY THIS FILE EXISTS
+//
+// The signup captcha (ALTCHA, solved with `package:altcha_lib`) makes the
+// client search for a counter c such that
+//   PBKDF2-HMAC-SHA256(nonce ‖ c, salt, cost = 1000 rounds)
+// starts with a given prefix. Trainlog's counters are 2000-5000, so a signup
+// costs a few thousand PBKDF2 runs: millions of SHA-256 blocks, on a phone.
+//
+// altcha_lib computes PBKDF2 with `package:crypto`'s generic HMAC. Each
+// PBKDF2 round is one HMAC = 4 SHA-256 blocks:
+//   inner: (key ⊕ ipad) block + message block
+//   outer: (key ⊕ opad) block + inner digest block
+// But the two pad blocks depend only on the password (nonce ‖ counter), which
+// does not change during the 1000 rounds. This file hashes them once per
+// counter and reuses the two resulting SHA-256 states, so each round costs
+// 2 blocks instead of 4. It also works on fixed typed buffers, with no
+// allocation inside the loop.
+//
+// Measured on a 4-core desktop (AOT), challenges from Trainlog's server code:
+//   1 thread,  counter 3016:  altcha_lib's PBKDF2  9.5 s   this file  4.6 s
+//   altcha_lib's 4-isolate solver, counter 2825:   2.6 s   this file  1.1 s
+// Phones are slower, so the gain is a shorter wait after tapping "create".
+//
+// It is plugged into altcha_lib as a regular `DeriveKeyFunction`: the
+// protocol (challenge, solution, payload, isolates) stays altcha_lib's.
+// Anything this file doesn't handle (other algorithms, keys > 32 bytes) is
+// passed on to altcha_lib's own `adaptiveDeriveKey`.
+//
+// Correctness is covered by test/signup_test.dart (RFC 7914 vector, and a
+// challenge issued and solved by the server's Python `altcha` library).
+//
+// TO GO BACK TO PURE altcha_lib: set `SignupCaptcha.useFastPbkdf2` to false.
+// To then remove the custom code entirely, delete this file, its import and
+// the switch in lib/services/signup_captcha.dart, and the "fast PBKDF2"
+// group in test/signup_test.dart.
+// ===========================================================================
+
+/// `DeriveKeyFunction` for altcha_lib, faster for PBKDF2/SHA-256 with keys of
+/// up to 32 bytes (Trainlog's challenges); anything else goes to
+/// altcha_lib's [adaptiveDeriveKey].
 ///
-/// The server sends a signed challenge (`GET /signup/challenge`); the client
-/// must find the counter `c` such that
-/// `PBKDF2-HMAC-SHA256(password: nonce ‖ uint32be(c), salt, cost, keyLength)`
-/// starts with `keyPrefix`, then posts the challenge and the solution back,
-/// base64-encoded, as the `altcha` form field.
-///
-/// Pure Dart (no Flutter import) so it can run in a background isolate and be
-/// unit-tested on its own. PBKDF2 is hand-rolled on top of SHA-256 so the
-/// HMAC key pads are hashed once per counter instead of once per round: each
-/// round then costs 2 SHA-256 blocks instead of 4, which matters as a
-/// challenge costs a few million of them.
-class AltchaChallenge {
-  /// The `parameters` object exactly as received: it is signed by the server,
-  /// so it is sent back untouched.
-  final Map<String, dynamic> parameters;
-  final String? signature;
-
-  const AltchaChallenge({required this.parameters, this.signature});
-
-  factory AltchaChallenge.fromJson(Map<String, dynamic> json) {
-    final params = json['parameters'];
-    if (params is! Map) {
-      throw const FormatException('ALTCHA challenge without parameters');
-    }
-    return AltchaChallenge(
-      parameters: Map<String, dynamic>.from(params),
-      signature: json['signature'] as String?,
-    );
+/// Top-level so altcha_lib can send it to its solver isolates.
+Future<DeriveKeyResult> fastPbkdf2DeriveKey(
+  ChallengeParameters parameters,
+  List<int> salt,
+  List<int> password,
+) async {
+  final algo = parameters.algorithm.toUpperCase();
+  final keyLength = parameters.keyLength;
+  if ((algo != 'PBKDF2/SHA-256' && algo != 'PBKDF2') ||
+      keyLength < 1 ||
+      keyLength > 32) {
+    return adaptiveDeriveKey(parameters, salt, password);
   }
-
-  Map<String, dynamic> toJson() => {
-        'parameters': parameters,
-        if (signature != null) 'signature': signature,
-      };
-
-  String get algorithm => parameters['algorithm'] as String;
-  String get nonce => parameters['nonce'] as String;
-  String get salt => parameters['salt'] as String;
-  int get cost => (parameters['cost'] as num).toInt();
-  int get keyLength => (parameters['keyLength'] as num?)?.toInt() ?? 32;
-  String get keyPrefix => ((parameters['keyPrefix'] as String?) ?? '00').toLowerCase();
-
-  /// Unix time (seconds) after which the server refuses the solution.
-  int? get expiresAt => (parameters['expiresAt'] as num?)?.toInt();
-
-  bool get isExpired {
-    final exp = expiresAt;
-    if (exp == null) return false;
-    return DateTime.now().millisecondsSinceEpoch ~/ 1000 >= exp;
-  }
+  final key = _kdfFor(salt).derive(Uint8List.fromList(password), parameters.cost);
+  return DeriveKeyResult(
+    derivedKey: keyLength == 32 ? key : Uint8List.sublistView(key, 0, keyLength),
+  );
 }
 
-class AltchaSolution {
-  final int counter;
-  final String derivedKey;
-  final int timeMs;
-
-  const AltchaSolution({
-    required this.counter,
-    required this.derivedKey,
-    required this.timeMs,
-  });
-
-  Map<String, dynamic> toJson() => {
-        'counter': counter,
-        'derivedKey': derivedKey,
-        'time': timeMs,
-      };
-}
-
-/// The value of the `altcha` form field: challenge and solution, as base64
-/// JSON.
-String buildAltchaPayload(AltchaChallenge challenge, AltchaSolution solution) {
-  final json = jsonEncode({
-    'challenge': challenge.toJson(),
-    'solution': solution.toJson(),
-  });
-  return base64.encode(utf8.encode(json));
-}
-
-/// Brute-forces the counter of [challenge], trying counters from
-/// [counterStart] (inclusive) to [counterEnd] (exclusive). Returns null when
-/// none matches. Ranges let callers split the search between isolates.
-/// CPU bound: run it off the UI isolate.
-AltchaSolution? solveAltcha(
-  AltchaChallenge challenge, {
-  int counterStart = 0,
-  int counterEnd = 10000000,
-}) {
-  final algo = challenge.algorithm.toUpperCase();
-  if (algo != 'PBKDF2/SHA-256' && algo != 'PBKDF2') {
-    throw UnsupportedError('Unsupported ALTCHA algorithm ${challenge.algorithm}');
-  }
-  final keyLength = challenge.keyLength;
-  if (keyLength < 1 || keyLength > 32) {
-    throw UnsupportedError('Unsupported ALTCHA key length $keyLength');
-  }
-
-  final nonce = _hexToBytes(challenge.nonce);
-  final salt = _hexToBytes(challenge.salt);
-  final prefixHex = challenge.keyPrefix;
-  final prefixBytes = prefixHex.length.isEven ? _hexToBytes(prefixHex) : null;
-  if (prefixBytes != null && prefixBytes.length > keyLength) return null;
-
-  final kdf = _Pbkdf2Sha256(salt);
-  final password = Uint8List(nonce.length + 4)..setRange(0, nonce.length, nonce);
-  final stopwatch = Stopwatch()..start();
-
-  for (var counter = counterStart; counter < counterEnd; counter++) {
-    final n = nonce.length;
-    password[n] = (counter >> 24) & 0xff;
-    password[n + 1] = (counter >> 16) & 0xff;
-    password[n + 2] = (counter >> 8) & 0xff;
-    password[n + 3] = counter & 0xff;
-
-    final key = kdf.derive(password, challenge.cost);
-    final bool matched;
-    if (prefixBytes != null) {
-      var ok = true;
-      for (var i = 0; i < prefixBytes.length; i++) {
-        if (key[i] != prefixBytes[i]) {
-          ok = false;
-          break;
-        }
-      }
-      matched = ok;
-    } else {
-      matched = _bytesToHex(key, keyLength).startsWith(prefixHex);
-    }
-
-    if (matched) {
-      return AltchaSolution(
-        counter: counter,
-        derivedKey: _bytesToHex(key, keyLength),
-        timeMs: stopwatch.elapsedMilliseconds,
-      );
-    }
-  }
-  return null;
-}
-
-/// Test hook: PBKDF2-HMAC-SHA256 with a 32-byte output.
-Uint8List pbkdf2Sha256ForTest(List<int> password, List<int> salt, int iterations) =>
+/// PBKDF2-HMAC-SHA256 with a 32-byte output (exposed for tests).
+Uint8List pbkdf2Sha256(List<int> password, List<int> salt, int iterations) =>
     _Pbkdf2Sha256(Uint8List.fromList(salt))
         .derive(Uint8List.fromList(password), iterations);
+
+// One solve calls this thousands of times with the same salt: keep the
+// buffers of the last one (per isolate) instead of reallocating them.
+_Pbkdf2Sha256? _lastKdf;
+
+_Pbkdf2Sha256 _kdfFor(List<int> salt) {
+  final last = _lastKdf;
+  if (last != null && _sameBytes(last.salt, salt)) return last;
+  return _lastKdf = _Pbkdf2Sha256(Uint8List.fromList(salt));
+}
+
+bool _sameBytes(List<int> a, List<int> b) {
+  if (a.length != b.length) return false;
+  for (var i = 0; i < a.length; i++) {
+    if (a[i] != b[i]) return false;
+  }
+  return true;
+}
 
 // ---------------------------------------------------------------------------
 // PBKDF2-HMAC-SHA256, first (and only) 32-byte block
@@ -372,21 +313,4 @@ Uint32List _bytesToWords(Uint8List bytes) {
         bytes[i * 4 + 3];
   }
   return words;
-}
-
-Uint8List _hexToBytes(String hex) {
-  if (hex.length.isOdd) throw FormatException('Odd-length hex', hex);
-  final out = Uint8List(hex.length ~/ 2);
-  for (var i = 0; i < out.length; i++) {
-    out[i] = int.parse(hex.substring(i * 2, i * 2 + 2), radix: 16);
-  }
-  return out;
-}
-
-String _bytesToHex(Uint8List bytes, int length) {
-  final sb = StringBuffer();
-  for (var i = 0; i < length; i++) {
-    sb.write(bytes[i].toRadixString(16).padLeft(2, '0'));
-  }
-  return sb.toString();
 }

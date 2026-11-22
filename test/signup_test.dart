@@ -1,11 +1,13 @@
 import 'dart:convert';
 
+import 'package:altcha_lib/algorithms.dart' show adaptiveDeriveKey;
+import 'package:altcha_lib/altcha_lib.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:trainlog_app/services/api/auth_api.dart';
 import 'package:trainlog_app/services/api/trainlog_http_client.dart';
 import 'package:trainlog_app/services/signup_captcha.dart';
-import 'package:trainlog_app/utils/altcha.dart';
+import 'package:trainlog_app/utils/fast_pbkdf2.dart';
 
 import 'fake_trainlog_server.dart';
 
@@ -22,7 +24,7 @@ const _challengeJson =
 const _expectedCounter = 37;
 const _expectedKey = '003931613dc0510e47dfaa4d127ada24fd15943a709b878a6f9b0957de6cae10';
 
-AltchaChallenge get _challenge => AltchaChallenge.fromJson(jsonDecode(_challengeJson));
+Challenge get _challenge => Challenge.fromJson(jsonDecode(_challengeJson));
 
 ResponseBody _json(Object body, int status) => ResponseBody.fromString(
       jsonEncode(body),
@@ -44,38 +46,71 @@ Future<SignupResult> _signup(AuthApi api) => api.signup(
     );
 
 void main() {
-  group('ALTCHA solver', () {
-    test('finds the counter the server expects', () {
-      final solution = solveAltcha(_challenge)!;
-      expect(solution.counter, _expectedCounter);
-      expect(solution.derivedKey, _expectedKey);
+  group('captcha (altcha_lib)', () {
+    // altcha_lib's own PBKDF2 and the faster one (SignupCaptcha.useFastPbkdf2)
+    for (final (name, derive) in [
+      ('altcha_lib PBKDF2', adaptiveDeriveKey),
+      ('fast PBKDF2', fastPbkdf2DeriveKey),
+    ]) {
+      test('$name: isolates find the counter the server expects', () async {
+        final solution = await solveChallengeIsolates(
+          challenge: _challenge,
+          deriveKey: derive,
+          concurrency: 4,
+        );
+        expect(solution?.counter, _expectedCounter);
+        expect(solution?.derivedKey, _expectedKey);
+      });
+    }
+
+    test('SignupCaptcha solves with the configured PBKDF2', () async {
+      final solution = await SignupCaptcha.solveInBackground(_challenge);
+      expect(solution?.counter, _expectedCounter);
     });
 
-    test('a range without the counter gives no solution', () {
-      expect(solveAltcha(_challenge, counterStart: 0, counterEnd: _expectedCounter), isNull);
-    });
-
-    test('PBKDF2 matches RFC 7914 test vector', () {
-      final key = pbkdf2Sha256ForTest(utf8.encode('passwd'), utf8.encode('salt'), 1);
-      expect(
-        key.map((b) => b.toRadixString(16).padLeft(2, '0')).join(),
-        '55ac046e56e3089fec1691c22544b605f94185216dde0465e68b9d57c20dacbc',
-      );
-    });
-
-    test('payload carries the signed parameters untouched', () {
+    test('payload carries the signed parameters untouched', () async {
       final challenge = _challenge;
-      final payload = buildAltchaPayload(challenge, solveAltcha(challenge)!);
+      final solution = await SignupCaptcha.solveInBackground(challenge);
+      final payload = SignupCaptcha.buildPayload(challenge, solution!);
       final decoded = jsonDecode(utf8.decode(base64.decode(payload)));
       expect(decoded['challenge'], jsonDecode(_challengeJson));
       expect(decoded['solution']['counter'], _expectedCounter);
       expect(decoded['solution']['derivedKey'], _expectedKey);
     });
+  });
 
-    test('background solver splits the search and finds the same counter', () async {
-      final solution = await SignupCaptcha.solveInBackground(_challenge);
-      expect(solution?.counter, _expectedCounter);
-      expect(solution?.derivedKey, _expectedKey);
+  // Covers lib/utils/fast_pbkdf2.dart: delete with it.
+  group('fast PBKDF2', () {
+    String hex(List<int> b) => b.map((x) => x.toRadixString(16).padLeft(2, '0')).join();
+
+    test('matches RFC 7914 test vector', () {
+      expect(
+        hex(pbkdf2Sha256(utf8.encode('passwd'), utf8.encode('salt'), 1)),
+        '55ac046e56e3089fec1691c22544b605f94185216dde0465e68b9d57c20dacbc',
+      );
+    });
+
+    test('matches altcha_lib on varied inputs', () async {
+      final params = _challenge.parameters;
+      for (final (pwLen, saltLen, rounds) in [
+        (20, 16, 1), (20, 16, 2), (20, 16, 1000), (70, 16, 3), (5, 60, 4), (0, 0, 2),
+      ]) {
+        final password = List<int>.generate(pwLen, (i) => (i * 37 + 11) & 0xff);
+        final salt = List<int>.generate(saltLen, (i) => (i * 91 + 5) & 0xff);
+        final p = ChallengeParameters.fromJson({...params.toJson(), 'cost': rounds});
+        final ours = await fastPbkdf2DeriveKey(p, salt, password);
+        final theirs = await adaptiveDeriveKey(p, salt, password);
+        expect(hex(ours.derivedKey), hex(theirs.derivedKey),
+            reason: 'password $pwLen B, salt $saltLen B, $rounds rounds');
+      }
+    });
+
+    test('leaves other algorithms to altcha_lib', () async {
+      final p = ChallengeParameters.fromJson(
+          {..._challenge.parameters.toJson(), 'algorithm': 'SHA-256'});
+      final ours = await fastPbkdf2DeriveKey(p, [1, 2], [3, 4]);
+      final theirs = await adaptiveDeriveKey(p, [1, 2], [3, 4]);
+      expect(hex(ours.derivedKey), hex(theirs.derivedKey));
     });
   });
 
@@ -132,7 +167,7 @@ void main() {
         return _json(jsonDecode(_challengeJson), 200);
       });
       final challenge = await api.fetchSignupChallenge();
-      expect(challenge.nonce, '1411935c966fd99163827ae2a9724b91');
+      expect(challenge.parameters.nonce, '1411935c966fd99163827ae2a9724b91');
       expect(challenge.signature, isNotNull);
     });
   });
