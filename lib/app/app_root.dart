@@ -11,6 +11,7 @@ import 'package:trainlog_app/app/theme/app_theme.dart';
 import 'package:trainlog_app/app/home_gate.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/core/providers/settings_provider.dart';
+import 'package:trainlog_app/ui/design.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 
 /// Wraps [CountryLocalizations.delegate] and falls back to English for any
@@ -62,10 +63,14 @@ class AppRoot extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<SettingsProvider>(
       builder: (_, settings, __) {
-        if (AppPlatform.isApple) {
-          return _buildCupertinoApp(settings);
-        }
-        return _buildMaterialApp(settings);
+        final design = AppPlatform.design;
+        return AppDesign(
+          language: design,
+          child: switch (design) {
+            DesignLanguage.cupertino => _buildCupertinoApp(settings),
+            DesignLanguage.material => _buildMaterialApp(settings),
+          },
+        );
       },
     );
   }

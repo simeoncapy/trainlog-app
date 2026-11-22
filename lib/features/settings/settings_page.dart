@@ -866,9 +866,7 @@ class _ThemeRow extends StatelessWidget {
           // Segmented control, centred within the tile
           Padding(
             padding: const EdgeInsets.only(left: 52),
-            child: AppPlatform.isApple
-                ? _appleSelector()
-                : Container(
+            child: Container(
               decoration: BoxDecoration(
                 color: tabColors.tabBackground,
                 borderRadius: BorderRadius.circular(10),

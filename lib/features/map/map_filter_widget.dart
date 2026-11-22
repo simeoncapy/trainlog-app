@@ -14,11 +14,11 @@ import 'package:trainlog_app/widgets/primary_action_button.dart';
 
 /// Map filter bottom sheet.
 ///
-/// A single, theme-driven implementation shared across platforms — platform
-/// differences are delegated to adaptive sub-components (the vehicle chips).
-/// The sheet pins a fixed action footer ("Show {count} trips") to its base
-/// while the form contents live inside a [Flexible] scroll area so they never
-/// overflow on short screens.
+/// Two views over the same [PolylineProvider] state: the Material sheet
+/// (`build`) and the iOS 26 Liquid Glass sheet (`_buildApple`). Both pin a
+/// fixed action footer ("Show {count} trips") to their base while the form
+/// lives inside a [Flexible] scroll area, so it never overflows on short
+/// screens.
 ///
 /// Designed to be hosted by `showAdaptiveContentSheet`; [onClose] should
 /// dismiss the sheet (e.g. `Navigator.pop`).
@@ -62,25 +62,18 @@ class _MapFilterWidgetState extends State<MapFilterWidget> {
     final maxHeight =
         (mediaQuery.size.height - mediaQuery.padding.top) * 0.9;
 
-    // On Apple the sheet is a Liquid Glass surface that brings its own grab
-    // handle, so the widget paints neither a background nor a handle there.
-    final isApple = AppPlatform.isApple;
-
     return Container(
       constraints: BoxConstraints(maxHeight: maxHeight),
-      decoration: isApple
-          ? null
-          : BoxDecoration(
-              color: theme.cardColor,
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(24)),
-            ),
+      decoration: BoxDecoration(
+        color: theme.cardColor,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+      ),
       child: SafeArea(
         top: false,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            isApple ? const SizedBox(height: 12) : _grabHandle(theme),
+            _grabHandle(theme),
             _header(context, l10n, theme),
             Flexible(
               fit: FlexFit.loose,
