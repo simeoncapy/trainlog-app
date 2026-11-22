@@ -50,8 +50,9 @@ Every screen follows this layout (see "Migration status"). Keep it that way: a n
 5. **Screens do not test the platform.** No `AppPlatform.isApple`, `AppPlatform.design` or `AppDesign.of` in `features/`, `widgets/` or `navigation/`. The entry file picks the view with `PlatformView`; for what is not a widget (opening a dialog or a sheet) use `byDesign(context, material: …, cupertino: …)`, and for a Scaffold app bar `PlatformAppBar`. A small row or control that differs per design is a facade picking a `Material…` or `Cupertino…` widget with `PlatformView` (see the settings rows, the map controls). A design token used by shared sections comes from an inherited style the iOS view provides (see `TripDetailsStyle`), not from a platform test.
 6. **Dialogs, alerts, action sheets and sheets go through `lib/ui/adaptive/`.** The iOS font, tint and destructive style are applied there once; screens never call `showCupertinoDialog`, `CupertinoAlertDialog` or `AppleBrandFont` themselves.
 7. **No raw `fontSize` or `Color(0x…)` in a new view**: take them from `lib/ui/tokens/` or the theme.
+8. **Short messages go through `AdaptiveInformationMessage`** (`showInfo`, or `showInfoWithIcon` for the package's toast with an icon): a SnackBar on Android, the Liquid Glass `AppGlassToast` on iOS. Screens never build a `SnackBar` themselves (only a `material/` folder or the Material shell may).
 
-`test/architecture_test.dart` enforces rules 1 to 5 on every `flutter test`, and every file under `lib/` follows them. A rule added later may list the files that break it when it is introduced (`known`); that list only shrinks. Never add a file to a `known` list.
+`test/architecture_test.dart` enforces rules 1 to 5 and 8 on every `flutter test`, and every file under `lib/` follows them. A rule added later may list the files that break it when it is introduced (`known`); that list only shrinks. Never add a file to a `known` list.
 
 ## Design decisions
 
