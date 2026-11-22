@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:trainlog_app/app/theme/app_colors.dart';
+import 'package:trainlog_app/ui/tokens/app_colors.dart';
 import 'package:trainlog_app/core/data/models/trips.dart';
 
 enum MapColorPalette {

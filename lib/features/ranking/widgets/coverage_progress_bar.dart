@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:trainlog_app/app/theme/app_colors.dart';
+import 'package:trainlog_app/ui/tokens/app_colors.dart';
 
 /// Linear coverage bar shown beneath a username on the drill-down ranking page.
 ///

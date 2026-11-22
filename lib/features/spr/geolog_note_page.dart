@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:trainlog_app/app/theme/app_colors.dart';
+import 'package:trainlog_app/ui/tokens/app_colors.dart';
 import 'package:trainlog_app/core/data/models/geolog_note.dart';
 import 'package:trainlog_app/core/data/models/pre_record_model.dart';
 import 'package:trainlog_app/core/data/models/trip_form_model.dart';
@@ -16,8 +16,8 @@ import 'package:trainlog_app/features/trips_edit_copy/widgets/edit_trip_app_bar.
 import 'package:trainlog_app/features/trips_edit_copy/widgets/edit_trip_section_bar.dart';
 import 'package:trainlog_app/features/trips_edit_copy/widgets/edit_trip_vehicle_card.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
-import 'package:trainlog_app/platform/adaptive_dialog.dart';
-import 'package:trainlog_app/platform/adaptive_page_route.dart';
+import 'package:trainlog_app/ui/adaptive/adaptive_dialog.dart';
+import 'package:trainlog_app/ui/adaptive/adaptive_page_route.dart';
 import 'package:trainlog_app/core/providers/pre_record_provider.dart';
 import 'package:trainlog_app/core/providers/settings_provider.dart';
 import 'package:trainlog_app/utils/date_utils.dart';

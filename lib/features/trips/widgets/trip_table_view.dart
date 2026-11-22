@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:trainlog_app/core/data/models/trips.dart';
 import 'package:trainlog_app/core/data/models/trips_filter.dart';
 import 'package:trainlog_app/core/data/trips_repository.dart';
-import 'package:trainlog_app/platform/adaptive_trip_card.dart';
+import 'package:trainlog_app/ui/adaptive/adaptive_trip_card.dart';
 import 'package:trainlog_app/core/providers/settings_provider.dart';
 import 'package:trainlog_app/core/providers/trainlog_provider.dart';
 import 'package:trainlog_app/utils/date_utils.dart';

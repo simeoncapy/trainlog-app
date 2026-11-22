@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
-import 'package:trainlog_app/platform/adaptive_segmented_button.dart';
+import 'package:trainlog_app/ui/adaptive/adaptive_segmented_button.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 
 enum TripVisibility {

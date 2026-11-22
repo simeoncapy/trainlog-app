@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:trainlog_app/app/theme/app_theme.dart';
+import 'package:trainlog_app/ui/tokens/app_theme.dart';
 
 /// App bar heading of the edit/duplicate form: the mode title with, right
 /// under it, a muted one-line reminder of the trip being worked on
@@ -47,7 +47,7 @@ class EditTripAppBarTitle extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: AppTheme.displayFont.copyWith(
                   fontSize: accent != null ? 17 : 18,
-                  fontWeight: accent != null ? FontWeight.w600 : FontWeight.w700,
+                  fontWeight: FontWeight.w700,
                   color: theme.colorScheme.onSurface,
                 ),
               ),

@@ -1,7 +1,7 @@
 import 'package:currency_picker/currency_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:trainlog_app/app/theme/app_theme.dart';
+import 'package:trainlog_app/ui/tokens/app_theme.dart';
 import 'package:trainlog_app/core/data/models/trip_form_model.dart';
 import 'package:trainlog_app/widgets/trip_form/energy_choice_card_selector.dart';
 import 'package:trainlog_app/widgets/trip_form/visibility_choice_card_selector.dart';

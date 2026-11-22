@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:trainlog_app/app/theme/app_theme.dart';
+import 'package:trainlog_app/ui/tokens/app_theme.dart';
 
 ButtonStyle buttonStyleHelper(Color background, Color foreground) {
   return ButtonStyle(

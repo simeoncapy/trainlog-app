@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:trainlog_app/features/trips_edit_copy/widgets/edit_trip_app_bar_title.dart';
-import 'package:trainlog_app/platform/liquid_glass.dart';
+import 'package:trainlog_app/ui/cupertino/liquid_glass.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 
 /// App bar of the trip form pages (edit, duplicate, Geolog note): a close

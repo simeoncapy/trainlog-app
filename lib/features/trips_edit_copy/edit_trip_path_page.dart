@@ -2,12 +2,12 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:trainlog_app/platform/adaptive_app_bar.dart';
-import 'package:trainlog_app/platform/adaptive_dialog.dart';
-import 'package:trainlog_app/platform/adaptive_segmented_button.dart';
-import 'package:trainlog_app/platform/liquid_glass.dart';
+import 'package:trainlog_app/ui/adaptive/adaptive_app_bar.dart';
+import 'package:trainlog_app/ui/adaptive/adaptive_dialog.dart';
+import 'package:trainlog_app/ui/adaptive/adaptive_segmented_button.dart';
+import 'package:trainlog_app/ui/cupertino/liquid_glass.dart';
 import 'package:provider/provider.dart';
-import 'package:trainlog_app/app/theme/app_theme.dart';
+import 'package:trainlog_app/ui/tokens/app_theme.dart';
 import 'package:trainlog_app/core/data/controllers/trainlog_web_controller.dart';
 import 'package:trainlog_app/core/data/models/edited_route.dart';
 import 'package:trainlog_app/core/data/models/trip_form_model.dart';

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
-import 'package:trainlog_app/platform/apple_brand_font.dart';
+import 'package:trainlog_app/ui/cupertino/apple_brand_font.dart';
 
 enum AdaptiveDialogResult {
   primary,
@@ -248,7 +248,9 @@ class AdaptiveDialog {
         final cancel = actions.where((a) => a.result == AdaptiveDialogResult.cancelled).toList();
         final nonCancel = actions.where((a) => a.result != AdaptiveDialogResult.cancelled).toList();
 
-        return appleDialogTint(context, CupertinoActionSheet(
+        // Keeps the Material theme of the caller too, so a sheet opened from
+        // the map (which may use the map's brightness) stays consistent.
+        return Theme(data: Theme.of(context), child: appleDialogTint(context, CupertinoActionSheet(
           title: title.isEmpty ? null : AppleBrandFont(child: Text(title)),
           message: AppleBrandFont(
             child: _buildBody(
@@ -268,10 +270,11 @@ class AdaptiveDialog {
           cancelButton: cancel.isEmpty
               ? null
               : CupertinoActionSheetAction(
+                  isDefaultAction: cancel.first.isDefault,
                   onPressed: () => Navigator.of(context, rootNavigator: true).pop(cancel.first.result),
                   child: AppleBrandFont(child: Text(cancel.first.label)),
                 ),
-        ));
+        )));
       },
     );
 

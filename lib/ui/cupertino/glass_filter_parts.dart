@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' show Theme, ThemeData, Brightness;
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart' as lg;
-import 'package:trainlog_app/app/theme/app_colors.dart';
-import 'package:trainlog_app/platform/liquid_glass.dart';
+import 'package:trainlog_app/ui/tokens/app_colors.dart';
+import 'package:trainlog_app/ui/cupertino/liquid_glass.dart';
 
 // Apple-only building blocks of the iOS 26 filter sheets (map filter, trips
 // search & filter). Android keeps its own Material widgets.

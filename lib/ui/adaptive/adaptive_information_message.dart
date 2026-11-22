@@ -1,12 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:trainlog_app/platform/adaptive_dialog.dart';
+import 'package:trainlog_app/ui/adaptive/adaptive_dialog.dart';
 import 'package:trainlog_app/app/app_globals.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
-import 'package:trainlog_app/platform/apple_brand_font.dart';
+import 'package:trainlog_app/ui/cupertino/apple_brand_font.dart';
 
 class AdaptiveInformationMessage {
 

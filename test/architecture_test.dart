@@ -50,7 +50,6 @@ const _appUi = [
   'package:trainlog_app/app/',
   'package:trainlog_app/features/',
   'package:trainlog_app/navigation/',
-  'package:trainlog_app/platform/',
   'package:trainlog_app/ui/',
   'package:trainlog_app/widgets/',
 ];
@@ -95,16 +94,16 @@ final _rules = <_Rule>[
     known: {'lib/features/settings/settings_vm.dart'},
   ),
   _Rule(
-    name: 'glass-only-in-cupertino-ui',
-    why:
-        'Liquid Glass is iOS only: liquid_glass_widgets is imported in '
-        'lib/ui/cupertino (and main.dart, which starts it), so a Material '
-        'view cannot use a glass widget by mistake.',
+    name: 'glass-only-in-ui',
+    why: 'Liquid Glass is iOS only: liquid_glass_widgets is imported in '
+        'lib/ui/cupertino (the iOS components) and lib/ui/adaptive (the '
+        'facades that draw them on iOS), plus main.dart, which starts it. '
+        'Screens use those components, so a Material view cannot reach a '
+        'glass widget by mistake.',
     appliesTo: (p) =>
         p != 'lib/main.dart' &&
         !_under(p, 'ui/cupertino') &&
-        // Until the components move to lib/ui/cupertino.
-        !_under(p, 'platform'),
+        !_under(p, 'ui/adaptive'),
     breaks: (p, s) => _importsAny(s, ['package:liquid_glass_widgets/']),
     known: {
       'lib/features/settings/widgets/settings_group.dart',

@@ -4,13 +4,13 @@ import 'package:trainlog_app/features/menu/menu_block.dart';
 import 'package:trainlog_app/features/menu/menu_explore_card.dart';
 import 'package:trainlog_app/features/menu/menu_item_data.dart';
 import 'package:trainlog_app/features/menu/menu_summary_card.dart';
-import 'package:trainlog_app/app/theme/app_colors.dart';
+import 'package:trainlog_app/ui/tokens/app_colors.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/navigation/nav_models.dart';
 import 'package:trainlog_app/core/providers/settings_provider.dart';
 import 'package:trainlog_app/core/providers/trainlog_provider.dart';
 import 'package:trainlog_app/core/providers/trips_provider.dart';
-import 'package:trainlog_app/platform/adaptive_widget.dart';
+import 'package:trainlog_app/ui/adaptive/adaptive_widget.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 
 /// Full-screen menu replacing the legacy Drawer on Android.

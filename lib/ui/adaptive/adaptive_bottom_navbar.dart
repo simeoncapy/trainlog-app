@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:trainlog_app/app/theme/app_colors.dart';
-import 'package:trainlog_app/app/theme/app_nav_bar_theme.dart';
+import 'package:trainlog_app/ui/tokens/app_colors.dart';
+import 'package:trainlog_app/ui/tokens/app_nav_bar_theme.dart';
 import 'package:trainlog_app/navigation/nav_models.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart'
     show GlassTab, GlassTabBar, GlassTabBarExtraButton;

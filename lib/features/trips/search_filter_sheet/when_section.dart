@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:trainlog_app/core/data/models/trips_filter.dart';
 import 'package:trainlog_app/features/trips/search_filter_sheet/sheet_common.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
-import 'package:trainlog_app/platform/glass_filter_parts.dart';
+import 'package:trainlog_app/ui/cupertino/glass_filter_parts.dart';
 import 'package:intl/intl.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart' as lg;
 import 'package:trainlog_app/utils/date_utils.dart';

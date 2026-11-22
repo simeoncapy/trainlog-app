@@ -14,7 +14,7 @@ import 'package:trainlog_app/features/trips_add/steps/add_trip_ticket_step.dart'
 import 'package:trainlog_app/features/trips_add/steps/add_trip_vehicle_type_step.dart';
 import 'package:trainlog_app/features/trips_add/steps/add_trip_when_step.dart';
 import 'package:trainlog_app/features/trips_add/widgets/wizard_step_indicator.dart';
-import 'package:trainlog_app/platform/widget/adaptive_app_bar_square_button.dart';
+import 'package:trainlog_app/ui/adaptive/widget/adaptive_app_bar_square_button.dart';
 import 'package:trainlog_app/widgets/primary_action_button.dart';
 import 'package:trainlog_app/core/providers/trips_provider.dart';
 import 'package:trainlog_app/core/services/pre_record_service.dart';

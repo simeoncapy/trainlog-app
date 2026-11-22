@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:trainlog_app/platform/liquid_glass.dart';
-import 'package:trainlog_app/platform/widget/adaptive_app_bar_square_button.dart';
+import 'package:trainlog_app/ui/cupertino/liquid_glass.dart';
+import 'package:trainlog_app/ui/adaptive/widget/adaptive_app_bar_square_button.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 
 class AdaptiveAppBar extends StatelessWidget implements PreferredSizeWidget {

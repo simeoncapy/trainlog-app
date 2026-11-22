@@ -1,47 +1,18 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:trainlog_app/app/theme/app_colors.dart';
-import 'package:trainlog_app/app/theme/app_nav_bar_theme.dart';
-import 'package:trainlog_app/app/theme/app_tab_theme.dart';
-import 'package:trainlog_app/utils/platform_utils.dart';
+import 'package:trainlog_app/ui/tokens/app_colors.dart';
+import 'package:trainlog_app/ui/tokens/app_nav_bar_theme.dart';
+import 'package:trainlog_app/ui/tokens/app_tab_theme.dart';
 
 /// Trainlog design-system themes and typography.
 abstract final class AppTheme {
   // ── Typography ────────────────────────────────────────────────────────────
 
-  /// Typography switch for Apple platforms.
-  ///
-  /// true: iOS uses the same fonts as Android everywhere ("Hanken Grotesk"
-  /// for interface & body copy, "Space Grotesk" for titles).
-  /// false: body copy and controls use the system font (San Francisco) as the
-  /// Human Interface Guidelines recommend, and only the large display /
-  /// headline / title styles keep the Trainlog "Space Grotesk" signature.
-  static const bool appleUsesBrandFonts = true;
-
-  /// "Hanken Grotesk" — interface & body copy.
-  static TextTheme get _baseTextTheme =>
-      AppPlatform.isApple && !appleUsesBrandFonts
-          ? _appleTextTheme
-          : GoogleFonts.hankenGroteskTextTheme();
-
-  static TextTheme get _appleTextTheme {
-    final base = Typography.material2021(platform: defaultTargetPlatform)
-        .black
-        .merge(Typography.englishLike2021);
-    TextStyle? sg(TextStyle? s) => GoogleFonts.spaceGrotesk(textStyle: s);
-    return base.copyWith(
-      displayLarge: sg(base.displayLarge),
-      displayMedium: sg(base.displayMedium),
-      displaySmall: sg(base.displaySmall),
-      headlineLarge: sg(base.headlineLarge),
-      headlineMedium: sg(base.headlineMedium),
-      headlineSmall: sg(base.headlineSmall),
-      titleLarge: sg(base.titleLarge),
-    );
-  }
+  /// "Hanken Grotesk" — interface & body copy, on every platform (iOS
+  /// included: the app does not use San Francisco).
+  static TextTheme get _baseTextTheme => GoogleFonts.hankenGroteskTextTheme();
 
   // ── Cupertino theme (Apple) ───────────────────────────────────────────────
 
@@ -69,7 +40,7 @@ abstract final class AppTheme {
       textTheme: _cupertinoBodyFonts(base.textTheme).copyWith(
         navTitleTextStyle: GoogleFonts.spaceGrotesk(
           fontSize: 17,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w700,
           color: label,
         ),
         navLargeTitleTextStyle: GoogleFonts.spaceGrotesk(
@@ -81,10 +52,9 @@ abstract final class AppTheme {
     );
   }
 
-  /// With [appleUsesBrandFonts], swaps the Cupertino body and control
-  /// styles from San Francisco to "Hanken Grotesk"; otherwise leaves them.
+  /// Swaps the Cupertino body and control styles from San Francisco to
+  /// "Hanken Grotesk".
   static CupertinoTextThemeData _cupertinoBodyFonts(CupertinoTextThemeData t) {
-    if (!appleUsesBrandFonts) return t;
     // Flutter's iOS defaults carry San Francisco's tracking (-0.41 at 17pt);
     // Hanken Grotesk keeps its own spacing.
     TextStyle hk(TextStyle s) =>
@@ -100,8 +70,9 @@ abstract final class AppTheme {
     );
   }
 
-  /// "Space Grotesk" — display / headings.
-  static TextStyle get displayFont => GoogleFonts.spaceGrotesk();
+  /// "Space Grotesk" — titles and headings, always bold (both platforms).
+  static TextStyle get displayFont =>
+      GoogleFonts.spaceGrotesk(fontWeight: FontWeight.w700);
 
   /// "Space Mono" — monospaced figures (times, distances).
   static TextStyle get monoFont => GoogleFonts.spaceMono();
@@ -163,7 +134,7 @@ abstract final class AppTheme {
         ),
         titleTextStyle: GoogleFonts.spaceGrotesk(
           fontSize: 18,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w700,
           color: AppColors.lightText,
         ),
       ),
@@ -271,7 +242,7 @@ abstract final class AppTheme {
         ),
         titleTextStyle: GoogleFonts.spaceGrotesk(
           fontSize: 18,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w700,
           color: AppColors.darkText,
         ),
       ),

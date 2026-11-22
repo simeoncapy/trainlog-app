@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
-import 'package:trainlog_app/platform/liquid_glass.dart';
-import 'package:trainlog_app/platform/widget/adaptive_widget_base.dart';
+import 'package:trainlog_app/ui/cupertino/liquid_glass.dart';
+import 'package:trainlog_app/ui/adaptive/widget/adaptive_widget_base.dart';
 
 /// A small square (or circular) icon button used in app bars and page headers.
 class AdaptiveAppBarSquareButton extends AdaptiveWidget {

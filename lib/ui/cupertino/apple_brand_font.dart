@@ -1,11 +1,13 @@
 import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:trainlog_app/app/theme/app_theme.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 
 /// Redraws its text in "Hanken Grotesk" inside Cupertino widgets that force
-/// the system font (alert dialogs, action sheets), when
-/// [AppTheme.appleUsesBrandFonts] is on.
+/// the system font (alert dialogs, action sheets): the app uses Hanken
+/// Grotesk everywhere, iOS included.
+///
+/// Only the adaptive layer (dialogs, alerts, action sheets, popups) uses it,
+/// so screens never need to.
 ///
 /// Those widgets set their own [DefaultTextStyle] with San Francisco; this
 /// keeps every other part of that style (size, weight, colour) and swaps only
@@ -18,7 +20,7 @@ class AppleBrandFont extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!AppPlatform.isApple || !AppTheme.appleUsesBrandFonts) return child;
+    if (!AppPlatform.isApple) return child;
     final inherited = DefaultTextStyle.of(context);
     return DefaultTextStyle(
       style: GoogleFonts.hankenGrotesk(

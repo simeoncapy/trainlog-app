@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:trainlog_app/platform/adaptive_dialog.dart';
-import 'package:trainlog_app/platform/widget/adaptive_widget_base.dart';
-import 'package:trainlog_app/platform/apple_brand_font.dart';
+import 'package:trainlog_app/ui/adaptive/adaptive_dialog.dart';
+import 'package:trainlog_app/ui/adaptive/widget/adaptive_widget_base.dart';
+import 'package:trainlog_app/ui/cupertino/apple_brand_font.dart';
 
 /// A single item in an [AdaptivePopup] menu.
 ///

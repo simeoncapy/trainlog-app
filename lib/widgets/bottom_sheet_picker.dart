@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:trainlog_app/platform/adaptive_sheet.dart';
+import 'package:trainlog_app/ui/adaptive/adaptive_sheet.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 
 /// One choice in a [showBottomSheetPicker] sheet.

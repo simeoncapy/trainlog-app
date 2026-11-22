@@ -16,7 +16,7 @@ import 'package:trainlog_app/features/trips_edit_copy/widgets/edit_trip_app_bar.
 import 'package:trainlog_app/features/trips_edit_copy/widgets/edit_trip_section_bar.dart';
 import 'package:trainlog_app/features/trips_edit_copy/widgets/edit_trip_vehicle_card.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
-import 'package:trainlog_app/platform/adaptive_page_route.dart';
+import 'package:trainlog_app/ui/adaptive/adaptive_page_route.dart';
 import 'package:trainlog_app/core/providers/settings_provider.dart';
 import 'package:trainlog_app/core/providers/trainlog_provider.dart';
 import 'package:trainlog_app/core/providers/trips_provider.dart';

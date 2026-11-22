@@ -19,7 +19,7 @@ import 'package:trainlog_app/core/providers/trips_provider.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 import 'package:trainlog_app/widgets/app_steps_tab_bar.dart';
 import 'package:trainlog_app/widgets/past_future_selector.dart';
-import 'package:trainlog_app/platform/adaptive_widget.dart';
+import 'package:trainlog_app/ui/adaptive/adaptive_widget.dart';
 
 const _kViewPrefKey = 'trips_view_mode'; // 'card' or 'table'
 

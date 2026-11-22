@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' show Theme, Tooltip;
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart' as lg;
-import 'package:trainlog_app/app/theme/app_colors.dart';
+import 'package:trainlog_app/ui/tokens/app_colors.dart';
 
 /// Apple's "Liquid Glass" material (iOS 26 / macOS 26), used only by the
 /// Apple flavour of the UI. Rendered by liquid_glass_widgets: the surface

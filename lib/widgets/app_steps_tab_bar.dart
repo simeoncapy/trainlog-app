@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart'
     show GlassSegment, GlassSegmentedControl;
-import 'package:trainlog_app/app/theme/app_colors.dart';
-import 'package:trainlog_app/app/theme/app_tab_theme.dart';
+import 'package:trainlog_app/ui/tokens/app_colors.dart';
+import 'package:trainlog_app/ui/tokens/app_tab_theme.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 
 class AppStepsTab {

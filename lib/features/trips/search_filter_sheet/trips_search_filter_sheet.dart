@@ -13,9 +13,9 @@ import 'package:trainlog_app/features/trips/search_filter_sheet/group_picker_vie
 import 'package:trainlog_app/features/trips/search_filter_sheet/sheet_common.dart';
 import 'package:trainlog_app/features/trips/search_filter_sheet/when_section.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
-import 'package:trainlog_app/platform/adaptive_sheet.dart';
-import 'package:trainlog_app/platform/adaptive_vehicle_type_filter_chips.dart';
-import 'package:trainlog_app/platform/glass_filter_parts.dart';
+import 'package:trainlog_app/ui/adaptive/adaptive_sheet.dart';
+import 'package:trainlog_app/ui/adaptive/adaptive_vehicle_type_filter_chips.dart';
+import 'package:trainlog_app/ui/cupertino/glass_filter_parts.dart';
 import 'package:trainlog_app/core/providers/trainlog_provider.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 import 'package:trainlog_app/utils/style_utils.dart';

@@ -7,14 +7,14 @@ import 'package:trainlog_app/core/data/models/trips.dart';
 import 'package:trainlog_app/features/trips/detail_sheet/trip_details_common.dart';
 import 'package:trainlog_app/features/trips_edit_copy/edit_copy_page.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
-import 'package:trainlog_app/platform/adaptive_information_message.dart';
-import 'package:trainlog_app/platform/adaptive_page_route.dart';
+import 'package:trainlog_app/ui/adaptive/adaptive_information_message.dart';
+import 'package:trainlog_app/ui/adaptive/adaptive_page_route.dart';
 import 'package:trainlog_app/core/providers/polyline_provider.dart';
 import 'package:trainlog_app/core/providers/trainlog_provider.dart';
 import 'package:trainlog_app/core/providers/trips_provider.dart';
 import 'package:trainlog_app/core/services/api/trips_api.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
-import 'package:trainlog_app/platform/apple_brand_font.dart';
+import 'package:trainlog_app/ui/adaptive/adaptive_dialog.dart';
 
 /// The action button row (Edit, Duplicate, Share, Delete). Buttons are equal
 /// width, stack an icon above the label, and are meant to be pinned at the
@@ -164,41 +164,28 @@ class TripDetailsActions extends StatelessWidget {
     BuildContext context,
     AppLocalizations l10n,
   ) async {
-    final theme = Theme.of(context);
-    final cupertinoTheme = CupertinoTheme.of(context);
-    final result = await showCupertinoModalPopup<bool>(
+    final result = await AdaptiveDialog.show(
       context: context,
-      useRootNavigator: true,
-      builder: (dialogContext) => Theme(
-        data: theme,
-        child: CupertinoTheme(
-          // Same blue tint as the action rows (Apple uses one tint for both).
-          data: cupertinoTheme.copyWith(primaryColor: theme.colorScheme.secondary),
-          child: CupertinoActionSheet(
-            title: AppleBrandFont(child: Text(l10n.tripsDetailsDeleteDialogTitle)),
-            message:
-                AppleBrandFont(child: Text(l10n.tripsDetailsDeleteDialogMessage)),
-            actions: [
-              CupertinoActionSheetAction(
-                isDestructiveAction: true,
-                onPressed: () => Navigator.of(dialogContext).pop(true),
-                child: AppleBrandFont(child: Text(l10n.deleteButton)),
-              ),
-            ],
-            cancelButton: CupertinoActionSheetAction(
-              isDefaultAction: true,
-              onPressed: () => Navigator.of(dialogContext).pop(false),
-              child: AppleBrandFont(
-                child: Text(
-                  CupertinoLocalizations.of(dialogContext).cancelButtonLabel,
-                ),
-              ),
-            ),
-          ),
+      title: l10n.tripsDetailsDeleteDialogTitle,
+      message: l10n.tripsDetailsDeleteDialogMessage,
+      useActionSheetOnIOS: true,
+      barrierDismissible: true,
+      // Opened from the trip sheet, which sits on the root navigator.
+      skipWhenRootCanPop: false,
+      actions: [
+        AdaptiveDialogAction(
+          label: l10n.deleteButton,
+          result: AdaptiveDialogResult.primary,
+          isDestructive: true,
         ),
-      ),
+        AdaptiveDialogAction(
+          label: CupertinoLocalizations.of(context).cancelButtonLabel,
+          result: AdaptiveDialogResult.cancelled,
+          isDefault: true,
+        ),
+      ],
     );
-    return result ?? false;
+    return result == AdaptiveDialogResult.primary;
   }
 
   /// iOS: full-width tinted rows stacked at the end of the sheet's content,

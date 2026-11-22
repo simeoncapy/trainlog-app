@@ -19,7 +19,7 @@ import 'package:trainlog_app/widgets/icon_toggle_button.dart';
 import 'package:trainlog_app/features/statistics/widgets/stats_bar_chart.dart';
 import 'package:trainlog_app/features/statistics/widgets/stats_pie_chart.dart';
 import 'package:trainlog_app/features/statistics/widgets/stats_table_chart.dart';
-import 'package:trainlog_app/platform/adaptive_widget.dart';
+import 'package:trainlog_app/ui/adaptive/adaptive_widget.dart';
 import 'package:trainlog_app/widgets/divider_with_widget.dart';
 
 enum StatisticsView { bar, pie, table }
