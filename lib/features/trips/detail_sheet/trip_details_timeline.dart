@@ -85,7 +85,7 @@ class TripDetailsTimeline extends StatelessWidget {
           // CENTER: markers + connecting line.
           Column(
             children: [
-              _marker(context, color, filled: false),
+              _marker(color, filled: false),
               Expanded(
                 child: Container(
                   width: 5,
@@ -98,7 +98,7 @@ class TripDetailsTimeline extends StatelessWidget {
                   ),
                 ),
               ),
-              _marker(context, color, filled: true),
+              _marker(color, filled: true),
             ],
           ),
           const SizedBox(width: 14),
@@ -134,12 +134,14 @@ class TripDetailsTimeline extends StatelessWidget {
 
   /// Rounded-square station marker. Hollow (outlined) for the departure,
   /// filled with the route colour for the arrival.
-  Widget _marker(BuildContext context, Color color, {required bool filled}) {
+  Widget _marker(Color color, {required bool filled}) {
     return Container(
       width: 22,
       height: 22,
       decoration: BoxDecoration(
-        color: filled ? color : Theme.of(context).colorScheme.surface,
+        // Hollow: transparent, so the sheet's own fill shows through (the
+        // iOS sheet is not the theme surface colour).
+        color: filled ? color : Colors.transparent,
         borderRadius: BorderRadius.circular(6),
         border: Border.all(color: color, width: 3),
       ),
