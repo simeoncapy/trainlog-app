@@ -168,8 +168,7 @@ class _TopBar extends StatelessWidget {
       child: Row(
         children: [
           AdaptiveAppBarSquareButton(
-            // A sheet on Apple closes with an ✕; the Material page slides down.
-            icon: AppPlatform.isApple ? Icons.close : Icons.keyboard_arrow_down,
+            icon: AdaptiveIcons.sheetClose,
             onPressed: onClose,
             tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
           ),

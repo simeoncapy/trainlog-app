@@ -55,3 +55,39 @@ class PlatformView extends StatelessWidget {
     DesignLanguage.cupertino => cupertino(context),
   };
 }
+
+/// The imperative form of [PlatformView], for what is not a widget (opening
+/// a dialog, a sheet): runs [material] or [cupertino] for the current design
+/// language.
+T byDesign<T>(
+  BuildContext context, {
+  required T Function() material,
+  required T Function() cupertino,
+}) => switch (AppDesign.of(context)) {
+  DesignLanguage.material => material(),
+  DesignLanguage.cupertino => cupertino(),
+};
+
+/// [PlatformView] for a Scaffold's app bar, which must give its height
+/// before it is built: shows [material] or [cupertino], and takes the
+/// preferred size of the one the app is drawn with ([AppPlatform.design]).
+class PlatformAppBar extends StatelessWidget implements PreferredSizeWidget {
+  const PlatformAppBar({
+    super.key,
+    required this.material,
+    required this.cupertino,
+  });
+
+  final PreferredSizeWidget material;
+  final PreferredSizeWidget cupertino;
+
+  @override
+  Size get preferredSize => switch (AppPlatform.design) {
+    DesignLanguage.material => material.preferredSize,
+    DesignLanguage.cupertino => cupertino.preferredSize,
+  };
+
+  @override
+  Widget build(BuildContext context) =>
+      PlatformView(material: (_) => material, cupertino: (_) => cupertino);
+}
