@@ -64,6 +64,10 @@ class AdaptiveIcons {
   static IconData get chevronDown => isA ? CupertinoIcons.chevron_down : Icons.keyboard_arrow_down;
   static IconData get debug =>       isA ? CupertinoIcons.ant_fill : Icons.bug_report;
   static IconData get close =>       isA ? CupertinoIcons.xmark : Icons.close;
+  /// Closes a page shown as a sheet: a cross on iOS, a down chevron on
+  /// Material (the page slides down). Material icons: AdaptiveAppBarSquareButton
+  /// maps them to their iOS glyphs.
+  static IconData get sheetClose =>  isA ? Icons.close : Icons.keyboard_arrow_down;
   
   // Sort
   static IconData get sortAscending => isA ? CupertinoIcons.sort_up : Icons.arrow_upward;

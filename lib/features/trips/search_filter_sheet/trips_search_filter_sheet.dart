@@ -28,38 +28,28 @@ Future<TripsFilterResult?> showTripsSearchFilterSheet(
   required bool showFutureTrips,
   TripsFilterResult? initialFilter,
 }) {
-  if (AppDesign.of(context) == DesignLanguage.cupertino) {
-    return showAppleFormSheet<TripsFilterResult>(
+  final sheet = TripsSearchFilterSheet(
+    repo: repo,
+    countryOptions: countryOptions,
+    typeOptions: typeOptions,
+    showFutureTrips: showFutureTrips,
+    initialFilter: initialFilter,
+  );
+  return byDesign(
+    context,
+    cupertino: () => showAppleFormSheet<TripsFilterResult>(
       context: context,
-      builder: (ctx) => TripsSearchFilterSheet(
-        repo: repo,
-        countryOptions: countryOptions,
-        typeOptions: typeOptions,
-        showFutureTrips: showFutureTrips,
-        initialFilter: initialFilter,
-      ),
-    );
-  }
-
-  return showModalBottomSheet<TripsFilterResult>(
-    context: context,
-    useSafeArea: true,
-    isScrollControlled: true,
-    backgroundColor: Theme.of(
-      context,
-    ).scaffoldBackgroundColor, //Theme.of(context).colorScheme.surface,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      builder: (ctx) => sheet,
     ),
-    builder: (_) => FractionallySizedBox(
-      heightFactor: 0.92,
-      child: TripsSearchFilterSheet(
-        repo: repo,
-        countryOptions: countryOptions,
-        typeOptions: typeOptions,
-        showFutureTrips: showFutureTrips,
-        initialFilter: initialFilter,
+    material: () => showModalBottomSheet<TripsFilterResult>(
+      context: context,
+      useSafeArea: true,
+      isScrollControlled: true,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
+      builder: (_) => FractionallySizedBox(heightFactor: 0.92, child: sheet),
     ),
   );
 }

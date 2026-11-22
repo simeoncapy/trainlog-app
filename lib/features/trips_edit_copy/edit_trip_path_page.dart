@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:trainlog_app/ui/design.dart';
 import 'package:trainlog_app/ui/adaptive/adaptive_app_bar.dart';
 import 'package:trainlog_app/ui/adaptive/adaptive_dialog.dart';
 import 'package:trainlog_app/ui/adaptive/adaptive_segmented_button.dart';
@@ -18,7 +19,6 @@ import 'package:trainlog_app/core/providers/settings_provider.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
 import 'package:trainlog_app/utils/number_formatter.dart';
-import 'package:trainlog_app/utils/platform_utils.dart';
 import 'package:trainlog_app/widgets/error_banner.dart';
 import 'package:trainlog_app/widgets/shimmer_box.dart';
 import 'package:trainlog_app/widgets/trainlog_router_page.dart';
@@ -190,23 +190,30 @@ class _EditTripPathPageState extends State<EditTripPathPage> {
   }
 
   /// Asked when leaving with a route that was changed but not saved.
-  Future<void> _confirmLeave() async {
+  Future<void> _confirmLeave() => byDesign(
+    context,
+    material: _confirmLeaveMaterial,
+    cupertino: _confirmLeaveCupertino,
+  );
+
+  Future<void> _confirmLeaveCupertino() async {
     final loc = AppLocalizations.of(context)!;
-    if (AppPlatform.isApple) {
-      final leave = await AdaptiveDialog.confirm(
-        context: context,
-        title: loc.editPathExitDialogTitle,
-        message: loc.editPathExitDialogContent,
-        confirmLabel: loc.editPathExitDialogConfirm,
-        destructive: true,
-        // A centred alert, not an action sheet, like the Android dialog.
-        useActionSheetOnIOS: false,
-        // This page is pushed on the root navigator, which can always pop.
-        skipWhenRootCanPop: false,
-      );
-      if (leave && mounted) Navigator.of(context).pop();
-      return;
-    }
+    final leave = await AdaptiveDialog.confirm(
+      context: context,
+      title: loc.editPathExitDialogTitle,
+      message: loc.editPathExitDialogContent,
+      confirmLabel: loc.editPathExitDialogConfirm,
+      destructive: true,
+      // A centred alert, not an action sheet, like the Android dialog.
+      useActionSheetOnIOS: false,
+      // This page is pushed on the root navigator, which can always pop.
+      skipWhenRootCanPop: false,
+    );
+    if (leave && mounted) Navigator.of(context).pop();
+  }
+
+  Future<void> _confirmLeaveMaterial() async {
+    final loc = AppLocalizations.of(context)!;
     final leave = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -227,24 +234,31 @@ class _EditTripPathPageState extends State<EditTripPathPage> {
     if (leave == true && mounted) Navigator.of(context).pop();
   }
 
-  void _showRouterHelp() {
+  void _showRouterHelp() => byDesign(
+    context,
+    material: _showRouterHelpMaterial,
+    cupertino: _showRouterHelpCupertino,
+  );
+
+  void _showRouterHelpCupertino() {
     final loc = AppLocalizations.of(context)!;
-    if (AppPlatform.isApple) {
-      AdaptiveDialog.show(
-        context: context,
-        title: loc.helpTitle,
-        message: loc.addTripPathHelp,
-        actions: [
-          AdaptiveDialogAction(
-            label: MaterialLocalizations.of(context).closeButtonLabel,
-            result: AdaptiveDialogResult.primary,
-            isDefault: true,
-          ),
-        ],
-        skipWhenRootCanPop: false,
-      );
-      return;
-    }
+    AdaptiveDialog.show(
+      context: context,
+      title: loc.helpTitle,
+      message: loc.addTripPathHelp,
+      actions: [
+        AdaptiveDialogAction(
+          label: MaterialLocalizations.of(context).closeButtonLabel,
+          result: AdaptiveDialogResult.primary,
+          isDefault: true,
+        ),
+      ],
+      skipWhenRootCanPop: false,
+    );
+  }
+
+  void _showRouterHelpMaterial() {
+    final loc = AppLocalizations.of(context)!;
     showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
@@ -341,16 +355,16 @@ class _EditTripPathPageState extends State<EditTripPathPage> {
         if (!didPop) _confirmLeave();
       },
       child: Scaffold(
-        appBar: AppPlatform.isApple
-            ? AdaptiveAppBar(
+        appBar: PlatformAppBar(
+            cupertino: AdaptiveAppBar(
                 title: loc.editPathTitle,
                 // iOS 26 layout: title next to the back button, actions
                 // trailing; a long title ends with an ellipsis.
                 cupertinoLeadingTitle: true,
                 onBack: () => Navigator.of(context).maybePop(),
                 cupertinoTrailing: _appleTrailing(loc),
-              )
-            : AppBar(
+              ),
+            material: AppBar(
                 centerTitle: true,
                 leading: IconButton(
                   icon: const Icon(Icons.arrow_back),
@@ -369,6 +383,7 @@ class _EditTripPathPageState extends State<EditTripPathPage> {
                     ),
                 ],
               ),
+            ),
         body: SafeArea(
           top: false,
           // Both tabs stay built: the web view, and the route drawn on it,

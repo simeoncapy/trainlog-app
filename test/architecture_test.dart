@@ -1,10 +1,10 @@
 // Checks the layering rules described in CLAUDE.md by reading the imports
 // and platform checks of every file under lib/.
 //
-// Each rule lists the files that broke it when the rule was introduced
-// (`known`). A new file breaking a rule fails the test; so does a listed
-// file that no longer breaks it, so the list only ever shrinks: remove the
-// file from the list when you fix it.
+// Every file under lib/ follows every rule. A rule added later may list the
+// files that break it when it is introduced (`known`): a new file breaking
+// it fails the test, and so does a listed file that no longer breaks it, so
+// the list only ever shrinks.
 
 import 'dart:io';
 
@@ -67,7 +67,6 @@ final _rules = <_Rule>[
       'package:flutter/cupertino.dart',
       'package:liquid_glass_widgets/',
     ]),
-    known: {},
   ),
   _Rule(
     name: 'controllers-are-pure',
@@ -99,8 +98,6 @@ final _rules = <_Rule>[
         !_under(p, 'ui/cupertino') &&
         !_under(p, 'ui/adaptive'),
     breaks: (p, s) => _importsAny(s, ['package:liquid_glass_widgets/']),
-    known: {
-    },
   ),
   _Rule(
     name: 'views-do-not-mix',
@@ -118,21 +115,17 @@ final _rules = <_Rule>[
   _Rule(
     name: 'no-platform-checks-in-screens',
     why:
-        'Screens do not test the platform: each picks its view once with '
-        'PlatformView, and the Material and iOS views live in their own '
-        'material/ and cupertino/ folders.',
+        'Screens do not test the platform or the design: each picks its '
+        'view with PlatformView (byDesign for a dialog or a sheet, '
+        'PlatformAppBar for an app bar), and the Material and iOS views live '
+        'in their own material/ and cupertino/ folders.',
     appliesTo: (p) =>
         _under(p, 'features') ||
         _under(p, 'widgets') ||
         _under(p, 'navigation'),
-    breaks: (p, s) => s.contains('AppPlatform.isApple'),
-    known: {
-      'lib/features/menu/full_screen_menu_page.dart',
-      'lib/features/trips_edit_copy/edit_trip_path_page.dart',
-      'lib/features/trips_edit_copy/widgets/edit_trip_app_bar.dart',
-      'lib/features/trips_edit_copy/widgets/edit_trip_section_bar.dart',
-      'lib/features/user/widgets/instance_selector_widget.dart',
-    },
+    breaks: (p, s) => RegExp(
+      r'AppPlatform\.(isApple|isMaterial|design)|AppDesign\.of\(',
+    ).hasMatch(s),
   ),
 ];
 
