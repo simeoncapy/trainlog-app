@@ -106,7 +106,6 @@ final _rules = <_Rule>[
         !_under(p, 'ui/adaptive'),
     breaks: (p, s) => _importsAny(s, ['package:liquid_glass_widgets/']),
     known: {
-      'lib/features/settings/widgets/settings_group.dart',
       'lib/features/trips/search_filter_sheet/when_section.dart',
       'lib/widgets/app_steps_tab_bar.dart',
     },
@@ -138,8 +137,6 @@ final _rules = <_Rule>[
     known: {
       'lib/features/map/map_page.dart',
       'lib/features/menu/full_screen_menu_page.dart',
-      'lib/features/settings/settings_page.dart',
-      'lib/features/settings/widgets/settings_group.dart',
       'lib/features/spr/geolog_note_page.dart',
       'lib/features/spr/smart_prerecorder_page.dart',
       'lib/features/spr/widgets/pre_record_tile.dart',
