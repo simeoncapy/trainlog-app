@@ -1374,6 +1374,12 @@ abstract class AppLocalizations {
   /// **'Unknown past'**
   String get mapFilterUnknownPast;
 
+  /// Live count under the title of a filter sheet (iOS): how many trips match the current filters
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0 {No matching trips} =1 {1 trip} other {{count} trips}}'**
+  String filterTripCount(num count);
+
   /// Primary action button in the map filter sheet showing how many trips match the current filters
   ///
   /// In en, this message translates to:

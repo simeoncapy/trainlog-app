@@ -59,6 +59,15 @@ void main() {
         design == DesignLanguage.cupertino ? findsOneWidget : findsNothing,
       );
       expect(poly.yearFilterChoice, PolylineYearFilter.all);
+      // iOS: no "Show N trips" button, the count is under the title.
+      expect(
+        find.text('No matching trips'),
+        design == DesignLanguage.cupertino ? findsOneWidget : findsNothing,
+      );
+      expect(
+        find.text('Show no trips'),
+        design == DesignLanguage.material ? findsOneWidget : findsNothing,
+      );
 
       await t.tap(find.text('Years').first);
       await t.pump();

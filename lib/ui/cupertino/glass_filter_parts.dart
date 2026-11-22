@@ -18,9 +18,13 @@ class GlassSheetHeader extends StatelessWidget {
     required this.onReset,
     required this.closeTooltip,
     required this.resetTooltip,
+    this.subtitle,
   });
 
   final String title;
+
+  /// A line under the title, e.g. how many trips the filters keep.
+  final String? subtitle;
   final VoidCallback onClose;
   final VoidCallback? onReset;
   final String closeTooltip;
@@ -41,16 +45,34 @@ class GlassSheetHeader extends StatelessWidget {
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: Text(
-                title,
-                textAlign: TextAlign.center,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w600,
-                  color: CupertinoColors.label.resolveFrom(context),
-                ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    title,
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w600,
+                      color: CupertinoColors.label.resolveFrom(context),
+                    ),
+                  ),
+                  if (subtitle != null)
+                    Text(
+                      subtitle!,
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: CupertinoColors.secondaryLabel.resolveFrom(
+                          context,
+                        ),
+                        letterSpacing: 0,
+                      ),
+                    ),
+                ],
               ),
             ),
           ),

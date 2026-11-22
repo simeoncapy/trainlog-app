@@ -13,8 +13,9 @@ import 'package:trainlog_app/utils/date_utils.dart';
 
 /// Map filter, iOS 26 view: glass ✕ / title / ↺ bar, glass segmented
 /// control, an aligned 4 × 3 grid of year capsules swiped by page (dots
-/// below), vehicle capsules, and the solid amber "Show N trips" button with
-/// its icon. The Liquid Glass sheet brings its own background and handle.
+/// below) and vehicle capsules. No "Show N trips" button: the filters apply
+/// as they change, the ✕ closes, and the trip count is the line under the
+/// title. The Liquid Glass sheet brings its own background and handle.
 ///
 /// The filter state lives in [PolylineProvider]; this view only keeps the
 /// current page of the year grid.
@@ -68,6 +69,7 @@ class _MapFilterCupertinoViewState extends State<MapFilterCupertinoView> {
             // filter sheet.
             GlassSheetHeader(
               title: l10n.mapFilterTitle,
+              subtitle: l10n.filterTripCount(poly.visibleTripCount),
               closeTooltip: MaterialLocalizations.of(
                 context,
               ).closeButtonTooltip,
@@ -121,14 +123,7 @@ class _MapFilterCupertinoViewState extends State<MapFilterCupertinoView> {
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 10, 16, 14),
-              child: GlassPrimaryButton(
-                icon: CupertinoIcons.map,
-                label: l10n.mapFilterShowTrips(poly.visibleTripCount),
-                onPressed: widget.onClose,
-              ),
-            ),
+            const SizedBox(height: 8),
           ],
         ),
       ),

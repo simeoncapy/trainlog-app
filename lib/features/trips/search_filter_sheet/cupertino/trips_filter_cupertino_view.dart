@@ -13,11 +13,12 @@ import 'package:trainlog_app/ui/cupertino/glass_filter_parts.dart';
 /// Trips search & filter, iOS 26 view: glass ✕ / title / ↺ bar, search
 /// field, a grouped list (period menu with optional From / To dates,
 /// countries and operators as summary rows opening the pickers), the
-/// vehicle capsules and the solid amber "Show N trips" button. The Liquid
-/// Glass sheet draws its own grab handle.
+/// vehicle capsules. No "Show N trips" button: the trip count is the line
+/// under the title, and closing the sheet (✕ or swipe down) applies the
+/// filter. The Liquid Glass sheet draws its own grab handle.
 ///
 /// Reads and changes the shared [TripsFilterController]. When [picker] is
-/// set (country or operator picker), it replaces the form and the footer.
+/// set (country or operator picker), it replaces the form.
 class TripsFilterCupertinoView extends StatelessWidget {
   const TripsFilterCupertinoView({
     super.key,
@@ -36,13 +37,7 @@ class TripsFilterCupertinoView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    return Column(
-      children: [
-        Expanded(child: picker ?? _buildMainView(context, l10n)),
-        if (picker == null) _actionFooter(context, l10n),
-      ],
-    );
+    return picker ?? _buildMainView(context, AppLocalizations.of(context)!);
   }
 
   Widget _buildMainView(BuildContext context, AppLocalizations l10n) {
@@ -72,9 +67,12 @@ class TripsFilterCupertinoView extends StatelessWidget {
       children: [
         GlassSheetHeader(
           title: l10n.tripsSearchFilterTitle,
+          subtitle: l10n.filterTripCount(filter.matchCount),
           closeTooltip: MaterialLocalizations.of(context).closeButtonTooltip,
           resetTooltip: l10n.mapFilterReset,
-          onClose: () => Navigator.of(context, rootNavigator: true).pop(),
+          // Closing applies the filter (no "Show N trips" button on iOS).
+          onClose: () =>
+              Navigator.of(context, rootNavigator: true).pop(filter.result),
           onReset: filter.reset,
         ),
         Expanded(
@@ -144,19 +142,6 @@ class TripsFilterCupertinoView extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-
-  Widget _actionFooter(BuildContext context, AppLocalizations l10n) {
-    final filter = context.watch<TripsFilterController>();
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-      child: GlassPrimaryButton(
-        icon: Icons.directions_transit_outlined,
-        label: l10n.mapFilterShowTrips(filter.matchCount),
-        onPressed: () =>
-            Navigator.of(context, rootNavigator: true).pop(filter.result),
-      ),
     );
   }
 }

@@ -718,6 +718,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mapFilterUnknownPast => 'Unknown past';
 
   @override
+  String filterTripCount(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count trips',
+      one: '1 trip',
+      zero: 'No matching trips',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String mapFilterShowTrips(num count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

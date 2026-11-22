@@ -91,11 +91,15 @@ class CupertinoSettingsIcon extends StatelessWidget {
     required this.icon,
     this.color,
     this.enabled = true,
+    this.filled = false,
   });
 
   final IconData icon;
   final Color? color;
   final bool enabled;
+
+  /// Draws a variable icon font (Material Symbols) filled.
+  final bool filled;
 
   @override
   Widget build(BuildContext context) {
@@ -114,7 +118,12 @@ class CupertinoSettingsIcon extends StatelessWidget {
         ),
         child: SizedBox.square(
           dimension: _iconSize,
-          child: Icon(icon, color: CupertinoColors.white, size: 19),
+          child: Icon(
+            icon,
+            color: CupertinoColors.white,
+            size: 19,
+            fill: filled ? 1 : null,
+          ),
         ),
       ),
     );
