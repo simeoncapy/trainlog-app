@@ -144,7 +144,6 @@ final _rules = <_Rule>[
       'lib/features/spr/smart_prerecorder_page.dart',
       'lib/features/spr/widgets/pre_record_tile.dart',
       'lib/features/spr/widgets/spr_button_bar.dart',
-      'lib/features/trips/detail_sheet/trip_details_actions.dart',
       'lib/features/trips/detail_sheet/trip_details_bottom_sheet.dart',
       'lib/features/trips/detail_sheet/trip_details_common.dart',
       'lib/features/trips/detail_sheet/trip_details_header.dart',
