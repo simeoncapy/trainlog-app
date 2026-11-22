@@ -4,11 +4,8 @@ import 'package:trainlog_app/utils/platform_utils.dart';
 
 /// Shared building blocks for the trips search & filter sheet.
 ///
-/// All widgets here are theme-driven (they read [Theme.of]) so they render
-/// consistently inside both the Material modal sheet and the Cupertino popup
-/// (the Cupertino app wraps its tree in a Material [Theme]); the pieces that
-/// benefit from a native feel (search fields, icons) switch on
-/// [AppPlatform.isApple].
+/// Material renderings (theme-driven: they read [Theme.of]); the iOS sheet
+/// uses the glass parts of lib/ui/cupertino instead.
 
 /// Section title row with an optional trailing widget (badge, buttons…).
 class SheetSectionTitle extends StatelessWidget {
@@ -25,8 +22,9 @@ class SheetSectionTitle extends StatelessWidget {
         Expanded(
           child: Text(
             text,
-            style: theme.textTheme.titleMedium
-                ?.copyWith(fontWeight: FontWeight.w700),
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ),
         if (trailing != null) trailing!,
@@ -62,63 +60,6 @@ class SheetMiniButton extends StatelessWidget {
         textStyle: const TextStyle(fontWeight: FontWeight.w600),
       ),
       child: Text(label),
-    );
-  }
-}
-
-/// Adaptive text-search input: a [CupertinoSearchTextField] on Apple, a
-/// Material [TextField] elsewhere.
-class SheetSearchField extends StatelessWidget {
-  const SheetSearchField({
-    super.key,
-    required this.controller,
-    required this.placeholder,
-    this.autofocus = false,
-  });
-
-  final TextEditingController controller;
-  final String placeholder;
-  final bool autofocus;
-
-  @override
-  Widget build(BuildContext context) {
-    if (AppPlatform.isApple) {
-      return CupertinoSearchTextField(
-        controller: controller,
-        placeholder: placeholder,
-        autofocus: autofocus,
-      );
-    }
-    final cs = Theme.of(context).colorScheme;
-    return TextField(
-      controller: controller,
-      autofocus: autofocus,
-      decoration: InputDecoration(
-        hintText: placeholder,
-        prefixIcon: const Icon(Icons.search),
-        suffixIcon: ValueListenableBuilder<TextEditingValue>(
-          valueListenable: controller,
-          builder: (_, value, __) => value.text.isEmpty
-              ? const SizedBox.shrink()
-              : IconButton(
-                  icon: const Icon(Icons.close, size: 18),
-                  onPressed: controller.clear,
-                ),
-        ),
-        isDense: true,
-        filled: true,
-        fillColor: cs.surfaceContainerHighest.withValues(alpha: 0.5),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: cs.outline.withValues(alpha: 0.4)),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: cs.outline.withValues(alpha: 0.4)),
-        ),
-      ),
     );
   }
 }
@@ -187,9 +128,7 @@ class SheetCheckIndicator extends StatelessWidget {
           width: 1.4,
         ),
       ),
-      child: checked
-          ? Icon(Icons.check, size: 17, color: cs.onPrimary)
-          : null,
+      child: checked ? Icon(Icons.check, size: 17, color: cs.onPrimary) : null,
     );
   }
 }
@@ -220,10 +159,7 @@ class SelectedValueChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (leading != null) ...[
-            leading!,
-            const SizedBox(width: 6),
-          ],
+          if (leading != null) ...[leading!, const SizedBox(width: 6)],
           Text(
             label,
             style: TextStyle(
@@ -237,7 +173,7 @@ class SelectedValueChip extends StatelessWidget {
             onTap: onRemove,
             behavior: HitTestBehavior.opaque,
             child: Icon(
-              AppPlatform.isApple ? CupertinoIcons.xmark : Icons.close,
+              AdaptiveIcons.close,
               size: 14,
               color: cs.onSurfaceVariant,
             ),
@@ -315,7 +251,11 @@ class _DashedBorderPainter extends CustomPainter {
     final inset = strokeWidth / 2;
     final rrect = RRect.fromRectAndRadius(
       Rect.fromLTWH(
-          inset, inset, size.width - strokeWidth, size.height - strokeWidth),
+        inset,
+        inset,
+        size.width - strokeWidth,
+        size.height - strokeWidth,
+      ),
       Radius.circular(radius),
     );
 
@@ -326,7 +266,9 @@ class _DashedBorderPainter extends CustomPainter {
         final next = distance + dashLength;
         canvas.drawPath(
           metric.extractPath(
-              distance, next < metric.length ? next : metric.length),
+            distance,
+            next < metric.length ? next : metric.length,
+          ),
           paint,
         );
         distance = next + gapLength;

@@ -14,8 +14,8 @@ import 'package:trainlog_app/core/providers/trainlog_provider.dart';
 import 'package:trainlog_app/core/services/flag_cache.dart';
 import 'package:trainlog_app/utils/number_formatter.dart';
 import 'package:trainlog_app/utils/text_utils.dart';
-import 'package:trainlog_app/widgets/app_steps_tab_bar.dart';
-import 'package:trainlog_app/widgets/bottom_sheet_picker.dart';
+import 'package:trainlog_app/ui/adaptive/app_steps_tab_bar.dart';
+import 'package:trainlog_app/ui/adaptive/bottom_sheet_picker.dart';
 
 /// The Railway Coverage sub-feature: a user-position block, a Countries/Regions
 /// segmented tab bar with inline sorting, and the matching list (a country list,

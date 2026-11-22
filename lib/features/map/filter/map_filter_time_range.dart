@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:trainlog_app/core/data/models/polyline_filter_state.dart';
 import 'package:trainlog_app/core/providers/polyline_provider.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
-import 'package:trainlog_app/widgets/app_steps_tab_bar.dart';
+import 'package:trainlog_app/ui/adaptive/app_steps_tab_bar.dart';
 
 /// The map filter's time range control (All, Past, Future, Years), shared by
 /// both views: [AppStepsTabBar] draws the Material track on Android and the

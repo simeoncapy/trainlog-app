@@ -17,7 +17,7 @@ import 'package:trainlog_app/navigation/nav_models.dart';
 import 'package:trainlog_app/core/providers/trainlog_provider.dart';
 import 'package:trainlog_app/core/providers/trips_provider.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
-import 'package:trainlog_app/widgets/app_steps_tab_bar.dart';
+import 'package:trainlog_app/ui/adaptive/app_steps_tab_bar.dart';
 import 'package:trainlog_app/widgets/past_future_selector.dart';
 import 'package:trainlog_app/ui/adaptive/adaptive_widget.dart';
 

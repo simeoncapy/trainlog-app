@@ -15,7 +15,7 @@ import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
 import 'package:trainlog_app/utils/signed_int_formatter.dart';
 import 'package:trainlog_app/features/trips_add/widgets/relative_date_time_picker_dialog.dart';
-import 'package:trainlog_app/widgets/app_steps_tab_bar.dart';
+import 'package:trainlog_app/ui/adaptive/app_steps_tab_bar.dart';
 import 'package:trainlog_app/widgets/error_banner.dart';
 import 'package:trainlog_app/widgets/trip_form/trip_form_card.dart';
 import 'package:trainlog_app/widgets/trip_form/trip_form_tiles.dart';

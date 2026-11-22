@@ -5,8 +5,9 @@ import 'package:trainlog_app/features/trips/search_filter_sheet/filter_group_sec
 import 'package:trainlog_app/features/trips/search_filter_sheet/sheet_common.dart';
 import 'package:trainlog_app/features/trips/search_filter_sheet/trips_filter_controller.dart';
 import 'package:trainlog_app/features/trips/search_filter_sheet/trips_filter_entries.dart';
-import 'package:trainlog_app/features/trips/search_filter_sheet/when_section.dart';
+import 'package:trainlog_app/features/trips/search_filter_sheet/material/when_section_material.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
+import 'package:trainlog_app/ui/adaptive/adaptive_search_field.dart';
 import 'package:trainlog_app/ui/adaptive/adaptive_vehicle_type_filter_chips.dart';
 import 'package:trainlog_app/widgets/primary_action_button.dart';
 
@@ -122,14 +123,14 @@ class TripsFilterMaterialView extends StatelessWidget {
               children: [
                 // Text search — feeds the keyword query for both the card and
                 // the table view.
-                SheetSearchField(
+                AdaptiveSearchField(
                   controller: keywordController,
                   placeholder: l10n.tripsSearchFilterSearchHint,
                 ),
                 const SizedBox(height: 20),
 
                 // When
-                WhenSection(
+                MaterialWhenSection(
                   quickFilter: filter.quickFilter,
                   fromDate: filter.fromDate,
                   toDate: filter.toDate,

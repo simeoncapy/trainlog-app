@@ -100,8 +100,6 @@ final _rules = <_Rule>[
         !_under(p, 'ui/adaptive'),
     breaks: (p, s) => _importsAny(s, ['package:liquid_glass_widgets/']),
     known: {
-      'lib/features/trips/search_filter_sheet/when_section.dart',
-      'lib/widgets/app_steps_tab_bar.dart',
     },
   ),
   _Rule(
@@ -139,17 +137,12 @@ final _rules = <_Rule>[
       'lib/features/trips/detail_sheet/trip_details_common.dart',
       'lib/features/trips/detail_sheet/trip_details_header.dart',
       'lib/features/trips/detail_sheet/trip_details_metrics.dart',
-      'lib/features/trips/search_filter_sheet/group_picker_view.dart',
-      'lib/features/trips/search_filter_sheet/sheet_common.dart',
-      'lib/features/trips/search_filter_sheet/when_section.dart',
       'lib/features/trips/trips_page.dart',
       'lib/features/trips/widgets/trip_table_view.dart',
       'lib/features/trips_edit_copy/edit_trip_path_page.dart',
       'lib/features/trips_edit_copy/widgets/edit_trip_app_bar.dart',
       'lib/features/trips_edit_copy/widgets/edit_trip_section_bar.dart',
       'lib/features/user/widgets/instance_selector_widget.dart',
-      'lib/widgets/app_steps_tab_bar.dart',
-      'lib/widgets/bottom_sheet_picker.dart',
     },
   ),
 ];

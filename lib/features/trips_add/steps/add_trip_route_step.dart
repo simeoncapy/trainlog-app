@@ -9,7 +9,7 @@ import 'package:trainlog_app/core/providers/trainlog_provider.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
 import 'package:trainlog_app/features/trips_add/widgets/mini_map_box.dart';
 import 'package:trainlog_app/features/trips_add/widgets/station_endpoint_fields.dart';
-import 'package:trainlog_app/widgets/app_steps_tab_bar.dart';
+import 'package:trainlog_app/ui/adaptive/app_steps_tab_bar.dart';
 import 'package:trainlog_app/widgets/trip_form/trip_form_card.dart';
 import 'package:trainlog_app/widgets/trip_form/trip_form_tiles.dart';
 

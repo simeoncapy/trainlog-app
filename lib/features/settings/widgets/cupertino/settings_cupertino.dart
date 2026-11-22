@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:trainlog_app/core/data/models/trips.dart';
 import 'package:trainlog_app/ui/cupertino/glass_pop_up_button.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
-import 'package:trainlog_app/widgets/app_steps_tab_bar.dart';
+import 'package:trainlog_app/ui/adaptive/app_steps_tab_bar.dart';
 
 // iOS 26 renderings of the settings rows: an inset grouped list as in the
 // Settings app (big continuous corners, coloured 30 pt icon squares with a
