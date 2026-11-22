@@ -1,26 +1,17 @@
-import 'dart:async';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:liquid_glass_widgets/liquid_glass_widgets.dart'
-    show GlassSheetDetent, GlassSheetState;
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/core/data/models/trips.dart';
 import 'package:trainlog_app/core/data/models/trips_filter.dart';
 import 'package:trainlog_app/core/data/trips_repository.dart';
-import 'package:trainlog_app/features/trips/search_filter_sheet/filter_group_section.dart';
+import 'package:trainlog_app/core/providers/trainlog_provider.dart';
+import 'package:trainlog_app/features/trips/search_filter_sheet/cupertino/trips_filter_cupertino_view.dart';
 import 'package:trainlog_app/features/trips/search_filter_sheet/group_picker_view.dart';
-import 'package:trainlog_app/features/trips/search_filter_sheet/sheet_common.dart';
-import 'package:trainlog_app/features/trips/search_filter_sheet/when_section.dart';
+import 'package:trainlog_app/features/trips/search_filter_sheet/material/trips_filter_material_view.dart';
+import 'package:trainlog_app/features/trips/search_filter_sheet/trips_filter_controller.dart';
+import 'package:trainlog_app/features/trips/search_filter_sheet/trips_filter_entries.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/ui/adaptive/adaptive_sheet.dart';
-import 'package:trainlog_app/ui/adaptive/adaptive_vehicle_type_filter_chips.dart';
-import 'package:trainlog_app/ui/cupertino/glass_filter_parts.dart';
-import 'package:trainlog_app/core/providers/trainlog_provider.dart';
-import 'package:trainlog_app/utils/platform_utils.dart';
-import 'package:trainlog_app/utils/style_utils.dart';
-import 'package:trainlog_app/utils/text_utils.dart';
-import 'package:trainlog_app/widgets/primary_action_button.dart';
+import 'package:trainlog_app/ui/design.dart';
 
 /// Opens the trips search & filter interface as a bottom sheet, using the
 /// same native presentation hooks as `showAdaptiveTripBottomSheet` (the trip
@@ -37,18 +28,9 @@ Future<TripsFilterResult?> showTripsSearchFilterSheet(
   required bool showFutureTrips,
   TripsFilterResult? initialFilter,
 }) {
-  if (AppPlatform.isApple) {
-    // A large-detent Liquid Glass sheet: opaque at rest like iOS 26 form
-    // sheets, glass while it is dragged away.
-    return showAppleDetentSheet<TripsFilterResult>(
+  if (AppDesign.of(context) == DesignLanguage.cupertino) {
+    return showAppleFormSheet<TripsFilterResult>(
       context: context,
-      detents: const {GlassSheetDetent.large},
-      initialState: GlassSheetState.full,
-      // ✕ / title / ↺ level with the grab handle, as in iOS 26 sheets.
-      topInset: kAppleSheetHeaderInset,
-      // Page colour behind the grouped cells, as on the Settings page.
-      expandedColor: CupertinoDynamicColor.resolve(
-          CupertinoTheme.of(context).scaffoldBackgroundColor, context),
       builder: (ctx) => TripsSearchFilterSheet(
         repo: repo,
         countryOptions: countryOptions,
@@ -63,7 +45,9 @@ Future<TripsFilterResult?> showTripsSearchFilterSheet(
     context: context,
     useSafeArea: true,
     isScrollControlled: true,
-    backgroundColor: Theme.of(context).scaffoldBackgroundColor,//Theme.of(context).colorScheme.surface,
+    backgroundColor: Theme.of(
+      context,
+    ).scaffoldBackgroundColor, //Theme.of(context).colorScheme.surface,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
     ),
@@ -84,9 +68,11 @@ enum _SheetView { main, countries, operators }
 
 /// Body of the trips search & filter bottom sheet.
 ///
-/// Owns the working copy of the filter, keeps the "Show N trips" preview
-/// count up to date against the repository, and swaps between the main form
-/// and the country/operator picker views.
+/// Provides a [TripsFilterController] (the filter state, shared by both
+/// views), owns what only widgets can hold (the keyword field's text
+/// controller, the form's scroll position, which view is shown) and swaps
+/// between the main form and the country / operator pickers. The main form
+/// is [TripsFilterMaterialView] or [TripsFilterCupertinoView].
 class TripsSearchFilterSheet extends StatefulWidget {
   const TripsSearchFilterSheet({
     super.key,
@@ -114,222 +100,85 @@ class TripsSearchFilterSheet extends StatefulWidget {
 }
 
 class _TripsSearchFilterSheetState extends State<TripsSearchFilterSheet> {
+  late final TripsFilterController _filter;
   final _keywordController = TextEditingController();
   final _mainScrollController = ScrollController();
 
-  TripsQuickDateFilter? _quickFilter = TripsQuickDateFilter.allTime;
-  DateTime? _fromDate;
-  DateTime? _toDate;
-  late Set<String> _countries;
-  late Set<String> _operators;
-  late Set<VehicleType> _types;
-
   _SheetView _view = _SheetView.main;
-
-  /// value → number of trips, ordered by count (descending).
-  Map<String, int> _countryTripCounts = const {};
-  Map<String, int> _operatorTripCounts = const {};
-
-  int _matchCount = 0;
-  Timer? _countDebounce;
 
   @override
   void initState() {
     super.initState();
-    final f = widget.initialFilter;
-    if (f != null) {
-      _keywordController.text = f.keyword;
-      _quickFilter = f.quickDateFilter;
-      _fromDate = f.customStartDate;
-      _toDate = f.customEndDate;
-      _countries = Set.of(f.countries);
-      _operators = Set.of(f.operators);
-      _types = f.types.isEmpty ? Set.of(widget.typeOptions) : Set.of(f.types);
-    } else {
-      _countries = {};
-      _operators = {};
-      _types = Set.of(widget.typeOptions);
-    }
-
-    _keywordController.addListener(_scheduleCountRefresh);
-    _loadGroupCounts();
-    _refreshCount();
+    _filter = TripsFilterController(
+      repo: widget.repo,
+      countryCodes: widget.countryOptions.keys.toList(),
+      typeOptions: widget.typeOptions,
+      showFutureTrips: widget.showFutureTrips,
+      initialFilter: widget.initialFilter,
+    );
+    _keywordController.text = _filter.keyword;
+    _keywordController.addListener(
+      () => _filter.setKeyword(_keywordController.text),
+    );
+    // A reset clears the keyword: mirror it in the text field.
+    _filter.addListener(() {
+      if (_keywordController.text != _filter.keyword) {
+        _keywordController.text = _filter.keyword;
+      }
+    });
+    _filter.load();
   }
 
   @override
   void dispose() {
-    _countDebounce?.cancel();
+    _filter.dispose();
     _keywordController.dispose();
     _mainScrollController.dispose();
     super.dispose();
   }
 
-  // ── Data ───────────────────────────────────────────────────────────────────
-
-  Future<void> _loadGroupCounts() async {
-    final operatorCounts = await widget.repo.fetchOperatorsByTripPF();
-    final countryCounts = await widget.repo.fetchCountriesByTripPF();
-    if (!mounted) return;
-    setState(() {
-      _operatorTripCounts = {
-        for (final e in operatorCounts.entries) e.key: e.value.past + e.value.future,
-      };
-      _countryTripCounts = {
-        for (final e in countryCounts.entries) e.key: e.value.past + e.value.future,
-      };
-    });
-  }
-
-  TripsFilterResult _buildResult() {
-    // A selection covering every available type is no restriction at all.
-    final restrictsTypes = _types.length < widget.typeOptions.length ||
-        !_types.containsAll(widget.typeOptions);
-    return TripsFilterResult(
-      keyword: _keywordController.text.trim(),
-      quickDateFilter: _quickFilter,
-      customStartDate: _fromDate,
-      customEndDate: _toDate,
-      countries: Set.of(_countries),
-      operators: Set.of(_operators),
-      types: restrictsTypes
-          ? widget.typeOptions.where(_types.contains).toList()
-          : const [],
-    );
-  }
-
-  void _scheduleCountRefresh() {
-    _countDebounce?.cancel();
-    _countDebounce = Timer(const Duration(milliseconds: 250), _refreshCount);
-  }
-
-  Future<void> _refreshCount() async {
-    final count = await widget.repo.countFilteredTrips(
-      showFutureTrips: widget.showFutureTrips,
-      filter: _buildResult(),
-    );
-    if (mounted) setState(() => _matchCount = count);
-  }
-
-  void _reset() {
-    setState(() {
-      _keywordController.clear();
-      _quickFilter = TripsQuickDateFilter.allTime;
-      _fromDate = null;
-      _toDate = null;
-      _countries.clear();
-      _operators.clear();
-      _types = Set.of(widget.typeOptions);
-    });
-    _scheduleCountRefresh();
-  }
-
-  // ── Group entries ──────────────────────────────────────────────────────────
-
-  List<GroupEntry> _countryEntries() {
-    final entries = <GroupEntry>[];
-    final seen = <String>{};
-
-    GroupEntry build(String code, int count) => GroupEntry(
-          value: code,
-          // Context-aware rendering: translates codes CountryLocalizations
-          // doesn't know (e.g. "UN" → international waters).
-          label: countryCodeToName(code, context),
-          leading: Text(
-            countryCodeToEmoji(code),
-            style: const TextStyle(fontSize: 18),
-          ),
-          tripCount: count,
-        );
-
-    // Ordered by trip count first…
-    for (final e in _countryTripCounts.entries) {
-      entries.add(build(e.key, e.value));
-      seen.add(e.key);
-    }
-    // …then any remaining known country without a computed count yet.
-    for (final code in widget.countryOptions.keys) {
-      if (seen.add(code)) entries.add(build(code, 0));
-    }
-    return entries;
-  }
-
-  List<GroupEntry> _operatorEntries(TrainlogProvider trainlog) {
-    return [
-      for (final e in _operatorTripCounts.entries)
-        GroupEntry(
-          value: e.key,
-          label: e.key,
-          leading: withOperatorLogoBg(
-            context,
-            trainlog.getOperatorImage(e.key, maxWidth: 32, maxHeight: 32),
-          ),
-          tripCount: e.value,
-        ),
-    ];
-  }
-
-  // ── Build ──────────────────────────────────────────────────────────────────
+  void _show(_SheetView view) => setState(() => _view = view);
 
   @override
   Widget build(BuildContext context) {
+    return ChangeNotifierProvider<TripsFilterController>.value(
+      value: _filter,
+      child: Builder(builder: _buildSheet),
+    );
+  }
+
+  Widget _buildSheet(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final trainlog = Provider.of<TrainlogProvider>(context, listen: false);
+    final filter = context.watch<TripsFilterController>();
 
-    final Widget body;
-    switch (_view) {
-      case _SheetView.main:
-        body = AppPlatform.isApple
-            ? _buildMainViewApple(context, l10n, trainlog)
-            : _buildMainView(context, l10n, trainlog);
-      case _SheetView.countries:
-        body = GroupPickerView(
-          key: const ValueKey('countries-picker'),
-          title: l10n.tripsSearchFilterCountries,
-          searchPlaceholder: l10n.tripsSearchFilterSearchCountries,
-          subHeadline: l10n.tripsSearchFilterAllCountriesFromTrips,
-          entries: _countryEntries(),
-          selectedValues: _countries,
-          onToggle: (value, selected) {
-            setState(() => selected ? _countries.add(value) : _countries.remove(value));
-            _scheduleCountRefresh();
-          },
-          onSelectAll: () {
-            setState(() => _countries
-              ..clear()
-              ..addAll(_countryEntries().map((e) => e.value)));
-            _scheduleCountRefresh();
-          },
-          onSelectNone: () {
-            setState(() => _countries.clear());
-            _scheduleCountRefresh();
-          },
-          onDone: () => setState(() => _view = _SheetView.main),
-        );
-      case _SheetView.operators:
-        body = GroupPickerView(
-          key: const ValueKey('operators-picker'),
-          title: l10n.tripsSearchFilterOperators,
-          searchPlaceholder: l10n.tripsSearchFilterSearchOperators,
-          subHeadline: l10n.tripsSearchFilterAllOperatorsFromTrips,
-          entries: _operatorEntries(trainlog),
-          selectedValues: _operators,
-          onToggle: (value, selected) {
-            setState(() => selected ? _operators.add(value) : _operators.remove(value));
-            _scheduleCountRefresh();
-          },
-          onSelectAll: () {
-            setState(() => _operators
-              ..clear()
-              ..addAll(_operatorTripCounts.keys));
-            _scheduleCountRefresh();
-          },
-          onSelectNone: () {
-            setState(() => _operators.clear());
-            _scheduleCountRefresh();
-          },
-          onDone: () => setState(() => _view = _SheetView.main),
-        );
-    }
+    final Widget? picker = switch (_view) {
+      _SheetView.main => null,
+      _SheetView.countries => GroupPickerView(
+        key: const ValueKey('countries-picker'),
+        title: l10n.tripsSearchFilterCountries,
+        searchPlaceholder: l10n.tripsSearchFilterSearchCountries,
+        subHeadline: l10n.tripsSearchFilterAllCountriesFromTrips,
+        entries: countryEntries(context, filter),
+        selectedValues: filter.countries,
+        onToggle: filter.setCountrySelected,
+        onSelectAll: filter.selectAllCountries,
+        onSelectNone: filter.clearCountries,
+        onDone: () => _show(_SheetView.main),
+      ),
+      _SheetView.operators => GroupPickerView(
+        key: const ValueKey('operators-picker'),
+        title: l10n.tripsSearchFilterOperators,
+        searchPlaceholder: l10n.tripsSearchFilterSearchOperators,
+        subHeadline: l10n.tripsSearchFilterAllOperatorsFromTrips,
+        entries: operatorEntries(context, filter, trainlog),
+        selectedValues: filter.operators,
+        onToggle: filter.setOperatorSelected,
+        onSelectAll: filter.selectAllOperators,
+        onSelectNone: filter.clearOperators,
+        onDone: () => _show(_SheetView.main),
+      ),
+    };
 
     // Keep the sheet (notably its text fields and footer) above the keyboard.
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
@@ -347,364 +196,23 @@ class _TripsSearchFilterSheetState extends State<TripsSearchFilterSheet> {
         child: LayoutBuilder(
           builder: (context, constraints) => constraints.maxHeight < 120
               ? const SizedBox.shrink()
-              : Column(
-                  children: [
-                    // The Apple glass sheet draws its own grab handle.
-                    if (!AppPlatform.isApple) _grabHandle(context),
-                    Expanded(child: body),
-                    if (_view == _SheetView.main)
-                      AppPlatform.isApple
-                          ? _actionFooterApple(context, l10n)
-                          : _actionFooter(context, l10n),
-                  ],
-                ),
-        ),
-      ),
-    );
-  }
-
-  Widget _grabHandle(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.only(top: 10, bottom: 4),
-      child: Center(
-        child: Container(
-          width: 36,
-          height: 5,
-          decoration: BoxDecoration(
-            color: cs.onSurfaceVariant.withValues(alpha: 0.4),
-            borderRadius: BorderRadius.circular(99),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMainView(
-    BuildContext context,
-    AppLocalizations l10n,
-    TrainlogProvider trainlog,
-  ) {
-    final theme = Theme.of(context);
-    final cs = theme.colorScheme;
-
-    final selectedCountryEntries = _countryEntries()
-        .where((e) => _countries.contains(e.value))
-        .toList();
-    final selectedOperatorEntries = _operatorEntries(trainlog)
-        .where((e) => _operators.contains(e.value))
-        .toList();
-
-    return Column(
-      children: [
-        // ── Header ─────────────────────────────────────────────────────────
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 4, 12, 8),
-          child: Row(
-            children: [
-              Container(
-                width: 34,
-                height: 34,
-                decoration: BoxDecoration(
-                  color: cs.primary,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(
-                  AppPlatform.isApple ? CupertinoIcons.search : Icons.search,
-                  size: 20,
-                  color: cs.onPrimary,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  l10n.tripsSearchFilterTitle,
-                  style: theme.textTheme.titleLarge
-                      ?.copyWith(fontWeight: FontWeight.w700),
-                ),
-              ),
-              SheetMiniButton(
-                label: l10n.mapFilterReset,
-                emphasized: true,
-                onTap: _reset,
-              ),
-            ],
-          ),
-        ),
-
-        // ── Scrollable form ────────────────────────────────────────────────
-        Expanded(
-          child: SingleChildScrollView(
-            controller: _mainScrollController,
-            padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Text search — feeds the keyword query for both the card and
-                // the table view.
-                SheetSearchField(
-                  controller: _keywordController,
-                  placeholder: l10n.tripsSearchFilterSearchHint,
-                ),
-                const SizedBox(height: 20),
-
-                // When
-                WhenSection(
-                  quickFilter: _quickFilter,
-                  fromDate: _fromDate,
-                  toDate: _toDate,
-                  onQuickFilterSelected: (value) {
-                    setState(() {
-                      // Selecting a quick chip clears any custom dates.
-                      _quickFilter = value;
-                      _fromDate = null;
-                      _toDate = null;
-                    });
-                    _scheduleCountRefresh();
-                  },
-                  onFromDateChanged: (date) {
-                    setState(() {
-                      _fromDate = date;
-                      // Touching the custom range deselects the quick chip.
-                      _quickFilter = null;
-                    });
-                    _scheduleCountRefresh();
-                  },
-                  onToDateChanged: (date) {
-                    setState(() {
-                      _toDate = date;
-                      _quickFilter = null;
-                    });
-                    _scheduleCountRefresh();
-                  },
-                ),
-                const SizedBox(height: 20),
-
-                // Countries
-                FilterGroupSection(
-                  title: l10n.tripsSearchFilterCountries,
-                  addLabel: l10n.tripsSearchFilterAdd,
-                  selectedEntries: selectedCountryEntries,
-                  onAdd: () => setState(() => _view = _SheetView.countries),
-                  onRemove: (value) {
-                    setState(() => _countries.remove(value));
-                    _scheduleCountRefresh();
-                  },
-                ),
-                const SizedBox(height: 20),
-
-                // Operators
-                FilterGroupSection(
-                  title: l10n.tripsSearchFilterOperators,
-                  addLabel: l10n.tripsSearchFilterAdd,
-                  selectedEntries: selectedOperatorEntries,
-                  onAdd: () => setState(() => _view = _SheetView.operators),
-                  onRemove: (value) {
-                    setState(() => _operators.remove(value));
-                    _scheduleCountRefresh();
-                  },
-                ),
-                const SizedBox(height: 20),
-
-                // Vehicle types
-                SheetSectionTitle(
-                  text: l10n.typeTitle,
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      SheetMiniButton(
-                        label: l10n.mapFilterVehicleTypeAllBtn,
-                        emphasized: true,
-                        onTap: () {
-                          setState(() => _types = Set.of(widget.typeOptions));
-                          _scheduleCountRefresh();
-                        },
-                      ),
-                      const SizedBox(width: 4),
-                      SheetMiniButton(
-                        label: l10n.mapFilterVehicleTypeNoneBtn,
-                        onTap: () {
-                          setState(() => _types.clear());
-                          _scheduleCountRefresh();
-                        },
-                      ),
-                    ],
+              : PlatformView(
+                  material: (_) => TripsFilterMaterialView(
+                    keywordController: _keywordController,
+                    scrollController: _mainScrollController,
+                    picker: picker,
+                    onOpenCountries: () => _show(_SheetView.countries),
+                    onOpenOperators: () => _show(_SheetView.operators),
+                  ),
+                  cupertino: (_) => TripsFilterCupertinoView(
+                    keywordController: _keywordController,
+                    scrollController: _mainScrollController,
+                    picker: picker,
+                    onOpenCountries: () => _show(_SheetView.countries),
+                    onOpenOperators: () => _show(_SheetView.operators),
                   ),
                 ),
-                const SizedBox(height: 10),
-                AdaptiveVehicleTypeFilterChips(
-                  availableTypes: widget.typeOptions,
-                  selectedTypes: _types,
-                  onTypeToggle: (type, selected) {
-                    setState(() {
-                      selected ? _types.add(type) : _types.remove(type);
-                    });
-                    _scheduleCountRefresh();
-                  },
-                ),
-              ],
-            ),
-          ),
         ),
-      ],
-    );
-  }
-
-  // ── Apple (iOS 26) ───────────────────────────────────────────────────────
-
-  /// iOS 26 form: glass ✕ / title / ↺ bar, search field, a grouped list
-  /// (period menu with optional From / To dates, countries and operators as
-  /// summary rows opening the pickers) and the vehicle capsules.
-  Widget _buildMainViewApple(
-    BuildContext context,
-    AppLocalizations l10n,
-    TrainlogProvider trainlog,
-  ) {
-    String summary(List<GroupEntry> selected, int total) {
-      // None selected = no restriction; all selected reads the same.
-      if (selected.isEmpty || selected.length == total) {
-        return l10n.tripsSearchFilterAny;
-      }
-      final shown = selected.take(2).map((e) => e.label).join(', ');
-      return selected.length > 2 ? '$shown +${selected.length - 2}' : shown;
-    }
-
-    final selectedCountryEntries = _countryEntries()
-        .where((e) => _countries.contains(e.value))
-        .toList();
-    final selectedOperatorEntries = _operatorEntries(trainlog)
-        .where((e) => _operators.contains(e.value))
-        .toList();
-    final allTypesSelected = widget.typeOptions.isNotEmpty &&
-        widget.typeOptions.every(_types.contains);
-
-    return Column(
-      children: [
-        GlassSheetHeader(
-          title: l10n.tripsSearchFilterTitle,
-          closeTooltip: MaterialLocalizations.of(context).closeButtonTooltip,
-          resetTooltip: l10n.mapFilterReset,
-          onClose: () => Navigator.of(context, rootNavigator: true).pop(),
-          onReset: _reset,
-        ),
-        Expanded(
-          child: SingleChildScrollView(
-            controller: _mainScrollController,
-            padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                SheetSearchField(
-                  controller: _keywordController,
-                  placeholder: l10n.tripsSearchFilterSearchHint,
-                ),
-                const SizedBox(height: 18),
-                WhenSection(
-                  quickFilter: _quickFilter,
-                  fromDate: _fromDate,
-                  toDate: _toDate,
-                  onQuickFilterSelected: (value) {
-                    setState(() {
-                      _quickFilter = value;
-                      _fromDate = null;
-                      _toDate = null;
-                    });
-                    _scheduleCountRefresh();
-                  },
-                  onCustomSelected: () {
-                    setState(() => _quickFilter = null);
-                    _scheduleCountRefresh();
-                  },
-                  onFromDateChanged: (date) {
-                    setState(() {
-                      _fromDate = date;
-                      _quickFilter = null;
-                    });
-                    _scheduleCountRefresh();
-                  },
-                  onToDateChanged: (date) {
-                    setState(() {
-                      _toDate = date;
-                      _quickFilter = null;
-                    });
-                    _scheduleCountRefresh();
-                  },
-                ),
-                const SizedBox(height: 18),
-                GlassFormGroup(children: [
-                  GlassFormRow(
-                    title: l10n.tripsSearchFilterCountries,
-                    trailing: GlassDisclosure(
-                        value: summary(selectedCountryEntries,
-                            _countryEntries().length)),
-                    onTap: () => setState(() => _view = _SheetView.countries),
-                  ),
-                  GlassFormRow(
-                    title: l10n.tripsSearchFilterOperators,
-                    trailing: GlassDisclosure(
-                        value: summary(selectedOperatorEntries,
-                            _operatorEntries(trainlog).length)),
-                    onTap: () => setState(() => _view = _SheetView.operators),
-                  ),
-                ]),
-                const SizedBox(height: 22),
-                GlassFilterSectionHeader(
-                  title: l10n.typeTitle,
-                  actionLabel: allTypesSelected
-                      ? l10n.filterDeselectAll
-                      : l10n.filterSelectAll,
-                  onAction: () {
-                    setState(() {
-                      if (allTypesSelected) {
-                        _types.clear();
-                      } else {
-                        _types = Set.of(widget.typeOptions);
-                      }
-                    });
-                    _scheduleCountRefresh();
-                  },
-                ),
-                const SizedBox(height: 6),
-                AdaptiveVehicleTypeFilterChips(
-                  availableTypes: widget.typeOptions,
-                  selectedTypes: _types,
-                  onTypeToggle: (type, selected) {
-                    setState(() {
-                      selected ? _types.add(type) : _types.remove(type);
-                    });
-                    _scheduleCountRefresh();
-                  },
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _actionFooterApple(BuildContext context, AppLocalizations l10n) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-      child: GlassPrimaryButton(
-        icon: Icons.directions_transit_outlined,
-        label: l10n.mapFilterShowTrips(_matchCount),
-        onPressed: () =>
-            Navigator.of(context, rootNavigator: true).pop(_buildResult()),
-      ),
-    );
-  }
-
-  Widget _actionFooter(BuildContext context, AppLocalizations l10n) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-      child: PrimaryActionButton(
-        onPressed: () => Navigator.of(
-          context,
-          rootNavigator: AppPlatform.isApple,
-        ).pop(_buildResult()),
-        icon: Icons.directions_transit_outlined,
-        label: l10n.mapFilterShowTrips(_matchCount),
       ),
     );
   }
