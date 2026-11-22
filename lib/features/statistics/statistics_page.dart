@@ -1,5 +1,6 @@
 import 'dart:collection';
 import 'package:flutter/material.dart';
+import 'package:trainlog_app/features/statistics/statistics_graph_images.dart';
 import 'package:provider/provider.dart';
 
 import 'package:trainlog_app/core/data/models/trips.dart';
@@ -518,7 +519,7 @@ class _StatsCard extends StatelessWidget {
                       for (final v in tripsProv.vehicleTypesWithoutPoi) (type: v),
                     ],
                     selected: (type: statsProv.vehicle),
-                    iconOf: (v) => StatisticsProvider.vehicleIconOf(v.type),
+                    iconOf: (v) => statisticsVehicleIcon(v.type),
                     labelOf: (v) => v.type == null
                         ? loc.statisticsAllVehicles
                         : VehicleType.labelOf(v.type!, context),

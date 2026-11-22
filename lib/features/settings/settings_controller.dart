@@ -1,8 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
-import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/core/providers/settings_provider.dart';
 import 'package:trainlog_app/core/providers/trainlog_provider.dart';
 import 'package:trainlog_app/core/providers/trips_provider.dart';
@@ -10,9 +8,11 @@ import 'package:trainlog_app/core/services/flag_cache.dart';
 import 'package:trainlog_app/utils/app_info_utils.dart';
 import 'package:trainlog_app/utils/cached_data_utils.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
-import 'package:trainlog_app/utils/number_formatter.dart';
 
-class SettingsVm extends ChangeNotifier {
+/// State and actions of the settings page that are not app-wide settings
+/// (those live in [SettingsProvider]): the cache size, the account settings
+/// stored on the server, and the version easter egg.
+class SettingsController extends ChangeNotifier {
   // Cache
   double totalCacheSize = 0.0;
 
@@ -22,8 +22,6 @@ class SettingsVm extends ChangeNotifier {
   bool? accountLeaderboard;
   bool? accountFriendSearch;
   bool? accountAppearGlobal;
-
-  String accountVisibilityHelperText = "";
 
   int _tapOnVersion = 0;
 
@@ -57,7 +55,6 @@ class SettingsVm extends ChangeNotifier {
   Future<void> init({
     required SettingsProvider settings,
     required TrainlogProvider trainlog,
-    required AppLocalizations l10n,
   }) async {
     refreshCacheSize();
 
@@ -68,11 +65,18 @@ class SettingsVm extends ChangeNotifier {
         ? int.tryParse(accountSettings[accountSettingsKeyVisibility]!)
         : null;
 
-    accountLeaderboard = _boolOrNull(accountSettings, accountSettingsKeyLeaderboard);
-    accountFriendSearch = _boolOrNull(accountSettings, accountSettingsKeyFriendSearch);
-    accountAppearGlobal = _boolOrNull(accountSettings, accountSettingsKeyAppearGlobal);
-
-    accountVisibilityHelperText = _visibilityHelperText(l10n, accountVisibility);
+    accountLeaderboard = _boolOrNull(
+      accountSettings,
+      accountSettingsKeyLeaderboard,
+    );
+    accountFriendSearch = _boolOrNull(
+      accountSettings,
+      accountSettingsKeyFriendSearch,
+    );
+    accountAppearGlobal = _boolOrNull(
+      accountSettings,
+      accountSettingsKeyAppearGlobal,
+    );
 
     if (trainlog.availableCurrencies.isEmpty) {
       await trainlog.reloadAvailableCurrencies();
@@ -81,32 +85,6 @@ class SettingsVm extends ChangeNotifier {
 
     _isInitDone = true;
     notifyListeners();
-  }
-
-  String _visibilityHelperText(AppLocalizations l10n, int? v) {
-    switch (v) {
-      case 0:
-        return l10n.settingsAccountVisibilitPrivateHelper;
-      case 1:
-        return l10n.settingsAccountVisibilitRestrictedHelper;
-      case 2:
-        return l10n.settingsAccountVisibilitPublicHelper;
-      default:
-        return "";
-    }
-  }
-
-  void setVisibilityHelperText(AppLocalizations l10n, {int? v}) {
-    v ??= accountVisibility;
-    final newHelperText = _visibilityHelperText(l10n, v);
-    if (accountVisibilityHelperText != newHelperText) {
-      accountVisibilityHelperText = newHelperText;
-      notifyListeners();
-    }
-  }
-
-  String cacheSizeLabel(AppLocalizations l10n, BuildContext context) {
-    return l10n.settingsCache(formatNumber(context, totalCacheSize));
   }
 
   void updateAccountSetting(TrainlogProvider trainlog) {
@@ -121,11 +99,9 @@ class SettingsVm extends ChangeNotifier {
 
   void setAccountVisibility({
     required int value,
-    required AppLocalizations l10n,
     required TrainlogProvider trainlog,
   }) {
     accountVisibility = value;
-    accountVisibilityHelperText = _visibilityHelperText(l10n, value);
     notifyListeners();
     updateAccountSetting(trainlog);
   }
@@ -182,14 +158,14 @@ class SettingsVm extends ChangeNotifier {
   }
 
   Future<void> onVersionTapped({
-    required AppLocalizations l10n,
     required VoidCallback showCopiedInfo,
     required VoidCallback openSnakeGame,
   }) async {
     final version = await getVersionString();
     await Clipboard.setData(ClipboardData(text: version));
 
-    if (_tapOnVersion == 0) { // Avoid multiple toasts if multiple taps
+    if (_tapOnVersion == 0) {
+      // Avoid multiple toasts if multiple taps
       showCopiedInfo();
     }
 

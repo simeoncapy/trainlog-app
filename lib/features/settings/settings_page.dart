@@ -20,10 +20,11 @@ import 'package:trainlog_app/core/providers/trainlog_provider.dart';
 import 'package:trainlog_app/core/providers/trips_provider.dart';
 import 'package:trainlog_app/core/services/geo_permission_service.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
+import 'package:trainlog_app/utils/number_formatter.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 
-import 'settings_vm.dart';
+import 'settings_controller.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -41,7 +42,7 @@ const Color _appleDangerColor = CupertinoColors.systemRed;
 const Color _appleAboutColor = CupertinoColors.systemGrey;
 
 class _SettingsPageState extends State<SettingsPage> {
-  final SettingsVm _vm = SettingsVm();
+  final SettingsController _vm = SettingsController();
   final GeoPermissionService _geo = const GeoPermissionService();
 
   @override
@@ -49,11 +50,9 @@ class _SettingsPageState extends State<SettingsPage> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
-      final l10n = AppLocalizations.of(context)!;
       await _vm.init(
         settings: context.read<SettingsProvider>(),
         trainlog: context.read<TrainlogProvider>(),
-        l10n: l10n,
       );
       if (mounted) setState(() {});
     });
@@ -64,6 +63,15 @@ class _SettingsPageState extends State<SettingsPage> {
     _vm.dispose();
     super.dispose();
   }
+
+  /// What the account visibility means, under its row.
+  static String? _visibilityHelper(AppLocalizations l10n, int? visibility) =>
+      switch (visibility) {
+        0 => l10n.settingsAccountVisibilitPrivateHelper,
+        1 => l10n.settingsAccountVisibilitRestrictedHelper,
+        2 => l10n.settingsAccountVisibilitPublicHelper,
+        _ => null,
+      };
 
   // ── Actions ──────────────────────────────────────────────────────────────
 
@@ -149,7 +157,6 @@ class _SettingsPageState extends State<SettingsPage> {
       body: AnimatedBuilder(
         animation: _vm,
         builder: (ctx, _) {
-          _vm.setVisibilityHelperText(l10n);
           return ListView(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             children: [
@@ -438,15 +445,12 @@ class _SettingsPageState extends State<SettingsPage> {
           icon: AdaptiveIcons.visibility,
           appleIconColor: _appleAccountColor,
           title: l10n.settingsAccountVisibility,
-          subtitle: _vm.accountVisibilityHelperText.isEmpty
-              ? null
-              : _vm.accountVisibilityHelperText,
+          subtitle: _visibilityHelper(l10n, _vm.accountVisibility),
           enabled: _vm.accountVisibility != null,
           options: visibilityOptions,
           selected: _vm.accountVisibility,
           onChanged: (v) => _vm.setAccountVisibility(
             value: v,
-            l10n: l10n,
             trainlog: trainlog,
           ),
         ),
@@ -506,7 +510,7 @@ class _SettingsPageState extends State<SettingsPage> {
           icon: AdaptiveIcons.cache,
           appleIconColor: _appleDangerColor,
           title: l10n.settingsCacheTitle,
-          subtitle: _vm.cacheSizeLabel(l10n, ctx),
+          subtitle: l10n.settingsCache(formatNumber(ctx, _vm.totalCacheSize)),
           buttonLabel: l10n.settingsCacheClearButton,
           enabled: _vm.totalCacheSize > 0,
           onClear: _confirmAndClearCache,
@@ -569,7 +573,6 @@ class _SettingsPageState extends State<SettingsPage> {
               if (!snap.hasData) return const SizedBox.shrink();
               return GestureDetector(
                 onTap: () => _vm.onVersionTapped(
-                  l10n: l10n,
                   showCopiedInfo: () => AdaptiveInformationMessage.showInfo(
                     l10n.appVersionCopied,
                   ),

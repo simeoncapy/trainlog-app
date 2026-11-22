@@ -144,8 +144,8 @@ class _RailAreaRankingPageState extends State<RailAreaRankingPage> {
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
               child: RankingUserPositionBlock(
                 icon: RankingPositionIcon(
-                  icon: RankingType.iconOf(RankingType.railwayCoverage),
-                  color: RankingType.accentColorOf(RankingType.railwayCoverage),
+                  icon: RankingType.railwayCoverage.icon,
+                  color: RankingType.railwayCoverage.accentColor(),
                 ),
                 username: widget.currentUsername ?? '',
                 subtitle: loc.railCoverageAreaSubtitle(widget.displayName),

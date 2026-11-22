@@ -1,5 +1,5 @@
-import 'package:trainlog_app/widgets/trip_visibility_selector.dart';
-import 'package:trainlog_app/widgets/vehicle_energy_selector.dart';
+import 'package:trainlog_app/core/data/models/trip_visibility.dart';
+import 'package:trainlog_app/core/data/models/energy_type.dart';
 
 /// Extra trip details attached to a Geolog (a Smart Prerecorder record).
 ///

@@ -3,8 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import 'package:trainlog_app/core/data/models/ranking_model.dart';
-import 'package:trainlog_app/core/data/models/trips.dart';
-import 'package:trainlog_app/features/ranking/ranking_type.dart';
+import 'package:trainlog_app/core/data/models/ranking.dart';
 import 'package:trainlog_app/core/providers/trainlog_provider.dart';
 
 /// Drives the native Ranking feature: which leaderboard is shown, how it is

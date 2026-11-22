@@ -7,8 +7,8 @@ import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/utils/text_utils.dart';
-import 'package:trainlog_app/widgets/trip_visibility_selector.dart';
-import 'package:trainlog_app/widgets/vehicle_energy_selector.dart';
+import 'package:trainlog_app/core/data/models/trip_visibility.dart';
+import 'package:trainlog_app/core/data/models/energy_type.dart';
 import 'package:trainlog_app/core/data/models/polyline_entry.dart';
 import 'package:trainlog_app/core/data/models/country_detail.dart';
 
