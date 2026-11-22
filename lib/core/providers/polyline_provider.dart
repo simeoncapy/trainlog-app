@@ -101,6 +101,19 @@ class PolylineProvider extends ChangeNotifier {
   PolylineYearFilter get selectedYearFilter => _selectedYearFilter;
   int get selectedYearFilterOption => _selectedYearFilterOption;
 
+  /// The time range chosen in the map filter (All, Past, Future, Years).
+  PolylineYearFilter get yearFilterChoice =>
+      PolylineYearFilter.values[_selectedYearFilterOption];
+
+  /// The entries of the year grid, in display order: the unknown-future
+  /// range first, then the years (descending), then the unknown-past range.
+  /// The unknown ranges only appear when the user has such trips.
+  List<int> get yearChoices => [
+        if (_hasUnknownFuture) unknownFuture.year,
+        ...availableYears,
+        if (_hasUnknownPast) unknownPast.year,
+      ];
+
   /// Whether any loaded trip has an unknown (undated) past start.
   bool get hasUnknownPast => _hasUnknownPast;
 
@@ -288,6 +301,19 @@ class PolylineProvider extends ChangeNotifier {
     _reconcileFiltersWithTrips();
     await _persistFilters();
     _rebuildRenderedPolylines(notify: true);
+  }
+
+  /// Switches the map filter's time range, keeping the current year
+  /// selection when entering the explicit "Years" mode.
+  Future<void> setYearFilter(PolylineYearFilter filter) {
+    final years = availableYears;
+    return updateYearFilter(
+      topIndex: filter.index,
+      years: years,
+      subSelection: filter == PolylineYearFilter.years
+          ? years.map(_selectedYears.contains).toList()
+          : const [],
+    );
   }
 
   Future<void> selectAllYears(List<int> years) async {
