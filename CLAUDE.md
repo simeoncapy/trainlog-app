@@ -93,9 +93,15 @@ The app normally draws the design of the device. In a widget test, force one wit
 
 ## Migration status
 
-Done (branch `ios-material-adaptation-refactor`): `lib/core`, `lib/ui`, `AppDesign` / `PlatformView`, the architecture test, iOS dialogs through `AdaptiveDialog`, Hanken Grotesk everywhere, bold titles.
+Done (branch `ios-material-adaptation-refactor`):
 
-Next, one screen per branch: map filter, trips search & filter (`TripsFilterController`), trip details actions (`TripActionsController`), settings (around `SettingsVm`), then the remaining screens as they are redesigned.
+- Foundation: `lib/core`, `lib/ui`, `AppDesign` / `PlatformView`, the architecture test, iOS dialogs through `AdaptiveDialog`, Hanken Grotesk everywhere, bold titles.
+- Map filter (`features/map/filter/`): entry `MapFilterSheet`, state in `PolylineProvider`.
+- Trips search & filter (`features/trips/search_filter_sheet/`): `TripsFilterController`, one view per design.
+- Trip details actions (`features/trips/detail_sheet/`): `TripActionsController`, one view per design.
+- Settings (`features/settings/`): one page built from facade rows (`widgets/settings_group.dart`), each picking its Material or iOS rendering (`widgets/material/`, `widgets/cupertino/`). A row that behaves differently on iOS takes an `apple…` parameter (`appleIconColor`, `appleOnTap`). `SettingsVm` still imports Flutter (known exception).
+
+Still branching on the platform inside (see the `known` lists): the trips filter pickers (`GroupPickerView`, `WhenSection`, `sheet_common`), `AppStepsTabBar`, `BottomSheetPicker`, the map page, the trip details sheet, the Smart Prerecorder, the trip editor and the trips page. Migrate them one per branch as they are redesigned.
 
 ## Branches
 
