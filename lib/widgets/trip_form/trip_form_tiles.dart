@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:trainlog_app/ui/tokens/app_colors.dart';
 import 'package:trainlog_app/widgets/trip_form/trip_form_card.dart';
 
 /// One free-text line item of a [TripFormCard]: leading icon (or any custom
@@ -218,13 +219,20 @@ class RouteEndpointMarker extends StatelessWidget {
 
   final double size;
 
+  static Color _hollowFill(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark
+      ? AppColors.darkBg
+      : AppColors.lightBg;
+
   @override
   Widget build(BuildContext context) {
     return Container(
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: filled ? colour : Colors.transparent,
+        // Hollow departure: a solid page-coloured centre, so a line or a
+        // tinted row behind it never shows through.
+        color: filled ? colour : _hollowFill(context),
         borderRadius: BorderRadius.circular(size / 3.5),
         border: Border.all(color: colour, width: 2.5),
       ),

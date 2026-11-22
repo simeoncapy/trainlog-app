@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:trainlog_app/ui/tokens/app_colors.dart';
 
 /// Kind of timeline marker shown in front of a [RouteItineraryStop] row.
 enum RouteItineraryMarker {
@@ -131,7 +132,13 @@ class _StopRow extends StatelessWidget {
           width: 14,
           height: 14,
           decoration: BoxDecoration(
-            color: filled ? markerColour : Colors.transparent,
+            // Hollow departure: solid page-coloured centre (see
+            // RouteEndpointMarker).
+            color: filled
+                ? markerColour
+                : (theme.brightness == Brightness.dark
+                      ? AppColors.darkBg
+                      : AppColors.lightBg),
             borderRadius: BorderRadius.circular(4),
             border: Border.all(color: markerColour, width: 2.5),
           ),
