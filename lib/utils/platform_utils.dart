@@ -51,6 +51,7 @@ class AdaptiveIcons {
 
   // General
   static IconData get delete =>      isA ? CupertinoIcons.delete : Icons.delete;
+  static IconData get deleteOutline => isA ? CupertinoIcons.trash : Icons.delete_outline;
   static IconData get copy =>        isA ? CupertinoIcons.doc_on_doc : Icons.copy;
   static IconData get share =>       isA ? CupertinoIcons.share : Icons.share;
   static IconData get mail =>        isA ? CupertinoIcons.mail : Icons.mail;
