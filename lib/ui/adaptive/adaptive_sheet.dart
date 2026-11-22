@@ -202,10 +202,7 @@ Future<T?> showAppleDetentSheet<T>({
           final submerged =
               lg.GlassModalSheetStateProvider.of(ctx)?.submergedBottom ?? 0;
           return Padding(
-            padding: EdgeInsets.only(
-              top: topInset,
-              bottom: submerged,
-            ),
+            padding: EdgeInsets.only(top: topInset, bottom: submerged),
             // While the sheet is swiped away it passes through heights too
             // small for any header + pinned footer; skip the content there
             // rather than overflow.
@@ -218,6 +215,27 @@ Future<T?> showAppleDetentSheet<T>({
         },
       ),
     ),
+  );
+}
+
+/// Shows an Apple form sheet: a large-detent Liquid Glass sheet, opaque at
+/// rest like iOS 26 form sheets and glass while it is dragged away, with
+/// the page colour behind grouped cells (as on the Settings page) and room
+/// for a ✕ / title / ↺ header level with the grab handle.
+Future<T?> showAppleFormSheet<T>({
+  required BuildContext context,
+  required WidgetBuilder builder,
+}) {
+  return showAppleDetentSheet<T>(
+    context: context,
+    detents: const {lg.GlassSheetDetent.large},
+    initialState: lg.GlassSheetState.full,
+    topInset: kAppleSheetHeaderInset,
+    expandedColor: CupertinoDynamicColor.resolve(
+      CupertinoTheme.of(context).scaffoldBackgroundColor,
+      context,
+    ),
+    builder: builder,
   );
 }
 
