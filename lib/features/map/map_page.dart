@@ -17,7 +17,7 @@ import 'package:trainlog_app/ui/tokens/app_nav_bar_theme.dart';
 import 'package:trainlog_app/core/data/models/location_search_result.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/features/map/location_category_icons.dart';
-import 'package:trainlog_app/features/map/map_filter_widget.dart';
+import 'package:trainlog_app/features/map/filter/map_filter_sheet.dart';
 import 'package:trainlog_app/features/map/map_marker.dart';
 import 'package:trainlog_app/features/trips_add/open_add_trip_wizard.dart';
 import 'package:trainlog_app/features/trips_add/widgets/full_screen_search_overlay.dart';
@@ -871,7 +871,7 @@ class _MapPageState extends State<MapPage>
       useRootNavigator: true,
       materialBackgroundColor: Colors.transparent,
       appleHeaderBesideGrabber: true,
-      builder: (sheetContext) => MapFilterWidget(
+      builder: (sheetContext) => MapFilterSheet(
         onClose: () => Navigator.of(sheetContext).pop(),
       ),
     );

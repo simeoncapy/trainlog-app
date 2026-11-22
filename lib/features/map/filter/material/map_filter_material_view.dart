@@ -1,66 +1,45 @@
 import 'dart:math' as math;
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:trainlog_app/core/data/models/polyline_filter_state.dart';
+import 'package:trainlog_app/core/providers/polyline_provider.dart';
+import 'package:trainlog_app/features/map/filter/map_filter_time_range.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/ui/adaptive/adaptive_vehicle_type_filter_chips.dart';
-import 'package:trainlog_app/ui/cupertino/glass_filter_parts.dart';
-import 'package:trainlog_app/core/providers/polyline_provider.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
-import 'package:trainlog_app/utils/platform_utils.dart';
-import 'package:trainlog_app/widgets/app_steps_tab_bar.dart';
 import 'package:trainlog_app/widgets/primary_action_button.dart';
 
-/// Map filter bottom sheet.
+/// Map filter, Material 3 view (Android): a rounded sheet with a grab
+/// handle, a "Reset" text button, a year grid paged with arrows, and the
+/// "Show N trips" button pinned at the bottom.
 ///
-/// Two views over the same [PolylineProvider] state: the Material sheet
-/// (`build`) and the iOS 26 Liquid Glass sheet (`_buildApple`). Both pin a
-/// fixed action footer ("Show {count} trips") to their base while the form
-/// lives inside a [Flexible] scroll area, so it never overflows on short
-/// screens.
-///
-/// Designed to be hosted by `showAdaptiveContentSheet`; [onClose] should
-/// dismiss the sheet (e.g. `Navigator.pop`).
-class MapFilterWidget extends StatefulWidget {
+/// The filter state lives in [PolylineProvider]; this view only keeps the
+/// current page of the year grid.
+class MapFilterMaterialView extends StatefulWidget {
+  const MapFilterMaterialView({super.key, required this.onClose});
+
   final VoidCallback onClose;
 
-  const MapFilterWidget({super.key, required this.onClose});
-
   @override
-  State<MapFilterWidget> createState() => _MapFilterWidgetState();
+  State<MapFilterMaterialView> createState() => _MapFilterMaterialViewState();
 }
 
-class _MapFilterWidgetState extends State<MapFilterWidget> {
+class _MapFilterMaterialViewState extends State<MapFilterMaterialView> {
   /// 4 columns × 3 rows.
   static const int _yearsPerPage = 12;
 
   /// Current page of the paginated year grid.
   int _yearPage = 0;
 
-  /// Top-index used by [PolylineProvider.updateYearFilter] for the explicit
-  /// per-year ("Years") mode.
-  static const int _yearsOptionIndex = 3;
-
-  /// Apple: the year pages are swiped (PageView) instead of using arrows.
-  final PageController _yearPager = PageController();
-
-  @override
-  void dispose() {
-    _yearPager.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
-    if (AppPlatform.isApple) return _buildApple(context);
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final poly = context.watch<PolylineProvider>();
     final mediaQuery = MediaQuery.of(context);
 
-    final maxHeight =
-        (mediaQuery.size.height - mediaQuery.padding.top) * 0.9;
+    final maxHeight = (mediaQuery.size.height - mediaQuery.padding.top) * 0.9;
 
     return Container(
       constraints: BoxConstraints(maxHeight: maxHeight),
@@ -85,8 +64,10 @@ class _MapFilterWidgetState extends State<MapFilterWidget> {
                   children: [
                     _sectionTitle(theme, l10n.mapFilterTimeRange),
                     const SizedBox(height: 10),
-                    _timeRangeSelector(context, l10n, poly),
-                    if (poly.selectedYearFilterOption == _yearsOptionIndex) ...[
+                    MapFilterTimeRange(
+                      onYearsChosen: () => setState(() => _yearPage = 0),
+                    ),
+                    if (poly.yearFilterChoice == PolylineYearFilter.years) ...[
                       const SizedBox(height: 16),
                       _yearSection(context, l10n, theme, poly),
                     ],
@@ -100,10 +81,14 @@ class _MapFilterWidgetState extends State<MapFilterWidget> {
                         noneLabel: l10n.mapFilterVehicleTypeNoneBtn,
                         onAll: () => context
                             .read<PolylineProvider>()
-                            .selectAllVehicleTypes(poly.availableTypesWithoutPoi),
+                            .selectAllVehicleTypes(
+                              poly.availableTypesWithoutPoi,
+                            ),
                         onNone: () => context
                             .read<PolylineProvider>()
-                            .unselectAllVehicleTypes(poly.availableTypesWithoutPoi),
+                            .unselectAllVehicleTypes(
+                              poly.availableTypesWithoutPoi,
+                            ),
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -111,7 +96,10 @@ class _MapFilterWidgetState extends State<MapFilterWidget> {
                       availableTypes: poly.availableTypesWithoutPoi,
                       selectedTypes: poly.selectedTypes,
                       onTypeToggle: (type, selected) {
-                        context.read<PolylineProvider>().toggleType(type, selected);
+                        context.read<PolylineProvider>().toggleType(
+                          type,
+                          selected,
+                        );
                       },
                     ),
                   ],
@@ -122,215 +110,6 @@ class _MapFilterWidgetState extends State<MapFilterWidget> {
           ],
         ),
       ),
-    );
-  }
-
-  // ── Apple (iOS 26) ───────────────────────────────────────────────────────
-
-  /// iOS 26 sheet: glass ✕ / title / ↺ bar, glass segmented control, an
-  /// aligned 4 × 3 grid of year capsules swiped by page (dots below), vehicle
-  /// capsules, and the amber glass "Show N trips" button with its icon.
-  Widget _buildApple(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    final poly = context.watch<PolylineProvider>();
-    final mediaQuery = MediaQuery.of(context);
-    final maxHeight = (mediaQuery.size.height - mediaQuery.padding.top) * 0.9;
-
-    final types = poly.availableTypesWithoutPoi;
-    final allTypesSelected =
-        types.isNotEmpty && types.every(poly.selectedTypes.contains);
-
-    return ConstrainedBox(
-      constraints: BoxConstraints(maxHeight: maxHeight),
-      child: SafeArea(
-        top: false,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // No top spacer: the sheet already leaves room for its grab
-            // handle, so the header sits at the same height as on the trips
-            // filter sheet.
-            GlassSheetHeader(
-              title: l10n.mapFilterTitle,
-              closeTooltip:
-                  MaterialLocalizations.of(context).closeButtonTooltip,
-              resetTooltip: l10n.mapFilterReset,
-              onClose: widget.onClose,
-              onReset: () {
-                context.read<PolylineProvider>().resetFilters();
-                setState(() => _yearPage = 0);
-              },
-            ),
-            Flexible(
-              fit: FlexFit.loose,
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    _timeRangeSelector(context, l10n, poly),
-                    if (poly.selectedYearFilterOption == _yearsOptionIndex) ...[
-                      const SizedBox(height: 14),
-                      _appleYearSection(context, l10n, poly),
-                    ],
-                    const SizedBox(height: 14),
-                    GlassFilterSectionHeader(
-                      title: l10n.typeTitle,
-                      actionLabel: allTypesSelected
-                          ? l10n.filterDeselectAll
-                          : l10n.filterSelectAll,
-                      onAction: () {
-                        final p = context.read<PolylineProvider>();
-                        allTypesSelected
-                            ? p.unselectAllVehicleTypes(types)
-                            : p.selectAllVehicleTypes(types);
-                      },
-                    ),
-                    const SizedBox(height: 6),
-                    AdaptiveVehicleTypeFilterChips(
-                      availableTypes: types,
-                      selectedTypes: poly.selectedTypes,
-                      onTypeToggle: (type, selected) {
-                        context.read<PolylineProvider>().toggleType(type, selected);
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 10, 16, 14),
-              child: GlassPrimaryButton(
-                icon: CupertinoIcons.map,
-                label: l10n.mapFilterShowTrips(poly.visibleTripCount),
-                onPressed: widget.onClose,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _appleYearSection(
-    BuildContext context,
-    AppLocalizations l10n,
-    PolylineProvider poly,
-  ) {
-    final years = poly.availableYears; // sorted descending
-    final items = <int>[
-      if (poly.hasUnknownFuture) unknownFuture.year,
-      ...years,
-      if (poly.hasUnknownPast) unknownPast.year,
-    ];
-    final allSelected =
-        items.isNotEmpty && items.every(poly.selectedYears.contains);
-
-    final pageCount = math.max(1, (items.length / _yearsPerPage).ceil());
-    final page = _yearPage.clamp(0, pageCount - 1);
-
-    List<int> pageItems(int p) => items.sublist(
-        p * _yearsPerPage, math.min((p + 1) * _yearsPerPage, items.length));
-
-    const rowGap = 8.0;
-    const fullHeight = 3 * FilterCapsule.height + 2 * rowGap;
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        GlassFilterSectionHeader(
-          title: l10n.mapFilterSelectYears,
-          actionLabel:
-              allSelected ? l10n.filterDeselectAll : l10n.filterSelectAll,
-          onAction: () {
-            final p = context.read<PolylineProvider>();
-            allSelected ? p.unselectAllYears() : p.selectAllYears(years);
-          },
-        ),
-        const SizedBox(height: 6),
-        if (pageCount == 1)
-          _appleYearGrid(context, l10n, poly, items, rowGap: rowGap)
-        else ...[
-          SizedBox(
-            height: fullHeight,
-            child: PageView.builder(
-              controller: _yearPager,
-              itemCount: pageCount,
-              onPageChanged: (p) => setState(() => _yearPage = p),
-              itemBuilder: (context, p) => Align(
-                alignment: Alignment.topCenter,
-                child: _appleYearGrid(context, l10n, poly, pageItems(p),
-                    rowGap: rowGap),
-              ),
-            ),
-          ),
-          FilterPageDots(
-            count: pageCount,
-            current: page,
-            onSelect: (p) => _yearPager.animateToPage(
-              p,
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeOutCubic,
-            ),
-          ),
-        ],
-      ],
-    );
-  }
-
-  Widget _appleYearGrid(
-    BuildContext context,
-    AppLocalizations l10n,
-    PolylineProvider poly,
-    List<int> items, {
-    required double rowGap,
-  }) {
-    final currentYear = DateTime.now().year;
-    final rows = <Widget>[];
-    for (int start = 0; start < items.length; start += 4) {
-      if (rows.isNotEmpty) rows.add(SizedBox(height: rowGap));
-      rows.add(Row(
-        children: [
-          for (int col = 0; col < 4; col++) ...[
-            if (col > 0) const SizedBox(width: 8),
-            Expanded(
-              child: start + col < items.length
-                  ? _appleYearCapsule(
-                      context, l10n, poly, items[start + col], currentYear)
-                  : const SizedBox(height: FilterCapsule.height),
-            ),
-          ],
-        ],
-      ));
-    }
-    return Column(mainAxisSize: MainAxisSize.min, children: rows);
-  }
-
-  Widget _appleYearCapsule(
-    BuildContext context,
-    AppLocalizations l10n,
-    PolylineProvider poly,
-    int year,
-    int currentYear,
-  ) {
-    final isUnknownFuture = year == unknownFuture.year;
-    final isUnknownPast = year == unknownPast.year;
-    final isUnknown = isUnknownFuture || isUnknownPast;
-    final isFuture = isUnknownFuture || (!isUnknown && year > currentYear);
-    return FilterCapsule(
-      expand: true,
-      label: isUnknownFuture
-          ? l10n.mapFilterUnknownFuture
-          : isUnknownPast
-              ? l10n.mapFilterUnknownPast
-              : year.toString(),
-      // Future years: a thin solid outline and a small clock (no dashes).
-      outlined: isFuture,
-      leading: isFuture ? CupertinoIcons.clock : null,
-      selected: poly.selectedYears.contains(year),
-      onTap: () => context.read<PolylineProvider>().toggleYear(year),
     );
   }
 
@@ -352,11 +131,7 @@ class _MapFilterWidgetState extends State<MapFilterWidget> {
     );
   }
 
-  Widget _header(
-    BuildContext context,
-    AppLocalizations l10n,
-    ThemeData theme,
-  ) {
+  Widget _header(BuildContext context, AppLocalizations l10n, ThemeData theme) {
     final cs = theme.colorScheme;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 12, 8),
@@ -369,13 +144,19 @@ class _MapFilterWidgetState extends State<MapFilterWidget> {
               color: cs.primary,
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(Icons.filter_alt_rounded, size: 20, color: cs.onPrimary),
+            child: Icon(
+              Icons.filter_alt_rounded,
+              size: 20,
+              color: cs.onPrimary,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               l10n.mapFilterTitle,
-              style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ),
           TextButton(
@@ -400,10 +181,7 @@ class _MapFilterWidgetState extends State<MapFilterWidget> {
     );
   }
 
-  Widget _actionFooter(
-    AppLocalizations l10n,
-    PolylineProvider poly,
-  ) {
+  Widget _actionFooter(AppLocalizations l10n, PolylineProvider poly) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
       child: PrimaryActionButton(
@@ -411,38 +189,6 @@ class _MapFilterWidgetState extends State<MapFilterWidget> {
         icon: Icons.map_outlined,
         label: l10n.mapFilterShowTrips(poly.visibleTripCount),
       ),
-    );
-  }
-
-  // ── Time range ───────────────────────────────────────────────────────────
-
-  Widget _timeRangeSelector(
-    BuildContext context,
-    AppLocalizations l10n,
-    PolylineProvider poly,
-  ) {
-    return AppStepsTabBar(
-      fullWidth: true,
-      selectedIndex: poly.selectedYearFilterOption,
-      tabs: [
-        AppStepsTab(label: l10n.yearAllList),
-        AppStepsTab(label: l10n.yearPastList),
-        AppStepsTab(label: l10n.yearFutureList),
-        AppStepsTab(label: l10n.yearTitle),
-      ],
-      onTabChanged: (index) {
-        final years = poly.availableYears;
-        context.read<PolylineProvider>().updateYearFilter(
-              topIndex: index,
-              years: years,
-              subSelection: index == _yearsOptionIndex
-                  ? years.map((y) => poly.selectedYears.contains(y)).toList()
-                  : const [],
-            );
-        if (index == _yearsOptionIndex) {
-          setState(() => _yearPage = 0);
-        }
-      },
     );
   }
 
@@ -460,11 +206,7 @@ class _MapFilterWidgetState extends State<MapFilterWidget> {
     // button first (rendered in the future/dashed style), then the real years
     // (descending), then the unknown-past button last. The unknown buttons only
     // appear when the user actually has such trips.
-    final items = <int>[
-      if (poly.hasUnknownFuture) unknownFuture.year,
-      ...years,
-      if (poly.hasUnknownPast) unknownPast.year,
-    ];
+    final items = poly.yearChoices;
 
     final pageCount = math.max(1, (items.length / _yearsPerPage).ceil());
     final page = _yearPage.clamp(0, pageCount - 1);
@@ -549,8 +291,8 @@ class _MapFilterWidgetState extends State<MapFilterWidget> {
               label: isUnknownFuture
                   ? l10n.mapFilterUnknownFuture
                   : isUnknownPast
-                      ? l10n.mapFilterUnknownPast
-                      : year.toString(),
+                  ? l10n.mapFilterUnknownPast
+                  : year.toString(),
               // Unknown labels are longer than a year number, so let them
               // shrink/wrap to keep the shared year-chip footprint.
               fitLabel: isUnknown,
@@ -574,8 +316,9 @@ class _MapFilterWidgetState extends State<MapFilterWidget> {
     Widget? trailing,
     bool dense = false,
   }) {
-    final style = (dense ? theme.textTheme.titleSmall : theme.textTheme.titleMedium)
-        ?.copyWith(fontWeight: FontWeight.w700);
+    final style =
+        (dense ? theme.textTheme.titleSmall : theme.textTheme.titleMedium)
+            ?.copyWith(fontWeight: FontWeight.w700);
     return Row(
       children: [
         Expanded(child: Text(text, style: style)),
@@ -610,8 +353,9 @@ class _MapFilterWidgetState extends State<MapFilterWidget> {
     return TextButton(
       onPressed: onTap,
       style: TextButton.styleFrom(
-        foregroundColor:
-            emphasized ? theme.colorScheme.primary : theme.colorScheme.onSurfaceVariant,
+        foregroundColor: emphasized
+            ? theme.colorScheme.primary
+            : theme.colorScheme.onSurfaceVariant,
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         minimumSize: Size.zero,
         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -737,7 +481,12 @@ class _DashedBorderPainter extends CustomPainter {
 
     final inset = strokeWidth / 2;
     final rrect = RRect.fromRectAndRadius(
-      Rect.fromLTWH(inset, inset, size.width - strokeWidth, size.height - strokeWidth),
+      Rect.fromLTWH(
+        inset,
+        inset,
+        size.width - strokeWidth,
+        size.height - strokeWidth,
+      ),
       Radius.circular(radius),
     );
 
@@ -762,39 +511,6 @@ class _DashedBorderPainter extends CustomPainter {
       old.strokeWidth != strokeWidth ||
       old.dashLength != dashLength ||
       old.gapLength != gapLength;
-}
-
-// ─── Small buttons ──────────────────────────────────────────────────────────
-
-class _CircleIconButton extends StatelessWidget {
-  final IconData icon;
-  final VoidCallback onTap;
-  final Color background;
-  final Color foreground;
-
-  const _CircleIconButton({
-    required this.icon,
-    required this.onTap,
-    required this.background,
-    required this.foreground,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: background,
-      shape: const CircleBorder(),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: SizedBox(
-          width: 32,
-          height: 32,
-          child: Icon(icon, size: 18, color: foreground),
-        ),
-      ),
-    );
-  }
 }
 
 /// Chevron pager button for the year grid. Greys out at the page bounds.
