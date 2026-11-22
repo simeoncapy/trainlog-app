@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:math' as math;
 import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
@@ -10,24 +9,19 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:lottie/lottie.dart' as lt;
-import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
-import 'package:trainlog_app/ui/tokens/app_colors.dart';
-import 'package:trainlog_app/ui/tokens/app_nav_bar_theme.dart';
 import 'package:trainlog_app/core/data/models/location_search_result.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/features/map/location_category_icons.dart';
 import 'package:trainlog_app/features/map/filter/map_filter_sheet.dart';
 import 'package:trainlog_app/features/map/map_marker.dart';
+import 'package:trainlog_app/features/map/widgets/map_controls.dart';
 import 'package:trainlog_app/features/trips_add/open_add_trip_wizard.dart';
 import 'package:trainlog_app/features/trips_add/widgets/full_screen_search_overlay.dart';
 import 'package:trainlog_app/navigation/nav_models.dart';
-import 'package:trainlog_app/ui/adaptive/adaptive_bottom_navbar.dart' show kNavBarClearance;
-import 'package:trainlog_app/ui/cupertino/liquid_glass.dart';
 import 'package:trainlog_app/ui/adaptive/map_theme.dart';
 import 'package:trainlog_app/ui/adaptive/adaptive_trip_card.dart';
 import 'package:trainlog_app/ui/adaptive/adaptive_sheet.dart';
-import 'package:trainlog_app/ui/adaptive/adaptive_widget.dart';
 import 'package:trainlog_app/core/providers/polyline_provider.dart';
 import 'package:trainlog_app/core/providers/settings_provider.dart';
 import 'package:trainlog_app/core/providers/trainlog_provider.dart';
@@ -246,12 +240,7 @@ class _MapPageState extends State<MapPage>
         widget.onPrimaryActionsReady(const []);
       });
 
-      return SafeArea(
-        // The Apple map runs under the status bar and the floating tab bar.
-        top: AppPlatform.isApple,
-        bottom: AppPlatform.isApple,
-        left: false,
-        right: false,
+      return MapLoadingSafeArea(
         child: Center(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(8, 8, 8, 24),
@@ -374,268 +363,60 @@ class _MapPageState extends State<MapPage>
         ),
 
         if (_followUser) _lockedOnPositionPill(appLocalizations),
-        _topRightButtons(appLocalizations),
-        _mapButtonHelper(),
+        MapTopControls(
+          rotation: _rotationNotifier,
+          onSearch: _openSearchOverlay,
+          onFilter: _openFilterSheet,
+          onResetOrientation: _resetMapOrientation,
+        ),
+        MapLocationControls(
+          following: _followUser,
+          onRecenter: _recenter,
+          onFollow: _toggleFollow,
+        ),
       ],
     );
   }
 
-  Positioned _mapButtonHelper() {
-    final appLocalizations = AppLocalizations.of(context)!;
-    // iOS: the "scope" crosshair, close to Android's my_location icon.
-    final Icon recenterUserIcon = Icon(
-        AppPlatform.isApple ? CupertinoIcons.scope : Icons.my_location);
-    final Icon followUserIcon = Icon(_followUser ? Symbols.frame_person_off : Symbols.frame_person);
-    final navColors = Theme.of(context).extension<AppNavBarColors>()!;
+  Future<void> _recenter() async {
+    // No fix yet: this is an explicit user action, so it's fine to ask the
+    // OS for permission now (one of the only places on the map that does so).
+    final p = await _ensureUserPosition();
+    if (p == null || !mounted) return;
 
-    Future<void> recenterFct () async {
-      // No fix yet: this is an explicit user action, so it's fine to ask the
-      // OS for permission now (one of the only places on the map that does so).
-      final p = await _ensureUserPosition();
-      if (p == null || !mounted) return;
-
-      double z = _zoom;
-      if (_center == p) {
-        _mapController.move(p, _defaultZoom);
-        z = _defaultZoom;
-      } else {
-        _mapController.move(p, _zoom);
-      }
-      setState(() {
-        _center = p;
-        _zoom = z;
-      });
-    }
-    Future<void> followUserFct () async {
-      // Turning follow off needs no location access.
-      if (_followUser) {
-        setState(() => _followUser = false);
-        return;
-      }
-
-      // Enabling follow requires a position: prompt for permission if needed.
-      final p = await _ensureUserPosition();
-      if (p == null || !mounted) return;
-
+    double z = _zoom;
+    if (_center == p) {
+      _mapController.move(p, _defaultZoom);
+      z = _defaultZoom;
+    } else {
       _mapController.move(p, _zoom);
-      setState(() {
-        _center = p;
-        _followUser = true;
-      });
     }
-    // Apple: "New trip" lives in the tab bar, so these controls only clear
-    // the tab bar. Material: they sit above the 56 px tall FAB.
-    final double buttonsBottom = AppPlatform.isApple
-        ? kNavBarClearance + MediaQuery.of(context).padding.bottom + 16
-        : 16 + MediaQuery.of(context).padding.bottom + 56 + 12;
-
-    if (AppPlatform.isApple) {
-      // iOS 26 map controls: one vertical glass capsule, like Apple Maps.
-      return Positioned(
-        bottom: buttonsBottom,
-        right: 16,
-        child: GlassButtonGroup(
-          direction: Axis.vertical,
-          height: 48,
-          children: [
-            GlassGroupItem(
-              icon: recenterUserIcon.icon!,
-              onPressed: recenterFct,
-              semanticLabel: appLocalizations.mapRecenter,
-            ),
-            GlassGroupItem(
-              icon: followUserIcon.icon!,
-              onPressed: followUserFct,
-              semanticLabel: appLocalizations.mapFollowPosition,
-            ),
-          ],
-        ),
-      );
+    setState(() {
+      _center = p;
+      _zoom = z;
+    });
+  }
+  Future<void> _toggleFollow() async {
+    // Turning follow off needs no location access.
+    if (_followUser) {
+      setState(() => _followUser = false);
+      return;
     }
 
-    return Positioned(
-      bottom: buttonsBottom,
-      right: 16,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(14),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-          child: Container(
-            decoration: BoxDecoration(
-              color: navColors.background,
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Recenter user
-                AdaptiveFilledIconButton(
-                    onPressed: () => recenterFct(),
-                    colorScheme: FilledButtonColorScheme.floating,
-                    child: recenterUserIcon,
-                ),
-                // Follow user
-                DecoratedBox(
-                  decoration: BoxDecoration(
-                    border: Border(
-                      top: BorderSide(
-                        color: navColors.inactive,
-                        //color: CupertinoColors.separator.resolveFrom(context),
-                        width: 0.5,
-                      ),
-                    ),
-                  ),
-                  child: 
-                  AdaptiveFilledIconButton(
-                    onPressed: () => followUserFct(),
-                    colorScheme: FilledButtonColorScheme.floating,
-                    child: followUserIcon,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
+    // Enabling follow requires a position: prompt for permission if needed.
+    final p = await _ensureUserPosition();
+    if (p == null || !mounted) return;
+
+    _mapController.move(p, _zoom);
+    setState(() {
+      _center = p;
+      _followUser = true;
+    });
   }
 
   void _resetMapOrientation() {
     _mapController.rotate(0);
     _rotationNotifier.value = 0;
-  }
-
-  /// Top-right column: search, then a smaller filter button, then the compass
-  /// while the map is rotated away from north (tapping it brings north back
-  /// up, which hides it again).
-  Widget _topRightButtons(AppLocalizations appLocalizations) {
-    final compass = ValueListenableBuilder<double>(
-      valueListenable: _rotationNotifier,
-      builder: (context, rotation, _) {
-        final r = rotation % 360;
-        final isNorth = r < 0.5 || r > 359.5;
-        return AnimatedSwitcher(
-          duration: const Duration(milliseconds: 200),
-          transitionBuilder: (child, animation) =>
-              ScaleTransition(scale: animation, child: child),
-          child: isNorth
-              ? const SizedBox.shrink()
-              : Padding(
-                  key: const ValueKey('compass'),
-                  padding: const EdgeInsets.only(top: 10),
-                  child: _smallMapButton(
-                    icon: Transform.rotate(
-                      angle: -(rotation + 45.0) * (math.pi / 180.0),
-                      child: Icon(AdaptiveIcons.compass),
-                    ),
-                    tooltip: appLocalizations.mapResetOrientation,
-                    onPressed: _resetMapOrientation,
-                  ),
-                ),
-        );
-      },
-    );
-
-    return Positioned(
-      top: MediaQuery.of(context).padding.top + (AppPlatform.isApple ? 8 : 12),
-      right: 16,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _searchButton(appLocalizations),
-          const SizedBox(height: 10),
-          _smallMapButton(
-            icon: Icon(AdaptiveIcons.filter),
-            tooltip: appLocalizations.filterButton,
-            onPressed: _openFilterSheet,
-          ),
-          compass,
-        ],
-      ),
-    );
-  }
-
-  /// Round search button, at the top of [_topRightButtons].
-  Widget _searchButton(AppLocalizations appLocalizations) {
-    if (AppPlatform.isApple) {
-      return GlassIconButton(
-        icon: AdaptiveIcons.search,
-        size: 48,
-        iconSize: 22,
-        onPressed: _openSearchOverlay,
-        tooltip: appLocalizations.mapSearchLocationButton,
-      );
-    }
-
-    final navColors = Theme.of(context).extension<AppNavBarColors>()!;
-
-    return Tooltip(
-      message: appLocalizations.mapSearchLocationButton,
-      child: ClipOval(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-          child: Container(
-            color: navColors.background,
-            child: AdaptiveFilledIconButton(
-              onPressed: _openSearchOverlay,
-              colorScheme: FilledButtonColorScheme.floating,
-              child: Icon(AdaptiveIcons.search),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// Smaller round button under the search one (filter, compass).
-  Widget _smallMapButton({
-    required Widget icon,
-    required String tooltip,
-    required VoidCallback onPressed,
-  }) {
-    if (AppPlatform.isApple) {
-      return GlassIconButton(
-        size: 40,
-        iconSize: 19,
-        tooltip: tooltip,
-        onPressed: onPressed,
-        child: IconTheme(
-          data: IconThemeData(
-            size: 19,
-            color: CupertinoColors.label.resolveFrom(context),
-          ),
-          child: icon,
-        ),
-      );
-    }
-
-    final navColors = Theme.of(context).extension<AppNavBarColors>()!;
-    final (_, fg) = FilledButtonColorScheme.resolveColors(
-        context, FilledButtonColorScheme.floating);
-
-    return Tooltip(
-      message: tooltip,
-      child: ClipOval(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-          child: Material(
-            color: navColors.background,
-            child: InkWell(
-              onTap: onPressed,
-              child: SizedBox.square(
-                dimension: 36,
-                child: Center(
-                  child: IconTheme(
-                    data: IconThemeData(size: 20, color: fg),
-                    child: icon,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
   }
 
   OverlayEntry _buildSearchOverlay() {

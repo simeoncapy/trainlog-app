@@ -1,0 +1,94 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:trainlog_app/l10n/app_localizations.dart';
+import 'package:trainlog_app/ui/adaptive/adaptive_bottom_navbar.dart'
+    show kNavBarClearance;
+import 'package:trainlog_app/ui/cupertino/liquid_glass.dart';
+import 'package:trainlog_app/utils/platform_utils.dart';
+
+/// Recenter / follow, iOS 26: one vertical glass capsule, like Apple Maps.
+/// "New trip" lives in the tab bar, so the capsule only clears the tab bar.
+class CupertinoMapLocationControls extends StatelessWidget {
+  const CupertinoMapLocationControls({
+    super.key,
+    required this.following,
+    required this.onRecenter,
+    required this.onFollow,
+  });
+
+  final bool following;
+  final VoidCallback onRecenter;
+  final VoidCallback onFollow;
+
+  @override
+  Widget build(BuildContext context) {
+    final appLocalizations = AppLocalizations.of(context)!;
+    return Positioned(
+      bottom: kNavBarClearance + MediaQuery.of(context).padding.bottom + 16,
+      right: 16,
+      child: GlassButtonGroup(
+        direction: Axis.vertical,
+        height: 48,
+        children: [
+          GlassGroupItem(
+            // The "scope" crosshair, close to Android's my_location icon.
+            icon: CupertinoIcons.scope,
+            onPressed: onRecenter,
+            semanticLabel: appLocalizations.mapRecenter,
+          ),
+          GlassGroupItem(
+            icon: following ? Symbols.frame_person_off : Symbols.frame_person,
+            onPressed: onFollow,
+            semanticLabel: appLocalizations.mapFollowPosition,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Round glass search button, at the top of the map's top-right column.
+class CupertinoMapSearchButton extends StatelessWidget {
+  const CupertinoMapSearchButton({super.key, required this.onPressed});
+
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) => GlassIconButton(
+    icon: AdaptiveIcons.search,
+    size: 48,
+    iconSize: 22,
+    onPressed: onPressed,
+    tooltip: AppLocalizations.of(context)!.mapSearchLocationButton,
+  );
+}
+
+/// Smaller round glass button under the search one (filter, compass).
+class CupertinoMapSmallButton extends StatelessWidget {
+  const CupertinoMapSmallButton({
+    super.key,
+    required this.icon,
+    required this.tooltip,
+    required this.onPressed,
+  });
+
+  final Widget icon;
+  final String tooltip;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) => GlassIconButton(
+    size: 40,
+    iconSize: 19,
+    tooltip: tooltip,
+    onPressed: onPressed,
+    child: IconTheme(
+      data: IconThemeData(
+        size: 19,
+        color: CupertinoColors.label.resolveFrom(context),
+      ),
+      child: icon,
+    ),
+  );
+}
