@@ -7,7 +7,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 import 'package:trainlog_app/ui/cupertino/apple_brand_font.dart';
-import 'package:trainlog_app/ui/cupertino/glass_toast.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart' as lg;
+import 'package:trainlog_app/ui/cupertino/app_glass_toast.dart';
+
+/// What a message with an icon is about: picks the icon and accent colour of
+/// the iOS toast ([AdaptiveInformationMessage.showInfoWithIcon]).
+enum AdaptiveMessageKind { success, error, info, warning, neutral }
 
 class AdaptiveInformationMessage {
 
@@ -126,7 +131,7 @@ class AdaptiveInformationMessage {
     );
   }
 
-  /// iOS: a Liquid Glass capsule under the status bar ([GlassToast]); a
+  /// iOS: a Liquid Glass pill under the status bar ([AppGlassToast]); a
   /// new message replaces the one on screen.
   static void _showCupertinoSnackBar(
     String message, {
@@ -134,7 +139,7 @@ class AdaptiveInformationMessage {
   }) {
     final overlay = rootNavigatorKey.currentState?.overlay;
     if (overlay == null) return;
-    GlassToast.show(
+    AppGlassToast.show(
       overlay,
       message,
       duration: Duration(milliseconds: durationMillis),
@@ -186,6 +191,41 @@ class AdaptiveInformationMessage {
     } else {
       _showMaterialSnackBar(message, duration: duration, replace: replace);
     }
+  }
+
+  /// Like [showInfo], with an icon on iOS: the liquid_glass_widgets toast
+  /// itself, whose icon and accent colour follow [kind]. On Android it is
+  /// the same [SnackBar] as [showInfo].
+  ///
+  /// [context] is a screen's context: the iOS toast is drawn on the overlay
+  /// above it. Without one, the text-only message of [showInfo] is shown.
+  static void showInfoWithIcon(
+    BuildContext context,
+    String message, {
+    AdaptiveMessageKind kind = AdaptiveMessageKind.info,
+    Duration? duration,
+    bool replace = false,
+  }) {
+    if (!AppPlatform.isApple) {
+      _showMaterialSnackBar(message, duration: duration, replace: replace);
+      return;
+    }
+    if (Overlay.maybeOf(context) == null) {
+      showInfo(message, duration: duration);
+      return;
+    }
+    AppGlassToast.showWithIcon(
+      context,
+      message,
+      type: switch (kind) {
+        AdaptiveMessageKind.success => lg.GlassToastType.success,
+        AdaptiveMessageKind.error => lg.GlassToastType.error,
+        AdaptiveMessageKind.info => lg.GlassToastType.info,
+        AdaptiveMessageKind.warning => lg.GlassToastType.warning,
+        AdaptiveMessageKind.neutral => lg.GlassToastType.neutral,
+      },
+      duration: duration ?? const Duration(seconds: 3),
+    );
   }
 
   /// Like [showInfo], but stays visible above an open bottom sheet or other
