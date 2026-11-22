@@ -19,6 +19,7 @@ import 'package:trainlog_app/ui/adaptive/app_steps_tab_bar.dart';
 import 'package:trainlog_app/widgets/error_banner.dart';
 import 'package:trainlog_app/widgets/trip_form/trip_form_card.dart';
 import 'package:trainlog_app/widgets/trip_form/trip_form_tiles.dart';
+import 'package:trainlog_app/ui/adaptive/adaptive_information_message.dart';
 
 /// Step 4 of the "Add Trip" wizard: temporal data of the trip.
 ///
@@ -611,14 +612,10 @@ class _AddTripWhenStepState extends State<AddTripWhenStep> {
         isDeparture ? model.departureDateLocal : model.arrivalDateLocal;
 
     if (scheduled == null) {
-      final messenger = ScaffoldMessenger.maybeOf(context);
-      messenger
-        ?..clearSnackBars()
-        ..showSnackBar(
-          SnackBar(
-            content: Text(loc.addTripSelectScheduledTimeFirst),
-          ),
-        );
+      AdaptiveInformationMessage.showInfo(
+        loc.addTripSelectScheduledTimeFirst,
+        replace: true,
+      );
       return;
     }
 

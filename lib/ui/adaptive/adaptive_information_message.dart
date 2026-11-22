@@ -36,10 +36,19 @@ class AdaptiveInformationMessage {
   }
 
 
-  static void _showMaterialSnackBar(String message) {
-    rootScaffoldMessengerKey.currentState?.showSnackBar(
-                        SnackBar(content: Text(message)),
-                      );
+  static void _showMaterialSnackBar(
+    String message, {
+    Duration? duration,
+    bool replace = false,
+  }) {
+    final messenger = rootScaffoldMessengerKey.currentState;
+    if (messenger == null) return;
+    if (replace) messenger.clearSnackBars();
+    messenger.showSnackBar(
+      duration == null
+          ? SnackBar(content: Text(message))
+          : SnackBar(content: Text(message), duration: duration),
+    );
   }
 
   /// Material look of a floating [SnackBar], drawn on the root navigator's
@@ -116,6 +125,10 @@ class AdaptiveInformationMessage {
     );
   }
 
+  /// Removes the iOS message on screen, so the next one replaces it rather
+  /// than stacking under it.
+  static VoidCallback? _dismissCupertinoSnackBar;
+
   static void _showCupertinoSnackBar(
     String message, {
     int durationMillis = 3000,
@@ -162,8 +175,23 @@ class AdaptiveInformationMessage {
       ),
     );
 
+    // `mounted` is still false until the entry's first frame, so track
+    // removal here: two messages shown in the same frame must not stack.
+    var removed = false;
+    void dismiss() {
+      if (removed) return;
+      removed = true;
+      entry.remove();
+      if (identical(_dismissCupertinoSnackBar, dismiss)) {
+        _dismissCupertinoSnackBar = null;
+      }
+    }
+
+    _dismissCupertinoSnackBar?.call();
+    _dismissCupertinoSnackBar = dismiss;
+
     overlayState.insert(entry);
-    Timer(Duration(milliseconds: durationMillis), entry.remove);
+    Timer(Duration(milliseconds: durationMillis), dismiss);
   }
 
 
@@ -188,12 +216,29 @@ class AdaptiveInformationMessage {
     }
   }
 
-  /// Optional: if you *want* a fully context-free API for non-important messages:
-  static void showInfo(String message) {
+  /// A short, non-blocking message: a [SnackBar] on Android, a toast on iOS.
+  ///
+  /// Screens call this instead of `ScaffoldMessenger.showSnackBar`, so the
+  /// message follows the design. [duration] defaults to the platform's usual
+  /// time. With [replace], the messages already shown or queued on Android
+  /// are cleared first; on iOS a new message always replaces the previous
+  /// one.
+  static void showInfo(
+    String message, {
+    Duration? duration,
+    bool replace = false,
+  }) {
     if (AppPlatform.isApple) {
-      _showCupertinoSnackBar(message);
+      if (duration == null) {
+        _showCupertinoSnackBar(message);
+      } else {
+        _showCupertinoSnackBar(
+          message,
+          durationMillis: duration.inMilliseconds,
+        );
+      }
     } else {
-      _showMaterialSnackBar(message);
+      _showMaterialSnackBar(message, duration: duration, replace: replace);
     }
   }
 

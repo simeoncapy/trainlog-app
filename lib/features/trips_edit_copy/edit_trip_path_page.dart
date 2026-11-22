@@ -24,6 +24,7 @@ import 'package:trainlog_app/widgets/error_banner.dart';
 import 'package:trainlog_app/widgets/shimmer_box.dart';
 import 'package:trainlog_app/widgets/trainlog_router_page.dart';
 import 'package:trainlog_app/widgets/trip_form/trip_form_card.dart';
+import 'package:trainlog_app/ui/adaptive/adaptive_information_message.dart';
 
 enum _EditPathTab { map, details }
 
@@ -166,7 +167,6 @@ class _EditTripPathPageState extends State<EditTripPathPage> {
   Future<void> _save() async {
     if (_saving) return;
     final loc = AppLocalizations.of(context)!;
-    final messenger = ScaffoldMessenger.of(context);
     final form = context.read<TripFormModel>();
 
     setState(() => _saving = true);
@@ -180,9 +180,7 @@ class _EditTripPathPageState extends State<EditTripPathPage> {
         'loading' => loc.editPathRouteNotReady,
         _ => loc.addTripPathRoutingErrorBannerMessage,
       };
-      messenger
-        ..clearSnackBars()
-        ..showSnackBar(SnackBar(content: Text(message)));
+      AdaptiveInformationMessage.showInfo(message, replace: true);
       return;
     }
 

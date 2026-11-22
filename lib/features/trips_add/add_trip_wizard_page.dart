@@ -20,6 +20,7 @@ import 'package:trainlog_app/core/providers/trips_provider.dart';
 import 'package:trainlog_app/core/services/pre_record_service.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/core/data/models/trips.dart';
+import 'package:trainlog_app/ui/adaptive/adaptive_information_message.dart';
 
 /// Main layout controller of the multi-step "Add Trip" wizard.
 ///
@@ -113,8 +114,8 @@ class _AddTripWizardPageState extends State<AddTripWizardPage> {
   }
 
   void _showSnackBarMessage() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(AppLocalizations.of(context)!.fillRequiredFields)),
+    AdaptiveInformationMessage.showInfo(
+      AppLocalizations.of(context)!.fillRequiredFields,
     );
   }
 
@@ -204,9 +205,7 @@ class _AddTripWizardPageState extends State<AddTripWizardPage> {
 
     if (!res.ok) {
       final error = errorCode?.toString() ?? 'unknown';
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(loc.addTripFinishErrorMsg(error))),
-      );
+      AdaptiveInformationMessage.showInfo(loc.addTripFinishErrorMsg(error));
       setState(() {
         _isSubmitting = false;
       });
@@ -216,9 +215,7 @@ class _AddTripWizardPageState extends State<AddTripWizardPage> {
     final Map<String, dynamic> payload = res.payload as Map<String, dynamic>;
     final Map<String, dynamic>? newTrip = payload['newTrip'] as Map<String, dynamic>?;
     if (newTrip == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(loc.addTripFinishFeedbackWarning)),
-      );
+      AdaptiveInformationMessage.showInfo(loc.addTripFinishFeedbackWarning);
       if(_isFromSmartPreRecorder) await const PreRecordService().deleteByIds(widget.preRecorderIdsToDelete!);
       setState(() {
         _isSubmitting = false;
@@ -248,9 +245,7 @@ class _AddTripWizardPageState extends State<AddTripWizardPage> {
       _isSubmitting = false;
     });
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(loc.addTripFinishMsg)),
-    );
+    AdaptiveInformationMessage.showInfo(loc.addTripFinishMsg);
 
     if(_isFromSmartPreRecorder) await const PreRecordService().deleteByIds(widget.preRecorderIdsToDelete!);
 

@@ -129,6 +129,18 @@ final _rules = <_Rule>[
       r'AppPlatform\.(isApple|isMaterial|design)|AppDesign\.of\(',
     ).hasMatch(s),
   ),
+  _Rule(
+    name: 'messages-are-adaptive',
+    why:
+        'A short message goes through AdaptiveInformationMessage.showInfo '
+        '(lib/ui/adaptive), which shows a SnackBar on Android and a toast on '
+        'iOS. Screens never call showSnackBar or build a SnackBar themselves.',
+    appliesTo: (p) =>
+        _under(p, 'features') ||
+        _under(p, 'widgets') ||
+        _under(p, 'navigation'),
+    breaks: (p, s) => RegExp(r'\bshowSnackBar\(|\bSnackBar\(').hasMatch(s),
+  ),
 ];
 
 void main() {
