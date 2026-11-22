@@ -30,7 +30,7 @@ lib/
     providers/   App-wide state (ChangeNotifier): trips, settings, map…
   features/      One folder per screen
   ui/            Design system
-    design.dart  DesignLanguage, AppDesign, PlatformView
+    design.dart  DesignLanguage, AppDesign, PlatformView, PlatformAppBar, byDesign
     tokens/      Colours, typography, Material and Cupertino themes
     adaptive/    One API, two renderings (dialogs, sheets, switch…)
     cupertino/   iOS-only components (Liquid Glass)

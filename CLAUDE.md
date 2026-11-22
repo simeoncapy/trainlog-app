@@ -24,7 +24,8 @@ lib/
     material/                     the Material 3 view (Android)
     cupertino/                    the iOS view (HIG + Liquid Glass)
   ui/
-    design.dart                   DesignLanguage, AppDesign, PlatformView
+    design.dart                   DesignLanguage, AppDesign, PlatformView,
+                                  PlatformAppBar, byDesign
     tokens/                       AppColors, AppTheme (Material + Cupertino), palettes
     adaptive/                     one API, two renderings: AdaptiveDialog,
                                   showAdaptiveContentSheet, AdaptiveSwitch,
@@ -38,7 +39,7 @@ lib/
 
 `core/` is not a catch-all: it only holds the former `data/`, `services/` and `providers/` folders, kept apart.
 
-Most screens are not migrated yet (see "Migration status"). When you touch one, move it towards this layout rather than adding another platform branch to it.
+Every screen follows this layout (see "Migration status"). Keep it that way: a new difference between the designs goes in the two views, never in a platform branch.
 
 ## Rules
 
@@ -46,11 +47,11 @@ Most screens are not migrated yet (see "Migration status"). When you touch one, 
 2. **`lib/core` never imports a view** (`features/`, `ui/`, `navigation/`, `widgets/`, `app/`), Cupertino or Liquid Glass.
 3. **`liquid_glass_widgets` is imported only in `lib/ui/cupertino/` and `lib/ui/adaptive/`** (and `main.dart`, which starts it).
 4. **A `material/` folder never imports a `cupertino/` folder**, and the other way round.
-5. **Screens do not test the platform.** No `AppPlatform.isApple` in `features/`, `widgets/` or `navigation/`: the entry file picks the view once with `PlatformView`.
+5. **Screens do not test the platform.** No `AppPlatform.isApple`, `AppPlatform.design` or `AppDesign.of` in `features/`, `widgets/` or `navigation/`. The entry file picks the view with `PlatformView`; for what is not a widget (opening a dialog or a sheet) use `byDesign(context, material: …, cupertino: …)`, and for a Scaffold app bar `PlatformAppBar`. A small row or control that differs per design is a facade picking a `Material…` or `Cupertino…` widget with `PlatformView` (see the settings rows, the map controls). A design token used by shared sections comes from an inherited style the iOS view provides (see `TripDetailsStyle`), not from a platform test.
 6. **Dialogs, alerts, action sheets and sheets go through `lib/ui/adaptive/`.** The iOS font, tint and destructive style are applied there once; screens never call `showCupertinoDialog`, `CupertinoAlertDialog` or `AppleBrandFont` themselves.
 7. **No raw `fontSize` or `Color(0x…)` in a new view**: take them from `lib/ui/tokens/` or the theme.
 
-`test/architecture_test.dart` enforces rules 1 to 5 on every `flutter test`. Each rule lists the files that broke it when it was introduced (`known`). A new file breaking a rule fails the test; a listed file that no longer breaks it also fails, so remove it from the list when you fix it. Never add a file to a `known` list.
+`test/architecture_test.dart` enforces rules 1 to 5 on every `flutter test`, and every file under `lib/` follows them. A rule added later may list the files that break it when it is introduced (`known`); that list only shrinks. Never add a file to a `known` list.
 
 ## Design decisions
 
@@ -93,15 +94,16 @@ The app normally draws the design of the device. In a widget test, force one wit
 
 ## Migration status
 
-Done (branch `ios-material-adaptation-refactor`):
+Done for the whole app (branch `ios-material-adaptation-refactor`): every `known` list of the architecture test is empty.
 
-- Foundation: `lib/core`, `lib/ui`, `AppDesign` / `PlatformView`, the architecture test, iOS dialogs through `AdaptiveDialog`, Hanken Grotesk everywhere, bold titles.
-- Map filter (`features/map/filter/`): entry `MapFilterSheet`, state in `PolylineProvider`.
-- Trips search & filter (`features/trips/search_filter_sheet/`): `TripsFilterController`, one view per design.
-- Trip details actions (`features/trips/detail_sheet/`): `TripActionsController`, one view per design.
-- Settings (`features/settings/`): one page built from facade rows (`widgets/settings_group.dart`), each picking its Material or iOS rendering (`widgets/material/`, `widgets/cupertino/`). A row that behaves differently on iOS takes an `apple…` parameter (`appleIconColor`, `appleOnTap`). `SettingsVm` still imports Flutter (known exception).
+- Foundation: `lib/core`, `lib/ui`, `AppDesign` / `PlatformView` / `PlatformAppBar` / `byDesign`, the architecture test, iOS dialogs through `AdaptiveDialog`, Hanken Grotesk everywhere, bold titles.
+- `lib/core` holds no view: the ranking model (`core/data/models/ranking.dart`), `TripVisibility`, `EnergyType` and `TimeMoment` moved there; their labels and icons are view extensions in `features/`. The statistics graph images are an extension in `features/statistics`.
+- Screens with a controller and two views: trips page (`TripsPageController`), trips search & filter (`TripsFilterController`, When section, country / operator picker), trip details actions (`TripActionsController`).
+- Screens with an entry picking two views around an existing provider: Smart Prerecorder (`PreRecordProvider`, `SprPageActions`), trip details sheet (shared `TripDetailsSections`, iOS `TripDetailsStyle`), map filter (`PolylineProvider`).
+- Facades over Material / iOS renderings: settings rows (`SettingsController`), map controls (the map logic stays in `MapPage`), trip form app bar and section bar.
+- Adaptive components moved to `lib/ui/adaptive`: `AppStepsTabBar`, the bottom sheet picker, `AdaptiveSearchField`, `AdaptiveProgressIndicator`, `AdaptiveSheetHandle`; to `lib/ui/cupertino`: `GlassPopUpButton`, the glass date popover.
 
-Still branching on the platform inside (see the `known` lists): the trips filter pickers (`GroupPickerView`, `WhenSection`, `sheet_common`), `AppStepsTabBar`, `BottomSheetPicker`, the map page, the trip details sheet, the Smart Prerecorder, the trip editor and the trips page. Migrate them one per branch as they are redesigned.
+Not done, worth doing as screens are redesigned: `MapPage` and the trip editor still keep their state in the widget rather than in a controller.
 
 ## Branches
 
