@@ -11,10 +11,10 @@ import 'dart:typed_data';
 /// base64-encoded, as the `altcha` form field.
 ///
 /// Pure Dart (no Flutter import) so it can run in a background isolate and be
-/// unit-tested on its own. PBKDF2 is hand-rolled on top of a SHA-256 whose
-/// HMAC pads are hashed once per counter: about 5x faster than going through
-/// `package:crypto`'s `Hmac`, which matters as a challenge costs a few million
-/// SHA-256 blocks.
+/// unit-tested on its own. PBKDF2 is hand-rolled on top of SHA-256 so the
+/// HMAC key pads are hashed once per counter instead of once per round: each
+/// round then costs 2 SHA-256 blocks instead of 4, which matters as a
+/// challenge costs a few million of them.
 class AltchaChallenge {
   /// The `parameters` object exactly as received: it is signed by the server,
   /// so it is sent back untouched.
