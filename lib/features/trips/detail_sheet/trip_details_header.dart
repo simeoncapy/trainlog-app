@@ -5,7 +5,6 @@ import 'package:trainlog_app/features/trips/detail_sheet/trip_details_common.dar
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/ui/adaptive/widget/adaptive_app_bar_square_button.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
-import 'package:trainlog_app/utils/platform_utils.dart';
 
 /// Header row of the trip details sheet: a coloured vehicle-type tile, the line
 /// name (or a localized fallback) with the departure date underneath, a
@@ -74,8 +73,7 @@ class TripDetailsHeader extends StatelessWidget {
         _VisibilityChip(trip: trip),
         const SizedBox(width: 8),
         AdaptiveAppBarSquareButton(
-          // iOS sheets close with a cross; Material keeps the down chevron.
-          icon: AppPlatform.isApple ? Icons.close : Icons.keyboard_arrow_down,
+          icon: TripDetailsStyle.of(context).closeIcon,
           onPressed: onClose ?? () => Navigator.of(context).maybePop(),
           tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
           size: 36,
