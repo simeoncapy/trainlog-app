@@ -59,9 +59,15 @@ class _CupertinoMapSearchState extends State<CupertinoMapSearch> {
     final controller = context.watch<MapPageController>();
     final media = MediaQuery.of(context);
     // Above the keyboard, or above the tab bar once the keyboard is down.
+    // The shell's Scaffold may already have shrunk the page to end at the
+    // keyboard (its inset is then removed here): ask the window whether the
+    // keyboard is up.
     final keyboard = media.viewInsets.bottom;
+    final keyboardUp = View.of(context).viewInsets.bottom > 0;
     final bottom = keyboard > 0
         ? keyboard + 8
+        : keyboardUp
+        ? 8.0
         : kNavBarClearance + media.padding.bottom + 8;
 
     const fullScreen = CupertinoMapSearch.fullScreenResults;
@@ -72,7 +78,7 @@ class _CupertinoMapSearchState extends State<CupertinoMapSearch> {
     final searchBar = AppGlassSearchBar(
       controller: _text,
       focusNode: _focus,
-      placeholder: loc.mapSearchLocationHint,
+      placeholder: loc.mapSearchLocationButton,
       onChanged: controller.queryChanged,
       onSubmitted: controller.submitQuery,
       onCancel: _close,
