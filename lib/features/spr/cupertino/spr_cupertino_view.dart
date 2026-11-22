@@ -21,17 +21,20 @@ class SprCupertinoView extends StatelessWidget {
     final prerecords = context.watch<PreRecordProvider>();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!context.mounted) return;
+      // Delete first: the first action is drawn on its own, and a
+      // non-destructive one gets the amber "prominent" glass, which made the
+      // sort button a dark, unreadable circle. Sort goes in the capsule.
       actions.onPrimaryActionsReady([
-        AppPrimaryAction(
-          onPressed: prerecords.toggleSortOrder,
-          icon: actions.sortIcon,
-          tooltip: actions.sortTooltip,
-        ),
         AppPrimaryAction(
           onPressed: actions.delete,
           icon: AdaptiveIcons.delete,
           label: actions.deleteLabel(short: true),
           isDestructive: true,
+        ),
+        AppPrimaryAction(
+          onPressed: prerecords.toggleSortOrder,
+          icon: actions.sortIcon,
+          tooltip: actions.sortTooltip,
         ),
       ]);
     });
