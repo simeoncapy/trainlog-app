@@ -14,7 +14,7 @@ import 'package:trainlog_app/utils/map_color_palette.dart';
 import 'package:trainlog_app/utils/style_utils.dart';
 import 'package:trainlog_app/core/data/models/trips_filter.dart';
 import 'package:trainlog_app/widgets/divider_with_widget.dart';
-import 'package:trainlog_app/widgets/past_future_selector.dart';
+import 'package:trainlog_app/core/data/models/time_moment.dart';
 
 class TripCardView extends StatefulWidget {
   final TripsRepository repo;

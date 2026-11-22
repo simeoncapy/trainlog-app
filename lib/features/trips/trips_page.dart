@@ -1,28 +1,48 @@
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:trainlog_app/core/data/models/trips_filter.dart';
-import 'package:trainlog_app/features/menu/menu_summary_card.dart';
-import 'package:trainlog_app/features/trips_add/open_add_trip_wizard.dart';
+import 'package:trainlog_app/features/trips/cupertino/trips_page_cupertino_view.dart';
+import 'package:trainlog_app/features/trips/material/trips_page_material_view.dart';
 import 'package:trainlog_app/features/trips/search_filter_sheet/trips_search_filter_sheet.dart';
-import 'package:trainlog_app/features/trips/widgets/trip_card_view.dart';
-import 'package:trainlog_app/features/trips/widgets/trip_table_view.dart';
+import 'package:trainlog_app/features/trips/trips_page_controller.dart';
+import 'package:trainlog_app/features/trips_add/open_add_trip_wizard.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/navigation/nav_models.dart';
-import 'package:trainlog_app/core/providers/trainlog_provider.dart';
 import 'package:trainlog_app/core/providers/trips_provider.dart';
+import 'package:trainlog_app/ui/design.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
-import 'package:trainlog_app/ui/adaptive/app_steps_tab_bar.dart';
-import 'package:trainlog_app/widgets/past_future_selector.dart';
-import 'package:trainlog_app/ui/adaptive/adaptive_widget.dart';
 
-const _kViewPrefKey = 'trips_view_mode'; // 'card' or 'table'
+/// What the trips page views can ask the page for.
+class TripsPageActions {
+  const TripsPageActions({
+    required this.onPrimaryActionsReady,
+    required this.openFilter,
+    required this.refreshKey,
+    required this.onRefresh,
+    required this.addTripAction,
+  });
 
+  /// Hands the shell the actions of its bar.
+  final SetPrimaryActions onPrimaryActionsReady;
+
+  /// Opens the search & filter sheet.
+  final VoidCallback openFilter;
+
+  /// Key of the pull-to-refresh indicator (F5 on desktop shows it).
+  final GlobalKey<RefreshIndicatorState> refreshKey;
+
+  /// Pull to refresh: syncs the trips.
+  final Future<void> Function() onRefresh;
+
+  /// The "New trip" action, first in the shell's bar on both designs.
+  final AppPrimaryAction Function() addTripAction;
+}
+
+/// Trips page entry: holds the [TripsPageController], opens the filter
+/// sheet and the add-trip wizard, then picks the Material or iOS view.
 class TripsPage extends StatefulWidget {
   final SetPrimaryActions onPrimaryActionsReady;
   const TripsPage({super.key, required this.onPrimaryActionsReady});
@@ -32,15 +52,7 @@ class TripsPage extends StatefulWidget {
 }
 
 class _TripsPageState extends State<TripsPage> {
-  late TrainlogProvider trainlog;
-  TripsFilterResult? _activeFilter;
-  TimeMoment _timeMoment = TimeMoment.past;
-
-  bool _isCardView = true; // default; overridden by SharedPreferences
-  bool _prefsLoaded = false;
-
-  int _summaryCount = 0;
-  int _seenRevision = -1;
+  final _controller = TripsPageController();
 
   // F5 refresh on desktop, where the pull-to-refresh gesture isn't available.
   static final bool _isDesktop =
@@ -49,18 +61,19 @@ class _TripsPageState extends State<TripsPage> {
   // Whether this page is what the user sees: the shells keep hidden tabs
   // alive, and another page may be pushed on top.
   bool _isShown = true;
+  int _seenRevision = -1;
 
   @override
   void initState() {
     super.initState();
-    trainlog = Provider.of<TrainlogProvider>(context, listen: false);
-    _loadPrefs();
+    _controller.loadPrefs();
     if (_isDesktop) HardwareKeyboard.instance.addHandler(_onKey);
   }
 
   @override
   void dispose() {
     if (_isDesktop) HardwareKeyboard.instance.removeHandler(_onKey);
+    _controller.dispose();
     super.dispose();
   }
 
@@ -74,38 +87,14 @@ class _TripsPageState extends State<TripsPage> {
     return true;
   }
 
-  Future<void> _loadPrefs() async {
-    final prefs = await SharedPreferences.getInstance();
-    final saved = prefs.getString(_kViewPrefKey);
-    if (mounted) {
-      setState(() {
-        _isCardView = saved != 'table';
-        _prefsLoaded = true;
-      });
-    }
-  }
-
-  Future<void> _setCardView(bool isCard) async {
-    setState(() => _isCardView = isCard);
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_kViewPrefKey, isCard ? 'card' : 'table');
-  }
-
-  Future<void> _refreshSummaryCount(TripsProvider tripsProvider) async {
-    final repo = tripsProvider.repository;
-    if (repo == null) return;
-    final count = await repo.countFilteredTrips(
-      showFutureTrips: _timeMoment == TimeMoment.future,
-      filter: _activeFilter,
-    );
-    if (mounted) setState(() => _summaryCount = count);
-  }
-
-  Future<void> _openFilter(TripsProvider tripsProvider) async {
+  Future<void> _openFilter() async {
+    final tripsProvider = context.read<TripsProvider>();
     final repo = tripsProvider.repository;
     if (repo == null) return;
     final locale = Localizations.localeOf(context);
-    final countries = await tripsProvider.getMapCountryCodesSafe(locale: locale);
+    final countries = await tripsProvider.getMapCountryCodesSafe(
+      locale: locale,
+    );
     final types = tripsProvider.vehicleTypes;
 
     if (!mounted) return;
@@ -114,288 +103,87 @@ class _TripsPageState extends State<TripsPage> {
       repo: repo,
       countryOptions: countries,
       typeOptions: types,
-      showFutureTrips: _timeMoment == TimeMoment.future,
-      initialFilter: _activeFilter,
+      showFutureTrips: _controller.showsFutureTrips,
+      initialFilter: _controller.activeFilter,
     );
-
-    if (result != null) {
-      // An all-defaults result is equivalent to "no filter".
-      setState(() => _activeFilter = result.isEmpty ? null : result);
-      _refreshSummaryCount(tripsProvider);
-    }
+    if (result != null) _controller.applyFilter(result);
   }
 
-  void _clearFilter(TripsProvider tripsProvider) {
-    setState(() => _activeFilter = null);
-    _refreshSummaryCount(tripsProvider);
-  }
-
-  /// Actions surfaced by the shell. On Apple the view toggle and the filter
-  /// live in the navigation bar (grouped glass buttons) next to "New trip",
-  /// instead of in a header row inside the page.
-  List<AppPrimaryAction> _primaryActions(TripsProvider tripsProvider) {
+  Future<void> _onRefresh() async {
     final loc = AppLocalizations.of(context)!;
-    return [
-      _buildPrimaryAction(context),
-      if (AppPlatform.isApple) ...[
-        AppPrimaryAction(
-          icon: AdaptiveIcons.search,
-          tooltip: loc.filterButton,
-          onPressed: () => _openFilter(tripsProvider),
-        ),
-        AppPrimaryAction(
-          icon: _isCardView ? CupertinoIcons.table : CupertinoIcons.rectangle_grid_1x2,
-          tooltip: _isCardView ? loc.tripsTableViewTooltip : loc.tripsCardViewTooltip,
-          onPressed: () => _setCardView(!_isCardView),
-        ),
-        if (_activeFilter != null)
-          AppPrimaryAction(
-            icon: CupertinoIcons.clear,
-            tooltip: loc.filterClearButton,
-            onPressed: () => _clearFilter(tripsProvider),
-          ),
-      ],
-    ];
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    _isShown = Visibility.of(context) && (ModalRoute.of(context)?.isCurrent ?? true);
-    final tripsProvider = Provider.of<TripsProvider>(context);
-    final loc = AppLocalizations.of(context)!;
-    final repo = context.select((TripsProvider p) => p.repository);
-    final isLoading = context.select((TripsProvider p) => p.isLoading);
-    final revision = context.select((TripsProvider p) => p.revision);
-
-    if (revision != _seenRevision) {
-      _seenRevision = revision;
-      WidgetsBinding.instance.addPostFrameCallback((_) => _refreshSummaryCount(tripsProvider));
-    }
-
-    if (repo == null || isLoading || !_prefsLoaded) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) widget.onPrimaryActionsReady(_primaryActions(tripsProvider));
-    });
-
-    return SafeArea(
-      top: false,
-      bottom: false,
-      child: RefreshIndicator(
-        key: _refreshKey,
-        onRefresh: () async {
-          final locale = Localizations.localeOf(context);
-          final result = await tripsProvider.loadNecessaryTripsData(locale: locale, hardRefresh: false);
-          if (!mounted) return;
-          await _refreshSummaryCount(tripsProvider);
-          if (!mounted) return;
-          final message = switch (result) {
-            TripsSyncResult.success => '✅ ${loc.refreshCompleted}',
-            TripsSyncResult.offline => loc.refreshFailedOffline,
-            TripsSyncResult.failed => loc.refreshFailed,
-            // The log-in-again sheet opens instead.
-            TripsSyncResult.sessionExpired => null,
-          };
-          if (message != null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(message)),
-            );
-          }
-        },
-        child: Column(
-          children: [
-            // ── Page header (Apple: actions are in the navigation bar) ──
-            if (AppPlatform.isApple)
-              const SizedBox(height: 4)
-            else
-            _PageHeader(
-              isCardView: _isCardView,
-              activeFilter: _activeFilter,
-              onToggleView: () => _setCardView(!_isCardView),
-              onFilterTap: () => _openFilter(tripsProvider),
-              onClearFilter: () => _clearFilter(tripsProvider),
-            ),
-
-            // ── Summary block (card view only) ──────────────────────────
-            if (_isCardView)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                child: _SummaryBlock(count: _summaryCount),
-              ),
-
-            // ── Past / Future tab selector ───────────────────────────────
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-              child: AppStepsTabBar(
-                fullWidth: true,
-                tabs: [
-                  AppStepsTab(
-                    label: loc.yearPastList,
-                    leadingIcon: const Icon(Icons.restore),
-                  ),
-                  AppStepsTab(
-                    label: loc.yearFutureList,
-                    leadingIcon: const Icon(Icons.next_plan_outlined),
-                  ),
-                ],
-                selectedIndex: _timeMoment == TimeMoment.past ? 0 : 1,
-                onTabChanged: (i) {
-                  setState(() => _timeMoment = i == 0 ? TimeMoment.past : TimeMoment.future);
-                  _refreshSummaryCount(tripsProvider);
-                },
-              ),
-            ),
-
-            // ── Content view ─────────────────────────────────────────────
-            Expanded(
-              child: _isCardView
-                  ? TripCardView(
-                      key: ValueKey('card-$_timeMoment-${_activeFilter.hashCode}'),
-                      repo: repo,
-                      trainlog: trainlog,
-                      filter: _activeFilter,
-                      timeMoment: _timeMoment,
-                      revision: revision,
-                    )
-                  : TripTableView(
-                      key: ValueKey('table-$_timeMoment-${_activeFilter.hashCode}'),
-                      repo: repo,
-                      trainlog: trainlog,
-                      filter: _activeFilter,
-                      timeMoment: _timeMoment,
-                      revision: revision,
-                    ),
-            ),
-          ],
-        ),
-      ),
+    final tripsProvider = context.read<TripsProvider>();
+    final locale = Localizations.localeOf(context);
+    final result = await tripsProvider.loadNecessaryTripsData(
+      locale: locale,
+      hardRefresh: false,
     );
+    if (!mounted) return;
+    await _controller.refreshSummaryCount();
+    if (!mounted) return;
+    final message = switch (result) {
+      TripsSyncResult.success => '✅ ${loc.refreshCompleted}',
+      TripsSyncResult.offline => loc.refreshFailedOffline,
+      TripsSyncResult.failed => loc.refreshFailed,
+      // The log-in-again sheet opens instead.
+      TripsSyncResult.sessionExpired => null,
+    };
+    if (message != null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
+    }
   }
 
-  AppPrimaryAction _buildPrimaryAction(BuildContext context) {
+  AppPrimaryAction _addTripAction() {
     final loc = AppLocalizations.of(context)!;
     return AppPrimaryAction(
       onPressed: () async {
         final didSave = await openAddTripWizard(context);
-
-        if (!context.mounted) return;
-
-        if (didSave) {
-          setState(() {});
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) {
-              widget.onPrimaryActionsReady(
-                  _primaryActions(context.read<TripsProvider>()));
-            }
-          });
-        }
+        if (!mounted) return;
+        if (didSave) _controller.tripsChanged();
       },
       icon: AdaptiveIcons.add,
       label: loc.tripsAddButton,
     );
   }
-}
-
-// ---------------------------------------------------------------------------
-// Page header with title, view toggle, filter
-// ---------------------------------------------------------------------------
-
-class _PageHeader extends StatelessWidget {
-  const _PageHeader({
-    required this.isCardView,
-    required this.activeFilter,
-    required this.onToggleView,
-    required this.onFilterTap,
-    required this.onClearFilter,
-  });
-
-  final bool isCardView;
-  final TripsFilterResult? activeFilter;
-  final VoidCallback onToggleView;
-  final VoidCallback onFilterTap;
-  final VoidCallback onClearFilter;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 12, 12, 8),
-      child: Row(
-        children: [
-          // Title — only shown on Material (iOS has it in the nav bar)
-          if (!AppPlatform.isApple)
-            Expanded(
-              child: Text(
-                AppLocalizations.of(context)!.menuTripsTitle,
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
-              ),
-            )
-          else
-            const Spacer(),
+    _isShown =
+        Visibility.of(context) && (ModalRoute.of(context)?.isCurrent ?? true);
+    final repo = context.select((TripsProvider p) => p.repository);
+    final isLoading = context.select((TripsProvider p) => p.isLoading);
+    final revision = context.select((TripsProvider p) => p.revision);
 
-          // View toggle
-          AdaptiveAppBarSquareButton(
-            icon: isCardView ? Icons.table_chart_outlined : Icons.view_agenda_outlined,
-            onPressed: onToggleView,
-            tooltip: isCardView
-                ? AppLocalizations.of(context)!.tripsTableViewTooltip
-                : AppLocalizations.of(context)!.tripsCardViewTooltip,
-            size: 36,
-            iconSize: 18,
-          ),
+    _controller.repository = repo;
+    if (revision != _seenRevision) {
+      _seenRevision = revision;
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => _controller.refreshSummaryCount(),
+      );
+    }
 
-          // Clear filter (when active)
-          if (activeFilter != null) ...[
-            const SizedBox(width: 8),
-            AdaptiveAppBarSquareButton(
-              icon: Icons.search_off,
-              onPressed: onClearFilter,
-              tooltip: AppLocalizations.of(context)!.filterClearButton,
-              size: 36,
-              iconSize: 18,
-              circle: true,
-            ),
-          ],
-
-          const SizedBox(width: 8),
-
-          // Filter button
-          AdaptiveAppBarSquareButton(
-            icon: AdaptiveIcons.search,
-            onPressed: onFilterTap,
-            tooltip: AppLocalizations.of(context)!.filterButton,
-            size: 36,
-            iconSize: 18,
-          ),
-        ],
-      ),
+    final actions = TripsPageActions(
+      onPrimaryActionsReady: widget.onPrimaryActionsReady,
+      openFilter: _openFilter,
+      refreshKey: _refreshKey,
+      onRefresh: _onRefresh,
+      addTripAction: _addTripAction,
     );
-  }
-}
 
-// ---------------------------------------------------------------------------
-// Summary block
-// ---------------------------------------------------------------------------
-
-class _SummaryBlock extends StatelessWidget {
-  const _SummaryBlock({required this.count});
-  final int count;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      decoration: BoxDecoration(
-        color: cs.inverseSurface,
-        borderRadius: BorderRadius.circular(12),
+    return ChangeNotifierProvider.value(
+      value: _controller,
+      child: Consumer<TripsPageController>(
+        builder: (context, controller, _) {
+          if (repo == null || isLoading || !controller.prefsLoaded) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          return PlatformView(
+            material: (_) => TripsPageMaterialView(actions: actions),
+            cupertino: (_) => TripsPageCupertinoView(actions: actions),
+          );
+        },
       ),
-      child: TripCountLine(count: count),
     );
   }
 }
