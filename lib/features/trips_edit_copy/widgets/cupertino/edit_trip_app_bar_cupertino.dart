@@ -4,7 +4,7 @@ import 'package:trainlog_app/features/trips_edit_copy/widgets/edit_trip_app_bar_
 import 'package:trainlog_app/ui/cupertino/liquid_glass.dart';
 
 /// Trip form app bar, iOS: blends into the page with glass buttons; the
-/// mode colour shows as a small dot before the title.
+/// mode shows before the title: [modeIcon] in the mode colour, or a dot.
 class CupertinoEditTripAppBar extends StatelessWidget
     implements PreferredSizeWidget {
   const CupertinoEditTripAppBar({
@@ -12,6 +12,7 @@ class CupertinoEditTripAppBar extends StatelessWidget
     required this.title,
     required this.subtitle,
     required this.tint,
+    this.modeIcon,
     this.actionIcon,
     this.actionTooltip,
     this.onAction,
@@ -21,6 +22,7 @@ class CupertinoEditTripAppBar extends StatelessWidget
   final String title;
   final String? subtitle;
   final Color tint;
+  final IconData? modeIcon;
   final IconData? actionIcon;
   final String? actionTooltip;
   final VoidCallback? onAction;
@@ -36,7 +38,7 @@ class CupertinoEditTripAppBar extends StatelessWidget
     final closeTooltip = MaterialLocalizations.of(context).closeButtonTooltip;
     void close() => Navigator.of(context).maybePop();
 
-    // The tint is a translucent wash on Material; the dot needs it opaque.
+    // The tint is a translucent wash on Material; the mark needs it opaque.
     final accent = tint.withValues(alpha: 1);
 
     return ColoredBox(
@@ -62,6 +64,7 @@ class CupertinoEditTripAppBar extends StatelessWidget
                     title: title,
                     subtitle: subtitle,
                     accent: accent,
+                    accentIcon: modeIcon,
                   ),
                 ),
                 const SizedBox(width: 8),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:trainlog_app/utils/platform_utils.dart';
 import 'package:trainlog_app/core/data/models/trip_form_model.dart';
 import 'package:trainlog_app/core/data/models/trips.dart';
 import 'package:trainlog_app/features/trips_edit_copy/edit_trip_path_page.dart';
@@ -414,6 +415,9 @@ class _EditCopyPageState extends State<EditCopyPage> {
         tint: widget.mode == EditCopy.edit
             ? Theme.of(context).colorScheme.error.withValues(alpha: 0.2)
             : Theme.of(context).colorScheme.secondary.withValues(alpha: 0.2),
+        appleModeIcon: widget.mode == EditCopy.edit
+            ? AdaptiveIcons.edit
+            : AdaptiveIcons.copy,
       ),
       body: SafeArea(
         top: false,

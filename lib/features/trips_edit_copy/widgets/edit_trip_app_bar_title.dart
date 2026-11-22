@@ -11,6 +11,7 @@ class EditTripAppBarTitle extends StatelessWidget {
     required this.title,
     required this.subtitle,
     this.accent,
+    this.accentIcon,
   });
 
   final String title;
@@ -21,6 +22,9 @@ class EditTripAppBarTitle extends StatelessWidget {
   /// When set, a small dot of this colour leads the title (the mode colour
   /// on Apple, where the bar itself is not tinted).
   final Color? accent;
+
+  /// Drawn in [accent] instead of the dot (the edit or duplicate icon).
+  final IconData? accentIcon;
 
   @override
   Widget build(BuildContext context) {
@@ -33,9 +37,15 @@ class EditTripAppBarTitle extends StatelessWidget {
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (accent != null) ...[
+            if (accent != null && accentIcon != null) ...[
+              Icon(accentIcon, size: 17, color: accent),
+              const SizedBox(width: 6),
+            ] else if (accent != null) ...[
               DecoratedBox(
-                decoration: BoxDecoration(color: accent, shape: BoxShape.circle),
+                decoration: BoxDecoration(
+                  color: accent,
+                  shape: BoxShape.circle,
+                ),
                 child: const SizedBox.square(dimension: 8),
               ),
               const SizedBox(width: 7),
