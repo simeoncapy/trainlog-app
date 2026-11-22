@@ -16,6 +16,8 @@ class _Rule {
     required this.why,
     required this.appliesTo,
     required this.breaks,
+    // Empty today; kept for the next rule that starts with known breaks.
+    // ignore: unused_element_parameter
     this.known = const {},
   });
 
