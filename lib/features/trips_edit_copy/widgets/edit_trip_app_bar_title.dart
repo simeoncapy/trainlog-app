@@ -19,11 +19,12 @@ class EditTripAppBarTitle extends StatelessWidget {
   /// Null (or empty) while the trip is still loading: only the title shows.
   final String? subtitle;
 
-  /// When set, a small dot of this colour leads the title (the mode colour
-  /// on Apple, where the bar itself is not tinted).
+  /// Set on iOS, where the bar itself is not tinted: the mode colour, used
+  /// for [accentIcon].
   final Color? accent;
 
-  /// Drawn in [accent] instead of the dot (the edit or duplicate icon).
+  /// The mode icon (edit, duplicate) leading the title, in [accent]. None on
+  /// a neutral page such as the Geolog note.
   final IconData? accentIcon;
 
   @override
@@ -40,15 +41,6 @@ class EditTripAppBarTitle extends StatelessWidget {
             if (accent != null && accentIcon != null) ...[
               Icon(accentIcon, size: 17, color: accent),
               const SizedBox(width: 6),
-            ] else if (accent != null) ...[
-              DecoratedBox(
-                decoration: BoxDecoration(
-                  color: accent,
-                  shape: BoxShape.circle,
-                ),
-                child: const SizedBox.square(dimension: 8),
-              ),
-              const SizedBox(width: 7),
             ],
             Flexible(
               child: Text(

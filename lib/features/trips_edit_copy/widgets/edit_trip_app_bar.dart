@@ -8,8 +8,8 @@ import 'package:trainlog_app/ui/design.dart';
 ///
 /// Material keeps a bar tinted with [tint] to tell the modes apart. On iOS
 /// the bar blends into the page with glass buttons, and the mode shows before
-/// the title instead: [appleModeIcon] in the mode colour, or a small dot of
-/// that colour when there is no icon.
+/// the title instead: [appleModeIcon] in the mode colour. Without an icon
+/// (Geolog note, a neutral page) nothing marks the title.
 class EditTripAppBar extends PlatformAppBar {
   EditTripAppBar({
     super.key,

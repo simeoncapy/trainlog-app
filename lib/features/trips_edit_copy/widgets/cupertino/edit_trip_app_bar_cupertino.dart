@@ -4,7 +4,7 @@ import 'package:trainlog_app/features/trips_edit_copy/widgets/edit_trip_app_bar_
 import 'package:trainlog_app/ui/cupertino/liquid_glass.dart';
 
 /// Trip form app bar, iOS: blends into the page with glass buttons; the
-/// mode shows before the title: [modeIcon] in the mode colour, or a dot.
+/// mode shows before the title: [modeIcon] in the mode colour, if any.
 class CupertinoEditTripAppBar extends StatelessWidget
     implements PreferredSizeWidget {
   const CupertinoEditTripAppBar({

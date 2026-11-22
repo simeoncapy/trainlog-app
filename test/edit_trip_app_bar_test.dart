@@ -27,6 +27,26 @@ void main() {
     expect(find.text('Edit trip'), findsOneWidget);
   });
 
+  testWidgets('iOS shows no mark without a mode icon (neutral page)', (
+    t,
+  ) async {
+    AppPlatform.debugDesignOverride = DesignLanguage.cupertino;
+    await t.pumpWidget(host());
+    expect(
+      find.descendant(
+        of: find.byType(EditTripAppBar),
+        matching: find.byWidgetPredicate(
+          (w) =>
+              w is DecoratedBox &&
+              w.decoration is BoxDecoration &&
+              (w.decoration as BoxDecoration).shape == BoxShape.circle,
+        ),
+      ),
+      findsNothing,
+    );
+    expect(find.text('Edit trip'), findsOneWidget);
+  });
+
   testWidgets('Android ignores the iOS mode icon', (t) async {
     AppPlatform.debugDesignOverride = DesignLanguage.material;
     await t.pumpWidget(host(modeIcon: CupertinoIcons.square_pencil));
