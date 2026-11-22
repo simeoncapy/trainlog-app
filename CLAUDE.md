@@ -99,12 +99,12 @@ Done for the whole app (branch `ios-material-adaptation-refactor`): every `known
 
 - Foundation: `lib/core`, `lib/ui`, `AppDesign` / `PlatformView` / `PlatformAppBar` / `byDesign`, the architecture test, iOS dialogs through `AdaptiveDialog`, Hanken Grotesk everywhere, bold titles.
 - `lib/core` holds no view: the ranking model (`core/data/models/ranking.dart`), `TripVisibility`, `EnergyType` and `TimeMoment` moved there; their labels and icons are view extensions in `features/`. The statistics graph images are an extension in `features/statistics`.
-- Screens with a controller and two views: trips page (`TripsPageController`), trips search & filter (`TripsFilterController`, When section, country / operator picker), trip details actions (`TripActionsController`).
+- Screens with a controller and two views: map page (`MapPageController`: position, follow, place search; the flutter_map camera stays in the entry, which applies the controller's camera requests; shared `MapCanvas`), trips page (`TripsPageController`), trips search & filter (`TripsFilterController`, When section, country / operator picker), trip details actions (`TripActionsController`).
 - Screens with an entry picking two views around an existing provider: Smart Prerecorder (`PreRecordProvider`, `SprPageActions`), trip details sheet (shared `TripDetailsSections`, iOS `TripDetailsStyle`), map filter (`PolylineProvider`).
-- Facades over Material / iOS renderings: settings rows (`SettingsController`), map controls (the map logic stays in `MapPage`), trip form app bar and section bar.
+- Facades over Material / iOS renderings: settings rows (`SettingsController`), map controls, trip form app bar and section bar.
 - Adaptive components moved to `lib/ui/adaptive`: `AppStepsTabBar`, the bottom sheet picker, `AdaptiveSearchField`, `AdaptiveProgressIndicator`, `AdaptiveSheetHandle`; to `lib/ui/cupertino`: `GlassPopUpButton`, the glass date popover.
 
-Not done, worth doing as screens are redesigned: `MapPage` and the trip editor still keep their state in the widget rather than in a controller.
+Not done, worth doing as screens are redesigned: the trip editor still keeps its state in the widget rather than in a controller.
 
 ## Branches
 
