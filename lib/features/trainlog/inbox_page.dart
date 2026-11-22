@@ -10,6 +10,7 @@ import 'package:trainlog_app/core/providers/trainlog_provider.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/widgets/error_banner.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
+import 'package:trainlog_app/ui/adaptive/adaptive_information_message.dart';
 
 class InboxPage extends StatefulWidget {
   const InboxPage({super.key});
@@ -51,9 +52,7 @@ class _InboxPageState extends State<InboxPage> {
     } catch (e) {
       debugPrint('Error fetching news: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Impossible to load the news")),
-        );
+        AdaptiveInformationMessage.showInfo("Impossible to load the news");
         setState(() {
           _isLoading = false;
         });

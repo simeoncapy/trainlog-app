@@ -8,6 +8,7 @@ import 'package:trainlog_app/core/providers/settings_provider.dart';
 import 'package:trainlog_app/features/user/widgets/auth_form.dart';
 import 'package:trainlog_app/widgets/divider_with_widget.dart';
 import 'package:trainlog_app/widgets/footer.dart';
+import 'package:trainlog_app/ui/adaptive/adaptive_information_message.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -48,17 +49,19 @@ class _LoginPageState extends State<LoginPage> {
       if (!mounted) return;
 
       if (!success) {
-        ScaffoldMessenger.of(context)
-          ..hideCurrentSnackBar()
-          ..showSnackBar(SnackBar(content: Text("${loc.connectionError} ${auth.error ?? ""}")));
+        AdaptiveInformationMessage.showInfo(
+          "${loc.connectionError} ${auth.error ?? ""}",
+          replace: true,
+        );
       } else {
         settings.setShouldLoadTripsFromApi(true);
       }
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(SnackBar(content: Text("${loc.connectionError} ${auth.error ?? ""}")));
+      AdaptiveInformationMessage.showInfo(
+        "${loc.connectionError} ${auth.error ?? ""}",
+        replace: true,
+      );
     } finally {
       if (mounted) setState(() => _loggingIn = false);
     }

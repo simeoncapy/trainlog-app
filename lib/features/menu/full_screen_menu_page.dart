@@ -12,6 +12,7 @@ import 'package:trainlog_app/core/providers/trainlog_provider.dart';
 import 'package:trainlog_app/core/providers/trips_provider.dart';
 import 'package:trainlog_app/ui/adaptive/adaptive_widget.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
+import 'package:trainlog_app/ui/adaptive/adaptive_information_message.dart';
 
 /// Full-screen menu replacing the legacy Drawer on Android.
 /// Provides a clean entry point for iOS (wire up from the iOS shell when ready).
@@ -133,12 +134,9 @@ class _FullScreenMenuPageState extends State<FullScreenMenuPage> {
           onTap: () async {
             final settings = context.read<SettingsProvider>();
             final trips = context.read<TripsProvider>();
-            final scaffMsg = ScaffoldMessenger.of(context);
             widget.onClose();
             await context.read<TrainlogProvider>().logout(settings, trips);
-            scaffMsg.showSnackBar(
-              SnackBar(content: Text(loc.loggedOut)),
-            );
+            AdaptiveInformationMessage.showInfo(loc.loggedOut);
           },
         ),
       ]);

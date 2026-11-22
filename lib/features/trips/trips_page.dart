@@ -14,6 +14,7 @@ import 'package:trainlog_app/navigation/nav_models.dart';
 import 'package:trainlog_app/core/providers/trips_provider.dart';
 import 'package:trainlog_app/ui/design.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
+import 'package:trainlog_app/ui/adaptive/adaptive_information_message.dart';
 
 /// What the trips page views can ask the page for.
 class TripsPageActions {
@@ -128,9 +129,7 @@ class _TripsPageState extends State<TripsPage> {
       TripsSyncResult.sessionExpired => null,
     };
     if (message != null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(message)));
+      AdaptiveInformationMessage.showInfo(message);
     }
   }
 

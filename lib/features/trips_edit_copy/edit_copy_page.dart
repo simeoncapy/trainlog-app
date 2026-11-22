@@ -28,6 +28,7 @@ import 'package:trainlog_app/utils/map_color_palette.dart';
 import 'package:trainlog_app/widgets/error_banner.dart';
 import 'package:trainlog_app/widgets/primary_action_button.dart';
 import 'package:trainlog_app/widgets/trip_form/vehicle_type_grid.dart';
+import 'package:trainlog_app/ui/adaptive/adaptive_information_message.dart';
 
 /// Page backing both "Edit" and "Duplicate" on a trip.
 ///
@@ -274,16 +275,16 @@ class _EditCopyPageState extends State<EditCopyPage> {
     final isCopy = widget.mode == EditCopy.copy;
 
     final loc = AppLocalizations.of(context)!;
-    final messenger = ScaffoldMessenger.of(context);
     final navigator = Navigator.of(context);
     final username = context.read<TrainlogProvider>().username;
 
     // The schedule is the only thing this form can leave invalid: the stations
     // keep the position they were loaded with, so they cannot be broken here.
     if (!form.validateDate()) {
-      messenger
-        ..clearSnackBars()
-        ..showSnackBar(SnackBar(content: Text(loc.fillRequiredFields)));
+      AdaptiveInformationMessage.showInfo(
+        loc.fillRequiredFields,
+        replace: true,
+      );
       await _scrollToSection(EditTripSection.when);
       return;
     }
@@ -319,32 +320,26 @@ class _EditCopyPageState extends State<EditCopyPage> {
         );
       }
       if (!mounted) return;
-      messenger
-        ..clearSnackBars()
-        ..showSnackBar(SnackBar(
-          content: Text(
-            isCopy ? loc.duplicateTripSavedMsg : loc.editTripSavedMsg,
-          ),
-        ));
+      AdaptiveInformationMessage.showInfo(
+        isCopy ? loc.duplicateTripSavedMsg : loc.editTripSavedMsg,
+        replace: true,
+      );
       navigator.pop();
     } catch (e) {
       if (!mounted) return;
       setState(() => _saving = false);
       final reason = e is TripPatchException ? e.message : '$e';
-      messenger
-        ..clearSnackBars()
-        ..showSnackBar(
-          SnackBar(content: Text(loc.editTripSaveErrorMsg(reason))),
-        );
+      AdaptiveInformationMessage.showInfo(
+        loc.editTripSaveErrorMsg(reason),
+        replace: true,
+      );
     }
   }
 
   /// Placeholder for the actions whose logic is not implemented yet.
   void _showComingSoon() {
     final loc = AppLocalizations.of(context)!;
-    ScaffoldMessenger.of(context)
-      ..clearSnackBars()
-      ..showSnackBar(SnackBar(content: Text(loc.editTripComingSoon)));
+    AdaptiveInformationMessage.showInfo(loc.editTripComingSoon, replace: true);
   }
 
   // ─────────────────────────────────────────────────────────────
