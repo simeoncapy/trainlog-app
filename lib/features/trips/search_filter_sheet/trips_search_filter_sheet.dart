@@ -18,8 +18,9 @@ import 'package:trainlog_app/ui/design.dart';
 /// details sheet): a Material modal bottom sheet on Android, a Liquid Glass
 /// sheet on Apple platforms.
 ///
-/// Resolves with the new [TripsFilterResult] when the user confirms via the
-/// "Show N trips" action, or null when the sheet is dismissed.
+/// Resolves with the new [TripsFilterResult]: on Android when the user
+/// confirms with "Show N trips" (null when the sheet is dismissed), on iOS
+/// whenever the sheet closes (null if nothing was loaded or changed).
 Future<TripsFilterResult?> showTripsSearchFilterSheet(
   BuildContext context, {
   required TripsRepository repo,
@@ -28,19 +29,27 @@ Future<TripsFilterResult?> showTripsSearchFilterSheet(
   required bool showFutureTrips,
   TripsFilterResult? initialFilter,
 }) {
-  final sheet = TripsSearchFilterSheet(
-    repo: repo,
-    countryOptions: countryOptions,
-    typeOptions: typeOptions,
-    showFutureTrips: showFutureTrips,
-    initialFilter: initialFilter,
-  );
+  TripsSearchFilterSheet sheet({ValueChanged<TripsFilterResult>? onChanged}) =>
+      TripsSearchFilterSheet(
+        repo: repo,
+        countryOptions: countryOptions,
+        typeOptions: typeOptions,
+        showFutureTrips: showFutureTrips,
+        initialFilter: initialFilter,
+        onChanged: onChanged,
+      );
   return byDesign(
     context,
-    cupertino: () => showAppleFormSheet<TripsFilterResult>(
-      context: context,
-      builder: (ctx) => sheet,
-    ),
+    // iOS has no "Show N trips" button: closing the sheet, with its ✕ or by
+    // swiping it down, applies the filter as it was left.
+    cupertino: () async {
+      TripsFilterResult? edited;
+      final closed = await showAppleFormSheet<TripsFilterResult>(
+        context: context,
+        builder: (ctx) => sheet(onChanged: (result) => edited = result),
+      );
+      return closed ?? edited;
+    },
     material: () => showModalBottomSheet<TripsFilterResult>(
       context: context,
       useSafeArea: true,
@@ -49,7 +58,7 @@ Future<TripsFilterResult?> showTripsSearchFilterSheet(
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (_) => FractionallySizedBox(heightFactor: 0.92, child: sheet),
+      builder: (_) => FractionallySizedBox(heightFactor: 0.92, child: sheet()),
     ),
   );
 }
@@ -71,6 +80,7 @@ class TripsSearchFilterSheet extends StatefulWidget {
     required this.typeOptions,
     required this.showFutureTrips,
     this.initialFilter,
+    this.onChanged,
   });
 
   final TripsRepository repo;
@@ -84,6 +94,9 @@ class TripsSearchFilterSheet extends StatefulWidget {
   /// itself carries no date constraint.
   final bool showFutureTrips;
   final TripsFilterResult? initialFilter;
+
+  /// Called with the filter each time the user changes it.
+  final ValueChanged<TripsFilterResult>? onChanged;
 
   @override
   State<TripsSearchFilterSheet> createState() => _TripsSearchFilterSheetState();
@@ -115,6 +128,7 @@ class _TripsSearchFilterSheetState extends State<TripsSearchFilterSheet> {
       if (_keywordController.text != _filter.keyword) {
         _keywordController.text = _filter.keyword;
       }
+      widget.onChanged?.call(_filter.result);
     });
     _filter.load();
   }

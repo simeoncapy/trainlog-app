@@ -59,7 +59,8 @@ Every screen follows this layout (see "Migration status"). Keep it that way: a n
 - **Fonts**: Hanken Grotesk for all interface and body text, on both platforms (iOS included, never San Francisco). Space Grotesk for titles, always bold (`FontWeight.w700`) on both platforms; `AppTheme.displayFont` is already bold. Space Mono for figures.
 - **iOS letter spacing**: Hanken Grotesk keeps its own spacing (`letterSpacing: 0`); do not copy San Francisco's tracking.
 - **iOS segmented controls** show text only or an icon only, never both (Apple guideline).
-- **iOS primary button** (e.g. "Show N trips" in the filter sheets) is solid amber, not tinted glass (tinted glass looks yellow or red), and keeps its icon.
+- **iOS filter sheets** (map filter, trips search & filter) have no "Show N trips" button: the ✕ closes, the trip count is a live line under the title (`GlassSheetHeader.subtitle`), and closing the trips filter (✕ or swipe down) applies it. Android keeps its button.
+- **iOS primary button**, where one is needed (`GlassPrimaryButton`), is solid amber, not tinted glass (tinted glass looks yellow or red), and keeps its icon.
 - **iOS settings**: one icon colour per section.
 - **Map theme**: the map has its own light / dark / same-as-app setting; on iOS the map page chrome and its sheets follow it (`MapThemeScope`).
 - **Android must not change by accident.** A refactor moves Material code without editing it; compare Android screenshots before and after when a Material file is touched.

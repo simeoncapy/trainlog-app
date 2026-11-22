@@ -227,6 +227,7 @@
   "mapFilterSelectYears": "Pumili ng mga taon",
   "mapFilterUnknownFuture": "Hindi alam na hinaharap",
   "mapFilterUnknownPast": "Hindi alam na nakaraan",
+  "filterTripCount": "{count, plural, =0 {Walang byahe} =1 {1 byahe} other {{count} byahe}}",
   "mapFilterShowTrips": "{count, plural, =0 {Walang byahe} other {Ipakita ang {count} byahe}}",
   "@mapFilterShowTrips": {
     "description": "Primary action button in the map filter sheet showing how many trips match the current filters",

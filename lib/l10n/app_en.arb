@@ -317,6 +317,13 @@
   "@mapFilterUnknownPast": {
     "description": "Button in the year filter grid that toggles trips with an unknown past date"
   },
+  "filterTripCount": "{count, plural, =0 {No matching trips} =1 {1 trip} other {{count} trips}}",
+  "@filterTripCount": {
+    "description": "Live count under the title of a filter sheet (iOS): how many trips match the current filters",
+    "placeholders": {
+      "count": {}
+    }
+  },
   "mapFilterShowTrips": "{count, plural, =0 {Show no trips} =1 {Show 1 trip} other {Show {count} trips}}",
   "@mapFilterShowTrips": {
     "description": "Primary action button in the map filter sheet showing how many trips match the current filters",
