@@ -7,6 +7,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 import 'package:trainlog_app/ui/cupertino/apple_brand_font.dart';
+import 'package:trainlog_app/ui/cupertino/glass_toast.dart';
 
 class AdaptiveInformationMessage {
 
@@ -125,75 +126,20 @@ class AdaptiveInformationMessage {
     );
   }
 
-  /// Removes the iOS message on screen, so the next one replaces it rather
-  /// than stacking under it.
-  static VoidCallback? _dismissCupertinoSnackBar;
-
+  /// iOS: a Liquid Glass capsule under the status bar ([GlassToast]); a
+  /// new message replaces the one on screen.
   static void _showCupertinoSnackBar(
     String message, {
     int durationMillis = 3000,
   }) {
-    final navigatorState = rootNavigatorKey.currentState;
-    final overlayState = navigatorState?.overlay;
-
-    if (overlayState == null) return;
-
-    // Use root navigator context for theming if available.
-    final themeContext = navigatorState!.context;
-
-    final entry = OverlayEntry(
-      builder: (_) => Positioned(
-        bottom: 24,
-        left: 16,
-        right: 16,
-        child: SafeArea(
-          child: Material(
-            color: Colors.transparent,
-            child: Container(
-              decoration: BoxDecoration(
-                color: CupertinoColors.systemBackground.resolveFrom(themeContext),
-                borderRadius: BorderRadius.circular(14),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Color(0x33000000),
-                    blurRadius: 20,
-                    offset: Offset(0, 8),
-                  ),
-                ],
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: DefaultTextStyle(
-                style: CupertinoTheme.of(themeContext).textTheme.textStyle.copyWith(fontSize: 14),
-                child: Text(
-                  message,
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
+    final overlay = rootNavigatorKey.currentState?.overlay;
+    if (overlay == null) return;
+    GlassToast.show(
+      overlay,
+      message,
+      duration: Duration(milliseconds: durationMillis),
     );
-
-    // `mounted` is still false until the entry's first frame, so track
-    // removal here: two messages shown in the same frame must not stack.
-    var removed = false;
-    void dismiss() {
-      if (removed) return;
-      removed = true;
-      entry.remove();
-      if (identical(_dismissCupertinoSnackBar, dismiss)) {
-        _dismissCupertinoSnackBar = null;
-      }
-    }
-
-    _dismissCupertinoSnackBar?.call();
-    _dismissCupertinoSnackBar = dismiss;
-
-    overlayState.insert(entry);
-    Timer(Duration(milliseconds: durationMillis), dismiss);
   }
-
 
   static void show(
     BuildContext context,
