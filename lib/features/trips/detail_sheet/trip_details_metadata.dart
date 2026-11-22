@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:trainlog_app/data/models/country_detail.dart';
-import 'package:trainlog_app/data/models/trips.dart';
+import 'package:trainlog_app/core/data/models/country_detail.dart';
+import 'package:trainlog_app/core/data/models/trips.dart';
 import 'package:trainlog_app/features/trips/detail_sheet/trip_details_common.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
-import 'package:trainlog_app/providers/trainlog_provider.dart';
+import 'package:trainlog_app/core/providers/trainlog_provider.dart';
 import 'package:trainlog_app/utils/style_utils.dart';
 
 /// The "DETAILS" metadata block: vehicle type (mandatory) plus the optional

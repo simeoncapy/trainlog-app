@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:trainlog_app/features/ranking/ranking_type.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/platform/widget/adaptive_popup.dart';
-import 'package:trainlog_app/providers/ranking_provider.dart';
+import 'package:trainlog_app/core/providers/ranking_provider.dart';
 import 'package:trainlog_app/widgets/icon_toggle_button.dart';
 
 /// Filter row beneath the user-position block: unit dropdown (Distance / Trips),

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:lottie/lottie.dart';
-import 'package:trainlog_app/data/controllers/trainlog_web_controller.dart';
-import 'package:trainlog_app/data/models/polyline_entry.dart';
-import 'package:trainlog_app/data/models/trip_form_model.dart';
+import 'package:trainlog_app/core/data/controllers/trainlog_web_controller.dart';
+import 'package:trainlog_app/core/data/models/polyline_entry.dart';
+import 'package:trainlog_app/core/data/models/trip_form_model.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/features/trips_add/add_trip_wizard_step.dart';
 import 'package:trainlog_app/features/trips_add/steps/add_trip_check_route_step.dart';
@@ -16,10 +16,10 @@ import 'package:trainlog_app/features/trips_add/steps/add_trip_when_step.dart';
 import 'package:trainlog_app/features/trips_add/widgets/wizard_step_indicator.dart';
 import 'package:trainlog_app/platform/widget/adaptive_app_bar_square_button.dart';
 import 'package:trainlog_app/widgets/primary_action_button.dart';
-import 'package:trainlog_app/providers/trips_provider.dart';
-import 'package:trainlog_app/services/pre_record_service.dart';
+import 'package:trainlog_app/core/providers/trips_provider.dart';
+import 'package:trainlog_app/core/services/pre_record_service.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
-import 'package:trainlog_app/data/models/trips.dart';
+import 'package:trainlog_app/core/data/models/trips.dart';
 
 /// Main layout controller of the multi-step "Add Trip" wizard.
 ///

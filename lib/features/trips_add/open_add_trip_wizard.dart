@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:trainlog_app/data/models/trip_form_model.dart';
+import 'package:trainlog_app/core/data/models/trip_form_model.dart';
 import 'package:trainlog_app/features/trips_add/add_trip_wizard_page.dart';
 
 /// Opens the add trip wizard and returns `true` when a trip was saved.

@@ -3,12 +3,12 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:timezone/data/latest.dart' as tzdata;
-import 'package:trainlog_app/data/models/trip_form_model.dart';
-import 'package:trainlog_app/data/models/trips.dart';
-import 'package:trainlog_app/providers/trips_provider.dart';
-import 'package:trainlog_app/services/api/trainlog_http_client.dart';
-import 'package:trainlog_app/services/api/trips_api.dart';
-import 'package:trainlog_app/services/trip_edit_copy_service.dart';
+import 'package:trainlog_app/core/data/models/trip_form_model.dart';
+import 'package:trainlog_app/core/data/models/trips.dart';
+import 'package:trainlog_app/core/providers/trips_provider.dart';
+import 'package:trainlog_app/core/services/api/trainlog_http_client.dart';
+import 'package:trainlog_app/core/services/api/trips_api.dart';
+import 'package:trainlog_app/core/services/trip_edit_copy_service.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 
 import 'fake_trainlog_server.dart';

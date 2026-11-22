@@ -7,10 +7,10 @@ import 'package:flutter/widgets.dart';
 
 import 'package:trainlog_app/app/app_providers.dart';
 import 'package:trainlog_app/navigation/platform_shell.dart';
-import 'package:trainlog_app/providers/settings_provider.dart';
-import 'package:trainlog_app/providers/trainlog_provider.dart';
-import 'package:trainlog_app/services/api/trainlog_http_client.dart';
-import 'package:trainlog_app/services/secure_cookie_storage.dart';
+import 'package:trainlog_app/core/providers/settings_provider.dart';
+import 'package:trainlog_app/core/providers/trainlog_provider.dart';
+import 'package:trainlog_app/core/services/api/trainlog_http_client.dart';
+import 'package:trainlog_app/core/services/secure_cookie_storage.dart';
 import 'package:trainlog_app/utils/app_user_agent.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'package:trainlog_app/utils/cached_data_utils.dart';

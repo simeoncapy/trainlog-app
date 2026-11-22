@@ -2,11 +2,11 @@ import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 
 import 'package:trainlog_app/app/app_root.dart';
-import 'package:trainlog_app/providers/polyline_provider.dart';
-import 'package:trainlog_app/providers/settings_provider.dart';
-import 'package:trainlog_app/providers/trainlog_provider.dart';
-import 'package:trainlog_app/providers/trips_provider.dart';
-import 'package:trainlog_app/services/flag_cache.dart';
+import 'package:trainlog_app/core/providers/polyline_provider.dart';
+import 'package:trainlog_app/core/providers/settings_provider.dart';
+import 'package:trainlog_app/core/providers/trainlog_provider.dart';
+import 'package:trainlog_app/core/providers/trips_provider.dart';
+import 'package:trainlog_app/core/services/flag_cache.dart';
 
 class AppProviders extends StatelessWidget {
   final SettingsProvider settings;

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:trainlog_app/data/models/trips.dart';
-import 'package:trainlog_app/data/models/pre_record_model.dart';
+import 'package:trainlog_app/core/data/models/trips.dart';
+import 'package:trainlog_app/core/data/models/pre_record_model.dart';
 import 'package:trainlog_app/features/spr/geolog_note_page.dart';
 import 'package:trainlog_app/features/spr/widgets/pre_record_tile.dart';
 import 'package:trainlog_app/features/spr/widgets/spr_button_bar.dart';
@@ -14,11 +14,11 @@ import 'package:trainlog_app/platform/adaptive_dialog.dart';
 import 'package:trainlog_app/platform/adaptive_page_route.dart';
 import 'package:trainlog_app/platform/adaptive_expansion_title.dart';
 import 'package:trainlog_app/platform/adaptive_information_message.dart';
-import 'package:trainlog_app/providers/pre_record_provider.dart';
-import 'package:trainlog_app/providers/settings_provider.dart';
-import 'package:trainlog_app/providers/trainlog_provider.dart';
-import 'package:trainlog_app/services/geo_permission_service.dart';
-import 'package:trainlog_app/services/geolog_note_merger.dart';
+import 'package:trainlog_app/core/providers/pre_record_provider.dart';
+import 'package:trainlog_app/core/providers/settings_provider.dart';
+import 'package:trainlog_app/core/providers/trainlog_provider.dart';
+import 'package:trainlog_app/core/services/geo_permission_service.dart';
+import 'package:trainlog_app/core/services/geolog_note_merger.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 import 'package:trainlog_app/widgets/error_banner.dart';
 

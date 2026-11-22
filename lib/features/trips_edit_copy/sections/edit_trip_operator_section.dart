@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:trainlog_app/data/models/trip_form_model.dart';
+import 'package:trainlog_app/core/data/models/trip_form_model.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
-import 'package:trainlog_app/providers/trainlog_provider.dart';
+import 'package:trainlog_app/core/providers/trainlog_provider.dart';
 import 'package:trainlog_app/widgets/trip_form/dashed_outline_button.dart';
 import 'package:trainlog_app/widgets/trip_form/operator_search_overlay.dart';
 import 'package:trainlog_app/widgets/trip_form/operator_tiles.dart';

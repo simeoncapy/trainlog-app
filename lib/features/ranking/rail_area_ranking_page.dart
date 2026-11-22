@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:trainlog_app/app/theme/app_colors.dart';
 import 'package:trainlog_app/app/theme/app_theme.dart';
-import 'package:trainlog_app/data/models/ranking_model.dart';
+import 'package:trainlog_app/core/data/models/ranking_model.dart';
 import 'package:trainlog_app/features/ranking/ranking_type.dart';
 import 'package:trainlog_app/features/ranking/widgets/coverage_list_card.dart';
 import 'package:trainlog_app/features/ranking/widgets/coverage_progress_bar.dart';

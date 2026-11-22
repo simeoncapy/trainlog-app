@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:trainlog_app/data/models/trip_form_model.dart';
-import 'package:trainlog_app/data/models/trips.dart';
+import 'package:trainlog_app/core/data/models/trip_form_model.dart';
+import 'package:trainlog_app/core/data/models/trips.dart';
 import 'package:trainlog_app/features/trips_edit_copy/edit_trip_path_page.dart';
 import 'package:trainlog_app/features/trips_edit_copy/edit_trip_section.dart';
 import 'package:trainlog_app/features/trips_edit_copy/edit_trip_vehicle_type_page.dart';
@@ -17,11 +17,11 @@ import 'package:trainlog_app/features/trips_edit_copy/widgets/edit_trip_section_
 import 'package:trainlog_app/features/trips_edit_copy/widgets/edit_trip_vehicle_card.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/platform/adaptive_page_route.dart';
-import 'package:trainlog_app/providers/settings_provider.dart';
-import 'package:trainlog_app/providers/trainlog_provider.dart';
-import 'package:trainlog_app/providers/trips_provider.dart';
-import 'package:trainlog_app/services/api/trips_api.dart';
-import 'package:trainlog_app/services/trip_edit_copy_service.dart';
+import 'package:trainlog_app/core/providers/settings_provider.dart';
+import 'package:trainlog_app/core/providers/trainlog_provider.dart';
+import 'package:trainlog_app/core/providers/trips_provider.dart';
+import 'package:trainlog_app/core/services/api/trips_api.dart';
+import 'package:trainlog_app/core/services/trip_edit_copy_service.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
 import 'package:trainlog_app/widgets/error_banner.dart';

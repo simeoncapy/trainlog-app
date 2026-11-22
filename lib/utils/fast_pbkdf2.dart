@@ -41,7 +41,7 @@ import 'package:altcha_lib/altcha_lib.dart' show ChallengeParameters, DeriveKeyR
 //
 // TO GO BACK TO PURE altcha_lib: set `SignupCaptcha.useFastPbkdf2` to false.
 // To then remove the custom code entirely, delete this file, its import and
-// the switch in lib/services/signup_captcha.dart, and the "fast PBKDF2"
+// the switch in lib/core/services/signup_captcha.dart, and the "fast PBKDF2"
 // group in test/signup_test.dart.
 // ===========================================================================
 

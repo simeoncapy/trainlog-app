@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:trainlog_app/data/models/polyline_entry.dart';
-import 'package:trainlog_app/data/models/trips.dart';
+import 'package:trainlog_app/core/data/models/polyline_entry.dart';
+import 'package:trainlog_app/core/data/models/trips.dart';
 import 'package:trainlog_app/utils/polyline_styling.dart';
 
 /// Haneda to San Francisco, stored the way the routing page saves a geodesic

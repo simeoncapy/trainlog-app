@@ -5,7 +5,7 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:trainlog_app/features/user/session_expiry_host.dart';
 
 import 'package:trainlog_app/utils/app_user_agent.dart';
-import '../providers/trainlog_provider.dart';
+import 'package:trainlog_app/core/providers/trainlog_provider.dart';
 
 /// Displays an authenticated Trainlog webpage inside a WebView.
 ///

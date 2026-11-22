@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/navigation/cupertino_shell.dart';
 import 'package:trainlog_app/navigation/material_shell.dart';
-import 'package:trainlog_app/providers/trips_provider.dart';
+import 'package:trainlog_app/core/providers/trips_provider.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 
 class PlatformShell extends StatelessWidget {

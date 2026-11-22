@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
-import 'package:trainlog_app/data/models/polyline_entry.dart';
-import 'package:trainlog_app/data/models/polyline_filter_state.dart';
-import 'package:trainlog_app/data/models/trips.dart';
-import 'package:trainlog_app/providers/settings_provider.dart';
+import 'package:trainlog_app/core/data/models/polyline_entry.dart';
+import 'package:trainlog_app/core/data/models/polyline_filter_state.dart';
+import 'package:trainlog_app/core/data/models/trips.dart';
+import 'package:trainlog_app/core/providers/settings_provider.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 
 /// Pure (stateless) polyline styling, filtering and sorting helpers.

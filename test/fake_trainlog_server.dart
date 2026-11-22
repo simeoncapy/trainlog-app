@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:trainlog_app/services/api/trainlog_http_client.dart';
+import 'package:trainlog_app/core/services/api/trainlog_http_client.dart';
 
 typedef Handler = ResponseBody Function(RequestOptions options);
 

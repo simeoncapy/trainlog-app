@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:trainlog_app/data/models/trips.dart';
+import 'package:trainlog_app/core/data/models/trips.dart';
 import 'package:trainlog_app/platform/adaptive_sheet.dart';
 import 'package:trainlog_app/utils/platform_utils.dart'; // for AppPlatform.isApple
 import 'package:trainlog_app/features/trips/detail_sheet/trip_details_bottom_sheet.dart';

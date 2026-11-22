@@ -10,7 +10,7 @@ import 'package:trainlog_app/features/ranking/widgets/ranking_medal.dart';
 import 'package:trainlog_app/features/ranking/widgets/raw_value_tooltip.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/platform/adaptive_page_route.dart';
-import 'package:trainlog_app/providers/ranking_provider.dart';
+import 'package:trainlog_app/core/providers/ranking_provider.dart';
 import 'package:trainlog_app/utils/number_formatter.dart';
 import 'package:trainlog_app/widgets/monogram.dart';
 

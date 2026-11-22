@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:trainlog_app/data/models/location_search_result.dart';
-import 'package:trainlog_app/services/api/search_location_api.dart';
+import 'package:trainlog_app/core/data/models/location_search_result.dart';
+import 'package:trainlog_app/core/services/api/search_location_api.dart';
 
 Map<String, dynamic> _feature({
   required String name,

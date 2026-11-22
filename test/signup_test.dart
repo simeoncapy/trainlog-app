@@ -4,9 +4,9 @@ import 'package:altcha_lib/algorithms.dart' show adaptiveDeriveKey;
 import 'package:altcha_lib/altcha_lib.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:trainlog_app/services/api/auth_api.dart';
-import 'package:trainlog_app/services/api/trainlog_http_client.dart';
-import 'package:trainlog_app/services/signup_captcha.dart';
+import 'package:trainlog_app/core/services/api/auth_api.dart';
+import 'package:trainlog_app/core/services/api/trainlog_http_client.dart';
+import 'package:trainlog_app/core/services/signup_captcha.dart';
 import 'package:trainlog_app/utils/fast_pbkdf2.dart';
 
 import 'fake_trainlog_server.dart';

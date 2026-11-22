@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:trainlog_app/data/models/trip_form_model.dart';
+import 'package:trainlog_app/core/data/models/trip_form_model.dart';
 
 /// Returns true when the data owned by a wizard step is valid and the wizard
 /// may progress to the next step.

@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:trainlog_app/data/models/geolog_note.dart';
-import 'package:trainlog_app/data/models/pre_record_model.dart';
-import 'package:trainlog_app/data/models/trip_form_model.dart';
-import 'package:trainlog_app/data/models/trips.dart';
-import 'package:trainlog_app/services/geolog_note_merger.dart';
+import 'package:trainlog_app/core/data/models/geolog_note.dart';
+import 'package:trainlog_app/core/data/models/pre_record_model.dart';
+import 'package:trainlog_app/core/data/models/trip_form_model.dart';
+import 'package:trainlog_app/core/data/models/trips.dart';
+import 'package:trainlog_app/core/services/geolog_note_merger.dart';
 import 'package:trainlog_app/widgets/trip_visibility_selector.dart';
 import 'package:trainlog_app/widgets/vehicle_energy_selector.dart';
 

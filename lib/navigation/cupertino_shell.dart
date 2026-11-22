@@ -11,7 +11,7 @@ import 'package:trainlog_app/platform/adaptive_bottom_navbar.dart'
     show AdaptiveBottomNavBar, kNavBarClearance;
 import 'package:trainlog_app/platform/liquid_glass.dart';
 import 'package:trainlog_app/platform/map_theme.dart';
-import 'package:trainlog_app/providers/settings_provider.dart';
+import 'package:trainlog_app/core/providers/settings_provider.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 
 import 'package:trainlog_app/features/about/about_page.dart';

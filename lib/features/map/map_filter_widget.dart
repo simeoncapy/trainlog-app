@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/platform/adaptive_vehicle_type_filter_chips.dart';
 import 'package:trainlog_app/platform/glass_filter_parts.dart';
-import 'package:trainlog_app/providers/polyline_provider.dart';
+import 'package:trainlog_app/core/providers/polyline_provider.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 import 'package:trainlog_app/widgets/app_steps_tab_bar.dart';

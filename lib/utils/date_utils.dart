@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:trainlog_app/providers/settings_provider.dart';
+import 'package:trainlog_app/core/providers/settings_provider.dart';
 import 'package:const_date_time/const_date_time.dart';
 
 const forceRefreshDate = ConstDateTime(1970, 1, 1, 0, 0, 0);

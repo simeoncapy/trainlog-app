@@ -1,7 +1,7 @@
 import 'package:diacritic/diacritic.dart';
 import 'package:flutter/material.dart';
 
-import 'package:trainlog_app/data/models/country_detail.dart';
+import 'package:trainlog_app/core/data/models/country_detail.dart';
 import 'package:trainlog_app/features/ranking/widgets/coverage_list_card.dart';
 import 'package:trainlog_app/features/ranking/widgets/ranking_filter_controls.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
