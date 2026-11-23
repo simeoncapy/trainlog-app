@@ -114,11 +114,7 @@ class TripDetailsTimeline extends StatelessWidget {
                   style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                   softWrap: true,
                 ),
-                if (!TripDetailsStyle.of(context).durationInTimeline)
-                  // iOS: the duration is with the stats; keep the stations
-                  // apart.
-                  const SizedBox(height: 24)
-                else if (!trip.isUnknownPastFuture)
+                if (!trip.isUnknownPastFuture)
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     child: _DurationPill(trip: trip),
@@ -268,9 +264,12 @@ class _DurationPill extends StatelessWidget {
         ((realDuration - trip.duration).inSeconds / 60).round() != 0;
     final isLate = realDuration != null && realDuration > trip.duration;
 
+    final pill = TripDetailsStyle.of(context).durationPill;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: detailFillDecoration(context, capsule: true),
+      padding: pill
+          ? const EdgeInsets.symmetric(horizontal: 12, vertical: 6)
+          : const EdgeInsets.symmetric(vertical: 6),
+      decoration: pill ? detailFillDecoration(context, capsule: true) : null,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

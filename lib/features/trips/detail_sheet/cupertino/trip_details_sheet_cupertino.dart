@@ -95,7 +95,7 @@ class TripDetailsCupertinoSheet extends StatelessWidget {
       metricRadius: 12,
       closeIcon: Icons.close,
       chip: _glassChip,
-      durationInTimeline: false,
+      durationPill: false,
       metricCards: false,
       child: LayoutBuilder(
         builder: (context, constraints) => constraints.maxHeight < 220

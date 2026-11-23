@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:trainlog_app/ui/tokens/app_colors.dart';
 import 'package:trainlog_app/ui/tokens/app_theme.dart';
 import 'package:trainlog_app/core/data/models/trips.dart';
 import 'package:trainlog_app/features/trips/detail_sheet/trip_details_common.dart';
@@ -43,55 +42,19 @@ class TripDetailsMetrics extends StatelessWidget {
       ));
     }
 
-    final style = TripDetailsStyle.of(context);
+    if (cards.isEmpty) return const SizedBox.shrink();
 
     // iOS: no cards, a row of captioned stats like the place facts of
-    // Apple Maps (caption above, icon and value below), with the duration
-    // between the distance and the speed. Spread evenly when they fit,
-    // scrolled sideways when they do not.
-    if (!style.metricCards) {
-      final stats = cards.cast<_MetricCard>().toList();
-      if (!style.durationInTimeline && !trip.isUnknownPastFuture) {
-        final real = trip.realDuration;
-        final showReal = real != null &&
-            ((real - trip.duration).inSeconds / 60).round() != 0;
-        stats.insert(
-          stats.isEmpty ? 0 : 1,
-          _MetricCard(
-            icon: Icons.schedule,
-            value: showReal
-                ? trip.realDurationFormatted!
-                : trip.durationFormatted,
-            unit: '',
-            label: l10n.duration,
-            valueColor: showReal
-                ? (real > trip.duration ? AppColors.late : AppColors.early)
-                : null,
-          ),
-        );
-      }
-      if (stats.isEmpty) return const SizedBox.shrink();
-      return LayoutBuilder(
-        builder: (context, constraints) => SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: ConstrainedBox(
-            constraints: BoxConstraints(minWidth: constraints.maxWidth),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                for (final stat in stats)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: _MetricStat(card: stat),
-                  ),
-              ],
-            ),
-          ),
-        ),
+    // Apple Maps (caption above, icon and value below).
+    if (!TripDetailsStyle.of(context).metricCards) {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          for (final card in cards.cast<_MetricCard>())
+            Flexible(child: _MetricStat(card: card)),
+        ],
       );
     }
-
-    if (cards.isEmpty) return const SizedBox.shrink();
 
     return Row(
       children: [
@@ -110,15 +73,11 @@ class _MetricCard extends StatelessWidget {
   final String unit;
   final String label;
 
-  /// Colour of the figure; null for the normal text colour.
-  final Color? valueColor;
-
   const _MetricCard({
     required this.icon,
     required this.value,
     required this.unit,
     required this.label,
-    this.valueColor,
   });
 
   @override
@@ -204,25 +163,23 @@ class _MetricStat extends StatelessWidget {
           children: [
             Icon(card.icon, size: 16, color: theme.colorScheme.onSurface),
             const SizedBox(width: 6),
-            Text.rich(
-              TextSpan(
-                children: [
+            Flexible(
+              child: Text.rich(
+                TextSpan(children: [
                   TextSpan(
                     text: card.value,
                     style: theme.textTheme.titleMedium
                         ?.merge(AppTheme.monoFont)
-                        .copyWith(
-                          color: card.valueColor ?? theme.colorScheme.onSurface,
-                        ),
+                        .copyWith(color: theme.colorScheme.onSurface),
                   ),
-                  if (card.unit.isNotEmpty)
-                    TextSpan(
-                      text: ' ${card.unit}',
-                      style: theme.textTheme.bodySmall?.copyWith(color: muted),
-                    ),
-                ],
+                  TextSpan(
+                    text: ' ${card.unit}',
+                    style: theme.textTheme.bodySmall?.copyWith(color: muted),
+                  ),
+                ]),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
-              maxLines: 1,
             ),
           ],
         ),

@@ -40,7 +40,7 @@ class TripDetailsStyle extends InheritedWidget {
     this.metricRadius = 16,
     this.closeIcon = Icons.keyboard_arrow_down,
     this.chip,
-    this.durationInTimeline = true,
+    this.durationPill = true,
     this.metricCards = true,
   });
 
@@ -59,9 +59,9 @@ class TripDetailsStyle extends InheritedWidget {
   /// null for the default filled capsule.
   final Widget Function(BuildContext context, Widget content)? chip;
 
-  /// The duration sits in a pill between the stations; false to show it
-  /// with the distance and speed stats instead.
-  final bool durationInTimeline;
+  /// The timeline's duration sits in a filled pill; false for the bare icon
+  /// and text.
+  final bool durationPill;
 
   /// Distance and speed are cards; false for a row of captioned stats, like
   /// the place facts of Apple Maps.
@@ -79,7 +79,7 @@ class TripDetailsStyle extends InheritedWidget {
       metricRadius != old.metricRadius ||
       closeIcon != old.closeIcon ||
       chip != old.chip ||
-      durationInTimeline != old.durationInTimeline ||
+      durationPill != old.durationPill ||
       metricCards != old.metricCards;
 }
 

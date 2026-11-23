@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:trainlog_app/core/data/models/trips.dart';
-import 'package:trainlog_app/features/trips/detail_sheet/trip_details_common.dart';
 import 'package:trainlog_app/features/trips/detail_sheet/trip_details_metadata.dart';
 import 'package:trainlog_app/features/trips/detail_sheet/trip_details_metrics.dart';
 import 'package:trainlog_app/features/trips/detail_sheet/trip_details_notes.dart';
@@ -17,11 +16,7 @@ class TripDetailsSections extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = TripDetailsStyle.of(context);
-    // iOS also lists the duration with the stats.
-    final hasMetrics =
-        trip.tripLength > 0 ||
-        (!style.durationInTimeline && !trip.isUnknownPastFuture);
+    final hasMetrics = trip.tripLength > 0;
     final hasTicket = trip.price != null;
     final hasNotes = (trip.notes?.trim().isNotEmpty ?? false);
     return Column(

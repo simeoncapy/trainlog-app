@@ -115,14 +115,12 @@ void main() {
         findsNothing,
       );
 
-      // iOS: the duration moves to the stats, distance and speed are captioned
+      // iOS: the duration has no pill, distance and speed are captioned
       // stats rather than cards (both read from TripDetailsStyle).
       final style = TripDetailsStyle.of(
         t.element(find.text('Distance').first),
       );
-      expect(style.durationInTimeline, !cupertino);
-      // iOS: the duration is a stat ("Duration" caption), Android: a pill.
-      expect(find.text('Duration'), cupertino ? findsOneWidget : findsNothing);
+      expect(style.durationPill, !cupertino);
       expect(style.metricCards, !cupertino);
       expect(style.chip != null, cupertino);
     });
