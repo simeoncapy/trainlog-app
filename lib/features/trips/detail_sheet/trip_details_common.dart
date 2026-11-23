@@ -130,7 +130,7 @@ class TripDetailsSectionHeader extends StatelessWidget {
         label,
         style: theme.textTheme.titleMedium
             ?.merge(AppTheme.displayFont)
-            .copyWith(color: theme.colorScheme.onSurface, letterSpacing: 0),
+            .copyWith(color: theme.colorScheme.primary, letterSpacing: 0),
       );
     }
     return Text(
