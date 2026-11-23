@@ -231,6 +231,7 @@ class _TimeBlock extends StatelessWidget {
                   style: AppTheme.monoFont.copyWith(
                     fontSize: 11,
                     decoration: TextDecoration.lineThrough,
+                    decorationColor: detailMutedColor(context),
                     color: detailMutedColor(context),
                   ),
                 ),
@@ -299,6 +300,7 @@ class _DurationPill extends StatelessWidget {
                     style: AppTheme.monoFont.copyWith(
                       fontSize: 12,
                       decoration: TextDecoration.lineThrough,
+                      decorationColor: detailMutedColor(context),
                       color: detailMutedColor(context),
                     ),
                   ),
