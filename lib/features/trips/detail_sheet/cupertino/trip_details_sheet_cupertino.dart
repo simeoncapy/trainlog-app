@@ -143,8 +143,10 @@ class _PinnedHeader extends StatelessWidget {
     final position = Scrollable.maybeOf(context)?.position;
     final padded = Padding(
       // Ends right under the date: the gap before the timeline belongs to
-      // the content, so the blurred band stays the header's height.
-      padding: const EdgeInsets.fromLTRB(20, 8, 20, 4),
+      // the content, so the blurred band stays the header's height. With the
+      // sheet's header inset, top and right put the 40 pt glass ✕ on the
+      // centre of the filter sheets' 44 pt ✕ (GlassSheetHeader: 14, 2).
+      padding: const EdgeInsets.fromLTRB(20, 4, 16, 4),
       child: child,
     );
     if (position == null) return padded;
