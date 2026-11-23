@@ -131,6 +131,13 @@ void main() {
       expect(find.text('DETAILS'), cupertino ? findsNothing : findsOneWidget);
       expect(find.text('Vehicle'), cupertino ? findsOneWidget : findsNothing);
       expect(find.text('VEHICLE'), cupertino ? findsNothing : findsOneWidget);
+
+      // Sections: operator, then details, then countries.
+      double top(String title) => t
+          .getTopLeft(find.text(cupertino ? title : title.toUpperCase()))
+          .dy;
+      expect(top('Operator'), lessThan(top('Details')));
+      expect(top('Details'), lessThan(top('Country')));
     });
   }
 }
