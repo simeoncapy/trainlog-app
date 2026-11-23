@@ -16,6 +16,7 @@ import 'package:trainlog_app/features/map/map_page.dart';
 import 'package:trainlog_app/features/map/map_page_controller.dart';
 import 'package:trainlog_app/features/map/material/map_controls_material.dart';
 import 'package:trainlog_app/features/map/material/map_material_view.dart';
+import 'package:trainlog_app/features/map/material/map_search_overlay_material.dart';
 import 'package:trainlog_app/features/map/material/locked_on_position_pill_material.dart';
 import 'package:trainlog_app/features/map/cupertino/locked_on_position_pill_cupertino.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
@@ -62,7 +63,7 @@ void main() {
     });
     final controller = MapPageController(
       location: _GrantedLocation(),
-      search: (q) async => [_kyoto],
+      search: (q) async => q == 'Kyoto' ? [_kyoto] : [],
       searchDebounce: Duration.zero,
     );
     final actions = MapPageActions(
@@ -160,6 +161,32 @@ void main() {
       expect(controller.searchOpen, isFalse);
       expect(find.byType(EditableText), findsNothing);
       expect(find.byType(CupertinoMapSearch), findsNothing);
+    });
+
+    testWidgets('${design.name}: nothing found, a big centred message', (
+      t,
+    ) async {
+      await pump(t, design);
+
+      await t.tap(
+        isMaterial
+            ? find.byType(MaterialMapSearchButton)
+            : find.bySemanticsLabel('Search a place'),
+      );
+      await t.pump();
+      await t.enterText(find.byType(EditableText), 'zzz');
+      await t.pump();
+      await t.pump(const Duration(milliseconds: 10));
+      await t.pump();
+
+      expect(
+        find.byType(
+          isMaterial ? MaterialMapSearchNoResult : CupertinoMapSearchNoResult,
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('No place found'), findsOneWidget);
+      expect(find.textContaining('No results for “zzz”.'), findsOneWidget);
     });
   }
 }

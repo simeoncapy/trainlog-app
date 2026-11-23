@@ -26,6 +26,10 @@ class FullScreenSearchOverlay<T> extends StatelessWidget {
   /// above the results list (e.g. an inline "add as custom" action).
   final Widget? belowSearchField;
 
+  /// OPTIONAL: Shown instead of the results list while [items] is empty
+  /// (e.g. a "no result" message centred in the page).
+  final Widget? emptyState;
+
   const FullScreenSearchOverlay({
     super.key,
     required this.controller,
@@ -40,6 +44,7 @@ class FullScreenSearchOverlay<T> extends StatelessWidget {
     this.onSubmitted,
     this.isLoading = false,
     this.belowSearchField,
+    this.emptyState,
     this.dimBackground = true,
   });
 
@@ -113,7 +118,9 @@ class FullScreenSearchOverlay<T> extends StatelessWidget {
                       ),
 
                     Expanded(
-                      child: ListView.builder(
+                      child: emptyState != null && items.isEmpty
+                          ? emptyState!
+                          : ListView.builder(
                         padding: EdgeInsets.zero,
                         itemCount: items.length,
                         itemBuilder: (context, i) => InkWell(

@@ -1743,6 +1743,11 @@ class AppLocalizationsJa extends AppLocalizations {
   String get mapSearchLocationNoResult => '場所が見つかりません';
 
   @override
+  String mapSearchLocationNoResultFor(String query) {
+    return '「$query」に一致する結果はありません。';
+  }
+
+  @override
   String mapSearchLocationCategory(String category) {
     String _temp0 = intl.Intl.selectLogic(category, {
       'railStation': '駅',
