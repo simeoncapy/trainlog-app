@@ -45,14 +45,26 @@ class TripDetailsMetrics extends StatelessWidget {
     if (cards.isEmpty) return const SizedBox.shrink();
 
     // iOS: no cards, a row of captioned stats like the place facts of
-    // Apple Maps (caption above, icon and value below).
+    // Apple Maps (caption above, icon and value below), spread evenly when
+    // they fit and scrolled sideways when they do not.
     if (!TripDetailsStyle.of(context).metricCards) {
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          for (final card in cards.cast<_MetricCard>())
-            Flexible(child: _MetricStat(card: card)),
-        ],
+      return LayoutBuilder(
+        builder: (context, constraints) => SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minWidth: constraints.maxWidth),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                for (final card in cards.cast<_MetricCard>())
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: _MetricStat(card: card),
+                  ),
+              ],
+            ),
+          ),
+        ),
       );
     }
 
@@ -163,9 +175,9 @@ class _MetricStat extends StatelessWidget {
           children: [
             Icon(card.icon, size: 16, color: theme.colorScheme.onSurface),
             const SizedBox(width: 6),
-            Flexible(
-              child: Text.rich(
-                TextSpan(children: [
+            Text.rich(
+              TextSpan(
+                children: [
                   TextSpan(
                     text: card.value,
                     style: theme.textTheme.titleMedium
@@ -176,10 +188,9 @@ class _MetricStat extends StatelessWidget {
                     text: ' ${card.unit}',
                     style: theme.textTheme.bodySmall?.copyWith(color: muted),
                   ),
-                ]),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+                ],
               ),
+              maxLines: 1,
             ),
           ],
         ),
