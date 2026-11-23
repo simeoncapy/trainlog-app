@@ -52,6 +52,7 @@ final _kyoto = LocationSearchResult(
 
 void main() {
   tearDown(() => AppPlatform.debugDesignOverride = null);
+  late MapPageActions actions;
 
   Future<MapPageController> pump(WidgetTester t, DesignLanguage design) async {
     AppPlatform.debugDesignOverride = design;
@@ -66,7 +67,7 @@ void main() {
       search: (q) async => q == 'Kyoto' ? [_kyoto] : [],
       searchDebounce: Duration.zero,
     );
-    final actions = MapPageActions(
+    actions = MapPageActions(
       mapController: MapController(),
       rotation: ValueNotifier(0),
       openFilter: () {},
@@ -187,6 +188,17 @@ void main() {
       );
       expect(find.text('No place found'), findsOneWidget);
       expect(find.textContaining('No results for “zzz”.'), findsOneWidget);
+    });
+
+    testWidgets('${design.name}: rotating alone shows the compass', (t) async {
+      await pump(t, design);
+      expect(find.byTooltip('Point north'), findsNothing);
+
+      actions.mapController.rotate(30);
+      await t.pumpAndSettle();
+
+      expect(actions.rotation.value, 30);
+      expect(find.byTooltip('Point north'), findsOneWidget);
     });
   }
 }
