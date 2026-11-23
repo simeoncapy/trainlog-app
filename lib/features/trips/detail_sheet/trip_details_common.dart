@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/ui/tokens/app_colors.dart';
+import 'package:trainlog_app/ui/tokens/app_theme.dart';
 import 'package:trainlog_app/core/data/models/trips.dart';
 import 'package:trainlog_app/core/providers/settings_provider.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
@@ -42,6 +43,7 @@ class TripDetailsStyle extends InheritedWidget {
     this.chip,
     this.durationPill = true,
     this.metricCards = true,
+    this.capsTitles = true,
   });
 
   /// Background of the small surfaces; null for the default (solid surface
@@ -67,6 +69,11 @@ class TripDetailsStyle extends InheritedWidget {
   /// the place facts of Apple Maps.
   final bool metricCards;
 
+  /// Section titles and field labels in small amber / grey capitals; false
+  /// for the ARB string as written (its casing is per language), section
+  /// titles bold in the title font, as in Apple Maps.
+  final bool capsTitles;
+
   static const _defaults = TripDetailsStyle(child: SizedBox.shrink());
 
   static TripDetailsStyle of(BuildContext context) =>
@@ -80,7 +87,8 @@ class TripDetailsStyle extends InheritedWidget {
       closeIcon != old.closeIcon ||
       chip != old.chip ||
       durationPill != old.durationPill ||
-      metricCards != old.metricCards;
+      metricCards != old.metricCards ||
+      capsTitles != old.capsTitles;
 }
 
 /// Background of the small surfaces in the sheet (metric cards, duration
@@ -116,6 +124,15 @@ class TripDetailsSectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (!TripDetailsStyle.of(context).capsTitles) {
+      final theme = Theme.of(context);
+      return Text(
+        label,
+        style: theme.textTheme.titleMedium
+            ?.merge(AppTheme.displayFont)
+            .copyWith(color: theme.colorScheme.onSurface, letterSpacing: 0),
+      );
+    }
     return Text(
       label.toUpperCase(),
       style: TextStyle(

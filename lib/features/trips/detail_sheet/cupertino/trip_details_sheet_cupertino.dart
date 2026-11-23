@@ -98,6 +98,7 @@ class TripDetailsCupertinoSheet extends StatelessWidget {
       chip: _glassChip,
       durationPill: false,
       metricCards: false,
+      capsTitles: false,
       child: LayoutBuilder(
         builder: (context, constraints) => constraints.maxHeight < 220
             ? const SizedBox.shrink()

@@ -380,11 +380,14 @@
     }
   },
   "tripsDetailsSectionDetails": "Details",
+  "@tripsDetailsSectionDetails": {
+    "description": "Section header of the trip details sheet: the details. Written as displayed on iOS: title case in English (e.g. \"Country List\"), sentence case in French (\"Liste de pays\"); Android shows it in capitals."
+  },
   "tripsDetailsLabelVehicle": "Vehicle",
   "tripsDetailsLabelRegistration": "Registration",
   "tripsDetailsSectionOperator": "{count, plural, =1 {Operator} other {Operators}}",
   "@tripsDetailsSectionOperator": {
-    "description": "Section header for the trip operator(s)",
+    "description": "Section header for the trip operator(s). Written as displayed on iOS: title case in English (e.g. \"Country List\"), sentence case in French (\"Liste de pays\"); Android shows it in capitals.",
     "placeholders": {
       "count": {
         "type": "int"
@@ -393,7 +396,7 @@
   },
   "tripsDetailsSectionCountry": "{count, plural, =1 {Country} other {Countries}}",
   "@tripsDetailsSectionCountry": {
-    "description": "Section header for the trip country/countries",
+    "description": "Section header for the trip country/countries. Written as displayed on iOS: title case in English (e.g. \"Country List\"), sentence case in French (\"Liste de pays\"); Android shows it in capitals.",
     "placeholders": {
       "count": {
         "type": "int"
@@ -401,7 +404,13 @@
     }
   },
   "tripsDetailsSectionTicket": "Ticket",
+  "@tripsDetailsSectionTicket": {
+    "description": "Section header of the trip details sheet: the ticket. Written as displayed on iOS: title case in English (e.g. \"Country List\"), sentence case in French (\"Liste de pays\"); Android shows it in capitals."
+  },
   "tripsDetailsSectionNotes": "Notes",
+  "@tripsDetailsSectionNotes": {
+    "description": "Section header of the trip details sheet: the notes. Written as displayed on iOS: title case in English (e.g. \"Country List\"), sentence case in French (\"Liste de pays\"); Android shows it in capitals."
+  },
   "tripsDetailsMetricAvgSpeed": "Avg speed",
   "tripsDetailsNoDate": "No date set",
   "tripsDetailsEditButton": "Edit",

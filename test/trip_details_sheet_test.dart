@@ -123,6 +123,14 @@ void main() {
       expect(style.durationPill, !cupertino);
       expect(style.metricCards, !cupertino);
       expect(style.chip != null, cupertino);
+
+      // Section titles and field labels: as written in the ARB on iOS,
+      // in capitals on Android.
+      expect(style.capsTitles, !cupertino);
+      expect(find.text('Details'), cupertino ? findsOneWidget : findsNothing);
+      expect(find.text('DETAILS'), cupertino ? findsNothing : findsOneWidget);
+      expect(find.text('Vehicle'), cupertino ? findsOneWidget : findsNothing);
+      expect(find.text('VEHICLE'), cupertino ? findsNothing : findsOneWidget);
     });
   }
 }
