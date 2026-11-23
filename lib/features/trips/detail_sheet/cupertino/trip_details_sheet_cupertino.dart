@@ -52,7 +52,7 @@ class TripDetailsCupertinoSheet extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
           TripDetailsSections(trip: trip),
         ],
       ),
@@ -135,13 +135,15 @@ class _PinnedHeader extends StatelessWidget {
   const _PinnedHeader({required this.child});
 
   /// How far the blur dissolves below the header.
-  static const double _fade = 20;
+  static const double _fade = 8;
 
   @override
   Widget build(BuildContext context) {
     final position = Scrollable.maybeOf(context)?.position;
     final padded = Padding(
-      padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+      // Ends right under the date: the gap before the timeline belongs to
+      // the content, so the blurred band stays the header's height.
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 4),
       child: child,
     );
     if (position == null) return padded;
