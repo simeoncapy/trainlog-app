@@ -6,6 +6,7 @@ import 'package:trainlog_app/features/trips/detail_sheet/trip_details_sections.d
 import 'package:trainlog_app/features/trips/detail_sheet/trip_details_common.dart';
 import 'package:trainlog_app/features/trips/detail_sheet/trip_details_header.dart';
 import 'package:trainlog_app/ui/cupertino/liquid_glass.dart';
+import 'package:trainlog_app/ui/cupertino/scroll_edge_blur.dart';
 
 /// Trip details, iOS sheet, like Apple Maps: the header (and its close
 /// cross) is pinned inside the scroll view, and the actions are a row of
@@ -100,19 +101,41 @@ class TripDetailsCupertinoSheet extends StatelessWidget {
       child: LayoutBuilder(
         builder: (context, constraints) => constraints.maxHeight < 220
             ? const SizedBox.shrink()
-            : Column(children: [Expanded(child: scrollArea), footer]),
+            : Column(
+              children: [
+                Expanded(
+                  child: Stack(
+                    children: [
+                      scrollArea,
+                      // The content frosts as it reaches the actions.
+                      const Positioned(
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        height: 24,
+                        child: ScrollEdgeBlur(edge: ScrollEdge.bottom),
+                      ),
+                    ],
+                  ),
+                ),
+                footer,
+              ],
+            ),
       ),
     );
   }
 }
 
-/// iOS pinned header of the trip sheet. Once the content scrolls under it,
-/// it gets the sheet's opaque surface and a hairline so the rows passing
-/// beneath don't show through or end in a hard cut.
+/// iOS pinned header of the trip sheet. It stays transparent; once the
+/// content scrolls under it, that content is frosted with the iOS 26 scroll
+/// edge blur (strong at the top, dissolving a little below the header).
 class _PinnedHeader extends StatelessWidget {
   final Widget child;
 
   const _PinnedHeader({required this.child});
+
+  /// How far the blur dissolves below the header.
+  static const double _fade = 20;
 
   @override
   Widget build(BuildContext context) {
@@ -127,22 +150,22 @@ class _PinnedHeader extends StatelessWidget {
       listenable: position,
       builder: (context, child) {
         final scrolled = position.hasPixels && position.pixels > 0;
-        return AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          decoration: BoxDecoration(
-            color: scrolled
-                ? Theme.of(context).colorScheme.surface
-                : Colors.transparent,
-            border: Border(
-              bottom: BorderSide(
-                color: scrolled
-                    ? detailBorderColor(context)
-                    : Colors.transparent,
-                width: 0.5,
+        return Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: -_fade,
+              child: ScrollEdgeBlur(
+                edge: ScrollEdge.top,
+                visible: scrolled,
+                tint: Theme.of(context).colorScheme.surface,
               ),
             ),
-          ),
-          child: child,
+            child!,
+          ],
         );
       },
       child: padded,
