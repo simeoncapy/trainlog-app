@@ -40,7 +40,6 @@ class TripDetailsNotes extends StatelessWidget {
                 child: Text(
                   note,
                   style: TextStyle(
-                    fontStyle: FontStyle.italic,
                     color: muted,
                     height: 1.35,
                   ),

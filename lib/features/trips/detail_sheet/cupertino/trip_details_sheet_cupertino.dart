@@ -5,10 +5,11 @@ import 'package:trainlog_app/features/trips/detail_sheet/trip_details_actions.da
 import 'package:trainlog_app/features/trips/detail_sheet/trip_details_sections.dart';
 import 'package:trainlog_app/features/trips/detail_sheet/trip_details_common.dart';
 import 'package:trainlog_app/features/trips/detail_sheet/trip_details_header.dart';
+import 'package:trainlog_app/ui/cupertino/liquid_glass.dart';
 
 /// Trip details, iOS sheet, like Apple Maps: the header (and its close
-/// cross) is pinned inside the scroll view, and the actions end the content
-/// as full-width rows. Hosted by a Liquid Glass sheet that gives it a bounded
+/// cross) is pinned inside the scroll view, and the actions are a row of
+/// tiles pinned under the content, as on Android. Hosted by a Liquid Glass sheet that gives it a bounded
 /// height and its own grab handle.
 ///
 /// The small surfaces are a translucent system grey fill with no border,
@@ -32,6 +33,16 @@ class TripDetailsCupertinoSheet extends StatelessWidget {
         borderRadius: radius,
       );
 
+  /// The visibility chip: a Liquid Glass capsule as tall as the round close
+  /// button beside it, so the two line up.
+  static Widget _glassChip(BuildContext context, Widget content) => SizedBox(
+    height: 40,
+    child: LiquidGlass(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      child: Center(widthFactor: 1, child: content),
+    ),
+  );
+
   @override
   Widget build(BuildContext context) {
     final content = Padding(
@@ -42,9 +53,6 @@ class TripDetailsCupertinoSheet extends StatelessWidget {
         children: [
           const SizedBox(height: 8),
           TripDetailsSections(trip: trip),
-          const SizedBox(height: 28),
-          TripDetailsActions(trip: trip),
-          SizedBox(height: MediaQuery.paddingOf(context).bottom + 8),
         ],
       ),
     );
@@ -70,14 +78,29 @@ class TripDetailsCupertinoSheet extends StatelessWidget {
 
     // The glass sheet shrinks through very small heights while it is swiped
     // away; below that there is nothing worth laying out.
+    // The actions stay at the bottom of the sheet, under the scrolling
+    // content, as on Android.
+    final footer = Padding(
+      padding: EdgeInsets.fromLTRB(
+        16,
+        10,
+        16,
+        MediaQuery.paddingOf(context).bottom + 10,
+      ),
+      child: TripDetailsActions(trip: trip),
+    );
+
     return TripDetailsStyle(
       fill: _fill,
       metricRadius: 12,
       closeIcon: Icons.close,
+      chip: _glassChip,
+      durationPill: false,
+      metricCards: false,
       child: LayoutBuilder(
-        builder: (context, constraints) => constraints.maxHeight < 140
+        builder: (context, constraints) => constraints.maxHeight < 220
             ? const SizedBox.shrink()
-            : Column(children: [Expanded(child: scrollArea)]),
+            : Column(children: [Expanded(child: scrollArea), footer]),
       ),
     );
   }

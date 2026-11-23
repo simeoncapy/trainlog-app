@@ -39,6 +39,9 @@ class TripDetailsStyle extends InheritedWidget {
     this.fill,
     this.metricRadius = 16,
     this.closeIcon = Icons.keyboard_arrow_down,
+    this.chip,
+    this.durationPill = true,
+    this.metricCards = true,
   });
 
   /// Background of the small surfaces; null for the default (solid surface
@@ -52,6 +55,18 @@ class TripDetailsStyle extends InheritedWidget {
   /// Icon of the header's close button.
   final IconData closeIcon;
 
+  /// Draws the header's visibility chip around its content (icon + label);
+  /// null for the default filled capsule.
+  final Widget Function(BuildContext context, Widget content)? chip;
+
+  /// The timeline's duration sits in a filled pill; false for the bare icon
+  /// and text.
+  final bool durationPill;
+
+  /// Distance and speed are cards; false for a row of captioned stats, like
+  /// the place facts of Apple Maps.
+  final bool metricCards;
+
   static const _defaults = TripDetailsStyle(child: SizedBox.shrink());
 
   static TripDetailsStyle of(BuildContext context) =>
@@ -62,7 +77,10 @@ class TripDetailsStyle extends InheritedWidget {
   bool updateShouldNotify(TripDetailsStyle old) =>
       fill != old.fill ||
       metricRadius != old.metricRadius ||
-      closeIcon != old.closeIcon;
+      closeIcon != old.closeIcon ||
+      chip != old.chip ||
+      durationPill != old.durationPill ||
+      metricCards != old.metricCards;
 }
 
 /// Background of the small surfaces in the sheet (metric cards, duration

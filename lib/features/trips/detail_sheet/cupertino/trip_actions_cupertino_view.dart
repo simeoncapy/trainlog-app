@@ -5,10 +5,10 @@ import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/ui/adaptive/adaptive_dialog.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 
-/// Trip actions, iOS view: full-width tinted rows stacked at the end of the
-/// sheet's content, like the action buttons at the bottom of an Apple Maps
-/// sheet. Delete uses the system destructive red and confirms with an
-/// action sheet.
+/// Trip actions, iOS view: a row of four equal tiles, icon above label, like
+/// the action row of an Apple Maps place. Edit is filled with the accent,
+/// Duplicate and Share are tinted with it, Delete is tinted with the system
+/// destructive red and confirms with an action sheet.
 class TripActionsCupertinoView extends StatelessWidget {
   const TripActionsCupertinoView({super.key, required this.callbacks});
 
@@ -17,44 +17,46 @@ class TripActionsCupertinoView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    // The app's secondary colour (blue), like the system tint on Apple
-    // Maps' action buttons; it reads well on its own wash in both modes.
-    final tint = Theme.of(context).colorScheme.secondary;
+    final cs = Theme.of(context).colorScheme;
+    final accent = cs.primary;
     final destructive = CupertinoColors.systemRed.resolveFrom(context);
 
-    final rows = [
-      _AppleActionRow(
+    final tiles = [
+      _AppleActionTile(
         icon: AdaptiveIcons.edit,
         label: l10n.tripsDetailsEditButton,
-        color: tint,
+        background: accent,
+        foreground: cs.onPrimary,
         onTap: callbacks.onEdit,
       ),
-      _AppleActionRow(
+      _AppleActionTile(
         icon: AdaptiveIcons.copy,
         label: l10n.duplicateBtnLabel,
-        color: tint,
+        background: accent.withValues(alpha: 0.16),
+        foreground: accent,
         onTap: callbacks.onDuplicate,
       ),
-      _AppleActionRow(
+      _AppleActionTile(
         icon: AdaptiveIcons.share,
         label: MaterialLocalizations.of(context).shareButtonLabel,
-        color: tint,
+        background: accent.withValues(alpha: 0.16),
+        foreground: accent,
         onTap: callbacks.onShare,
       ),
-      _AppleActionRow(
+      _AppleActionTile(
         icon: AdaptiveIcons.delete,
         label: l10n.deleteButton,
-        color: destructive,
+        background: destructive.withValues(alpha: 0.16),
+        foreground: destructive,
         onTap: () => callbacks.onDelete(() => _confirmDelete(context, l10n)),
       ),
     ];
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+    return Row(
       children: [
-        for (var i = 0; i < rows.length; i++) ...[
-          if (i > 0) const SizedBox(height: 10),
-          rows[i],
+        for (var i = 0; i < tiles.length; i++) ...[
+          if (i > 0) const SizedBox(width: 8),
+          Expanded(child: tiles[i]),
         ],
       ],
     );
@@ -93,26 +95,28 @@ class TripActionsCupertinoView extends StatelessWidget {
   }
 }
 
-/// One iOS action row: a tinted capsule with the icon on the leading edge and
-/// the label centred, in the row's [color] (iOS "tinted" button style).
-class _AppleActionRow extends StatefulWidget {
+/// One iOS action tile: a rounded rectangle (continuous corners) with the
+/// icon above the label, in the tile's colours.
+class _AppleActionTile extends StatefulWidget {
   final IconData icon;
   final String label;
-  final Color color;
+  final Color background;
+  final Color foreground;
   final VoidCallback onTap;
 
-  const _AppleActionRow({
+  const _AppleActionTile({
     required this.icon,
     required this.label,
-    required this.color,
+    required this.background,
+    required this.foreground,
     required this.onTap,
   });
 
   @override
-  State<_AppleActionRow> createState() => _AppleActionRowState();
+  State<_AppleActionTile> createState() => _AppleActionTileState();
 }
 
-class _AppleActionRowState extends State<_AppleActionRow> {
+class _AppleActionTileState extends State<_AppleActionTile> {
   bool _pressed = false;
 
   void _setPressed(bool value) {
@@ -121,9 +125,9 @@ class _AppleActionRowState extends State<_AppleActionRow> {
 
   @override
   Widget build(BuildContext context) {
-    final color = widget.color;
+    final fg = widget.foreground;
     // A plain tap recognizer (not CupertinoButton, which keeps the pointer):
-    // a vertical drag starting on a row must still scroll the sheet.
+    // a vertical drag starting on a tile must still move the sheet.
     return Semantics(
       button: true,
       label: widget.label,
@@ -138,34 +142,35 @@ class _AppleActionRowState extends State<_AppleActionRow> {
         child: AnimatedOpacity(
           opacity: _pressed ? 0.45 : 1,
           duration: Duration(milliseconds: _pressed ? 10 : 150),
-          child: Container(
-            height: 56,
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.14),
-              borderRadius: BorderRadius.circular(28),
+          child: DecoratedBox(
+            decoration: ShapeDecoration(
+              color: widget.background,
+              shape: const RoundedSuperellipseBorder(
+                borderRadius: BorderRadius.all(Radius.circular(16)),
+              ),
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Align(
-                  alignment: AlignmentDirectional.centerStart,
-                  child: Icon(widget.icon, color: color, size: 24),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 36),
-                  child: Text(
-                    widget.label,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: color,
-                      fontSize: 17,
-                      fontWeight: FontWeight.w600,
+            child: SizedBox(
+              height: 64,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(widget.icon, color: fg, size: 22),
+                    const SizedBox(height: 4),
+                    Text(
+                      widget.label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                        color: fg,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0,
+                      ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         ),

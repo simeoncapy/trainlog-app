@@ -116,20 +116,24 @@ class _VisibilityChip extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final fg = detailMutedColor(context);
 
+    final content = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(trip.visibility.icon(), size: 14, color: fg),
+        const SizedBox(width: 4),
+        Text(
+          trip.visibility.label(l10n),
+          style: TextStyle(fontSize: 12, color: fg, fontWeight: FontWeight.w500),
+        ),
+      ],
+    );
+    final chip = TripDetailsStyle.of(context).chip;
+    if (chip != null) return chip(context, content);
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: detailFillDecoration(context, capsule: true),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(trip.visibility.icon(), size: 14, color: fg),
-          const SizedBox(width: 4),
-          Text(
-            trip.visibility.label(l10n),
-            style: TextStyle(fontSize: 12, color: fg, fontWeight: FontWeight.w500),
-          ),
-        ],
-      ),
+      child: content,
     );
   }
 }

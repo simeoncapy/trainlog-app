@@ -13,6 +13,7 @@ import 'package:trainlog_app/core/services/api/trainlog_http_client.dart';
 import 'package:trainlog_app/features/trips/detail_sheet/cupertino/trip_details_sheet_cupertino.dart';
 import 'package:trainlog_app/features/trips/detail_sheet/material/trip_details_sheet_material.dart';
 import 'package:trainlog_app/features/trips/detail_sheet/trip_details_bottom_sheet.dart';
+import 'package:trainlog_app/features/trips/detail_sheet/trip_details_common.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/ui/design.dart';
 import 'package:trainlog_app/ui/tokens/app_theme.dart';
@@ -37,6 +38,7 @@ Trips _trip() => Trips(
   type: VehicleType.train,
   path: '',
   visibility: TripVisibility.private,
+  notes: 'Window seat',
 );
 
 void main() {
@@ -100,6 +102,27 @@ void main() {
         ),
         findsOneWidget,
       );
+
+      // Notes are no longer italic, on both designs.
+      final note = t.widget<Text>(find.text('Window seat'));
+      expect(note.style?.fontStyle, isNot(FontStyle.italic));
+
+      // The actions stay at the bottom, under the scroll view, on both.
+      final edit = find.bySemanticsLabel('Edit');
+      expect(edit, findsOneWidget);
+      expect(
+        find.ancestor(of: edit, matching: find.byType(Scrollable)),
+        findsNothing,
+      );
+
+      // iOS: the duration has no pill, distance and speed are captioned
+      // stats rather than cards (both read from TripDetailsStyle).
+      final style = TripDetailsStyle.of(
+        t.element(find.text('Distance').first),
+      );
+      expect(style.durationPill, !cupertino);
+      expect(style.metricCards, !cupertino);
+      expect(style.chip != null, cupertino);
     });
   }
 }

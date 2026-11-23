@@ -115,8 +115,9 @@ class _Countries extends StatelessWidget {
             for (final c in countries)
               SizedBox(
                 width: itemWidth,
+                // Centred: the flag emoji is taller than the name's line.
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(c.emoji, style: const TextStyle(fontSize: 20)),
                     const SizedBox(width: 10),
