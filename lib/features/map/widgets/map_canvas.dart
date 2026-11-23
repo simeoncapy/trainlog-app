@@ -55,8 +55,12 @@ class MapCanvas extends StatelessWidget {
         ),
         onPositionChanged: (pos, hasGesture) {
           controller.onCameraChanged(pos.center, pos.zoom);
-          rotation.value = pos.rotation;
         },
+        // flutter_map calls onPositionChanged only when the centre or the
+        // zoom changes, not for a rotation alone: follow the rotation from
+        // every map event instead, so the compass shows as soon as the map
+        // turns.
+        onMapEvent: (event) => rotation.value = event.camera.rotation,
       ),
       children: [
         TileLayer(
