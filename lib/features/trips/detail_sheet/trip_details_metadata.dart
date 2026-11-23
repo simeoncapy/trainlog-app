@@ -115,8 +115,9 @@ class _Countries extends StatelessWidget {
             for (final c in countries)
               SizedBox(
                 width: itemWidth,
+                // Centred: the flag emoji is taller than the name's line.
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(c.emoji, style: const TextStyle(fontSize: 20)),
                     const SizedBox(width: 10),
@@ -192,15 +193,26 @@ class _FieldTile extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          field.label.toUpperCase(),
-          style: TextStyle(
-            fontSize: 11,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 0.6,
-            color: detailMutedColor(context),
+        if (TripDetailsStyle.of(context).capsTitles)
+          Text(
+            field.label.toUpperCase(),
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.6,
+              color: detailMutedColor(context),
+            ),
+          )
+        else
+          // iOS: the label as written in the ARB, like Apple Maps' facts.
+          Text(
+            field.label,
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0,
+              color: detailMutedColor(context),
+            ),
           ),
-        ),
         const SizedBox(height: 3),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,

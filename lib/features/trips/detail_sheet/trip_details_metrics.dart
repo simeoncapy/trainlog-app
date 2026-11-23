@@ -44,6 +44,30 @@ class TripDetailsMetrics extends StatelessWidget {
 
     if (cards.isEmpty) return const SizedBox.shrink();
 
+    // iOS: no cards, a row of captioned stats like the place facts of
+    // Apple Maps (caption above, icon and value below), spread evenly when
+    // they fit and scrolled sideways when they do not.
+    if (!TripDetailsStyle.of(context).metricCards) {
+      return LayoutBuilder(
+        builder: (context, constraints) => SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minWidth: constraints.maxWidth),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                for (final card in cards.cast<_MetricCard>())
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: _MetricStat(card: card),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
     return Row(
       children: [
         for (var i = 0; i < cards.length; i++) ...[
@@ -117,6 +141,60 @@ class _MetricCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// One stat of the iOS row: the caption on top in the secondary colour, the
+/// icon and the figure below.
+class _MetricStat extends StatelessWidget {
+  final _MetricCard card;
+
+  const _MetricStat({required this.card});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final muted = detailMutedColor(context);
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          card.label,
+          style: theme.textTheme.labelLarge?.copyWith(
+            color: muted,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0,
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        const SizedBox(height: 2),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(card.icon, size: 16, color: theme.colorScheme.onSurface),
+            const SizedBox(width: 6),
+            Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(
+                    text: card.value,
+                    style: theme.textTheme.titleMedium
+                        ?.merge(AppTheme.monoFont)
+                        .copyWith(color: theme.colorScheme.onSurface),
+                  ),
+                  TextSpan(
+                    text: ' ${card.unit}',
+                    style: theme.textTheme.bodySmall?.copyWith(color: muted),
+                  ),
+                ],
+              ),
+              maxLines: 1,
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

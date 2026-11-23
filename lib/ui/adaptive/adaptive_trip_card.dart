@@ -44,6 +44,8 @@ Future<void> _showTripCardCupertino(
   return showAppleDetentSheet<void>(
     context: context,
     halfSize: 0.55,
+    // The header's ✕ sits level with the filter sheets' one.
+    topInset: kAppleSheetHeaderInset,
     builder: (ctx) => TripDetailsBottomSheet(trip: trip),
   );
 }
