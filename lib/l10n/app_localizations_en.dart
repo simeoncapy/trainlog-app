@@ -1787,6 +1787,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mapSearchLocationNoResult => 'No place found';
 
   @override
+  String mapSearchLocationNoResultFor(String query) {
+    return 'No results for “$query”.';
+  }
+
+  @override
   String mapSearchLocationCategory(String category) {
     String _temp0 = intl.Intl.selectLogic(category, {
       'railStation': 'Station',

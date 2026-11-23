@@ -1810,6 +1810,11 @@ class AppLocalizationsFr extends AppLocalizations {
   String get mapSearchLocationNoResult => 'Aucun lieu trouvé';
 
   @override
+  String mapSearchLocationNoResultFor(String query) {
+    return 'Aucun résultat pour « $query ».';
+  }
+
+  @override
   String mapSearchLocationCategory(String category) {
     String _temp0 = intl.Intl.selectLogic(category, {
       'railStation': 'Gare',

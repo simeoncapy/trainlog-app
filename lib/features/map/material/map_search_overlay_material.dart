@@ -4,6 +4,7 @@ import 'package:trainlog_app/features/map/location_category_icons.dart';
 import 'package:trainlog_app/features/map/map_page_controller.dart';
 import 'package:trainlog_app/features/trips_add/widgets/full_screen_search_overlay.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
+import 'package:trainlog_app/ui/tokens/app_theme.dart';
 import 'package:trainlog_app/utils/text_utils.dart';
 
 /// The full-screen place search of the map page: a search field over the
@@ -65,39 +66,31 @@ class MapSearchOverlay {
       items: _controller.results,
       isLoading: _controller.isSearching,
       hintText: loc.mapSearchLocationHint,
-      belowSearchField: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(
-                Icons.info_outline,
-                size: 16,
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  loc.mapSearchLocationTip,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
+      // No result: the tip moves into the big centred message.
+      belowSearchField: _controller.hasNoResult
+          ? null
+          : Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  Icons.info_outline,
+                  size: 16,
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    loc.mapSearchLocationTip,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-          if (_controller.hasNoResult) ...[
-            const SizedBox(height: 12),
-            Text(
-              loc.mapSearchLocationNoResult,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
+              ],
             ),
-          ],
-        ],
-      ),
+      emptyState: _controller.hasNoResult
+          ? MaterialMapSearchNoResult(query: _controller.query.trim())
+          : null,
       onChanged: _controller.queryChanged,
       onSubmitted: _controller.submitQuery,
       itemBuilder: (context, place) {
@@ -144,6 +137,45 @@ class MapSearchOverlay {
         _controller.choosePlace(place);
       },
       onClose: close,
+    );
+  }
+}
+
+/// The map search found nothing: a large search icon, "No place found", what
+/// was searched and the tip, centred in the page.
+class MaterialMapSearchNoResult extends StatelessWidget {
+  const MaterialMapSearchNoResult({super.key, required this.query});
+
+  final String query;
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final secondary = theme.colorScheme.onSurfaceVariant;
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.search, size: 56, color: secondary),
+            const SizedBox(height: 16),
+            Text(
+              loc.mapSearchLocationNoResult,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.titleLarge?.merge(AppTheme.displayFont),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              '${loc.mapSearchLocationNoResultFor(query)}\n'
+              '${loc.mapSearchLocationTip}',
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodyMedium?.copyWith(color: secondary),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

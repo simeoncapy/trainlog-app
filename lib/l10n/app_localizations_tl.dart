@@ -1774,6 +1774,11 @@ class AppLocalizationsTl extends AppLocalizations {
   String get mapSearchLocationNoResult => 'Walang nahanap na lugar';
 
   @override
+  String mapSearchLocationNoResultFor(String query) {
+    return 'Walang resulta para sa “$query”.';
+  }
+
+  @override
   String mapSearchLocationCategory(String category) {
     String _temp0 = intl.Intl.selectLogic(category, {
       'railStation': 'Istasyon',

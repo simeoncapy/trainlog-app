@@ -10,6 +10,7 @@ import 'package:trainlog_app/features/settings/widgets/cupertino/settings_cupert
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/ui/adaptive/adaptive_bottom_navbar.dart';
 import 'package:trainlog_app/ui/cupertino/glass_search_bar.dart';
+import 'package:trainlog_app/ui/tokens/app_theme.dart';
 import 'package:trainlog_app/utils/text_utils.dart';
 
 /// iOS place search of the map page, like Journal or Photos: a Liquid Glass
@@ -171,6 +172,11 @@ class _ResultsPanel extends StatelessWidget {
     final secondary = CupertinoColors.secondaryLabel.resolveFrom(context);
     final results = controller.results;
 
+    final noResult = controller.hasNoResult;
+    final noResultView = CupertinoMapSearchNoResult(
+      query: controller.query.trim(),
+    );
+
     final header = Padding(
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
       child: Column(
@@ -197,16 +203,6 @@ class _ResultsPanel extends StatelessWidget {
               ],
             ],
           ),
-          if (controller.hasNoResult) ...[
-            const SizedBox(height: 12),
-            Text(
-              loc.mapSearchLocationNoResult,
-              style: textTheme.bodyMedium?.copyWith(
-                color: secondary,
-                letterSpacing: 0,
-              ),
-            ),
-          ],
         ],
       ),
     );
@@ -227,15 +223,34 @@ class _ResultsPanel extends StatelessWidget {
                 SliverToBoxAdapter(
                   child: SizedBox(height: MediaQuery.paddingOf(context).top),
                 ),
-              SliverToBoxAdapter(child: header),
-              SliverList.builder(
-                itemCount: results.length,
-                itemBuilder: (context, i) => _ResultRow(
-                  place: results[i],
-                  onTap: () => controller.choosePlace(results[i]),
+              // No result: one big message, centred in the page (the tip
+              // goes into it), like ContentUnavailableView.search.
+              if (noResult && fullScreen)
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Padding(
+                    padding: EdgeInsets.only(bottom: bottomInset),
+                    child: Center(child: noResultView),
+                  ),
+                )
+              else if (noResult)
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 24),
+                    child: noResultView,
+                  ),
+                )
+              else ...[
+                SliverToBoxAdapter(child: header),
+                SliverList.builder(
+                  itemCount: results.length,
+                  itemBuilder: (context, i) => _ResultRow(
+                    place: results[i],
+                    onTap: () => controller.choosePlace(results[i]),
+                  ),
                 ),
-              ),
-              SliverToBoxAdapter(child: SizedBox(height: 8 + bottomInset)),
+                SliverToBoxAdapter(child: SizedBox(height: 8 + bottomInset)),
+              ],
             ],
           ),
         ),
@@ -321,6 +336,51 @@ class _ResultRowState extends State<_ResultRow> {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// The map search found nothing, like iOS's ContentUnavailableView.search:
+/// a large search glyph, "No place found", what was searched and the tip.
+class CupertinoMapSearchNoResult extends StatelessWidget {
+  const CupertinoMapSearchNoResult({super.key, required this.query});
+
+  final String query;
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+    final textTheme = Theme.of(context).textTheme;
+    final secondary = CupertinoColors.secondaryLabel.resolveFrom(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 32),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(CupertinoIcons.search, size: 56, color: secondary),
+          const SizedBox(height: 16),
+          Text(
+            loc.mapSearchLocationNoResult,
+            textAlign: TextAlign.center,
+            style: textTheme.titleLarge
+                ?.merge(AppTheme.displayFont)
+                .copyWith(
+                  color: CupertinoColors.label.resolveFrom(context),
+                  letterSpacing: 0,
+                ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '${loc.mapSearchLocationNoResultFor(query)}\n'
+            '${loc.mapSearchLocationTip}',
+            textAlign: TextAlign.center,
+            style: textTheme.bodyMedium?.copyWith(
+              color: secondary,
+              letterSpacing: 0,
+            ),
+          ),
+        ],
       ),
     );
   }

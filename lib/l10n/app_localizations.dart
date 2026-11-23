@@ -3036,6 +3036,12 @@ abstract class AppLocalizations {
   /// **'No place found'**
   String get mapSearchLocationNoResult;
 
+  /// Map place search, empty state: the line under "No place found", with what was searched
+  ///
+  /// In en, this message translates to:
+  /// **'No results for “{query}”.'**
+  String mapSearchLocationNoResultFor(String query);
+
   /// Label of a place category in the map search results
   ///
   /// In en, this message translates to:
