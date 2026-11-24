@@ -233,8 +233,10 @@ class _MonthGroup extends StatelessWidget {
             for (int i = 0; i < month.trips.length; i++) ...[
               if (i > 0)
                 Padding(
+                  // Inset on both sides, as in iOS 26 grouped lists.
                   padding: const EdgeInsetsDirectional.only(
                     start: _separatorIndent,
+                    end: _rowPadding,
                   ),
                   child: Container(height: 0.5, color: separator),
                 ),
