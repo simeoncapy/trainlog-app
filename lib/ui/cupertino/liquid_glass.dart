@@ -113,8 +113,8 @@ class _GlassPressableState extends State<GlassPressable> {
 /// A circular glass icon button, the iOS 26 style for navigation bar and
 /// floating controls (back, close, settings, search…).
 ///
-/// When [prominent] is true the glass is tinted with the Trainlog amber, which
-/// is how the primary action of a screen stands out.
+/// When [prominent] is true the button is a solid amber disc instead of
+/// glass, which is how the primary action of a screen stands out.
 class GlassIconButton extends StatelessWidget {
   const GlassIconButton({
     super.key,
@@ -156,21 +156,46 @@ class GlassIconButton extends StatelessWidget {
             ? AppColors.navy
             : CupertinoColors.label.resolveFrom(context));
 
-    Widget button = lg.GlassIconButton(
-      icon: child ?? Icon(icon, size: iconSize, color: fg),
-      onPressed: onPressed,
-      size: size,
-      iconSize: iconSize,
-      useOwnLayer: true,
-      quality: lg.GlassQuality.premium,
-      // Prominent: the glass tinted with the Trainlog amber, which is how
-      // the primary action of a screen stands out.
-      settings: prominent
-          ? lg.LiquidGlassSettings(
-              glassColor: AppColors.amber.withValues(alpha: 0.88))
-          : null,
-      semanticLabel: tooltip,
-    );
+    // Prominent: a solid amber disc, like [GlassPrimaryButton]. The
+    // package's amber-tinted glass rendered yellow in light mode and red in
+    // dark mode, not amber.
+    Widget button = prominent
+        ? Semantics(
+            button: true,
+            enabled: onPressed != null,
+            label: tooltip,
+            child: GlassPressable(
+              onPressed: onPressed,
+              child: Container(
+                width: size,
+                height: size,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: AppColors.amber,
+                  shape: BoxShape.circle,
+                  boxShadow: shadow
+                      ? [
+                          BoxShadow(
+                            color: AppColors.amber.withValues(alpha: 0.35),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
+                          ),
+                        ]
+                      : null,
+                ),
+                child: child ?? Icon(icon, size: iconSize, color: fg),
+              ),
+            ),
+          )
+        : lg.GlassIconButton(
+            icon: child ?? Icon(icon, size: iconSize, color: fg),
+            onPressed: onPressed,
+            size: size,
+            iconSize: iconSize,
+            useOwnLayer: true,
+            quality: lg.GlassQuality.premium,
+            semanticLabel: tooltip,
+          );
 
     if (tooltip != null && tooltip!.isNotEmpty) {
       button = Tooltip(message: tooltip!, child: button);

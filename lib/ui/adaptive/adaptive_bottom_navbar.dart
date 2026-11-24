@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:trainlog_app/ui/tokens/app_colors.dart';
 import 'package:trainlog_app/ui/tokens/app_nav_bar_theme.dart';
-import 'package:trainlog_app/navigation/nav_models.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart'
     show GlassTab, GlassTabBar, GlassTabBarExtraButton;
 import 'package:trainlog_app/utils/platform_utils.dart';
@@ -12,6 +11,25 @@ import 'package:trainlog_app/utils/platform_utils.dart';
 /// scrollable pages can add the right clearance without knowing about the nav.
 const double kNavBarClearance = 80.0;
 
+/// Apple: size of the page's main action ("New trip"), the round amber
+/// button floating above the tab bar's trailing menu button: the same size
+/// as that menu button.
+const double kNavBarActionSize = _kGlassBarHeight;
+
+/// Apple: distance from the right edge to the main action button, which
+/// is centred above the tab bar's trailing menu button.
+const double kNavBarActionRight =
+    _kGlassBarSidePadding + (_kGlassBarHeight - kNavBarActionSize) / 2;
+
+/// Apple: distance from the bottom of the screen to the main action
+/// button: 12 px above the glass capsule (not its padding), the same gap as
+/// between the button and the map's recenter / follow capsule.
+double navBarActionBottom(BuildContext context) =>
+    _glassBarBottom(MediaQuery.of(context)) +
+    _kGlassBarVerticalPadding +
+    _kGlassBarHeight +
+    12;
+
 /// Extra vertical space above the pill that the center menu button occupies.
 const double _kMenuButtonOverhang = 22.0;
 
@@ -20,18 +38,14 @@ class AdaptiveBottomNavBar extends StatelessWidget {
   final List<BottomNavigationBarItem> items;
   final ValueChanged<int> onTap;
 
-  /// When provided, a circular menu button is rendered in the centre of the
-  /// bar, protruding slightly above the pill. The [items] list must have
-  /// exactly 4 entries (2 left + 2 right).
+  /// When provided, a menu button ("Home") is added: on Android a circular
+  /// button in the centre of the bar, protruding slightly above the pill (the
+  /// [items] list must then have exactly 4 entries, 2 left + 2 right); on
+  /// Apple the round glass button at the trailing end of the tab bar.
   final VoidCallback? onMenuTap;
 
   /// Label shown under the menu button ("Home").
   final String? menuLabel;
-
-  /// Apple only: the current page's main action (e.g. "New trip"), shown as a
-  /// round prominent glass button at the trailing end of the tab bar. The
-  /// capsule takes the full width when there is none.
-  final AppPrimaryAction? trailingAction;
 
   const AdaptiveBottomNavBar({
     super.key,
@@ -40,7 +54,6 @@ class AdaptiveBottomNavBar extends StatelessWidget {
     required this.onTap,
     this.onMenuTap,
     this.menuLabel,
-    this.trailingAction,
   });
 
   @override
@@ -52,7 +65,6 @@ class AdaptiveBottomNavBar extends StatelessWidget {
         onTap: onTap,
         onMenuTap: onMenuTap,
         menuLabel: menuLabel,
-        trailingAction: trailingAction,
       );
     }
 
@@ -265,20 +277,32 @@ class _NavBarItem extends StatelessWidget {
 // ── Apple: Liquid Glass tab bar ───────────────────────────────────────────────
 
 const double _kGlassBarHeight = 62.0;
+const double _kGlassBarSidePadding = 20.0;
+
+/// Space the glass tab bar keeps above and below its capsule.
+const double _kGlassBarVerticalPadding = 8.0;
+
+/// Gap under the glass tab bar: close to the bottom edge like the system bar,
+/// while staying clear of the home indicator. viewPadding, not padding:
+/// padding.bottom shrinks while the keyboard animates, which made this go
+/// negative and broke the tab bar layout.
+double _glassBarBottom(MediaQueryData mq) {
+  final inset = mq.viewPadding.bottom;
+  return inset > 0 ? (inset - 10).clamp(0.0, inset) : 12.0;
+}
 
 /// iOS 26 tab bar, drawn by liquid_glass_widgets' [GlassTabBar]: a floating
 /// glass capsule whose lens follows the finger, magnifies and refracts the
-/// content behind it. The Trainlog menu ("Home", the amber logo on navy) is
-/// the middle item; tapping it opens the menu instead of selecting it. The
-/// trailing round glass button holds the current page's main action ("New
-/// trip" on Map and Trips), and disappears on pages without one.
+/// content behind it. The capsule holds the tabs only; the Trainlog menu
+/// ("Home", the amber logo on navy) is the round glass button at its
+/// trailing end, the same on every page. The pages' own main action ("New
+/// trip") floats above the menu button ([navBarActionBottom]).
 class _GlassTabBar extends StatelessWidget {
   final int currentIndex;
   final List<BottomNavigationBarItem> items;
   final ValueChanged<int> onTap;
   final VoidCallback? onMenuTap;
   final String? menuLabel;
-  final AppPrimaryAction? trailingAction;
 
   const _GlassTabBar({
     required this.currentIndex,
@@ -286,7 +310,6 @@ class _GlassTabBar extends StatelessWidget {
     required this.onTap,
     required this.onMenuTap,
     required this.menuLabel,
-    required this.trailingAction,
   });
 
   @override
@@ -298,56 +321,30 @@ class _GlassTabBar extends StatelessWidget {
     final active = isDark ? AppColors.amber : AppColors.amberDk;
     final inactive = isDark ? AppColors.darkText : AppColors.lightText;
 
-    // Sit close to the bottom edge like the system bar does, while staying
-    // clear of the home indicator.
-    // viewPadding, not padding: padding.bottom shrinks while the keyboard
-    // animates, which made this go negative and broke the tab bar layout.
-    final inset = mq.viewPadding.bottom;
-    final bottom = inset > 0 ? (inset - 10).clamp(0.0, inset) : 12.0;
+    final bottom = _glassBarBottom(mq);
 
-    // The menu takes the middle slot: tabs 0..half-1, menu, then the rest.
-    final hasMenu = onMenuTap != null;
-    final half = items.length ~/ 2;
-    final menuSlot = hasMenu ? half : -1;
-    final selectedSlot =
-        hasMenu && currentIndex >= half ? currentIndex + 1 : currentIndex;
-
-    GlassTab tab(BottomNavigationBarItem item) => GlassTab(
+    final tabs = <GlassTab>[
+      for (final item in items)
+        GlassTab(
           icon: item.icon,
           activeIcon: item.activeIcon,
           label: item.label,
-        );
-
-    final tabs = <GlassTab>[
-      for (int i = 0; i < (hasMenu ? half : items.length); i++) tab(items[i]),
-      if (hasMenu)
-        GlassTab(
-          icon: const _MenuLogo(),
-          label: menuLabel ?? '',
-          semanticLabel: (menuLabel?.isNotEmpty ?? false)
-              ? menuLabel
-              : MaterialLocalizations.of(context).showMenuTooltip,
         ),
-      if (hasMenu)
-        for (int i = half; i < items.length; i++) tab(items[i]),
     ];
 
-    final action = trailingAction;
+    final onMenu = onMenuTap;
+    final menuSemantics = (menuLabel?.isNotEmpty ?? false)
+        ? menuLabel!
+        : MaterialLocalizations.of(context).showMenuTooltip;
 
     return Padding(
       padding: EdgeInsets.only(bottom: bottom),
       child: GlassTabBar.bottom(
         tabs: tabs,
-        selectedIndex: selectedSlot,
-        onTabSelected: (slot) {
-          if (slot == menuSlot) {
-            onMenuTap!();
-          } else {
-            onTap(hasMenu && slot > menuSlot ? slot - 1 : slot);
-          }
-        },
-        horizontalPadding: 20,
-        verticalPadding: 8,
+        selectedIndex: currentIndex,
+        onTabSelected: onTap,
+        horizontalPadding: _kGlassBarSidePadding,
+        verticalPadding: _kGlassBarVerticalPadding,
         barHeight: _kGlassBarHeight,
         spacing: 10,
         iconSize: 24,
@@ -356,13 +353,12 @@ class _GlassTabBar extends StatelessWidget {
         selectedLabelColor: active,
         unselectedIconColor: inactive,
         unselectedLabelColor: inactive,
-        extraButton: action == null
+        extraButton: onMenu == null
             ? null
             : GlassTabBarExtraButton(
-                icon: Icon(action.icon),
-                iconColor: active,
-                label: action.tooltip ?? action.label ?? '',
-                onTap: action.onPressed,
+                icon: const _MenuLogo(),
+                label: menuSemantics,
+                onTap: onMenu,
                 size: _kGlassBarHeight,
               ),
       ),
@@ -370,19 +366,19 @@ class _GlassTabBar extends StatelessWidget {
   }
 }
 
-/// The Trainlog logo on a small navy disc, used as the menu tab's icon.
+/// The Trainlog logo on a navy disc, the menu button's icon.
 class _MenuLogo extends StatelessWidget {
   const _MenuLogo();
 
   @override
   Widget build(BuildContext context) {
     return SizedBox.square(
-      dimension: 26,
+      dimension: 34,
       child: _BrandGlassFill(
         child: SvgPicture.asset(
           'assets/icon/trainlog_icon_foreground_only.svg',
-          width: 16,
-          height: 16,
+          width: 20,
+          height: 20,
           colorFilter: const ColorFilter.mode(
             AppColors.amber,
             BlendMode.srcIn,

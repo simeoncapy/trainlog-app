@@ -2,12 +2,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/ui/adaptive/adaptive_bottom_navbar.dart'
-    show kNavBarClearance;
+    show kNavBarActionRight, kNavBarActionSize, navBarActionBottom;
 import 'package:trainlog_app/ui/cupertino/liquid_glass.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 
 /// Recenter / follow, iOS 26: one vertical glass capsule, like Apple Maps.
-/// "New trip" lives in the tab bar, so the capsule only clears the tab bar.
+/// It sits above "New trip".
 class CupertinoMapLocationControls extends StatelessWidget {
   const CupertinoMapLocationControls({
     super.key,
@@ -24,8 +24,10 @@ class CupertinoMapLocationControls extends StatelessWidget {
   Widget build(BuildContext context) {
     final appLocalizations = AppLocalizations.of(context)!;
     return Positioned(
-      bottom: kNavBarClearance + MediaQuery.of(context).padding.bottom + 16,
-      right: 16,
+      // Above "New trip", which floats above the tab bar's menu button, and
+      // centred on the same line.
+      bottom: navBarActionBottom(context) + kNavBarActionSize + 12,
+      right: kNavBarActionRight + (kNavBarActionSize - 44) / 2,
       child: GlassButtonGroup(
         direction: Axis.vertical,
         children: [
