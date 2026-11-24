@@ -16,6 +16,7 @@ import 'package:trainlog_app/core/services/api/trainlog_http_client.dart';
 import 'package:trainlog_app/features/trips/cupertino/trips_list_cupertino.dart';
 import 'package:trainlog_app/features/trips/trips_list_controller.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
+import 'package:trainlog_app/ui/cupertino/app_context_menu.dart';
 import 'package:trainlog_app/ui/cupertino/swipe_actions.dart';
 import 'package:trainlog_app/ui/design.dart';
 import 'package:trainlog_app/ui/tokens/app_theme.dart';
@@ -169,7 +170,7 @@ void main() {
       expect(find.text('Origin 1 → Destination 1'), findsOneWidget);
       expect(find.text('Origin 5 → Destination 5'), findsOneWidget);
       expect(find.byType(SwipeActions), findsNWidgets(5));
-      expect(find.byType(CupertinoContextMenu), findsNWidgets(5));
+      expect(find.byType(AppContextMenu), findsNWidgets(5));
     });
 
     testWidgets('swiping a row left shows Duplicate and Delete', (t) async {

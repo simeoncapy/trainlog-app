@@ -1,232 +1,68 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart' show Material, MaterialType;
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart' as lg;
 
 /// One button revealed by swiping a [SwipeActions] row to the left.
 class SwipeAction {
   const SwipeAction({
     required this.icon,
     required this.label,
-    required this.color,
     required this.onPressed,
+    this.color,
+    this.isDestructive = false,
   });
 
   final IconData icon;
   final String label;
-
-  /// The button's fill; its icon and label are white.
-  final Color color;
   final VoidCallback onPressed;
+
+  /// The button's tint; red when [isDestructive] and none is given.
+  final Color? color;
+  final bool isDestructive;
 }
 
-/// An iOS list row that slides left under the finger to reveal [actions]
-/// on its trailing side, as in Mail or Reminders. It snaps open past half
-/// the buttons' width (or on a quick flick) and closed otherwise. Tapping a
-/// button closes the row and runs it; tapping the open row closes it. Only
-/// one row is open at a time, and scrolling the list closes it.
-class SwipeActions extends StatefulWidget {
-  const SwipeActions({
-    super.key,
-    required this.actions,
-    required this.child,
-    this.buttonWidth = 76,
-  });
+/// An iOS 26 list row with swipe actions, drawn by liquid_glass_widgets'
+/// [lg.GlassSwipeActions]: swiping left reveals round glass buttons on the
+/// trailing side, a full swipe runs the outermost one (with a haptic tick),
+/// and tapping outside closes the row. Put the list in a [SwipeActionsScope]
+/// so only one row is open at a time and scrolling closes it.
+class SwipeActions extends StatelessWidget {
+  const SwipeActions({super.key, required this.actions, required this.child});
 
-  /// Shown left to right; the last one sits against the trailing edge.
+  /// Shown leading to trailing; the last one is the full-swipe action.
   final List<SwipeAction> actions;
   final Widget child;
-  final double buttonWidth;
-
-  @override
-  State<SwipeActions> createState() => _SwipeActionsState();
-}
-
-class _SwipeActionsState extends State<SwipeActions>
-    with SingleTickerProviderStateMixin {
-  /// The open row, closed when another one opens.
-  static _SwipeActionsState? _open;
-
-  // 0 = closed, 1 = open (the buttons' full width).
-  late final AnimationController _ctrl = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 260),
-    upperBound: 1.3, // some rubber band past the buttons
-  );
-  ScrollPosition? _scroll;
-
-  double get _extent => widget.buttonWidth * widget.actions.length;
-
-  bool get _isOpen => _ctrl.value > 0;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final scroll = Scrollable.maybeOf(context)?.position;
-    if (scroll != _scroll) {
-      _scroll?.removeListener(_close);
-      _scroll = scroll?..addListener(_close);
-    }
-  }
-
-  @override
-  void dispose() {
-    _scroll?.removeListener(_close);
-    if (_open == this) _open = null;
-    _ctrl.dispose();
-    super.dispose();
-  }
-
-  void _close() {
-    if (!_isOpen) return;
-    _ctrl.animateTo(0, curve: Curves.easeOutCubic);
-    if (_open == this) _open = null;
-  }
-
-  void _settle(bool open) {
-    if (open) {
-      if (_open != this) _open?._close();
-      _open = this;
-      _ctrl.animateTo(1, curve: Curves.easeOutCubic);
-    } else {
-      _close();
-    }
-  }
-
-  void _onDragStart(DragStartDetails _) {
-    if (_open != this) _open?._close();
-    _ctrl.stop();
-  }
-
-  void _onDragUpdate(DragUpdateDetails d) {
-    final delta = -(d.primaryDelta ?? 0) / _extent;
-    var next = _ctrl.value + delta;
-    // Resist past the buttons' width: only part of the overshoot follows.
-    if (next > 1 && delta > 0) {
-      final base = _ctrl.value > 1 ? _ctrl.value : 1.0;
-      next = base + (next - base) * 0.3;
-    }
-    _ctrl.value = next.clamp(0.0, _ctrl.upperBound);
-  }
-
-  void _onDragEnd(DragEndDetails d) {
-    final v = d.primaryVelocity ?? 0;
-    if (v < -300) return _settle(true);
-    if (v > 300) return _settle(false);
-    _settle(_ctrl.value > 0.5);
-  }
 
   @override
   Widget build(BuildContext context) {
-    if (widget.actions.isEmpty) return widget.child;
-    final isRtl = Directionality.of(context) == TextDirection.rtl;
-    final sign = isRtl ? -1.0 : 1.0;
-
-    return GestureDetector(
-      onHorizontalDragStart: _onDragStart,
-      onHorizontalDragUpdate: (d) => _onDragUpdate(
-        DragUpdateDetails(
-          globalPosition: d.globalPosition,
-          delta: d.delta * sign,
-          primaryDelta: (d.primaryDelta ?? 0) * sign,
-        ),
-      ),
-      onHorizontalDragEnd: (d) => _onDragEnd(
-        DragEndDetails(primaryVelocity: (d.primaryVelocity ?? 0) * sign),
-      ),
-      child: ClipRect(
-        child: AnimatedBuilder(
-          animation: _ctrl,
-          builder: (context, child) {
-            final shift = _ctrl.value * _extent;
-            return Stack(
-              children: [
-                // The buttons, filling the space the row leaves; they
-                // stretch together with the rubber band.
-                if (shift > 0)
-                  Positioned.directional(
-                    textDirection: Directionality.of(context),
-                    top: 0,
-                    bottom: 0,
-                    end: 0,
-                    width: shift,
-                    child: Row(
-                      children: [
-                        for (final a in widget.actions)
-                          Expanded(child: _Button(action: a, onTap: () {
-                            _close();
-                            a.onPressed();
-                          })),
-                      ],
-                    ),
-                  ),
-                Transform.translate(
-                  offset: Offset(-shift * sign, 0),
-                  child: child,
-                ),
-              ],
-            );
-          },
-          // While open, a tap on the row closes it instead of opening it.
-          child: Stack(
-            children: [
-              widget.child,
-              Positioned.fill(
-                child: AnimatedBuilder(
-                  animation: _ctrl,
-                  builder: (_, __) => _isOpen
-                      ? GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onTap: _close,
-                        )
-                      : const SizedBox.shrink(),
-                ),
-              ),
-            ],
+    if (actions.isEmpty) return child;
+    // The app's font, without San Francisco's tracking.
+    final labelStyle = CupertinoTheme.of(
+      context,
+    ).textTheme.tabLabelTextStyle.copyWith(letterSpacing: 0);
+    return lg.GlassSwipeActions(
+      trailingActions: [
+        for (final a in actions)
+          lg.GlassSwipeAction(
+            icon: Icon(a.icon),
+            label: Text(a.label, style: labelStyle),
+            semanticLabel: a.label,
+            backgroundColor: a.color,
+            isDestructive: a.isDestructive,
+            onTap: a.onPressed,
           ),
-        ),
-      ),
+      ],
+      child: child,
     );
   }
 }
 
-class _Button extends StatelessWidget {
-  const _Button({required this.action, required this.onTap});
+/// Coordinates the [SwipeActions] rows below it: one open at a time, closed
+/// when the list scrolls.
+class SwipeActionsScope extends StatelessWidget {
+  const SwipeActionsScope({super.key, required this.child});
 
-  final SwipeAction action;
-  final VoidCallback onTap;
+  final Widget child;
 
   @override
-  Widget build(BuildContext context) {
-    final style = CupertinoTheme.of(context).textTheme.tabLabelTextStyle
-        .copyWith(color: CupertinoColors.white);
-    return Semantics(
-      button: true,
-      label: action.label,
-      excludeSemantics: true,
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: onTap,
-        child: ColoredBox(
-          color: action.color,
-          // Material only so the label keeps its text style here.
-          child: Material(
-            type: MaterialType.transparency,
-            child: ClipRect(
-              child: OverflowBox(
-                minWidth: 0,
-                maxWidth: double.infinity,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(action.icon, color: CupertinoColors.white, size: 22),
-                    const SizedBox(height: 4),
-                    Text(action.label, style: style, maxLines: 1),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => lg.GlassSwipeActionScope(child: child);
 }

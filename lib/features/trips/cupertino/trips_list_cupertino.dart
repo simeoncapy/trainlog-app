@@ -31,6 +31,7 @@ const double _tileSize = 36;
 const double _tileGap = 12;
 const double _separatorIndent = _rowPadding + _tileSize + _tileGap;
 const double _headerHeight = 44;
+const Radius _corner = Radius.circular(_groupRadius);
 
 /// Trips list, iOS: an inset grouped list with one group per month, as in
 /// Wallet's transactions. The month names stay pinned at the top while their
@@ -124,34 +125,36 @@ class _TripsListCupertinoState extends State<TripsListCupertino> {
         }
 
         final bottom = MediaQuery.of(context).padding.bottom;
-        return CustomScrollView(
-          controller: _scroll,
-          physics: const AlwaysScrollableScrollPhysics(),
-          slivers: [
-            for (final month in _list.months)
-              SliverMainAxisGroup(
-                slivers: [
-                  SliverPersistentHeader(
-                    pinned: true,
-                    delegate: _MonthHeader(month),
-                  ),
-                  SliverPadding(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                    sliver: SliverToBoxAdapter(
-                      child: _MonthGroup(month: month),
+        return SwipeActionsScope(
+          child: CustomScrollView(
+            controller: _scroll,
+            physics: const AlwaysScrollableScrollPhysics(),
+            slivers: [
+              for (final month in _list.months)
+                SliverMainAxisGroup(
+                  slivers: [
+                    SliverPersistentHeader(
+                      pinned: true,
+                      delegate: _MonthHeader(month),
                     ),
-                  ),
-                ],
-              ),
-            if (_list.isLoadingMore)
-              const SliverToBoxAdapter(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 16),
-                  child: Center(child: CupertinoActivityIndicator()),
+                    SliverPadding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                      sliver: SliverToBoxAdapter(
+                        child: _MonthGroup(month: month),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            SliverToBoxAdapter(child: SizedBox(height: bottom + 8)),
-          ],
+              if (_list.isLoadingMore)
+                const SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    child: Center(child: CupertinoActivityIndicator()),
+                  ),
+                ),
+              SliverToBoxAdapter(child: SizedBox(height: bottom + 8)),
+            ],
+          ),
         );
       },
     );
@@ -238,6 +241,10 @@ class _MonthGroup extends StatelessWidget {
               _TripRowWithActions(
                 key: ValueKey(month.trips[i].uid),
                 trip: month.trips[i],
+                corners: BorderRadius.vertical(
+                  top: i == 0 ? _corner : Radius.zero,
+                  bottom: i == month.trips.length - 1 ? _corner : Radius.zero,
+                ),
               ),
             ],
           ],
@@ -249,9 +256,17 @@ class _MonthGroup extends StatelessWidget {
 
 /// A trip row with its swipe actions and its context menu.
 class _TripRowWithActions extends StatelessWidget {
-  const _TripRowWithActions({super.key, required this.trip});
+  const _TripRowWithActions({
+    super.key,
+    required this.trip,
+    required this.corners,
+  });
 
   final Trips trip;
+
+  /// The corners the row shares with its month's group, which it keeps when
+  /// lifted by the context menu.
+  final BorderRadius corners;
 
   @override
   Widget build(BuildContext context) {
@@ -260,23 +275,25 @@ class _TripRowWithActions extends StatelessWidget {
     void delete() =>
         actions.onDelete(() => confirmTripDeleteCupertino(context));
 
-    final row = _TripRow(trip: trip);
     return SwipeActions(
       actions: [
         SwipeAction(
           icon: AdaptiveIcons.copy,
           label: l10n.duplicateBtnLabel,
-          color: CupertinoColors.systemGrey.resolveFrom(context),
+          color: CupertinoColors.systemGrey,
           onPressed: actions.onDuplicate,
         ),
         SwipeAction(
           icon: AdaptiveIcons.delete,
           label: l10n.deleteButton,
-          color: CupertinoColors.systemRed.resolveFrom(context),
+          isDestructive: true,
           onPressed: delete,
         ),
       ],
-      child: CupertinoContextMenu.builder(
+      child: AppContextMenu(
+        rowCorners: corners,
+        slotColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
+        rowColor: Theme.of(context).colorScheme.surface,
         actions: [
           AppContextMenuAction(
             label: l10n.tripsDetailsEditButton,
@@ -300,17 +317,7 @@ class _TripRowWithActions extends StatelessWidget {
             onPressed: delete,
           ),
         ],
-        // The row lifts out of its group with rounded corners, as a preview.
-        builder: (context, animation) {
-          final t = CupertinoContextMenu.animationOpensAt;
-          final lifted = animation.value < t ? 0.0 : 1.0;
-          return ClipRSuperellipse(
-            borderRadius: BorderRadius.all(
-              Radius.circular(_groupRadius * lifted * 0.6),
-            ),
-            child: row,
-          );
-        },
+        child: _TripRow(trip: trip),
       ),
     );
   }
