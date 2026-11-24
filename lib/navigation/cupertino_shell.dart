@@ -15,6 +15,7 @@ import 'package:trainlog_app/ui/adaptive/adaptive_bottom_navbar.dart'
         kNavBarClearance,
         navBarActionBottom;
 import 'package:trainlog_app/ui/cupertino/liquid_glass.dart';
+import 'package:trainlog_app/ui/tokens/app_colors.dart';
 import 'package:trainlog_app/ui/adaptive/map_theme.dart';
 import 'package:trainlog_app/core/providers/settings_provider.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
@@ -596,8 +597,8 @@ class _LargeTitleBar extends StatelessWidget {
   }
 }
 
-/// Round amber button for a tab's main action ("New trip"), floating above
-/// the tab bar's menu button.
+/// Round glass button for a tab's main action ("New trip"), floating above
+/// the tab bar's menu button and drawn like it: an amber disc in the glass.
 class _CupertinoMainActionButton extends StatelessWidget {
   final AppPrimaryAction action;
 
@@ -605,13 +606,22 @@ class _CupertinoMainActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Liquid Glass like the menu button under it, with an amber disc where
+    // the menu has its navy one (amber-tinted glass renders yellow or red).
     return GlassIconButton(
-      icon: action.icon,
       onPressed: action.onPressed,
       tooltip: action.tooltip ?? action.label,
       size: kNavBarActionSize,
-      iconSize: 24,
-      prominent: true,
+      child: Container(
+        width: 34,
+        height: 34,
+        alignment: Alignment.center,
+        decoration: const BoxDecoration(
+          color: AppColors.amber,
+          shape: BoxShape.circle,
+        ),
+        child: Icon(action.icon, size: 22, color: AppColors.navy),
+      ),
     );
   }
 }
