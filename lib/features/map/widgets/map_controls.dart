@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:trainlog_app/features/map/cupertino/map_controls_cupertino.dart';
 import 'package:trainlog_app/features/map/material/map_controls_material.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
+import 'package:trainlog_app/navigation/nav_models.dart';
 import 'package:trainlog_app/ui/design.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 
@@ -42,10 +43,11 @@ class MapLocationControls extends StatelessWidget {
   );
 }
 
-/// Top-right column: search and filter, then the compass while the map is
+/// Top-right controls: search and filter, then the compass while the map is
 /// rotated away from north (tapping it brings north back up, which hides it
-/// again). Android shows separate round buttons; iOS groups search and
-/// filter in one glass capsule, with the compass apart below it.
+/// again). Android shows a column of separate round buttons; iOS puts "New
+/// trip" there too, with the search on its left and the filter (then the
+/// filter and compass capsule) under it ([CupertinoMapTopControls]).
 class MapTopControls extends StatelessWidget {
   const MapTopControls({
     super.key,
@@ -53,6 +55,7 @@ class MapTopControls extends StatelessWidget {
     required this.onSearch,
     required this.onFilter,
     required this.onResetOrientation,
+    this.newTrip,
   });
 
   /// Map rotation in degrees.
@@ -60,6 +63,9 @@ class MapTopControls extends StatelessWidget {
   final VoidCallback onSearch;
   final VoidCallback onFilter;
   final VoidCallback onResetOrientation;
+
+  /// iOS only: "New trip", at the top right (Android shows it as a FAB).
+  final AppPrimaryAction? newTrip;
 
   @override
   Widget build(BuildContext context) {
@@ -82,14 +88,12 @@ class MapTopControls extends StatelessWidget {
         compassButton: MaterialMapSmallButton.new,
         controls: this,
       ),
-      cupertino: (_) => MapTopControlsLayout(
-        top: 8,
-        buttons: CupertinoMapSearchFilterGroup(
-          onSearch: onSearch,
-          onFilter: onFilter,
-        ),
-        compassButton: CupertinoMapSmallButton.new,
-        controls: this,
+      cupertino: (_) => CupertinoMapTopControls(
+        rotation: rotation,
+        onSearch: onSearch,
+        onFilter: onFilter,
+        onResetOrientation: onResetOrientation,
+        newTrip: newTrip,
       ),
     );
   }
@@ -104,8 +108,8 @@ typedef MapSmallButtonBuilder =
       required VoidCallback onPressed,
     });
 
-/// The column of [MapTopControls]: the search and filter [buttons] of one
-/// design, then the compass.
+/// The Android column of [MapTopControls]: the search and filter [buttons],
+/// then the compass.
 class MapTopControlsLayout extends StatelessWidget {
   const MapTopControlsLayout({
     super.key,

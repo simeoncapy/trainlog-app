@@ -49,19 +49,6 @@ class _CupertinoShellState extends State<CupertinoShell> {
     GlobalKey<NavigatorState>(),
   ];
 
-  /// Each tab's main action ("New trip"), shown as the round button at the
-  /// trailing end of the tab bar instead of in the page itself.
-  final List<ValueNotifier<AppPrimaryAction?>> _mainActions =
-      List.generate(4, (_) => ValueNotifier<AppPrimaryAction?>(null));
-
-  @override
-  void dispose() {
-    for (final n in _mainActions) {
-      n.dispose();
-    }
-    super.dispose();
-  }
-
   @override
   void initState() {
     super.initState();
@@ -205,7 +192,6 @@ class _CupertinoShellState extends State<CupertinoShell> {
                   key: ValueKey(AppPageId.map.name),
                   title: l10n.menuMapTitle,
                   hasNavBar: false,
-                  mainAction: _mainActions[0],
                   builder: (c, setActions) => MapPage(onPrimaryActionsReady: setActions),
                 ),
               ),
@@ -214,7 +200,6 @@ class _CupertinoShellState extends State<CupertinoShell> {
                 builder: (ctx) => _CupertinoRootPage(
                   key: ValueKey(AppPageId.trips.name),
                   title: l10n.menuTripsTitle,
-                  mainAction: _mainActions[1],
                   builder: (c, setActions) => TripsPage(onPrimaryActionsReady: setActions),
                 ),
               ),
@@ -273,16 +258,14 @@ class _CupertinoShellState extends State<CupertinoShell> {
             left: 0,
             right: 0,
             bottom: 0,
-            child: ValueListenableBuilder<AppPrimaryAction?>(
-              valueListenable: _mainActions[_currentIndex],
-              builder: (_, mainAction, __) {
+            child: Builder(
+              builder: (_) {
                 final bar = AdaptiveBottomNavBar(
                   currentIndex: _currentIndex,
                   items: navItems,
                   onTap: _onTabTapped,
                   onMenuTap: () => _openFullScreenMenu(context),
                   menuLabel: l10n.menuHomeLabel,
-                  trailingAction: mainAction,
                 );
                 // Over the map, the tab bar follows the map's theme.
                 return _currentIndex == 0 ? MapThemeScope(child: bar) : bar;
@@ -314,27 +297,19 @@ class _TabNavigator extends StatelessWidget {
 }
 
 /// Trailing navigation bar actions, iOS 26 style: the first (main) action is
-/// an amber-tinted glass button, the others are grouped in one glass capsule.
+/// an amber glass button at the trailing end, the others are grouped in one
+/// glass capsule before it.
 class CupertinoPrimaryActionsRow extends StatelessWidget {
   final List<AppPrimaryAction> actions;
 
-  /// The page's main action is shown elsewhere (the tab bar), so every
-  /// action here goes in the grouped capsule.
-  final bool groupAll;
-
-  const CupertinoPrimaryActionsRow({
-    super.key,
-    required this.actions,
-    this.groupAll = false,
-  });
+  const CupertinoPrimaryActionsRow({super.key, required this.actions});
 
   @override
   Widget build(BuildContext context) {
     if (actions.isEmpty) return const SizedBox.shrink();
 
-    final main = groupAll ? null : actions.first;
-    final others =
-        (groupAll ? actions : actions.skip(1)).toList().reversed.toList();
+    final main = actions.first;
+    final others = actions.skip(1).toList().reversed.toList();
     final destructive = CupertinoColors.systemRed.resolveFrom(context);
 
     return Row(
@@ -352,11 +327,9 @@ class CupertinoPrimaryActionsRow extends StatelessWidget {
                 ),
             ],
           ),
-          if (main != null) const SizedBox(width: 8),
+          const SizedBox(width: 8),
         ],
-        if (main == null)
-          const SizedBox.shrink()
-        else if (main.isDestructive)
+        if (main.isDestructive)
           GlassIconButton(
             icon: main.icon,
             onPressed: main.onPressed,
@@ -425,15 +398,14 @@ class _ShellSubPageState extends State<_ShellSubPage> {
 class _CupertinoRootPage extends StatefulWidget {
   final String title;
   final Widget Function(BuildContext context, SetPrimaryActions setActions) builder;
+
+  /// False for the map: it runs edge to edge and draws its own buttons,
+  /// "New trip" included, so the actions it reports are not shown here.
   final bool hasNavBar;
 
   /// The page draws its own title row (with its controls next to it), so the
   /// shell only keeps it clear of the status bar instead of adding a header.
   final bool selfTitled;
-
-  /// When set, the page's first (main) action goes here, for the tab bar's
-  /// trailing button, and only the other actions stay on the page.
-  final ValueNotifier<AppPrimaryAction?>? mainAction;
 
   const _CupertinoRootPage({
     super.key,
@@ -441,7 +413,6 @@ class _CupertinoRootPage extends StatefulWidget {
     required this.builder,
     this.hasNavBar = true,
     this.selfTitled = false,
-    this.mainAction,
   });
 
   @override
@@ -451,8 +422,6 @@ class _CupertinoRootPage extends StatefulWidget {
 class _CupertinoRootPageState extends State<_CupertinoRootPage> {
   final ValueNotifier<List<AppPrimaryAction>> _actions = ValueNotifier(const []);
   late final _sink = _ActionsSink(_actions);
-  late final _mainSink =
-      widget.mainAction == null ? null : _MainActionSink(widget.mainAction!);
 
   @override
   void dispose() {
@@ -466,25 +435,13 @@ class _CupertinoRootPageState extends State<_CupertinoRootPage> {
   Widget _page(BuildContext context) => Material(
         type: MaterialType.transparency,
         textStyle: DefaultTextStyle.of(context).style,
-        child: widget.builder(context, _setActions),
+        child: widget.builder(context, _sink.set),
       );
-
-  void _setActions(List<AppPrimaryAction> actions) {
-    final main = _mainSink;
-    if (main == null) {
-      _sink.set(actions);
-      return;
-    }
-    main.set(actions.isEmpty ? null : actions.first);
-    _sink.set(actions.skip(1).toList());
-  }
 
   @override
   Widget build(BuildContext context) {
-    final mq = MediaQuery.of(context);
-
     return CupertinoPageScaffold(
-      child: widget.hasNavBar ? _childWithNavBar() : _childWithoutNavBar(mq),
+      child: widget.hasNavBar ? _childWithNavBar() : _childWithoutNavBar(),
     );
   }
 
@@ -501,11 +458,7 @@ class _CupertinoRootPageState extends State<_CupertinoRootPage> {
         if (widget.selfTitled)
           SizedBox(height: mq.padding.top)
         else
-          _LargeTitleBar(
-            title: widget.title,
-            actions: _actions,
-            groupAll: widget.mainAction != null,
-          ),
+          _LargeTitleBar(title: widget.title, actions: _actions),
         Expanded(
           child: MediaQuery(
             data: mq.copyWith(
@@ -521,44 +474,17 @@ class _CupertinoRootPageState extends State<_CupertinoRootPage> {
     );
   }
 
-  Widget _childWithoutNavBar(MediaQueryData mq) {
+  Widget _childWithoutNavBar() {
     // The page (the map) runs edge to edge, under the home indicator and the
-    // floating nav bar, so no blank strip is left below it. The FABs sit above
-    // the nav bar, which itself sits above the system safe area.
+    // floating nav bar, so no blank strip is left below it. It draws its own
+    // buttons ("New trip" next to the search, at the top right).
     // The map, its buttons and the status bar icons follow the "Map theme"
     // setting rather than the app theme.
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: mapBrightness(context) == Brightness.dark
           ? SystemUiOverlayStyle.light
           : SystemUiOverlayStyle.dark,
-      child: MapThemeScope(child: Stack(
-        children: [
-          Positioned.fill(
-            child: _page(context),
-          ),
-          Positioned(
-            bottom: kNavBarClearance + mq.padding.bottom + 16,
-            right: 16,
-            child: ValueListenableBuilder<List<AppPrimaryAction>>(
-              valueListenable: _actions,
-              builder: (_, actions, __) {
-                if (actions.isEmpty) return const SizedBox.shrink();
-                final reversed = actions.reversed.toList();
-                return Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    for (int i = 0; i < reversed.length; i++) ...[
-                      _CupertinoMapFab(action: reversed[i]),
-                      if (i != reversed.length - 1) const SizedBox(height: 8),
-                    ],
-                  ],
-                );
-              },
-            ),
-          ),
-        ],
-      )),
+      child: MapThemeScope(child: _page(context)),
     );
   }
 }
@@ -569,13 +495,8 @@ class _CupertinoRootPageState extends State<_CupertinoRootPage> {
 class _LargeTitleBar extends StatelessWidget {
   final String title;
   final ValueListenable<List<AppPrimaryAction>> actions;
-  final bool groupAll;
 
-  const _LargeTitleBar({
-    required this.title,
-    required this.actions,
-    this.groupAll = false,
-  });
+  const _LargeTitleBar({required this.title, required this.actions});
 
   @override
   Widget build(BuildContext context) {
@@ -597,31 +518,11 @@ class _LargeTitleBar extends StatelessWidget {
             ValueListenableBuilder<List<AppPrimaryAction>>(
               valueListenable: actions,
               builder: (_, a, __) =>
-                  CupertinoPrimaryActionsRow(actions: a, groupAll: groupAll),
+                  CupertinoPrimaryActionsRow(actions: a),
             ),
           ],
         ),
       ),
-    );
-  }
-}
-
-/// Round amber glass button used for the map's primary action (no nav bar
-/// on the map, so it floats above the tab bar instead).
-class _CupertinoMapFab extends StatelessWidget {
-  final AppPrimaryAction action;
-
-  const _CupertinoMapFab({required this.action});
-
-  @override
-  Widget build(BuildContext context) {
-    return GlassIconButton(
-      icon: action.icon,
-      onPressed: action.onPressed,
-      tooltip: action.tooltip ?? action.label,
-      size: 56,
-      iconSize: 24,
-      prominent: true,
     );
   }
 }
@@ -652,23 +553,6 @@ AppPrimaryAction _forwarding(
       isDestructive: look.isDestructive,
       onPressed: () => latest()(),
     );
-
-class _MainActionSink {
-  _MainActionSink(this._notifier);
-
-  final ValueNotifier<AppPrimaryAction?> _notifier;
-  AppPrimaryAction? _latest;
-
-  void set(AppPrimaryAction? action) {
-    _latest = action;
-    final shown = _notifier.value;
-    if (action == null) {
-      _notifier.value = null;
-    } else if (shown == null || !_sameLook(shown, action)) {
-      _notifier.value = _forwarding(action, () => _latest!.onPressed);
-    }
-  }
-}
 
 class _ActionsSink {
   _ActionsSink(this._notifier);

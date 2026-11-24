@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:trainlog_app/ui/tokens/app_colors.dart';
 import 'package:trainlog_app/ui/tokens/app_nav_bar_theme.dart';
-import 'package:trainlog_app/navigation/nav_models.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart'
     show GlassTab, GlassTabBar, GlassTabBarExtraButton;
 import 'package:trainlog_app/utils/platform_utils.dart';
@@ -20,18 +19,14 @@ class AdaptiveBottomNavBar extends StatelessWidget {
   final List<BottomNavigationBarItem> items;
   final ValueChanged<int> onTap;
 
-  /// When provided, a circular menu button is rendered in the centre of the
-  /// bar, protruding slightly above the pill. The [items] list must have
-  /// exactly 4 entries (2 left + 2 right).
+  /// When provided, a menu button ("Home") is added: on Android a circular
+  /// button in the centre of the bar, protruding slightly above the pill (the
+  /// [items] list must then have exactly 4 entries, 2 left + 2 right); on
+  /// Apple the round glass button at the trailing end of the tab bar.
   final VoidCallback? onMenuTap;
 
   /// Label shown under the menu button ("Home").
   final String? menuLabel;
-
-  /// Apple only: the current page's main action (e.g. "New trip"), shown as a
-  /// round prominent glass button at the trailing end of the tab bar. The
-  /// capsule takes the full width when there is none.
-  final AppPrimaryAction? trailingAction;
 
   const AdaptiveBottomNavBar({
     super.key,
@@ -40,7 +35,6 @@ class AdaptiveBottomNavBar extends StatelessWidget {
     required this.onTap,
     this.onMenuTap,
     this.menuLabel,
-    this.trailingAction,
   });
 
   @override
@@ -52,7 +46,6 @@ class AdaptiveBottomNavBar extends StatelessWidget {
         onTap: onTap,
         onMenuTap: onMenuTap,
         menuLabel: menuLabel,
-        trailingAction: trailingAction,
       );
     }
 
@@ -268,17 +261,16 @@ const double _kGlassBarHeight = 62.0;
 
 /// iOS 26 tab bar, drawn by liquid_glass_widgets' [GlassTabBar]: a floating
 /// glass capsule whose lens follows the finger, magnifies and refracts the
-/// content behind it. The Trainlog menu ("Home", the amber logo on navy) is
-/// the middle item; tapping it opens the menu instead of selecting it. The
-/// trailing round glass button holds the current page's main action ("New
-/// trip" on Map and Trips), and disappears on pages without one.
+/// content behind it. The capsule holds the tabs only; the Trainlog menu
+/// ("Home", the amber logo on navy) is the round glass button at its
+/// trailing end, the same on every page. The pages' own main action ("New
+/// trip") is in their navigation bar, or floats over the map.
 class _GlassTabBar extends StatelessWidget {
   final int currentIndex;
   final List<BottomNavigationBarItem> items;
   final ValueChanged<int> onTap;
   final VoidCallback? onMenuTap;
   final String? menuLabel;
-  final AppPrimaryAction? trailingAction;
 
   const _GlassTabBar({
     required this.currentIndex,
@@ -286,7 +278,6 @@ class _GlassTabBar extends StatelessWidget {
     required this.onTap,
     required this.onMenuTap,
     required this.menuLabel,
-    required this.trailingAction,
   });
 
   @override
@@ -305,47 +296,26 @@ class _GlassTabBar extends StatelessWidget {
     final inset = mq.viewPadding.bottom;
     final bottom = inset > 0 ? (inset - 10).clamp(0.0, inset) : 12.0;
 
-    // The menu takes the middle slot: tabs 0..half-1, menu, then the rest.
-    final hasMenu = onMenuTap != null;
-    final half = items.length ~/ 2;
-    final menuSlot = hasMenu ? half : -1;
-    final selectedSlot =
-        hasMenu && currentIndex >= half ? currentIndex + 1 : currentIndex;
-
-    GlassTab tab(BottomNavigationBarItem item) => GlassTab(
+    final tabs = <GlassTab>[
+      for (final item in items)
+        GlassTab(
           icon: item.icon,
           activeIcon: item.activeIcon,
           label: item.label,
-        );
-
-    final tabs = <GlassTab>[
-      for (int i = 0; i < (hasMenu ? half : items.length); i++) tab(items[i]),
-      if (hasMenu)
-        GlassTab(
-          icon: const _MenuLogo(),
-          label: menuLabel ?? '',
-          semanticLabel: (menuLabel?.isNotEmpty ?? false)
-              ? menuLabel
-              : MaterialLocalizations.of(context).showMenuTooltip,
         ),
-      if (hasMenu)
-        for (int i = half; i < items.length; i++) tab(items[i]),
     ];
 
-    final action = trailingAction;
+    final onMenu = onMenuTap;
+    final menuSemantics = (menuLabel?.isNotEmpty ?? false)
+        ? menuLabel!
+        : MaterialLocalizations.of(context).showMenuTooltip;
 
     return Padding(
       padding: EdgeInsets.only(bottom: bottom),
       child: GlassTabBar.bottom(
         tabs: tabs,
-        selectedIndex: selectedSlot,
-        onTabSelected: (slot) {
-          if (slot == menuSlot) {
-            onMenuTap!();
-          } else {
-            onTap(hasMenu && slot > menuSlot ? slot - 1 : slot);
-          }
-        },
+        selectedIndex: currentIndex,
+        onTabSelected: onTap,
         horizontalPadding: 20,
         verticalPadding: 8,
         barHeight: _kGlassBarHeight,
@@ -356,13 +326,12 @@ class _GlassTabBar extends StatelessWidget {
         selectedLabelColor: active,
         unselectedIconColor: inactive,
         unselectedLabelColor: inactive,
-        extraButton: action == null
+        extraButton: onMenu == null
             ? null
             : GlassTabBarExtraButton(
-                icon: Icon(action.icon),
-                iconColor: active,
-                label: action.tooltip ?? action.label ?? '',
-                onTap: action.onPressed,
+                icon: const _MenuLogo(),
+                label: menuSemantics,
+                onTap: onMenu,
                 size: _kGlassBarHeight,
               ),
       ),
@@ -370,19 +339,19 @@ class _GlassTabBar extends StatelessWidget {
   }
 }
 
-/// The Trainlog logo on a small navy disc, used as the menu tab's icon.
+/// The Trainlog logo on a navy disc, the menu button's icon.
 class _MenuLogo extends StatelessWidget {
   const _MenuLogo();
 
   @override
   Widget build(BuildContext context) {
     return SizedBox.square(
-      dimension: 26,
+      dimension: 34,
       child: _BrandGlassFill(
         child: SvgPicture.asset(
           'assets/icon/trainlog_icon_foreground_only.svg',
-          width: 16,
-          height: 16,
+          width: 20,
+          height: 20,
           colorFilter: const ColorFilter.mode(
             AppColors.amber,
             BlendMode.srcIn,

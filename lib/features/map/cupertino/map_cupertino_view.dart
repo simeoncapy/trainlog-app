@@ -9,8 +9,9 @@ import 'package:trainlog_app/features/map/widgets/map_controls.dart';
 import 'package:trainlog_app/widgets/osm_mark.dart';
 
 /// Map page, iOS: the map with the OSM credit (glass capsule), the glass
-/// "locked on position" pill, the search and filter glass capsule with the
-/// compass under it, the recenter / follow capsule, and the place search
+/// "locked on position" pill, "New trip" at the top right with the search on
+/// its left and the filter (and compass) under it, the recenter / follow
+/// capsule, and the place search
 /// (a glass search bar above the keyboard, the results in a blurred panel).
 class MapCupertinoView extends StatelessWidget {
   const MapCupertinoView({super.key, required this.actions});
@@ -42,6 +43,7 @@ class MapCupertinoView extends StatelessWidget {
             onSearch: controller.openSearch,
             onFilter: actions.openFilter,
             onResetOrientation: actions.resetOrientation,
+            newTrip: actions.newTrip,
           ),
           MapLocationControls(
             following: controller.following,
