@@ -20,7 +20,6 @@ import 'package:trainlog_app/features/map/material/map_search_overlay_material.d
 import 'package:trainlog_app/features/map/material/locked_on_position_pill_material.dart';
 import 'package:trainlog_app/features/map/cupertino/locked_on_position_pill_cupertino.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
-import 'package:trainlog_app/navigation/nav_models.dart';
 import 'package:trainlog_app/ui/design.dart';
 import 'package:trainlog_app/ui/tokens/app_theme.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
@@ -54,7 +53,6 @@ final _kyoto = LocationSearchResult(
 void main() {
   tearDown(() => AppPlatform.debugDesignOverride = null);
   late MapPageActions actions;
-  late int newTrips;
 
   Future<MapPageController> pump(WidgetTester t, DesignLanguage design) async {
     AppPlatform.debugDesignOverride = design;
@@ -69,17 +67,11 @@ void main() {
       search: (q) async => q == 'Kyoto' ? [_kyoto] : [],
       searchDebounce: Duration.zero,
     );
-    newTrips = 0;
     actions = MapPageActions(
       mapController: MapController(),
       rotation: ValueNotifier(0),
       openFilter: () {},
       resetOrientation: () {},
-      newTrip: AppPrimaryAction(
-        icon: AdaptiveIcons.add,
-        tooltip: 'New trip',
-        onPressed: () => newTrips++,
-      ),
     );
     await t.pumpWidget(
       MultiProvider(
@@ -128,7 +120,7 @@ void main() {
         isMaterial ? findsOneWidget : findsNothing,
       );
       expect(
-        find.byType(CupertinoMapTopControls),
+        find.byType(CupertinoMapSearchFilterGroup),
         isMaterial ? findsNothing : findsOneWidget,
       );
       expect(
@@ -137,30 +129,6 @@ void main() {
       );
       expect(find.byType(pill), findsNothing);
     });
-
-    if (!isMaterial) {
-      testWidgets('cupertino: "New trip" at the top right, compass with '
-          'the filter once rotated', (t) async {
-        await pump(t, design);
-
-        await t.tap(find.byIcon(AdaptiveIcons.add));
-        expect(newTrips, 1);
-
-        final compass = find.byIcon(AdaptiveIcons.compass);
-        expect(compass, findsNothing);
-        expect(find.byIcon(AdaptiveIcons.filter), findsOneWidget);
-
-        actions.rotation.value = 30;
-        await t.pump();
-        await t.pump(const Duration(milliseconds: 300));
-        expect(compass, findsOneWidget);
-
-        actions.rotation.value = 0;
-        await t.pump();
-        await t.pump(const Duration(milliseconds: 300));
-        expect(compass, findsNothing);
-      });
-    }
 
     testWidgets('${design.name}: following shows the pill', (t) async {
       final controller = await pump(t, design);

@@ -11,6 +11,20 @@ import 'package:trainlog_app/utils/platform_utils.dart';
 /// scrollable pages can add the right clearance without knowing about the nav.
 const double kNavBarClearance = 80.0;
 
+/// Apple: size of the page's main action ("New trip"), the round amber
+/// button floating above the tab bar's trailing menu button.
+const double kNavBarActionSize = 56.0;
+
+/// Apple: distance from the right edge to the main action button, which
+/// is centred above the tab bar's trailing menu button.
+const double kNavBarActionRight =
+    _kGlassBarSidePadding + (_kGlassBarHeight - kNavBarActionSize) / 2;
+
+/// Apple: distance from the bottom of the screen to the main action
+/// button, just above the glass tab bar.
+double navBarActionBottom(BuildContext context) =>
+    _glassBarBottom(MediaQuery.of(context)) + _kGlassBarHeight + 12;
+
 /// Extra vertical space above the pill that the center menu button occupies.
 const double _kMenuButtonOverhang = 22.0;
 
@@ -258,13 +272,23 @@ class _NavBarItem extends StatelessWidget {
 // ── Apple: Liquid Glass tab bar ───────────────────────────────────────────────
 
 const double _kGlassBarHeight = 62.0;
+const double _kGlassBarSidePadding = 20.0;
+
+/// Gap under the glass tab bar: close to the bottom edge like the system bar,
+/// while staying clear of the home indicator. viewPadding, not padding:
+/// padding.bottom shrinks while the keyboard animates, which made this go
+/// negative and broke the tab bar layout.
+double _glassBarBottom(MediaQueryData mq) {
+  final inset = mq.viewPadding.bottom;
+  return inset > 0 ? (inset - 10).clamp(0.0, inset) : 12.0;
+}
 
 /// iOS 26 tab bar, drawn by liquid_glass_widgets' [GlassTabBar]: a floating
 /// glass capsule whose lens follows the finger, magnifies and refracts the
 /// content behind it. The capsule holds the tabs only; the Trainlog menu
 /// ("Home", the amber logo on navy) is the round glass button at its
 /// trailing end, the same on every page. The pages' own main action ("New
-/// trip") is in their navigation bar, or floats over the map.
+/// trip") floats above the menu button ([navBarActionBottom]).
 class _GlassTabBar extends StatelessWidget {
   final int currentIndex;
   final List<BottomNavigationBarItem> items;
@@ -289,12 +313,7 @@ class _GlassTabBar extends StatelessWidget {
     final active = isDark ? AppColors.amber : AppColors.amberDk;
     final inactive = isDark ? AppColors.darkText : AppColors.lightText;
 
-    // Sit close to the bottom edge like the system bar does, while staying
-    // clear of the home indicator.
-    // viewPadding, not padding: padding.bottom shrinks while the keyboard
-    // animates, which made this go negative and broke the tab bar layout.
-    final inset = mq.viewPadding.bottom;
-    final bottom = inset > 0 ? (inset - 10).clamp(0.0, inset) : 12.0;
+    final bottom = _glassBarBottom(mq);
 
     final tabs = <GlassTab>[
       for (final item in items)
@@ -316,7 +335,7 @@ class _GlassTabBar extends StatelessWidget {
         tabs: tabs,
         selectedIndex: currentIndex,
         onTabSelected: onTap,
-        horizontalPadding: 20,
+        horizontalPadding: _kGlassBarSidePadding,
         verticalPadding: 8,
         barHeight: _kGlassBarHeight,
         spacing: 10,

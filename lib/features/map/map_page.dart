@@ -29,7 +29,6 @@ class MapPageActions {
     required this.rotation,
     required this.openFilter,
     required this.resetOrientation,
-    required this.newTrip,
   });
 
   /// The flutter_map camera, owned by the page.
@@ -43,10 +42,6 @@ class MapPageActions {
 
   /// Turns the map back to north up.
   final VoidCallback resetOrientation;
-
-  /// "New trip". Android shows it as the shell's FAB; the iOS view draws it
-  /// itself, at the top right next to the search.
-  final AppPrimaryAction newTrip;
 }
 
 /// Map page entry: holds the [MapPageController] and the map's camera,
@@ -54,7 +49,7 @@ class MapPageActions {
 /// the "New trip" action, then picks the Material or iOS view.
 class MapPage extends StatefulWidget {
   /// Android: show the "New trip" FAB with its label (extended FAB) or as a
-  /// plain round + button. iOS always shows a round amber + over the map.
+  /// plain round + button. iOS always shows a round + in the tab bar.
   static const bool newTripFabShowsLabel = true;
 
   final SetPrimaryActions onPrimaryActionsReady;
@@ -188,7 +183,6 @@ class _MapPageState extends State<MapPage>
       rotation: _rotation,
       openFilter: _openFilter,
       resetOrientation: _resetOrientation,
-      newTrip: _newTripAction(),
     );
 
     return ChangeNotifierProvider.value(
