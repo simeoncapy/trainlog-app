@@ -12,8 +12,9 @@ import 'package:trainlog_app/utils/platform_utils.dart';
 const double kNavBarClearance = 80.0;
 
 /// Apple: size of the page's main action ("New trip"), the round amber
-/// button floating above the tab bar's trailing menu button.
-const double kNavBarActionSize = 56.0;
+/// button floating above the tab bar's trailing menu button: the same size
+/// as that menu button.
+const double kNavBarActionSize = _kGlassBarHeight;
 
 /// Apple: distance from the right edge to the main action button, which
 /// is centred above the tab bar's trailing menu button.
