@@ -1,5 +1,3 @@
-import 'dart:ui' show ImageFilter;
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' show Theme;
 import 'package:intl/intl.dart';
@@ -16,8 +14,7 @@ import 'package:trainlog_app/features/trips/trips_list_controller.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/ui/adaptive/adaptive_progress_indicator.dart';
 import 'package:trainlog_app/ui/adaptive/adaptive_trip_card.dart';
-import 'package:trainlog_app/ui/cupertino/app_context_menu.dart';
-import 'package:trainlog_app/ui/cupertino/swipe_actions.dart';
+import 'package:trainlog_app/ui/cupertino/app_grouped_list.dart';
 import 'package:trainlog_app/ui/tokens/app_colors.dart';
 import 'package:trainlog_app/ui/tokens/app_theme.dart';
 import 'package:trainlog_app/utils/date_utils.dart' as date_utils;
@@ -25,13 +22,11 @@ import 'package:trainlog_app/utils/map_color_palette.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 import 'package:trainlog_app/utils/style_utils.dart';
 
-const double _groupRadius = 26;
 const double _rowPadding = 16;
 const double _tileSize = 36;
 const double _tileGap = 12;
 const double _separatorIndent = _rowPadding + _tileSize + _tileGap;
 const double _headerHeight = 44;
-const Radius _corner = Radius.circular(_groupRadius);
 
 /// Trips list, iOS: an inset grouped list with one group per month, as in
 /// Wallet's transactions. The month names stay pinned at the top while their
@@ -161,8 +156,7 @@ class _TripsListCupertinoState extends State<TripsListCupertino> {
   }
 }
 
-/// The month's name, pinned above its group while it scrolls, on a blurred
-/// band of the page's background.
+/// The month's name, pinned above its group while it scrolls.
 class _MonthHeader extends SliverPersistentHeaderDelegate {
   _MonthHeader(this.month);
 
@@ -192,14 +186,11 @@ class _MonthHeader extends SliverPersistentHeaderDelegate {
       // case, as the other section titles.
       label = raw[0].toUpperCase() + raw.substring(1);
     }
-    final background = theme.scaffoldBackgroundColor;
-
-    return ClipRect(
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-        child: Container(
-          color: background.withValues(alpha: overlaps ? 0.85 : 1),
-          padding: const EdgeInsets.fromLTRB(_rowPadding + 4, 0, 16, 6),
+    return PinnedHeaderBackground(
+      overlaps: overlaps,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(_rowPadding + 4, 0, 16, 6),
+        child: Align(
           alignment: Alignment.bottomLeft,
           child: Text(
             label,
@@ -214,7 +205,7 @@ class _MonthHeader extends SliverPersistentHeaderDelegate {
   }
 }
 
-/// One month's trips: a rounded group with hairlines between the rows.
+/// One month's trips: an inset grouped section, one row per trip.
 class _MonthGroup extends StatelessWidget {
   const _MonthGroup({required this.month});
 
@@ -222,53 +213,25 @@ class _MonthGroup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final separator = CupertinoColors.separator.resolveFrom(context);
-    return ClipRSuperellipse(
-      borderRadius: const BorderRadius.all(Radius.circular(_groupRadius)),
-      child: ColoredBox(
-        color: Theme.of(context).colorScheme.surface,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            for (int i = 0; i < month.trips.length; i++) ...[
-              if (i > 0)
-                Padding(
-                  // Inset on both sides, as in iOS 26 grouped lists.
-                  padding: const EdgeInsetsDirectional.only(
-                    start: _separatorIndent,
-                    end: _rowPadding,
-                  ),
-                  child: Container(height: 0.5, color: separator),
-                ),
-              _TripRowWithActions(
-                key: ValueKey(month.trips[i].uid),
-                trip: month.trips[i],
-                corners: BorderRadius.vertical(
-                  top: i == 0 ? _corner : Radius.zero,
-                  bottom: i == month.trips.length - 1 ? _corner : Radius.zero,
-                ),
-              ),
-            ],
-          ],
-        ),
-      ),
+    return AppGroupedSection(
+      // The hairlines start under the text, after the vehicle tile.
+      dividerIndent: _separatorIndent,
+      children: [
+        for (final trip in month.trips)
+          _TripRow(key: ValueKey(trip.uid), trip: trip),
+      ],
     );
   }
 }
 
-/// A trip row with its swipe actions and its context menu.
-class _TripRowWithActions extends StatelessWidget {
-  const _TripRowWithActions({
-    super.key,
-    required this.trip,
-    required this.corners,
-  });
+/// One trip: the vehicle tile, "Origin → Destination", times, duration and
+/// distance under it; the day and the operator's logo on the trailing side.
+/// Opens the trip's details sheet; swipes left for Delete (a full swipe) and
+/// Edit; a long press opens Edit, Duplicate, Share, Delete.
+class _TripRow extends StatelessWidget {
+  const _TripRow({super.key, required this.trip});
 
   final Trips trip;
-
-  /// The corners the row shares with its month's group, which it keeps when
-  /// lifted by the context menu.
-  final BorderRadius corners;
 
   @override
   Widget build(BuildContext context) {
@@ -276,11 +239,36 @@ class _TripRowWithActions extends StatelessWidget {
     final actions = tripActionCallbacks(context, trip, inSheet: false);
     void delete() =>
         actions.onDelete(() => confirmTripDeleteCupertino(context));
+    final secondary = CupertinoColors.secondaryLabel.resolveFrom(context);
+    final palette = MapColorPaletteHelper.getPalette(
+      context.read<SettingsProvider>().mapColorPalette,
+    );
 
-    return SwipeActions(
-      // The first action sits against the trailing edge and runs on a full
-      // swipe: Delete, as in Mail; then Edit.
-      actions: [
+    return AppListTile(
+      onTap: () => showAdaptiveTripBottomSheet(context, trip: trip),
+      leading: DecoratedBox(
+        decoration: ShapeDecoration(
+          color: palette[trip.type] ?? AppColors.amber,
+          shape: const RoundedSuperellipseBorder(
+            borderRadius: BorderRadius.all(Radius.circular(9)),
+          ),
+        ),
+        child: SizedBox.square(
+          dimension: _tileSize,
+          child: IconTheme(
+            data: const IconThemeData(color: CupertinoColors.white, size: 20),
+            child: trip.type.icon(),
+          ),
+        ),
+      ),
+      title: Text(
+        '${trip.originStation} → ${trip.destinationStation}',
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+      ),
+      subtitle: _Details(trip: trip),
+      trailing: _Trailing(trip: trip, color: secondary),
+      swipeActions: [
         SwipeAction(
           icon: AdaptiveIcons.delete,
           label: l10n.deleteButton,
@@ -294,147 +282,41 @@ class _TripRowWithActions extends StatelessWidget {
           onPressed: actions.onEdit,
         ),
       ],
-      child: AppContextMenu(
-        rowCorners: corners,
-        slotColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
-        rowColor: Theme.of(context).colorScheme.surface,
-        actions: [
-          AppContextMenuAction(
-            label: l10n.tripsDetailsEditButton,
-            icon: AdaptiveIcons.edit,
-            onPressed: actions.onEdit,
-          ),
-          AppContextMenuAction(
-            label: l10n.duplicateBtnLabel,
-            icon: AdaptiveIcons.copy,
-            onPressed: actions.onDuplicate,
-          ),
-          AppContextMenuAction(
-            label: CupertinoLocalizations.of(context).shareButtonLabel,
-            icon: AdaptiveIcons.share,
-            onPressed: actions.onShare,
-          ),
-          AppContextMenuAction(
-            label: l10n.deleteButton,
-            icon: AdaptiveIcons.delete,
-            isDestructive: true,
-            onPressed: delete,
-          ),
-        ],
-        child: _TripRow(trip: trip),
-      ),
-    );
-  }
-}
-
-/// One trip: the vehicle tile, "Origin → Destination", times, duration and
-/// distance under it; the day and the operator's logo on the trailing side.
-/// Opens the trip's details sheet; greys while pressed like a table cell.
-class _TripRow extends StatefulWidget {
-  const _TripRow({required this.trip});
-
-  final Trips trip;
-
-  @override
-  State<_TripRow> createState() => _TripRowState();
-}
-
-class _TripRowState extends State<_TripRow> {
-  bool _pressed = false;
-
-  void _setPressed(bool v) {
-    if (_pressed != v) setState(() => _pressed = v);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final trip = widget.trip;
-    final textTheme = Theme.of(context).textTheme;
-    final label = CupertinoColors.label.resolveFrom(context);
-    final secondary = CupertinoColors.secondaryLabel.resolveFrom(context);
-    final surface = Theme.of(context).colorScheme.surface;
-    final pressed = CupertinoColors.systemGrey4.resolveFrom(context);
-
-    final palette = MapColorPaletteHelper.getPalette(
-      context.read<SettingsProvider>().mapColorPalette,
-    );
-    final typeColor = palette[trip.type] ?? AppColors.amber;
-
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTapDown: (_) => _setPressed(true),
-      onTapUp: (_) => _setPressed(false),
-      onTapCancel: () => _setPressed(false),
-      onTap: () => showAdaptiveTripBottomSheet(context, trip: trip),
-      child: ColoredBox(
-        // Opaque: the swipe buttons sit under the row.
-        color: _pressed ? pressed : surface,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: _rowPadding,
-            vertical: 12,
-          ),
-          child: Row(
-            children: [
-              DecoratedBox(
-                decoration: ShapeDecoration(
-                  color: typeColor,
-                  shape: const RoundedSuperellipseBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(9)),
-                  ),
-                ),
-                child: SizedBox.square(
-                  dimension: _tileSize,
-                  child: IconTheme(
-                    data: const IconThemeData(
-                      color: CupertinoColors.white,
-                      size: 20,
-                    ),
-                    child: trip.type.icon(),
-                  ),
-                ),
-              ),
-              const SizedBox(width: _tileGap),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '${trip.originStation} → ${trip.destinationStation}',
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: textTheme.bodyLarge?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: label,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    _Details(trip: trip, color: secondary),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 8),
-              _Trailing(trip: trip, color: secondary),
-            ],
-          ),
+      contextMenuActions: [
+        AppContextMenuAction(
+          label: l10n.tripsDetailsEditButton,
+          icon: AdaptiveIcons.edit,
+          onPressed: actions.onEdit,
         ),
-      ),
+        AppContextMenuAction(
+          label: l10n.duplicateBtnLabel,
+          icon: AdaptiveIcons.copy,
+          onPressed: actions.onDuplicate,
+        ),
+        AppContextMenuAction(
+          label: CupertinoLocalizations.of(context).shareButtonLabel,
+          icon: AdaptiveIcons.share,
+          onPressed: actions.onShare,
+        ),
+        AppContextMenuAction(
+          label: l10n.deleteButton,
+          icon: AdaptiveIcons.delete,
+          isDestructive: true,
+          onPressed: delete,
+        ),
+      ],
     );
   }
 }
 
 /// "TGV 6201 · 08:12 – 10:05 · 2:03 · 465 km", the delays in red or green.
 class _Details extends StatelessWidget {
-  const _Details({required this.trip, required this.color});
+  const _Details({required this.trip});
 
   final Trips trip;
-  final Color color;
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(
-      context,
-    ).textTheme.bodyMedium?.copyWith(color: color);
     final isDark = CupertinoTheme.brightnessOf(context) == Brightness.dark;
     final late = isDark ? AppColors.errorDark : AppColors.late;
     final early = isDark ? AppColors.successDark : AppColors.early;
@@ -478,7 +360,6 @@ class _Details extends StatelessWidget {
           ],
         ],
       ),
-      style: style,
       maxLines: 2,
       overflow: TextOverflow.ellipsis,
     );
