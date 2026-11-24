@@ -9,6 +9,11 @@ enum ScrollEdge { top, bottom }
 /// sharp at the other side, that frosts the content scrolling beneath a bar
 /// instead of hiding it under an opaque one. Put it behind the bar (it blurs
 /// what is behind it); [visible] fades it in and out.
+///
+/// Built on the package's [lg.ProgressiveBlur]. Not its
+/// [lg.GlassScrollEdgeEffect], which wraps the scroll view and is always on:
+/// the trip sheet's header blur appears only once the content scrolls under
+/// it, and is tinted with the sheet's surface.
 class ScrollEdgeBlur extends StatelessWidget {
   const ScrollEdgeBlur({
     super.key,

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart' as lg;
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
-import 'package:trainlog_app/ui/cupertino/apple_brand_font.dart';
 
 enum AdaptiveDialogResult {
   primary,
@@ -192,7 +192,7 @@ class AdaptiveDialog {
   }
 
   // -----------------------
-  // CUPERTINO ALERT
+  // CUPERTINO ALERT (the package's Liquid Glass alert platter)
   // -----------------------
   static Future<AdaptiveDialogResult> _showCupertinoAlert({
     required BuildContext context,
@@ -201,35 +201,30 @@ class AdaptiveDialog {
     Widget? content,
     required List<AdaptiveDialogAction> actions,
   }) async {
-    final result = await showCupertinoDialog<AdaptiveDialogResult>(
+    final result = await lg.GlassDialog.show<AdaptiveDialogResult>(
       context: context,
-      builder: (_) {
-        return appleDialogTint(context, CupertinoAlertDialog(
-          title: title.isEmpty ? null : AppleBrandFont(child: Text(title)),
-          content: AppleBrandFont(
-            child: _buildBody(
-              message: message,
-              content: content,
-              wrapContentInMaterial: true,
-            ),
+      title: title.isEmpty ? null : title,
+      message: message,
+      content: content == null
+          ? null
+          : Material(type: MaterialType.transparency, child: content),
+      actions: [
+        for (final a in actions)
+          lg.GlassDialogAction(
+            label: a.label,
+            isPrimary: a.isDefault,
+            isDestructive: a.isDestructive,
+            onPressed: () =>
+                Navigator.of(context, rootNavigator: true).pop(a.result),
           ),
-          actions: actions.map((a) {
-            return CupertinoDialogAction(
-              isDefaultAction: a.isDefault,
-              isDestructiveAction: a.isDestructive,
-              onPressed: () => Navigator.of(context, rootNavigator: true).pop(a.result),
-              child: AppleBrandFont(child: Text(a.label)),
-            );
-          }).toList(),
-        ));
-      },
+      ],
     );
 
     return result ?? AdaptiveDialogResult.cancelled;
   }
 
   // -----------------------
-  // CUPERTINO ACTION SHEET
+  // CUPERTINO ACTION SHEET (the package's Liquid Glass action sheet)
   // -----------------------
   static Future<AdaptiveDialogResult> _showCupertinoActionSheet({
     required BuildContext context,
@@ -239,46 +234,45 @@ class AdaptiveDialog {
     required List<AdaptiveDialogAction> actions,
     required bool barrierDismissible,
   }) async {
-    // showCupertinoModalPopup dismisses on outside tap by default.
-    final result = await showCupertinoModalPopup<AdaptiveDialogResult>(
-      context: context,
-      barrierDismissible: barrierDismissible,
-      builder: (_) {
-        // iOS convention: put Cancel in cancelButton, others in actions.
-        final cancel = actions.where((a) => a.result == AdaptiveDialogResult.cancelled).toList();
-        final nonCancel = actions.where((a) => a.result != AdaptiveDialogResult.cancelled).toList();
+    // The package's sheet has no room for extra content: keep it an alert.
+    if (content != null) {
+      return _showCupertinoAlert(
+        context: context,
+        title: title,
+        message: message,
+        content: content,
+        actions: actions,
+      );
+    }
 
-        // Keeps the Material theme of the caller too, so a sheet opened from
-        // the map (which may use the map's brightness) stays consistent.
-        return Theme(data: Theme.of(context), child: appleDialogTint(context, CupertinoActionSheet(
-          title: title.isEmpty ? null : AppleBrandFont(child: Text(title)),
-          message: AppleBrandFont(
-            child: _buildBody(
-              message: message,
-              content: content,
-              wrapContentInMaterial: true,
+    // iOS convention: Cancel is the sheet's own last button. The sheet
+    // closes itself after an action, so the choice is kept rather than
+    // popped.
+    final cancel = actions
+        .where((a) => a.result == AdaptiveDialogResult.cancelled)
+        .firstOrNull;
+    var result = AdaptiveDialogResult.cancelled;
+    await lg.showGlassActionSheet<void>(
+      context: context,
+      title: title.isEmpty ? null : title,
+      message: message,
+      barrierDismissible: barrierDismissible,
+      showCancelButton: cancel != null,
+      cancelLabel: cancel?.label ?? '',
+      actions: [
+        for (final a in actions)
+          if (a.result != AdaptiveDialogResult.cancelled)
+            lg.GlassActionSheetAction(
+              label: a.label,
+              style: a.isDestructive
+                  ? lg.GlassActionSheetStyle.destructive
+                  : lg.GlassActionSheetStyle.defaultStyle,
+              onPressed: () => result = a.result,
             ),
-          ),
-          actions: nonCancel.map((a) {
-            return CupertinoActionSheetAction(
-              isDestructiveAction: a.isDestructive,
-              isDefaultAction: a.isDefault,
-              onPressed: () => Navigator.of(context, rootNavigator: true).pop(a.result),
-              child: AppleBrandFont(child: Text(a.label)),
-            );
-          }).toList(),
-          cancelButton: cancel.isEmpty
-              ? null
-              : CupertinoActionSheetAction(
-                  isDefaultAction: cancel.first.isDefault,
-                  onPressed: () => Navigator.of(context, rootNavigator: true).pop(cancel.first.result),
-                  child: AppleBrandFont(child: Text(cancel.first.label)),
-                ),
-        )));
-      },
+      ],
     );
 
-    return result ?? AdaptiveDialogResult.cancelled;
+    return result;
   }
 
   // Convenience: confirm dialog
@@ -380,15 +374,4 @@ class AdaptiveDialog {
       },
     );
   }
-}
-
-/// iOS alerts and action sheets use the app's blue (secondary colour) for
-/// their buttons, like the trip sheet's actions: Apple uses one tint.
-Widget appleDialogTint(BuildContext context, Widget child) {
-  return CupertinoTheme(
-    data: CupertinoTheme.of(context).copyWith(
-      primaryColor: Theme.of(context).colorScheme.secondary,
-    ),
-    child: child,
-  );
 }

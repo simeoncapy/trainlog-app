@@ -31,7 +31,7 @@ lib/
                                   showAdaptiveContentSheet, AdaptiveSwitch,
                                   AdaptiveSegmentedButton, AdaptivePopup…
     cupertino/                    iOS-only components: liquid_glass.dart,
-                                  glass_filter_parts.dart, AppleBrandFont
+                                  glass_filter_parts.dart
   navigation/                     MaterialShell / CupertinoShell, picked by PlatformShell
   widgets/                        shared widgets not yet sorted into ui/
   app/                            AppRoot, provider wiring, globals
@@ -48,7 +48,7 @@ Every screen follows this layout (see "Migration status"). Keep it that way: a n
 3. **`liquid_glass_widgets` is imported only in `lib/ui/cupertino/` and `lib/ui/adaptive/`** (and `main.dart`, which starts it).
 4. **A `material/` folder never imports a `cupertino/` folder**, and the other way round.
 5. **Screens do not test the platform.** No `AppPlatform.isApple`, `AppPlatform.design` or `AppDesign.of` in `features/`, `widgets/` or `navigation/`. The entry file picks the view with `PlatformView`; for what is not a widget (opening a dialog or a sheet) use `byDesign(context, material: …, cupertino: …)`, and for a Scaffold app bar `PlatformAppBar`. A small row or control that differs per design is a facade picking a `Material…` or `Cupertino…` widget with `PlatformView` (see the settings rows, the map controls). A design token used by shared sections comes from an inherited style the iOS view provides (see `TripDetailsStyle`), not from a platform test.
-6. **Dialogs, alerts, action sheets and sheets go through `lib/ui/adaptive/`.** The iOS font, tint and destructive style are applied there once; screens never call `showCupertinoDialog`, `CupertinoAlertDialog` or `AppleBrandFont` themselves.
+6. **Dialogs, alerts, action sheets and sheets go through `lib/ui/adaptive/`.** On iOS they are the package's Liquid Glass alert, action sheet and menu (`GlassDialog`, `showGlassActionSheet`, `GlassMenu`), which take the app's font from the Cupertino theme; screens never call `showCupertinoDialog`, `CupertinoAlertDialog` or the package's dialogs themselves.
 7. **Use `liquid_glass_widgets` before building an iOS control.** Before writing a glass or iOS component (button, menu, swipe actions, context menu, list tile, sheet, picker, toast, search bar…), look for it in the package (`lib/widgets/` of `liquid_glass_widgets` in the pub cache, or its example app) and wrap it in `lib/ui/cupertino/`. Write one only when the package has none, or when its rendering is wrong for the app (say why in a comment, e.g. the amber-tinted glass).
 8. **No raw `fontSize` or `Color(0x…)` in a new view**: take them from `lib/ui/tokens/` or the theme.
 9. **Short messages go through `AdaptiveInformationMessage`** (`showInfo`, or `showInfoWithIcon` for the package's toast with an icon): a SnackBar on Android, the Liquid Glass `AppGlassToast` on iOS. Screens never build a `SnackBar` themselves (only a `material/` folder or the Material shell may).

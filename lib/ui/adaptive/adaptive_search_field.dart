@@ -1,8 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart' as lg;
 import 'package:trainlog_app/utils/platform_utils.dart';
 
-/// Adaptive text-search input: a [CupertinoSearchTextField] on Apple, a
+/// Adaptive text-search input: liquid_glass_widgets' glass search bar on
+/// Apple, a
 /// Material [TextField] elsewhere.
 class AdaptiveSearchField extends StatelessWidget {
   const AdaptiveSearchField({
@@ -19,10 +21,19 @@ class AdaptiveSearchField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (AppPlatform.isApple) {
-      return CupertinoSearchTextField(
+      final body = Theme.of(context).textTheme.bodyLarge?.copyWith(
+        color: CupertinoColors.label.resolveFrom(context),
+        letterSpacing: 0,
+      );
+      return lg.GlassSearchBar(
         controller: controller,
         placeholder: placeholder,
         autofocus: autofocus,
+        textStyle: body,
+        placeholderStyle: body?.copyWith(
+          color: CupertinoColors.placeholderText.resolveFrom(context),
+        ),
+        useOwnLayer: true,
       );
     }
     final cs = Theme.of(context).colorScheme;

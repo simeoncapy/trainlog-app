@@ -1,8 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:trainlog_app/ui/adaptive/adaptive_dialog.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart' as lg;
 import 'package:trainlog_app/ui/adaptive/widget/adaptive_widget_base.dart';
-import 'package:trainlog_app/ui/cupertino/apple_brand_font.dart';
 
 /// A single item in an [AdaptivePopup] menu.
 ///
@@ -16,7 +15,7 @@ class AdaptivePopupItem<T> {
 }
 
 /// A popup menu button that uses [PopupMenuButton] on Material and a
-/// [CupertinoActionSheet] on Apple platforms.
+/// Liquid Glass pull-down menu on Apple platforms.
 ///
 /// The [child] is the widget used as the tap target to open the menu.
 class AdaptivePopup<T> extends AdaptiveWidget {
@@ -62,34 +61,39 @@ class AdaptivePopup<T> extends AdaptiveWidget {
     );
   }
 
+  /// iOS 26 pull-down menu: the package's Liquid Glass menu morphing out of
+  /// [child], the current value checked, an item's [AdaptivePopupItem.leading]
+  /// on the trailing side as in Apple's menus.
   @override
   Widget buildCupertino(BuildContext context) {
-    return GestureDetector(
-      onTap: enabled
-          ? () => showCupertinoModalPopup<void>(
-                context: context,
-                builder: (sheetContext) => appleDialogTint(context, CupertinoActionSheet(
-                  actions: items
-                      .map(
-                        (item) => CupertinoActionSheetAction(
-                          isDefaultAction: item.value == initialValue,
-                          onPressed: () {
-                            Navigator.of(sheetContext).pop();
-                            onSelected(item.value);
-                          },
-                          child: AppleBrandFont(child: _itemChild(item)),
-                        ),
-                      )
-                      .toList(),
-                  cancelButton: CupertinoActionSheetAction(
-                    onPressed: () => Navigator.of(sheetContext).pop(),
-                    child: AppleBrandFont(
-                        child: Text(CupertinoLocalizations.of(sheetContext).cancelButtonLabel)),
-                  ),
-                )),
-              )
-          : null,
-      child: child,
+    if (!enabled) return child;
+    final label = CupertinoColors.label.resolveFrom(context);
+    final checkable = initialValue != null;
+    return lg.GlassMenu(
+      trigger: child,
+      menuWidth: 250,
+      menuAlignment: lg.GlassMenuAlignment.topRight,
+      autoAdjustToScreen: true,
+      menuPadding: const EdgeInsets.all(12),
+      items: [
+        for (final item in items)
+          lg.GlassMenuItem(
+            title: item.label,
+            titleStyle: TextStyle(fontSize: 17, color: label),
+            icon: checkable
+                ? SizedBox(
+                    width: 20,
+                    child: item.value == initialValue
+                        ? const Icon(CupertinoIcons.checkmark, size: 17)
+                        : null,
+                  )
+                : null,
+            iconSize: 17,
+            semanticsChecked: checkable ? item.value == initialValue : null,
+            trailing: item.leading,
+            onTap: () => onSelected(item.value),
+          ),
+      ],
     );
   }
 }
