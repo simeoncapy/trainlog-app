@@ -300,9 +300,14 @@ class _CupertinoShellState extends State<CupertinoShell> {
             bottom: navBarActionBottom(context),
             child: ValueListenableBuilder<AppPrimaryAction?>(
               valueListenable: _mainActions[_currentIndex],
-              builder: (_, action, __) => action == null
-                  ? const SizedBox.shrink()
-                  : _CupertinoMainActionButton(action: action),
+              builder: (_, action, __) {
+                if (action == null) return const SizedBox.shrink();
+                final button = _CupertinoMainActionButton(action: action);
+                // Over the map, it follows the map's theme like the tab bar.
+                return _currentIndex == 0
+                    ? MapThemeScope(child: button)
+                    : button;
+              },
             ),
           ),
         ],
@@ -598,7 +603,7 @@ class _LargeTitleBar extends StatelessWidget {
 }
 
 /// Round glass button for a tab's main action ("New trip"), floating above
-/// the tab bar's menu button and drawn like it: an amber disc in the glass.
+/// the tab bar's menu button: clear glass, amber icon.
 class _CupertinoMainActionButton extends StatelessWidget {
   final AppPrimaryAction action;
 
@@ -606,22 +611,17 @@ class _CupertinoMainActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Liquid Glass like the menu button under it, with an amber disc where
-    // the menu has its navy one (amber-tinted glass renders yellow or red).
+    // Clear Liquid Glass with an amber icon (amber-tinted glass renders
+    // yellow or red). Like the tab bar's selected tab: the pressed amber in
+    // light mode, where the regular one is too light on white glass.
+    final isDark = CupertinoTheme.brightnessOf(context) == Brightness.dark;
     return GlassIconButton(
+      icon: action.icon,
       onPressed: action.onPressed,
       tooltip: action.tooltip ?? action.label,
       size: kNavBarActionSize,
-      child: Container(
-        width: 34,
-        height: 34,
-        alignment: Alignment.center,
-        decoration: const BoxDecoration(
-          color: AppColors.amber,
-          shape: BoxShape.circle,
-        ),
-        child: Icon(action.icon, size: 22, color: AppColors.navy),
-      ),
+      iconSize: 28,
+      color: isDark ? AppColors.amber : AppColors.amberDk,
     );
   }
 }
