@@ -190,4 +190,50 @@ void main() {
       expect(find.text('Delete'), findsNothing);
     });
   });
+
+  group('AppListTile swipe', () {
+    Future<List<String>> pumpRow(WidgetTester t) async {
+      final calls = <String>[];
+      await t.pumpWidget(
+        CupertinoApp(
+          home: SwipeActionsScope(
+            child: Center(
+              child: SizedBox(
+                width: 400,
+                child: AppListTile(
+                  title: const Text('Row'),
+                  swipeActions: [
+                    SwipeAction(
+                      icon: CupertinoIcons.delete,
+                      label: 'Delete',
+                      isDestructive: true,
+                      onPressed: () => calls.add('tap'),
+                      onFullSwipe: () => calls.add('full'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      return calls;
+    }
+
+    testWidgets('a tap on the button runs onPressed', (t) async {
+      final calls = await pumpRow(t);
+      await t.drag(find.text('Row'), const Offset(-120, 0));
+      await t.pumpAndSettle();
+      await t.tap(find.text('Delete'));
+      await t.pumpAndSettle();
+      expect(calls, ['tap']);
+    });
+
+    testWidgets('a full swipe runs onFullSwipe', (t) async {
+      final calls = await pumpRow(t);
+      await t.drag(find.text('Row'), const Offset(-380, 0));
+      await t.pumpAndSettle();
+      expect(calls, ['full']);
+    });
+  });
 }

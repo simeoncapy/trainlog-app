@@ -226,8 +226,8 @@ class _MonthGroup extends StatelessWidget {
 
 /// One trip: the vehicle tile, "Origin → Destination", times, duration and
 /// distance under it; the day and the operator's logo on the trailing side.
-/// Opens the trip's details sheet; swipes left for Delete (a full swipe) and
-/// Edit; a long press opens Edit, Duplicate, Share, Delete.
+/// Opens the trip's details sheet; swipes left for Delete (a full swipe
+/// deletes without asking) and Edit; a long press opens Edit, Duplicate, Share, Delete.
 class _TripRow extends StatelessWidget {
   const _TripRow({super.key, required this.trip});
 
@@ -274,6 +274,8 @@ class _TripRow extends StatelessWidget {
           label: l10n.deleteButton,
           isDestructive: true,
           onPressed: delete,
+          // A full swipe is deliberate: no confirmation, as in iOS Mail.
+          onFullSwipe: () => actions.onDelete(() async => true),
         ),
         SwipeAction(
           icon: AdaptiveIcons.edit,

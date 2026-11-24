@@ -18,11 +18,20 @@ class SwipeAction {
     required this.onPressed,
     this.color,
     this.isDestructive = false,
+    this.onFullSwipe,
   });
 
   final IconData icon;
   final String label;
+
+  /// Runs on a tap of the button, and on a full swipe unless [onFullSwipe]
+  /// is given.
   final VoidCallback onPressed;
+
+  /// Runs instead of [onPressed] when the row is swiped all the way (only
+  /// for the first action, the one against the edge). A Delete can skip its
+  /// confirmation there, as in iOS Mail, and keep it on a tap.
+  final VoidCallback? onFullSwipe;
 
   /// The button's tint; red when [isDestructive] and none is given.
   final Color? color;
@@ -108,7 +117,7 @@ class AppGroupedSection extends StatelessWidget {
 /// the app's fonts, swipe actions on the trailing side (the first one
 /// against the edge, run by a full swipe) and a context menu on long press
 /// (icons leading, as on iOS 26).
-class AppListTile extends StatelessWidget {
+class AppListTile extends StatefulWidget {
   const AppListTile({
     super.key,
     required this.title,
@@ -129,6 +138,15 @@ class AppListTile extends StatelessWidget {
   final List<AppContextMenuAction> contextMenuActions;
 
   @override
+  State<AppListTile> createState() => _AppListTileState();
+}
+
+class _AppListTileState extends State<AppListTile> {
+  // The package runs the edge action with the same callback on a tap and on
+  // a full swipe; its state still reads "full swipe" when a swipe runs it.
+  var _swipeState = lg.GlassSwipeState.idle;
+
+  @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
     // The app's font, without San Francisco's tracking.
@@ -136,11 +154,12 @@ class AppListTile extends StatelessWidget {
       context,
     ).textTheme.tabLabelTextStyle.copyWith(letterSpacing: 0);
     return lg.GlassListTile(
-      leading: leading,
-      title: title,
-      subtitle: subtitle,
-      trailing: trailing,
-      onTap: onTap,
+      leading: widget.leading,
+      title: widget.title,
+      subtitle: widget.subtitle,
+      trailing: widget.trailing,
+      onTap: widget.onTap,
+      onSwipeStateChanged: (state) => _swipeState = state,
       titleStyle: text.bodyLarge?.copyWith(
         fontWeight: FontWeight.w600,
         color: CupertinoColors.label.resolveFrom(context),
@@ -149,20 +168,24 @@ class AppListTile extends StatelessWidget {
         color: CupertinoColors.secondaryLabel.resolveFrom(context),
       ),
       trailingSwipeActions: [
-        for (final a in swipeActions)
+        for (final a in widget.swipeActions)
           lg.GlassSwipeAction(
             icon: Icon(a.icon),
             label: Text(a.label, style: labelStyle),
             semanticLabel: a.label,
             backgroundColor: a.color,
             isDestructive: a.isDestructive,
-            onTap: a.onPressed,
+            onTap: a.onFullSwipe == null
+                ? a.onPressed
+                : () => _swipeState == lg.GlassSwipeState.fullSwipeTrailing
+                      ? a.onFullSwipe!()
+                      : a.onPressed(),
           ),
       ],
-      contextMenuActions: contextMenuActions.isEmpty
+      contextMenuActions: widget.contextMenuActions.isEmpty
           ? null
           : [
-              for (final a in contextMenuActions)
+              for (final a in widget.contextMenuActions)
                 lg.GlassContextMenuAction(
                   icon: Icon(a.icon),
                   isDestructive: a.isDestructive,
