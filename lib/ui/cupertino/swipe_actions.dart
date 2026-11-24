@@ -28,7 +28,8 @@ class SwipeAction {
 class SwipeActions extends StatelessWidget {
   const SwipeActions({super.key, required this.actions, required this.child});
 
-  /// Shown leading to trailing; the last one is the full-swipe action.
+  /// The first one sits against the trailing edge and is the full-swipe
+  /// action; the others follow inwards.
   final List<SwipeAction> actions;
   final Widget child;
 

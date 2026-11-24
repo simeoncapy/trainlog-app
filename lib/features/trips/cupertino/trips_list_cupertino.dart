@@ -35,7 +35,7 @@ const Radius _corner = Radius.circular(_groupRadius);
 
 /// Trips list, iOS: an inset grouped list with one group per month, as in
 /// Wallet's transactions. The month names stay pinned at the top while their
-/// trips scroll under them. A row swipes left for Duplicate and Delete, and
+/// trips scroll under them. A row swipes left for Delete and Edit, and
 /// a long press opens its context menu (Edit, Duplicate, Share, Delete).
 class TripsListCupertino extends StatefulWidget {
   const TripsListCupertino({
@@ -276,18 +276,20 @@ class _TripRowWithActions extends StatelessWidget {
         actions.onDelete(() => confirmTripDeleteCupertino(context));
 
     return SwipeActions(
+      // The first action sits against the trailing edge and runs on a full
+      // swipe: Delete, as in Mail; then Edit.
       actions: [
-        SwipeAction(
-          icon: AdaptiveIcons.copy,
-          label: l10n.duplicateBtnLabel,
-          color: CupertinoColors.systemGrey,
-          onPressed: actions.onDuplicate,
-        ),
         SwipeAction(
           icon: AdaptiveIcons.delete,
           label: l10n.deleteButton,
           isDestructive: true,
           onPressed: delete,
+        ),
+        SwipeAction(
+          icon: AdaptiveIcons.edit,
+          label: l10n.tripsDetailsEditButton,
+          color: CupertinoColors.systemGrey,
+          onPressed: actions.onEdit,
         ),
       ],
       child: AppContextMenu(

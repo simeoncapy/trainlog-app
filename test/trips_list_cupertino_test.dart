@@ -173,7 +173,7 @@ void main() {
       expect(find.byType(AppContextMenu), findsNWidgets(5));
     });
 
-    testWidgets('swiping a row left shows Duplicate and Delete', (t) async {
+    testWidgets('swiping a row left shows Delete and Edit', (t) async {
       await pump(t);
       expect(find.text('Delete'), findsNothing);
 
@@ -182,7 +182,7 @@ void main() {
         const Offset(-200, 0),
       );
       await t.pumpAndSettle();
-      expect(find.text('Duplicate'), findsOneWidget);
+      expect(find.text('Edit'), findsOneWidget);
       expect(find.text('Delete'), findsOneWidget);
 
       // Tapping the open row closes it.
