@@ -1872,4 +1872,27 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get geologNoteConflictMessage => '出発と到着のジオログの値が異なります。旅程に使う値を選択してください。';
+
+  @override
+  String tripsCountPastLabel(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '件の過去の旅程',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String tripsCountFutureLabel(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '件の今後の旅程',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get tripsCountFiltered => '絞り込み中';
 }

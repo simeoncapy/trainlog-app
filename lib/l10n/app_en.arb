@@ -1191,5 +1191,23 @@
   "geologNoteConflictMessage": "The departure and arrival Geologs have different values. Choose the one to use for the trip.",
   "@geologNoteConflictMessage": {
     "description": "Message of the dialog choosing between two Geolog note values"
+  },
+  "tripsCountPastLabel": "{count, plural, =1 {past trip} other {past trips}}",
+  "@tripsCountPastLabel": {
+    "description": "iOS trips page subtitle, after the number of past trips (the number is drawn apart)",
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "tripsCountFutureLabel": "{count, plural, =1 {upcoming trip} other {upcoming trips}}",
+  "@tripsCountFutureLabel": {
+    "description": "iOS trips page subtitle, after the number of future trips (the number is drawn apart)",
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "tripsCountFiltered": "filtered",
+  "@tripsCountFiltered": {
+    "description": "iOS trips page subtitle, after the trip count when a search or filter is active"
   }
 }

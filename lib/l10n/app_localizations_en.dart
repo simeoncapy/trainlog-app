@@ -1923,4 +1923,29 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get geologNoteConflictMessage =>
       'The departure and arrival Geologs have different values. Choose the one to use for the trip.';
+
+  @override
+  String tripsCountPastLabel(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'past trips',
+      one: 'past trip',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String tripsCountFutureLabel(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'upcoming trips',
+      one: 'upcoming trip',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get tripsCountFiltered => 'filtered';
 }

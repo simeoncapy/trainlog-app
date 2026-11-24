@@ -557,5 +557,8 @@
   "geologNoteConflictPriceTitle": "Quel prix du billet ?",
   "geologNoteConflictEnergyTitle": "Quelle énergie ?",
   "geologNoteConflictVisibilityTitle": "Quelle visibilité ?",
-  "geologNoteConflictMessage": "Les géomémos de départ et d'arrivée ont des valeurs différentes. Choisissez celle à utiliser pour le trajet."
+  "geologNoteConflictMessage": "Les géomémos de départ et d'arrivée ont des valeurs différentes. Choisissez celle à utiliser pour le trajet.",
+  "tripsCountPastLabel": "{count, plural, =0 {trajet pass\u00e9} =1 {trajet pass\u00e9} other {trajets pass\u00e9s}}",
+  "tripsCountFutureLabel": "{count, plural, =0 {trajet \u00e0 venir} =1 {trajet \u00e0 venir} other {trajets \u00e0 venir}}",
+  "tripsCountFiltered": "filtr\u00e9s"
 }

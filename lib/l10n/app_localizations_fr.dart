@@ -1947,4 +1947,31 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get geologNoteConflictMessage =>
       'Les géomémos de départ et d\'arrivée ont des valeurs différentes. Choisissez celle à utiliser pour le trajet.';
+
+  @override
+  String tripsCountPastLabel(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'trajets passés',
+      one: 'trajet passé',
+      zero: 'trajet passé',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String tripsCountFutureLabel(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'trajets à venir',
+      one: 'trajet à venir',
+      zero: 'trajet à venir',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get tripsCountFiltered => 'filtrés';
 }
