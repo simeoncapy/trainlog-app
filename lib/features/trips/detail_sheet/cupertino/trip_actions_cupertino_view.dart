@@ -48,7 +48,8 @@ class TripActionsCupertinoView extends StatelessWidget {
         label: l10n.deleteButton,
         background: destructive.withValues(alpha: 0.16),
         foreground: destructive,
-        onTap: () => callbacks.onDelete(() => _confirmDelete(context, l10n)),
+        onTap: () =>
+            callbacks.onDelete(() => confirmTripDeleteCupertino(context)),
       ),
     ];
 
@@ -61,38 +62,37 @@ class TripActionsCupertinoView extends StatelessWidget {
       ],
     );
   }
+}
 
-  /// iOS action sheet with Delete in the destructive red and a separate
-  /// Cancel, as Photos and Mail confirm a deletion. Unlike an alert, a tap
-  /// outside cancels it. It keeps the theme of the sheet it is opened from
-  /// (e.g. the map's), not the app's.
-  Future<bool> _confirmDelete(
-    BuildContext context,
-    AppLocalizations l10n,
-  ) async {
-    final result = await AdaptiveDialog.show(
-      context: context,
-      title: l10n.tripsDetailsDeleteDialogTitle,
-      message: l10n.tripsDetailsDeleteDialogMessage,
-      useActionSheetOnIOS: true,
-      barrierDismissible: true,
-      // Opened from the trip sheet, which sits on the root navigator.
-      skipWhenRootCanPop: false,
-      actions: [
-        AdaptiveDialogAction(
-          label: l10n.deleteButton,
-          result: AdaptiveDialogResult.primary,
-          isDestructive: true,
-        ),
-        AdaptiveDialogAction(
-          label: CupertinoLocalizations.of(context).cancelButtonLabel,
-          result: AdaptiveDialogResult.cancelled,
-          isDefault: true,
-        ),
-      ],
-    );
-    return result == AdaptiveDialogResult.primary;
-  }
+/// iOS action sheet with Delete in the destructive red and a separate
+/// Cancel, as Photos and Mail confirm a deletion. Unlike an alert, a tap
+/// outside cancels it. It keeps the theme of the sheet it is opened from
+/// (e.g. the map's), not the app's.
+Future<bool> confirmTripDeleteCupertino(BuildContext context) async {
+  final l10n = AppLocalizations.of(context)!;
+  final result = await AdaptiveDialog.show(
+    context: context,
+    title: l10n.tripsDetailsDeleteDialogTitle,
+    message: l10n.tripsDetailsDeleteDialogMessage,
+    useActionSheetOnIOS: true,
+    barrierDismissible: true,
+    // Opened from the trip sheet or the trips list's context menu, both on
+    // the root navigator.
+    skipWhenRootCanPop: false,
+    actions: [
+      AdaptiveDialogAction(
+        label: l10n.deleteButton,
+        result: AdaptiveDialogResult.primary,
+        isDestructive: true,
+      ),
+      AdaptiveDialogAction(
+        label: CupertinoLocalizations.of(context).cancelButtonLabel,
+        result: AdaptiveDialogResult.cancelled,
+        isDefault: true,
+      ),
+    ],
+  );
+  return result == AdaptiveDialogResult.primary;
 }
 
 /// One iOS action tile: a rounded rectangle (continuous corners) with the

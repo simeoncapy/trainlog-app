@@ -3227,6 +3227,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The departure and arrival Geologs have different values. Choose the one to use for the trip.'**
   String get geologNoteConflictMessage;
+
+  /// iOS trips page subtitle, after the number of past trips (the number is drawn apart)
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1 {past trip} other {past trips}}'**
+  String tripsCountPastLabel(num count);
+
+  /// iOS trips page subtitle, after the number of future trips (the number is drawn apart)
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1 {upcoming trip} other {upcoming trips}}'**
+  String tripsCountFutureLabel(num count);
+
+  /// iOS trips page subtitle, after the trip count when a search or filter is active
+  ///
+  /// In en, this message translates to:
+  /// **'filtered'**
+  String get tripsCountFiltered;
 }
 
 class _AppLocalizationsDelegate

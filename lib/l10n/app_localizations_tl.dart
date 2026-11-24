@@ -1911,4 +1911,27 @@ class AppLocalizationsTl extends AppLocalizations {
   @override
   String get geologNoteConflictMessage =>
       'Magkaiba ang halaga ng Geolog ng pag-alis at pagdating. Piliin ang gagamitin para sa biyahe.';
+
+  @override
+  String tripsCountPastLabel(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'nakaraang biyahe',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String tripsCountFutureLabel(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'paparating na biyahe',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get tripsCountFiltered => 'naka-filter';
 }

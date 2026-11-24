@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/core/data/models/time_moment.dart';
+import 'package:trainlog_app/core/data/models/trips_filter.dart';
 import 'package:trainlog_app/core/providers/trainlog_provider.dart';
 import 'package:trainlog_app/core/providers/trips_provider.dart';
 import 'package:trainlog_app/features/menu/menu_summary_card.dart';
@@ -13,13 +14,16 @@ import 'package:trainlog_app/ui/adaptive/app_steps_tab_bar.dart';
 
 /// The trips page under its header, the same on both designs: pull to
 /// refresh, the trip count (card view), Past / Future, then the cards or
-/// the table.
+/// the table. A view can draw the count elsewhere ([showSummary]) and give
+/// its own list in place of the cards ([cardView]).
 class TripsPageBody extends StatelessWidget {
   const TripsPageBody({
     super.key,
     required this.actions,
     required this.header,
     required this.tableFooterHeight,
+    this.showSummary = true,
+    this.cardView,
   });
 
   final TripsPageActions actions;
@@ -29,6 +33,19 @@ class TripsPageBody extends StatelessWidget {
 
   /// See [TripTableView.footerHeight].
   final double Function(double bottomInset) tableFooterHeight;
+
+  /// Shows the trip count block above Past / Future (card view only).
+  final bool showSummary;
+
+  /// Builds the list shown in card view; defaults to [TripCardView]. [key]
+  /// changes with the filter and Past / Future.
+  final Widget Function(
+    Key key,
+    TripsFilterResult? filter,
+    TimeMoment timeMoment,
+    int revision,
+  )?
+  cardView;
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +68,7 @@ class TripsPageBody extends StatelessWidget {
             header,
 
             // ── Summary block (card view only) ──────────────────────────
-            if (controller.isCardView)
+            if (controller.isCardView && showSummary)
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
                 child: _SummaryBlock(count: controller.summaryCount),
@@ -81,7 +98,14 @@ class TripsPageBody extends StatelessWidget {
 
             // ── Content view ─────────────────────────────────────────────
             Expanded(
-              child: controller.isCardView
+              child: controller.isCardView && cardView != null
+                  ? cardView!(
+                      ValueKey('card-$moment-${filter.hashCode}'),
+                      filter,
+                      moment,
+                      revision,
+                    )
+                  : controller.isCardView
                   ? TripCardView(
                       key: ValueKey('card-$moment-${filter.hashCode}'),
                       repo: repo,

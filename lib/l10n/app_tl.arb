@@ -786,5 +786,8 @@
   "geologNoteConflictMessage": "Magkaiba ang halaga ng Geolog ng pag-alis at pagdating. Piliin ang gagamitin para sa biyahe.",
   "@geologNoteConflictMessage": {
     "description": "Message of the dialog choosing between two Geolog note values"
-  }
+  },
+  "tripsCountPastLabel": "{count, plural, other {nakaraang biyahe}}",
+  "tripsCountFutureLabel": "{count, plural, other {paparating na biyahe}}",
+  "tripsCountFiltered": "naka-filter"
 }

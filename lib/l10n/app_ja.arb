@@ -558,5 +558,8 @@
   "geologNoteConflictPriceTitle": "どの運賃を使いますか？",
   "geologNoteConflictEnergyTitle": "どの動力を使いますか？",
   "geologNoteConflictVisibilityTitle": "どの公開範囲を使いますか？",
-  "geologNoteConflictMessage": "出発と到着のジオログの値が異なります。旅程に使う値を選択してください。"
+  "geologNoteConflictMessage": "出発と到着のジオログの値が異なります。旅程に使う値を選択してください。",
+  "tripsCountPastLabel": "{count, plural, other {\u4ef6\u306e\u904e\u53bb\u306e\u65c5\u7a0b}}",
+  "tripsCountFutureLabel": "{count, plural, other {\u4ef6\u306e\u4eca\u5f8c\u306e\u65c5\u7a0b}}",
+  "tripsCountFiltered": "\u7d5e\u308a\u8fbc\u307f\u4e2d"
 }
