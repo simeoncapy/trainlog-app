@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:trainlog_app/data/models/trips.dart';
-import 'package:trainlog_app/providers/statistics_provider.dart';
-import 'package:trainlog_app/providers/trainlog_provider.dart';
+import 'package:trainlog_app/core/data/models/trips.dart';
+import 'package:trainlog_app/core/providers/statistics_provider.dart';
+import 'package:trainlog_app/core/providers/trainlog_provider.dart';
 
 /// Serves canned stats per vehicle; vehicles in [failing] throw.
 class _FakeTrainlog implements TrainlogProvider {

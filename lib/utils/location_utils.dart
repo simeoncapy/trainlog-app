@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 // import 'package:latlong2/latlong.dart';
-// import 'package:trainlog_app/providers/settings_provider.dart';
+// import 'package:trainlog_app/core/providers/settings_provider.dart';
 
 
 LocationSettings platformLocationSettings() {

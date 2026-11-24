@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:trainlog_app/providers/settings_provider.dart';
+import 'package:trainlog_app/core/providers/settings_provider.dart';
 import 'package:trainlog_app/widgets/error_banner.dart';
 
 /// A dismissible error banner that collapses with animation.

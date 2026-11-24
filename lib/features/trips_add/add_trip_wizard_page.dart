@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:lottie/lottie.dart';
-import 'package:trainlog_app/data/controllers/trainlog_web_controller.dart';
-import 'package:trainlog_app/data/models/polyline_entry.dart';
-import 'package:trainlog_app/data/models/trip_form_model.dart';
+import 'package:trainlog_app/core/data/controllers/trainlog_web_controller.dart';
+import 'package:trainlog_app/core/data/models/polyline_entry.dart';
+import 'package:trainlog_app/core/data/models/trip_form_model.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/features/trips_add/add_trip_wizard_step.dart';
 import 'package:trainlog_app/features/trips_add/steps/add_trip_check_route_step.dart';
@@ -14,12 +14,13 @@ import 'package:trainlog_app/features/trips_add/steps/add_trip_ticket_step.dart'
 import 'package:trainlog_app/features/trips_add/steps/add_trip_vehicle_type_step.dart';
 import 'package:trainlog_app/features/trips_add/steps/add_trip_when_step.dart';
 import 'package:trainlog_app/features/trips_add/widgets/wizard_step_indicator.dart';
-import 'package:trainlog_app/platform/widget/adaptive_app_bar_square_button.dart';
+import 'package:trainlog_app/ui/adaptive/widget/adaptive_app_bar_square_button.dart';
 import 'package:trainlog_app/widgets/primary_action_button.dart';
-import 'package:trainlog_app/providers/trips_provider.dart';
-import 'package:trainlog_app/services/pre_record_service.dart';
+import 'package:trainlog_app/core/providers/trips_provider.dart';
+import 'package:trainlog_app/core/services/pre_record_service.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
-import 'package:trainlog_app/data/models/trips.dart';
+import 'package:trainlog_app/core/data/models/trips.dart';
+import 'package:trainlog_app/ui/adaptive/adaptive_information_message.dart';
 
 /// Main layout controller of the multi-step "Add Trip" wizard.
 ///
@@ -113,8 +114,8 @@ class _AddTripWizardPageState extends State<AddTripWizardPage> {
   }
 
   void _showSnackBarMessage() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(AppLocalizations.of(context)!.fillRequiredFields)),
+    AdaptiveInformationMessage.showInfo(
+      AppLocalizations.of(context)!.fillRequiredFields,
     );
   }
 
@@ -204,9 +205,7 @@ class _AddTripWizardPageState extends State<AddTripWizardPage> {
 
     if (!res.ok) {
       final error = errorCode?.toString() ?? 'unknown';
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(loc.addTripFinishErrorMsg(error))),
-      );
+      AdaptiveInformationMessage.showInfo(loc.addTripFinishErrorMsg(error));
       setState(() {
         _isSubmitting = false;
       });
@@ -216,9 +215,7 @@ class _AddTripWizardPageState extends State<AddTripWizardPage> {
     final Map<String, dynamic> payload = res.payload as Map<String, dynamic>;
     final Map<String, dynamic>? newTrip = payload['newTrip'] as Map<String, dynamic>?;
     if (newTrip == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(loc.addTripFinishFeedbackWarning)),
-      );
+      AdaptiveInformationMessage.showInfo(loc.addTripFinishFeedbackWarning);
       if(_isFromSmartPreRecorder) await const PreRecordService().deleteByIds(widget.preRecorderIdsToDelete!);
       setState(() {
         _isSubmitting = false;
@@ -248,9 +245,7 @@ class _AddTripWizardPageState extends State<AddTripWizardPage> {
       _isSubmitting = false;
     });
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(loc.addTripFinishMsg)),
-    );
+    AdaptiveInformationMessage.showInfo(loc.addTripFinishMsg);
 
     if(_isFromSmartPreRecorder) await const PreRecordService().deleteByIds(widget.preRecorderIdsToDelete!);
 

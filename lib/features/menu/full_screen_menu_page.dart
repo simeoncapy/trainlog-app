@@ -4,14 +4,15 @@ import 'package:trainlog_app/features/menu/menu_block.dart';
 import 'package:trainlog_app/features/menu/menu_explore_card.dart';
 import 'package:trainlog_app/features/menu/menu_item_data.dart';
 import 'package:trainlog_app/features/menu/menu_summary_card.dart';
-import 'package:trainlog_app/app/theme/app_colors.dart';
+import 'package:trainlog_app/ui/tokens/app_colors.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/navigation/nav_models.dart';
-import 'package:trainlog_app/providers/settings_provider.dart';
-import 'package:trainlog_app/providers/trainlog_provider.dart';
-import 'package:trainlog_app/providers/trips_provider.dart';
-import 'package:trainlog_app/platform/adaptive_widget.dart';
+import 'package:trainlog_app/core/providers/settings_provider.dart';
+import 'package:trainlog_app/core/providers/trainlog_provider.dart';
+import 'package:trainlog_app/core/providers/trips_provider.dart';
+import 'package:trainlog_app/ui/adaptive/adaptive_widget.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
+import 'package:trainlog_app/ui/adaptive/adaptive_information_message.dart';
 
 /// Full-screen menu replacing the legacy Drawer on Android.
 /// Provides a clean entry point for iOS (wire up from the iOS shell when ready).
@@ -133,12 +134,9 @@ class _FullScreenMenuPageState extends State<FullScreenMenuPage> {
           onTap: () async {
             final settings = context.read<SettingsProvider>();
             final trips = context.read<TripsProvider>();
-            final scaffMsg = ScaffoldMessenger.of(context);
             widget.onClose();
             await context.read<TrainlogProvider>().logout(settings, trips);
-            scaffMsg.showSnackBar(
-              SnackBar(content: Text(loc.loggedOut)),
-            );
+            AdaptiveInformationMessage.showInfo(loc.loggedOut);
           },
         ),
       ]);
@@ -168,8 +166,7 @@ class _TopBar extends StatelessWidget {
       child: Row(
         children: [
           AdaptiveAppBarSquareButton(
-            // A sheet on Apple closes with an ✕; the Material page slides down.
-            icon: AppPlatform.isApple ? Icons.close : Icons.keyboard_arrow_down,
+            icon: AdaptiveIcons.sheetClose,
             onPressed: onClose,
             tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
           ),

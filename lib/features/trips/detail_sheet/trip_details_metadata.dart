@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:trainlog_app/data/models/country_detail.dart';
-import 'package:trainlog_app/data/models/trips.dart';
+import 'package:trainlog_app/core/data/models/country_detail.dart';
+import 'package:trainlog_app/core/data/models/trips.dart';
 import 'package:trainlog_app/features/trips/detail_sheet/trip_details_common.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
-import 'package:trainlog_app/providers/trainlog_provider.dart';
+import 'package:trainlog_app/core/providers/trainlog_provider.dart';
 import 'package:trainlog_app/utils/style_utils.dart';
 
-/// The "DETAILS" metadata block: vehicle type (mandatory) plus the optional
-/// material, seat and registration fields laid out in a responsive grid, and
-/// the optional operator(s) section.
+/// The metadata block: the optional operator(s) section, then the details
+/// (vehicle type, mandatory, plus the optional material, seat and
+/// registration fields in a responsive grid), then the countries.
 ///
 /// Every optional field is guarded so missing data simply omits its row
 /// without leaving empty gaps.
@@ -69,7 +69,14 @@ class TripDetailsMetadata extends StatelessWidget {
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      // Operator(s) first, then the details, then the countries.
       children: [
+        if (operators.isNotEmpty) ...[
+          TripDetailsSectionHeader(l10n.tripsDetailsSectionOperator(operators.length)),
+          const SizedBox(height: 10),
+          _Operators(operators: operators),
+          const SizedBox(height: 20),
+        ],
         TripDetailsSectionHeader(l10n.tripsDetailsSectionDetails),
         const SizedBox(height: 10),
         _FieldGrid(fields: fields),
@@ -78,12 +85,6 @@ class TripDetailsMetadata extends StatelessWidget {
           TripDetailsSectionHeader(l10n.tripsDetailsSectionCountry(countries.length)),
           const SizedBox(height: 10),
           _Countries(countries: countries),
-        ],
-        if (operators.isNotEmpty) ...[
-          const SizedBox(height: 20),
-          TripDetailsSectionHeader(l10n.tripsDetailsSectionOperator(operators.length)),
-          const SizedBox(height: 10),
-          _Operators(operators: operators),
         ],
       ],
     );
@@ -115,8 +116,9 @@ class _Countries extends StatelessWidget {
             for (final c in countries)
               SizedBox(
                 width: itemWidth,
+                // Centred: the flag emoji is taller than the name's line.
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(c.emoji, style: const TextStyle(fontSize: 20)),
                     const SizedBox(width: 10),
@@ -192,15 +194,26 @@ class _FieldTile extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          field.label.toUpperCase(),
-          style: TextStyle(
-            fontSize: 11,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 0.6,
-            color: detailMutedColor(context),
+        if (TripDetailsStyle.of(context).capsTitles)
+          Text(
+            field.label.toUpperCase(),
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.6,
+              color: detailMutedColor(context),
+            ),
+          )
+        else
+          // iOS: the label as written in the ARB, like Apple Maps' facts.
+          Text(
+            field.label,
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0,
+              color: detailMutedColor(context),
+            ),
           ),
-        ),
         const SizedBox(height: 3),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,

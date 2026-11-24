@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import 'package:trainlog_app/app/theme/app_colors.dart';
-import 'package:trainlog_app/app/theme/app_theme.dart';
-import 'package:trainlog_app/data/models/ranking_model.dart';
+import 'package:trainlog_app/ui/tokens/app_colors.dart';
+import 'package:trainlog_app/ui/tokens/app_theme.dart';
+import 'package:trainlog_app/core/data/models/ranking_model.dart';
 import 'package:trainlog_app/features/ranking/ranking_type.dart';
 import 'package:trainlog_app/features/ranking/widgets/coverage_list_card.dart';
 import 'package:trainlog_app/features/ranking/widgets/coverage_progress_bar.dart';
@@ -11,8 +11,8 @@ import 'package:trainlog_app/features/ranking/widgets/flag_image.dart';
 import 'package:trainlog_app/features/ranking/widgets/ranking_user_position_block.dart';
 import 'package:trainlog_app/features/ranking/widgets/ranking_medal.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
-import 'package:trainlog_app/platform/adaptive_app_bar.dart';
-import 'package:trainlog_app/platform/adaptive_widget.dart';
+import 'package:trainlog_app/ui/adaptive/adaptive_app_bar.dart';
+import 'package:trainlog_app/ui/adaptive/adaptive_widget.dart';
 import 'package:trainlog_app/utils/number_formatter.dart';
 import 'package:trainlog_app/widgets/monogram.dart';
 
@@ -144,8 +144,8 @@ class _RailAreaRankingPageState extends State<RailAreaRankingPage> {
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
               child: RankingUserPositionBlock(
                 icon: RankingPositionIcon(
-                  icon: RankingType.iconOf(RankingType.railwayCoverage),
-                  color: RankingType.accentColorOf(RankingType.railwayCoverage),
+                  icon: RankingType.railwayCoverage.icon,
+                  color: RankingType.railwayCoverage.accentColor(),
                 ),
                 username: widget.currentUsername ?? '',
                 subtitle: loc.railCoverageAreaSubtitle(widget.displayName),

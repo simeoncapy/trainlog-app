@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:trainlog_app/data/models/location_search_result.dart';
+import 'package:trainlog_app/core/data/models/location_search_result.dart';
 
 /// Icon shown next to each map search result.
 extension LocationCategoryIcon on LocationCategory {

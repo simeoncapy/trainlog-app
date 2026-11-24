@@ -1,25 +1,26 @@
 import 'dart:collection';
 import 'package:flutter/material.dart';
+import 'package:trainlog_app/features/statistics/statistics_graph_images.dart';
 import 'package:provider/provider.dart';
 
-import 'package:trainlog_app/data/models/trips.dart';
+import 'package:trainlog_app/core/data/models/trips.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 
-import 'package:trainlog_app/providers/trainlog_provider.dart';
-import 'package:trainlog_app/providers/trips_provider.dart';
-import 'package:trainlog_app/providers/settings_provider.dart';
-import 'package:trainlog_app/providers/statistics_provider.dart';
+import 'package:trainlog_app/core/providers/trainlog_provider.dart';
+import 'package:trainlog_app/core/providers/trips_provider.dart';
+import 'package:trainlog_app/core/providers/settings_provider.dart';
+import 'package:trainlog_app/core/providers/statistics_provider.dart';
 
 import 'package:trainlog_app/utils/map_color_palette.dart';
 import 'package:trainlog_app/utils/number_formatter.dart';
 import 'package:trainlog_app/utils/text_utils.dart';
-import 'package:trainlog_app/widgets/app_steps_tab_bar.dart';
+import 'package:trainlog_app/ui/adaptive/app_steps_tab_bar.dart';
 import 'package:trainlog_app/widgets/icon_toggle_button.dart';
 
 import 'package:trainlog_app/features/statistics/widgets/stats_bar_chart.dart';
 import 'package:trainlog_app/features/statistics/widgets/stats_pie_chart.dart';
 import 'package:trainlog_app/features/statistics/widgets/stats_table_chart.dart';
-import 'package:trainlog_app/platform/adaptive_widget.dart';
+import 'package:trainlog_app/ui/adaptive/adaptive_widget.dart';
 import 'package:trainlog_app/widgets/divider_with_widget.dart';
 
 enum StatisticsView { bar, pie, table }
@@ -518,7 +519,7 @@ class _StatsCard extends StatelessWidget {
                       for (final v in tripsProv.vehicleTypesWithoutPoi) (type: v),
                     ],
                     selected: (type: statsProv.vehicle),
-                    iconOf: (v) => StatisticsProvider.vehicleIconOf(v.type),
+                    iconOf: (v) => statisticsVehicleIcon(v.type),
                     labelOf: (v) => v.type == null
                         ? loc.statisticsAllVehicles
                         : VehicleType.labelOf(v.type!, context),

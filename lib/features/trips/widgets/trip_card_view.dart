@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:trainlog_app/app/theme/app_colors.dart';
-import 'package:trainlog_app/app/theme/app_theme.dart';
-import 'package:trainlog_app/data/models/trips.dart';
-import 'package:trainlog_app/data/trips_repository.dart';
+import 'package:trainlog_app/ui/tokens/app_colors.dart';
+import 'package:trainlog_app/ui/tokens/app_theme.dart';
+import 'package:trainlog_app/core/data/models/trips.dart';
+import 'package:trainlog_app/core/data/trips_repository.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
-import 'package:trainlog_app/platform/adaptive_trip_card.dart';
-import 'package:trainlog_app/providers/settings_provider.dart';
-import 'package:trainlog_app/providers/trainlog_provider.dart';
+import 'package:trainlog_app/ui/adaptive/adaptive_trip_card.dart';
+import 'package:trainlog_app/core/providers/settings_provider.dart';
+import 'package:trainlog_app/core/providers/trainlog_provider.dart';
 import 'package:trainlog_app/utils/date_utils.dart' as date_utils;
 import 'package:trainlog_app/utils/map_color_palette.dart';
 import 'package:trainlog_app/utils/style_utils.dart';
-import 'package:trainlog_app/data/models/trips_filter.dart';
+import 'package:trainlog_app/core/data/models/trips_filter.dart';
 import 'package:trainlog_app/widgets/divider_with_widget.dart';
-import 'package:trainlog_app/widgets/past_future_selector.dart';
+import 'package:trainlog_app/core/data/models/time_moment.dart';
 
 class TripCardView extends StatefulWidget {
   final TripsRepository repo;

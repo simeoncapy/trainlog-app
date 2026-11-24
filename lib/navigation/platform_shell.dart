@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/navigation/cupertino_shell.dart';
 import 'package:trainlog_app/navigation/material_shell.dart';
-import 'package:trainlog_app/providers/trips_provider.dart';
-import 'package:trainlog_app/utils/platform_utils.dart';
+import 'package:trainlog_app/core/providers/trips_provider.dart';
+import 'package:trainlog_app/ui/design.dart';
 
 class PlatformShell extends StatelessWidget {
   const PlatformShell({super.key});
@@ -12,7 +12,10 @@ class PlatformShell extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        AppPlatform.isApple ? const CupertinoShell() : const MaterialShell(),
+        PlatformView(
+          material: (_) => const MaterialShell(),
+          cupertino: (_) => const CupertinoShell(),
+        ),
         const _SyncProgressOverlay(),
       ],
     );

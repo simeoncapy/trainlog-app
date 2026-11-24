@@ -1,15 +1,15 @@
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 
-import 'package:trainlog_app/data/models/changelog.dart';
+import 'package:trainlog_app/core/data/models/changelog.dart';
 import 'package:trainlog_app/features/onboarding/onboarding_screen.dart';
 import 'package:trainlog_app/features/user/login_page.dart';
 import 'package:trainlog_app/features/user/session_expiry_host.dart';
-import 'package:trainlog_app/providers/settings_provider.dart';
-import 'package:trainlog_app/providers/trainlog_provider.dart';
-import 'package:trainlog_app/services/api/session_expiry.dart';
-import 'package:trainlog_app/services/changelog_service.dart';
-import 'package:trainlog_app/services/flag_cache.dart';
+import 'package:trainlog_app/core/providers/settings_provider.dart';
+import 'package:trainlog_app/core/providers/trainlog_provider.dart';
+import 'package:trainlog_app/core/services/api/session_expiry.dart';
+import 'package:trainlog_app/core/services/changelog_service.dart';
+import 'package:trainlog_app/core/services/flag_cache.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 import 'package:trainlog_app/widgets/changelog_dialog.dart';
 import 'package:trainlog_app/widgets/data_loading_screen.dart';

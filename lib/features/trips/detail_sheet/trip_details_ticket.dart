@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:trainlog_app/app/theme/app_theme.dart';
-import 'package:trainlog_app/data/models/trips.dart';
+import 'package:trainlog_app/ui/tokens/app_theme.dart';
+import 'package:trainlog_app/core/data/models/trips.dart';
 import 'package:trainlog_app/features/trips/detail_sheet/trip_details_common.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
-import 'package:trainlog_app/providers/settings_provider.dart';
-import 'package:trainlog_app/providers/trainlog_provider.dart';
+import 'package:trainlog_app/core/providers/settings_provider.dart';
+import 'package:trainlog_app/core/providers/trainlog_provider.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/utils/number_formatter.dart';
 

@@ -90,7 +90,7 @@ class ExploreCard extends StatelessWidget {
                 data.label,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.spaceMono(
+                style: GoogleFonts.hankenGrotesk(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
                   color: cs.onSurface,
@@ -113,7 +113,7 @@ class ExploreCard extends StatelessWidget {
                     ),
                     TextSpan(
                       text: ' ${data.subtitle!.text}',
-                      style: GoogleFonts.spaceMono(
+                      style: GoogleFonts.hankenGrotesk(
                         fontSize: 11,
                         color: cs.onSurfaceVariant,
                       ),

@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:currency_picker/currency_picker.dart';
 import 'package:provider/provider.dart';
-import 'package:trainlog_app/app/theme/app_theme.dart';
-import 'package:trainlog_app/data/models/trip_form_model.dart';
+import 'package:trainlog_app/ui/tokens/app_theme.dart';
+import 'package:trainlog_app/core/data/models/trip_form_model.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
-import 'package:trainlog_app/features/settings/settings_vm.dart';
+import 'package:trainlog_app/features/settings/settings_controller.dart';
 import 'package:trainlog_app/widgets/trip_form/energy_choice_card_selector.dart';
 import 'package:trainlog_app/widgets/trip_form/visibility_choice_card_selector.dart';
-import 'package:trainlog_app/providers/settings_provider.dart';
-import 'package:trainlog_app/providers/trainlog_provider.dart';
+import 'package:trainlog_app/core/providers/settings_provider.dart';
+import 'package:trainlog_app/core/providers/trainlog_provider.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/utils/number_formatter.dart';
 import 'package:trainlog_app/widgets/trip_form/currency_button.dart';
@@ -59,9 +59,9 @@ class _AddTripTicketStepState extends State<AddTripTicketStep> {
         // existing trip), use it. Otherwise, initialise it based on account
         // settings.
         accountVisibility =
-            accountSettings[SettingsVm.accountSettingsKeyVisibility] != null
+            accountSettings[SettingsController.accountSettingsKeyVisibility] != null
                 ? int.tryParse(
-                    accountSettings[SettingsVm.accountSettingsKeyVisibility]!)
+                    accountSettings[SettingsController.accountSettingsKeyVisibility]!)
                 : null;
 
         switch (accountVisibility) {

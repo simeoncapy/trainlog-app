@@ -5,20 +5,21 @@ import 'package:provider/provider.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:trainlog_app/utils/timezone_utils.dart';
 import 'package:lat_lng_to_timezone/lat_lng_to_timezone.dart' as tzmap;
-import 'package:trainlog_app/app/theme/app_colors.dart';
-import 'package:trainlog_app/app/theme/app_theme.dart';
-import 'package:trainlog_app/data/models/trip_form_model.dart';
-import 'package:trainlog_app/data/models/trips.dart';
+import 'package:trainlog_app/ui/tokens/app_colors.dart';
+import 'package:trainlog_app/ui/tokens/app_theme.dart';
+import 'package:trainlog_app/core/data/models/trip_form_model.dart';
+import 'package:trainlog_app/core/data/models/trips.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
-import 'package:trainlog_app/providers/settings_provider.dart';
+import 'package:trainlog_app/core/providers/settings_provider.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
 import 'package:trainlog_app/utils/signed_int_formatter.dart';
 import 'package:trainlog_app/features/trips_add/widgets/relative_date_time_picker_dialog.dart';
-import 'package:trainlog_app/widgets/app_steps_tab_bar.dart';
+import 'package:trainlog_app/ui/adaptive/app_steps_tab_bar.dart';
 import 'package:trainlog_app/widgets/error_banner.dart';
 import 'package:trainlog_app/widgets/trip_form/trip_form_card.dart';
 import 'package:trainlog_app/widgets/trip_form/trip_form_tiles.dart';
+import 'package:trainlog_app/ui/adaptive/adaptive_information_message.dart';
 
 /// Step 4 of the "Add Trip" wizard: temporal data of the trip.
 ///
@@ -611,14 +612,10 @@ class _AddTripWhenStepState extends State<AddTripWhenStep> {
         isDeparture ? model.departureDateLocal : model.arrivalDateLocal;
 
     if (scheduled == null) {
-      final messenger = ScaffoldMessenger.maybeOf(context);
-      messenger
-        ?..clearSnackBars()
-        ..showSnackBar(
-          SnackBar(
-            content: Text(loc.addTripSelectScheduledTimeFirst),
-          ),
-        );
+      AdaptiveInformationMessage.showInfo(
+        loc.addTripSelectScheduledTimeFirst,
+        replace: true,
+      );
       return;
     }
 

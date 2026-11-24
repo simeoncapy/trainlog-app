@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'package:trainlog_app/app/theme/app_colors.dart';
-import 'package:trainlog_app/app/theme/app_theme.dart';
+import 'package:trainlog_app/ui/tokens/app_colors.dart';
+import 'package:trainlog_app/ui/tokens/app_theme.dart';
 
 /// The top-three award icon: a trophy for #1 and a medal for #2/#3, coloured
 /// gold / silver / bronze. Shared by the list rows and the user-position badge,

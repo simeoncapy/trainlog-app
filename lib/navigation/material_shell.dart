@@ -4,11 +4,11 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/navigation/nav_models.dart';
-import 'package:trainlog_app/providers/settings_provider.dart';
+import 'package:trainlog_app/core/providers/settings_provider.dart';
 import 'package:trainlog_app/features/settings/settings_page.dart';
-import 'package:trainlog_app/platform/adaptive_app_bar.dart';
-import 'package:trainlog_app/platform/adaptive_bottom_navbar.dart';
-import 'package:trainlog_app/services/android_update_service.dart';
+import 'package:trainlog_app/ui/adaptive/adaptive_app_bar.dart';
+import 'package:trainlog_app/ui/adaptive/adaptive_bottom_navbar.dart';
+import 'package:trainlog_app/core/services/android_update_service.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
 
 import 'package:trainlog_app/features/menu/full_screen_menu_page.dart';
@@ -25,6 +25,7 @@ import 'package:trainlog_app/features/statistics/statistics_page.dart';
 import 'package:trainlog_app/features/tags/tags_page.dart';
 import 'package:trainlog_app/features/tickets/tickets_page.dart';
 import 'package:trainlog_app/features/trips/trips_page.dart';
+import 'package:trainlog_app/ui/adaptive/adaptive_information_message.dart';
 
 typedef SetPrimaryActions = void Function(List<AppPrimaryAction> actions);
 
@@ -353,11 +354,9 @@ class _MaterialShellState extends State<MaterialShell> {
           return;
         }
         _lastBackPress = now;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(AppLocalizations.of(context)!.tapAgainToExit),
-            duration: const Duration(seconds: 2),
-          ),
+        AdaptiveInformationMessage.showInfo(
+          AppLocalizations.of(context)!.tapAgainToExit,
+          duration: const Duration(seconds: 2),
         );
       },
       child: ColoredBox(

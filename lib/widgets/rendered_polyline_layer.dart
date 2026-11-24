@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:provider/provider.dart';
 
-import 'package:trainlog_app/providers/polyline_provider.dart';
+import 'package:trainlog_app/core/providers/polyline_provider.dart';
 
 class RenderedPolylineLayer extends StatefulWidget {
   final Future<void> Function(int tripId) onTripTap;

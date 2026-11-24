@@ -2,8 +2,8 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-import 'package:trainlog_app/app/theme/app_theme.dart';
-import 'package:trainlog_app/app/theme/app_colors.dart';
+import 'package:trainlog_app/ui/tokens/app_theme.dart';
+import 'package:trainlog_app/ui/tokens/app_colors.dart';
 import 'package:trainlog_app/utils/number_formatter.dart';
 
 /// Circular coverage indicator used in the Countries / Regions list rows.

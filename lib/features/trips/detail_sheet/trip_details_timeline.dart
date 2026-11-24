@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:trainlog_app/app/theme/app_colors.dart';
-import 'package:trainlog_app/app/theme/app_theme.dart';
-import 'package:trainlog_app/data/models/trips.dart';
+import 'package:trainlog_app/ui/tokens/app_colors.dart';
+import 'package:trainlog_app/ui/tokens/app_theme.dart';
+import 'package:trainlog_app/core/data/models/trips.dart';
 import 'package:trainlog_app/features/trips/detail_sheet/trip_details_common.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 
@@ -85,7 +85,7 @@ class TripDetailsTimeline extends StatelessWidget {
           // CENTER: markers + connecting line.
           Column(
             children: [
-              _marker(context, color, filled: false),
+              _marker(color, filled: false),
               Expanded(
                 child: Container(
                   width: 5,
@@ -98,7 +98,7 @@ class TripDetailsTimeline extends StatelessWidget {
                   ),
                 ),
               ),
-              _marker(context, color, filled: true),
+              _marker(color, filled: true),
             ],
           ),
           const SizedBox(width: 14),
@@ -134,12 +134,14 @@ class TripDetailsTimeline extends StatelessWidget {
 
   /// Rounded-square station marker. Hollow (outlined) for the departure,
   /// filled with the route colour for the arrival.
-  Widget _marker(BuildContext context, Color color, {required bool filled}) {
+  Widget _marker(Color color, {required bool filled}) {
     return Container(
       width: 22,
       height: 22,
       decoration: BoxDecoration(
-        color: filled ? color : Theme.of(context).colorScheme.surface,
+        // Hollow: transparent, so the centre always matches the sheet,
+        // whose background changes with its height (the glass sheet on iOS).
+        color: filled ? color : Colors.transparent,
         borderRadius: BorderRadius.circular(6),
         border: Border.all(color: color, width: 3),
       ),
@@ -229,6 +231,7 @@ class _TimeBlock extends StatelessWidget {
                   style: AppTheme.monoFont.copyWith(
                     fontSize: 11,
                     decoration: TextDecoration.lineThrough,
+                    decorationColor: detailMutedColor(context),
                     color: detailMutedColor(context),
                   ),
                 ),
@@ -262,9 +265,12 @@ class _DurationPill extends StatelessWidget {
         ((realDuration - trip.duration).inSeconds / 60).round() != 0;
     final isLate = realDuration != null && realDuration > trip.duration;
 
+    final pill = TripDetailsStyle.of(context).durationPill;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: detailFillDecoration(context, capsule: true),
+      padding: pill
+          ? const EdgeInsets.symmetric(horizontal: 12, vertical: 6)
+          : const EdgeInsets.symmetric(vertical: 6),
+      decoration: pill ? detailFillDecoration(context, capsule: true) : null,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -294,6 +300,7 @@ class _DurationPill extends StatelessWidget {
                     style: AppTheme.monoFont.copyWith(
                       fontSize: 12,
                       decoration: TextDecoration.lineThrough,
+                      decorationColor: detailMutedColor(context),
                       color: detailMutedColor(context),
                     ),
                   ),

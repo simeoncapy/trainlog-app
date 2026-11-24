@@ -1,17 +1,16 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:trainlog_app/data/models/trips.dart';
-import 'package:trainlog_app/data/models/trips_filter.dart';
-import 'package:trainlog_app/data/trips_repository.dart';
-import 'package:trainlog_app/platform/adaptive_trip_card.dart';
-import 'package:trainlog_app/providers/settings_provider.dart';
-import 'package:trainlog_app/providers/trainlog_provider.dart';
+import 'package:trainlog_app/core/data/models/trips.dart';
+import 'package:trainlog_app/core/data/models/trips_filter.dart';
+import 'package:trainlog_app/core/data/trips_repository.dart';
+import 'package:trainlog_app/ui/adaptive/adaptive_trip_card.dart';
+import 'package:trainlog_app/core/providers/settings_provider.dart';
+import 'package:trainlog_app/core/providers/trainlog_provider.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
-import 'package:trainlog_app/utils/platform_utils.dart';
 import 'package:trainlog_app/utils/style_utils.dart';
-import 'package:trainlog_app/widgets/past_future_selector.dart';
+import 'package:trainlog_app/core/data/models/time_moment.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 
 class TripTableView extends StatefulWidget {
@@ -25,6 +24,11 @@ class TripTableView extends StatefulWidget {
   /// tells the already-built data source that its rows are stale.
   final int revision;
 
+  /// Height kept free under the rows for the pagination footer and what
+  /// covers the page bottom (tab bar, home indicator), from the bottom
+  /// safe-area inset.
+  final double Function(double bottomInset) footerHeight;
+
   const TripTableView({
     super.key,
     required this.repo,
@@ -32,6 +36,7 @@ class TripTableView extends StatefulWidget {
     required this.filter,
     required this.timeMoment,
     required this.revision,
+    required this.footerHeight,
   });
 
   @override
@@ -77,7 +82,7 @@ class _TripTableViewState extends State<TripTableView> {
         final btmPad = MediaQuery.of(context).padding.bottom;
         const double headingHeight = 56.0;
         const double rowHeight = 48.0;
-        final double footerHeight = AppPlatform.isApple ? btmPad + 50 : 180.0;
+        final double footerHeight = widget.footerHeight(btmPad);
         final rowsPerPage =
             ((constraints.maxHeight - headingHeight - footerHeight) ~/ rowHeight).clamp(5, 50);
 

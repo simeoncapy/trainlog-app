@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:trainlog_app/core/data/models/time_moment.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
-import 'package:trainlog_app/platform/adaptive_segmented_button.dart';
+import 'package:trainlog_app/ui/adaptive/adaptive_segmented_button.dart';
 
-enum TimeMoment { past, future }
+export 'package:trainlog_app/core/data/models/time_moment.dart';
+
 
 class PastFutureSelector extends StatefulWidget {
   final TimeMoment initialValue;

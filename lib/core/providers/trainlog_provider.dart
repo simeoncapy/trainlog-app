@@ -1,0 +1,906 @@
+import 'dart:async';
+
+import 'package:cookie_jar/cookie_jar.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter_map/flutter_map.dart' show LatLngBounds;
+import 'package:flutter/material.dart';
+import 'package:trainlog_app/core/data/models/location_search_result.dart';
+import 'package:trainlog_app/core/data/models/news_model.dart';
+import 'package:trainlog_app/core/data/models/pre_record_model.dart';
+import 'package:trainlog_app/core/data/models/ranking_model.dart';
+import 'package:trainlog_app/core/data/models/trips.dart';
+import 'package:trainlog_app/core/providers/settings_provider.dart';
+import 'package:trainlog_app/core/providers/trips_provider.dart';
+import 'package:trainlog_app/core/services/api/api_import.dart';
+import 'package:trainlog_app/utils/cached_data_utils.dart';
+import 'package:trainlog_app/utils/text_utils.dart';
+import 'package:altcha_lib/altcha_lib.dart' show Challenge;
+import 'package:latlong2/latlong.dart';
+import "package:unorm_dart/unorm_dart.dart" as unorm;
+
+typedef StationInfo = (
+  String name,
+  String displayName,
+  LatLng coords,
+  String address,
+  bool isManual
+);
+
+enum InstanceType {legacy, dev, localhost, user}
+
+/// Why [TrainlogProvider.reLogin] failed.
+enum ReLoginFailure {
+  /// The server refused the password.
+  credentials,
+
+  /// The server could not be reached.
+  network,
+}
+
+class TrainlogProvider extends ChangeNotifier {
+  TrainlogHttpClient _client;
+  late AuthApi _auth;
+  late TripsApi _tripsApi;
+  late StationsApi _stations;
+  late SearchLocationApi _searchLocation;
+  late AccountApi _account;
+  late MiscApi _misc;
+  late RankingApi _ranking;
+
+  /// Hard cap on the whole startup session check (connect + response), as a
+  /// safety net on top of the Dio timeouts.
+  static const Duration _sessionCheckOverallTimeout = Duration(seconds: 15);
+
+  /// After a failed operator logo fetch, wait this long before retrying so
+  /// list rebuilds don't hammer an unreachable server.
+  static const Duration _operatorLogosRetryDelay = Duration(minutes: 1);
+
+  bool _loading = false;
+  bool _restoringSession = false;
+  bool _isAuthenticated = false;
+  bool _sessionExpired = false;
+  bool _sessionUnverified = false;
+  bool _revalidating = false;
+  int _sessionGeneration = 0;
+  final StreamController<void> _loginPrompts = StreamController<void>.broadcast();
+  Future<void>? _operatorLogosFetch;
+  DateTime? _operatorLogosLastFailure;
+  String? _error;
+  String? _username;
+  TrainlogLoginResult? _session;
+  Map<String, String> _listOperatorsLogoUrl = Map();
+
+  /// The operator logo list was fetched for this user (it may be empty).
+  bool _operatorLogosLoaded = false;
+  Map<String, String> _listOperators = Map();
+  List<String> _availableCurrencies = [];
+
+  TrainlogProvider({TrainlogHttpClient? client})
+      : _client = client ?? TrainlogHttpClient() {
+    _buildApis();
+  }
+
+  /// (Re)builds the per-domain API objects against the current [_client].
+  /// Called on construction and whenever the underlying client is swapped
+  /// (e.g. after an instance URL change).
+  void _buildApis() {
+    _client.onSessionExpired = _onSessionExpired;
+    _auth = AuthApi(_client);
+    _tripsApi = TripsApi(_client);
+    _stations = StationsApi(_client);
+    _searchLocation = SearchLocationApi(_stations);
+    _account = AccountApi(_client);
+    _misc = MiscApi(_client);
+    _ranking = RankingApi(_client);
+  }
+
+  bool get loading => _loading;
+
+  /// True while [tryRestoreSession] is checking the saved session at startup.
+  bool get isRestoringSession => _restoringSession;
+
+  bool get isAuthenticated => _isAuthenticated;
+
+  /// True when the server sent the user back to the login page. The user
+  /// stays signed in with their local data (see SessionExpiryHost) until
+  /// they log in again ([reLogin]) or log out.
+  bool get sessionExpired => _sessionExpired;
+
+  /// Incremented whenever a new session cookie is obtained, so the WebView
+  /// pages know to copy the cookies again.
+  int get sessionGeneration => _sessionGeneration;
+
+  /// Fires when the login sheet should be shown: the user started something
+  /// that needs the server while the session is expired.
+  Stream<void> get loginPrompts => _loginPrompts.stream;
+
+  void _onSessionExpired({required bool background}) {
+    // Requests made while logged out (e.g. from the login page) aren't a
+    // session expiry.
+    if (!_isAuthenticated) return;
+    _sessionUnverified = false;
+    if (!_sessionExpired) {
+      _sessionExpired = true;
+      notifyListeners();
+    }
+    if (!background) requestLogin();
+  }
+
+  /// For the WebView pages: the server showed its login page in a page the
+  /// user opened.
+  void reportSessionExpired() => _onSessionExpired(background: false);
+
+  /// Debug builds only: forgets the session cookie (local data is kept) so
+  /// the next request to the server goes through the expired-session flow.
+  Future<void> debugForgetSessionCookie() =>
+      _client.cookieJar.delete(Uri.parse(instanceUrl), true);
+
+  /// Asks for the login sheet, if the session is expired.
+  void requestLogin() {
+    if (_sessionExpired) _loginPrompts.add(null);
+  }
+
+  @override
+  void dispose() {
+    _loginPrompts.close();
+    super.dispose();
+  }
+  String? get error => _error;
+  String? get username => _username;
+  TrainlogLoginResult? get session => _session;
+
+  /// The trips data API, handed to [TripsProvider] so it shares this session.
+  TripsApi get tripsApi => _tripsApi;
+
+  /// The leaderboard / ranking API.
+  RankingApi get rankingApi => _ranking;
+
+  /// Free-text place search for the map (see [SearchLocationApi.search]).
+  Future<List<LocationSearchResult>> searchLocation(
+    String query, {
+    LatLngBounds? visibleBounds,
+    String? languageCode,
+  }) {
+    return _searchLocation.search(
+      query,
+      visibleBounds: visibleBounds,
+      languageCode: languageCode,
+    );
+  }
+
+  /// Resolves the static SVG flag asset URL for an ISO country or ISO 3166-2
+  /// subdivision [code] (see [MiscApi.fetchFlag]).
+  String flagUrl(String code) => _misc.fetchFlag(code);
+
+  /// Downloads the raw SVG markup for a flag [code], or null when unavailable
+  /// (see [MiscApi.fetchFlagSvg]). Used by the flag cache.
+  Future<String?> fetchFlagSvg(String code) =>
+      runInBackground(() => _misc.fetchFlagSvg(code));
+
+  Map<String, String> get listOperators => _listOperators;
+  List<String> get availableCurrencies => _availableCurrencies;
+
+  String get instanceUrl => _client.baseUrl;
+
+  /// Cookies for the authenticated session, used by the embedded WebView shells.
+  Future<List<Cookie>> getCookiesForWebView() => _auth.getCookiesForWebView();
+  
+  Future<bool> login({
+    required String username,
+    required String password,
+    SettingsProvider? settings
+  }) async {
+    _loading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final res = await _auth.login(username: username, password: password);
+      _session = res;
+      _isAuthenticated = res.success;
+      if (res.success) {
+        _sessionExpired = false;
+        _sessionUnverified = false;
+        _sessionGeneration++;
+      }
+      if (res.success) {
+        _username = username; // keep what the user typed
+        settings?.setUsername(username);
+        _listOperatorsLogoUrl = await _misc.fetchAllOperatorLogosUrl(username);
+        _operatorLogosLoaded = true;
+        _availableCurrencies = await _account.fetchAvailableCurrencies(username);
+      } else {
+        _username = null;
+        _error = res.failureReason ?? 'Invalid username or password';
+      }
+      return _isAuthenticated;
+    } catch (e) {
+      _error = 'Login failed: $e';
+      _isAuthenticated = false;
+      return false;
+    } finally {
+      _loading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> logout(SettingsProvider settings, TripsProvider trips) async {
+    _loading = true;
+    _error = null;
+    notifyListeners();
+    try {
+      await _auth.clearSession();
+      settings.clearUsername();
+      settings.clearLastFetchingTrips();
+      settings.setShouldReloadPolylines(true);
+      await trips.clearAll();
+      await AppCacheFilePath.deleteFile(AppCacheFilePath.polylines);
+      //await AppCacheFilePath.deleteFile(AppCacheFilePath.preRecord);
+    } finally {
+      _session = null;
+      _isAuthenticated = false;
+      _sessionExpired = false;
+      _sessionUnverified = false;
+      _username = null;
+      _loading = false;
+      notifyListeners();
+    }
+  }
+
+  /// A proof-of-work challenge for the signup captcha (see [SignupCaptcha]).
+  Future<Challenge> fetchSignupChallenge() => _auth.fetchSignupChallenge();
+
+  /// Creates the account, then logs it in. [altcha] is the solved signup
+  /// captcha.
+  Future<SignupResult> signup({
+    required String username,
+    required String password,
+    required String email,
+    required String altcha,
+    SettingsProvider? settings
+  }) async {
+    _loading = true;
+    notifyListeners();
+
+    try {
+      final res = await _auth.signup(
+        username: username,
+        password: password,
+        email: email,
+        locale: settings?.locale.languageCode ?? 'en',
+        altcha: altcha,
+      );
+      if (!res.success) return res;
+
+      // The server already opened a session; logging in as usual also loads
+      // the user's data and saves the username like any other login.
+      final loggedIn = await login(username: username, password: password, settings: settings);
+      return loggedIn
+          ? res
+          : SignupResult.failure(message: _error, code: 'login_failed');
+    } catch (e) {
+      return SignupResult.failure(
+        code: isServerUnreachable(e) ? 'unreachable' : 'unexpected',
+      );
+    } finally {
+      _loading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> setInstanceUrl(String url) async {
+    if(isAuthenticated) return false;
+    if(url == instanceUrl) return true; // no change
+    _client = await TrainlogHttpClient.persistent(baseUrl: url);
+    _buildApis();
+    notifyListeners();
+    return true;
+  }
+
+  Map<InstanceType, String> getListOfInstances({SettingsProvider? settings}) {
+    Map<InstanceType, String> instances = {};
+    instances[InstanceType.legacy] = TrainlogHttpClient.urlLegacy;
+    instances[InstanceType.dev] = TrainlogHttpClient.urlDev;
+    instances[InstanceType.localhost] = TrainlogHttpClient.urlLocalhost;
+    if(settings != null) {
+      instances[InstanceType.user] = settings.userInstanceUrl;
+    }
+    return instances;
+  }
+
+  /// Restores the session saved by a previous launch.
+  ///
+  /// A user whose username was saved at login ([logout] clears it) always
+  /// stays signed in with their local data:
+  /// - server confirms the session: fully signed in;
+  /// - server shows the login page: signed in with an expired session, the
+  ///   app shows a banner to log in again;
+  /// - server can't be reached (no network, timeout, server error): signed
+  ///   in, checked again when the app comes back to the foreground
+  ///   ([revalidateSession]).
+  /// Without a saved username, only a confirmed session signs in.
+  Future<void> tryRestoreSession({SettingsProvider? settings}) async {
+    _loading = true;
+    _restoringSession = true;
+    _error = null;
+    notifyListeners();
+    try {
+      final savedUsername = settings?.authUsername;
+      bool? serverSaysSignedIn;
+      try {
+        serverSaysSignedIn = await _auth
+            .checkAuthenticated()
+            .timeout(_sessionCheckOverallTimeout);
+      } catch (e) {
+        if (savedUsername != null) {
+          debugPrint('⚠️ Session check failed, keeping saved session: $e');
+        } else {
+          _error = 'Session check failed: $e';
+        }
+      }
+
+      _isAuthenticated = serverSaysSignedIn == true || savedUsername != null;
+      _sessionExpired = serverSaysSignedIn == false && _isAuthenticated;
+      _sessionUnverified = serverSaysSignedIn == null && _isAuthenticated;
+
+      if (_isAuthenticated) {
+        // 1) Load last known username (saved at login)
+        _username = savedUsername;
+
+        // 2) Optional: if not present, ask the API once (no scraping).
+        if (_username == null) {
+          try {
+            final apiName = await _auth.fetchUsernameViaApi(); // TODO wire real API
+            if (apiName != null) {
+              _username = apiName;
+              settings?.setUsername(apiName);
+            }
+          } catch (e) {
+            debugPrint('⚠️ fetchUsernameViaApi failed: $e');
+          }
+        }
+        // Not needed for the first screen: operator logos fall back to a
+        // placeholder until this completes.
+        if (_username != null && !_sessionExpired) unawaited(reloadOperatorList());
+      } else {
+        _username = null;
+      }
+    } finally {
+      _loading = false;
+      _restoringSession = false;
+      notifyListeners();
+    }
+  }
+
+  /// Checks again a session kept at startup without reaching the server.
+  /// Silent: an expired session only shows the banner. Returns true when
+  /// the session is now confirmed, so the caller can sync.
+  Future<bool> revalidateSession() async {
+    if (!_sessionUnverified || _revalidating) return false;
+    _revalidating = true;
+    try {
+      final ok = await _auth
+          .checkAuthenticated()
+          .timeout(_sessionCheckOverallTimeout);
+      if (!_sessionUnverified) return false; // Settled meanwhile.
+      _sessionUnverified = false;
+      if (ok) {
+        unawaited(reloadOperatorList());
+        return true;
+      }
+      if (_isAuthenticated && !_sessionExpired) {
+        _sessionExpired = true;
+        notifyListeners();
+      }
+      return false;
+    } catch (e) {
+      debugPrint('⚠️ Session revalidation failed, will retry: $e');
+      return false;
+    } finally {
+      _revalidating = false;
+    }
+  }
+
+  /// Logs the current user back in after their session expired. Unlike
+  /// [login], a failure leaves the user signed in with their local data.
+  /// Returns null on success.
+  Future<ReLoginFailure?> reLogin(String password) async {
+    final username = _username;
+    if (username == null) return ReLoginFailure.credentials;
+    try {
+      final res = await _auth.login(username: username, password: password);
+      if (!res.success) return ReLoginFailure.credentials;
+      _session = res;
+      _sessionExpired = false;
+      _sessionUnverified = false;
+      _sessionGeneration++;
+      notifyListeners();
+      unawaited(reloadOperatorList());
+      return null;
+    } catch (e) {
+      debugPrint('⚠️ reLogin failed: $e');
+      return ReLoginFailure.network;
+    }
+  }
+
+  String generateUserUrl(String? suffix, {bool publicPage = false}) {
+    return publicPage ? "$instanceUrl/$suffix" : "$instanceUrl/u/$username/$suffix";
+  }
+
+  // Expose authenticated requests for the rest of the app.
+  Future<Response<T>> get<T>(String path, {Map<String, dynamic>? query}) =>
+      _client.get<T>(path, query: query);
+
+  Future<Response<T>> post<T>(String path, Map<String, dynamic> data) =>
+      _client.post<T>(path, data);
+
+  /// Fetches the operator logo URLs. Concurrent calls share one request, and
+  /// failures are logged rather than thrown since callers fire and forget.
+  Future<void> reloadOperatorList() {
+    if (_username == null) return Future.value();
+    return _operatorLogosFetch ??=
+        _fetchOperatorLogos().whenComplete(() => _operatorLogosFetch = null);
+  }
+
+  Future<void> _fetchOperatorLogos() async {
+    try {
+      _listOperatorsLogoUrl = await runInBackground(
+          () => _misc.fetchAllOperatorLogosUrl(_username ?? ""));
+      _operatorLogosLoaded = true;
+      _operatorLogosLastFailure = null;
+      notifyListeners();
+    } catch (e) {
+      _operatorLogosLastFailure = DateTime.now();
+      debugPrint('⚠️ fetchAllOperatorLogosUrl failed: $e');
+    }
+  }
+
+  Future<void> reloadAvailableCurrencies() async {
+    if (_username == null) return;
+    _availableCurrencies = await _account.fetchAvailableCurrencies(_username ?? "");
+
+    notifyListeners();
+  }
+  
+  bool hasOperatorLogo(String operatorName) {
+    return _listOperatorsLogoUrl.containsKey(operatorName);
+  }
+
+  List<Image> getOperatorImages(
+    String operatorName, {
+    required double maxWidth,
+    required double maxHeight,
+    String separator = "&&"
+  }) {
+    final lastFailure = _operatorLogosLastFailure;
+    // Fetch once, not again each time the list comes back empty: every
+    // fetch notifies, which rebuilds the callers, which would fetch again.
+    if (!_operatorLogosLoaded &&
+        !_loading &&
+        (lastFailure == null ||
+            DateTime.now().difference(lastFailure) > _operatorLogosRetryDelay)) {
+      reloadOperatorList();
+    }
+
+    // Split multiple operators by &&
+    final operators = operatorName.split(separator).map((s) => s.trim()).toList();
+
+    // Return one image per operator
+    return operators.map((op) {
+      final url = _listOperatorsLogoUrl[op];
+
+      if (url == null || url.trim().isEmpty) {
+        return Image.asset(
+          'assets/images/logo_fallback.png',
+          width: maxWidth,
+          height: maxHeight,
+          fit: BoxFit.contain,
+        );
+      }
+
+      return Image.network(
+        url,
+        width: maxWidth,
+        height: maxHeight,
+        fit: BoxFit.contain,
+        loadingBuilder: (context, child, progress) {
+          if (progress == null) return child;
+          final expected = progress.expectedTotalBytes;
+          final loaded = progress.cumulativeBytesLoaded;
+          final value = expected != null ? loaded / expected : null;
+
+          // return ShimmerBox(
+          //   width: maxWidth, 
+          //   height: maxHeight
+          // );
+
+          return SizedBox(
+            width: maxWidth,
+            height: maxHeight,
+            child: Center(
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                value: value,
+              ),
+            ),
+          );
+        },
+        errorBuilder: (context, error, stack) => Image.asset(
+          'assets/images/logo_fallback.png',
+          width: maxWidth,
+          height: maxHeight,
+          fit: BoxFit.contain,
+        ),
+      );
+    }).toList();
+  }
+
+  Image getOperatorImage(
+    String operatorName, {
+    required double maxWidth,
+    required double maxHeight,
+  }) {
+    final images = getOperatorImages(
+      operatorName,
+      maxWidth: maxWidth,
+      maxHeight: maxHeight,
+    );
+    return images.first; // use first image only
+  }
+
+  Future<Map<String, dynamic>> fetchStatsForVehicleType(VehicleType type, int? year) async {
+    if (_username == null) return {};
+    return await _misc.fetchStatsByVehicle(_username ?? "", type, year);
+  }
+
+  /// Fetch the stats of each of [types] in parallel, as the API has no
+  /// all-modes endpoint. A failing mode is reported in `errors` instead of
+  /// failing the whole batch.
+  Future<({Map<VehicleType, Map<String, dynamic>> data, Map<VehicleType, Object> errors})>
+      fetchStatsForVehicleTypes(List<VehicleType> types, int? year) async {
+    final data = <VehicleType, Map<String, dynamic>>{};
+    final errors = <VehicleType, Object>{};
+    await Future.wait(types.map((type) async {
+      try {
+        data[type] = await fetchStatsForVehicleType(type, year);
+      } catch (e) {
+        errors[type] = e;
+      }
+    }));
+    return (data: data, errors: errors);
+  }
+
+  // ----------------------------
+  // Leaderboards / rankings
+  // ----------------------------
+
+  Future<RankingResult<LeaderboardEntry>> fetchRankingForVehicle(VehicleType type) =>
+      _ranking.fetchRankingForVehicle(type);
+
+  Future<RankingResult<LeaderboardEntry>> fetchRankingAll() =>
+      _ranking.fetchRankingAll();
+
+  Future<RankingResult<CarbonLeaderboardEntry>> fetchRankingForCarbonFootprint() =>
+      _ranking.fetchRankingForCarbonFootprint();
+
+  Future<RankingResult<CountryLeaderboardEntry>> fetchRankingForCountry() =>
+      _ranking.fetchRankingForCountry();
+
+  Future<RailPercentageResult> fetchRankingForRailPercentage() =>
+      _ranking.fetchRankingForRailPercentage();
+
+  Future<WorldSquaresResult> fetchRankingForWorldSquares() =>
+      _ranking.fetchRankingForWorldSquares();
+
+  /// Return up to [limit] operators that match [query] by
+  /// substring match first, then fuzzy Levenshtein distance.
+  List<String> getClosestOperators(String query, {int limit = 10}) {
+    if (query.isEmpty) return [];
+
+    final q = query.toLowerCase();
+
+    // All available operators (keys of _listOperatorsLogoUrl)
+    final ops = _listOperatorsLogoUrl.keys.toList();
+    if (ops.isEmpty) return [];
+
+    // 1) SUBSTRING MATCHES (higher priority)
+    final substringMatches = ops
+        .where((op) => op.toLowerCase().contains(q))
+        .toList();
+
+    // If enough matches found, return top results
+    if (substringMatches.length >= limit) {
+      substringMatches.sort(
+        (a, b) => a.toLowerCase().indexOf(q).compareTo(b.toLowerCase().indexOf(q)),
+      );
+      return substringMatches.take(limit).toList();
+    }
+
+    // 2) FUZZY MATCHES (Levenshtein distance)
+    final fuzzyMatches = <String, int>{};
+
+    for (final op in ops) {
+      final dist = _levenshteinDistance(q, op.toLowerCase());
+      fuzzyMatches[op] = dist;
+    }
+
+    // Sort by closeness (smallest distance first)
+    final sortedFuzzy = fuzzyMatches.entries.toList()
+      ..sort((a, b) => a.value.compareTo(b.value));
+
+    // Combine substring + fuzzy (without duplicates)
+    final combined = [
+      ...substringMatches,
+      ...sortedFuzzy.map((e) => e.key).where((op) => !substringMatches.contains(op))
+    ];
+
+    return combined.take(limit).toList();
+  }
+
+  /// Basic Levenshtein distance implementation.
+  int _levenshteinDistance(String s, String t) {
+    if (s == t) return 0;
+    if (s.isEmpty) return t.length;
+    if (t.isEmpty) return s.length;
+
+    final m = s.length;
+    final n = t.length;
+
+    final dp = List<List<int>>.generate(
+      m + 1,
+      (_) => List<int>.filled(n + 1, 0),
+    );
+
+    for (int i = 0; i <= m; i++) dp[i][0] = i;
+    for (int j = 0; j <= n; j++) dp[0][j] = j;
+
+    for (int i = 1; i <= m; i++) {
+      for (int j = 1; j <= n; j++) {
+        final cost = s[i - 1] == t[j - 1] ? 0 : 1;
+        dp[i][j] = [
+          dp[i - 1][j] + 1,     // deletion
+          dp[i][j - 1] + 1,     // insertion
+          dp[i - 1][j - 1] + cost, // replacement
+        ].reduce((a, b) => a < b ? a : b);
+      }
+    }
+
+    return dp[m][n];
+  }
+
+  String _normalize(String input) {
+    // Decompose Unicode characters (NFD)
+    final decomposed = unorm.nfd(input.toLowerCase());
+
+    // Remove diacritic marks
+    return decomposed.replaceAll(RegExp(r'[\u0300-\u036f]'), '');
+  }
+
+  int visitCount(String label, Map<String, int> visits) {
+    return visits[label] ?? 0;
+  }
+
+  String cleanLabel(String displayName) {
+    return removeFlagPrefix(displayName).toLowerCase();
+  }
+
+  Future<List<StationInfo>> fetchStations(
+    String query,
+    VehicleType type,
+  ) async {
+    if (_username == null) return [];
+
+    // Run all three in parallel
+    final manualFuture =
+        _stations.fetchAllManualStationsSuffixed(_username!, type);
+    final osmFuture = _stations.fetchStations(query, type);
+    final visitsFuture =
+        _misc.fetchAllVisitedStations(_username!, type);
+
+    final manualMap = await manualFuture;
+    final osmMap = await osmFuture;
+    final visits = await visitsFuture; // Map<String, int>
+
+    final normalizedQuery = _normalize(query);
+
+    // ---- Manual stations (filtered by query) ----
+    final manualList = manualMap
+        .where((s) => _normalize(s.displayName).contains(normalizedQuery))
+        .toList();
+
+    // ---- Combine + attach visit counts ----
+    // (name, displayName, coords, address, isManual, visits)
+    final combined = <(
+      String,
+      String,
+      LatLng,
+      String,
+      bool,
+      int
+    )>[];
+
+    int visitCount(String displayName) => visits[displayName] ?? 0;
+    String cleanLabel(String displayName) =>
+        removeFlagPrefix(displayName).toLowerCase();
+
+    for (final m in manualList) {
+      combined.add((m.name, m.displayName, m.coords, m.address, m.isManual, visitCount(m.displayName)));
+    }
+    for (final o in osmMap) {
+      combined.add((o.name, o.displayName, o.coords, o.address, o.isManual, visitCount(o.displayName)));
+    }
+
+    // ---- Sort: 1) visits DESC, 2) alphabetical ignoring flag ----
+    combined.sort((a, b) {
+      final visitsDiff = b.$6.compareTo(a.$6); // most visited first
+      if (visitsDiff != 0) return visitsDiff;
+
+      return cleanLabel(a.$2).compareTo(cleanLabel(b.$2));
+    });
+
+    // ---- Back to StationInfo (name, displayName, coords, address, isManual) ----
+    return combined.map((e) => (e.$1, e.$2, e.$3, e.$4, e.$5)).toList();
+  }
+
+  List<StationInfo> _mergeStationLists(
+    List<StationInfo> osm,
+    List<StationInfo> manual,
+  ) {
+    final merged = <StationInfo>[];
+    int i = 0;
+
+    for (final osmItem in osm) {
+      final osmKey =
+          removeFlagPrefix(osmItem.$2).toLowerCase(); // displayName without emoji
+
+      while (i < manual.length) {
+        final manualKey =
+            removeFlagPrefix(manual[i].$2).toLowerCase(); // displayName without emoji
+
+        if (manualKey.compareTo(osmKey) < 0) {
+          merged.add(manual[i]);
+          i++;
+        } else {
+          break;
+        }
+      }
+
+      merged.add(osmItem);
+    }
+
+    // Remaining manual items
+    while (i < manual.length) {
+      merged.add(manual[i]);
+      i++;
+    }
+
+    return merged;
+  }
+
+  Future<PreRecordModel> findPreRecordModelFromCoordinate(
+    double lat,
+    double long,
+  ) async {
+
+    final (name, address, type, distance) = await _stations.findStationFromCoordinate(lat, long);
+
+    return PreRecordModel(
+      id: DateTime.now().millisecondsSinceEpoch,
+      stationName: name,
+      address: address,
+      lat: lat,
+      long: long,
+      dateTime: DateTime.now(),
+      type: type,
+    );
+  }
+
+  Future<(String?, String?, VehicleType, double)> findStationFromCoordinate(
+    double lat,
+    double long, {
+    int distanceLimitMeters = 500,
+    bool returnUniqueEvenIfOutOfRange = true,
+    }
+  ) {
+    return _stations.findStationFromCoordinate(lat, long,
+      distanceLimitMeters: distanceLimitMeters,
+      returnUniqueEvenIfOutOfRange: returnUniqueEvenIfOutOfRange
+    );
+  }
+
+  Future<List<(String?, String?, VehicleType, double)>> findStationsFromCoordinate(
+    double lat,
+    double long, {
+      int distanceLimitMeters = 500,
+      bool returnUniqueEvenIfOutOfRange = true,
+    }
+  ) {
+    return _stations.findStationsFromCoordinate(
+      lat,
+      long,
+      distanceLimitMeters: distanceLimitMeters,
+      returnUniqueEvenIfOutOfRange: returnUniqueEvenIfOutOfRange
+    );
+  }
+
+  Future<Map<String, String>> fetchAccountSettings() async {
+    if (_username == null) return {};
+    return await _account.fetchAccountSettings(_username!);
+  }
+
+  Future<void> updateAccountSettings(Map<String, dynamic> settings) async {
+    if (_username == null) return;
+    await _account.updateAccountSettings(_username!, settings);
+  }
+
+  /// Permanently deletes the signed-in account on the server (see
+  /// [AccountApi.deleteAccount]). On success the local session and data are
+  /// wiped as for [logout], so the app is back on the login screen.
+  Future<DeleteAccountResult> deleteAccount({
+    required String password,
+    required String confirmUsername,
+    required SettingsProvider settings,
+    required TripsProvider trips,
+  }) async {
+    final username = _username;
+    if (username == null) return DeleteAccountResult.failed;
+
+    final result = await _account.deleteAccount(
+      username,
+      password: password,
+      confirmUsername: confirmUsername,
+    );
+    if (result == DeleteAccountResult.deleted) {
+      await logout(settings, trips);
+    }
+    return result;
+  }
+
+  Future<List<String>> fetchAvailableCurrencies() async {
+    if (_username == null) return [];
+    return await _account.fetchAvailableCurrencies(_username!);
+  }
+
+  /// Saves a partial edit of [tripId] as the signed-in user: only the columns
+  /// [fields] carries are written, every other one keeps its stored value (see
+  /// [TripsApi.patchTrip] for the payload shape and for what the server does
+  /// with a route that is left out).
+  ///
+  /// Null when there is no signed-in user to save as. Throws
+  /// [TripPatchException] when the server refused the save.
+  ///
+  /// This is the bare API call: it does not touch the local cache. Use
+  /// [TripEditCopyService.save] to save and refresh the cached trip in one go.
+  Future<TripPatchResult?> patchTrip(
+    int tripId,
+    Map<String, dynamic> fields,
+  ) async {
+    if (_username == null) return null;
+    return _tripsApi.patchTrip(_username!, tripId, fields);
+  }
+
+  Future<bool> deleteTrip(int tripId) async {
+    if (_username == null) return false;
+    return _tripsApi.deleteTrip(_username!, tripId);
+  }
+
+  Future<bool> deleteTrips(List<int> tripIds) async {
+    if (_username == null) return false;
+    return _tripsApi.deleteTrips(_username!, tripIds);
+  }
+
+  Future<int> fetchNewsCount(SettingsProvider settings) {
+    // Fetched when the menu opens: not worth a login prompt.
+    return runInBackground(() => _misc.fetchNewsCount(settings.lastNewsVisit));
+  }
+
+  Future<List<NewsModel>> fetchNews(SettingsProvider settings) async {
+    final out = _misc.fetchNews(settings.lastNewsVisit);
+    settings.setLastNewsVisitNowUtc();
+    return out;
+  }
+
+  Future<double?> convertCurrency(double amount, String fromCurrency, DateTime date, String toCurrency) async {
+    return _account.convertCurrency(amount, fromCurrency, date, toCurrency);
+  }
+}

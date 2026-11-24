@@ -1374,6 +1374,12 @@ abstract class AppLocalizations {
   /// **'Unknown past'**
   String get mapFilterUnknownPast;
 
+  /// Live count under the title of a filter sheet (iOS): how many trips match the current filters
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0 {No matching trips} =1 {1 trip} other {{count} trips}}'**
+  String filterTripCount(num count);
+
   /// Primary action button in the map filter sheet showing how many trips match the current filters
   ///
   /// In en, this message translates to:
@@ -1578,7 +1584,7 @@ abstract class AppLocalizations {
   /// **'purchased on {date}'**
   String tripsDetailPurchasedDate(Object date);
 
-  /// No description provided for @tripsDetailsSectionDetails.
+  /// Section header of the trip details sheet: the details. Written as displayed on iOS: title case in English (e.g. "Country List"), sentence case in French ("Liste de pays"); Android shows it in capitals.
   ///
   /// In en, this message translates to:
   /// **'Details'**
@@ -1596,25 +1602,25 @@ abstract class AppLocalizations {
   /// **'Registration'**
   String get tripsDetailsLabelRegistration;
 
-  /// Section header for the trip operator(s)
+  /// Section header for the trip operator(s). Written as displayed on iOS: title case in English (e.g. "Country List"), sentence case in French ("Liste de pays"); Android shows it in capitals.
   ///
   /// In en, this message translates to:
   /// **'{count, plural, =1 {Operator} other {Operators}}'**
   String tripsDetailsSectionOperator(int count);
 
-  /// Section header for the trip country/countries
+  /// Section header for the trip country/countries. Written as displayed on iOS: title case in English (e.g. "Country List"), sentence case in French ("Liste de pays"); Android shows it in capitals.
   ///
   /// In en, this message translates to:
   /// **'{count, plural, =1 {Country} other {Countries}}'**
   String tripsDetailsSectionCountry(int count);
 
-  /// No description provided for @tripsDetailsSectionTicket.
+  /// Section header of the trip details sheet: the ticket. Written as displayed on iOS: title case in English (e.g. "Country List"), sentence case in French ("Liste de pays"); Android shows it in capitals.
   ///
   /// In en, this message translates to:
   /// **'Ticket'**
   String get tripsDetailsSectionTicket;
 
-  /// No description provided for @tripsDetailsSectionNotes.
+  /// Section header of the trip details sheet: the notes. Written as displayed on iOS: title case in English (e.g. "Country List"), sentence case in French ("Liste de pays"); Android shows it in capitals.
   ///
   /// In en, this message translates to:
   /// **'Notes'**
@@ -3029,6 +3035,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No place found'**
   String get mapSearchLocationNoResult;
+
+  /// Map place search, empty state: the line under "No place found", with what was searched
+  ///
+  /// In en, this message translates to:
+  /// **'No results for “{query}”.'**
+  String mapSearchLocationNoResultFor(String query);
 
   /// Label of a place category in the map search results
   ///

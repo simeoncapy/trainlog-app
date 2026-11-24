@@ -5,7 +5,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:jovial_svg/jovial_svg.dart';
 import 'package:provider/provider.dart';
 
-import 'package:trainlog_app/services/flag_cache.dart';
+import 'package:trainlog_app/core/services/flag_cache.dart';
 import 'package:trainlog_app/utils/text_utils.dart';
 
 /// Parsed-image cache, keyed by lowercased area code. Each unique flag is parsed

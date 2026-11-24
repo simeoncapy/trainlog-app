@@ -701,6 +701,17 @@ class AppLocalizationsJa extends AppLocalizations {
   String get mapFilterUnknownPast => '不明な過去';
 
   @override
+  String filterTripCount(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 件の旅行',
+      zero: '旅行なし',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String mapFilterShowTrips(num count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -1730,6 +1741,11 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get mapSearchLocationNoResult => '場所が見つかりません';
+
+  @override
+  String mapSearchLocationNoResultFor(String query) {
+    return '「$query」に一致する結果はありません。';
+  }
 
   @override
   String mapSearchLocationCategory(String category) {

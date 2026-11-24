@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:trainlog_app/data/models/trip_form_model.dart';
-import 'package:trainlog_app/data/models/trips.dart';
+import 'package:trainlog_app/utils/platform_utils.dart';
+import 'package:trainlog_app/core/data/models/trip_form_model.dart';
+import 'package:trainlog_app/core/data/models/trips.dart';
 import 'package:trainlog_app/features/trips_edit_copy/edit_trip_path_page.dart';
 import 'package:trainlog_app/features/trips_edit_copy/edit_trip_section.dart';
 import 'package:trainlog_app/features/trips_edit_copy/edit_trip_vehicle_type_page.dart';
@@ -16,17 +17,18 @@ import 'package:trainlog_app/features/trips_edit_copy/widgets/edit_trip_app_bar.
 import 'package:trainlog_app/features/trips_edit_copy/widgets/edit_trip_section_bar.dart';
 import 'package:trainlog_app/features/trips_edit_copy/widgets/edit_trip_vehicle_card.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
-import 'package:trainlog_app/platform/adaptive_page_route.dart';
-import 'package:trainlog_app/providers/settings_provider.dart';
-import 'package:trainlog_app/providers/trainlog_provider.dart';
-import 'package:trainlog_app/providers/trips_provider.dart';
-import 'package:trainlog_app/services/api/trips_api.dart';
-import 'package:trainlog_app/services/trip_edit_copy_service.dart';
+import 'package:trainlog_app/ui/adaptive/adaptive_page_route.dart';
+import 'package:trainlog_app/core/providers/settings_provider.dart';
+import 'package:trainlog_app/core/providers/trainlog_provider.dart';
+import 'package:trainlog_app/core/providers/trips_provider.dart';
+import 'package:trainlog_app/core/services/api/trips_api.dart';
+import 'package:trainlog_app/core/services/trip_edit_copy_service.dart';
 import 'package:trainlog_app/utils/date_utils.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
 import 'package:trainlog_app/widgets/error_banner.dart';
 import 'package:trainlog_app/widgets/primary_action_button.dart';
 import 'package:trainlog_app/widgets/trip_form/vehicle_type_grid.dart';
+import 'package:trainlog_app/ui/adaptive/adaptive_information_message.dart';
 
 /// Page backing both "Edit" and "Duplicate" on a trip.
 ///
@@ -273,16 +275,16 @@ class _EditCopyPageState extends State<EditCopyPage> {
     final isCopy = widget.mode == EditCopy.copy;
 
     final loc = AppLocalizations.of(context)!;
-    final messenger = ScaffoldMessenger.of(context);
     final navigator = Navigator.of(context);
     final username = context.read<TrainlogProvider>().username;
 
     // The schedule is the only thing this form can leave invalid: the stations
     // keep the position they were loaded with, so they cannot be broken here.
     if (!form.validateDate()) {
-      messenger
-        ..clearSnackBars()
-        ..showSnackBar(SnackBar(content: Text(loc.fillRequiredFields)));
+      AdaptiveInformationMessage.showInfo(
+        loc.fillRequiredFields,
+        replace: true,
+      );
       await _scrollToSection(EditTripSection.when);
       return;
     }
@@ -318,32 +320,26 @@ class _EditCopyPageState extends State<EditCopyPage> {
         );
       }
       if (!mounted) return;
-      messenger
-        ..clearSnackBars()
-        ..showSnackBar(SnackBar(
-          content: Text(
-            isCopy ? loc.duplicateTripSavedMsg : loc.editTripSavedMsg,
-          ),
-        ));
+      AdaptiveInformationMessage.showInfo(
+        isCopy ? loc.duplicateTripSavedMsg : loc.editTripSavedMsg,
+        replace: true,
+      );
       navigator.pop();
     } catch (e) {
       if (!mounted) return;
       setState(() => _saving = false);
       final reason = e is TripPatchException ? e.message : '$e';
-      messenger
-        ..clearSnackBars()
-        ..showSnackBar(
-          SnackBar(content: Text(loc.editTripSaveErrorMsg(reason))),
-        );
+      AdaptiveInformationMessage.showInfo(
+        loc.editTripSaveErrorMsg(reason),
+        replace: true,
+      );
     }
   }
 
   /// Placeholder for the actions whose logic is not implemented yet.
   void _showComingSoon() {
     final loc = AppLocalizations.of(context)!;
-    ScaffoldMessenger.of(context)
-      ..clearSnackBars()
-      ..showSnackBar(SnackBar(content: Text(loc.editTripComingSoon)));
+    AdaptiveInformationMessage.showInfo(loc.editTripComingSoon, replace: true);
   }
 
   // ─────────────────────────────────────────────────────────────
@@ -414,6 +410,9 @@ class _EditCopyPageState extends State<EditCopyPage> {
         tint: widget.mode == EditCopy.edit
             ? Theme.of(context).colorScheme.error.withValues(alpha: 0.2)
             : Theme.of(context).colorScheme.secondary.withValues(alpha: 0.2),
+        appleModeIcon: widget.mode == EditCopy.edit
+            ? AdaptiveIcons.edit
+            : AdaptiveIcons.copy,
       ),
       body: SafeArea(
         top: false,

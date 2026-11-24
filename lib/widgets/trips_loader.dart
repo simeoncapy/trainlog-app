@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:trainlog_app/providers/polyline_provider.dart';
-import 'package:trainlog_app/providers/trips_provider.dart';
+import 'package:trainlog_app/core/providers/polyline_provider.dart';
+import 'package:trainlog_app/core/providers/trips_provider.dart';
 import 'package:trainlog_app/widgets/data_loading_screen.dart';
 
 class TripsLoader extends StatefulWidget {

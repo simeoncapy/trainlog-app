@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:trainlog_app/services/api/session_expiry.dart';
-import 'package:trainlog_app/services/api/trainlog_http_client.dart';
-import 'package:trainlog_app/services/api/trips_api.dart';
+import 'package:trainlog_app/core/services/api/session_expiry.dart';
+import 'package:trainlog_app/core/services/api/trainlog_http_client.dart';
+import 'package:trainlog_app/core/services/api/trips_api.dart';
 
 import 'fake_trainlog_server.dart';
 

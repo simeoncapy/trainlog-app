@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:trainlog_app/ui/adaptive/adaptive_sheet_handle.dart';
 import 'package:provider/provider.dart';
-import 'package:trainlog_app/app/theme/app_theme.dart';
+import 'package:trainlog_app/ui/tokens/app_theme.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
-import 'package:trainlog_app/platform/adaptive_button.dart';
-import 'package:trainlog_app/platform/adaptive_information_message.dart';
-import 'package:trainlog_app/platform/adaptive_sheet.dart';
-import 'package:trainlog_app/providers/settings_provider.dart';
-import 'package:trainlog_app/providers/trainlog_provider.dart';
-import 'package:trainlog_app/utils/platform_utils.dart';
+import 'package:trainlog_app/ui/adaptive/adaptive_button.dart';
+import 'package:trainlog_app/ui/adaptive/adaptive_information_message.dart';
+import 'package:trainlog_app/ui/adaptive/adaptive_sheet.dart';
+import 'package:trainlog_app/core/providers/settings_provider.dart';
+import 'package:trainlog_app/core/providers/trainlog_provider.dart';
 
 class InstanceSelectorWidget extends StatelessWidget {
   const InstanceSelectorWidget({super.key});
@@ -163,18 +163,8 @@ class _InstanceBottomSheetState extends State<_InstanceBottomSheet> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Handle (the Apple glass sheet draws its own).
-              if (!AppPlatform.isApple) Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  margin: const EdgeInsets.only(bottom: 20),
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.outline,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
+              // Handle (the iOS glass sheet draws its own).
+              const AdaptiveSheetHandle(margin: EdgeInsets.only(bottom: 20)),
 
               Text(
                 loc.dialogueChangeInstanceTitle,

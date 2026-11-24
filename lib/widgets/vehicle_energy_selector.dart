@@ -1,26 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
-import 'package:trainlog_app/platform/adaptive_segmented_button.dart';
+import 'package:trainlog_app/core/data/models/energy_type.dart';
+import 'package:trainlog_app/ui/adaptive/adaptive_segmented_button.dart';
 
-enum EnergyType {
-  auto, electric, thermic;
-
-  /// Parses the power type as the site spells it, falling back to [auto] —
-  /// which is also what the site assumes when the trip has none.
-  static EnergyType fromString(String? s) {
-    switch (s?.toLowerCase().trim()) {
-      case 'electric':
-        return EnergyType.electric;
-      case 'thermic':
-      case 'thermal':
-      case 'diesel':
-      case 'fuel':
-        return EnergyType.thermic;
-      default:
-        return EnergyType.auto;
-    }
-  }
-}
+export 'package:trainlog_app/core/data/models/energy_type.dart';
 
 class VehicleEnergySelector extends StatelessWidget {
   final EnergyType value;

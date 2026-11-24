@@ -1,9 +1,9 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:trainlog_app/data/models/edited_route.dart';
-import 'package:trainlog_app/data/models/trip_form_model.dart';
-import 'package:trainlog_app/data/models/trips.dart';
+import 'package:trainlog_app/core/data/models/edited_route.dart';
+import 'package:trainlog_app/core/data/models/trip_form_model.dart';
+import 'package:trainlog_app/core/data/models/trips.dart';
 
 /// A trip as the edit endpoint describes it: `wplist` as its path.
 Trips _trip({String? waypoints}) => Trips.fromJson(

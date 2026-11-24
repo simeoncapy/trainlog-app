@@ -1,6 +1,6 @@
 import 'dart:ui' show FontFeature;
 import 'package:flutter/material.dart';
-import 'package:trainlog_app/app/theme/app_theme.dart';
+import 'package:trainlog_app/ui/tokens/app_theme.dart';
 
 /// Displays stats as a table: Label | Past | Future | Total
 /// `stats`: key -> (past, future)

@@ -317,6 +317,13 @@
   "@mapFilterUnknownPast": {
     "description": "Button in the year filter grid that toggles trips with an unknown past date"
   },
+  "filterTripCount": "{count, plural, =0 {No matching trips} =1 {1 trip} other {{count} trips}}",
+  "@filterTripCount": {
+    "description": "Live count under the title of a filter sheet (iOS): how many trips match the current filters",
+    "placeholders": {
+      "count": {}
+    }
+  },
   "mapFilterShowTrips": "{count, plural, =0 {Show no trips} =1 {Show 1 trip} other {Show {count} trips}}",
   "@mapFilterShowTrips": {
     "description": "Primary action button in the map filter sheet showing how many trips match the current filters",
@@ -373,11 +380,14 @@
     }
   },
   "tripsDetailsSectionDetails": "Details",
+  "@tripsDetailsSectionDetails": {
+    "description": "Section header of the trip details sheet: the details. Written as displayed on iOS: title case in English (e.g. \"Country List\"), sentence case in French (\"Liste de pays\"); Android shows it in capitals."
+  },
   "tripsDetailsLabelVehicle": "Vehicle",
   "tripsDetailsLabelRegistration": "Registration",
   "tripsDetailsSectionOperator": "{count, plural, =1 {Operator} other {Operators}}",
   "@tripsDetailsSectionOperator": {
-    "description": "Section header for the trip operator(s)",
+    "description": "Section header for the trip operator(s). Written as displayed on iOS: title case in English (e.g. \"Country List\"), sentence case in French (\"Liste de pays\"); Android shows it in capitals.",
     "placeholders": {
       "count": {
         "type": "int"
@@ -386,7 +396,7 @@
   },
   "tripsDetailsSectionCountry": "{count, plural, =1 {Country} other {Countries}}",
   "@tripsDetailsSectionCountry": {
-    "description": "Section header for the trip country/countries",
+    "description": "Section header for the trip country/countries. Written as displayed on iOS: title case in English (e.g. \"Country List\"), sentence case in French (\"Liste de pays\"); Android shows it in capitals.",
     "placeholders": {
       "count": {
         "type": "int"
@@ -394,7 +404,13 @@
     }
   },
   "tripsDetailsSectionTicket": "Ticket",
+  "@tripsDetailsSectionTicket": {
+    "description": "Section header of the trip details sheet: the ticket. Written as displayed on iOS: title case in English (e.g. \"Country List\"), sentence case in French (\"Liste de pays\"); Android shows it in capitals."
+  },
   "tripsDetailsSectionNotes": "Notes",
+  "@tripsDetailsSectionNotes": {
+    "description": "Section header of the trip details sheet: the notes. Written as displayed on iOS: title case in English (e.g. \"Country List\"), sentence case in French (\"Liste de pays\"); Android shows it in capitals."
+  },
   "tripsDetailsMetricAvgSpeed": "Avg speed",
   "tripsDetailsNoDate": "No date set",
   "tripsDetailsEditButton": "Edit",
@@ -1039,6 +1055,15 @@
   "mapSearchLocationHint": "Search a place, an address, a hotel...",
   "mapSearchLocationTip": "If you cannot find your location, search for the place in the local language.",
   "mapSearchLocationNoResult": "No place found",
+  "mapSearchLocationNoResultFor": "No results for “{query}”.",
+  "@mapSearchLocationNoResultFor": {
+    "description": "Map place search, empty state: the line under \"No place found\", with what was searched",
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
   "mapSearchLocationCategory": "{category, select, railStation{Station} metro{Metro} tram{Tram stop} busStop{Bus stop} ferry{Ferry terminal} airport{Airport} aerialway{Cable car} hotel{Accommodation} food{Food & drink} shop{Shop} publicBuilding{Public building} health{Health} education{Education} tourism{Tourism} religion{Place of worship} nature{Nature} sport{Sport} city{City} district{District} region{Region} street{Street} address{Address} other{Place}}",
   "@mapSearchLocationCategory": {
     "description": "Label of a place category in the map search results",

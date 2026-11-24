@@ -1,11 +1,10 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:trainlog_app/app/theme/app_colors.dart';
-import 'package:trainlog_app/data/models/trips.dart';
-import 'package:trainlog_app/providers/settings_provider.dart';
+import 'package:trainlog_app/ui/tokens/app_colors.dart';
+import 'package:trainlog_app/ui/tokens/app_theme.dart';
+import 'package:trainlog_app/core/data/models/trips.dart';
+import 'package:trainlog_app/core/providers/settings_provider.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
-import 'package:trainlog_app/utils/platform_utils.dart';
 
 /// Resolves the route/vehicle palette colour for [trip] using the user's
 /// selected map colour palette. Falls back to the theme primary colour when the
@@ -31,25 +30,78 @@ Color detailBorderColor(BuildContext context) {
   return isDark ? Colors.white.withValues(alpha: 0.08) : AppColors.lightLine;
 }
 
+/// How the sections of the sheet look in the design that hosts them. The
+/// Material sheet uses the defaults; the iOS sheet provides its own above
+/// its content.
+class TripDetailsStyle extends InheritedWidget {
+  const TripDetailsStyle({
+    super.key,
+    required super.child,
+    this.fill,
+    this.metricRadius = 16,
+    this.closeIcon = Icons.keyboard_arrow_down,
+    this.chip,
+    this.durationPill = true,
+    this.metricCards = true,
+    this.capsTitles = true,
+  });
+
+  /// Background of the small surfaces; null for the default (solid surface
+  /// with a hairline border).
+  final BoxDecoration Function(BuildContext context, BorderRadius radius)?
+  fill;
+
+  /// Corner radius of the metric cards.
+  final double metricRadius;
+
+  /// Icon of the header's close button.
+  final IconData closeIcon;
+
+  /// Draws the header's visibility chip around its content (icon + label);
+  /// null for the default filled capsule.
+  final Widget Function(BuildContext context, Widget content)? chip;
+
+  /// The timeline's duration sits in a filled pill; false for the bare icon
+  /// and text.
+  final bool durationPill;
+
+  /// Distance and speed are cards; false for a row of captioned stats, like
+  /// the place facts of Apple Maps.
+  final bool metricCards;
+
+  /// Section titles and field labels in small amber / grey capitals; false
+  /// for the ARB string as written (its casing is per language), section
+  /// titles bold in the title font, as in Apple Maps.
+  final bool capsTitles;
+
+  static const _defaults = TripDetailsStyle(child: SizedBox.shrink());
+
+  static TripDetailsStyle of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<TripDetailsStyle>() ??
+      _defaults;
+
+  @override
+  bool updateShouldNotify(TripDetailsStyle old) =>
+      fill != old.fill ||
+      metricRadius != old.metricRadius ||
+      closeIcon != old.closeIcon ||
+      chip != old.chip ||
+      durationPill != old.durationPill ||
+      metricCards != old.metricCards ||
+      capsTitles != old.capsTitles;
+}
+
 /// Background of the small surfaces in the sheet (metric cards, duration
-/// pill, visibility chip, notes box).
-///
-/// iOS: like the grouped boxes and the "Now" / "Avoid" pills of an Apple Maps
-/// sheet, a translucent system grey fill with no border, so the glass of the
-/// sheet shows through. [capsule] gives the fully rounded pill shape.
-/// Android keeps the solid surface with a hairline border.
+/// pill, visibility chip, notes box), from [TripDetailsStyle]. [capsule]
+/// gives the fully rounded pill shape.
 BoxDecoration detailFillDecoration(
   BuildContext context, {
   double radius = 12,
   bool capsule = false,
 }) {
   final borderRadius = BorderRadius.circular(capsule ? 999 : radius);
-  if (AppPlatform.isApple) {
-    return BoxDecoration(
-      color: CupertinoColors.secondarySystemFill.resolveFrom(context),
-      borderRadius: borderRadius,
-    );
-  }
+  final fill = TripDetailsStyle.of(context).fill;
+  if (fill != null) return fill(context, borderRadius);
   return BoxDecoration(
     color: detailSurfaceColor(context),
     borderRadius: borderRadius,
@@ -72,6 +124,15 @@ class TripDetailsSectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (!TripDetailsStyle.of(context).capsTitles) {
+      final theme = Theme.of(context);
+      return Text(
+        label,
+        style: theme.textTheme.titleMedium
+            ?.merge(AppTheme.displayFont)
+            .copyWith(color: theme.colorScheme.primary, letterSpacing: 0),
+      );
+    }
     return Text(
       label.toUpperCase(),
       style: TextStyle(

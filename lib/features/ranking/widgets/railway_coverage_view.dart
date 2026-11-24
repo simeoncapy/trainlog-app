@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'package:trainlog_app/data/models/ranking_model.dart';
+import 'package:trainlog_app/core/data/models/ranking_model.dart';
 import 'package:trainlog_app/features/ranking/rail_area_ranking_page.dart';
 import 'package:trainlog_app/features/ranking/widgets/coverage_list_card.dart';
 import 'package:trainlog_app/features/ranking/widgets/coverage_progress_ring.dart';
 import 'package:trainlog_app/features/ranking/widgets/ranking_filter_controls.dart';
 import 'package:trainlog_app/features/ranking/widgets/flag_image.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
-import 'package:trainlog_app/platform/adaptive_page_route.dart';
-import 'package:trainlog_app/providers/railway_coverage_provider.dart';
-import 'package:trainlog_app/providers/trainlog_provider.dart';
-import 'package:trainlog_app/services/flag_cache.dart';
+import 'package:trainlog_app/ui/adaptive/adaptive_page_route.dart';
+import 'package:trainlog_app/core/providers/railway_coverage_provider.dart';
+import 'package:trainlog_app/core/providers/trainlog_provider.dart';
+import 'package:trainlog_app/core/services/flag_cache.dart';
 import 'package:trainlog_app/utils/number_formatter.dart';
 import 'package:trainlog_app/utils/text_utils.dart';
-import 'package:trainlog_app/widgets/app_steps_tab_bar.dart';
-import 'package:trainlog_app/widgets/bottom_sheet_picker.dart';
+import 'package:trainlog_app/ui/adaptive/app_steps_tab_bar.dart';
+import 'package:trainlog_app/ui/adaptive/bottom_sheet_picker.dart';
 
 /// The Railway Coverage sub-feature: a user-position block, a Countries/Regions
 /// segmented tab bar with inline sorting, and the matching list (a country list,

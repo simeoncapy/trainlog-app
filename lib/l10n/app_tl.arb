@@ -227,6 +227,7 @@
   "mapFilterSelectYears": "Pumili ng mga taon",
   "mapFilterUnknownFuture": "Hindi alam na hinaharap",
   "mapFilterUnknownPast": "Hindi alam na nakaraan",
+  "filterTripCount": "{count, plural, =0 {Walang byahe} =1 {1 byahe} other {{count} byahe}}",
   "mapFilterShowTrips": "{count, plural, =0 {Walang byahe} other {Ipakita ang {count} byahe}}",
   "@mapFilterShowTrips": {
     "description": "Primary action button in the map filter sheet showing how many trips match the current filters",
@@ -678,6 +679,7 @@
   "mapSearchLocationHint": "Maghanap ng lugar, address, hotel...",
   "mapSearchLocationTip": "Kung hindi mo mahanap ang iyong lokasyon, hanapin ang lugar sa lokal na wika o sa Ingles.",
   "mapSearchLocationNoResult": "Walang nahanap na lugar",
+  "mapSearchLocationNoResultFor": "Walang resulta para sa “{query}”.",
   "mapSearchLocationCategory": "{category, select, railStation{Istasyon} metro{Metro} tram{Hintuan ng tram} busStop{Hintuan ng bus} ferry{Terminal ng ferry} airport{Paliparan} aerialway{Cable car} hotel{Matutuluyan} food{Kainan} shop{Tindahan} publicBuilding{Pampublikong gusali} health{Kalusugan} education{Edukasyon} tourism{Turismo} religion{Lugar ng pagsamba} nature{Kalikasan} sport{Isports} city{Lungsod} district{Distrito} region{Rehiyon} street{Kalye} address{Address} other{Lugar}}",
   "sessionExpiredBanner": "Nag-expire ang session: hindi naka-sync ang mga biyahe mo",
   "sessionExpiredTitle": "Nag-expire ang session",

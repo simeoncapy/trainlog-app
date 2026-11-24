@@ -718,6 +718,18 @@ class AppLocalizationsTl extends AppLocalizations {
   String get mapFilterUnknownPast => 'Hindi alam na nakaraan';
 
   @override
+  String filterTripCount(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count byahe',
+      one: '1 byahe',
+      zero: 'Walang byahe',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String mapFilterShowTrips(num count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -1760,6 +1772,11 @@ class AppLocalizationsTl extends AppLocalizations {
 
   @override
   String get mapSearchLocationNoResult => 'Walang nahanap na lugar';
+
+  @override
+  String mapSearchLocationNoResultFor(String query) {
+    return 'Walang resulta para sa “$query”.';
+  }
 
   @override
   String mapSearchLocationCategory(String category) {

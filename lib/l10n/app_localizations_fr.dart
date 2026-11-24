@@ -731,6 +731,18 @@ class AppLocalizationsFr extends AppLocalizations {
   String get mapFilterUnknownPast => 'Passé inconnu';
 
   @override
+  String filterTripCount(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count trajets',
+      one: '1 trajet',
+      zero: 'Aucun trajet',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String mapFilterShowTrips(num count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -1796,6 +1808,11 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get mapSearchLocationNoResult => 'Aucun lieu trouvé';
+
+  @override
+  String mapSearchLocationNoResultFor(String query) {
+    return 'Aucun résultat pour « $query ».';
+  }
 
   @override
   String mapSearchLocationCategory(String category) {

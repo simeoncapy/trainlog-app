@@ -1,10 +1,10 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:trainlog_app/providers/settings_provider.dart';
-import 'package:trainlog_app/providers/trainlog_provider.dart';
-import 'package:trainlog_app/services/api/session_expiry.dart';
-import 'package:trainlog_app/services/api/trainlog_http_client.dart';
+import 'package:trainlog_app/core/providers/settings_provider.dart';
+import 'package:trainlog_app/core/providers/trainlog_provider.dart';
+import 'package:trainlog_app/core/services/api/session_expiry.dart';
+import 'package:trainlog_app/core/services/api/trainlog_http_client.dart';
 
 import 'fake_trainlog_server.dart';
 

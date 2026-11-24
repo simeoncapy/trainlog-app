@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:trainlog_app/data/models/trips.dart';
+import 'package:trainlog_app/core/data/models/trips.dart';
 import 'package:trainlog_app/features/trips/detail_sheet/trip_details_common.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 
@@ -40,7 +40,6 @@ class TripDetailsNotes extends StatelessWidget {
                 child: Text(
                   note,
                   style: TextStyle(
-                    fontStyle: FontStyle.italic,
                     color: muted,
                     height: 1.35,
                   ),

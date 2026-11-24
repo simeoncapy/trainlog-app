@@ -1,0 +1,1069 @@
+import 'dart:collection';
+//import 'dart:ffi';
+import 'dart:io';
+import 'package:csv/csv.dart';
+import 'package:flutter/material.dart';
+import 'package:sqflite/sqflite.dart';
+import 'package:trainlog_app/core/data/models/trips.dart';
+import 'package:trainlog_app/core/data/database_manager.dart';
+import 'package:trainlog_app/core/providers/settings_provider.dart';
+import 'package:diacritic/diacritic.dart';
+import 'dart:convert';
+import 'package:country_picker/country_picker.dart';
+import 'package:trainlog_app/utils/date_utils.dart';
+import 'package:trainlog_app/core/data/models/trips_filter.dart';
+
+// TripsTable defined lower
+
+// HELPERS --------------------------------------------------------------------
+extension _OpSplitExt on String {
+  List<String> _splitOperatorsDecoded() {
+    String decoded;
+    try {
+      decoded = Uri.decodeComponent(this);
+    } catch (_) {
+      decoded = this; // fall back to raw value if not valid percent-encoding
+    }
+
+    // Multi-operator trips separate names with "&&" or a comma (the same
+    // convention the trip views use when splitting `operatorName`).
+    return decoded
+        .split(RegExp(r'\s*(?:&&|%26%26|,)\s*'))
+        .map((s) => s.trim())
+        .where((s) => s.isNotEmpty)
+        .toList();
+  }
+}
+
+LinkedHashMap<K, V> _sortedByValueDesc<K, V extends num>(Map<K, V> map) {
+  final entries = map.entries.toList()
+    ..sort((a, b) => b.value.compareTo(a.value)); // descending
+  return LinkedHashMap.fromEntries(entries);
+}
+
+LinkedHashMap<K, V> _sortedBySumDesc<K, V>(
+  Map<K, V> map,
+  num Function(V v) sumOf,
+) {
+  final entries = map.entries.toList()
+    ..sort((a, b) => sumOf(b.value).compareTo(sumOf(a.value))); // desc
+  return LinkedHashMap.fromEntries(entries);
+}
+
+// CLASS -----------------------------------------------------------------------
+class TripsRepository {
+  final Database _db;
+  bool _schemaChecked = false;
+
+  TripsRepository(this._db);
+
+  static Future<TripsRepository> loadFromCsv(String csvPathOrContent, {bool replace = false, bool path = true}) async {
+    debugPrint("Trip load from CSV");
+    String content;
+    if(path){
+      final csvPath = csvPathOrContent;
+      if (!File(csvPath).existsSync()) {
+        throw FileSystemException('CSV file not found', csvPath);
+      }
+
+      content = await File(csvPath).readAsString();
+    }
+    else {
+      content = csvPathOrContent;
+    }
+
+    final trips = await parseCsv(content);
+    final db = await DatabaseManager.database;
+    final repo = TripsRepository(db);
+
+    if (replace) {
+      await repo.clearAllTrips();
+    }
+
+    await repo.insertTrips(trips);
+    return repo;
+  }
+
+  static Future<TripsRepository> loadFromDatabase() async {
+    debugPrint("Trip load from DB");
+    final db = await DatabaseManager.database;
+    return TripsRepository(db);
+  }
+
+  static Future<TripsRepository> loadFromTripsList(List<Trips> trips, {bool clearTableFirst = false}) async {
+    debugPrint("Load from trip list");
+    final db = await DatabaseManager.database;
+    final repo = TripsRepository(db);
+
+    if (clearTableFirst) {
+      await repo.clearAllTrips();
+    }
+
+    await repo.insertTrips(trips);
+
+    return repo;
+  }
+
+  Future<Trips?> getTripById(int id) async {
+    // Query the database for a single trip with the matching ID.
+    final maps = await _db.query(
+      TripsTable.tableName,
+      where: 'uid = ?',
+      whereArgs: [id.toString()],
+      limit: 1,
+    );
+
+    if (maps.isNotEmpty) {
+      return Trips.fromJson(maps.first);
+    } else {
+      return null; // No trip found with that ID
+    }
+  }
+
+  Future<List<Trips>> getAllTrips({int? limit, int? offset, String? orderBy}) async {
+    final maps = await _db.query(
+      TripsTable.tableName,
+      limit: limit,
+      offset: offset,
+      orderBy: orderBy,
+    );
+    return maps.map((map) => Trips.fromJson(map)).toList();
+  }
+
+  Future<List<Trips>> getTripsFiltered({
+    required bool showFutureTrips,
+    int? limit,
+    int? offset,
+    String? orderBy,
+    TripsFilterResult? filter,
+  }) async {
+    final whereInfo  = _buildWhereClause(showFutureTrips: showFutureTrips, filter: filter);
+
+    final maps = await _db.query(
+      TripsTable.tableName,
+      where: whereInfo['where'] as String,
+      whereArgs: whereInfo['args'] as List<dynamic>,
+      limit: limit,
+      offset: offset,
+      orderBy: orderBy,
+    );
+
+    return maps.map((map) => Trips.fromJson(map)).toList();
+  }
+
+  Future<int> count() async {
+    final result = await _db.rawQuery('SELECT COUNT(*) FROM ${TripsTable.tableName}');
+    return Sqflite.firstIntValue(result) ?? 0;
+  }
+
+  Future<bool> hasTripsModifiedSince(DateTime since) async {
+    final result = await _db.rawQuery(
+      'SELECT COUNT(*) FROM ${TripsTable.tableName} WHERE last_modified > ?',
+      [since.toUtc().toIso8601String()],
+    );
+    return (Sqflite.firstIntValue(result) ?? 0) > 0;
+  }
+
+  Future<int> countFilteredTrips({required bool showFutureTrips, TripsFilterResult? filter,}) async {
+    final whereInfo = _buildWhereClause(showFutureTrips: showFutureTrips, filter: filter);
+
+    final result = await _db.rawQuery(
+      'SELECT COUNT(*) FROM ${TripsTable.tableName} WHERE ${whereInfo['where']}',
+      whereInfo['args'] as List<dynamic>,
+    );
+
+    return Sqflite.firstIntValue(result) ?? 0;
+  }
+
+  Map<String, dynamic> _buildWhereClause({
+    required bool showFutureTrips,
+    TripsFilterResult? filter,
+  }) {
+    final now = DateTime.now().toUtc().toIso8601String();
+    final clauses = <String>[];
+    final args = <dynamic>[];
+
+    // Date filter — a quick chip or a custom From/To range. When present it
+    // overrides the page-level past/future scoping (the "When" section is the
+    // single source of truth for time).
+    final range = filter?.dateRange();
+    final hasDateFilter = range != null && (range.start != null || range.end != null);
+
+    if (hasDateFilter) {
+      if (range.start != null) {
+        clauses.add('start_datetime >= ?');
+        args.add(range.start!.toIso8601String());
+      }
+      if (range.end != null) {
+        clauses.add('start_datetime < ?');
+        args.add(range.end!.toIso8601String());
+      }
+    } else {
+      // Page-level time scoping (Past / Future tabs)
+      clauses.add('utc_start_datetime ${showFutureTrips ? '>' : '<='} ?');
+      args.add(now);
+    }
+
+    // Keyword (text search over stations, line, material and operator)
+    if (filter?.keyword.trim().isNotEmpty ?? false) {
+      final keyword = removeDiacritics(filter!.keyword.trim().toLowerCase());
+      clauses.add('('
+          'LOWER(origin_station) LIKE ? OR '
+          'LOWER(destination_station) LIKE ? OR '
+          'LOWER(material_type) LIKE ? OR '
+          'LOWER(line_name) LIKE ? OR '
+          'LOWER(operator) LIKE ?'
+          ')');
+      for (int i = 0; i < 5; i++) {
+        args.add('%$keyword%');
+      }
+    }
+
+    // Operators (multi-select, OR'd). The column stores percent-encoded
+    // names joined by "&&", so match both the raw and the encoded form.
+    if (filter != null && filter.operators.isNotEmpty) {
+      final sub = <String>[];
+      for (final op in filter.operators) {
+        sub.add('operator LIKE ?');
+        args.add('%$op%');
+        final encoded = Uri.encodeComponent(op);
+        if (encoded != op) {
+          sub.add('operator LIKE ?');
+          args.add('%$encoded%');
+        }
+      }
+      clauses.add('(${sub.join(' OR ')})');
+    }
+
+    // Countries (multi-select, OR'd) — the JSON string contains the country
+    // code as a key like "JP".
+    if (filter != null && filter.countries.isNotEmpty) {
+      final sub = <String>[];
+      for (final code in filter.countries) {
+        sub.add('countries LIKE ?');
+        args.add('%"$code"%');
+      }
+      clauses.add('(${sub.join(' OR ')})');
+    }
+
+    // Types
+    if (filter?.types.isNotEmpty ?? false) {
+      final types = filter!.types.map((t) => t.toShortString()).toList();
+      final placeholders = List.filled(types.length, '?').join(',');
+      clauses.add('type IN ($placeholders)');
+      args.addAll(types);
+    }
+
+    return {
+      'where': clauses.join(' AND '),
+      'args': args,
+    };
+  }
+
+  Future<List<String>> getPaths() async {
+    final maps = await _db.query(
+      TripsTable.tableName,
+      columns: ['path'],
+      where: 'path IS NOT NULL AND path != \'\'',
+    );
+    return maps.map((m) => m['path'] as String).toList();
+  }
+
+  /// Returns all trip UIDs that have a non-empty path stored in the DB.
+  /// Used to verify that the loaded polyline list is complete.
+  Future<List<String>> getTripIdsWithPath() async {
+    final maps = await _db.query(
+      TripsTable.tableName,
+      columns: ['uid'],
+      where: 'path IS NOT NULL AND path != \'\'',
+    );
+    return maps.map((m) => m['uid'] as String).toList();
+  }
+
+  /// Returns path-related data only for the trips identified by [ids].
+  /// Used to recover polylines that were missing from a previous load.
+  Future<List<Map<String, dynamic>>> getPathExtendedDataForIds(List<String> ids) async {
+    if (ids.isEmpty) return [];
+
+    final placeholders = List.filled(ids.length, '?').join(',');
+    final maps = await _db.query(
+      TripsTable.tableName,
+      columns: [
+        'uid',
+        'path',
+        'type',
+        'origin_station',
+        'destination_station',
+        'start_datetime',
+        'end_datetime',
+        'utc_start_datetime',
+        'utc_end_datetime',
+        'created',
+      ],
+      where: 'uid IN ($placeholders) AND path IS NOT NULL AND path != \'\'',
+      whereArgs: ids,
+    );
+
+    return maps.map((e) {
+      final typeEnum = VehicleType.fromString(e['type']?.toString());
+      return {
+        ...e,
+        'type': typeEnum,
+      };
+    }).toList();
+  }
+
+  Future<List<Map<String, dynamic>>> getPathExtendedData([
+    PathDisplayOrder order = PathDisplayOrder.creationDate,
+  ]) async {
+    final maps = await _db.query(
+      TripsTable.tableName,
+      columns: [
+        'uid',
+        'path',
+        'type',
+        'origin_station',
+        'destination_station',
+        'start_datetime',
+        'end_datetime',
+        'utc_start_datetime', 
+        'utc_end_datetime',
+        'created',              // Needed for sorting by creationDate
+      ],
+      where: 'path IS NOT NULL AND path != \'\'',
+    );
+
+    final list = maps.map((e) {
+      final typeEnum = VehicleType.fromString(e['type']?.toString());
+      return {
+        ...e,
+        'type': typeEnum,
+      };
+    }).toList();
+
+    switch (order) {
+      case PathDisplayOrder.creationDate:
+        break;
+
+      case PathDisplayOrder.tripDate:
+        list.sort((a, b) =>
+            DateTime.parse(a['start_datetime'] as String)
+                .compareTo(DateTime.parse(b['start_datetime'] as String)));
+        break;
+
+      case PathDisplayOrder.tripDatePlaneOver:
+        final nonAir = list
+            .where((e) => e['type'] != VehicleType.plane)
+            .toList()
+          ..sort((a, b) =>
+              DateTime.parse(a['start_datetime'] as String)
+                  .compareTo(DateTime.parse(b['start_datetime'] as String)));
+        final air = list
+            .where((e) => e['type'] == VehicleType.plane)
+            .toList()
+          ..sort((a, b) =>
+              DateTime.parse(a['created'] as String)
+                  .compareTo(DateTime.parse(b['created'] as String)));
+
+        return [...nonAir, ...air];
+    }
+
+    return list;
+  }
+
+
+  Future<List<VehicleType>> fetchListOfTypes() async {
+    final maps = await _db.query(
+      TripsTable.tableName,
+      columns: ['type'],
+      where: 'type IS NOT NULL AND type != \'\'',
+    );
+
+    final types = maps
+        .map((map) => VehicleType.fromString(map['type'] as String))
+        .where((name) => name != VehicleType.unknown)
+        .toSet()
+        .toList()
+        ..sort((a, b) => a.index.compareTo(b.index));
+
+    return types;
+  }
+
+  Future<List<String>> fetchListOfOperators() async {
+    final maps = await _db.query(
+      TripsTable.tableName,
+      columns: ['operator'],
+      where: 'operator IS NOT NULL AND operator != \'\'',
+    );
+
+    // Use a Set to dedupe after splitting
+    final Set<String> opSet = {};
+
+    for (final row in maps) {
+      final raw = row['operator'] as String?;
+      if (raw == null || raw.trim().isEmpty) continue;
+
+      // Use helper to decode + split
+      for (final op in raw._splitOperatorsDecoded()) {
+        opSet.add(op);
+      }
+    }
+
+    final operators = opSet.toList();
+
+    // Sort alphabetically, ignoring case and diacritics
+    operators.sort((a, b) =>
+        removeDiacritics(a).toLowerCase().compareTo(removeDiacritics(b).toLowerCase()));
+
+    return operators;
+  }
+
+
+  Future<List<int>> fetchListOfYears() async {
+    final dates = await fetchListOfYearsWithUnknown();
+
+    dates.remove(unknownPast.year);
+    dates.remove(unknownFuture.year);
+
+    return dates;
+  }
+
+  Future<List<int>> fetchListOfYearsWithUnknown() async {
+    final maps = await _db.query(
+      TripsTable.tableName,
+      columns: ['start_datetime'],
+      where: 'start_datetime IS NOT NULL AND start_datetime != \'\'',
+    );
+
+    final dates = maps
+        .map((map) => DateTime.parse(map['start_datetime'] as String).year)
+        .toSet()
+        .toList()
+        ..sort();
+
+    return dates;
+  }
+
+  Future<List<String>> fetchListOfCountryCode() async {
+    final maps = await _db.query(
+      TripsTable.tableName,
+      columns: ['countries'],
+      where: 'countries IS NOT NULL AND countries != \'\'',
+    );
+
+    final Set<String> countryCodes = {};
+
+    for (final map in maps) {
+      final raw = map['countries'] as String;
+      String decoded;
+      try {
+        decoded = Uri.decodeComponent(raw);
+      } catch (_) {
+        decoded = raw;
+      }
+
+      try {
+        final Map<String, dynamic> json = jsonDecode(decoded);
+        countryCodes.addAll(json.keys);
+      } catch (e) {
+        debugPrint('⚠️ Failed to decode country JSON: $decoded');
+      }
+    }
+
+    final sorted = countryCodes.toList()
+      ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
+    return sorted;
+  }
+
+  Future<Map<String, String>> fetchMapOfCountries(CountryLocalizations details) async {
+    //final details = CountryLocalizations.of(context);
+    final listCodes = await fetchListOfCountryCode();
+
+    final Map<String, String> map = {
+      for (final code in listCodes)
+        code: details.countryName(countryCode: code) ?? code,
+    };
+
+    final sorted = Map.fromEntries(
+      map.entries.toList()
+        ..sort((a, b) => a.value.toLowerCase().compareTo(b.value.toLowerCase())),
+    );
+
+    return sorted;
+  }
+
+  /// Sum of distances (trip_length) per operator.
+  /// Note: if a trip lists multiple operators, the full distance is added to each operator
+  /// (i.e., “involved in”). Change logic if you prefer dividing distance among operators.
+  Future<LinkedHashMap<String, double>> fetchOperatorsByDistance({
+    required bool showFutureTrips,
+    TripsFilterResult? filter,
+    bool splitDistance = false,
+  }) async {
+    // Build WHERE from existing logic
+    final whereInfo = _buildWhereClause(showFutureTrips: showFutureTrips, filter: filter);
+    final where = [
+      whereInfo['where'] as String,
+      'operator IS NOT NULL AND operator != \'\'',
+      'trip_length IS NOT NULL'
+    ].where((w) => w.isNotEmpty).join(' AND ');
+    final args = (whereInfo['args'] as List<dynamic>);
+
+    final rows = await _db.query(
+      TripsTable.tableName,
+      columns: ['operator', 'trip_length'],
+      where: where,
+      whereArgs: args,
+    );
+
+    final Map<String, double> totals = {};
+
+    for (final row in rows) {
+      final rawOp = row['operator'] as String?;
+      if (rawOp == null || rawOp.trim().isEmpty) continue;
+
+      final length = (row['trip_length'] as num?)?.toDouble() ?? 0.0;
+      if (length <= 0) continue;
+
+      final ops = rawOp._splitOperatorsDecoded();
+      final share = splitDistance && ops.isNotEmpty ? (length / ops.length) : length;
+
+      for (final op in ops) {
+        totals.update(op, (v) => v + share, ifAbsent: () => share);
+      }
+    }
+
+    return _sortedByValueDesc(totals);
+  }
+
+  Future<LinkedHashMap<String, ({double past, double future})>> fetchOperatorsByDistancePF({
+    TripsFilterResult? filter,
+    bool splitDistance = false,
+  }) async {
+    // Build WHERE twice: once for past, once for future
+    final pastWhere  = _buildWhereClause(showFutureTrips: false, filter: filter);
+    final futureWhere= _buildWhereClause(showFutureTrips: true,  filter: filter);
+
+    // Add operator/trip_length constraints
+    String _augmentWhere(Map<String, dynamic> info) => [
+      info['where'] as String,
+      'operator IS NOT NULL AND operator != \'\'',
+      'trip_length IS NOT NULL'
+    ].where((w) => w.isNotEmpty).join(' AND ');
+
+    final pastRows = await _db.query(
+      TripsTable.tableName,
+      columns: ['operator', 'trip_length'],
+      where: _augmentWhere(pastWhere),
+      whereArgs: pastWhere['args'] as List<dynamic>,
+    );
+
+    final futureRows = await _db.query(
+      TripsTable.tableName,
+      columns: ['operator', 'trip_length'],
+      where: _augmentWhere(futureWhere),
+      whereArgs: futureWhere['args'] as List<dynamic>,
+    );
+
+    // Accumulate
+    final Map<String, ({double past, double future})> totals = {};
+
+    void addRows(Iterable<Map<String, Object?>> rows, {required bool isFuture}) {
+      for (final row in rows) {
+        final rawOp = row['operator'] as String?;
+        if (rawOp == null || rawOp.trim().isEmpty) continue;
+
+        final length = (row['trip_length'] as num?)?.toDouble() ?? 0.0;
+        if (length <= 0) continue;
+
+        final ops = rawOp._splitOperatorsDecoded();
+        if (ops.isEmpty) continue;
+
+        final share = splitDistance ? (length / ops.length) : length;
+
+        for (final op in ops) {
+          final current = totals[op] ?? (past: 0.0, future: 0.0);
+          totals[op] = isFuture
+            ? (past: current.past, future: current.future + share)
+            : (past: current.past + share, future: current.future);
+        }
+      }
+    }
+
+    addRows(pastRows,   isFuture: false);
+    addRows(futureRows, isFuture: true);
+
+    // Sort by (past + future) desc and return LinkedHashMap
+    return _sortedBySumDesc(totals, (v) => v.past + v.future);
+  }
+
+
+  /// Number of trips each operator is involved in.
+  /// A trip with multiple operators increments *each* operator by 1.
+  Future<LinkedHashMap<String, int>> fetchOperatorsByTrip({
+    required bool showFutureTrips,
+    TripsFilterResult? filter,
+  }) async {
+    final whereInfo = _buildWhereClause(showFutureTrips: showFutureTrips, filter: filter);
+    final where = [
+      whereInfo['where'] as String,
+      'operator IS NOT NULL AND operator != \'\'',
+    ].where((w) => w.isNotEmpty).join(' AND ');
+    final args = (whereInfo['args'] as List<dynamic>);
+
+    final rows = await _db.query(
+      TripsTable.tableName,
+      columns: ['operator'],
+      where: where,
+      whereArgs: args,
+    );
+
+    final Map<String, int> counts = {};
+
+    for (final row in rows) {
+      final rawOp = row['operator'] as String?;
+      if (rawOp == null || rawOp.trim().isEmpty) continue;
+
+      for (final op in rawOp._splitOperatorsDecoded()) {
+        counts.update(op, (v) => v + 1, ifAbsent: () => 1);
+      }
+    }
+
+    return _sortedByValueDesc(counts);
+  }
+
+  Future<LinkedHashMap<String, ({int past, int future})>> fetchOperatorsByTripPF({
+    TripsFilterResult? filter,
+  }) async {
+    final pastWhere   = _buildWhereClause(showFutureTrips: false, filter: filter);
+    final futureWhere = _buildWhereClause(showFutureTrips: true,  filter: filter);
+
+    String _augmentWhere(Map<String, dynamic> info) => [
+      info['where'] as String,
+      'operator IS NOT NULL AND operator != \'\'',
+    ].where((w) => w.isNotEmpty).join(' AND ');
+
+    final pastRows = await _db.query(
+      TripsTable.tableName,
+      columns: ['operator'],
+      where: _augmentWhere(pastWhere),
+      whereArgs: pastWhere['args'] as List<dynamic>,
+    );
+
+    final futureRows = await _db.query(
+      TripsTable.tableName,
+      columns: ['operator'],
+      where: _augmentWhere(futureWhere),
+      whereArgs: futureWhere['args'] as List<dynamic>,
+    );
+
+    final Map<String, ({int past, int future})> counts = {};
+
+    void addRows(Iterable<Map<String, Object?>> rows, {required bool isFuture}) {
+      for (final row in rows) {
+        final rawOp = row['operator'] as String?;
+        if (rawOp == null || rawOp.trim().isEmpty) continue;
+
+        // Count once per operator per trip
+        for (final op in rawOp._splitOperatorsDecoded()) {
+          final current = counts[op] ?? (past: 0, future: 0);
+          counts[op] = isFuture
+            ? (past: current.past, future: current.future + 1)
+            : (past: current.past + 1, future: current.future);
+        }
+      }
+    }
+
+    addRows(pastRows,   isFuture: false);
+    addRows(futureRows, isFuture: true);
+
+    return _sortedBySumDesc(counts, (v) => v.past + v.future);
+  }
+
+  Future<LinkedHashMap<String, ({double past, double future})>> fetchCountriesByDistancePF({
+    TripsFilterResult? filter,
+    bool splitDistance = false, // set true if you prefer not to double-count multi-country trips
+  }) async {
+    final pastWhere   = _buildWhereClause(showFutureTrips: false, filter: filter);
+    final futureWhere = _buildWhereClause(showFutureTrips: true,  filter: filter);
+
+    String _augmentWhere(Map<String, dynamic> info) => [
+      info['where'] as String,
+      'countries IS NOT NULL AND countries != \'\'',
+      'trip_length IS NOT NULL'
+    ].where((w) => w.isNotEmpty).join(' AND ');
+
+    final pastRows = await _db.query(
+      TripsTable.tableName,
+      columns: ['countries', 'trip_length'],
+      where: _augmentWhere(pastWhere),
+      whereArgs: pastWhere['args'] as List<dynamic>,
+    );
+    final futureRows = await _db.query(
+      TripsTable.tableName,
+      columns: ['countries', 'trip_length'],
+      where: _augmentWhere(futureWhere),
+      whereArgs: futureWhere['args'] as List<dynamic>,
+    );
+
+    final Map<String, ({double past, double future})> totals = {};
+
+    List<String> _codesFromRaw(String? raw) {
+      if (raw == null || raw.trim().isEmpty) return const [];
+      try {
+        String decoded;
+        try {
+          decoded = Uri.decodeComponent(raw);
+        } catch (_) {
+          decoded = raw;
+        }
+        final Map<String, dynamic> json = jsonDecode(decoded);
+        return json.keys.toList(); // country codes like "JP","FR"
+      } catch (e) {
+        debugPrint('⚠️ Failed to decode country JSON: $raw ($e)');
+        return const [];
+      }
+    }
+
+    void _add(Iterable<Map<String, Object?>> rows, {required bool isFuture}) {
+      for (final row in rows) {
+        final codes = _codesFromRaw(row['countries'] as String?);
+        if (codes.isEmpty) continue;
+
+        final length = (row['trip_length'] as num?)?.toDouble() ?? 0.0;
+        if (length <= 0) continue;
+
+        final share = splitDistance && codes.isNotEmpty ? (length / codes.length) : length;
+
+        for (final code in codes) {
+          final curr = totals[code] ?? (past: 0.0, future: 0.0);
+          totals[code] = isFuture
+              ? (past: curr.past, future: curr.future + share)
+              : (past: curr.past + share, future: curr.future);
+        }
+      }
+    }
+
+    _add(pastRows,   isFuture: false);
+    _add(futureRows, isFuture: true);
+
+    return _sortedBySumDesc(totals, (v) => v.past + v.future);
+  }
+
+  Future<LinkedHashMap<String, ({int past, int future})>> fetchCountriesByTripPF({
+    TripsFilterResult? filter,
+  }) async {
+    final pastWhere   = _buildWhereClause(showFutureTrips: false, filter: filter);
+    final futureWhere = _buildWhereClause(showFutureTrips: true,  filter: filter);
+
+    String _augmentWhere(Map<String, dynamic> info) => [
+      info['where'] as String,
+      'countries IS NOT NULL AND countries != \'\'',
+    ].where((w) => w.isNotEmpty).join(' AND ');
+
+    final pastRows = await _db.query(
+      TripsTable.tableName,
+      columns: ['countries'],
+      where: _augmentWhere(pastWhere),
+      whereArgs: pastWhere['args'] as List<dynamic>,
+    );
+    final futureRows = await _db.query(
+      TripsTable.tableName,
+      columns: ['countries'],
+      where: _augmentWhere(futureWhere),
+      whereArgs: futureWhere['args'] as List<dynamic>,
+    );
+
+    final Map<String, ({int past, int future})> counts = {};
+
+    List<String> _codesFromRaw(String? raw) {
+      if (raw == null || raw.trim().isEmpty) return const [];
+      try {
+        final decoded = Uri.decodeComponent(raw);
+        final Map<String, dynamic> json = jsonDecode(decoded);
+        return json.keys.toList();
+      } catch (e) {
+        debugPrint('⚠️ Failed to decode country JSON: $raw ($e)');
+        return const [];
+      }
+    }
+
+    void _add(Iterable<Map<String, Object?>> rows, {required bool isFuture}) {
+      for (final row in rows) {
+        for (final code in _codesFromRaw(row['countries'] as String?)) {
+          final curr = counts[code] ?? (past: 0, future: 0);
+          counts[code] = isFuture
+              ? (past: curr.past, future: curr.future + 1)
+              : (past: curr.past + 1, future: curr.future);
+        }
+      }
+    }
+
+    _add(pastRows,   isFuture: false);
+    _add(futureRows, isFuture: true);
+
+    return _sortedBySumDesc(counts, (v) => v.past + v.future);
+  }
+
+
+
+  Future<void> insertTrip(Trips trip) async {
+    if (!_schemaChecked) {
+      await _ensureTripsTableSchema();
+      _schemaChecked = true;
+    }
+
+    await _db.insert(
+      TripsTable.tableName,
+      trip.toJson(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<void> insertTrips(List<Trips> trips) async {
+    if (!_schemaChecked) {
+      await _ensureTripsTableSchema();
+      _schemaChecked = true;
+    }
+
+    final batch = _db.batch();
+    for (final trip in trips) {
+      batch.insert(
+        TripsTable.tableName,
+        trip.toJson(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    }
+    await batch.commit(noResult: true);
+  }
+
+  /// Merges incremental trip updates from `getTripsPaths`.
+  ///
+  /// For a trip that already exists, only the columns the payload actually
+  /// carried (see [TripUpdate.sourceKeys] / [TripUpdate.hasPath]) are written,
+  /// so fields the payload omits keep their current values. This adapts to both
+  /// the thin path-only shape and a full trip object. A trip not yet in the
+  /// table is inserted with whatever data is available.
+  Future<void> mergeTripUpdates(List<TripUpdate> updates) async {
+    if (!_schemaChecked) {
+      await _ensureTripsTableSchema();
+      _schemaChecked = true;
+    }
+
+    for (final update in updates) {
+      final full = update.trip.toJson();
+      final columns = _columnsForKeys(update.sourceKeys, update.hasPath);
+      final patch = {for (final c in columns) c: full[c]};
+
+      final updated = patch.isEmpty
+          ? 0
+          : await _db.update(
+              TripsTable.tableName,
+              patch,
+              where: 'uid = ?',
+              whereArgs: [update.trip.uid],
+            );
+
+      if (updated == 0) {
+        // Not seen before (or nothing mappable to update): insert the full record.
+        await _db.insert(
+          TripsTable.tableName,
+          full,
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        );
+      }
+    }
+  }
+
+  /// Maps the payload's raw keys to the DB columns to overwrite. The `uid`
+  /// primary key is never updated; the `utc_filtered_*` variants map onto the
+  /// canonical `utc_*` columns; and a top-level path maps to the `path` column.
+  Set<String> _columnsForKeys(Set<String> keys, bool hasPath) {
+    final cols = <String>{};
+    for (final column in TripsTable.columns.keys) {
+      if (column == 'uid') continue;
+      if (keys.contains(column)) cols.add(column);
+    }
+    if (keys.contains('utc_filtered_start_datetime')) cols.add('utc_start_datetime');
+    if (keys.contains('utc_filtered_end_datetime')) cols.add('utc_end_datetime');
+    if (hasPath) cols.add('path');
+    return cols;
+  }
+
+  /// Deletes every local trip whose uid is not in [keepIds] — the server's
+  /// complete current id set — and returns the deleted uids.
+  ///
+  /// WARNING: [keepIds] must be the *complete* set of trips that still exist
+  /// server-side. A partial list would delete trips that are still valid, so
+  /// callers pass an empty set as "unknown" and this method no-ops on it.
+  Future<List<int>> deleteTripsNotIn(Set<int> keepIds) async {
+    if (keepIds.isEmpty) return const [];
+    if (!_schemaChecked) {
+      await _ensureTripsTableSchema();
+      _schemaChecked = true;
+    }
+
+    final rows = await _db.query(TripsTable.tableName, columns: ['uid']);
+    final localIds = rows
+        .map((r) => int.tryParse(r['uid'].toString()))
+        .whereType<int>()
+        .toSet();
+
+    final toDelete = localIds.difference(keepIds);
+    if (toDelete.isEmpty) return const [];
+
+    final batch = _db.batch();
+    for (final id in toDelete) {
+      batch.delete(TripsTable.tableName, where: 'uid = ?', whereArgs: [id.toString()]);
+    }
+    await batch.commit(noResult: true);
+
+    return toDelete.toList();
+  }
+
+  Future<void> clearAllTrips() async {
+    await _db.delete(TripsTable.tableName);
+  }
+
+  Future<void> deleteTripById(String uid) async {
+    await _db.delete(
+      TripsTable.tableName,
+      where: 'uid = ?',
+      whereArgs: [uid],
+    );
+  }
+
+  static Future<List<Trips>> parseCsv(String csvContent) async {
+    debugPrint('🧪 Inside isolate: parsing CSV...');
+    final rows = const CsvToListConverter(eol: '\n', shouldParseNumbers: false).convert(csvContent);
+    debugPrint('📊 Parsed ${rows.length} rows');
+
+    final header = rows.first.map((e) => e.toString().trim()).toList();
+    final dataRows = rows.skip(1);
+
+    final trips = <Trips>[];
+
+    for (int r = 0; r < dataRows.length; r++) {
+      final row = dataRows.elementAt(r);
+      final map = <String, String>{};
+
+      for (int i = 0; i < header.length && i < row.length; i++) {
+        map[header[i]] = row[i]?.toString().trim() ?? '';
+      }
+
+      try {
+        final trip = Trips.fromJson(map);
+        trips.add(trip);
+      } catch (e, stack) {
+        debugPrint('❌ Error parsing row $r: $e');
+        debugPrint('🧵 Stack: $stack');
+        debugPrint('🔎 Row data: $map');
+      }
+
+      if (r % 100 == 0) debugPrint('➡️ Parsed $r trips');
+    }
+
+    return trips;
+  }
+
+  /// True when the trips table gained a column the cached rows have no value
+  /// for, so only a full re-download can fill it.
+  ///
+  /// Opening the database already runs [TripsTable.ensureSchema], so by the
+  /// time the sync asks, a plain PRAGMA diff would find nothing missing — the
+  /// answer comes from the columns that run actually added
+  /// ([TripsTable.addedColumns]). The diff is still checked for a table this
+  /// process has not opened yet.
+  static Future<bool> needsSchemaUpdate() async {
+    if (TripsTable.addedColumns.isNotEmpty) return true;
+
+    final db = await DatabaseManager.database;
+    final columns = await db.rawQuery('PRAGMA table_info(${TripsTable.tableName})');
+    final existingColumns = columns.map((col) => col['name'] as String).toSet();
+    return TripsTable.columns.keys.any((key) => !existingColumns.contains(key));
+  }
+
+  /// Clears the marker [needsSchemaUpdate] reports on, once a full download
+  /// has filled the new columns.
+  static void schemaUpdateHandled() => TripsTable.addedColumns.clear();
+
+  Future<void> _ensureTripsTableSchema() async {
+    await TripsTable.ensureSchema(_db);
+  }
+}
+
+class TripsTable {
+  static const String tableName = 'trips';
+
+  static const columns = {
+    'uid': 'TEXT PRIMARY KEY',
+    'username': 'TEXT',
+    'origin_station': 'TEXT',
+    'destination_station': 'TEXT',
+    'start_datetime': 'TEXT',
+    'end_datetime': 'TEXT',
+    'estimated_trip_duration': 'REAL',
+    'manual_trip_duration': 'REAL',
+    'trip_length': 'REAL',
+    'operator': 'TEXT',
+    'countries': 'TEXT',
+    'utc_start_datetime': 'TEXT',
+    'utc_end_datetime': 'TEXT',
+    'line_name': 'TEXT',
+    'created': 'TEXT',
+    'last_modified': 'TEXT',
+    'type': 'TEXT',
+    'material_type': 'TEXT',
+    'seat': 'TEXT',
+    'reg': 'TEXT',
+    'waypoints': 'TEXT',
+    'notes': 'TEXT',
+    'price': 'REAL',
+    'currency': 'TEXT',
+    'purchasing_date': 'TEXT',
+    'path': 'TEXT',
+    'visibility': 'TEXT',
+    'departure_delay': 'REAL',
+    'arrival_delay': 'REAL',
+    // Added after the initial schema. Columns listed here are picked up by
+    // [ensureSchema] on every open, so they need no migration file — an
+    // `ALTER TABLE ... ADD COLUMN` one would break fresh installs, where the
+    // table is created from this map before the migrations run.
+    'power_type': 'TEXT',
+  };
+
+  static String get createTableSql {
+    final columnDefs = columns.entries
+        .map((e) => '${e.key} ${e.value}')
+        .join(',\n      ');
+
+    return '''
+    CREATE TABLE IF NOT EXISTS $tableName (
+      $columnDefs
+    )
+  ''';
+  }
+
+  /// Columns [ensureSchema] added to the live table since the app started.
+  ///
+  /// Such a column is empty on every row that was already cached, so the sync
+  /// reads this set (through [TripsRepository.needsSchemaUpdate]) to know it
+  /// has to re-download everything instead of asking for changes only.
+  static final Set<String> addedColumns = {};
+
+  // Adds any columns present in [columns] that are missing from the live table.
+  // Called by the migration runner and by TripsRepository as a legacy fallback.
+  static Future<void> ensureSchema(Database db) async {
+    final columns = await db.rawQuery('PRAGMA table_info($tableName)');
+    final existingColumns = columns.map((col) => col['name'] as String).toSet();
+
+    for (final entry in TripsTable.columns.entries) {
+      if (!existingColumns.contains(entry.key)) {
+        // ALTER TABLE cannot add a PRIMARY KEY; strip the constraint.
+        final colType = entry.value.replaceAll('PRIMARY KEY', '').trim();
+        await db.execute('ALTER TABLE $tableName ADD COLUMN ${entry.key} $colType');
+        addedColumns.add(entry.key);
+      }
+    }
+  }
+}

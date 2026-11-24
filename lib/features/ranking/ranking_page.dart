@@ -12,11 +12,11 @@ import 'package:trainlog_app/features/ranking/widgets/ranking_list_view.dart';
 import 'package:trainlog_app/features/ranking/widgets/ranking_selector_bar.dart';
 import 'package:trainlog_app/features/ranking/widgets/ranking_user_position_block.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
-import 'package:trainlog_app/platform/adaptive_page_route.dart';
-import 'package:trainlog_app/platform/adaptive_widget.dart';
-import 'package:trainlog_app/providers/ranking_provider.dart';
-import 'package:trainlog_app/providers/settings_provider.dart';
-import 'package:trainlog_app/providers/trainlog_provider.dart';
+import 'package:trainlog_app/ui/adaptive/adaptive_page_route.dart';
+import 'package:trainlog_app/ui/adaptive/adaptive_widget.dart';
+import 'package:trainlog_app/core/providers/ranking_provider.dart';
+import 'package:trainlog_app/core/providers/settings_provider.dart';
+import 'package:trainlog_app/core/providers/trainlog_provider.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
 import 'package:trainlog_app/utils/text_utils.dart';
 

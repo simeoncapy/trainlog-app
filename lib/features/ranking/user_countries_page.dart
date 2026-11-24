@@ -1,11 +1,11 @@
 import 'package:diacritic/diacritic.dart';
 import 'package:flutter/material.dart';
 
-import 'package:trainlog_app/data/models/country_detail.dart';
+import 'package:trainlog_app/core/data/models/country_detail.dart';
 import 'package:trainlog_app/features/ranking/widgets/coverage_list_card.dart';
 import 'package:trainlog_app/features/ranking/widgets/ranking_filter_controls.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
-import 'package:trainlog_app/platform/adaptive_app_bar.dart';
+import 'package:trainlog_app/ui/adaptive/adaptive_app_bar.dart';
 
 /// Drill-down sub-page for the countries-visited leaderboard: the full list of
 /// countries a single user has visited, with their flag and localized name.

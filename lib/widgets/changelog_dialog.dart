@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import 'package:trainlog_app/data/models/changelog.dart';
+import 'package:trainlog_app/core/data/models/changelog.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
-import 'package:trainlog_app/platform/adaptive_button.dart';
-import 'package:trainlog_app/platform/adaptive_dialog.dart';
+import 'package:trainlog_app/ui/adaptive/adaptive_button.dart';
+import 'package:trainlog_app/ui/adaptive/adaptive_dialog.dart';
 import 'package:trainlog_app/widgets/error_banner.dart';
 
 /// Adaptive modal window listing the changes of one or more new versions.
