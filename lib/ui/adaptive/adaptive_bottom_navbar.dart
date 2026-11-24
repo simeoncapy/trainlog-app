@@ -21,9 +21,13 @@ const double kNavBarActionRight =
     _kGlassBarSidePadding + (_kGlassBarHeight - kNavBarActionSize) / 2;
 
 /// Apple: distance from the bottom of the screen to the main action
-/// button, just above the glass tab bar.
+/// button: 12 px above the glass capsule (not its padding), the same gap as
+/// between the button and the map's recenter / follow capsule.
 double navBarActionBottom(BuildContext context) =>
-    _glassBarBottom(MediaQuery.of(context)) + _kGlassBarHeight + 12;
+    _glassBarBottom(MediaQuery.of(context)) +
+    _kGlassBarVerticalPadding +
+    _kGlassBarHeight +
+    12;
 
 /// Extra vertical space above the pill that the center menu button occupies.
 const double _kMenuButtonOverhang = 22.0;
@@ -274,6 +278,9 @@ class _NavBarItem extends StatelessWidget {
 const double _kGlassBarHeight = 62.0;
 const double _kGlassBarSidePadding = 20.0;
 
+/// Space the glass tab bar keeps above and below its capsule.
+const double _kGlassBarVerticalPadding = 8.0;
+
 /// Gap under the glass tab bar: close to the bottom edge like the system bar,
 /// while staying clear of the home indicator. viewPadding, not padding:
 /// padding.bottom shrinks while the keyboard animates, which made this go
@@ -336,7 +343,7 @@ class _GlassTabBar extends StatelessWidget {
         selectedIndex: currentIndex,
         onTabSelected: onTap,
         horizontalPadding: _kGlassBarSidePadding,
-        verticalPadding: 8,
+        verticalPadding: _kGlassBarVerticalPadding,
         barHeight: _kGlassBarHeight,
         spacing: 10,
         iconSize: 24,
