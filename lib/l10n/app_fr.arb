@@ -198,6 +198,7 @@
   "menuYouTitle": "Vous",
   "menuExploreSectionTitle": "Explorer",
   "menuMenuSectionTitle": "Menu",
+  "menuShareProfile": "Partager le profil",
   "menuInboxTitle": "Boîte de réception",
   "menuTripCountLabel": "{count, plural, =0 {trajet} =1 {trajet} other {trajets}}",
   "menuTripCount": "{count, plural, =0 {Aucun trajet} =1 {1 trajet} other {{count} trajets}}",

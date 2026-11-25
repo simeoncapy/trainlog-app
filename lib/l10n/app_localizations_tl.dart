@@ -658,6 +658,9 @@ class AppLocalizationsTl extends AppLocalizations {
   String get menuMenuSectionTitle => 'Menu';
 
   @override
+  String get menuShareProfile => 'Ibahagi ang profile';
+
+  @override
   String get menuInboxTitle => 'Inbox';
 
   @override

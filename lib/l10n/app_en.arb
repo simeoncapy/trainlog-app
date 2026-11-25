@@ -282,6 +282,7 @@
   "menuYouTitle": "You",
   "menuExploreSectionTitle": "Explore",
   "menuMenuSectionTitle": "Menu",
+  "menuShareProfile": "Share profile",
   "menuInboxTitle": "Inbox",
   "menuTripCountLabel": "{count, plural, =0 {trips} =1 {trip} other {trips}}",
   "@menuTripCountLabel": {

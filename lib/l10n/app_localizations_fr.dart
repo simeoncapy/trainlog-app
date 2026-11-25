@@ -668,6 +668,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get menuMenuSectionTitle => 'Menu';
 
   @override
+  String get menuShareProfile => 'Partager le profil';
+
+  @override
   String get menuInboxTitle => 'Boîte de réception';
 
   @override

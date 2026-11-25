@@ -55,6 +55,33 @@ void main() {
     c.dispose();
   });
 
+  testWidgets('the server shows only off trainlog.me; the public link', (t) async {
+    await setUpProviders(t);
+    final official = AppMenuController(
+      trainlog: trainlog,
+      settings: settings,
+      trips: TripsProvider(),
+    );
+    expect(official.customServer, isNull);
+    expect(
+      official.publicProfileUrl.toString(),
+      startsWith('https://trainlog.me/public/'),
+    );
+
+    final local = AppMenuController(
+      trainlog: TrainlogProvider(
+        client: TrainlogHttpClient(baseUrl: TrainlogHttpClient.urlLocalhost),
+      ),
+      settings: settings,
+      trips: TripsProvider(),
+    );
+    expect(local.customServer, 'localhost:5000');
+    expect(
+      local.publicProfileUrl.toString(),
+      startsWith('http://localhost:5000/public/'),
+    );
+  });
+
   Future<List<Object>> pump(WidgetTester t, DesignLanguage design) async {
     AppPlatform.debugDesignOverride = design;
     await setUpProviders(t);
@@ -77,6 +104,7 @@ void main() {
             onPageTap: taps.add,
             onInboxTap: () => taps.add('inbox'),
             onTrainlogStatusTap: () => taps.add('status'),
+            onShareProfile: (url) => taps.add('share'),
           ),
         ),
       ),
@@ -97,6 +125,7 @@ void main() {
     expect(find.byType(AppGroupedSection), findsNWidgets(2));
     expect(find.text('Log out'), findsOneWidget);
 
+    expect(find.byTooltip('Share profile'), findsOneWidget);
     await t.tap(find.text('Inbox'));
     await t.tap(find.text('Tags'));
     expect(taps, ['inbox', AppPageId.tags]);
@@ -113,6 +142,7 @@ void main() {
     expect(t.getSize(find.byType(ExploreCard).first).height, 64);
 
     await t.tap(find.text('Dashboard'));
-    expect(taps, [AppPageId.dashboard]);
+    await t.tap(find.byTooltip('Share profile'));
+    expect(taps, [AppPageId.dashboard, 'share']);
   });
 }

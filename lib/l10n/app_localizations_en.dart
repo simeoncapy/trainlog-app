@@ -655,6 +655,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get menuMenuSectionTitle => 'Menu';
 
   @override
+  String get menuShareProfile => 'Share profile';
+
+  @override
   String get menuInboxTitle => 'Inbox';
 
   @override

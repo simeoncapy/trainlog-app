@@ -1284,6 +1284,12 @@ abstract class AppLocalizations {
   /// **'Menu'**
   String get menuMenuSectionTitle;
 
+  /// No description provided for @menuShareProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Share profile'**
+  String get menuShareProfile;
+
   /// No description provided for @menuInboxTitle.
   ///
   /// In en, this message translates to:

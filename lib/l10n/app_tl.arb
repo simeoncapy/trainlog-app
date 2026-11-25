@@ -205,6 +205,7 @@
   "menuYouTitle": "Ikaw",
   "menuExploreSectionTitle": "Tuklasin",
   "menuMenuSectionTitle": "Menu",
+  "menuShareProfile": "Ibahagi ang profile",
   "menuInboxTitle": "Inbox",
   "menuTripCountLabel": "{count, plural, other {biyahe}}",
   "menuTripCount": "{count, plural, =0 {Walang biyahe} other {{count} biyahe}}",

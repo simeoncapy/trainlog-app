@@ -38,7 +38,7 @@ class MenuMaterialView extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     const SizedBox(height: 8),
-                    const MenuSummaryCard(),
+                    MenuSummaryCard(onShare: actions.onShareProfile),
                     const SizedBox(height: 24),
                     _SectionHeader(label: loc.menuExploreSectionTitle),
                     const SizedBox(height: 12),

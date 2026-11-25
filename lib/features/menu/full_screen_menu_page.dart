@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:trainlog_app/core/providers/settings_provider.dart';
 import 'package:trainlog_app/core/providers/trainlog_provider.dart';
 import 'package:trainlog_app/core/providers/trips_provider.dart';
@@ -25,6 +26,9 @@ class FullScreenMenuPage extends StatelessWidget {
   /// sheet, which passes its controller so a pull-down at the top dismisses it.
   final ScrollController? scrollController;
 
+  /// Shares the public profile link; the system share sheet by default.
+  final void Function(Uri url)? onShareProfile;
+
   const FullScreenMenuPage({
     super.key,
     required this.onClose,
@@ -33,6 +37,7 @@ class FullScreenMenuPage extends StatelessWidget {
     required this.onInboxTap,
     required this.onTrainlogStatusTap,
     this.scrollController,
+    this.onShareProfile,
   });
 
   @override
@@ -42,7 +47,7 @@ class FullScreenMenuPage extends StatelessWidget {
         trainlog: c.read<TrainlogProvider>(),
         settings: c.read<SettingsProvider>(),
         trips: c.read<TripsProvider>(),
-      )..loadNewsCount(),
+      )..load(),
       child: Builder(
         builder: (context) {
           final actions = MenuActions(
@@ -52,6 +57,12 @@ class FullScreenMenuPage extends StatelessWidget {
             onInboxTap: onInboxTap,
             onTrainlogStatusTap: onTrainlogStatusTap,
             scrollController: scrollController,
+            onShareProfile: () {
+              final url = context.read<AppMenuController>().publicProfileUrl;
+              final share = onShareProfile;
+              if (share != null) return share(url);
+              SharePlus.instance.share(ShareParams(uri: url));
+            },
             onLogout: () async {
               final loc = AppLocalizations.of(context)!;
               final controller = context.read<AppMenuController>();

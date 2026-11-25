@@ -10,6 +10,7 @@ class MenuActions {
     required this.onInboxTap,
     required this.onTrainlogStatusTap,
     required this.onLogout,
+    required this.onShareProfile,
     this.scrollController,
   });
 
@@ -21,6 +22,9 @@ class MenuActions {
 
   /// Closes the menu, logs out and says so.
   final VoidCallback onLogout;
+
+  /// Shares the link to the user's public profile.
+  final VoidCallback onShareProfile;
 
   /// Controller of the menu's scroll view. On Apple the menu is shown in a
   /// sheet, which passes its controller so a pull-down at the top dismisses it.

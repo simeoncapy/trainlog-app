@@ -9,6 +9,7 @@ import 'package:trainlog_app/features/menu/menu_summary_card.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/navigation/nav_models.dart';
 import 'package:trainlog_app/ui/cupertino/app_grouped_list.dart';
+import 'package:trainlog_app/ui/cupertino/liquid_glass.dart';
 import 'package:trainlog_app/ui/tokens/app_colors.dart';
 import 'package:trainlog_app/ui/tokens/app_theme.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
@@ -42,7 +43,7 @@ class MenuCupertinoView extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     const SizedBox(height: 8),
-                    const MenuSummaryCard(),
+                    _ProfileCard(onShare: actions.onShareProfile),
                     const SizedBox(height: 24),
                     _SectionTitle(loc.menuExploreSectionTitle),
                     ExploreGrid(onPageTap: actions.onPageTap, style: _cardStyle),
@@ -74,6 +75,96 @@ class MenuCupertinoView extends StatelessWidget {
                   ],
                 ),
               ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// The profile on iOS, light like the grouped sections under it (as the
+/// account card atop iOS Settings): the logo, the name in the display font,
+/// "18 trips · server" (the server only when not trainlog.me), and a glass
+/// button sharing the public profile.
+class _ProfileCard extends StatelessWidget {
+  const _ProfileCard({required this.onShare});
+
+  final VoidCallback onShare;
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+    final menu = context.watch<AppMenuController>();
+    final text = Theme.of(context).textTheme;
+    final secondary = CupertinoColors.secondaryLabel.resolveFrom(context);
+    final count = menu.tripCount;
+    final server = menu.customServer;
+    final detail = text.bodyMedium?.copyWith(color: secondary);
+
+    return DecoratedBox(
+      decoration: ShapeDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        shape: const RoundedSuperellipseBorder(
+          borderRadius: BorderRadius.all(Radius.circular(26)),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(14, 14, 12, 14),
+        child: Row(
+          children: [
+            const TrainlogProfileIcon(size: 52),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    menu.username,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTheme.displayFont.copyWith(
+                      fontSize: text.titleLarge?.fontSize,
+                      color: CupertinoColors.label.resolveFrom(context),
+                    ),
+                  ),
+                  if (count != null || server != null) ...[
+                    const SizedBox(height: 2),
+                    Text.rich(
+                      TextSpan(
+                        children: [
+                          if (count != null) ...[
+                            TextSpan(
+                              text: '$count',
+                              style: AppTheme.monoFont.copyWith(
+                                fontSize: detail?.fontSize,
+                                fontWeight: FontWeight.w700,
+                                color: CupertinoTheme.of(context).primaryColor,
+                              ),
+                            ),
+                            TextSpan(text: ' ${loc.menuTripCountLabel(count)}'),
+                          ],
+                          if (count != null && server != null)
+                            const TextSpan(text: ' · '),
+                          if (server != null) TextSpan(text: server),
+                        ],
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: detail,
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            GlassIconButton(
+              icon: AdaptiveIcons.share,
+              onPressed: onShare,
+              tooltip: loc.menuShareProfile,
+              size: 40,
+              iconSize: 19,
+              color: CupertinoTheme.of(context).primaryColor,
             ),
           ],
         ),
