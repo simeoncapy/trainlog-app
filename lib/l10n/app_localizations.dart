@@ -1275,13 +1275,13 @@ abstract class AppLocalizations {
   /// No description provided for @menuExploreSectionTitle.
   ///
   /// In en, this message translates to:
-  /// **'EXPLORE'**
+  /// **'Explore'**
   String get menuExploreSectionTitle;
 
   /// No description provided for @menuMenuSectionTitle.
   ///
   /// In en, this message translates to:
-  /// **'MENU'**
+  /// **'Menu'**
   String get menuMenuSectionTitle;
 
   /// No description provided for @menuInboxTitle.

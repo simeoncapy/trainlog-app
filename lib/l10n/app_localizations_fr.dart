@@ -662,10 +662,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get menuYouTitle => 'Vous';
 
   @override
-  String get menuExploreSectionTitle => 'EXPLORER';
+  String get menuExploreSectionTitle => 'Explorer';
 
   @override
-  String get menuMenuSectionTitle => 'MENU';
+  String get menuMenuSectionTitle => 'Menu';
 
   @override
   String get menuInboxTitle => 'Boîte de réception';

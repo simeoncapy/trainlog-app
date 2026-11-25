@@ -649,10 +649,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get menuYouTitle => 'You';
 
   @override
-  String get menuExploreSectionTitle => 'EXPLORE';
+  String get menuExploreSectionTitle => 'Explore';
 
   @override
-  String get menuMenuSectionTitle => 'MENU';
+  String get menuMenuSectionTitle => 'Menu';
 
   @override
   String get menuInboxTitle => 'Inbox';

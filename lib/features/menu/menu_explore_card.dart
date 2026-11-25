@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:trainlog_app/navigation/nav_models.dart';
+import 'package:trainlog_app/utils/platform_utils.dart';
 
 /// Data model for a card in the Explore grid.
 class ExploreCardData {
@@ -34,95 +35,117 @@ class ExploreCardSubtitle {
   });
 }
 
-/// A card used in the 2×2 Explore grid on the full-screen menu.
+/// How an [ExploreCard] is drawn, per design: Material keeps its outlined
+/// rounded card; the iOS view passes a borderless continuous-corner card.
+class ExploreCardStyle {
+  const ExploreCardStyle({this.radius = 14, this.bordered = true});
+
+  final double radius;
+  final bool bordered;
+}
+
+/// A compact card of the Explore grid on the full-screen menu: the coloured
+/// icon square, the label and a chevron on one row, the optional subtitle
+/// under the label.
 ///
-/// All colours are read directly from [Theme.of(context).colorScheme]:
-/// - background  → [ColorScheme.surface]
-/// - border      → [ColorScheme.outline]
-/// - arrow icon  → [ColorScheme.onSurfaceVariant]
-/// - title text  → [ColorScheme.onSurface]
-/// - subtitle secondary text → [ColorScheme.onSurfaceVariant]
+/// Colours come from [Theme.of(context).colorScheme]: background
+/// [ColorScheme.surface], border [ColorScheme.outline], chevron and
+/// subtitle text [ColorScheme.onSurfaceVariant], label
+/// [ColorScheme.onSurface].
 class ExploreCard extends StatelessWidget {
   final ExploreCardData data;
   final VoidCallback onTap;
+  final ExploreCardStyle style;
 
-  const ExploreCard({super.key, required this.data, required this.onTap});
+  const ExploreCard({
+    super.key,
+    required this.data,
+    required this.onTap,
+    this.style = const ExploreCardStyle(),
+  });
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
 
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
+      child: DecoratedBox(
+        decoration: ShapeDecoration(
           color: cs.surface,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: cs.outline, width: 1),
+          shape: RoundedSuperellipseBorder(
+            borderRadius: BorderRadius.circular(style.radius),
+            side: style.bordered
+                ? BorderSide(color: cs.outline)
+                : BorderSide.none,
+          ),
         ),
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            // Solid-colour icon square + top-right arrow
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  width: 38,
-                  height: 38,
-                  decoration: BoxDecoration(
-                    color: data.color,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Icon(data.icon, color: Colors.white, size: 20),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          child: Row(
+            children: [
+              Container(
+                width: 34,
+                height: 34,
+                decoration: BoxDecoration(
+                  color: data.color,
+                  borderRadius: BorderRadius.circular(9),
                 ),
-                const Spacer(),
-                Icon(Icons.chevron_right, size: 20, color: cs.onSurfaceVariant),
-              ],
-            ),
-            // Flexible lets the title shrink on very small cards instead of
-            // overflowing; up to 2 lines with ellipsis on truncation.
-            Flexible(
-              child: Text(
-                data.label,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.hankenGrotesk(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  color: cs.onSurface,
-                ),
+                child: Icon(data.icon, color: Colors.white, size: 19),
               ),
-            ),
-            // Optional coloured subtitle (hidden when null)
-            if (data.subtitle != null) ...[
-              const SizedBox(height: 2),
-              RichText(
-                text: TextSpan(
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    TextSpan(
-                      text: data.subtitle!.number,
-                      style: GoogleFonts.spaceMono(
-                        fontSize: 11,
-                        color: data.subtitle!.numberColor,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    TextSpan(
-                      text: ' ${data.subtitle!.text}',
+                    Text(
+                      data.label,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                       style: GoogleFonts.hankenGrotesk(
-                        fontSize: 11,
-                        color: cs.onSurfaceVariant,
+                        textStyle: textTheme.bodyMedium,
+                        fontWeight: FontWeight.w700,
+                        color: cs.onSurface,
+                        height: 1.15,
                       ),
                     ),
+                    // Optional coloured subtitle (hidden when null)
+                    if (data.subtitle != null) ...[
+                      const SizedBox(height: 2),
+                      RichText(
+                        text: TextSpan(
+                          children: [
+                            TextSpan(
+                              text: data.subtitle!.number,
+                              style: GoogleFonts.spaceMono(
+                                textStyle: textTheme.labelSmall,
+                                color: data.subtitle!.numberColor,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            TextSpan(
+                              text: ' ${data.subtitle!.text}',
+                              style: GoogleFonts.hankenGrotesk(
+                                textStyle: textTheme.labelSmall,
+                                color: cs.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),
+              Icon(
+                AdaptiveIcons.chevronForward,
+                size: 18,
+                color: cs.onSurfaceVariant,
+              ),
             ],
-          ],
+          ),
         ),
       ),
     );

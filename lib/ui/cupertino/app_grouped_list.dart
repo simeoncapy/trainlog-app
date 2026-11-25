@@ -179,7 +179,11 @@ class AppListTile extends StatefulWidget {
     this.onTap,
     this.swipeActions = const [],
     this.contextMenuActions = const [],
+    this.boldTitle = true,
   });
+
+  /// The package's iOS disclosure chevron, for [trailing].
+  static Widget get chevron => lg.GlassListTile.chevron;
 
   final Widget title;
   final Widget? subtitle;
@@ -188,6 +192,9 @@ class AppListTile extends StatefulWidget {
   final VoidCallback? onTap;
   final List<SwipeAction> swipeActions;
   final List<AppContextMenuAction> contextMenuActions;
+
+  /// Semibold title (a list of items); regular for a plain menu row.
+  final bool boldTitle;
 
   @override
   State<AppListTile> createState() => _AppListTileState();
@@ -225,7 +232,7 @@ class _AppListTileState extends State<AppListTile> {
         )?.onOpenChanged(state != lg.GlassSwipeState.idle);
       },
       titleStyle: text.bodyLarge?.copyWith(
-        fontWeight: FontWeight.w600,
+        fontWeight: widget.boldTitle ? FontWeight.w600 : FontWeight.w400,
         color: CupertinoColors.label.resolveFrom(context),
       ),
       subtitleStyle: text.bodyMedium?.copyWith(
