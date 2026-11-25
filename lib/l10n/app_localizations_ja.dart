@@ -546,6 +546,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get rankingSortAlphabetical => 'アルファベット順に並べ替え';
 
   @override
+  String get rankingSortMenu => '並べ替え';
+
+  @override
   String get rankingSortByValue => '値で並べ替え';
 
   @override

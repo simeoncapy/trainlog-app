@@ -227,12 +227,16 @@ class FilterCapsule extends StatelessWidget {
     this.outlined = false,
     this.expand = false,
     this.semanticLabel,
+    this.trailing,
   });
 
   final String label;
   final bool selected;
   final VoidCallback onTap;
   final IconData? leading;
+
+  /// Small icon after the label (e.g. a chevron on a capsule opening a menu).
+  final IconData? trailing;
   final Color? leadingColor;
   final Color? selectedColor;
   final bool outlined;
@@ -280,7 +284,14 @@ class FilterCapsule extends StatelessWidget {
           )
         : Row(
             mainAxisSize: MainAxisSize.min,
-            children: [...?icon, Flexible(child: text)],
+            children: [
+              ...?icon,
+              Flexible(child: text),
+              if (trailing != null) ...[
+                const SizedBox(width: 4),
+                Icon(trailing, size: 13, color: fg),
+              ],
+            ],
           );
 
     final isDark = Theme.of(context).brightness == Brightness.dark;

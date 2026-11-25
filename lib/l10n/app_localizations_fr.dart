@@ -572,6 +572,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get rankingSortAlphabetical => 'Trier par ordre alphabétique';
 
   @override
+  String get rankingSortMenu => 'Trier';
+
+  @override
   String get rankingSortByValue => 'Trier par valeur';
 
   @override

@@ -185,7 +185,13 @@ class RankingRow extends StatelessWidget {
                       ),
                   overflow: TextOverflow.ellipsis,
                 ),
-                ..._supportingLines(context, cs),
+                ...supportingLines(
+                  context,
+                  entry: entry,
+                  selection: selection,
+                  sortUnit: sortUnit,
+                  color: cs.onSurfaceVariant,
+                ),
               ],
             ),
           ),
@@ -194,7 +200,7 @@ class RankingRow extends StatelessWidget {
           // as the large value + stacked unit. Both reveal the raw base-unit
           // value on tap (see [RawValueTooltip]).
           if (_isCarbon && sortUnit == RankingSortUnit.carbonPerKm)
-            _CarbonPill(
+            RankingCarbonPill(
               gPerKm: entry.carbonPerKmG,
               tooltip: RankingMetrics.rawTooltip(
                   context, entry, RankingSortUnit.carbonPerKm),
@@ -202,7 +208,7 @@ class RankingRow extends StatelessWidget {
           else
             Builder(builder: (context) {
               final primary = _primary(context);
-              return _PrimaryValue(
+              return RankingPrimaryValue(
                 value: primary.value,
                 unit: primary.unit,
                 tooltip: RankingMetrics.primaryTooltip(
@@ -227,7 +233,7 @@ class RankingRow extends StatelessWidget {
 
   bool get _isCarbon => selection.type == RankingType.carbon;
 
-  /// Primary value + unit (CO2e/km handled by [_CarbonPill] in the row).
+  /// Primary value + unit (CO2e/km handled by [RankingCarbonPill] in the row).
   CompactNumber _primary(BuildContext context) =>
       RankingMetrics.primary(context, entry, selection, sortUnit);
 
@@ -235,7 +241,15 @@ class RankingRow extends StatelessWidget {
   /// then either the second metric (carbon has two secondaries) or the last
   /// activity date. Metric lines reveal their raw base-unit value on tap; the
   /// date does not.
-  List<Widget> _supportingLines(BuildContext context, ColorScheme cs) {
+  ///
+  /// Shared with the iOS rows; [color] is the lines' colour.
+  static List<Widget> supportingLines(
+    BuildContext context, {
+    required RankingDisplayEntry entry,
+    required RankingSelection selection,
+    required RankingSortUnit sortUnit,
+    required Color color,
+  }) {
     final secondaries =
         RankingMetrics.secondaryMetrics(context, entry, selection, sortUnit);
     final lines = <Widget>[];
@@ -248,7 +262,7 @@ class RankingRow extends StatelessWidget {
           m.inline,
           style: AppTheme.monoFont.copyWith(
             fontSize: 12,
-            color: cs.onSurfaceVariant,
+            color: color,
           ),
           overflow: TextOverflow.ellipsis,
         ),
@@ -257,7 +271,7 @@ class RankingRow extends StatelessWidget {
 
     final lineStyle = AppTheme.monoFont.copyWith(
       fontSize: 11,
-      color: cs.onSurfaceVariant.withValues(alpha: 0.7),
+      color: color.withValues(alpha: 0.7),
     );
     if (secondaries.length >= 2) {
       final m = secondaries.last;
@@ -283,13 +297,13 @@ class RankingRow extends StatelessWidget {
 
 /// CO2e/km value shown as a coloured threshold pill (green / amber / red),
 /// matching the design. Colour comes from [CarbonThreshold].
-class _CarbonPill extends StatelessWidget {
+class RankingCarbonPill extends StatelessWidget {
   final double gPerKm;
 
   /// Raw, full-precision `g/km` value revealed on tap (the pill itself rounds).
   final String? tooltip;
 
-  const _CarbonPill({required this.gPerKm, this.tooltip});
+  const RankingCarbonPill({super.key, required this.gPerKm, this.tooltip});
 
   @override
   Widget build(BuildContext context) {
@@ -338,7 +352,7 @@ class _CarbonPill extends StatelessWidget {
 }
 
 /// Large monospace primary metric with the unit stacked beneath it.
-class _PrimaryValue extends StatelessWidget {
+class RankingPrimaryValue extends StatelessWidget {
   final String value;
   final String unit;
 
@@ -346,7 +360,7 @@ class _PrimaryValue extends StatelessWidget {
   /// is shown exactly, e.g. a plain trip count).
   final String? tooltip;
 
-  const _PrimaryValue({required this.value, required this.unit, this.tooltip});
+  const RankingPrimaryValue({super.key, required this.value, required this.unit, this.tooltip});
 
   @override
   Widget build(BuildContext context) {
