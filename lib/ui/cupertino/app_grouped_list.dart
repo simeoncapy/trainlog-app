@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/material.dart' show Theme;
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart' as lg;
 
@@ -67,8 +68,9 @@ class SwipeActionsScope extends StatelessWidget {
 /// An inset grouped section: a solid card with big continuous corners in the
 /// app's surface colour, hairlines between the rows (inset on both sides),
 /// and each row told which corners it shares with the card, so its press
-/// highlight, swipe buttons and context menu lift keep them.
-class AppGroupedSection extends StatelessWidget {
+/// highlight, swipe buttons and context menu lift keep them. The hairlines
+/// touching a row swiped open hide, as in Apple's lists.
+class AppGroupedSection extends StatefulWidget {
   const AppGroupedSection({
     super.key,
     required this.children,
@@ -81,9 +83,34 @@ class AppGroupedSection extends StatelessWidget {
   final double dividerIndent;
 
   @override
+  State<AppGroupedSection> createState() => _AppGroupedSectionState();
+}
+
+class _AppGroupedSectionState extends State<AppGroupedSection> {
+  /// Rows swiped open (or being swiped).
+  final Set<int> _open = {};
+
+  void _setOpen(int index, bool open) {
+    if (!mounted || _open.contains(index) == open) return;
+    void apply() {
+      if (!mounted) return;
+      setState(() => open ? _open.add(index) : _open.remove(index));
+    }
+
+    // A row may report while the tree is building (e.g. closed on rebuild).
+    if (SchedulerBinding.instance.schedulerPhase ==
+        SchedulerPhase.persistentCallbacks) {
+      SchedulerBinding.instance.addPostFrameCallback((_) => apply());
+    } else {
+      apply();
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     const corner = Radius.circular(_sectionRadius);
     final separator = CupertinoColors.separator.resolveFrom(context);
+    final children = widget.children;
     return ClipRSuperellipse(
       borderRadius: const BorderRadius.all(corner),
       child: ColoredBox(
@@ -94,16 +121,21 @@ class AppGroupedSection extends StatelessWidget {
             for (int i = 0; i < children.length; i++) ...[
               if (i > 0)
                 lg.GlassDivider(
-                  indent: dividerIndent,
+                  indent: widget.dividerIndent,
                   endIndent: 16,
-                  color: separator,
+                  color: _open.contains(i - 1) || _open.contains(i)
+                      ? separator.withValues(alpha: 0)
+                      : separator,
                 ),
               lg.InheritedGlassSectionRow(
                 corners: BorderRadius.vertical(
                   top: i == 0 ? corner : Radius.zero,
                   bottom: i == children.length - 1 ? corner : Radius.zero,
                 ),
-                child: children[i],
+                child: _SectionRowSlot(
+                  onOpenChanged: (open) => _setOpen(i, open),
+                  child: children[i],
+                ),
               ),
             ],
           ],
@@ -111,6 +143,19 @@ class AppGroupedSection extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Lets a row of an [AppGroupedSection] report that it is swiped open.
+class _SectionRowSlot extends InheritedWidget {
+  const _SectionRowSlot({required this.onOpenChanged, required super.child});
+
+  final ValueChanged<bool> onOpenChanged;
+
+  static _SectionRowSlot? maybeOf(BuildContext context) =>
+      context.getInheritedWidgetOfExactType<_SectionRowSlot>();
+
+  @override
+  bool updateShouldNotify(_SectionRowSlot oldWidget) => false;
 }
 
 /// A row of an [AppGroupedSection]: the package's [lg.GlassListTile] with
@@ -159,7 +204,12 @@ class _AppListTileState extends State<AppListTile> {
       subtitle: widget.subtitle,
       trailing: widget.trailing,
       onTap: widget.onTap,
-      onSwipeStateChanged: (state) => _swipeState = state,
+      onSwipeStateChanged: (state) {
+        _swipeState = state;
+        _SectionRowSlot.maybeOf(
+          context,
+        )?.onOpenChanged(state != lg.GlassSwipeState.idle);
+      },
       titleStyle: text.bodyLarge?.copyWith(
         fontWeight: FontWeight.w600,
         color: CupertinoColors.label.resolveFrom(context),
