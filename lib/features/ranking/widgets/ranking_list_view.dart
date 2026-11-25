@@ -91,38 +91,43 @@ class RankingListView extends StatelessWidget {
 
     final me = provider.currentUsername?.toLowerCase();
 
-    return ListView.separated(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-      itemCount: rows.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 4),
-      itemBuilder: (context, i) {
-        final e = rows[i];
-        // A tie shows its rank only on the first of the equal-valued rows that
-        // are displayed next to each other; the rest leave the rank blank. This
-        // works for every order (value/reversed/alphabetical) and unit because
-        // it compares the raw ranking value of adjacent displayed rows — rows
-        // are tied only when that value is exactly equal, not merely rounded
-        // to the same displayed number.
-        final showRank = i == 0 ||
-            provider.metricOf(rows[i - 1]) != provider.metricOf(e);
-        return RankingRow(
-          entry: e,
-          selection: provider.selection,
-          sortUnit: provider.sortUnit,
-          isCurrentUser: me != null && e.username.toLowerCase() == me,
-          showRank: showRank,
-          // Country rows drill into the user's full visited-country list.
-          onTap: provider.selection.isCountry
-              ? () => AdaptivePageRoute.push(
-                    context,
-                    (_) => UserCountriesPage(
-                      username: e.username,
-                      countryCodes: e.countriesVisited,
-                    ),
-                  )
-              : null,
-        );
-      },
+    // Pull to refresh reloads the leaderboard.
+    return RefreshIndicator(
+      onRefresh: provider.load,
+      child: ListView.separated(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        itemCount: rows.length,
+        separatorBuilder: (_, __) => const SizedBox(height: 4),
+        itemBuilder: (context, i) {
+          final e = rows[i];
+          // A tie shows its rank only on the first of the equal-valued rows that
+          // are displayed next to each other; the rest leave the rank blank. This
+          // works for every order (value/reversed/alphabetical) and unit because
+          // it compares the raw ranking value of adjacent displayed rows — rows
+          // are tied only when that value is exactly equal, not merely rounded
+          // to the same displayed number.
+          final showRank = i == 0 ||
+              provider.metricOf(rows[i - 1]) != provider.metricOf(e);
+          return RankingRow(
+            entry: e,
+            selection: provider.selection,
+            sortUnit: provider.sortUnit,
+            isCurrentUser: me != null && e.username.toLowerCase() == me,
+            showRank: showRank,
+            // Country rows drill into the user's full visited-country list.
+            onTap: provider.selection.isCountry
+                ? () => AdaptivePageRoute.push(
+                      context,
+                      (_) => UserCountriesPage(
+                        username: e.username,
+                        countryCodes: e.countriesVisited,
+                      ),
+                    )
+                : null,
+          );
+        },
+      ),
     );
   }
 }

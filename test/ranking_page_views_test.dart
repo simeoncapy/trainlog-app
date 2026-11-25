@@ -97,6 +97,15 @@ void main() {
         findsOneWidget,
       );
       expect(find.text('lea.voyage'), findsOneWidget);
+      // Pull to refresh on both designs.
+      expect(
+        find.byType(
+          isMaterial ? RefreshIndicator : CupertinoSliverRefreshControl,
+          // The iOS control has no height until pulled.
+          skipOffstage: false,
+        ),
+        findsOneWidget,
+      );
       // The user's own row, and the card's username.
       expect(find.text('me'), findsNWidgets(2));
     });

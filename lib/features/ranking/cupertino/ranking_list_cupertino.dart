@@ -23,6 +23,7 @@ class RankingListCupertino extends StatelessWidget {
   /// Space kept free under the last row (search bar, tab bar).
   final double bottomInset;
 
+  /// Corner radius of the grouped card.
   static const double _radius = 26;
 
   @override
@@ -99,7 +100,7 @@ class RankingListCupertino extends StatelessWidget {
   }
 }
 
-class _RankingRowCupertino extends StatefulWidget {
+class _RankingRowCupertino extends StatelessWidget {
   const _RankingRowCupertino({
     required this.entry,
     required this.selection,
@@ -121,41 +122,13 @@ class _RankingRowCupertino extends StatefulWidget {
   final VoidCallback? onTap;
 
   @override
-  State<_RankingRowCupertino> createState() => _RankingRowCupertinoState();
-}
-
-class _RankingRowCupertinoState extends State<_RankingRowCupertino> {
-  bool _pressed = false;
-
-  void _setPressed(bool value) {
-    if (widget.onTap == null || _pressed == value) return;
-    setState(() => _pressed = value);
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final w = widget;
+    final w = this;
     final e = w.entry;
     final text = Theme.of(context).textTheme;
-    final surface = Theme.of(context).colorScheme.surface;
     final label = CupertinoColors.label.resolveFrom(context);
     final secondary = CupertinoColors.secondaryLabel.resolveFrom(context);
     final isDark = CupertinoTheme.brightnessOf(context) == Brightness.dark;
-    const corner = Radius.circular(RankingListCupertino._radius);
-
-    var background = surface;
-    if (w.isCurrentUser) {
-      background = Color.alphaBlend(
-        AppColors.amber.withValues(alpha: isDark ? 0.18 : 0.14),
-        background,
-      );
-    }
-    if (_pressed) {
-      background = Color.alphaBlend(
-        CupertinoColors.systemFill.resolveFrom(context),
-        background,
-      );
-    }
 
     final isCarbonPerKm =
         w.selection.type == RankingType.carbon &&
@@ -239,6 +212,74 @@ class _RankingRowCupertinoState extends State<_RankingRowCupertino> {
       ),
     );
 
+    return RankingGroupedRow(
+      isFirst: w.isFirst,
+      isLast: w.isLast,
+      highlighted: w.isCurrentUser,
+      onTap: w.onTap,
+      // Under the text, as in iOS lists.
+      dividerIndent: 102,
+      child: row,
+    );
+  }
+}
+
+/// One row of an inset grouped card drawn row by row (so the list stays lazy):
+/// the card surface, rounded at the top of the first row and the bottom of
+/// the last, a hairline under the others, an amber tint when [highlighted]
+/// (the user's own row) and a grey one while pressed.
+class RankingGroupedRow extends StatefulWidget {
+  const RankingGroupedRow({
+    super.key,
+    required this.child,
+    required this.isFirst,
+    required this.isLast,
+    this.highlighted = false,
+    this.onTap,
+    this.dividerIndent = 16,
+  });
+
+  final Widget child;
+  final bool isFirst;
+  final bool isLast;
+  final bool highlighted;
+  final VoidCallback? onTap;
+
+  /// Where the hairline under the row starts.
+  final double dividerIndent;
+
+  @override
+  State<RankingGroupedRow> createState() => _RankingGroupedRowState();
+}
+
+class _RankingGroupedRowState extends State<RankingGroupedRow> {
+  bool _pressed = false;
+
+  void _setPressed(bool value) {
+    if (widget.onTap == null || _pressed == value) return;
+    setState(() => _pressed = value);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final w = widget;
+    final isDark = CupertinoTheme.brightnessOf(context) == Brightness.dark;
+    const corner = Radius.circular(RankingListCupertino._radius);
+
+    var background = Theme.of(context).colorScheme.surface;
+    if (w.highlighted) {
+      background = Color.alphaBlend(
+        AppColors.amber.withValues(alpha: isDark ? 0.18 : 0.14),
+        background,
+      );
+    }
+    if (_pressed) {
+      background = Color.alphaBlend(
+        CupertinoColors.systemFill.resolveFrom(context),
+        background,
+      );
+    }
+
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: w.onTap,
@@ -255,11 +296,10 @@ class _RankingRowCupertinoState extends State<_RankingRowCupertino> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              row,
+              w.child,
               if (!w.isLast)
                 Padding(
-                  // Under the text, as in iOS lists.
-                  padding: const EdgeInsets.only(left: 102, right: 16),
+                  padding: EdgeInsets.only(left: w.dividerIndent, right: 16),
                   child: Container(
                     height: 0.5,
                     color: CupertinoColors.separator.resolveFrom(context),
