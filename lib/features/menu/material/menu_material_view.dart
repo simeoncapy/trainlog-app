@@ -83,9 +83,9 @@ class MenuMaterialView extends StatelessWidget {
         ),
         MenuItemData(
           icon: AdaptiveIcons.info,
-          iconBg: // Navy vanishes on a dark surface: sky blue in dark mode.
+          iconBg: // Navy vanishes on a dark surface: grey in dark mode.
           Theme.of(context).brightness == Brightness.dark
-              ? AppColors.sky
+              ? Colors.grey
               : AppColors.navy,
           label: loc.menuAboutTitle,
           onTap: () => actions.onPageTap(AppPageId.about),

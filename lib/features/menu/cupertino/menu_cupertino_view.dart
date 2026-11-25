@@ -255,9 +255,9 @@ class _MenuSection extends StatelessWidget {
         ),
         row(
           icon: AdaptiveIcons.info,
-          color: // Navy vanishes on a dark surface: sky blue in dark mode.
+          color: // Navy vanishes on a dark surface: system grey in dark mode.
           Theme.of(context).brightness == Brightness.dark
-              ? AppColors.sky
+              ? CupertinoColors.systemGrey.resolveFrom(context)
               : AppColors.navy,
           label: loc.menuAboutTitle,
           onTap: () => actions.onPageTap(AppPageId.about),
