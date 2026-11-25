@@ -5,20 +5,23 @@ import 'package:trainlog_app/ui/cupertino/glass_filter_parts.dart';
 import 'package:trainlog_app/ui/cupertino/liquid_glass.dart';
 
 /// One choice of a Liquid Glass menu: a check mark when [checked], the
-/// [label], and an optional [trailing] icon (iOS puts item icons on the
-/// trailing side).
+/// [label], and an optional [trailing] icon. With a [leading] icon (e.g. the
+/// vehicles' icons), the icon takes the leading slot and the check mark
+/// moves to the trailing side.
 class AppMenuEntry {
   const AppMenuEntry({
     required this.label,
     required this.onTap,
     this.checked = false,
     this.trailing,
+    this.leading,
   });
 
   final String label;
   final VoidCallback onTap;
   final bool checked;
   final Widget? trailing;
+  final Widget? leading;
 }
 
 /// A group of [AppMenuEntry]s, with an optional caption above it (as in the
@@ -57,12 +60,16 @@ List<Widget> _menuItems(BuildContext context, List<AppMenuSection> sections) {
           // Same slot width with or without the check, so labels line up.
           icon: SizedBox(
             width: 20,
-            child: e.checked
+            child: e.leading != null
+                ? Center(child: e.leading)
+                : e.checked
                 ? const Icon(CupertinoIcons.checkmark, size: 17)
                 : null,
           ),
           iconSize: 17,
-          trailing: e.trailing,
+          trailing: e.leading != null && e.checked
+              ? const Icon(CupertinoIcons.checkmark, size: 17)
+              : e.trailing,
           semanticsChecked: e.checked,
           onTap: e.onTap,
         ),

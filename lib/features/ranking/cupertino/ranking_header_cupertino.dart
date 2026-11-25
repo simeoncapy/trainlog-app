@@ -142,7 +142,7 @@ class RankingCategoryCapsules extends StatelessWidget {
                     AppMenuEntry(
                       label: v.label(context),
                       checked: v == selected,
-                      trailing: Icon(
+                      leading: Icon(
                         VehicleType.iconOf(v.vehicle!).icon,
                         size: 18,
                         color: v.accentColor(palette),
