@@ -55,7 +55,7 @@ dependencies:
   share_plus: ^12.0.1
   package_info_plus: ^8.0.0
   device_info_plus: ^11.5.0
-  liquid_glass_widgets: ^1.17.3
+  liquid_glass_widgets: ^1.20.0
   const_date_time: ^1.2.1
   cupertino_icons: ^1.0.6
   lottie: ^3.0.0

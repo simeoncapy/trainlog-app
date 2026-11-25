@@ -204,6 +204,13 @@ class _AppListTileState extends State<AppListTile> {
       subtitle: widget.subtitle,
       trailing: widget.trailing,
       onTap: widget.onTap,
+      // The row swiped open turns a little darker (lighter in dark mode), as
+      // in Reminders: an opaque tint of the card, not the package's grey,
+      // which reads as a grey slab on the app's cream.
+      swipeBackgroundColor: Color.alphaBlend(
+        CupertinoColors.systemFill.resolveFrom(context),
+        Theme.of(context).colorScheme.surface,
+      ),
       onSwipeStateChanged: (state) {
         _swipeState = state;
         _SectionRowSlot.maybeOf(
