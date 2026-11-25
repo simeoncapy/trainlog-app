@@ -1,12 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:trainlog_app/ui/adaptive/adaptive_dialog.dart';
 import 'package:trainlog_app/app/app_globals.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/utils/platform_utils.dart';
-import 'package:trainlog_app/ui/cupertino/apple_brand_font.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart' as lg;
 import 'package:trainlog_app/ui/cupertino/app_glass_toast.dart';
 
@@ -114,20 +111,17 @@ class AdaptiveInformationMessage {
   static void _showCupertinoDialog(BuildContext context, String message, String? title) {
     if (Navigator.of(context, rootNavigator: true).canPop()) return;
 
-    showCupertinoDialog(
+    lg.GlassDialog.show<void>(
       context: context,
-      builder: (_) => appleDialogTint(context, CupertinoAlertDialog(
-        title: AppleBrandFont(
-            child: Text(title ?? AppLocalizations.of(context)!.dialogueDefaultInfoTitle)),
-        content: AppleBrandFont(child: Text(message)),
-        actions: [
-          CupertinoDialogAction(
-            child: AppleBrandFont(
-                child: Text(MaterialLocalizations.of(context).okButtonLabel)),
-            onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
-          ),
-        ],
-      )),
+      title: title ?? AppLocalizations.of(context)!.dialogueDefaultInfoTitle,
+      message: message,
+      actions: [
+        lg.GlassDialogAction(
+          label: MaterialLocalizations.of(context).okButtonLabel,
+          isPrimary: true,
+          onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
+        ),
+      ],
     );
   }
 

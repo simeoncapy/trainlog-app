@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
@@ -53,18 +52,42 @@ void main() {
     );
     await t.pumpAndSettle();
 
-    expect(find.byType(CupertinoActionSheet), findsOneWidget);
-    final cancel = t.widget<CupertinoActionSheetAction>(
-      find.ancestor(
-        of: find.text('Cancel'),
-        matching: find.byType(CupertinoActionSheetAction),
-      ),
-    );
-    expect(cancel.isDefaultAction, isTrue);
+    // The package's Liquid Glass sheet, Cancel as its own last button.
+    expect(find.text('Delete trip?'), findsOneWidget);
+    expect(find.text('Cancel'), findsOneWidget);
 
     await t.tap(find.text('Delete'));
     await t.pumpAndSettle();
     expect(await result, AdaptiveDialogResult.primary);
+  });
+
+  testWidgets('iOS: Cancel on the action sheet is a cancellation', (t) async {
+    AppPlatform.debugDesignOverride = DesignLanguage.cupertino;
+    final ctx = await host(t);
+
+    final result = AdaptiveDialog.show(
+      context: ctx,
+      title: 'Delete trip?',
+      message: 'This cannot be undone.',
+      useActionSheetOnIOS: true,
+      actions: deleteActions(),
+    );
+    await t.pumpAndSettle();
+    await t.tap(find.text('Cancel'));
+    await t.pumpAndSettle();
+    expect(await result, AdaptiveDialogResult.cancelled);
+  });
+
+  testWidgets('iOS: an alert returns the action pressed', (t) async {
+    AppPlatform.debugDesignOverride = DesignLanguage.cupertino;
+    final ctx = await host(t);
+
+    final result = AdaptiveDialog.confirm(context: ctx, message: 'Sure?');
+    await t.pumpAndSettle();
+    expect(find.text('Sure?'), findsOneWidget);
+    await t.tap(find.text('OK'));
+    await t.pumpAndSettle();
+    expect(await result, isTrue);
   });
 
   testWidgets('Android: the same call is a Material alert', (t) async {
