@@ -111,23 +111,30 @@ class _AppGroupedSectionState extends State<AppGroupedSection> {
     const corner = Radius.circular(_sectionRadius);
     final separator = CupertinoColors.separator.resolveFrom(context);
     final children = widget.children;
+    final surface = Theme.of(context).colorScheme.surface;
+    // The card is painted row by row: under a row swiped open, the page
+    // shows through (as in Reminders), around the buttons.
+    final page = CupertinoTheme.of(context).scaffoldBackgroundColor;
     return ClipRSuperellipse(
       borderRadius: const BorderRadius.all(corner),
-      child: ColoredBox(
-        color: Theme.of(context).colorScheme.surface,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            for (int i = 0; i < children.length; i++) ...[
-              if (i > 0)
-                lg.GlassDivider(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (int i = 0; i < children.length; i++) ...[
+            if (i > 0)
+              ColoredBox(
+                color: surface,
+                child: lg.GlassDivider(
                   indent: widget.dividerIndent,
                   endIndent: 16,
                   color: _open.contains(i - 1) || _open.contains(i)
                       ? separator.withValues(alpha: 0)
                       : separator,
                 ),
-              lg.InheritedGlassSectionRow(
+              ),
+            ColoredBox(
+              color: _open.contains(i) ? page : surface,
+              child: lg.InheritedGlassSectionRow(
                 corners: BorderRadius.vertical(
                   top: i == 0 ? corner : Radius.zero,
                   bottom: i == children.length - 1 ? corner : Radius.zero,
@@ -137,9 +144,9 @@ class _AppGroupedSectionState extends State<AppGroupedSection> {
                   child: children[i],
                 ),
               ),
-            ],
+            ),
           ],
-        ),
+        ],
       ),
     );
   }
