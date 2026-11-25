@@ -1,22 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:trainlog_app/features/menu/menu_block.dart';
-import 'package:trainlog_app/features/menu/menu_explore_card.dart';
-import 'package:trainlog_app/features/menu/menu_item_data.dart';
-import 'package:trainlog_app/features/menu/menu_summary_card.dart';
-import 'package:trainlog_app/ui/tokens/app_colors.dart';
-import 'package:trainlog_app/l10n/app_localizations.dart';
-import 'package:trainlog_app/navigation/nav_models.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:trainlog_app/core/providers/settings_provider.dart';
 import 'package:trainlog_app/core/providers/trainlog_provider.dart';
 import 'package:trainlog_app/core/providers/trips_provider.dart';
-import 'package:trainlog_app/ui/adaptive/adaptive_widget.dart';
-import 'package:trainlog_app/utils/platform_utils.dart';
+import 'package:trainlog_app/features/menu/cupertino/menu_cupertino_view.dart';
+import 'package:trainlog_app/features/menu/material/menu_material_view.dart';
+import 'package:trainlog_app/features/menu/menu_actions.dart';
+import 'package:trainlog_app/features/menu/menu_controller.dart';
+import 'package:trainlog_app/l10n/app_localizations.dart';
+import 'package:trainlog_app/navigation/nav_models.dart';
 import 'package:trainlog_app/ui/adaptive/adaptive_information_message.dart';
+import 'package:trainlog_app/ui/design.dart';
 
-/// Full-screen menu replacing the legacy Drawer on Android.
-/// Provides a clean entry point for iOS (wire up from the iOS shell when ready).
-class FullScreenMenuPage extends StatefulWidget {
+/// The "You" menu: a full-screen page on Android, a sheet on iOS. Provides
+/// [AppMenuController] and picks the view.
+class FullScreenMenuPage extends StatelessWidget {
   final VoidCallback onClose;
   final VoidCallback onSettingsTap;
   final void Function(AppPageId id) onPageTap;
@@ -27,6 +26,9 @@ class FullScreenMenuPage extends StatefulWidget {
   /// sheet, which passes its controller so a pull-down at the top dismisses it.
   final ScrollController? scrollController;
 
+  /// Shares the public profile link; the system share sheet by default.
+  final void Function(Uri url)? onShareProfile;
+
   const FullScreenMenuPage({
     super.key,
     required this.onClose,
@@ -35,235 +37,45 @@ class FullScreenMenuPage extends StatefulWidget {
     required this.onInboxTap,
     required this.onTrainlogStatusTap,
     this.scrollController,
-  });
-
-  @override
-  State<FullScreenMenuPage> createState() => _FullScreenMenuPageState();
-}
-
-class _FullScreenMenuPageState extends State<FullScreenMenuPage> {
-  int? _newMessageCount;
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _fetchNewsCount();
-    });
-  }
-
-  Future<void> _fetchNewsCount() async {
-    final settings = context.read<SettingsProvider>();
-    final trainlog = context.read<TrainlogProvider>();
-
-    final count = await trainlog.fetchNewsCount(settings);
-    if (mounted) {
-      setState(() => _newMessageCount = count);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context)!;
-
-    return Scaffold(
-      // Uses the theme's scaffoldBackgroundColor directly (beige in light,
-      // deep dark in dark — set correctly in AppTheme).
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _TopBar(onClose: widget.onClose, onSettings: widget.onSettingsTap, loc: loc),
-            Expanded(
-              child: SingleChildScrollView(
-                controller: widget.scrollController,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const SizedBox(height: 8),
-                    const MenuSummaryCard(),
-                    const SizedBox(height: 24),
-                    _SectionHeader(label: loc.menuExploreSectionTitle),
-                    const SizedBox(height: 12),
-                    _ExploreGrid(onPageTap: widget.onPageTap, loc: loc),
-                    const SizedBox(height: 24),
-                    _SectionHeader(label: loc.menuMenuSectionTitle),
-                    const SizedBox(height: 8),
-                    _menuBlockBuilder(loc),
-                    const SizedBox(height: 32),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Builder _menuBlockBuilder(AppLocalizations loc) {
-    return Builder(builder: (context) {
-      final cs = Theme.of(context).colorScheme;
-      return MenuBlock(items: [
-        MenuItemData(
-          icon: AdaptiveIcons.inbox,
-          iconBg: AppColors.amber,
-          label: loc.menuInboxTitle,
-          badgeCount: _newMessageCount,
-          onTap: widget.onInboxTap,
-        ),
-        MenuItemData(
-          icon: AdaptiveIcons.ok,
-          iconBg: AppColors.blue,
-          label: loc.trainglogStatusPageTitle,
-          onTap: widget.onTrainlogStatusTap,
-        ),
-        MenuItemData(
-          icon: AdaptiveIcons.info,
-          iconBg: AppColors.navy,
-          label: loc.menuAboutTitle,
-          onTap: () => widget.onPageTap(AppPageId.about),
-        ),
-        MenuItemData(
-          icon: AdaptiveIcons.logout,
-          iconBg: cs.error,
-          label: loc.logoutButton,
-          labelColor: cs.error,
-          isDestructive: true,
-          onTap: () async {
-            final settings = context.read<SettingsProvider>();
-            final trips = context.read<TripsProvider>();
-            widget.onClose();
-            await context.read<TrainlogProvider>().logout(settings, trips);
-            AdaptiveInformationMessage.showInfo(loc.loggedOut);
-          },
-        ),
-      ]);
-    });
-  }
-}
-
-// ── Top bar ───────────────────────────────────────────────────────────────────
-
-class _TopBar extends StatelessWidget {
-  final VoidCallback onClose;
-  final VoidCallback onSettings;
-  final AppLocalizations loc;
-
-  const _TopBar({
-    required this.onClose,
-    required this.onSettings,
-    required this.loc,
+    this.onShareProfile,
   });
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-      child: Row(
-        children: [
-          AdaptiveAppBarSquareButton(
-            icon: AdaptiveIcons.sheetClose,
-            onPressed: onClose,
-            tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
-          ),
-          Expanded(
-            child: Text(
-              loc.menuYouTitle,
-              textAlign: TextAlign.center,
-              style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
-            ),
-          ),
-          AdaptiveAppBarSquareButton(
-            icon: Icons.settings_outlined,
-            onPressed: onSettings,
-            tooltip: loc.menuSettingsTitle,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ── Section header ────────────────────────────────────────────────────────────
-
-class _SectionHeader extends StatelessWidget {
-  final String label;
-
-  const _SectionHeader({required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      label,
-      style: TextStyle(
-        fontSize: 11,
-        fontWeight: FontWeight.w700,
-        letterSpacing: 1.2,
-        color: Theme.of(context).colorScheme.onSurfaceVariant,
-      ),
-    );
-  }
-}
-
-// ── Explore 2×2 grid ──────────────────────────────────────────────────────────
-
-class _ExploreGrid extends StatelessWidget {
-  final void Function(AppPageId id) onPageTap;
-  final AppLocalizations loc;
-
-  const _ExploreGrid({required this.onPageTap, required this.loc});
-
-  @override
-  Widget build(BuildContext context) {
-    final items = [
-      ExploreCardData(
-        id: AppPageId.dashboard,
-        icon: AdaptiveIcons.dashboard,
-        label: loc.menuDashboardTitle,
-        color: AppColors.amber,
-        subtitle: null,
-      ),
-      ExploreCardData(
-        id: AppPageId.tags,
-        icon: AdaptiveIcons.tags,
-        label: loc.menuTagsTitle,
-        color: AppColors.blue,
-        subtitle: null,
-      ),
-      ExploreCardData(
-        id: AppPageId.tickets,
-        icon: AdaptiveIcons.tickets,
-        label: loc.menuTicketsTitle,
-        color: AppColors.early,
-        subtitle: null,
-      ),
-      ExploreCardData(
-        id: AppPageId.smartPrerecorder,
-        icon: AdaptiveIcons.smartPrerecorder,
-        label: loc.menuSmartPrerecorderTitle,
-        color: AppColors.violet,
-        subtitle: null,
-      ),
-    ];
-
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 520),
-        child: GridView.count(
-          crossAxisCount: 2,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          crossAxisSpacing: 12,
-          mainAxisSpacing: 12,
-          childAspectRatio: 1.15,
-          children: items
-              .map((d) => ExploreCard(data: d, onTap: () => onPageTap(d.id)))
-              .toList(),
-        ),
+    return ChangeNotifierProvider(
+      create: (c) => AppMenuController(
+        trainlog: c.read<TrainlogProvider>(),
+        settings: c.read<SettingsProvider>(),
+        trips: c.read<TripsProvider>(),
+      )..load(),
+      child: Builder(
+        builder: (context) {
+          final actions = MenuActions(
+            onClose: onClose,
+            onSettingsTap: onSettingsTap,
+            onPageTap: onPageTap,
+            onInboxTap: onInboxTap,
+            onTrainlogStatusTap: onTrainlogStatusTap,
+            scrollController: scrollController,
+            onShareProfile: () {
+              final url = context.read<AppMenuController>().publicProfileUrl;
+              final share = onShareProfile;
+              if (share != null) return share(url);
+              SharePlus.instance.share(ShareParams(uri: url));
+            },
+            onLogout: () async {
+              final loc = AppLocalizations.of(context)!;
+              final controller = context.read<AppMenuController>();
+              onClose();
+              await controller.logout();
+              AdaptiveInformationMessage.showInfo(loc.loggedOut);
+            },
+          );
+          return PlatformView(
+            material: (_) => MenuMaterialView(actions: actions),
+            cupertino: (_) => MenuCupertinoView(actions: actions),
+          );
+        },
       ),
     );
   }

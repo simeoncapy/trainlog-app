@@ -640,6 +640,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get menuMenuSectionTitle => 'メニュー';
 
   @override
+  String get menuShareProfile => 'プロフィールを共有';
+
+  @override
   String get menuInboxTitle => '受信トレイ';
 
   @override
