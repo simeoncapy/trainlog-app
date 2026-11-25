@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' show Theme;
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart' as lg;
 import 'package:trainlog_app/ui/cupertino/glass_filter_parts.dart';
+import 'package:trainlog_app/ui/cupertino/liquid_glass.dart';
 
 /// One choice of a Liquid Glass menu: a check mark when [checked], the
 /// [label], and an optional [trailing] icon (iOS puts item icons on the
@@ -159,6 +160,50 @@ class _GlassMenuGroupItemState extends State<GlassMenuGroupItem> {
           size: 20,
           color: CupertinoColors.label.resolveFrom(context),
         ),
+      ),
+      menuWidth: widget.menuWidth,
+      menuAlignment: lg.GlassMenuAlignment.topRight,
+      autoAdjustToScreen: true,
+      menuPadding: const EdgeInsets.all(12),
+      menuSemanticLabel: widget.semanticLabel,
+      items: _menuItems(context, widget.sections),
+    );
+  }
+}
+
+/// A round glass icon button (the app's [GlassIconButton], 44 pt) that opens
+/// a Liquid Glass menu, for a single action where a [GlassButtonGroup] of one
+/// item would be a narrow capsule.
+class GlassMenuIconButton extends StatefulWidget {
+  const GlassMenuIconButton({
+    super.key,
+    required this.icon,
+    required this.sections,
+    required this.semanticLabel,
+    this.menuWidth = 250,
+  });
+
+  final IconData icon;
+  final List<AppMenuSection> sections;
+  final String semanticLabel;
+  final double menuWidth;
+
+  @override
+  State<GlassMenuIconButton> createState() => _GlassMenuIconButtonState();
+}
+
+class _GlassMenuIconButtonState extends State<GlassMenuIconButton> {
+  final lg.GlassMenuController _menu = lg.GlassMenuController();
+
+  @override
+  Widget build(BuildContext context) {
+    return lg.GlassMenu(
+      controller: _menu,
+      triggerBuilder: (context, toggle) => GlassIconButton(
+        icon: widget.icon,
+        shadow: false,
+        tooltip: widget.semanticLabel,
+        onPressed: toggle,
       ),
       menuWidth: widget.menuWidth,
       menuAlignment: lg.GlassMenuAlignment.topRight,

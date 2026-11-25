@@ -62,10 +62,18 @@ List<AppMenuSection> rankingSortSections(
 /// The page title in the iOS large-title style (as the shell draws it for
 /// the other tabs), with the page's glass buttons on the trailing side.
 class RankingTitleBar extends StatelessWidget {
-  const RankingTitleBar({super.key, required this.title, this.actions});
+  const RankingTitleBar({
+    super.key,
+    required this.title,
+    this.actions,
+    this.leading,
+  });
 
   final String title;
   final Widget? actions;
+
+  /// Before the title, e.g. an area's flag.
+  final Widget? leading;
 
   @override
   Widget build(BuildContext context) {
@@ -75,6 +83,7 @@ class RankingTitleBar extends StatelessWidget {
         height: 48,
         child: Row(
           children: [
+            if (leading != null) ...[leading!, const SizedBox(width: 10)],
             Expanded(
               child: Text(
                 title,

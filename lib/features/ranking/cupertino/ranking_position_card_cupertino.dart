@@ -23,11 +23,8 @@ import 'package:trainlog_app/utils/text_utils.dart';
 class RankingPositionCardCupertino extends StatelessWidget {
   const RankingPositionCardCupertino({super.key});
 
-  static const double _radius = 26;
-
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context)!;
     final provider = context.watch<RankingProvider>();
     final info = RankingPositionInfo.of(context, provider);
     final entry = provider.currentUserEntry;
@@ -35,6 +32,91 @@ class RankingPositionCardCupertino extends StatelessWidget {
     final palette = MapColorPaletteHelper.getPalette(
       context.watch<SettingsProvider>().mapColorPalette,
     );
+    final text = Theme.of(context).textTheme;
+
+    return PositionCardCupertino(
+      accentColor: selection.accentColor(palette),
+      icon: selection.icon,
+      username: provider.currentUsername,
+      subtitle: info.subtitle,
+      rank: entry?.rank,
+      participantCount: provider.participantCount,
+      valueText: info.valueText,
+      valueTooltip: info.valueTooltip,
+      explanation: info.explanation,
+      footer: entry != null && info.countryCodes.isNotEmpty
+          ? GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => AdaptivePageRoute.push(
+                context,
+                (_) => UserCountriesPage(
+                  username: entry.username,
+                  countryCodes: info.countryCodes,
+                ),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      info.countryCodes.map(countryCodeToEmoji).join(' '),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: text.titleMedium?.fontSize,
+                        height: 1.5,
+                        letterSpacing: 2,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Icon(
+                    CupertinoIcons.chevron_forward,
+                    size: 16,
+                    color: CupertinoColors.tertiaryLabel.resolveFrom(context),
+                  ),
+                ],
+              ),
+            )
+          : null,
+    );
+  }
+}
+
+/// The iOS "Your position" card, shared by the leaderboards and an area's
+/// railway coverage: a disc in the category's colour, "Your position", the
+/// username and a mono [subtitle], the rank over [participantCount] with
+/// the value in amber, then an optional note ([explanation]) and [footer].
+class PositionCardCupertino extends StatelessWidget {
+  const PositionCardCupertino({
+    super.key,
+    required this.accentColor,
+    required this.icon,
+    required this.username,
+    required this.rank,
+    required this.participantCount,
+    this.subtitle = '',
+    this.valueText,
+    this.valueTooltip,
+    this.explanation,
+    this.footer,
+  });
+
+  final Color accentColor;
+  final Widget icon;
+  final String? username;
+  final String subtitle;
+  final int? rank;
+  final int participantCount;
+  final String? valueText;
+  final String? valueTooltip;
+  final String? explanation;
+  final Widget? footer;
+
+  static const double _radius = 26;
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     final text = Theme.of(context).textTheme;
     final label = CupertinoColors.label.resolveFrom(context);
     final secondary = CupertinoColors.secondaryLabel.resolveFrom(context);
@@ -62,7 +144,7 @@ class RankingPositionCardCupertino extends StatelessWidget {
                   height: 48,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: selection.accentColor(palette),
+                    color: accentColor,
                     shape: BoxShape.circle,
                   ),
                   child: IconTheme(
@@ -70,7 +152,7 @@ class RankingPositionCardCupertino extends StatelessWidget {
                       color: CupertinoColors.white,
                       size: 24,
                     ),
-                    child: selection.icon,
+                    child: icon,
                   ),
                 ),
                 const SizedBox(width: 14),
@@ -87,7 +169,7 @@ class RankingPositionCardCupertino extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        provider.currentUsername ?? '—',
+                        username ?? '—',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: text.titleLarge?.copyWith(
@@ -96,9 +178,9 @@ class RankingPositionCardCupertino extends StatelessWidget {
                           letterSpacing: 0,
                         ),
                       ),
-                      if (info.subtitle.isNotEmpty)
+                      if (subtitle.isNotEmpty)
                         Text(
-                          info.subtitle,
+                          subtitle,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: AppTheme.monoFont.copyWith(
@@ -111,15 +193,15 @@ class RankingPositionCardCupertino extends StatelessWidget {
                 ),
                 const SizedBox(width: 12),
                 _Rank(
-                  rank: entry?.rank,
-                  participantCount: provider.participantCount,
-                  valueText: info.valueText,
-                  valueTooltip: info.valueTooltip,
+                  rank: rank,
+                  participantCount: participantCount,
+                  valueText: valueText,
+                  valueTooltip: valueTooltip,
                   amber: amber,
                 ),
               ],
             ),
-            if (info.explanation != null) ...[
+            if (explanation != null) ...[
               const SizedBox(height: 12),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -135,7 +217,7 @@ class RankingPositionCardCupertino extends StatelessWidget {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      info.explanation!,
+                      explanation!,
                       style: text.bodySmall?.copyWith(
                         color: secondary,
                         height: 1.3,
@@ -146,41 +228,7 @@ class RankingPositionCardCupertino extends StatelessWidget {
                 ],
               ),
             ],
-            if (entry != null && info.countryCodes.isNotEmpty) ...[
-              const SizedBox(height: 10),
-              GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: () => AdaptivePageRoute.push(
-                  context,
-                  (_) => UserCountriesPage(
-                    username: entry.username,
-                    countryCodes: info.countryCodes,
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        info.countryCodes.map(countryCodeToEmoji).join(' '),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: text.titleMedium?.fontSize,
-                          height: 1.5,
-                          letterSpacing: 2,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Icon(
-                      CupertinoIcons.chevron_forward,
-                      size: 16,
-                      color: CupertinoColors.tertiaryLabel.resolveFrom(context),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+            if (footer != null) ...[const SizedBox(height: 10), footer!],
           ],
         ),
       ),

@@ -18,7 +18,6 @@ import 'package:trainlog_app/ui/adaptive/adaptive_segmented_button.dart';
 import 'package:trainlog_app/ui/adaptive/bottom_sheet_picker.dart';
 import 'package:trainlog_app/ui/cupertino/glass_filter_parts.dart';
 import 'package:trainlog_app/ui/cupertino/glass_menu_parts.dart';
-import 'package:trainlog_app/ui/cupertino/liquid_glass.dart';
 import 'package:trainlog_app/ui/tokens/app_colors.dart';
 import 'package:trainlog_app/utils/text_utils.dart';
 
@@ -59,20 +58,16 @@ class _RailwayCoverageBody extends StatelessWidget {
           title: loc.menuRankingTitle,
           // Nothing to sort on Regions until a country is picked.
           actions: provider.sortingEnabled
-              ? GlassButtonGroup(
-                  children: [
-                    GlassMenuGroupItem(
-                      icon: CupertinoIcons.arrow_up_arrow_down,
-                      semanticLabel: loc.rankingSortMenu,
-                      sections: rankingSortSections(
-                        loc,
-                        alphabetical: provider.alphabetical,
-                        descending: provider.descending,
-                        toggleAlphabetical: provider.toggleAlphabetical,
-                        toggleDirection: provider.toggleDirection,
-                      ),
-                    ),
-                  ],
+              ? GlassMenuIconButton(
+                  icon: CupertinoIcons.arrow_up_arrow_down,
+                  semanticLabel: loc.rankingSortMenu,
+                  sections: rankingSortSections(
+                    loc,
+                    alphabetical: provider.alphabetical,
+                    descending: provider.descending,
+                    toggleAlphabetical: provider.toggleAlphabetical,
+                    toggleDirection: provider.toggleDirection,
+                  ),
                 )
               : null,
         ),
