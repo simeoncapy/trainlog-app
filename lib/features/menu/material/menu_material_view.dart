@@ -29,7 +29,10 @@ class MenuMaterialView extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            MenuTopBar(onClose: actions.onClose, onSettings: actions.onSettingsTap),
+            MenuTopBar(
+              onClose: actions.onClose,
+              onSettings: actions.onSettingsTap,
+            ),
             Expanded(
               child: SingleChildScrollView(
                 controller: actions.scrollController,
@@ -63,35 +66,40 @@ class MenuMaterialView extends StatelessWidget {
     final newMessageCount = context.select(
       (AppMenuController c) => c.newMessageCount,
     );
-    return MenuBlock(items: [
-      MenuItemData(
-        icon: AdaptiveIcons.inbox,
-        iconBg: AppColors.amber,
-        label: loc.menuInboxTitle,
-        badgeCount: newMessageCount,
-        onTap: actions.onInboxTap,
-      ),
-      MenuItemData(
-        icon: AdaptiveIcons.ok,
-        iconBg: AppColors.blue,
-        label: loc.trainglogStatusPageTitle,
-        onTap: actions.onTrainlogStatusTap,
-      ),
-      MenuItemData(
-        icon: AdaptiveIcons.info,
-        iconBg: AppColors.navy,
-        label: loc.menuAboutTitle,
-        onTap: () => actions.onPageTap(AppPageId.about),
-      ),
-      MenuItemData(
-        icon: AdaptiveIcons.logout,
-        iconBg: cs.error,
-        label: loc.logoutButton,
-        labelColor: cs.error,
-        isDestructive: true,
-        onTap: actions.onLogout,
-      ),
-    ]);
+    return MenuBlock(
+      items: [
+        MenuItemData(
+          icon: AdaptiveIcons.inbox,
+          iconBg: AppColors.amber,
+          label: loc.menuInboxTitle,
+          badgeCount: newMessageCount,
+          onTap: actions.onInboxTap,
+        ),
+        MenuItemData(
+          icon: AdaptiveIcons.ok,
+          iconBg: AppColors.blue,
+          label: loc.trainglogStatusPageTitle,
+          onTap: actions.onTrainlogStatusTap,
+        ),
+        MenuItemData(
+          icon: AdaptiveIcons.info,
+          iconBg: // Navy vanishes on a dark surface: sky blue in dark mode.
+          Theme.of(context).brightness == Brightness.dark
+              ? AppColors.sky
+              : AppColors.navy,
+          label: loc.menuAboutTitle,
+          onTap: () => actions.onPageTap(AppPageId.about),
+        ),
+        MenuItemData(
+          icon: AdaptiveIcons.logout,
+          iconBg: cs.error,
+          label: loc.logoutButton,
+          labelColor: cs.error,
+          isDestructive: true,
+          onTap: actions.onLogout,
+        ),
+      ],
+    );
   }
 }
 

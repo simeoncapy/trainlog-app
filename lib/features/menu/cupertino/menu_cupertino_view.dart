@@ -34,7 +34,10 @@ class MenuCupertinoView extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            MenuTopBar(onClose: actions.onClose, onSettings: actions.onSettingsTap),
+            MenuTopBar(
+              onClose: actions.onClose,
+              onSettings: actions.onSettingsTap,
+            ),
             Expanded(
               child: SingleChildScrollView(
                 controller: actions.scrollController,
@@ -46,7 +49,10 @@ class MenuCupertinoView extends StatelessWidget {
                     _ProfileCard(onShare: actions.onShareProfile),
                     const SizedBox(height: 24),
                     _SectionTitle(loc.menuExploreSectionTitle),
-                    ExploreGrid(onPageTap: actions.onPageTap, style: _cardStyle),
+                    ExploreGrid(
+                      onPageTap: actions.onPageTap,
+                      style: _cardStyle,
+                    ),
                     const SizedBox(height: 24),
                     _SectionTitle(loc.menuMenuSectionTitle),
                     _MenuSection(actions: actions),
@@ -249,7 +255,10 @@ class _MenuSection extends StatelessWidget {
         ),
         row(
           icon: AdaptiveIcons.info,
-          color: AppColors.navy,
+          color: // Navy vanishes on a dark surface: sky blue in dark mode.
+          Theme.of(context).brightness == Brightness.dark
+              ? AppColors.sky
+              : AppColors.navy,
           label: loc.menuAboutTitle,
           onTap: () => actions.onPageTap(AppPageId.about),
         ),
