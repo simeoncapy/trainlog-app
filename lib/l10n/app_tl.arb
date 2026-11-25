@@ -179,6 +179,7 @@
   "rankingUnitCarbonPerKm": "CO2e/km",
   "rankingCarbonExplanation": "Mas mababang g/km ay mas mabuti — ang pinaka-carbon-efficient na manlalakbay ang nangunguna.",
   "rankingSortAlphabetical": "Ayusin ayon sa alpabeto",
+  "rankingSortMenu": "Ayusin",
   "rankingSortByValue": "Ayusin ayon sa halaga",
   "rankingOrderAscending": "Pataas",
   "rankingOrderDescending": "Pababa",

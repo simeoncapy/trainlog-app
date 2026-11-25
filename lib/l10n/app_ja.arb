@@ -171,6 +171,7 @@
   "rankingUnitCarbonPerKm": "CO2e/km",
   "rankingCarbonExplanation": "g/kmが低いほど良い — 最も炭素効率の高い旅行者が上位になります。",
   "rankingSortAlphabetical": "アルファベット順に並べ替え",
+  "rankingSortMenu": "並べ替え",
   "rankingSortByValue": "値で並べ替え",
   "rankingOrderAscending": "昇順",
   "rankingOrderDescending": "降順",

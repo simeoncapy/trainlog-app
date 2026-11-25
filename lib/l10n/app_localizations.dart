@@ -1128,6 +1128,12 @@ abstract class AppLocalizations {
   /// **'Sort alphabetically'**
   String get rankingSortAlphabetical;
 
+  /// No description provided for @rankingSortMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort'**
+  String get rankingSortMenu;
+
   /// No description provided for @rankingSortByValue.
   ///
   /// In en, this message translates to:

@@ -172,6 +172,7 @@
   "rankingUnitCarbonPerKm": "CO2e/km",
   "rankingCarbonExplanation": "Un g/km plus bas est meilleur — les voyageurs les plus sobres en carbone arrivent en tête.",
   "rankingSortAlphabetical": "Trier par ordre alphabétique",
+  "rankingSortMenu": "Trier",
   "rankingSortByValue": "Trier par valeur",
   "rankingOrderAscending": "Croissant",
   "rankingOrderDescending": "Décroissant",

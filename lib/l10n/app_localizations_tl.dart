@@ -562,6 +562,9 @@ class AppLocalizationsTl extends AppLocalizations {
   String get rankingSortAlphabetical => 'Ayusin ayon sa alpabeto';
 
   @override
+  String get rankingSortMenu => 'Ayusin';
+
+  @override
   String get rankingSortByValue => 'Ayusin ayon sa halaga';
 
   @override

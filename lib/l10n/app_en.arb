@@ -232,6 +232,7 @@
   "rankingUnitCarbonPerKm": "CO2e/km",
   "rankingCarbonExplanation": "Lower g/km is better — most carbon-efficient travellers rank first.",
   "rankingSortAlphabetical": "Sort alphabetically",
+  "rankingSortMenu": "Sort",
   "rankingSortByValue": "Sort by value",
   "rankingOrderAscending": "Ascending",
   "rankingOrderDescending": "Descending",

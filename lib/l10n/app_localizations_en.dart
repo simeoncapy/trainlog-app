@@ -559,6 +559,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get rankingSortAlphabetical => 'Sort alphabetically';
 
   @override
+  String get rankingSortMenu => 'Sort';
+
+  @override
   String get rankingSortByValue => 'Sort by value';
 
   @override

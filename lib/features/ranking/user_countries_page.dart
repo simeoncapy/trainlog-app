@@ -1,22 +1,17 @@
-import 'package:diacritic/diacritic.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:provider/provider.dart';
 
-import 'package:trainlog_app/core/data/models/country_detail.dart';
-import 'package:trainlog_app/features/ranking/widgets/coverage_list_card.dart';
-import 'package:trainlog_app/features/ranking/widgets/ranking_filter_controls.dart';
-import 'package:trainlog_app/l10n/app_localizations.dart';
-import 'package:trainlog_app/ui/adaptive/adaptive_app_bar.dart';
+import 'package:trainlog_app/features/ranking/cupertino/user_countries_cupertino_view.dart';
+import 'package:trainlog_app/features/ranking/material/user_countries_material_view.dart';
+import 'package:trainlog_app/features/ranking/user_countries_controller.dart';
+import 'package:trainlog_app/ui/design.dart';
 
-/// Drill-down sub-page for the countries-visited leaderboard: the full list of
-/// countries a single user has visited, with their flag and localized name.
-/// Pushed onto the stack (hiding the bottom navigation) when a row of the
-/// country ranking is tapped; the app-bar title is the user's name.
-///
-/// The default order is the backend order (by trip count, most visited first);
-/// the two sort toggles switch to/from alphabetical order and reverse the
-/// direction — display only, the data is never refetched.
-class UserCountriesPage extends StatefulWidget {
-  /// The user whose countries are listed (shown as the app-bar title).
+/// Drill-down page for the countries-visited leaderboard: the countries a
+/// single user has visited, with their flag and localized name. Pushed when
+/// a row of the country ranking (or the user's own flags) is tapped. The
+/// state lives in [UserCountriesController]; each design has its own view.
+class UserCountriesPage extends StatelessWidget {
+  /// The user whose countries are listed (shown as the title).
   final String username;
 
   /// ISO country codes in the backend order (by trip count per country, most
@@ -30,120 +25,15 @@ class UserCountriesPage extends StatefulWidget {
   });
 
   @override
-  State<UserCountriesPage> createState() => _UserCountriesPageState();
-}
-
-class _UserCountriesPageState extends State<UserCountriesPage> {
-  bool _alphabetical = false;
-  bool _descending = true;
-
-  /// Normalises a name for alphabetical comparison: case- and diacritic-
-  /// insensitive, so e.g. "Île de Man" and "États-Unis" sort under I and E
-  /// rather than at the end of the list.
-  static String _collate(String s) => removeDiacritics(s).toLowerCase();
-
-  /// Countries in display order: the backend order by default (the "value"
-  /// order), or sorted by localized name when the alphabetical toggle is on;
-  /// the direction toggle reverses either order.
-  List<CountryDetail> _displayCountries(BuildContext context) {
-    final details = [
-      for (final code in widget.countryCodes)
-        CountryDetail.fromCode(code, context),
-    ];
-    if (_alphabetical) {
-      details.sort(
-        (a, b) => _collate(a.name).compareTo(_collate(b.name)),
-      );
-    }
-    return _descending ? details : details.reversed.toList();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context)!;
-    final countries = _displayCountries(context);
-
-    final sortingButtons = Padding(
-      padding: const EdgeInsets.only(right: 16),
-      child: RankingSortButtons(
-        alphabetical: _alphabetical,
-        descending: _descending,
-        onToggleAlphabetical: () =>
-            setState(() => _alphabetical = !_alphabetical),
-        onToggleDirection: () =>
-            setState(() => _descending = !_descending),
+    return ChangeNotifierProvider(
+      create: (_) => UserCountriesController(
+        username: username,
+        countryCodes: countryCodes,
       ),
-    );
-
-    return Scaffold(
-      appBar: AdaptiveAppBar(
-        title: widget.username,
-        onBack: () => Navigator.of(context).pop(),
-        materialActions: [sortingButtons],
-        cupertinoTrailing: sortingButtons,
-      ),
-      body: SafeArea(
-        top: false,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 12),
-            Expanded(
-              child: countries.isEmpty
-                  ? Center(child: Text(loc.noData))
-                  : CoverageListCard(
-                      child: ListView.separated(
-                        padding: EdgeInsets.zero,
-                        itemCount: countries.length,
-                        separatorBuilder: (_, __) => Divider(
-                          height: 1,
-                          thickness: 1,
-                          indent: 16,
-                          endIndent: 16,
-                          color: Theme.of(context)
-                              .colorScheme
-                              .outlineVariant
-                              .withValues(alpha: 0.4),
-                        ),
-                        itemBuilder: (context, i) =>
-                            _CountryRow(country: countries[i]),
-                      ),
-                    ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// A single visited-country row: flag emoji + localized name.
-class _CountryRow extends StatelessWidget {
-  final CountryDetail country;
-
-  const _CountryRow({required this.country});
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Row(
-        children: [
-          Text(country.emoji, style: const TextStyle(fontSize: 22)),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              country.name,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: cs.onSurface,
-                  ),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
+      child: PlatformView(
+        material: (_) => const UserCountriesMaterialView(),
+        cupertino: (_) => const UserCountriesCupertinoView(),
       ),
     );
   }
