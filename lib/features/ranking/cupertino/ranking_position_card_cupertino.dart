@@ -8,7 +8,6 @@ import 'package:trainlog_app/features/ranking/ranking_type.dart';
 import 'package:trainlog_app/features/ranking/user_countries_page.dart';
 import 'package:trainlog_app/features/ranking/widgets/ranking_medal.dart';
 import 'package:trainlog_app/features/ranking/widgets/ranking_position_info.dart';
-import 'package:trainlog_app/features/ranking/widgets/ranking_user_position_block.dart';
 import 'package:trainlog_app/features/ranking/widgets/raw_value_tooltip.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/ui/adaptive/adaptive_page_route.dart';
@@ -58,11 +57,20 @@ class RankingPositionCardCupertino extends StatelessWidget {
           children: [
             Row(
               children: [
-                SizedBox.square(
-                  dimension: 48,
-                  child: RankingPositionIcon(
-                    icon: selection.icon,
+                Container(
+                  width: 48,
+                  height: 48,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
                     color: selection.accentColor(palette),
+                    shape: BoxShape.circle,
+                  ),
+                  child: IconTheme(
+                    data: const IconThemeData(
+                      color: CupertinoColors.white,
+                      size: 24,
+                    ),
+                    child: selection.icon,
                   ),
                 ),
                 const SizedBox(width: 14),
