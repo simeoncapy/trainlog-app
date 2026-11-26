@@ -4,13 +4,18 @@ import 'package:trainlog_app/ui/tokens/app_theme.dart';
 
 final _figures = RegExp(r'[-–+]?\d[\d\s  .,]*\d|[-–+]?\d|–');
 
+/// How much bigger the units are than the figures, so they look the same
+/// size: Space Mono's figures stand taller than Hanken Grotesk's lower case.
+const statsUnitSizeBoost = 1.0;
+
 /// [value] with its figures in [mono] and the rest (units such as "trips",
-/// "km", "h", "%") in the interface font: [mono]'s size and colour with
-/// [AppTheme.bodyFont]'s family, unless [text] is given.
+/// "km", "h", "%") in the interface font: [mono]'s colour and size (plus
+/// [statsUnitSizeBoost]) with [AppTheme.bodyFont]'s family, unless [text] is
+/// given.
 TextSpan statsFigureSpans(String value, {required TextStyle mono, TextStyle? text}) {
   final plain = text ??
       AppTheme.bodyFont.copyWith(
-        fontSize: mono.fontSize,
+        fontSize: mono.fontSize == null ? null : mono.fontSize! + statsUnitSizeBoost,
         fontWeight: FontWeight.w400,
         color: mono.color,
         letterSpacing: 0,

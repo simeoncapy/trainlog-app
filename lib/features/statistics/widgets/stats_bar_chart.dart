@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'dart:ui' show FontFeature;
 import 'package:flutter/material.dart';
 import 'package:trainlog_app/ui/tokens/app_theme.dart';
+import 'package:trainlog_app/features/statistics/widgets/stats_figure_text.dart';
 import 'package:trainlog_app/features/statistics/widgets/stats_unit_scale.dart';
 import 'package:trainlog_app/utils/number_formatter.dart';
 
@@ -133,7 +134,7 @@ class _StatsBarChartState extends State<StatsBarChart> {
     // Unit label widget — with optional long-press tooltip
     // Figures in Space Mono, units in the interface font.
     final unitStyle = AppTheme.bodyFont.copyWith(
-      fontSize: monoStyle.fontSize,
+      fontSize: monoStyle.fontSize! + statsUnitSizeBoost,
       color: monoStyle.color,
       letterSpacing: 0,
     );
