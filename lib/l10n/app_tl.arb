@@ -388,6 +388,7 @@
   "statisticsGraphUnitDistance": "Layo",
   "statisticsGraphUnitCo2": "CO2",
   "statisticsTripsUnitBase": "byahe",
+  "statisticsTripsUnitFor": "{count, plural, other{byahe}}",
   "statisticsTripsUnitKilo": "isang libong byahe",
   "statisticsTripsUnitMega": "isang milyong byahe",
   "statisticsTripsUnitGiga": "isang bilyong byahe",

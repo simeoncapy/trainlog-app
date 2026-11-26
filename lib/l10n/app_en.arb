@@ -526,6 +526,16 @@
   "statisticsGraphUnitCo2": "CO2",
 
   "statisticsTripsUnitBase": "trips",
+
+  "statisticsTripsUnitFor": "{count, plural, =1{trip} other{trips}}",
+
+  "@statisticsTripsUnitFor": {
+
+    "description": "Trips unit after a number (singular or plural).",
+
+    "placeholders": { "count": { "type": "num" } }
+
+  },
   "statisticsTripsUnitKilo": "thousand trips",
   "statisticsTripsUnitMega": "million trips",
   "statisticsTripsUnitGiga": "billion trips",

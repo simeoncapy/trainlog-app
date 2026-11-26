@@ -326,6 +326,8 @@
   "statisticsGraphUnitCo2": "CO2",
   
   "statisticsTripsUnitBase": "回",
+  
+  "statisticsTripsUnitFor": "{count, plural, other{回}}",
   "statisticsTripsUnitKilo": "千回",
   "statisticsTripsUnitMega": "百万回",
   "statisticsTripsUnitGiga": "十億回",

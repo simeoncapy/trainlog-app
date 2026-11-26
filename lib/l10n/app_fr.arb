@@ -326,6 +326,8 @@
   "statisticsGraphUnitCo2": "CO2",
   
   "statisticsTripsUnitBase": "trajets",
+  
+  "statisticsTripsUnitFor": "{count, plural, =0{trajet} =1{trajet} other{trajets}}",
   "statisticsTripsUnitKilo": "mille trajets",
   "statisticsTripsUnitMega": "million de trajet",
   "statisticsTripsUnitGiga": "milliard de trajet",

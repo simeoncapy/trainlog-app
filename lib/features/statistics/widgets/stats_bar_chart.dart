@@ -22,6 +22,9 @@ class StatsBarChart extends StatefulWidget {
   final String Function(String key)? labelBuilder;
   final String baseUnit;
   final Map<UnitFactor, String>? unitsByFactor;
+
+  /// Singular or plural base unit for a value (see [StatsUnitScale]).
+  final String Function(double value)? baseUnitFor;
   final Color color;
   final List<Color>? colors;
   final InlineSpan? unitHelpTooltip;
@@ -37,6 +40,7 @@ class StatsBarChart extends StatefulWidget {
     required this.baseUnit,
     this.labelBuilder,
     this.unitsByFactor,
+    this.baseUnitFor,
     this.color = Colors.blue,
     this.colors,
     this.unitHelpTooltip,
@@ -66,7 +70,7 @@ class _StatsBarChartState extends State<StatsBarChart> {
   late List<double> _scaledPast;
   late List<double> _scaledFuture;
   late UnitFactor _factor;
-  late String _unitLabel;
+  late StatsUnitScale _scale;
 
   @override
   void initState() {
@@ -96,11 +100,12 @@ class _StatsBarChartState extends State<StatsBarChart> {
       Iterable.generate(_rawPast.length, (i) => _rawPast[i] + _rawFuture[i]),
       baseUnit: widget.baseUnit,
       unitsByFactor: widget.unitsByFactor,
+      baseUnitFor: widget.baseUnitFor,
     );
+    _scale = scale;
     _factor = scale.factor;
     _scaledPast = _rawPast.map(_factor.apply).toList(growable: false);
     _scaledFuture = _rawFuture.map(_factor.apply).toList(growable: false);
-    _unitLabel = scale.unitLabel;
   }
 
   Color _lighten(Color color, [double amount = 0.3]) {
@@ -126,7 +131,7 @@ class _StatsBarChartState extends State<StatsBarChart> {
     );
 
     // Unit label widget — with optional long-press tooltip
-    final unitWidget = widget.unitHelpTooltip != null
+    Widget unitWidgetFor(String unitLabel) => widget.unitHelpTooltip != null
         ? Tooltip(
             triggerMode: TooltipTriggerMode.longPress,
             richMessage: TextSpan(children: [widget.unitHelpTooltip!]),
@@ -136,7 +141,7 @@ class _StatsBarChartState extends State<StatsBarChart> {
             waitDuration: Duration.zero,
             showDuration: const Duration(seconds: 4),
             child: Text(
-              _unitLabel,
+              unitLabel,
               style: monoStyle.copyWith(
                 color: Theme.of(context).colorScheme.primary,
                 decoration: TextDecoration.underline,
@@ -144,7 +149,7 @@ class _StatsBarChartState extends State<StatsBarChart> {
               ),
             ),
           )
-        : Text(_unitLabel, style: monoStyle);
+        : Text(unitLabel, style: monoStyle);
 
     return ListView.separated(
       padding: EdgeInsetsGeometry.only(bottom: 8),
@@ -178,8 +183,8 @@ class _StatsBarChartState extends State<StatsBarChart> {
           hasFuture: hasFuture,
           pastStr: pastStr,
           futureStr: futureStr,
-          unitLabel: _unitLabel,
-          unitWidget: unitWidget,
+          unitLabel: _scale.unitFor(past),
+          unitWidget: unitWidgetFor(_scale.unitFor(past)),
           monoStyle: monoStyle,
         );
       },

@@ -1129,6 +1129,16 @@ class AppLocalizationsJa extends AppLocalizations {
   String get statisticsTripsUnitBase => '回';
 
   @override
+  String statisticsTripsUnitFor(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '回',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get statisticsTripsUnitKilo => '千回';
 
   @override

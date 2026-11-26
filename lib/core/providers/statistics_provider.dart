@@ -230,15 +230,18 @@ class StatisticsProvider extends ChangeNotifier {
         return humanizeSeconds(context, seconds);
       }
 
+      final baseFor = baseUnitFor(context);
       if (baseUnit) {
-        return '${formatNumber(context, value)} ${baseUnitLabel(context)}';
+        final label = baseFor?.call(value) ?? baseUnitLabel(context);
+        return '${formatNumber(context, value)} $label';
       }
 
       final factor = _factorForValue(value);
       final scaled = factor.apply(value);
 
-      final unitLabel =
-          unitsByFactor(context)?[factor] ?? baseUnitLabel(context);
+      final unitLabel = factor == UnitFactor.base && baseFor != null
+          ? baseFor(scaled)
+          : unitsByFactor(context)?[factor] ?? baseUnitLabel(context);
 
       return '${formatNumber(context, scaled)} $unitLabel';
     }
@@ -489,6 +492,16 @@ class StatisticsProvider extends ChangeNotifier {
       case GraphUnit.co2:      return "kg";
       case GraphUnit.duration: return _durationBase.localizedTimeUnit(context);
     }
+  }
+
+  /// The base unit's singular or plural form for a value ("1 trip",
+  /// "2 trips"), or null when the unit has a single form (km, kg).
+  String Function(double value)? baseUnitFor(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+    return switch (unit) {
+      GraphUnit.trip => (v) => loc.statisticsTripsUnitFor(v),
+      _ => null,
+    };
   }
 
   // per-factor labels (k/M/G) for scalable units only

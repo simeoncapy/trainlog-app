@@ -1920,6 +1920,12 @@ abstract class AppLocalizations {
   /// **'trips'**
   String get statisticsTripsUnitBase;
 
+  /// Trips unit after a number (singular or plural).
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{trip} other{trips}}'**
+  String statisticsTripsUnitFor(num count);
+
   /// No description provided for @statisticsTripsUnitKilo.
   ///
   /// In en, this message translates to:

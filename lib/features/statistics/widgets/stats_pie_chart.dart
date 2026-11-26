@@ -23,6 +23,7 @@ class StatsPieChart extends StatefulWidget {
     required this.stats,
     required this.baseUnit,
     this.unitsByFactor,
+    this.baseUnitFor,
     this.labelBuilder,
     this.otherLabel,
     this.interactive = true,
@@ -35,6 +36,9 @@ class StatsPieChart extends StatefulWidget {
   final Map<String, ({double past, double future})> stats;
   final String baseUnit;
   final Map<UnitFactor, String>? unitsByFactor;
+
+  /// Singular or plural base unit for a value (see [StatsUnitScale]).
+  final String Function(double value)? baseUnitFor;
   final String Function(String key)? labelBuilder;
   final String? otherLabel;
 
@@ -100,11 +104,12 @@ class _StatsPieChartState extends State<StatsPieChart> {
       Iterable.generate(entries.length, totalOf),
       baseUnit: widget.baseUnit,
       unitsByFactor: widget.unitsByFactor,
+      baseUnitFor: widget.baseUnitFor,
     );
 
     String fmt(double raw) {
       final v = scale.apply(raw);
-      return '${formatNumber(context, v, noDecimal: v == v.truncateToDouble())} ${scale.unitLabel}';
+      return '${formatNumber(context, v, noDecimal: v == v.truncateToDouble())} ${scale.unitFor(v)}';
     }
 
     String pct(int i) => formatPercent(context, totalOf(i) / total * 100, maxDecimals: 1);

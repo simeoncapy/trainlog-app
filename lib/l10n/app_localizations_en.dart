@@ -1153,6 +1153,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get statisticsTripsUnitBase => 'trips';
 
   @override
+  String statisticsTripsUnitFor(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'trips',
+      one: 'trip',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get statisticsTripsUnitKilo => 'thousand trips';
 
   @override
