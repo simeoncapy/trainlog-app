@@ -66,7 +66,9 @@ class _TitleBar extends StatelessWidget {
                 loc.statisticsTitle,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: CupertinoTheme.of(context).textTheme.navLargeTitleTextStyle,
+                style: CupertinoTheme.of(
+                  context,
+                ).textTheme.navLargeTitleTextStyle,
               ),
             ),
             if (controller.canSort)
@@ -104,8 +106,8 @@ class _TitleBar extends StatelessWidget {
 
 /// Year, mode and unit, each a capsule opening its own menu. Unfiltered,
 /// the year and mode capsules name their menu; filtered, they show the
-/// choice, filled (the mode in its colour). They share the row and are
-/// shortened with an ellipsis when they do not fit. The "Years"
+/// choice, filled (the mode in its colour). Year and unit labels are short;
+/// the mode takes the rest of the row, with an ellipsis if needed. The "Years"
 /// dimension spans every year, so it has no year menu.
 class _FilterCapsules extends StatelessWidget {
   const _FilterCapsules();
@@ -122,7 +124,8 @@ class _FilterCapsules extends StatelessWidget {
     final label = CupertinoColors.label.resolveFrom(context);
     final year = statsProv.year ?? 0;
     final vehicle = statsProv.vehicle;
-    Color vehicleColor(VehicleType? v) => v == null ? label : palette[v] ?? label;
+    Color vehicleColor(VehicleType? v) =>
+        v == null ? label : palette[v] ?? label;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -130,27 +133,25 @@ class _FilterCapsules extends StatelessWidget {
         spacing: 8,
         children: [
           if (statsProv.graph != GraphType.years)
-            Flexible(
-              child: GlassMenuCapsule(
-                // Unfiltered, the capsule names its menu ("Year").
-                label: year == 0 ? loc.statisticsFilterYear : year.toString(),
-                selected: year != 0,
-                leading: CupertinoIcons.calendar,
-                semanticLabel: loc.statisticsFilterYear,
-                menuWidth: 220,
-                sections: [
-                  AppMenuSection(
-                    entries: [
-                      for (final y in [0, ...years])
-                        AppMenuEntry(
-                          label: _yearLabel(loc, y),
-                          checked: y == year,
-                          onTap: () => statsProv.year = y,
-                        ),
-                    ],
-                  ),
-                ],
-              ),
+            GlassMenuCapsule(
+              // Unfiltered, the capsule names its menu ("Year").
+              label: year == 0 ? loc.statisticsFilterYear : year.toString(),
+              selected: year != 0,
+              leading: CupertinoIcons.calendar,
+              semanticLabel: loc.statisticsFilterYear,
+              menuWidth: 220,
+              sections: [
+                AppMenuSection(
+                  entries: [
+                    for (final y in [0, ...years])
+                      AppMenuEntry(
+                        label: _yearLabel(loc, y),
+                        checked: y == year,
+                        onTap: () => statsProv.year = y,
+                      ),
+                  ],
+                ),
+              ],
             ),
           Flexible(
             child: GlassMenuCapsule(
@@ -181,26 +182,24 @@ class _FilterCapsules extends StatelessWidget {
               ],
             ),
           ),
-          Flexible(
-            child: GlassMenuCapsule(
-              label: statsProv.unit.label(context),
-              selected: false,
-              leading: statsProv.unit.icon().icon,
-              semanticLabel: loc.statisticsFilterUnit,
-              menuWidth: 200,
-              sections: [
-                AppMenuSection(
-                  entries: [
-                    for (final u in GraphUnit.values)
-                      AppMenuEntry(
-                        label: u.label(context),
-                        checked: u == statsProv.unit,
-                        onTap: () => statsProv.unit = u,
-                      ),
-                  ],
-                ),
-              ],
-            ),
+          GlassMenuCapsule(
+            label: statsProv.unit.label(context),
+            selected: false,
+            leading: statsProv.unit.icon().icon,
+            semanticLabel: loc.statisticsFilterUnit,
+            menuWidth: 200,
+            sections: [
+              AppMenuSection(
+                entries: [
+                  for (final u in GraphUnit.values)
+                    AppMenuEntry(
+                      label: u.label(context),
+                      checked: u == statsProv.unit,
+                      onTap: () => statsProv.unit = u,
+                    ),
+                ],
+              ),
+            ],
           ),
         ],
       ),
@@ -305,7 +304,9 @@ class _TotalFigure extends StatelessWidget {
     final text = Theme.of(context).textTheme;
     final units = statsProv.unitsByFactor(context);
     final showUnits =
-        statsProv.unit != GraphUnit.trip && statsProv.unit != GraphUnit.duration && units != null;
+        statsProv.unit != GraphUnit.trip &&
+        statsProv.unit != GraphUnit.duration &&
+        units != null;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -315,15 +316,18 @@ class _TotalFigure extends StatelessWidget {
           Row(
             children: [
               Flexible(
-                child: Text(
-                  statsProv.isLoading ? '–' : statsProv.totalFormatted(context),
+                child: Text.rich(
+                  _figureSpans(
+                    statsProv.isLoading
+                        ? '–'
+                        : statsProv.totalFormatted(context),
+                    text.titleMedium?.copyWith(
+                      color: CupertinoColors.label.resolveFrom(context),
+                      letterSpacing: 0,
+                    ),
+                  ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: AppTheme.monoFont.copyWith(
-                    fontSize: text.headlineSmall?.fontSize,
-                    fontWeight: FontWeight.w700,
-                    color: CupertinoColors.label.resolveFrom(context),
-                  ),
                 ),
               ),
               if (showUnits)
@@ -357,6 +361,28 @@ class _TotalFigure extends StatelessWidget {
       message: lines.join('\n'),
     );
   }
+}
+
+/// [value] with its figures in Space Mono and its units ("trips", "km",
+/// "h") in the interface font of [style].
+TextSpan _figureSpans(String value, TextStyle? style) {
+  final mono = AppTheme.monoFont.copyWith(
+    fontSize: style?.fontSize,
+    fontWeight: FontWeight.w600,
+    color: style?.color,
+  );
+  final figures = RegExp(r'[-–+]?\d[\d\s\u00A0\u202F.,]*\d|[-–+]?\d|–');
+  final spans = <TextSpan>[];
+  var start = 0;
+  for (final m in figures.allMatches(value)) {
+    if (m.start > start) {
+      spans.add(TextSpan(text: value.substring(start, m.start)));
+    }
+    spans.add(TextSpan(text: m.group(0), style: mono));
+    start = m.end;
+  }
+  if (start < value.length) spans.add(TextSpan(text: value.substring(start)));
+  return TextSpan(style: style, children: spans);
 }
 
 /// The chart on a rounded surface card, without border or shadow.
