@@ -13,16 +13,15 @@ import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/ui/adaptive/adaptive_dialog.dart';
 import 'package:trainlog_app/ui/adaptive/app_steps_tab_bar.dart';
 import 'package:trainlog_app/ui/cupertino/glass_menu_parts.dart';
-import 'package:trainlog_app/ui/cupertino/liquid_glass.dart';
 import 'package:trainlog_app/ui/tokens/app_colors.dart';
 import 'package:trainlog_app/ui/tokens/app_theme.dart';
 import 'package:trainlog_app/utils/map_color_palette.dart';
 import 'package:trainlog_app/utils/number_formatter.dart';
 
-/// The Statistics page on iOS: a large title with the filter and sort
-/// menus, the view's segmented control (icons only) at full width, the
-/// dimension as the chart's heading menu, the total with the active filters
-/// under it, then the chart on a rounded card.
+/// The Statistics page on iOS: a large title with the sort menu, the view's
+/// segmented control (icons only) at full width, the year, mode and unit
+/// menus, the dimension as the chart's heading menu, the total, then the
+/// chart on a rounded card.
 class StatisticsCupertinoView extends StatelessWidget {
   const StatisticsCupertinoView({super.key});
 
@@ -34,6 +33,8 @@ class StatisticsCupertinoView extends StatelessWidget {
       children: const [
         _TitleBar(),
         _ViewSegments(),
+        SizedBox(height: 12),
+        _FilterCapsules(),
         SizedBox(height: 18),
         _DimensionHeading(),
         SizedBox(height: 6),
@@ -45,9 +46,8 @@ class StatisticsCupertinoView extends StatelessWidget {
   }
 }
 
-/// "Statistics" in the large-title style, with the filter menu (year, mode,
-/// unit) and the sort menu grouped in a glass capsule. The pie keeps its own
-/// order, so it has no sort.
+/// "Statistics" in the large-title style, with the round sort menu (not on
+/// the pie, which keeps its own order).
 class _TitleBar extends StatelessWidget {
   const _TitleBar();
 
@@ -55,7 +55,6 @@ class _TitleBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
     final controller = context.watch<StatisticsController>();
-    final filters = _filterSections(context);
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 6, 16, 10),
       child: SizedBox(
@@ -71,25 +70,10 @@ class _TitleBar extends StatelessWidget {
               ),
             ),
             if (controller.canSort)
-              GlassButtonGroup(
-                children: [
-                  GlassMenuGroupItem(
-                    icon: CupertinoIcons.line_horizontal_3_decrease,
-                    semanticLabel: loc.filterButton,
-                    sections: filters,
-                  ),
-                  GlassMenuGroupItem(
-                    icon: CupertinoIcons.arrow_up_arrow_down,
-                    semanticLabel: loc.rankingSortMenu,
-                    sections: _sortSections(loc, controller),
-                  ),
-                ],
-              )
-            else
               GlassMenuIconButton(
-                icon: CupertinoIcons.line_horizontal_3_decrease,
-                semanticLabel: loc.filterButton,
-                sections: filters,
+                icon: CupertinoIcons.arrow_up_arrow_down,
+                semanticLabel: loc.rankingSortMenu,
+                sections: _sortSections(loc, controller),
               ),
           ],
         ),
@@ -116,10 +100,18 @@ class _TitleBar extends StatelessWidget {
       ],
     ),
   ];
+}
 
-  /// Year, mode and unit, each a submenu showing its current choice. The
-  /// "Years" dimension spans every year, so it has no year filter.
-  List<AppMenuSection> _filterSections(BuildContext context) {
+/// Year, mode and unit, each a capsule opening its own menu. Unfiltered,
+/// the year and mode capsules name their menu; filtered, they show the
+/// choice, filled (the mode in its colour). They share the row and are
+/// shortened with an ellipsis when they do not fit. The "Years"
+/// dimension spans every year, so it has no year menu.
+class _FilterCapsules extends StatelessWidget {
+  const _FilterCapsules();
+
+  @override
+  Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
     final statsProv = context.watch<StatisticsProvider>();
     final years = context.watch<TripsProvider>().years;
@@ -131,68 +123,88 @@ class _TitleBar extends StatelessWidget {
     final year = statsProv.year ?? 0;
     final vehicle = statsProv.vehicle;
     Color vehicleColor(VehicleType? v) => v == null ? label : palette[v] ?? label;
-    Widget icon(IconData? data, [Color? color]) =>
-        Icon(data, size: 18, color: color ?? label);
 
-    return [
-      AppMenuSection(
-        entries: [
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        spacing: 8,
+        children: [
           if (statsProv.graph != GraphType.years)
-            AppMenuEntry.submenu(
-              label: loc.statisticsFilterYear,
-              subtitle: _yearLabel(loc, year),
-              leading: icon(CupertinoIcons.calendar),
-              submenu: [
+            Flexible(
+              child: GlassMenuCapsule(
+                // Unfiltered, the capsule names its menu ("Year").
+                label: year == 0 ? loc.statisticsFilterYear : year.toString(),
+                selected: year != 0,
+                leading: CupertinoIcons.calendar,
+                semanticLabel: loc.statisticsFilterYear,
+                menuWidth: 220,
+                sections: [
+                  AppMenuSection(
+                    entries: [
+                      for (final y in [0, ...years])
+                        AppMenuEntry(
+                          label: _yearLabel(loc, y),
+                          checked: y == year,
+                          onTap: () => statsProv.year = y,
+                        ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          Flexible(
+            child: GlassMenuCapsule(
+              label: vehicle == null
+                  ? loc.statisticsFilterMode
+                  : _vehicleLabel(context, vehicle),
+              selected: vehicle != null,
+              selectedColor: vehicle == null ? null : vehicleColor(vehicle),
+              leading: statisticsVehicleIcon(vehicle).icon,
+              leadingColor: vehicleColor(vehicle),
+              semanticLabel: loc.statisticsFilterMode,
+              sections: [
                 AppMenuSection(
                   entries: [
-                    for (final y in [0, ...years])
+                    for (final v in <VehicleType?>[null, ...vehicles])
                       AppMenuEntry(
-                        label: _yearLabel(loc, y),
-                        checked: y == year,
-                        onTap: () => statsProv.year = y,
+                        label: _vehicleLabel(context, v),
+                        checked: v == vehicle,
+                        leading: Icon(
+                          statisticsVehicleIcon(v).icon,
+                          size: 18,
+                          color: vehicleColor(v),
+                        ),
+                        onTap: () => statsProv.vehicle = v,
                       ),
                   ],
                 ),
               ],
             ),
-          AppMenuEntry.submenu(
-            label: loc.statisticsFilterMode,
-            subtitle: _vehicleLabel(context, vehicle),
-            leading: icon(statisticsVehicleIcon(vehicle).icon, vehicleColor(vehicle)),
-            submenu: [
-              AppMenuSection(
-                entries: [
-                  for (final v in <VehicleType?>[null, ...vehicles])
-                    AppMenuEntry(
-                      label: _vehicleLabel(context, v),
-                      checked: v == vehicle,
-                      leading: icon(statisticsVehicleIcon(v).icon, vehicleColor(v)),
-                      onTap: () => statsProv.vehicle = v,
-                    ),
-                ],
-              ),
-            ],
           ),
-          AppMenuEntry.submenu(
-            label: loc.statisticsFilterUnit,
-            subtitle: statsProv.unit.label(context),
-            leading: icon(statsProv.unit.icon().icon),
-            submenu: [
-              AppMenuSection(
-                entries: [
-                  for (final u in GraphUnit.values)
-                    AppMenuEntry(
-                      label: u.label(context),
-                      checked: u == statsProv.unit,
-                      onTap: () => statsProv.unit = u,
-                    ),
-                ],
-              ),
-            ],
+          Flexible(
+            child: GlassMenuCapsule(
+              label: statsProv.unit.label(context),
+              selected: false,
+              leading: statsProv.unit.icon().icon,
+              semanticLabel: loc.statisticsFilterUnit,
+              menuWidth: 200,
+              sections: [
+                AppMenuSection(
+                  entries: [
+                    for (final u in GraphUnit.values)
+                      AppMenuEntry(
+                        label: u.label(context),
+                        checked: u == statsProv.unit,
+                        onTap: () => statsProv.unit = u,
+                      ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ],
       ),
-    ];
+    );
   }
 }
 
@@ -283,16 +295,13 @@ class _DimensionHeading extends StatelessWidget {
 }
 
 /// The total as a large figure, with the unit scale behind an info button
-/// for the units shortened to k/M/G (distance, CO2), and the active filters
-/// in a grey line under it.
+/// for the units shortened to k/M/G (distance, CO2).
 class _TotalFigure extends StatelessWidget {
   const _TotalFigure();
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context)!;
     final statsProv = context.watch<StatisticsProvider>();
-    final secondary = CupertinoColors.secondaryLabel.resolveFrom(context);
     final text = Theme.of(context).textTheme;
     final units = statsProv.unitsByFactor(context);
     final showUnits =
@@ -329,18 +338,6 @@ class _TotalFigure extends StatelessWidget {
                   ),
                 ),
             ],
-          ),
-          const SizedBox(height: 2),
-          Text(
-            [
-              if (statsProv.graph != GraphType.years)
-                _yearLabel(loc, statsProv.year ?? 0),
-              _vehicleLabel(context, statsProv.vehicle),
-              statsProv.unit.label(context),
-            ].join(' · '),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: text.bodyMedium?.copyWith(color: secondary, letterSpacing: 0),
           ),
         ],
       ),

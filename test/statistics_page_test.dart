@@ -166,19 +166,19 @@ void main() {
 
   tearDown(() => AppPlatform.debugDesignOverride = null);
 
-  testWidgets('iOS: filter and sort menus, dimension heading, total', (t) async {
+  testWidgets('iOS: year, mode and unit menus, dimension heading, total', (t) async {
     t.view.physicalSize = const Size(1179, 2556);
     addTearDown(t.view.resetPhysicalSize);
     final controller = await pump(t, DesignLanguage.cupertino);
 
     expect(find.byType(StatisticsCupertinoView), findsOneWidget);
     expect(find.text('Statistics'), findsOneWidget);
-    // Filter and sort menus grouped; the dimension as a heading menu.
-    expect(find.byType(GlassMenuGroupItem), findsNWidgets(2));
+    // Year, mode and unit menus; the sort menu; the dimension as a heading.
+    expect(find.byType(GlassMenuCapsule), findsNWidgets(3));
+    expect(find.text('Year'), findsOneWidget);
+    expect(find.byType(GlassMenuIconButton), findsOneWidget);
     expect(find.byType(GlassMenuHeading), findsOneWidget);
     expect(find.text('Country'), findsOneWidget);
-    // The active filters under the total.
-    expect(find.textContaining('All Years · '), findsOneWidget);
     // 5 trips in all, a bar per country.
     expect(find.text('5 trips'), findsOneWidget);
     expect(find.byType(StatsBarChart), findsOneWidget);
@@ -187,9 +187,8 @@ void main() {
     controller.view = StatisticsView.pie;
     await t.pump(const Duration(milliseconds: 500));
     expect(find.byType(StatsPieChart), findsOneWidget);
-    // The pie has no sort: the filter menu stands alone.
-    expect(find.byType(GlassMenuGroupItem), findsNothing);
-    expect(find.byType(GlassMenuIconButton), findsOneWidget);
+    // The pie has no sort.
+    expect(find.byType(GlassMenuIconButton), findsNothing);
     // "1 trip", singular, in the legend.
     expect(find.text('1 trip'), findsOneWidget);
   });

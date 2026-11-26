@@ -262,6 +262,7 @@ class FilterCapsule extends StatelessWidget {
       label,
       maxLines: 1,
       softWrap: false,
+      overflow: TextOverflow.ellipsis,
       style: TextStyle(
         fontSize: 15,
         fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
