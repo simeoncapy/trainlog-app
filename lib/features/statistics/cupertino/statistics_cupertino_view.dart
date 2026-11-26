@@ -9,6 +9,7 @@ import 'package:trainlog_app/core/providers/trips_provider.dart';
 import 'package:trainlog_app/features/statistics/statistics_chart.dart';
 import 'package:trainlog_app/features/statistics/statistics_controller.dart';
 import 'package:trainlog_app/features/statistics/statistics_graph_images.dart';
+import 'package:trainlog_app/features/statistics/widgets/stats_figure_text.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/ui/adaptive/adaptive_dialog.dart';
 import 'package:trainlog_app/ui/adaptive/app_steps_tab_bar.dart';
@@ -317,13 +318,14 @@ class _TotalFigure extends StatelessWidget {
             children: [
               Flexible(
                 child: Text.rich(
-                  _figureSpans(
+                  statsFigureSpans(
                     statsProv.isLoading
                         ? '–'
                         : statsProv.totalFormatted(context),
-                    text.titleMedium?.copyWith(
+                    mono: AppTheme.monoFont.copyWith(
+                      fontSize: text.titleMedium?.fontSize,
+                      fontWeight: FontWeight.w600,
                       color: CupertinoColors.label.resolveFrom(context),
-                      letterSpacing: 0,
                     ),
                   ),
                   maxLines: 1,
@@ -361,28 +363,6 @@ class _TotalFigure extends StatelessWidget {
       message: lines.join('\n'),
     );
   }
-}
-
-/// [value] with its figures in Space Mono and its units ("trips", "km",
-/// "h") in the interface font of [style].
-TextSpan _figureSpans(String value, TextStyle? style) {
-  final mono = AppTheme.monoFont.copyWith(
-    fontSize: style?.fontSize,
-    fontWeight: FontWeight.w600,
-    color: style?.color,
-  );
-  final figures = RegExp(r'[-–+]?\d[\d\s\u00A0\u202F.,]*\d|[-–+]?\d|–');
-  final spans = <TextSpan>[];
-  var start = 0;
-  for (final m in figures.allMatches(value)) {
-    if (m.start > start) {
-      spans.add(TextSpan(text: value.substring(start, m.start)));
-    }
-    spans.add(TextSpan(text: m.group(0), style: mono));
-    start = m.end;
-  }
-  if (start < value.length) spans.add(TextSpan(text: value.substring(start)));
-  return TextSpan(style: style, children: spans);
 }
 
 /// The chart on a rounded surface card, without border or shadow.

@@ -74,6 +74,9 @@ abstract final class AppTheme {
   static TextStyle get displayFont =>
       GoogleFonts.spaceGrotesk(fontWeight: FontWeight.w700);
 
+  /// "Hanken Grotesk" — interface and body text (both platforms).
+  static TextStyle get bodyFont => GoogleFonts.hankenGrotesk();
+
   /// "Space Mono" — monospaced figures (times, distances).
   static TextStyle get monoFont => GoogleFonts.spaceMono();
 

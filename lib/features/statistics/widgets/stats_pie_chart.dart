@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:trainlog_app/ui/tokens/app_theme.dart';
 import 'package:trainlog_app/ui/tokens/chart_palette.dart';
+import 'package:trainlog_app/features/statistics/widgets/stats_figure_text.dart';
 import 'package:trainlog_app/features/statistics/widgets/stats_unit_scale.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
 import 'package:trainlog_app/utils/number_formatter.dart';
@@ -164,9 +165,9 @@ class _StatsPieChartState extends State<StatsPieChart> {
               style: theme.textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 2),
-            FittedBox(fit: BoxFit.scaleDown, child: Text(value, style: monoStyle)),
+            FittedBox(fit: BoxFit.scaleDown, child: Text.rich(statsFigureSpans(value, mono: monoStyle))),
             if (i != null)
-              Text(pct(i), style: mutedStyle),
+              Text.rich(statsFigureSpans(pct(i), mono: mutedStyle)),
             if (e != null && e.future > 0)
               FittedBox(
                 fit: BoxFit.scaleDown,
@@ -222,10 +223,13 @@ class _StatsPieChartState extends State<StatsPieChart> {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  Text(fmt(totalOf(i)), style: monoStyle),
+                  Text.rich(statsFigureSpans(fmt(totalOf(i)), mono: monoStyle)),
                   SizedBox(
                     width: 52,
-                    child: Text(pct(i), textAlign: TextAlign.right, style: mutedStyle),
+                    child: Text.rich(
+                      statsFigureSpans(pct(i), mono: mutedStyle),
+                      textAlign: TextAlign.right,
+                    ),
                   ),
                 ],
               ),

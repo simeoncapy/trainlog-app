@@ -131,6 +131,13 @@ class _StatsBarChartState extends State<StatsBarChart> {
     );
 
     // Unit label widget — with optional long-press tooltip
+    // Figures in Space Mono, units in the interface font.
+    final unitStyle = AppTheme.bodyFont.copyWith(
+      fontSize: monoStyle.fontSize,
+      color: monoStyle.color,
+      letterSpacing: 0,
+    );
+
     Widget unitWidgetFor(String unitLabel) => widget.unitHelpTooltip != null
         ? Tooltip(
             triggerMode: TooltipTriggerMode.longPress,
@@ -142,14 +149,14 @@ class _StatsBarChartState extends State<StatsBarChart> {
             showDuration: const Duration(seconds: 4),
             child: Text(
               unitLabel,
-              style: monoStyle.copyWith(
+              style: unitStyle.copyWith(
                 color: Theme.of(context).colorScheme.primary,
                 decoration: TextDecoration.underline,
                 decorationStyle: TextDecorationStyle.dotted,
               ),
             ),
           )
-        : Text(unitLabel, style: monoStyle);
+        : Text(unitLabel, style: unitStyle);
 
     return ListView.separated(
       padding: EdgeInsetsGeometry.only(bottom: 8),
