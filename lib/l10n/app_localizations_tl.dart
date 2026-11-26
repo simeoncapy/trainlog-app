@@ -1177,6 +1177,15 @@ class AppLocalizationsTl extends AppLocalizations {
   String get statisticsTitle => 'Statistics';
 
   @override
+  String get statisticsFilterYear => 'Taon';
+
+  @override
+  String get statisticsFilterMode => 'Moda';
+
+  @override
+  String get statisticsFilterUnit => 'Yunit';
+
+  @override
   String get statisticsViewBar => 'Bar';
 
   @override

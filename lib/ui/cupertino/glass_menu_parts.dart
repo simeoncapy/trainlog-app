@@ -15,13 +15,34 @@ class AppMenuEntry {
     this.checked = false,
     this.trailing,
     this.leading,
+    this.subtitle,
+    this.submenu,
   });
+
+  /// An entry opening a submenu (e.g. "Year" in a filter menu), showing the
+  /// current choice as its [subtitle].
+  const AppMenuEntry.submenu({
+    required this.label,
+    required List<AppMenuSection> this.submenu,
+    this.subtitle,
+    this.leading,
+  })  : onTap = _noop,
+        checked = false,
+        trailing = null;
+
+  static void _noop() {}
 
   final String label;
   final VoidCallback onTap;
   final bool checked;
   final Widget? trailing;
   final Widget? leading;
+
+  /// Smaller text under the label.
+  final String? subtitle;
+
+  /// The choices opened by this entry, on a card over the menu.
+  final List<AppMenuSection>? submenu;
 }
 
 /// A group of [AppMenuEntry]s, with an optional caption above it (as in the
@@ -57,6 +78,11 @@ List<Widget> _menuItems(BuildContext context, List<AppMenuSection> sections) {
           title: e.label,
           maxLines: 1,
           titleStyle: TextStyle(fontSize: 17, color: label),
+          subtitle: e.subtitle,
+          subtitleStyle: e.subtitle == null
+              ? null
+              : TextStyle(fontSize: 14, color: secondary),
+          submenu: e.submenu == null ? null : _menuItems(context, e.submenu!),
           // Same slot width with or without the check, so labels line up.
           icon: SizedBox(
             width: 20,
@@ -67,7 +93,9 @@ List<Widget> _menuItems(BuildContext context, List<AppMenuSection> sections) {
                 : null,
           ),
           iconSize: 17,
-          trailing: e.leading != null && e.checked
+          trailing: e.submenu != null
+              ? null
+              : e.leading != null && e.checked
               ? const Icon(CupertinoIcons.checkmark, size: 17)
               : e.trailing,
           semanticsChecked: e.checked,
@@ -214,6 +242,74 @@ class _GlassMenuIconButtonState extends State<GlassMenuIconButton> {
       ),
       menuWidth: widget.menuWidth,
       menuAlignment: lg.GlassMenuAlignment.topRight,
+      autoAdjustToScreen: true,
+      menuPadding: const EdgeInsets.all(12),
+      menuSemanticLabel: widget.semanticLabel,
+      items: _menuItems(context, widget.sections),
+    );
+  }
+}
+
+/// A heading that opens a Liquid Glass menu: the [label] in the iOS section
+/// title style (Space Grotesk bold, amber) with a chevron, as the chart
+/// titles of Health.
+class GlassMenuHeading extends StatefulWidget {
+  const GlassMenuHeading({
+    super.key,
+    required this.label,
+    required this.sections,
+    required this.semanticLabel,
+    this.style,
+    this.menuWidth = 240,
+  });
+
+  final String label;
+  final List<AppMenuSection> sections;
+  final String semanticLabel;
+  final TextStyle? style;
+  final double menuWidth;
+
+  @override
+  State<GlassMenuHeading> createState() => _GlassMenuHeadingState();
+}
+
+class _GlassMenuHeadingState extends State<GlassMenuHeading> {
+  final lg.GlassMenuController _menu = lg.GlassMenuController();
+
+  @override
+  Widget build(BuildContext context) {
+    final style = widget.style ?? DefaultTextStyle.of(context).style;
+    return lg.GlassMenu(
+      controller: _menu,
+      triggerBuilder: (context, toggle) => Semantics(
+        button: true,
+        label: widget.semanticLabel,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: toggle,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Flexible(
+                child: Text(
+                  widget.label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: style,
+                ),
+              ),
+              const SizedBox(width: 4),
+              Icon(
+                CupertinoIcons.chevron_down,
+                size: (style.fontSize ?? 17) * 0.7,
+                color: style.color,
+              ),
+            ],
+          ),
+        ),
+      ),
+      menuWidth: widget.menuWidth,
+      menuAlignment: lg.GlassMenuAlignment.topLeft,
       autoAdjustToScreen: true,
       menuPadding: const EdgeInsets.all(12),
       menuSemanticLabel: widget.semanticLabel,

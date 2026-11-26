@@ -1168,6 +1168,15 @@ class AppLocalizationsJa extends AppLocalizations {
   String get statisticsTitle => '統計';
 
   @override
+  String get statisticsFilterYear => '年';
+
+  @override
+  String get statisticsFilterMode => '交通手段';
+
+  @override
+  String get statisticsFilterUnit => '単位';
+
+  @override
   String get statisticsViewBar => '棒グラフ';
 
   @override

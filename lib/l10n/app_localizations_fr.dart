@@ -1210,6 +1210,15 @@ class AppLocalizationsFr extends AppLocalizations {
   String get statisticsTitle => 'Statistiques';
 
   @override
+  String get statisticsFilterYear => 'Année';
+
+  @override
+  String get statisticsFilterMode => 'Mode';
+
+  @override
+  String get statisticsFilterUnit => 'Unité';
+
+  @override
   String get statisticsViewBar => 'Barres';
 
   @override

@@ -1980,6 +1980,24 @@ abstract class AppLocalizations {
   /// **'Statistics'**
   String get statisticsTitle;
 
+  /// No description provided for @statisticsFilterYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Year'**
+  String get statisticsFilterYear;
+
+  /// No description provided for @statisticsFilterMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Mode'**
+  String get statisticsFilterMode;
+
+  /// No description provided for @statisticsFilterUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'Unit'**
+  String get statisticsFilterUnit;
+
   /// No description provided for @statisticsViewBar.
   ///
   /// In en, this message translates to:
