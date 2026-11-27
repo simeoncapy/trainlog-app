@@ -350,8 +350,9 @@ String _unitsTitle(BuildContext context) => AppLocalizations.of(
   context,
 )!.statisticsUnitLabel.replaceAll(RegExp(r'\s*:\s*$'), '');
 
-/// The scale of the units shortened to k/M/G: "1 Mm = 1 000 km"…, figures
-/// in Space Mono, under the title "Units".
+/// The scale of the units shortened to k/M/G: "1 Mm = 1 000 km"… in
+/// columns, values right-aligned, figures in Space Mono, under the title
+/// "Units".
 class _UnitsTable extends StatelessWidget {
   const _UnitsTable({required this.units});
 
@@ -372,17 +373,42 @@ class _UnitsTable extends StatelessWidget {
           style: text.titleSmall?.copyWith(color: label, letterSpacing: 0),
         ),
         const SizedBox(height: 8),
-        for (final f in UnitFactor.values.where((f) => f != UnitFactor.base))
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 2),
-            child: Text.rich(
-              statsFigureSpans(
-                '1 ${units[f]} = '
-                '${formatNumber(context, f.multiplier, noDecimal: true)} $base',
-                mono: mono,
+        // Columns as in the Android tooltip: unit = value (right-aligned) base.
+        Table(
+          defaultColumnWidth: const IntrinsicColumnWidth(),
+          defaultVerticalAlignment: TableCellVerticalAlignment.baseline,
+          textBaseline: TextBaseline.alphabetic,
+          children: [
+            for (final f in UnitFactor.values.where(
+              (f) => f != UnitFactor.base,
+            ))
+              TableRow(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 2),
+                    child: Text.rich(
+                      statsFigureSpans('1 ${units[f]}', mono: mono),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Text('=', style: mono),
+                  ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Text(
+                      formatNumber(context, f.multiplier, noDecimal: true),
+                      style: mono,
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 6),
+                    child: Text.rich(statsFigureSpans(base, mono: mono)),
+                  ),
+                ],
               ),
-            ),
-          ),
+          ],
+        ),
       ],
     );
   }
