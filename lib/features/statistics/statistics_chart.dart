@@ -31,7 +31,12 @@ Color statisticsBarColor(BuildContext context) {
 /// The chart of the Statistics page in the controller's view (bars, pie or
 /// table), with its loading, error and empty states. Shared by both designs.
 class StatisticsChart extends StatelessWidget {
-  const StatisticsChart({super.key});
+  const StatisticsChart({super.key, this.tableBuilder});
+
+  /// Draws the table view in place of the shared [StatsTableChart] (e.g. the
+  /// iOS grouped list).
+  final Widget Function(BuildContext context, StatisticsTableData data)?
+  tableBuilder;
 
   @override
   Widget build(BuildContext context) {
@@ -77,14 +82,18 @@ class StatisticsChart extends StatelessWidget {
           padding: const EdgeInsets.only(bottom: 12),
           child: Row(
             children: [
-              Icon(Icons.warning_amber, size: 18, color: Theme.of(context).colorScheme.error),
+              Icon(
+                Icons.warning_amber,
+                size: 18,
+                color: Theme.of(context).colorScheme.error,
+              ),
               const SizedBox(width: 6),
               Expanded(
                 child: Text(
                   loc.statisticsPartialLoadWarning(failed),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.error,
-                      ),
+                    color: Theme.of(context).colorScheme.error,
+                  ),
                 ),
               ),
             ],
@@ -130,12 +139,19 @@ class StatisticsChart extends StatelessWidget {
         // All modes: one coloured segment per vehicle type.
         List<List<StatsBarSegment>>? segments;
         if (p.isAllVehicles) {
-          final byVehicle = p.currentStatsByVehicleShort(10, otherLabel: otherLabel);
+          final byVehicle = p.currentStatsByVehicleShort(
+            10,
+            otherLabel: otherLabel,
+          );
           segments = [
             for (final key in orderedBar.keys)
               [
                 for (final e in (byVehicle[key] ?? const {}).entries)
-                  (color: colorOf(e.key), past: e.value.past, future: e.value.future),
+                  (
+                    color: colorOf(e.key),
+                    past: e.value.past,
+                    future: e.value.future,
+                  ),
               ],
           ];
         }
@@ -162,74 +178,35 @@ class StatisticsChart extends StatelessWidget {
         );
 
       case StatisticsView.table:
-        final fullStats = p.currentStats;
-        final tableStats = (p.graph == GraphType.country)
-            ? StatisticsController.ordered(
-                _localizedStatsForTable(context, fullStats),
-                alpha: alpha,
-                otherLabel: otherLabel,
-              )
-            : StatisticsController.ordered(fullStats, alpha: alpha, otherLabel: otherLabel);
-        final isDuration = p.unit == GraphUnit.duration;
-        final isCountry = p.graph == GraphType.country;
-
-        Map<String, StatisticsEntry>? rawForTable;
-        if (isDuration) {
-          final rawSeconds = p.currentDurationRawSeconds();
-          rawForTable = isCountry
-              ? _localizedStatsForTable(context, rawSeconds)
-              : LinkedHashMap.of(rawSeconds);
-        }
-
-        // All modes: one detail line per vehicle type under each entry.
-        Map<String, List<StatsTableSubRow>>? subRows;
-        if (p.isAllVehicles) {
-          var byVehicle = p.currentStatsByVehicle();
-          var rawByVehicle = isDuration ? p.currentDurationRawSecondsByVehicle() : null;
-          if (isCountry) {
-            byVehicle = _localizedBreakdownForTable(context, byVehicle);
-            if (rawByVehicle != null) {
-              rawByVehicle = _localizedBreakdownForTable(context, rawByVehicle);
-            }
-          }
-          subRows = {
-            for (final e in byVehicle.entries)
-              e.key: [
-                for (final m in e.value.entries)
-                  (
-                    icon: VehicleType.iconOf(m.key),
-                    color: colorOf(m.key),
-                    label: VehicleType.labelOf(m.key, context),
-                    past: m.value.past,
-                    future: m.value.future,
-                    raw: rawByVehicle?[e.key]?[m.key],
-                  ),
-              ],
-          };
-        }
-
+        final data = statisticsTableData(
+          context,
+          p,
+          alpha: alpha,
+          otherLabel: otherLabel,
+        );
+        if (tableBuilder != null) return tableBuilder!(context, data);
         return Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Unit label above the table header
-            if (!isDuration)
+            if (!data.isDuration)
               Padding(
                 padding: const EdgeInsets.only(bottom: 4),
                 child: Text(
                   '${loc.statisticsUnitLabel} $baseUnit',
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        letterSpacing: 0.5,
-                      ),
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    letterSpacing: 0.5,
+                  ),
                 ),
               ),
             StatsTableChart(
-              stats: tableStats,
-              isDuration: isDuration,
-              rawValues: rawForTable,
+              stats: data.stats,
+              isDuration: data.isDuration,
+              rawValues: data.raw,
               rawValueFormatter: p.humanizeSeconds,
-              subRows: subRows,
+              subRows: data.subRows,
               valueFormatter: (v) => formatNumber(context, v),
               labelHeader: p.graph.label(context, p.vehicle),
               pastHeader: loc.yearPastList,
@@ -237,49 +214,132 @@ class StatisticsChart extends StatelessWidget {
               totalHeader: loc.statisticsTotalLabel,
               labelMaxWidth: 200,
               compact: true,
-              onlyTotal: StatisticsController.tableOnlyTotal(
-                p.year,
-                currentYear: DateTime.now().year,
-              ),
+              onlyTotal: data.onlyTotal,
             ),
           ],
         );
     }
   }
+}
 
-  /// Merge entries under their localized country name.
-  LinkedHashMap<String, StatisticsEntry> _localizedStatsForTable(
-    BuildContext context,
-    Map<String, StatisticsEntry> stats,
-  ) {
-    final out = LinkedHashMap<String, StatisticsEntry>();
-    for (final e in stats.entries) {
-      final name = countryCodeToName(e.key, context);
-      final cur = out[name];
-      out[name] = (
-        past: (cur?.past ?? 0) + e.value.past,
-        future: (cur?.future ?? 0) + e.value.future,
-      );
-    }
-    return out;
+/// What the table view shows, worked out once for both designs: the entries
+/// in the page's order (countries by localized name), the raw seconds for
+/// durations, the detail per mode for all modes, and whether only the total
+/// is shown.
+typedef StatisticsTableData = ({
+  LinkedHashMap<String, StatisticsEntry> stats,
+  bool isDuration,
+  Map<String, StatisticsEntry>? raw,
+  Map<String, List<StatsTableSubRow>>? subRows,
+  bool onlyTotal,
+
+  /// Formats a value, using its raw seconds for durations when given.
+  String Function(num value, num? rawSeconds) format,
+});
+
+StatisticsTableData statisticsTableData(
+  BuildContext context,
+  StatisticsProvider p, {
+  required bool alpha,
+  required String otherLabel,
+}) {
+  final palette = MapColorPaletteHelper.getPalette(
+    context.read<SettingsProvider>().mapColorPalette,
+  );
+  Color colorOf(VehicleType v) => palette[v] ?? Colors.blue;
+  final fullStats = p.currentStats;
+  final isCountry = p.graph == GraphType.country;
+  final isDuration = p.unit == GraphUnit.duration;
+  final stats = StatisticsController.ordered(
+    isCountry ? _localizedStatsForTable(context, fullStats) : fullStats,
+    alpha: alpha,
+    otherLabel: otherLabel,
+  );
+
+  Map<String, StatisticsEntry>? raw;
+  if (isDuration) {
+    final rawSeconds = p.currentDurationRawSeconds();
+    raw = isCountry
+        ? _localizedStatsForTable(context, rawSeconds)
+        : LinkedHashMap.of(rawSeconds);
   }
 
-  /// Merge per-mode breakdowns under their localized country name.
-  LinkedHashMap<String, Map<VehicleType, StatValue>> _localizedBreakdownForTable(
-    BuildContext context,
-    Map<String, Map<VehicleType, StatValue>> byCode,
-  ) {
-    final out = LinkedHashMap<String, Map<VehicleType, StatValue>>();
-    for (final e in byCode.entries) {
-      final merged = out.putIfAbsent(countryCodeToName(e.key, context), () => {});
-      for (final m in e.value.entries) {
-        final cur = merged[m.key];
-        merged[m.key] = (
-          past: (cur?.past ?? 0) + m.value.past,
-          future: (cur?.future ?? 0) + m.value.future,
-        );
+  // All modes: one detail line per vehicle type under each entry.
+  Map<String, List<StatsTableSubRow>>? subRows;
+  if (p.isAllVehicles) {
+    var byVehicle = p.currentStatsByVehicle();
+    var rawByVehicle = isDuration
+        ? p.currentDurationRawSecondsByVehicle()
+        : null;
+    if (isCountry) {
+      byVehicle = _localizedBreakdownForTable(context, byVehicle);
+      if (rawByVehicle != null) {
+        rawByVehicle = _localizedBreakdownForTable(context, rawByVehicle);
       }
     }
-    return out;
+    subRows = {
+      for (final e in byVehicle.entries)
+        e.key: [
+          for (final m in e.value.entries)
+            (
+              icon: VehicleType.iconOf(m.key),
+              color: colorOf(m.key),
+              label: VehicleType.labelOf(m.key, context),
+              past: m.value.past,
+              future: m.value.future,
+              raw: rawByVehicle?[e.key]?[m.key],
+            ),
+        ],
+    };
   }
+
+  return (
+    stats: stats,
+    isDuration: isDuration,
+    raw: raw,
+    subRows: subRows,
+    onlyTotal: StatisticsController.tableOnlyTotal(
+      p.year,
+      currentYear: DateTime.now().year,
+    ),
+    format: (value, rawSeconds) => isDuration && rawSeconds != null
+        ? p.humanizeSeconds(context, rawSeconds.toDouble())
+        : formatNumber(context, value),
+  );
+}
+
+/// Merge entries under their localized country name.
+LinkedHashMap<String, StatisticsEntry> _localizedStatsForTable(
+  BuildContext context,
+  Map<String, StatisticsEntry> stats,
+) {
+  final out = LinkedHashMap<String, StatisticsEntry>();
+  for (final e in stats.entries) {
+    final name = countryCodeToName(e.key, context);
+    final cur = out[name];
+    out[name] = (
+      past: (cur?.past ?? 0) + e.value.past,
+      future: (cur?.future ?? 0) + e.value.future,
+    );
+  }
+  return out;
+}
+
+/// Merge per-mode breakdowns under their localized country name.
+LinkedHashMap<String, Map<VehicleType, StatValue>> _localizedBreakdownForTable(
+  BuildContext context,
+  Map<String, Map<VehicleType, StatValue>> byCode,
+) {
+  final out = LinkedHashMap<String, Map<VehicleType, StatValue>>();
+  for (final e in byCode.entries) {
+    final merged = out.putIfAbsent(countryCodeToName(e.key, context), () => {});
+    for (final m in e.value.entries) {
+      final cur = merged[m.key];
+      merged[m.key] = (
+        past: (cur?.past ?? 0) + m.value.past,
+        future: (cur?.future ?? 0) + m.value.future,
+      );
+    }
+  }
+  return out;
 }

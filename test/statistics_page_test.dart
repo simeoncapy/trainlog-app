@@ -15,6 +15,7 @@ import 'package:trainlog_app/features/statistics/widgets/stats_pie_chart.dart';
 import 'package:trainlog_app/features/statistics/widgets/stats_table_chart.dart';
 import 'package:trainlog_app/features/statistics/widgets/stats_unit_scale.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
+import 'package:trainlog_app/ui/cupertino/app_grouped_list.dart';
 import 'package:trainlog_app/ui/cupertino/glass_menu_parts.dart';
 import 'package:trainlog_app/ui/design.dart';
 import 'package:trainlog_app/ui/tokens/app_theme.dart';
@@ -191,6 +192,18 @@ void main() {
     expect(find.byType(GlassMenuIconButton), findsNothing);
     // "1 trip", singular, in the legend.
     expect(find.text('1 trip'), findsOneWidget);
+  });
+
+  testWidgets('iOS: the table is an inset grouped list', (t) async {
+    t.view.physicalSize = const Size(1179, 2556);
+    addTearDown(t.view.resetPhysicalSize);
+    await pump(t, DesignLanguage.cupertino, view: StatisticsView.table);
+
+    expect(find.byType(StatsTableChart), findsNothing);
+    expect(find.byType(AppGroupedSection), findsOneWidget);
+    expect(find.byType(AppListTile), findsNWidgets(2));
+    // Past and future under the name (Japan: 3 + 1).
+    expect(find.textContaining('Past 3 · Future 1', findRichText: true), findsOneWidget);
   });
 
   testWidgets('Android: the card view, table on demand', (t) async {

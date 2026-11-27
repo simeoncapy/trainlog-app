@@ -8,6 +8,7 @@ import 'package:trainlog_app/core/providers/statistics_provider.dart';
 import 'package:trainlog_app/core/providers/trips_provider.dart';
 import 'package:trainlog_app/features/statistics/statistics_chart.dart';
 import 'package:trainlog_app/features/statistics/statistics_controller.dart';
+import 'package:trainlog_app/features/statistics/cupertino/statistics_table_cupertino.dart';
 import 'package:trainlog_app/features/statistics/statistics_graph_images.dart';
 import 'package:trainlog_app/features/statistics/widgets/stats_figure_text.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
@@ -365,12 +366,42 @@ class _TotalFigure extends StatelessWidget {
   }
 }
 
-/// The chart on a rounded surface card, without border or shadow.
+/// The chart on a rounded surface card, without border or shadow. The
+/// table is an inset grouped list on the page instead, under its unit.
 class _ChartCard extends StatelessWidget {
   const _ChartCard();
 
   @override
   Widget build(BuildContext context) {
+    final view = context.select<StatisticsController, StatisticsView>(
+      (c) => c.view,
+    );
+    if (view == StatisticsView.table) {
+      final statsProv = context.watch<StatisticsProvider>();
+      final loc = AppLocalizations.of(context)!;
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (statsProv.unit != GraphUnit.duration)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 6),
+              child: Text(
+                '${loc.statisticsUnitLabel} ${statsProv.baseUnitLabel(context)}',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: CupertinoColors.secondaryLabel.resolveFrom(context),
+                  letterSpacing: 0,
+                ),
+              ),
+            ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: StatisticsChart(
+              tableBuilder: (_, data) => StatisticsTableCupertino(data: data),
+            ),
+          ),
+        ],
+      );
+    }
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: DecoratedBox(
