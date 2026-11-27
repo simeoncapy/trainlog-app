@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -120,6 +121,7 @@ void main() {
     WidgetTester t,
     DesignLanguage design, {
     StatisticsView view = StatisticsView.bar,
+    GraphUnit unit = GraphUnit.trip,
   }) async {
     AppPlatform.debugDesignOverride = design;
     late SettingsProvider settings;
@@ -136,6 +138,7 @@ void main() {
       );
       stats.vehicle = VehicleType.train;
       stats.graph = GraphType.country;
+      stats.unit = unit;
       await stats.load();
     });
     final controller = StatisticsController(view: view);
@@ -192,6 +195,20 @@ void main() {
     expect(find.byType(GlassMenuIconButton), findsNothing);
     // "1 trip", singular, in the legend.
     expect(find.text('1 trip'), findsOneWidget);
+  });
+
+  testWidgets('iOS: the ⓘ opens the units popover', (t) async {
+    t.view.physicalSize = const Size(1290, 2796);
+    addTearDown(t.view.resetPhysicalSize);
+    await pump(t, DesignLanguage.cupertino, unit: GraphUnit.distance);
+
+    await t.tap(find.byIcon(CupertinoIcons.info_circle));
+    for (var i = 0; i < 30; i++) {
+      await t.pump(const Duration(milliseconds: 50));
+    }
+    // The popover's title and the scale, figures right-aligned in a table.
+    expect(find.text('Unit'), findsOneWidget);
+    expect(find.byType(Table), findsOneWidget);
   });
 
   testWidgets('iOS: the table is an inset grouped list', (t) async {
