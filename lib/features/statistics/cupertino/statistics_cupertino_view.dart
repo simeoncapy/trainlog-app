@@ -12,8 +12,8 @@ import 'package:trainlog_app/features/statistics/cupertino/statistics_table_cupe
 import 'package:trainlog_app/features/statistics/statistics_graph_images.dart';
 import 'package:trainlog_app/features/statistics/widgets/stats_figure_text.dart';
 import 'package:trainlog_app/l10n/app_localizations.dart';
-import 'package:trainlog_app/ui/adaptive/adaptive_dialog.dart';
 import 'package:trainlog_app/ui/adaptive/app_steps_tab_bar.dart';
+import 'package:trainlog_app/ui/cupertino/glass_info_popover.dart';
 import 'package:trainlog_app/ui/cupertino/glass_menu_parts.dart';
 import 'package:trainlog_app/ui/tokens/app_colors.dart';
 import 'package:trainlog_app/ui/tokens/app_theme.dart';
@@ -334,15 +334,9 @@ class _TotalFigure extends StatelessWidget {
                 ),
               ),
               if (showUnits)
-                CupertinoButton(
-                  padding: const EdgeInsets.only(left: 6),
-                  minimumSize: const Size(28, 28),
-                  onPressed: () => _showUnits(context, units),
-                  child: Icon(
-                    CupertinoIcons.info_circle,
-                    size: 18,
-                    color: CupertinoTheme.of(context).primaryColor,
-                  ),
+                GlassInfoButton(
+                  semanticLabel: _unitsTitle(context),
+                  child: _UnitsTable(units: units),
                 ),
             ],
           ),
@@ -350,18 +344,46 @@ class _TotalFigure extends StatelessWidget {
       ),
     );
   }
+}
 
-  void _showUnits(BuildContext context, Map<UnitFactor, String> units) {
-    final loc = AppLocalizations.of(context)!;
+String _unitsTitle(BuildContext context) => AppLocalizations.of(
+  context,
+)!.statisticsUnitLabel.replaceAll(RegExp(r'\s*:\s*$'), '');
+
+/// The scale of the units shortened to k/M/G: "1 Mm = 1 000 km"…, figures
+/// in Space Mono, under the title "Units".
+class _UnitsTable extends StatelessWidget {
+  const _UnitsTable({required this.units});
+
+  final Map<UnitFactor, String> units;
+
+  @override
+  Widget build(BuildContext context) {
+    final text = Theme.of(context).textTheme;
+    final label = CupertinoColors.label.resolveFrom(context);
+    final mono = AppTheme.monoFont.copyWith(fontSize: 14, color: label);
     final base = units[UnitFactor.base]!;
-    final lines = [
-      for (final f in UnitFactor.values.where((f) => f != UnitFactor.base))
-        '1 ${units[f]} = ${formatNumber(context, f.multiplier, noDecimal: true)} $base',
-    ];
-    AdaptiveDialog.show(
-      context: context,
-      title: loc.statisticsUnitLabel.replaceAll(RegExp(r'\s*:\s*$'), ''),
-      message: lines.join('\n'),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          _unitsTitle(context),
+          style: text.titleSmall?.copyWith(color: label, letterSpacing: 0),
+        ),
+        const SizedBox(height: 8),
+        for (final f in UnitFactor.values.where((f) => f != UnitFactor.base))
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 2),
+            child: Text.rich(
+              statsFigureSpans(
+                '1 ${units[f]} = '
+                '${formatNumber(context, f.multiplier, noDecimal: true)} $base',
+                mono: mono,
+              ),
+            ),
+          ),
+      ],
     );
   }
 }
