@@ -191,8 +191,8 @@ class _StatsBarChartState extends State<StatsBarChart> {
           hasFuture: hasFuture,
           pastStr: pastStr,
           futureStr: futureStr,
-          unitLabel: _scale.unitFor(past),
-          unitWidget: unitWidgetFor(_scale.unitFor(past)),
+          unitLabel: _scale.unitFor(past + future),
+          unitWidget: unitWidgetFor(_scale.unitFor(past + future)),
           monoStyle: monoStyle,
         );
       },
@@ -263,15 +263,14 @@ class _BarRow extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  // Value: "5,420 km  + 30" or "5,420 km"
+                  // Value: "5,420 + 30 km" or "5,420 km": the unit last,
+                  // for both parts (also "0 + 830 km" for future only).
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.baseline,
                     textBaseline: TextBaseline.alphabetic,
                     children: [
                       Text(pastStr, style: monoStyle),
-                      const SizedBox(width: 4),
-                      unitWidget,
                       if (hasFuture) ...[
                         const SizedBox(width: 6),
                         Text(
@@ -282,6 +281,8 @@ class _BarRow extends StatelessWidget {
                           ),
                         ),
                       ],
+                      const SizedBox(width: 4),
+                      unitWidget,
                     ],
                   ),
                 ],
