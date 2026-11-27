@@ -490,7 +490,7 @@ class StatisticsProvider extends ChangeNotifier {
       case GraphUnit.trip:     return loc.statisticsTripsUnitBase; // e.g., "trips"
       case GraphUnit.distance: return "km";
       case GraphUnit.co2:      return "kg";
-      case GraphUnit.duration: return _durationBase.localizedTimeUnit(context);
+      case GraphUnit.duration: return _durationBase.localizedTimeUnit(context, short: true);
     }
   }
 
