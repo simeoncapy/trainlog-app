@@ -44,18 +44,23 @@ class _GlassInfoButtonState extends State<GlassInfoButton> {
   @override
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) => _measure());
-    final content = Padding(padding: GlassInfoButton._padding, child: widget.child);
+    final content = Padding(
+      padding: GlassInfoButton._padding,
+      child: widget.child,
+    );
     return Stack(
       clipBehavior: Clip.none,
       children: [
         // The content laid out offstage at the popover's width, for its height.
         Offstage(
-          child: OverflowBox(
-            alignment: Alignment.topLeft,
-            minWidth: widget.width,
-            maxWidth: widget.width,
-            maxHeight: double.infinity,
-            child: KeyedSubtree(key: _measureKey, child: content),
+          child: SizedBox.shrink(
+            child: OverflowBox(
+              alignment: Alignment.topLeft,
+              minWidth: widget.width,
+              maxWidth: widget.width,
+              maxHeight: double.infinity,
+              child: KeyedSubtree(key: _measureKey, child: content),
+            ),
           ),
         ),
         lg.GlassPopover(
