@@ -197,7 +197,7 @@ void main() {
     expect(find.text('1 trip'), findsOneWidget);
   });
 
-  testWidgets('iOS: the ⓘ opens the units popover', (t) async {
+  testWidgets('iOS: the ⓘ opens the units popover, again after a close', (t) async {
     t.view.physicalSize = const Size(1290, 2796);
     addTearDown(t.view.resetPhysicalSize);
     await pump(t, DesignLanguage.cupertino, unit: GraphUnit.distance);
@@ -209,6 +209,28 @@ void main() {
     // The popover's title and the scale, figures right-aligned in a table.
     expect(find.text('Unit'), findsOneWidget);
     expect(find.byType(Table), findsOneWidget);
+
+    Future<void> settle() async {
+      for (var i = 0; i < 40; i++) {
+        await t.pump(const Duration(milliseconds: 50));
+      }
+    }
+
+    // A tap outside closes it; the ⓘ opens it again.
+    await t.tapAt(const Offset(20, 800));
+    await settle();
+    expect(find.text('Unit'), findsNothing);
+    await t.tap(find.byIcon(CupertinoIcons.info_circle));
+    await settle();
+    expect(find.text('Unit'), findsOneWidget);
+
+    // And again: it reopens every time (see GlassInfoButton).
+    await t.tapAt(const Offset(20, 800));
+    await settle();
+    expect(find.text('Unit'), findsNothing);
+    await t.tap(find.byIcon(CupertinoIcons.info_circle));
+    await settle();
+    expect(find.text('Unit'), findsOneWidget);
   });
 
   testWidgets('iOS: the table is an inset grouped list', (t) async {
